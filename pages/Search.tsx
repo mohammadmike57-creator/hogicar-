@@ -1,14 +1,93 @@
+
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MOCK_CARS, MOCK_CATEGORY_IMAGES } from '../services/mockData';
+import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
 import CarCard from '../components/CarCard';
 import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight } from 'lucide-react';
-import { CarCategory, Car, Transmission, FuelPolicy, CommissionType } from '../types';
+import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier } from '../types';
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
+
+const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
+    const carModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === apiCar.brand.toLowerCase() && m.model.toLowerCase() === apiCar.model.toLowerCase());
+
+    const supplierFromMock = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.supplier.toLowerCase());
+
+    const supplier: Supplier = supplierFromMock ? {
+        ...supplierFromMock,
+        commissionType: CommissionType.PAY_AT_DESK,
+        commissionValue: 0
+    } : {
+        id: `api-supplier-${apiCar.supplier.replace(/\s+/g, '-')}-${index}`,
+        name: apiCar.supplier,
+        rating: 4.2,
+        logo: 'https://placehold.co/100x100/e2e8f0/64748b?text=Logo',
+        commissionType: CommissionType.PAY_AT_DESK,
+        commissionValue: 0,
+        bookingMode: BookingMode.FREE_SALE,
+        status: 'active',
+        location: 'API Location',
+        contactEmail: 'contact@api.supplier',
+        gracePeriodHours: 1,
+        minBookingLeadTime: 2,
+        termsAndConditions: "Standard terms apply.",
+        connectionType: 'api',
+        includesCDW: true,
+        includesTP: true,
+        oneWayFee: 0,
+        enableSocialProof: false,
+    };
+
+    const apiRateTier: RateTier = {
+        id: `api-tier-${index}`,
+        name: 'API Rate',
+        startDate: '2020-01-01',
+        endDate: '2099-12-31',
+        rates: [{ minDays: 1, maxDays: 99, dailyRate: apiCar.finalPrice }]
+    };
+    
+    const categoryKey = apiCar.category.toUpperCase() as keyof typeof CarCategory;
+    const categoryValue = CarCategory[categoryKey] || CarCategory.ECONOMY;
+
+    return {
+        id: `api-car-${index}-${apiCar.brand}-${apiCar.model}`,
+        make: apiCar.brand,
+        model: apiCar.model,
+        year: carModel?.year || new Date().getFullYear(),
+        category: categoryValue,
+        type: carModel?.type || CarType.SEDAN,
+        sippCode: 'CDAR',
+        transmission: Transmission.AUTOMATIC,
+        passengers: carModel?.passengers || 4,
+        bags: carModel?.bags || 2,
+        doors: carModel?.doors || 4,
+        airCon: true,
+        image: carModel?.image || MOCK_CATEGORY_IMAGES[categoryValue] || 'https://images.unsplash.com/photo-1580273916550-4821b3a160fa?w=500&auto=format&fit=crop',
+        supplier: supplier,
+        features: ['API Result'],
+        fuelPolicy: FuelPolicy.FULL_TO_FULL,
+        isAvailable: true,
+        location: 'API Result', // This won't be used for filtering
+        deposit: 300,
+        excess: 1000,
+        stopSales: [],
+        rateTiers: [apiRateTier],
+        extras: [],
+        locationDetail: "In Terminal",
+        unlimitedMileage: true,
+        tags: ["Online Deal"],
+        detailedRatings: {
+            cleanliness: 90,
+            condition: 90,
+            valueForMoney: 90,
+            pickupSpeed: 90,
+        }
+    };
+};
+
 
 // FIX: Changed to a named export to resolve module resolution error.
 export const Search: React.FC = () => {
@@ -20,6 +99,45 @@ export const Search: React.FC = () => {
   const startTimeParam = searchParams.get('startTime');
   const endTimeParam = searchParams.get('endTime');
   const dropoffLocationParam = searchParams.get('dropoffLocation');
+  
+  const [apiCars, setApiCars] = React.useState<Car[] | null>(null);
+
+  React.useEffect(() => {
+    const fetchApiCars = async () => {
+        const pickup = searchParams.get('location');
+        const dropoff = searchParams.get('dropoffLocation') || pickup;
+        const pickupDate = searchParams.get('startDate');
+        const dropoffDate = searchParams.get('endDate');
+
+        if (!pickup || !pickupDate || !dropoffDate || !dropoff) {
+            setApiCars(null); // Fallback to mock if params are missing
+            return; 
+        }
+
+        const apiUrl = `https://hogicar-backend.onrender.com/api/search?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
+        
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+            const data: ApiSearchResult[] = await response.json();
+
+            if (data && data.length > 0) {
+                const mappedCars: Car[] = data.map(apiCarToCar);
+                setApiCars(mappedCars);
+            } else {
+                setApiCars(null); // API returned empty, so fallback to mocks.
+            }
+        } catch (error) {
+            console.error("Failed to fetch search results, falling back to mock data:", error);
+            setApiCars(null); // Fallback to mock data on error
+        }
+    };
+
+    fetchApiCars();
+  }, [searchParams]);
+
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -137,6 +255,14 @@ export const Search: React.FC = () => {
   const getCarDailyPrice = (car: Car) => calculatePrice(car, days, startDate).dailyRate;
   
   const baseFilteredCars = React.useMemo(() => {
+    const source = apiCars ?? MOCK_CARS;
+    
+    // If using API data, it is already filtered by location and availability
+    if (source === apiCars && apiCars) {
+        return apiCars;
+    }
+
+    // If using mock data, apply location and date filters
     return MOCK_CARS.filter(car => {
       if (location && !car.location.toLowerCase().includes(location.toLowerCase())) return false;
       
@@ -147,7 +273,7 @@ export const Search: React.FC = () => {
       }
       return true;
     });
-  }, [location, startDate, endDate]);
+  }, [apiCars, location, startDate, endDate]);
 
   const filterCounts = React.useMemo(() => {
     const counts = {

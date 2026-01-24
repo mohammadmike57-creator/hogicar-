@@ -162,6 +162,17 @@ export interface Car {
   detailedRatings?: CarRatings;
 }
 
+export interface ApiSearchResult {
+  supplier: string;
+  brand: string;
+  model: string;
+  category: string;
+  currency: string;
+  basePrice: number;
+  finalPrice: number;
+}
+
+
 export interface Booking {
   id: string;
   carId: string;
