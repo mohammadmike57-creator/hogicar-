@@ -1281,7 +1281,7 @@ const SupplierDashboard: React.FC = () => {
                               )}
                           </td>
                       </tr>
-                  )}}
+                  )})}
               </tbody>
           </table>
         </div>
