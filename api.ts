@@ -1,10 +1,13 @@
 import { ApiSearchResult } from './types';
 
-// FIX: Cast import.meta to any to access env property. This is a workaround because
-// the Vite client types seem to be missing from the project's TypeScript configuration,
-// causing errors with `import.meta.env`.
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hogicar-backend.onrender.com';
+// Per user instruction for env variable support
+const API_URL =
+  (typeof import.meta !== "undefined" &&
+    (import.meta as any).env &&
+    (import.meta as any).env.VITE_API_URL) ||
+  "https://hogicar-backend.onrender.com";
 
+// Interface needed by SearchWidget.tsx
 export interface LocationSuggestion {
   iataCode: string;
   name: string;
@@ -12,25 +15,35 @@ export interface LocationSuggestion {
   country: string;
 }
 
+// Per user instruction for fetchLocations
 export async function fetchLocations(keyword: string): Promise<LocationSuggestion[]> {
   if (!keyword || keyword.length < 2) return [];
-  try {
-    const response = await fetch(
-      `${API_URL}/api/locations?keyword=${encodeURIComponent(keyword)}`
-    );
-    if (!response.ok) return [];
-    return response.json();
-  } catch (error) {
-    console.error("Failed to fetch locations:", error);
+
+  const response = await fetch(
+    `${API_URL}/api/locations?keyword=${encodeURIComponent(keyword)}`
+  );
+
+  if (!response.ok) {
     return [];
   }
+
+  return response.json();
 }
 
-export async function fetchCars(params: { pickup: string, dropoff: string, pickupDate: string, dropoffDate: string }): Promise<ApiSearchResult[]> {
-  const query = new URLSearchParams(params).toString();
+// Per user instruction for fetchCars
+export async function fetchCars(params: {
+  pickup: string;
+  dropoff: string;
+  pickupDate: string;
+  dropoffDate: string;
+}): Promise<ApiSearchResult[]> {
+  const query = new URLSearchParams(params as any).toString();
+
   const response = await fetch(`${API_URL}/api/search?${query}`);
+
   if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+    throw new Error("Failed to fetch cars");
   }
+
   return response.json();
 }

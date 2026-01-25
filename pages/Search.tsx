@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
 import { fetchCars } from '../api';
 import CarCard from '../components/CarCard';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier } from '../types';
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
@@ -11,7 +11,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
-const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
+const apiCarToCar = (apiCar: ApiSearchResult, index: number, days: number): Car => {
     const carModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === apiCar.brand.toLowerCase() && m.model.toLowerCase() === apiCar.model.toLowerCase());
 
     const supplierFromMock = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.supplier.toLowerCase());
@@ -41,12 +41,13 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
         enableSocialProof: false,
     };
 
+    const dailyRate = days > 0 ? apiCar.finalPrice / days : apiCar.finalPrice;
     const apiRateTier: RateTier = {
         id: `api-tier-${index}`,
         name: 'API Rate',
         startDate: '2020-01-01',
         endDate: '2099-12-31',
-        rates: [{ minDays: 1, maxDays: 99, dailyRate: apiCar.finalPrice }]
+        rates: [{ minDays: 1, maxDays: 99, dailyRate: dailyRate }]
     };
     
     const categoryKey = apiCar.category.toUpperCase() as keyof typeof CarCategory;
@@ -103,43 +104,9 @@ export const Search: React.FC = () => {
   const dropoffIata = searchParams.get('dropoff');
   const dropoffName = searchParams.get('dropoffName');
   
-  const [apiCars, setApiCars] = React.useState<Car[] | null>(null);
-
-  React.useEffect(() => {
-    const fetchApiCars = async () => {
-        const pickup = searchParams.get('pickup');
-        const dropoff = searchParams.get('dropoff') || pickup;
-        const pickupDate = searchParams.get('startDate');
-        const dropoffDate = searchParams.get('endDate');
-
-        if (!pickup || !pickupDate || !dropoffDate || !dropoff) {
-            setApiCars(null); // Fallback to mock if params are missing
-            return; 
-        }
-        
-        try {
-            const data: ApiSearchResult[] = await fetchCars({
-              pickup,
-              dropoff,
-              pickupDate,
-              dropoffDate,
-            });
-
-            if (data && data.length > 0) {
-                const mappedCars: Car[] = data.map(apiCarToCar);
-                setApiCars(mappedCars);
-            } else {
-                setApiCars(null); // API returned empty, so fallback to mocks.
-            }
-        } catch (error) {
-            console.error("Failed to fetch search results, falling back to mock data:", error);
-            setApiCars(null); // Fallback to mock data on error
-        }
-    };
-
-    fetchApiCars();
-  }, [searchParams]);
-
+  const [apiCars, setApiCars] = React.useState<Car[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -157,6 +124,49 @@ export const Search: React.FC = () => {
   const endD = new Date(endDate);
   const diffTime = Math.abs(endD.getTime() - startD.getTime());
   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // Default to 1 if calculation fails
+  
+  React.useEffect(() => {
+    const fetchApiCars = async () => {
+        setLoading(true);
+        setError(null);
+        setApiCars([]);
+
+        const pickup = searchParams.get('pickup');
+        const dropoff = searchParams.get('dropoff') || pickup;
+        const pickupDate = searchParams.get('startDate');
+        const dropoffDate = searchParams.get('endDate');
+
+        if (!pickup || !pickupDate || !dropoffDate || !dropoff) {
+            setError("Missing search parameters. Please start a new search from the homepage.");
+            setLoading(false);
+            return; 
+        }
+        
+        try {
+            const data: ApiSearchResult[] = await fetchCars({
+              pickup,
+              dropoff,
+              pickupDate,
+              dropoffDate,
+            });
+
+            if (data && data.length > 0) {
+                const mappedCars: Car[] = data.map((apiCar, index) => apiCarToCar(apiCar, index, days));
+                setApiCars(mappedCars);
+            } else {
+                setApiCars([]); // No results found
+            }
+        } catch (error) {
+            console.error("Failed to fetch search results:", error);
+            setError("We couldn't retrieve car results at the moment. The service might be temporarily down. Please try again later.");
+            setApiCars([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchApiCars();
+  }, [searchParams, days]);
 
   // Formatting dates and times for display
   const formatDateTime = (date: Date, time: string) => {
@@ -211,7 +221,10 @@ export const Search: React.FC = () => {
 
   // Derived Filter Lists
   const allCategories = Object.values(CarCategory);
-  const allSuppliers = Array.from(new Set(MOCK_CARS.map(c => c.supplier.name)));
+  const allSuppliers = React.useMemo(() => {
+    if (!apiCars) return [];
+    return Array.from(new Set(apiCars.map(c => c.supplier.name))).sort();
+  }, [apiCars]);
   const allTransmissions = Object.values(Transmission);
   const allFuelPolicies = Object.values(FuelPolicy);
   const allLocationTypes = ['In Terminal', 'Shuttle Bus', 'Meet & Greet'];
@@ -261,25 +274,8 @@ export const Search: React.FC = () => {
   const getCarDailyPrice = (car: Car) => calculatePrice(car, days, startDate).dailyRate;
   
   const baseFilteredCars = React.useMemo(() => {
-    const source = apiCars ?? MOCK_CARS;
-    
-    // If using API data, it is already filtered by location and availability
-    if (source === apiCars && apiCars) {
-        return apiCars;
-    }
-
-    // If using mock data, apply location and date filters
-    return MOCK_CARS.filter(car => {
-      if (location && !car.location.toLowerCase().includes(location.toLowerCase())) return false;
-      
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          if (car.stopSales.includes(d.toISOString().split('T')[0])) return false;
-      }
-      return true;
-    });
-  }, [apiCars, location, startDate, endDate]);
+    return apiCars || [];
+  }, [apiCars]);
 
   const filterCounts = React.useMemo(() => {
     const counts = {
@@ -749,26 +745,41 @@ export const Search: React.FC = () => {
           
           {/* Results List */}
           <main className="flex-grow w-full">
-            <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
-              Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
-            </p>
-            {sortedAndFilteredCars.length > 0 ? (
-                <div>
-                  {sortedAndFilteredCars.map(car => (
-                    <CarCard 
-                      key={car.id}
-                      car={car}
-                      days={days}
-                      startDate={startDate}
-                      endDate={endDate}
-                    />
-                  ))}
-                </div>
+            {loading ? (
+              <div className="text-center py-20 px-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 font-semibold text-slate-700">Finding the best deals for you...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center bg-white rounded-lg shadow-sm border border-red-200 py-12 px-6">
+                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-bold text-slate-800">Something went wrong</h3>
+                  <p className="text-sm text-slate-500 mt-2">{error}</p>
+              </div>
             ) : (
-                <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
-                    <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
-                    <p className="text-sm text-slate-500 mt-2">Try adjusting your filters or search criteria.</p>
-                </div>
+                <>
+                <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
+                    Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
+                </p>
+                {sortedAndFilteredCars.length > 0 ? (
+                    <div>
+                    {sortedAndFilteredCars.map(car => (
+                        <CarCard 
+                        key={car.id}
+                        car={car}
+                        days={days}
+                        startDate={startDate}
+                        endDate={endDate}
+                        />
+                    ))}
+                    </div>
+                ) : (
+                    <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
+                        <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
+                        <p className="text-sm text-slate-500 mt-2">Try adjusting your filters or search criteria.</p>
+                    </div>
+                )}
+                </>
             )}
           </main>
         </div>
