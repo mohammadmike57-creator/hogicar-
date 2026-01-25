@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin } from 'lucide-react';
@@ -13,16 +12,20 @@ const Home: React.FC = () => {
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
   const handleSearch = (params: any) => {
-    const { location, startDate, endDate, startTime, endTime, dropoffLocation } = params;
-    if (!location) return;
+    const { pickup, pickupName, dropoff, dropoffName, startDate, endDate, startTime, endTime } = params;
+    if (!pickup) return;
 
     const searchParams = new URLSearchParams();
-    searchParams.set('location', location);
+    searchParams.set('pickup', pickup);
+    if(pickupName) searchParams.set('pickupName', pickupName);
+    
     if(startDate) searchParams.set('startDate', startDate);
     if(endDate) searchParams.set('endDate', endDate);
     if(startTime) searchParams.set('startTime', startTime);
     if(endTime) searchParams.set('endTime', endTime);
-    if(dropoffLocation) searchParams.set('dropoffLocation', dropoffLocation);
+
+    if(dropoff) searchParams.set('dropoff', dropoff);
+    if(dropoffName) searchParams.set('dropoffName', dropoffName);
     
     navigate(`/searching?${searchParams.toString()}`);
   };

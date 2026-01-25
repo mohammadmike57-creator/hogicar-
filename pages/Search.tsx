@@ -1,7 +1,7 @@
-
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
+import { fetchCars } from '../api';
 import CarCard from '../components/CarCard';
 import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier } from '../types';
@@ -93,19 +93,22 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
 export const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = searchParams.get('location') || '';
+  const pickupIata = searchParams.get('pickup') || '';
+  const pickupName = searchParams.get('pickupName') || pickupIata;
+  const location = pickupName;
   const startDateParam = searchParams.get('startDate');
   const endDateParam = searchParams.get('endDate');
   const startTimeParam = searchParams.get('startTime');
   const endTimeParam = searchParams.get('endTime');
-  const dropoffLocationParam = searchParams.get('dropoffLocation');
+  const dropoffIata = searchParams.get('dropoff');
+  const dropoffName = searchParams.get('dropoffName');
   
   const [apiCars, setApiCars] = React.useState<Car[] | null>(null);
 
   React.useEffect(() => {
     const fetchApiCars = async () => {
-        const pickup = searchParams.get('location');
-        const dropoff = searchParams.get('dropoffLocation') || pickup;
+        const pickup = searchParams.get('pickup');
+        const dropoff = searchParams.get('dropoff') || pickup;
         const pickupDate = searchParams.get('startDate');
         const dropoffDate = searchParams.get('endDate');
 
@@ -113,15 +116,14 @@ export const Search: React.FC = () => {
             setApiCars(null); // Fallback to mock if params are missing
             return; 
         }
-
-        const apiUrl = `https://hogicar-backend.onrender.com/api/search?pickup=${encodeURIComponent(pickup)}&dropoff=${encodeURIComponent(dropoff)}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
         
         try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
-            }
-            const data: ApiSearchResult[] = await response.json();
+            const data: ApiSearchResult[] = await fetchCars({
+              pickup,
+              dropoff,
+              pickupDate,
+              dropoffDate,
+            });
 
             if (data && data.length > 0) {
                 const mappedCars: Car[] = data.map(apiCarToCar);
@@ -181,16 +183,20 @@ export const Search: React.FC = () => {
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
 
   const handleSearch = (params: any) => {
-    const { location, startDate, endDate, startTime, endTime, dropoffLocation } = params;
-    if (!location) return;
+    const { pickup, pickupName, dropoff, dropoffName, startDate, endDate, startTime, endTime } = params;
+    if (!pickup) return;
 
     const newSearchParams = new URLSearchParams();
-    newSearchParams.set('location', location);
+    newSearchParams.set('pickup', pickup);
+    if(pickupName) newSearchParams.set('pickupName', pickupName);
+
     if (startDate) newSearchParams.set('startDate', startDate);
     if (endDate) newSearchParams.set('endDate', endDate);
     if (startTime) newSearchParams.set('startTime', startTime);
     if (endTime) newSearchParams.set('endTime', endTime);
-    if (dropoffLocation) newSearchParams.set('dropoffLocation', dropoffLocation);
+    
+    if(dropoff) newSearchParams.set('dropoff', dropoff);
+    if(dropoffName) newSearchParams.set('dropoffName', dropoffName);
     
     setIsSearchOpen(false); // Close the widget
     navigate(`/searching?${newSearchParams.toString()}`);
@@ -416,13 +422,15 @@ export const Search: React.FC = () => {
                     <SearchWidget
                         onSearch={handleSearch}
                         initialValues={{ 
-                            location, 
+                            pickup: pickupIata,
+                            pickupName: pickupName,
                             startDate, 
                             endDate,
                             startTime: startTimeParam || '10:00',
                             endTime: endTimeParam || '10:00',
-                            dropoffLocation: dropoffLocationParam || '',
-                            differentDropoff: !!dropoffLocationParam
+                            dropoff: dropoffIata || '',
+                            dropoffName: dropoffName || '',
+                            differentDropoff: !!dropoffIata && pickupIata !== dropoffIata
                         }}
                     />
                 </div>
