@@ -12,15 +12,15 @@ const Home: React.FC = () => {
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
   const handleSearch = (params: any) => {
-    const { pickup, pickupName, dropoff, dropoffName, startDate, endDate, startTime, endTime } = params;
+    const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
     if (!pickup) return;
 
     const searchParams = new URLSearchParams();
     searchParams.set('pickup', pickup);
     if(pickupName) searchParams.set('pickupName', pickupName);
     
-    if(startDate) searchParams.set('startDate', startDate);
-    if(endDate) searchParams.set('endDate', endDate);
+    if(pickupDate) searchParams.set('pickupDate', pickupDate);
+    if(dropoffDate) searchParams.set('dropoffDate', dropoffDate);
     if(startTime) searchParams.set('startTime', startTime);
     if(endTime) searchParams.set('endTime', endTime);
 

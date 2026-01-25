@@ -97,8 +97,8 @@ export const Search: React.FC = () => {
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata;
   const location = pickupName;
-  const startDateParam = searchParams.get('startDate');
-  const endDateParam = searchParams.get('endDate');
+  const pickupDateParam = searchParams.get('pickupDate');
+  const dropoffDateParam = searchParams.get('dropoffDate');
   const startTimeParam = searchParams.get('startTime');
   const endTimeParam = searchParams.get('endTime');
   const dropoffIata = searchParams.get('dropoff');
@@ -116,8 +116,8 @@ export const Search: React.FC = () => {
   const defaultStart = today.toISOString().split('T')[0];
   const defaultEnd = new Date(new Date().setDate(today.getDate() + 3)).toISOString().split('T')[0];
 
-  const startDate = startDateParam || defaultStart;
-  const endDate = endDateParam || defaultEnd;
+  const startDate = pickupDateParam || defaultStart;
+  const endDate = dropoffDateParam || defaultEnd;
 
   // Calculate duration in days
   const startD = new Date(startDate);
@@ -133,8 +133,8 @@ export const Search: React.FC = () => {
 
         const pickup = searchParams.get('pickup');
         const dropoff = searchParams.get('dropoff') || pickup;
-        const pickupDate = searchParams.get('startDate');
-        const dropoffDate = searchParams.get('endDate');
+        const pickupDate = searchParams.get('pickupDate');
+        const dropoffDate = searchParams.get('dropoffDate');
 
         if (!pickup || !pickupDate || !dropoffDate || !dropoff) {
             setError("Missing search parameters. Please start a new search from the homepage.");
@@ -193,15 +193,15 @@ export const Search: React.FC = () => {
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
 
   const handleSearch = (params: any) => {
-    const { pickup, pickupName, dropoff, dropoffName, startDate, endDate, startTime, endTime } = params;
+    const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
     if (!pickup) return;
 
     const newSearchParams = new URLSearchParams();
     newSearchParams.set('pickup', pickup);
     if(pickupName) newSearchParams.set('pickupName', pickupName);
 
-    if (startDate) newSearchParams.set('startDate', startDate);
-    if (endDate) newSearchParams.set('endDate', endDate);
+    if (pickupDate) newSearchParams.set('pickupDate', pickupDate);
+    if (dropoffDate) newSearchParams.set('dropoffDate', dropoffDate);
     if (startTime) newSearchParams.set('startTime', startTime);
     if (endTime) newSearchParams.set('endTime', endTime);
     

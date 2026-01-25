@@ -170,8 +170,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const buildSearchParams = () => ({
         pickup: pickupSelection?.iataCode,
         pickupName: pickupSelection?.name,
-        startDate: pickupDate,
-        endDate: dropoffDate,
+        pickupDate: pickupDate,
+        dropoffDate: dropoffDate,
         startTime: pickupTime,
         endTime: dropoffTime,
         dropoff: differentDropoff ? dropoffSelection?.iataCode : pickupSelection?.iataCode,
