@@ -130,13 +130,14 @@ export const Search: React.FC = () => {
         const pickupDate = searchParams.get('pickupDate');
         const dropoffDate = searchParams.get('dropoffDate');
 
-        if (!pickup || !pickupDate || !dropoffDate || !dropoff) {
-            setError("Missing search parameters. Please start a new search from the homepage.");
+        if (!pickup || pickup.length !== 3 || !pickupDate || !dropoffDate || !dropoff) {
+            setError("A valid 3-letter pickup location code and dates are required.");
             setLoading(false);
             return; 
         }
         
         try {
+            console.log("CALLING CARS API WITH:", pickup);
             const data: ApiSearchResult[] = await fetchCars({
               pickup,
               dropoff,

@@ -54,6 +54,5 @@ export async function fetchCars(params: {
   }
 
   const data = await response.json();
-  console.log("CARS API RESPONSE:", data);
   return data;
 }
