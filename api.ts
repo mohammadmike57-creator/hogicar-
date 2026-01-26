@@ -1,3 +1,4 @@
+
 import { ApiSearchResult } from './types';
 
 // Per user instruction for env variable support
@@ -27,7 +28,9 @@ export async function fetchLocations(keyword: string): Promise<LocationSuggestio
     return [];
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log("LOCATIONS API RESPONSE:", data);
+  return data;
 }
 
 // Per user instruction for fetchCars
@@ -37,13 +40,20 @@ export async function fetchCars(params: {
   pickupDate: string;
   dropoffDate: string;
 }): Promise<ApiSearchResult[]> {
-  const query = new URLSearchParams(params as any).toString();
+  const apiParams = {
+    pickupLocation: params.pickup,
+    pickupDate: params.pickupDate,
+    dropoffDate: params.dropoffDate,
+  };
+  const query = new URLSearchParams(apiParams).toString();
 
-  const response = await fetch(`${API_URL}/api/search?${query}`);
+  const response = await fetch(`${API_URL}/api/cars?${query}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch cars");
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log("CARS API RESPONSE:", data);
+  return data;
 }

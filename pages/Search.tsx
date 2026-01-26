@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
@@ -11,19 +12,34 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
-const apiCarToCar = (apiCar: ApiSearchResult, index: number, days: number): Car => {
-    const carModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === apiCar.brand.toLowerCase() && m.model.toLowerCase() === apiCar.model.toLowerCase());
+const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
+    // Parse make and model from name
+    const nameParts = apiCar.name.split(' ');
+    const make = nameParts[0] || 'Unknown';
+    const model = nameParts.slice(1).join(' ') || 'Model';
+    
+    // Try to find a match in the car library for more details
+    const carModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === make.toLowerCase() && m.model.toLowerCase() === model.toLowerCase());
 
+    // Map description to category
+    let categoryValue = CarCategory.ECONOMY;
+    const descLower = apiCar.description.toLowerCase();
+    if (descLower.includes('suv')) categoryValue = CarCategory.SUV;
+    else if (descLower.includes('luxury')) categoryValue = CarCategory.LUXURY;
+    else if (descLower.includes('compact')) categoryValue = CarCategory.COMPACT;
+    else if (descLower.includes('full-size')) categoryValue = CarCategory.FULLSIZE;
+    else if (descLower.includes('midsize')) categoryValue = CarCategory.MIDSIZE;
+    else if (descLower.includes('mini')) categoryValue = CarCategory.MINI;
+    else if (descLower.includes('van')) categoryValue = CarCategory.VAN;
+    else if (descLower.includes('people carrier')) categoryValue = CarCategory.PEOPLE_CARRIER;
+
+
+    // Find or create supplier object
     const supplierFromMock = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.supplier.toLowerCase());
-
-    const supplier: Supplier = supplierFromMock ? {
-        ...supplierFromMock,
-        commissionType: CommissionType.PAY_AT_DESK,
-        commissionValue: 0
-    } : {
+    const supplier: Supplier = supplierFromMock ? { ...supplierFromMock } : {
         id: `api-supplier-${apiCar.supplier.replace(/\s+/g, '-')}-${index}`,
         name: apiCar.supplier,
-        rating: 4.2,
+        rating: 4.0, // Default rating
         logo: 'https://placehold.co/100x100/e2e8f0/64748b?text=Logo',
         commissionType: CommissionType.PAY_AT_DESK,
         commissionValue: 0,
@@ -41,22 +57,18 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number, days: number): Car 
         enableSocialProof: false,
     };
 
-    const dailyRate = days > 0 ? apiCar.finalPrice / days : apiCar.finalPrice;
     const apiRateTier: RateTier = {
-        id: `api-tier-${index}`,
+        id: `api-tier-${apiCar.id || index}`,
         name: 'API Rate',
         startDate: '2020-01-01',
         endDate: '2099-12-31',
-        rates: [{ minDays: 1, maxDays: 99, dailyRate: dailyRate }]
+        rates: [{ minDays: 1, maxDays: 99, dailyRate: apiCar.price }]
     };
-    
-    const categoryKey = apiCar.category.toUpperCase() as keyof typeof CarCategory;
-    const categoryValue = CarCategory[categoryKey] || CarCategory.ECONOMY;
 
     return {
-        id: `api-car-${index}-${apiCar.brand}-${apiCar.model}`,
-        make: apiCar.brand,
-        model: apiCar.model,
+        id: apiCar.id || `api-car-${index}`,
+        make: make,
+        model: model,
         year: carModel?.year || new Date().getFullYear(),
         category: categoryValue,
         type: carModel?.type || CarType.SEDAN,
@@ -66,12 +78,12 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number, days: number): Car 
         bags: carModel?.bags || 2,
         doors: carModel?.doors || 4,
         airCon: true,
-        image: carModel?.image || MOCK_CATEGORY_IMAGES[categoryValue] || 'https://images.unsplash.com/photo-1580273916550-4821b3a160fa?w=500&auto=format&fit=crop',
+        image: apiCar.imageUrl,
         supplier: supplier,
-        features: ['API Result'],
+        features: [apiCar.description],
         fuelPolicy: FuelPolicy.FULL_TO_FULL,
         isAvailable: true,
-        location: 'API Result', // This won't be used for filtering
+        location: 'API Result', // Not used for filtering, just placeholder
         deposit: 300,
         excess: 1000,
         stopSales: [],
@@ -151,7 +163,7 @@ export const Search: React.FC = () => {
             });
 
             if (data && data.length > 0) {
-                const mappedCars: Car[] = data.map((apiCar, index) => apiCarToCar(apiCar, index, days));
+                const mappedCars: Car[] = data.map((apiCar, index) => apiCarToCar(apiCar, index));
                 setApiCars(mappedCars);
             } else {
                 setApiCars([]); // No results found
@@ -166,7 +178,7 @@ export const Search: React.FC = () => {
     };
 
     fetchApiCars();
-  }, [searchParams, days]);
+  }, [searchParams]);
 
   // Formatting dates and times for display
   const formatDateTime = (date: Date, time: string) => {
@@ -420,8 +432,8 @@ export const Search: React.FC = () => {
                         initialValues={{ 
                             pickup: pickupIata,
                             pickupName: pickupName,
-                            startDate, 
-                            endDate,
+                            pickupDate: startDate, 
+                            dropoffDate: endDate,
                             startTime: startTimeParam || '10:00',
                             endTime: endTimeParam || '10:00',
                             dropoff: dropoffIata || '',
@@ -775,8 +787,7 @@ export const Search: React.FC = () => {
                     </div>
                 ) : (
                     <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
-                        <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
-                        <p className="text-sm text-slate-500 mt-2">Try adjusting your filters or search criteria.</p>
+                        <h3 className="text-lg font-bold text-slate-800">No cars available</h3>
                     </div>
                 )}
                 </>

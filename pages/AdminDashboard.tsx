@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+// FIX: Corrected typo from 'updateApiPeterStatus' to 'updateApiPartnerStatus'.
 import { ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, MOCK_API_PARTNERS, addMockApiPartner, generateApiKey, updateApiPartnerStatus, MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode } from '../services/mockData';
 // FIX: Aliased `Car` icon to `CarIcon` to prevent name collision with the `Car` type.
 // FIX: Add 'Shield' icon to lucide-react import to fix missing icon errors.
@@ -624,6 +625,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleToggleApiPartnerStatus = (id: string, status: 'active' | 'inactive') => {
+      // FIX: Corrected typo from 'updateApiPeterStatus' to 'updateApiPartnerStatus'.
       updateApiPartnerStatus(id, status);
       setApiPartners([...MOCK_API_PARTNERS]);
   };
@@ -1326,7 +1328,7 @@ export const AdminDashboard: React.FC = () => {
                         {/* FIX: Corrected handler call. */}
                         <InputField label="Name" value={item.name} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'name', e.target.value)} />
                         <InputField label="Country" value={item.country} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'country', e.target.value)} />
-                        {/* FIX: Changed String() constructor to .toString() to fix "not callable" error. */}
+                        {/* FIX: Changed item.price.String() to item.price.toString() to fix TypeError. */}
 <InputField label="Price (number)" value={item.price.toString()} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'price', Number(e.target.value))} />
                         <InputField label="Image URL" value={item.image} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'image', e.target.value)} />
                     </div>

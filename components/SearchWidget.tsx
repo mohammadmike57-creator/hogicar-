@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { MapPin, Calendar, Clock, Search as SearchIcon, Compass, X, Plane, Building } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
@@ -6,8 +7,8 @@ interface SearchParams {
     location: string;
     pickup?: string;
     pickupName?: string;
-    startDate: string;
-    endDate: string;
+    pickupDate: string;
+    dropoffDate: string;
     startTime: string;
     endTime: string;
     dropoffLocation?: string;
@@ -35,8 +36,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [dropoffQuery, setDropoffQuery] = React.useState(initialValues?.dropoffName || initialValues?.dropoffLocation || '');
     const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { name: initialValues.dropoffName || initialValues.dropoffLocation || '', iataCode: initialValues.dropoff, city: '', country: '' } : null);
 
-    const [pickupDate, setPickupDate] = React.useState(initialValues?.startDate || today.toISOString().split('T')[0]);
-    const [dropoffDate, setDropoffDate] = React.useState(initialValues?.endDate || nextThreeDays.toISOString().split('T')[0]);
+    const [pickupDate, setPickupDate] = React.useState(initialValues?.pickupDate || today.toISOString().split('T')[0]);
+    const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || nextThreeDays.toISOString().split('T')[0]);
     const [pickupTime, setPickupTime] = React.useState(initialValues?.startTime || '10:00');
     const [dropoffTime, setDropoffTime] = React.useState(initialValues?.endTime || '10:00');
 
@@ -48,11 +49,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     
     const mobileWidgetRef = React.useRef<HTMLDivElement>(null);
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
-    // FIX: Use ReturnType<typeof setTimeout> for browser and Node.js compatibility instead of NodeJS.Timeout.
-    const debounceTimer = React.useRef<ReturnType<typeof setTimeout>>();
+    const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
 
     const getLocationIcon = (loc: string, sizeClass = 'w-4 h-4') => {
-        const lowerLoc = loc.toLowerCase();
+        const lowerLoc = (loc || '').toLowerCase();
         if (lowerLoc.includes('airport')) {
             return <Plane className={`${sizeClass} text-green-600`} />;
         }
@@ -71,6 +71,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
         }
+        
+        // Per user request, DO NOT call locations API if input is 3 chars
+        const trimmedValue = value.trim();
+        if (trimmedValue.length === 3 && /^[A-Z]{3}$/i.test(trimmedValue)) {
+            setSuggestions([]);
+            setIsSuggestionsOpen(false);
+            return; 
+        }
+
         debounceTimer.current = setTimeout(async () => {
             if (value.length > 1) {
                 const results = await fetchLocations(value);
@@ -103,6 +112,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
         }
+        
+        const trimmedValue = value.trim();
+        if (trimmedValue.length === 3 && /^[A-Z]{3}$/i.test(trimmedValue)) {
+            setDropoffSuggestions([]);
+            setIsDropoffSuggestionsOpen(false);
+            return;
+        }
+
         debounceTimer.current = setTimeout(async () => {
              if (value.length > 1) {
                 const results = await fetchLocations(value);
@@ -149,34 +166,82 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!pickupSelection && suggestions.length > 0) {
-            // If user didn't click but there's a suggestion, auto-select first one.
-            handleSuggestionClick(suggestions[0]);
-            // Needs a tick for state to update before submitting
-            setTimeout(() => onSearch({...buildSearchParams(), pickup: suggestions[0].iataCode, pickupName: suggestions[0].name}), 50);
+
+        // User requested logs
+        console.log("PICKUP INPUT:", pickupQuery);
+
+        let pickupLocation: string | undefined;
+        let finalPickupName: string | undefined;
+
+        const trimmedQuery = pickupQuery.trim();
+        
+        // Main Logic: Prioritize 3-letter direct input
+        if (trimmedQuery.length === 3 && /^[A-Z]{3}$/i.test(trimmedQuery)) {
+            pickupLocation = trimmedQuery.toUpperCase();
+            finalPickupName = pickupLocation;
+        } else if (pickupSelection) {
+            pickupLocation = pickupSelection.iataCode;
+            finalPickupName = pickupSelection.name;
+        } else if (suggestions.length > 0) {
+            // Fallback for non-IATA searches without selection
+            pickupLocation = suggestions[0].iataCode;
+            finalPickupName = suggestions[0].name;
+        } else {
+            // If no suggestions and not a 3-letter code, this might fail validation
+            pickupLocation = trimmedQuery.toUpperCase();
+            finalPickupName = pickupLocation;
+        }
+        
+        if (!pickupLocation || !/^[A-Z]{3}$/i.test(pickupLocation)) {
+            alert('Please enter a valid 3-letter location code or select a suggestion.');
             return;
         }
 
-        if (!pickupSelection?.iataCode) {
-            alert('Please select a valid pick-up location from the list.');
-            return;
+        let dropoffLocation: string | undefined = pickupLocation;
+        let finalDropoffName: string | undefined = finalPickupName;
+
+        if (differentDropoff) {
+            const trimmedDropoffQuery = dropoffQuery.trim();
+            if (trimmedDropoffQuery.length === 3 && /^[A-Z]{3}$/i.test(trimmedDropoffQuery)) {
+                dropoffLocation = trimmedDropoffQuery.toUpperCase();
+                finalDropoffName = dropoffLocation;
+            } else if (dropoffSelection) {
+                dropoffLocation = dropoffSelection.iataCode;
+                finalDropoffName = dropoffSelection.name;
+            } else if (dropoffSuggestions.length > 0) {
+                dropoffLocation = dropoffSuggestions[0].iataCode;
+                finalDropoffName = dropoffSuggestions[0].name;
+            } else {
+                dropoffLocation = trimmedDropoffQuery.toUpperCase();
+                finalDropoffName = dropoffLocation;
+            }
+
+            if (!dropoffLocation || !/^[A-Z]{3}$/i.test(dropoffLocation)) {
+                 alert('Please enter a valid 3-letter drop-off code or select a suggestion.');
+                 return;
+            }
         }
 
+        // Close suggestion boxes
         setIsSuggestionsOpen(false);
         setIsDropoffSuggestionsOpen(false);
-        onSearch(buildSearchParams());
-    };
+        
+        // User requested logs
+        console.log("FINAL pickupLocation SENT TO API:", pickupLocation);
 
-    const buildSearchParams = () => ({
-        pickup: pickupSelection?.iataCode,
-        pickupName: pickupSelection?.name,
-        pickupDate: pickupDate,
-        dropoffDate: dropoffDate,
-        startTime: pickupTime,
-        endTime: dropoffTime,
-        dropoff: differentDropoff ? dropoffSelection?.iataCode : pickupSelection?.iataCode,
-        dropoffName: differentDropoff ? dropoffSelection?.name : pickupSelection?.name,
-    });
+        // Call the search handler from props
+        onSearch({
+            pickup: pickupLocation,
+            pickupName: finalPickupName,
+            pickupDate: pickupDate,
+            dropoffDate: dropoffDate,
+            startTime: pickupTime,
+            endTime: dropoffTime,
+            dropoff: dropoffLocation,
+            dropoffName: finalDropoffName,
+            differentDropoff: differentDropoff
+        });
+    };
     
     const timeOptions = Array.from({ length: 48 }, (_, i) => {
         const hour = Math.floor(i / 2);

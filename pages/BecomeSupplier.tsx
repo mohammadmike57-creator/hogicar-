@@ -1,11 +1,14 @@
+
 import * as React from 'react';
 import SEOMetadata from '../components/SEOMetadata';
 import { Building, Car, Globe, CheckCircle, ArrowRight, BarChart3, ShieldCheck, Database, Send } from 'lucide-react';
 import { submitSupplierApplication } from '../services/mockData';
+import { SupplierApplication } from '../types';
 
 const BecomeSupplier: React.FC = () => {
   const [submitted, setSubmitted] = React.useState(false);
-  const [formData, setFormData] = React.useState({
+  // FIX: Explicitly type the formData state to ensure type compatibility with submitSupplierApplication.
+  const [formData, setFormData] = React.useState<Omit<SupplierApplication, 'id' | 'status' | 'submissionDate'>>({
     companyName: '',
     website: '',
     contactName: '',
