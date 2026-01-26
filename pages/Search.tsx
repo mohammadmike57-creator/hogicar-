@@ -125,16 +125,19 @@ export const Search: React.FC = () => {
         setError(null);
         setApiCars([]);
 
-        const pickup = searchParams.get('pickup');
-        const dropoff = searchParams.get('dropoff') || pickup;
-        const pickupDate = searchParams.get('pickupDate');
-        const dropoffDate = searchParams.get('dropoffDate');
-
-        if (!pickup || pickup.length !== 3 || !pickupDate || !dropoffDate || !dropoff) {
-            setError("A valid 3-letter pickup location code and dates are required.");
+        const pickup = searchParams.get('pickup') || '';
+        
+        // Per user request, only validate pickup location length
+        if (pickup.length !== 3) {
+            setError("A valid 3-letter pickup location code is required.");
             setLoading(false);
             return; 
         }
+        
+        // Use defaults if other params are missing
+        const dropoff = searchParams.get('dropoff') || pickup;
+        const pickupDate = searchParams.get('pickupDate') || defaultStart;
+        const dropoffDate = searchParams.get('dropoffDate') || defaultEnd;
         
         try {
             console.log("CALLING CARS API WITH:", pickup);
@@ -755,8 +758,7 @@ export const Search: React.FC = () => {
                 <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
                     Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
                 </p>
-                {sortedAndFilteredCars.length > 0 ? (
-                    <div>
+                <div>
                     {sortedAndFilteredCars.map(car => (
                         <CarCard 
                         key={car.id}
@@ -766,12 +768,7 @@ export const Search: React.FC = () => {
                         endDate={endDate}
                         />
                     ))}
-                    </div>
-                ) : (
-                    <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
-                        <h3 className="text-lg font-bold text-slate-800">No cars available</h3>
-                    </div>
-                )}
+                </div>
                 </>
             )}
           </main>

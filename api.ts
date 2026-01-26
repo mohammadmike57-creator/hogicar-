@@ -8,29 +8,34 @@ const API_URL =
     (import.meta as any).env.VITE_API_URL) ||
   "https://hogicar-backend.onrender.com";
 
-// Interface needed by SearchWidget.tsx
+// Updated interface to match the new backend response for location suggestions
 export interface LocationSuggestion {
-  iataCode: string;
-  name: string;
-  city: string;
-  country: string;
+  value: string;
+  label: string;
+  type: string;
 }
 
-// Per user instruction for fetchLocations
-export async function fetchLocations(keyword: string): Promise<LocationSuggestion[]> {
-  if (!keyword || keyword.length < 2) return [];
+// Updated to use 'query' parameter as per new backend endpoint
+export async function fetchLocations(query: string): Promise<LocationSuggestion[]> {
+  if (!query || query.length < 2) return [];
 
-  const response = await fetch(
-    `${API_URL}/api/locations?keyword=${encodeURIComponent(keyword)}`
-  );
+  try {
+    const response = await fetch(
+      `${API_URL}/api/locations?query=${encodeURIComponent(query)}`
+    );
 
-  if (!response.ok) {
+    if (!response.ok) {
+      console.error("Failed to fetch locations:", response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    console.log("LOCATIONS API RESPONSE:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching locations:", error);
     return [];
   }
-
-  const data = await response.json();
-  console.log("LOCATIONS API RESPONSE:", data);
-  return data;
 }
 
 // Per user instruction for fetchCars

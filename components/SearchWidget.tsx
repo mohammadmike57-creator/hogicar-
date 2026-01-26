@@ -28,13 +28,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const nextThreeDays = new Date(today);
     nextThreeDays.setDate(today.getDate() + 3);
 
-    const [pickupQuery, setPickupQuery] = React.useState(initialValues?.pickupName || initialValues?.location || 'Queen Alia International Airport');
-    const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { name: initialValues.pickupName || initialValues.location || '', iataCode: initialValues.pickup, city: '', country: '' } : null);
+    const [pickupQuery, setPickupQuery] = React.useState(initialValues?.pickupName || initialValues?.location || '');
+    const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { label: initialValues.pickupName || initialValues.location || '', value: initialValues.pickup, type: 'AIRPORT' } : null);
     
     const [differentDropoff, setDifferentDropoff] = React.useState(initialValues?.differentDropoff || false);
     
     const [dropoffQuery, setDropoffQuery] = React.useState(initialValues?.dropoffName || initialValues?.dropoffLocation || '');
-    const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { name: initialValues.dropoffName || initialValues.dropoffLocation || '', iataCode: initialValues.dropoff, city: '', country: '' } : null);
+    const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { label: initialValues.dropoffName || initialValues.dropoffLocation || '', value: initialValues.dropoff, type: 'AIRPORT' } : null);
 
     const [pickupDate, setPickupDate] = React.useState(initialValues?.pickupDate || today.toISOString().split('T')[0]);
     const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || nextThreeDays.toISOString().split('T')[0]);
@@ -51,12 +51,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
     const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
 
-    const getLocationIcon = (loc: string, sizeClass = 'w-4 h-4') => {
-        const lowerLoc = (loc || '').toLowerCase();
-        if (lowerLoc.includes('airport')) {
+    const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
+        const lowerType = (type || '').toLowerCase();
+        if (lowerType === 'airport') {
             return <Plane className={`${sizeClass} text-green-600`} />;
         }
-        if (lowerLoc) { // If there's any text, assume it's a city/downtown
+        if (lowerType === 'city') {
              return <Building className={`${sizeClass} text-amber-700`} />;
         }
         return <MapPin className={`${sizeClass} text-slate-400`} />; // Default fallback
@@ -70,14 +70,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
-        }
-        
-        // Per user request, DO NOT call locations API if input is 3 chars
-        const trimmedValue = value.trim();
-        if (trimmedValue.length === 3 && /^[A-Z]{3}$/i.test(trimmedValue)) {
-            setSuggestions([]);
-            setIsSuggestionsOpen(false);
-            return; 
         }
 
         debounceTimer.current = setTimeout(async () => {
@@ -93,7 +85,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleSuggestionClick = (suggestion: LocationSuggestion) => {
-        setPickupQuery(suggestion.name);
+        setPickupQuery(suggestion.label);
         setPickupSelection(suggestion);
         setIsSuggestionsOpen(false);
     };
@@ -113,13 +105,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             clearTimeout(debounceTimer.current);
         }
         
-        const trimmedValue = value.trim();
-        if (trimmedValue.length === 3 && /^[A-Z]{3}$/i.test(trimmedValue)) {
-            setDropoffSuggestions([]);
-            setIsDropoffSuggestionsOpen(false);
-            return;
-        }
-
         debounceTimer.current = setTimeout(async () => {
              if (value.length > 1) {
                 const results = await fetchLocations(value);
@@ -133,7 +118,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleDropoffSuggestionClick = (suggestion: LocationSuggestion) => {
-        setDropoffQuery(suggestion.name);
+        setDropoffQuery(suggestion.label);
         setDropoffSelection(suggestion);
         setIsDropoffSuggestionsOpen(false);
     };
@@ -167,33 +152,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // User requested logs
-        console.log("PICKUP INPUT:", pickupQuery);
-
+        const trimmedQuery = pickupQuery.trim();
         let pickupLocation: string | undefined;
         let finalPickupName: string | undefined;
 
-        const trimmedQuery = pickupQuery.trim();
-        
-        // Main Logic: Prioritize 3-letter direct input
-        if (trimmedQuery.length === 3 && /^[A-Z]{3}$/i.test(trimmedQuery)) {
+        if (pickupSelection) {
+            pickupLocation = pickupSelection.value;
+            finalPickupName = pickupSelection.label;
+        } else if (trimmedQuery.length === 3 && /^[A-Z]{3}$/i.test(trimmedQuery)) {
             pickupLocation = trimmedQuery.toUpperCase();
             finalPickupName = pickupLocation;
-        } else if (pickupSelection) {
-            pickupLocation = pickupSelection.iataCode;
-            finalPickupName = pickupSelection.name;
-        } else if (suggestions.length > 0) {
-            // Fallback for non-IATA searches without selection
-            pickupLocation = suggestions[0].iataCode;
-            finalPickupName = suggestions[0].name;
         } else {
-            // If no suggestions and not a 3-letter code, this might fail validation
-            pickupLocation = trimmedQuery.toUpperCase();
-            finalPickupName = pickupLocation;
-        }
-        
-        if (!pickupLocation || !/^[A-Z]{3}$/i.test(pickupLocation)) {
-            alert('Please enter a valid 3-letter location code or select a suggestion.');
+            alert("Please select a location from the dropdown, or enter a valid 3-letter airport code.");
             return;
         }
 
@@ -202,34 +172,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         if (differentDropoff) {
             const trimmedDropoffQuery = dropoffQuery.trim();
-            if (trimmedDropoffQuery.length === 3 && /^[A-Z]{3}$/i.test(trimmedDropoffQuery)) {
+            if (dropoffSelection) {
+                dropoffLocation = dropoffSelection.value;
+                finalDropoffName = dropoffSelection.label;
+            } else if (trimmedDropoffQuery.length === 3 && /^[A-Z]{3}$/i.test(trimmedDropoffQuery)) {
                 dropoffLocation = trimmedDropoffQuery.toUpperCase();
                 finalDropoffName = dropoffLocation;
-            } else if (dropoffSelection) {
-                dropoffLocation = dropoffSelection.iataCode;
-                finalDropoffName = dropoffSelection.name;
-            } else if (dropoffSuggestions.length > 0) {
-                dropoffLocation = dropoffSuggestions[0].iataCode;
-                finalDropoffName = dropoffSuggestions[0].name;
-            } else {
-                dropoffLocation = trimmedDropoffQuery.toUpperCase();
-                finalDropoffName = dropoffLocation;
-            }
-
-            if (!dropoffLocation || !/^[A-Z]{3}$/i.test(dropoffLocation)) {
-                 alert('Please enter a valid 3-letter drop-off code or select a suggestion.');
-                 return;
+            } else if (dropoffQuery) { // Only error if they've typed something but not selected
+                alert('Please select a drop-off location from the dropdown, or enter a valid 3-letter airport code.');
+                return;
             }
         }
 
-        // Close suggestion boxes
         setIsSuggestionsOpen(false);
         setIsDropoffSuggestionsOpen(false);
         
-        // User requested logs
-        console.log("FINAL pickupLocation SENT TO API:", pickupLocation);
-
-        // Call the search handler from props
         onSearch({
             pickup: pickupLocation,
             pickupName: finalPickupName,
@@ -251,6 +208,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     });
 
     const formatDateForDisplay = (dateString: string) => {
+        if (!dateString) return 'Select Date';
         const date = new Date(`${dateString}T00:00:00`);
         return date.toLocaleDateString('en-US', {
             weekday: 'short',
@@ -268,7 +226,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     {/* Pick-up location */}
                     <div className="bg-white rounded-md p-2 flex items-center gap-2 relative">
-                        <div className="flex-shrink-0">{getLocationIcon(pickupQuery, 'w-5 h-5')}</div>
+                        <div className="flex-shrink-0">{getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}</div>
                         <div className="w-full border border-slate-200 rounded-md p-1 focus-within:border-slate-200">
                             <label className="text-xs text-slate-500">Pick-up location</label>
                             <input
@@ -278,28 +236,32 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 onChange={handleLocationChange}
                                 onFocus={handleFocus}
                                 autoComplete="off"
+                                placeholder="City, airport, or station"
                                 required
                             />
                         </div>
-                        {isSuggestionsOpen && suggestions.length > 0 && (
+                        {isSuggestionsOpen && (
                             <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
+                               {suggestions.length > 0 ? (
                                 <ul className="py-1">
                                     {suggestions.map((suggestion) => (
-                                        <li key={suggestion.iataCode}>
+                                        <li key={suggestion.value}>
                                             <button
                                                 type="button"
                                                 onClick={() => handleSuggestionClick(suggestion)}
                                                 className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3"
                                             >
-                                                <div className="flex-shrink-0">{getLocationIcon(suggestion.name)}</div>
+                                                <div className="flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
                                                 <div>
-                                                  <span className="font-semibold">{suggestion.name} ({suggestion.iataCode})</span>
-                                                  <span className="block text-xs text-slate-500">{suggestion.city}, {suggestion.country}</span>
+                                                  <span className="font-semibold">{suggestion.label}</span>
                                                 </div>
                                             </button>
                                         </li>
                                     ))}
                                 </ul>
+                               ) : (
+                                <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
+                               )}
                             </div>
                         )}
                     </div>
@@ -307,7 +269,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {/* Conditional Drop-off Location */}
                     {differentDropoff && (
                         <div className="bg-white rounded-md p-2 flex items-center gap-2 relative">
-                            <div className="flex-shrink-0">{getLocationIcon(dropoffQuery, 'w-5 h-5')}</div>
+                            <div className="flex-shrink-0">{getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}</div>
                             <div className="w-full border border-slate-200 rounded-md p-1 focus-within:border-slate-200">
                                 <label className="text-xs text-slate-500">Drop-off location</label>
                                 <input
@@ -317,29 +279,32 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     onChange={handleDropoffLocationChange}
                                     onFocus={handleDropoffFocus}
                                     autoComplete="off"
-                                    placeholder="City, Airport or Station"
+                                    placeholder="City, airport, or station"
                                     required
                                 />
                             </div>
-                            {isDropoffSuggestionsOpen && dropoffSuggestions.length > 0 && (
+                            {isDropoffSuggestionsOpen && (
                                 <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                    <ul className="py-1">
-                                        {dropoffSuggestions.map((suggestion) => (
-                                            <li key={suggestion.iataCode}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleDropoffSuggestionClick(suggestion)}
-                                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3"
-                                                >
-                                                    <div className="flex-shrink-0">{getLocationIcon(suggestion.name)}</div>
-                                                     <div>
-                                                      <span className="font-semibold">{suggestion.name} ({suggestion.iataCode})</span>
-                                                      <span className="block text-xs text-slate-500">{suggestion.city}, {suggestion.country}</span>
-                                                    </div>
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    {dropoffSuggestions.length > 0 ? (
+                                        <ul className="py-1">
+                                            {dropoffSuggestions.map((suggestion) => (
+                                                <li key={suggestion.value}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDropoffSuggestionClick(suggestion)}
+                                                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3"
+                                                    >
+                                                        <div className="flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
+                                                        <div>
+                                                            <span className="font-semibold">{suggestion.label}</span>
+                                                        </div>
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -353,7 +318,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <div className="w-full">
                                 <label className="text-xs text-slate-500">Pick-up</label>
                                 <p className="font-bold text-slate-800 text-sm">{formatDateForDisplay(pickupDate)}</p>
-                                <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base" />
+                                <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={today.toISOString().split('T')[0]} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base" />
                             </div>
                         </div>
                         {/* Drop-off Date */}
@@ -362,7 +327,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <div className="w-full">
                                 <label className="text-xs text-slate-500">Drop-off</label>
                                 <p className="font-bold text-slate-800 text-sm">{formatDateForDisplay(dropoffDate)}</p>
-                                <input type="date" value={dropoffDate} onChange={e => setDropoffDate(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base" />
+                                <input type="date" value={dropoffDate} onChange={e => setDropoffDate(e.target.value)} min={pickupDate} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base" />
                             </div>
                         </div>
                     </div>
@@ -434,16 +399,20 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <div className="rounded-lg relative bg-white h-full">
                                         <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Pick-up Location</label>
                                         <div className="relative border border-slate-300 rounded-[4px] overflow-hidden group bg-white focus-within:border-slate-300">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{getLocationIcon(pickupQuery)}</div>
-                                            <input id="pickup-location" type="text" placeholder="City, Airport or Station" className="block w-full pl-9 pr-3 border-none focus:ring-0 focus:outline-none text-base md:text-sm font-medium placeholder-slate-400 text-slate-900 h-10" value={pickupQuery} onChange={handleLocationChange} onFocus={handleFocus} autoComplete="off" required />
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{getLocationIcon(pickupSelection?.type || '')}</div>
+                                            <input id="pickup-location" type="text" placeholder="City, airport, or station" className="block w-full pl-9 pr-3 border-none focus:ring-0 focus:outline-none text-base md:text-sm font-medium placeholder-slate-400 text-slate-900 h-10" value={pickupQuery} onChange={handleLocationChange} onFocus={handleFocus} autoComplete="off" required />
                                         </div>
-                                        {isSuggestionsOpen && suggestions.length > 0 && (
+                                        {isSuggestionsOpen && (
                                             <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                                <ul className="py-1">
-                                                    {suggestions.map((suggestion) => (
-                                                        <li key={suggestion.iataCode}><button type="button" onClick={() => handleSuggestionClick(suggestion)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3">{getLocationIcon(suggestion.name)}<div><span className="font-semibold">{suggestion.name} ({suggestion.iataCode})</span><span className="block text-xs text-slate-500">{suggestion.city}, {suggestion.country}</span></div></button></li>
-                                                    ))}
-                                                </ul>
+                                                {suggestions.length > 0 ? (
+                                                    <ul className="py-1">
+                                                        {suggestions.map((suggestion) => (
+                                                            <li key={suggestion.value}><button type="button" onClick={() => handleSuggestionClick(suggestion)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3">{getLocationIcon(suggestion.type)}<div><span className="font-semibold">{suggestion.label}</span></div></button></li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                     <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -453,7 +422,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                          <div className="rounded-lg relative bg-white w-full h-full">
                                             <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Drop-off Location</label>
                                             <div className="relative border border-slate-300 rounded-[4px] overflow-hidden group bg-white focus-within:border-slate-300">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{getLocationIcon(dropoffQuery)}</div>
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{getLocationIcon(dropoffSelection?.type || '')}</div>
                                                 <input
                                                     type="text"
                                                     placeholder="Enter drop-off city"
@@ -464,13 +433,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                                     autoComplete="off"
                                                 />
                                             </div>
-                                            {isDropoffSuggestionsOpen && dropoffSuggestions.length > 0 && (
+                                            {isDropoffSuggestionsOpen && (
                                                 <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                                    <ul className="py-1">
-                                                        {dropoffSuggestions.map((suggestion) => (
-                                                            <li key={suggestion.iataCode}><button type="button" onClick={() => handleDropoffSuggestionClick(suggestion)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3">{getLocationIcon(suggestion.name)}<div><span className="font-semibold">{suggestion.name} ({suggestion.iataCode})</span><span className="block text-xs text-slate-500">{suggestion.city}, {suggestion.country}</span></div></button></li>
-                                                        ))}
-                                                    </ul>
+                                                    {dropoffSuggestions.length > 0 ? (
+                                                        <ul className="py-1">
+                                                            {dropoffSuggestions.map((suggestion) => (
+                                                                <li key={suggestion.value}><button type="button" onClick={() => handleDropoffSuggestionClick(suggestion)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3">{getLocationIcon(suggestion.type)}<div><span className="font-semibold">{suggestion.label}</span></div></button></li>
+                                                            ))}
+                                                        </ul>
+                                                    ) : (
+                                                        <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -488,7 +461,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                             <div className="flex">
                                                 <div className="relative flex-grow">
                                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="h-4 w-4 text-slate-400" /></div>
-                                                    <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} className="w-full h-10 pl-9 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none text-slate-700 bg-transparent" />
+                                                    <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={today.toISOString().split('T')[0]} className="w-full h-10 pl-9 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none text-slate-700 bg-transparent" />
                                                 </div>
                                                 <div className="relative w-[85px] border-l border-slate-200">
                                                     <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none"><Clock className="h-3 w-3 text-slate-400" /></div>
@@ -503,7 +476,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                             <div className="flex">
                                                 <div className="relative flex-grow">
                                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="h-4 w-4 text-slate-400" /></div>
-                                                    <input type="date" value={dropoffDate} onChange={e => setDropoffDate(e.target.value)} className="w-full h-10 pl-9 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none text-slate-700 bg-transparent" />
+                                                    <input type="date" value={dropoffDate} onChange={e => setDropoffDate(e.target.value)} min={pickupDate} className="w-full h-10 pl-9 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none text-slate-700 bg-transparent" />
                                                 </div>
                                                 <div className="relative w-[85px] border-l border-slate-200">
                                                     <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none"><Clock className="h-3 w-3 text-slate-400" /></div>
