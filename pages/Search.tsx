@@ -13,34 +13,16 @@ import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
 const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
-    // Parse make and model from name
     const nameParts = apiCar.name.split(' ');
     const make = nameParts[0] || 'Unknown';
     const model = nameParts.slice(1).join(' ') || 'Model';
     
-    // Try to find a match in the car library for more details
-    const carModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === make.toLowerCase() && m.model.toLowerCase() === model.toLowerCase());
-
-    // Map description to category
-    let categoryValue = CarCategory.ECONOMY;
-    const descLower = apiCar.description.toLowerCase();
-    if (descLower.includes('suv')) categoryValue = CarCategory.SUV;
-    else if (descLower.includes('luxury')) categoryValue = CarCategory.LUXURY;
-    else if (descLower.includes('compact')) categoryValue = CarCategory.COMPACT;
-    else if (descLower.includes('full-size')) categoryValue = CarCategory.FULLSIZE;
-    else if (descLower.includes('midsize')) categoryValue = CarCategory.MIDSIZE;
-    else if (descLower.includes('mini')) categoryValue = CarCategory.MINI;
-    else if (descLower.includes('van')) categoryValue = CarCategory.VAN;
-    else if (descLower.includes('people carrier')) categoryValue = CarCategory.PEOPLE_CARRIER;
-
-
-    // Find or create supplier object
-    const supplierFromMock = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.supplier.toLowerCase());
-    const supplier: Supplier = supplierFromMock ? { ...supplierFromMock } : {
+    // Per user instruction: DO NOT check supplier. Create a minimal object.
+    const supplier: Supplier = {
         id: `api-supplier-${apiCar.supplier.replace(/\s+/g, '-')}-${index}`,
         name: apiCar.supplier,
         rating: 4.0, // Default rating
-        logo: 'https://placehold.co/100x100/e2e8f0/64748b?text=Logo',
+        logo: '',
         commissionType: CommissionType.PAY_AT_DESK,
         commissionValue: 0,
         bookingMode: BookingMode.FREE_SALE,
@@ -69,21 +51,21 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
         id: apiCar.id || `api-car-${index}`,
         make: make,
         model: model,
-        year: carModel?.year || new Date().getFullYear(),
-        category: categoryValue,
-        type: carModel?.type || CarType.SEDAN,
+        year: new Date().getFullYear(),
+        category: CarCategory.ECONOMY, // Default value
+        type: CarType.SEDAN, // Default value
         sippCode: 'CDAR',
         transmission: Transmission.AUTOMATIC,
-        passengers: carModel?.passengers || 4,
-        bags: carModel?.bags || 2,
-        doors: carModel?.doors || 4,
+        passengers: 4,
+        bags: 2,
+        doors: 4,
         airCon: true,
         image: apiCar.imageUrl,
         supplier: supplier,
         features: [apiCar.description],
         fuelPolicy: FuelPolicy.FULL_TO_FULL,
-        isAvailable: true,
-        location: 'API Result', // Not used for filtering, just placeholder
+        isAvailable: true, // Per user instruction: DO NOT check availability
+        location: 'API Result',
         deposit: 300,
         excess: 1000,
         stopSales: [],
@@ -162,12 +144,11 @@ export const Search: React.FC = () => {
               dropoffDate,
             });
 
-            if (data && data.length > 0) {
-                const mappedCars: Car[] = data.map((apiCar, index) => apiCarToCar(apiCar, index));
-                setApiCars(mappedCars);
-            } else {
-                setApiCars([]); // No results found
-            }
+            console.log("RAW CARS API RESPONSE:", data);
+
+            const mappedCars: Car[] = data.map((apiCar, index) => apiCarToCar(apiCar, index));
+            setApiCars(mappedCars);
+
         } catch (error) {
             console.error("Failed to fetch search results:", error);
             setError("We couldn't retrieve car results at the moment. The service might be temporarily down. Please try again later.");
