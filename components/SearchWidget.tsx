@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Search as SearchIcon, Compass, X, Plane, Building } from 'lucide-react';
+import { MapPin, Calendar, Clock, Search as SearchIcon, Compass, X, Plane, Building, LoaderCircle } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -46,6 +46,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [isSuggestionsOpen, setIsSuggestionsOpen] = React.useState(false);
     const [dropoffSuggestions, setDropoffSuggestions] = React.useState<LocationSuggestion[]>([]);
     const [isDropoffSuggestionsOpen, setIsDropoffSuggestionsOpen] = React.useState(false);
+
+    // New state for loading and error handling
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
+    const [suggestionsError, setSuggestionsError] = React.useState<string | null>(null);
+    const [isDropoffLoading, setIsDropoffLoading] = React.useState(false);
+    const [dropoffError, setDropoffError] = React.useState<string | null>(null);
     
     const mobileWidgetRef = React.useRef<HTMLDivElement>(null);
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
@@ -67,19 +73,31 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         const value = e.target.value;
         setPickupQuery(value);
         setPickupSelection(null);
+        setSuggestionsError(null);
 
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
         }
 
+        if (value.length < 2) {
+            setSuggestions([]);
+            setIsSuggestionsOpen(false);
+            setIsLoadingSuggestions(false);
+            return;
+        }
+        
+        setIsLoadingSuggestions(true);
+        setIsSuggestionsOpen(true);
+
         debounceTimer.current = setTimeout(async () => {
-            if (value.length > 1) {
+            try {
                 const results = await fetchLocations(value);
                 setSuggestions(results);
-                setIsSuggestionsOpen(results.length > 0);
-            } else {
+            } catch (err) {
+                setSuggestionsError('Could not fetch locations. Please try again.');
                 setSuggestions([]);
-                setIsSuggestionsOpen(false);
+            } finally {
+                setIsLoadingSuggestions(false);
             }
         }, 300);
     };
@@ -91,7 +109,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleFocus = () => {
-        if (pickupQuery.length > 1 && suggestions.length > 0) {
+        if (pickupQuery.length > 1 && (suggestions.length > 0 || isLoadingSuggestions || suggestionsError)) {
             setIsSuggestionsOpen(true);
         }
     };
@@ -100,19 +118,31 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         const value = e.target.value;
         setDropoffQuery(value);
         setDropoffSelection(null);
+        setDropoffError(null);
 
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
         }
         
+        if (value.length < 2) {
+            setDropoffSuggestions([]);
+            setIsDropoffSuggestionsOpen(false);
+            setIsDropoffLoading(false);
+            return;
+        }
+
+        setIsDropoffLoading(true);
+        setIsDropoffSuggestionsOpen(true);
+
         debounceTimer.current = setTimeout(async () => {
-             if (value.length > 1) {
+             try {
                 const results = await fetchLocations(value);
                 setDropoffSuggestions(results);
-                setIsDropoffSuggestionsOpen(results.length > 0);
-            } else {
+            } catch (err) {
+                setDropoffError('Could not fetch locations. Please try again.');
                 setDropoffSuggestions([]);
-                setIsDropoffSuggestionsOpen(false);
+            } finally {
+                setIsDropoffLoading(false);
             }
         }, 300);
     };
@@ -124,7 +154,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleDropoffFocus = () => {
-         if (dropoffQuery.length > 1 && dropoffSuggestions.length > 0) {
+         if (dropoffQuery.length > 1 && (dropoffSuggestions.length > 0 || isDropoffLoading || dropoffError)) {
             setIsDropoffSuggestionsOpen(true);
         }
     };
@@ -163,7 +193,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             pickupLocation = trimmedQuery.toUpperCase();
             finalPickupName = pickupLocation;
         } else {
-            alert("Please select a location from the dropdown, or enter a valid 3-letter airport code.");
+            alert("Please select a location from the dropdown (or type a valid 3-letter IATA code like DXB).");
             return;
         }
 
@@ -217,6 +247,40 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         });
     };
     
+    const renderSuggestions = (
+      loading: boolean, 
+      error: string | null, 
+      suggestions: LocationSuggestion[],
+      handler: (s: LocationSuggestion) => void
+    ) => (
+      <>
+        {loading ? (
+          <div className="p-4 text-sm text-slate-500 text-center flex items-center justify-center gap-2">
+            <LoaderCircle className="w-4 h-4 animate-spin" /> Loading...
+          </div>
+        ) : error ? (
+          <p className="p-4 text-sm text-red-600 text-center">{error}</p>
+        ) : suggestions.length > 0 ? (
+          <ul className="py-1">
+            {suggestions.map((suggestion) => (
+              <li key={suggestion.value + suggestion.label}>
+                <button
+                  type="button"
+                  onClick={() => handler(suggestion)}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3"
+                >
+                  <div className="flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
+                  <div><span className="font-semibold">{suggestion.label}</span></div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
+        )}
+      </>
+    );
+
     return (
         <>
         {/* --- START OF NEW MOBILE WIDGET --- */}
@@ -241,27 +305,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             />
                         </div>
                         {isSuggestionsOpen && (
-                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                               {suggestions.length > 0 ? (
-                                <ul className="py-1">
-                                    {suggestions.map((suggestion) => (
-                                        <li key={suggestion.value}>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleSuggestionClick(suggestion)}
-                                                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3"
-                                            >
-                                                <div className="flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
-                                                <div>
-                                                  <span className="font-semibold">{suggestion.label}</span>
-                                                </div>
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                               ) : (
-                                <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
-                               )}
+                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                               {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                             </div>
                         )}
                     </div>
@@ -284,27 +329,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 />
                             </div>
                             {isDropoffSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                    {dropoffSuggestions.length > 0 ? (
-                                        <ul className="py-1">
-                                            {dropoffSuggestions.map((suggestion) => (
-                                                <li key={suggestion.value}>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDropoffSuggestionClick(suggestion)}
-                                                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3"
-                                                    >
-                                                        <div className="flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
-                                                        <div>
-                                                            <span className="font-semibold">{suggestion.label}</span>
-                                                        </div>
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
-                                    )}
+                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                                    {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                 </div>
                             )}
                         </div>
@@ -403,16 +429,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                             <input id="pickup-location" type="text" placeholder="City, airport, or station" className="block w-full pl-9 pr-3 border-none focus:ring-0 focus:outline-none text-base md:text-sm font-medium placeholder-slate-400 text-slate-900 h-10" value={pickupQuery} onChange={handleLocationChange} onFocus={handleFocus} autoComplete="off" required />
                                         </div>
                                         {isSuggestionsOpen && (
-                                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                                {suggestions.length > 0 ? (
-                                                    <ul className="py-1">
-                                                        {suggestions.map((suggestion) => (
-                                                            <li key={suggestion.value}><button type="button" onClick={() => handleSuggestionClick(suggestion)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3">{getLocationIcon(suggestion.type)}<div><span className="font-semibold">{suggestion.label}</span></div></button></li>
-                                                        ))}
-                                                    </ul>
-                                                ) : (
-                                                     <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
-                                                )}
+                                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                                                {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                                             </div>
                                         )}
                                     </div>
@@ -434,16 +452,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                                 />
                                             </div>
                                             {isDropoffSuggestionsOpen && (
-                                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                                    {dropoffSuggestions.length > 0 ? (
-                                                        <ul className="py-1">
-                                                            {dropoffSuggestions.map((suggestion) => (
-                                                                <li key={suggestion.value}><button type="button" onClick={() => handleDropoffSuggestionClick(suggestion)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 transition-colors flex items-center gap-3">{getLocationIcon(suggestion.type)}<div><span className="font-semibold">{suggestion.label}</span></div></button></li>
-                                                            ))}
-                                                        </ul>
-                                                    ) : (
-                                                        <p className="p-4 text-sm text-slate-500 text-center">No results found.</p>
-                                                    )}
+                                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                                                    {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                                 </div>
                                             )}
                                         </div>

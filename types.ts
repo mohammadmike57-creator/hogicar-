@@ -1,6 +1,8 @@
 
 
 
+
+
 export enum CarCategory {
   ECONOMY = 'Economy',
   COMPACT = 'Compact',
@@ -164,13 +166,13 @@ export interface Car {
 }
 
 export interface ApiSearchResult {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
+  id: number | string;
+  brand: string;
+  model: string;
+  category: CarCategory;
+  basePrice: number;
   currency: string;
-  supplier: string;
-  imageUrl: string;
+  available: boolean;
 }
 
 

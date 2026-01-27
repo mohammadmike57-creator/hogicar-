@@ -1,4 +1,5 @@
 
+
 import { ApiSearchResult } from './types';
 
 // Per user instruction for env variable support
@@ -15,7 +16,7 @@ export interface LocationSuggestion {
   type: string;
 }
 
-// Updated to use 'query' parameter as per new backend endpoint
+// Kept this function as it is used by the SearchWidget, per instructions.
 export async function fetchLocations(query: string): Promise<LocationSuggestion[]> {
   if (!query || query.length < 2) return [];
 
@@ -25,8 +26,7 @@ export async function fetchLocations(query: string): Promise<LocationSuggestion[
     );
 
     if (!response.ok) {
-      console.error("Failed to fetch locations:", response.statusText);
-      return [];
+      throw new Error(`Failed to fetch locations: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -34,27 +34,17 @@ export async function fetchLocations(query: string): Promise<LocationSuggestion[
     return data;
   } catch (error) {
     console.error("Error fetching locations:", error);
-    return [];
+    throw error; // Re-throw for the component to handle
   }
 }
 
-// Per user instruction for fetchCars
-export async function fetchCars(params: {
-  pickup: string;
-  dropoff: string;
-  pickupDate: string;
-  dropoffDate: string;
-}): Promise<ApiSearchResult[]> {
-  const apiParams = {
-    pickupLocation: params.pickup,
-    pickupDate: params.pickupDate,
-    dropoffDate: params.dropoffDate,
-  };
-  const query = new URLSearchParams(apiParams).toString();
-
-  const response = await fetch(`${API_URL}/api/cars?${query}`);
+// Updated fetchCars to match user instructions: a simple GET to /api/cars.
+export async function fetchCars(): Promise<ApiSearchResult[]> {
+  const response = await fetch(`${API_URL}/api/cars`);
 
   if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("Failed to fetch cars. Status:", response.status, "Body:", errorBody);
     throw new Error("Failed to fetch cars");
   }
 

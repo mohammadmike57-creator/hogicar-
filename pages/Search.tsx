@@ -1,4 +1,5 @@
 
+
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
@@ -12,23 +13,22 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
-const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
-    const nameParts = apiCar.name.split(' ');
-    const make = nameParts[0] || 'Unknown';
-    const model = nameParts.slice(1).join(' ') || 'Model';
+const apiCarToCar = (apiCar: ApiSearchResult): Car => {
+    // Find a matching mock supplier to get a logo, or create a fallback.
+    // Use brand as the supplier name for filtering purposes.
+    const mockSupplier = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.brand.toLowerCase());
     
-    // Per user instruction: DO NOT check supplier. Create a minimal object.
     const supplier: Supplier = {
-        id: `api-supplier-${apiCar.supplier.replace(/\s+/g, '-')}-${index}`,
-        name: apiCar.supplier,
-        rating: 4.0, // Default rating
-        logo: '',
-        commissionType: CommissionType.PAY_AT_DESK,
-        commissionValue: 0,
-        bookingMode: BookingMode.FREE_SALE,
+        id: mockSupplier?.id || `api-supplier-${apiCar.brand.replace(/\s+/g, '-')}`,
+        name: apiCar.brand, // Use brand from API as supplier name
+        rating: mockSupplier?.rating || 4.0,
+        logo: mockSupplier?.logo || '',
+        commissionType: mockSupplier?.commissionType || CommissionType.PAY_AT_DESK,
+        commissionValue: mockSupplier?.commissionValue || 0,
+        bookingMode: mockSupplier?.bookingMode || BookingMode.FREE_SALE,
         status: 'active',
         location: 'API Location',
-        contactEmail: 'contact@api.supplier',
+        contactEmail: mockSupplier?.contactEmail || 'contact@api.supplier',
         gracePeriodHours: 1,
         minBookingLeadTime: 2,
         termsAndConditions: "Standard terms apply.",
@@ -40,31 +40,33 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
     };
 
     const apiRateTier: RateTier = {
-        id: `api-tier-${apiCar.id || index}`,
+        id: `api-tier-${apiCar.id}`,
         name: 'API Rate',
         startDate: '2020-01-01',
         endDate: '2099-12-31',
-        rates: [{ minDays: 1, maxDays: 99, dailyRate: apiCar.price }]
+        rates: [{ minDays: 1, maxDays: 99, dailyRate: apiCar.basePrice }]
     };
+    
+    const mockCarModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === apiCar.brand.toLowerCase() && m.model.toLowerCase() === apiCar.model.toLowerCase());
 
     return {
-        id: apiCar.id || `api-car-${index}`,
-        make: make,
-        model: model,
+        id: String(apiCar.id),
+        make: apiCar.brand,
+        model: apiCar.model,
         year: new Date().getFullYear(),
-        category: CarCategory.ECONOMY, // Default value
+        category: apiCar.category,
         type: CarType.SEDAN, // Default value
-        sippCode: 'CDAR',
-        transmission: Transmission.AUTOMATIC,
-        passengers: 4,
-        bags: 2,
-        doors: 4,
-        airCon: true,
-        image: apiCar.imageUrl,
+        sippCode: 'CDAR', // Default value
+        transmission: Transmission.AUTOMATIC, // Default value
+        passengers: 4, // Default value
+        bags: 2, // Default value
+        doors: 4, // Default value
+        airCon: true, // Default value
+        image: mockCarModel?.image || 'https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=2069&auto=format&fit=crop',
         supplier: supplier,
-        features: [apiCar.description],
-        fuelPolicy: FuelPolicy.FULL_TO_FULL,
-        isAvailable: true, // Per user instruction: DO NOT check availability
+        features: [],
+        fuelPolicy: FuelPolicy.FULL_TO_FULL, // Default value
+        isAvailable: apiCar.available,
         location: 'API Result',
         deposit: 300,
         excess: 1000,
@@ -84,7 +86,6 @@ const apiCarToCar = (apiCar: ApiSearchResult, index: number): Car => {
 };
 
 
-// FIX: Changed to a named export to resolve module resolution error.
 export const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -105,7 +106,6 @@ export const Search: React.FC = () => {
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   
-  // Calculate dynamic default dates if not provided
   const today = new Date();
   const defaultStart = today.toISOString().split('T')[0];
   const defaultEnd = new Date(new Date().setDate(today.getDate() + 3)).toISOString().split('T')[0];
@@ -113,49 +113,22 @@ export const Search: React.FC = () => {
   const startDate = pickupDateParam || defaultStart;
   const endDate = dropoffDateParam || defaultEnd;
 
-  // Calculate duration in days
   const startD = new Date(startDate);
   const endD = new Date(endDate);
   const diffTime = Math.abs(endD.getTime() - startD.getTime());
-  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // Default to 1 if calculation fails
+  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   
   React.useEffect(() => {
     const fetchApiCars = async () => {
         setLoading(true);
         setError(null);
-        setApiCars([]);
-
-        const pickup = searchParams.get('pickup') || '';
-        
-        // Per user request, only validate pickup location length
-        if (pickup.length !== 3) {
-            setError("A valid 3-letter pickup location code is required.");
-            setLoading(false);
-            return; 
-        }
-        
-        // Use defaults if other params are missing
-        const dropoff = searchParams.get('dropoff') || pickup;
-        const pickupDate = searchParams.get('pickupDate') || defaultStart;
-        const dropoffDate = searchParams.get('dropoffDate') || defaultEnd;
-        
         try {
-            console.log("CALLING CARS API WITH:", pickup);
-            const data: ApiSearchResult[] = await fetchCars({
-              pickup,
-              dropoff,
-              pickupDate,
-              dropoffDate,
-            });
-
-            console.log("RAW CARS API RESPONSE:", data);
-
-            const mappedCars: Car[] = data.map((apiCar, index) => apiCarToCar(apiCar, index));
+            const data = await fetchCars();
+            const mappedCars = data.map(apiCarToCar);
             setApiCars(mappedCars);
-
-        } catch (error) {
-            console.error("Failed to fetch search results:", error);
-            setError("We couldn't retrieve car results at the moment. The service might be temporarily down. Please try again later.");
+        } catch (err) {
+            console.error("Failed to fetch search results:", err);
+            setError("We couldn't retrieve car results at the moment. Please try again later.");
             setApiCars([]);
         } finally {
             setLoading(false);
@@ -165,7 +138,6 @@ export const Search: React.FC = () => {
     fetchApiCars();
   }, [searchParams]);
 
-  // Formatting dates and times for display
   const formatDateTime = (date: Date, time: string) => {
     return `${date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${time}`;
   };
@@ -183,9 +155,8 @@ export const Search: React.FC = () => {
   const [openFilters, setOpenFilters] = React.useState<string[]>(['Price', 'Category', 'Passengers', 'LocationType']);
   const [showMobileFilters, setShowMobileFilters] = React.useState(false);
   
-  // New Filter States
   const [selectedPaymentTypes, setSelectedPaymentTypes] = React.useState<string[]>([]);
-  const [maxDeposit, setMaxDeposit] = React.useState<number>(0); // 0 means any
+  const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
 
@@ -205,7 +176,7 @@ export const Search: React.FC = () => {
     if(dropoff) newSearchParams.set('dropoff', dropoff);
     if(dropoffName) newSearchParams.set('dropoffName', dropoffName);
     
-    setIsSearchOpen(false); // Close the widget
+    setIsSearchOpen(false);
     navigate(`/searching?${newSearchParams.toString()}`);
   };
 
@@ -216,11 +187,11 @@ export const Search: React.FC = () => {
     );
   };
 
-  // Derived Filter Lists
   const allCategories = Object.values(CarCategory);
   const allSuppliers = React.useMemo(() => {
     if (!apiCars) return [];
-    return Array.from(new Set(apiCars.map(c => c.supplier.name))).sort();
+    // Now derives brands from the 'make' field, which is mapped from API 'brand'
+    return Array.from(new Set(apiCars.map(c => c.make))).sort();
   }, [apiCars]);
   const allTransmissions = Object.values(Transmission);
   const allFuelPolicies = Object.values(FuelPolicy);
@@ -290,7 +261,7 @@ export const Search: React.FC = () => {
         
         const hasPromo = !!calculatePrice(car, days, startDate).promotionLabel || (car.tags && car.tags.length > 0);
 
-        const matchesSuppliers = selectedSuppliers.length === 0 || selectedSuppliers.includes(car.supplier.name);
+        const matchesSuppliers = selectedSuppliers.length === 0 || selectedSuppliers.includes(car.make);
         const matchesCategories = selectedCategories.length === 0 || selectedCategories.includes(car.category);
         const matchesTransmissions = selectedTransmissions.length === 0 || selectedTransmissions.includes(car.transmission);
         const matchesFuelPolicies = selectedFuelPolicies.length === 0 || selectedFuelPolicies.includes(car.fuelPolicy);
@@ -306,7 +277,7 @@ export const Search: React.FC = () => {
             counts.category.set(car.category, (counts.category.get(car.category) || 0) + 1);
         }
         if (commonMatches && matchesCategories && matchesTransmissions && matchesFuelPolicies && matchesPassengers && matchesPaymentTypes && matchesLocationTypes) {
-            counts.supplier.set(car.supplier.name, (counts.supplier.get(car.supplier.name) || 0) + 1);
+            counts.supplier.set(car.make, (counts.supplier.get(car.make) || 0) + 1);
         }
         if (commonMatches && matchesCategories && matchesSuppliers && matchesFuelPolicies && matchesPassengers && matchesPaymentTypes && matchesLocationTypes) {
             counts.transmission.set(car.transmission, (counts.transmission.get(car.transmission) || 0) + 1);
@@ -335,7 +306,8 @@ export const Search: React.FC = () => {
       const basePrice = getCarDailyPrice(car);
       if (basePrice > priceRange) return false;
       if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false;
-      if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.supplier.name)) return false;
+      // Filter by brand (make) using the supplier filter UI state
+      if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.make)) return false;
       if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
       if (selectedFuelPolicies.length > 0 && !selectedFuelPolicies.includes(car.fuelPolicy)) return false;
       if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
@@ -347,7 +319,7 @@ export const Search: React.FC = () => {
         const hasTags = car.tags && car.tags.length > 0;
         if (!hasPromoLabel && !hasTags) return false;
       }
-      return true;
+      return car.isAvailable; // Also filter by availability from API
     });
 
     switch(sortBy) {
@@ -768,6 +740,13 @@ export const Search: React.FC = () => {
                         endDate={endDate}
                         />
                     ))}
+                    {sortedAndFilteredCars.length === 0 && (
+                         <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
+                            <CarIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
+                            <p className="text-sm text-slate-500 mt-2">Try adjusting your filters or search criteria.</p>
+                        </div>
+                    )}
                 </div>
                 </>
             )}
