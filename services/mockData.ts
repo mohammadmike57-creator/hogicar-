@@ -1,5 +1,7 @@
 
 
+
+
 import { Car, CarCategory, Transmission, FuelPolicy, Booking, Supplier, CommissionType, BookingMode, RateTier, CarType, Extra, ApiPartner, PageContent, Affiliate, RateByDay, SEOConfig, HomepageContent, CarModel, SupplierApplication, PromoCode } from '../types';
 
 export const SUPPLIERS: Supplier[] = [
@@ -1479,6 +1481,17 @@ export const calculatePrice = (car: Car, days: number, startDate: string): { dai
         }
         promotionLabel = tier.promotionLabel;
         tierName = tier.name;
+    }
+    
+    // If final price is from API, it's already the gross daily rate. Don't add commission.
+    if (car.hasFinalPriceFromApi) {
+        return {
+            dailyRate: netDailyRate,
+            total: netDailyRate * days,
+            netTotal: netDailyRate * days,
+            promotionLabel,
+            tierName
+        };
     }
 
     const netTotal = netDailyRate * days;

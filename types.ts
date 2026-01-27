@@ -163,6 +163,7 @@ export interface Car {
   unlimitedMileage: boolean;
   tags?: string[];
   detailedRatings?: CarRatings;
+  hasFinalPriceFromApi?: boolean;
 }
 
 export interface ApiSearchResult {
@@ -170,9 +171,25 @@ export interface ApiSearchResult {
   brand: string;
   model: string;
   category: CarCategory;
-  basePrice: number;
+  netPrice: number;
+  finalPrice?: number;
   currency: string;
   available: boolean;
+  image: string;
+  passengers: number;
+  bags: number;
+  doors: number;
+  transmission: Transmission;
+  airCon: boolean;
+  fuelPolicy: FuelPolicy;
+  unlimitedMileage: boolean;
+  supplier: {
+    name: string;
+    logoUrl: string;
+    rating: number;
+  };
+  locationDetail: string;
+  sippCode: string;
 }
 
 

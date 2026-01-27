@@ -1,5 +1,9 @@
 
 
+
+
+
+
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
@@ -14,58 +18,57 @@ import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
-    // Find a matching mock supplier to get a logo, or create a fallback.
-    // Use brand as the supplier name for filtering purposes.
-    const mockSupplier = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.brand.toLowerCase());
+    const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
+    const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
     
+    const mockSupplier = SUPPLIERS.find(s => s.name.toLowerCase() === apiCar.supplier.name.toLowerCase());
+
     const supplier: Supplier = {
-        id: mockSupplier?.id || `api-supplier-${apiCar.brand.replace(/\s+/g, '-')}`,
-        name: apiCar.brand, // Use brand from API as supplier name
-        rating: mockSupplier?.rating || 4.0,
-        logo: mockSupplier?.logo || '',
+        id: mockSupplier?.id || `api-supplier-${apiCar.supplier.name.replace(/\s+/g, '-')}`,
+        name: apiCar.supplier.name,
+        rating: apiCar.supplier.rating,
+        logo: apiCar.supplier.logoUrl,
         commissionType: mockSupplier?.commissionType || CommissionType.PAY_AT_DESK,
         commissionValue: mockSupplier?.commissionValue || 0,
         bookingMode: mockSupplier?.bookingMode || BookingMode.FREE_SALE,
         status: 'active',
         location: 'API Location',
         contactEmail: mockSupplier?.contactEmail || 'contact@api.supplier',
-        gracePeriodHours: 1,
-        minBookingLeadTime: 2,
-        termsAndConditions: "Standard terms apply.",
+        gracePeriodHours: mockSupplier?.gracePeriodHours || 1,
+        minBookingLeadTime: mockSupplier?.minBookingLeadTime || 2,
+        termsAndConditions: mockSupplier?.termsAndConditions || "Standard terms apply.",
         connectionType: 'api',
-        includesCDW: true,
-        includesTP: true,
-        oneWayFee: 0,
-        enableSocialProof: false,
+        includesCDW: mockSupplier?.includesCDW ?? true,
+        includesTP: mockSupplier?.includesTP ?? true,
+        oneWayFee: mockSupplier?.oneWayFee,
+        enableSocialProof: mockSupplier?.enableSocialProof ?? false,
     };
-
+    
     const apiRateTier: RateTier = {
         id: `api-tier-${apiCar.id}`,
         name: 'API Rate',
         startDate: '2020-01-01',
         endDate: '2099-12-31',
-        rates: [{ minDays: 1, maxDays: 99, dailyRate: apiCar.basePrice }]
+        rates: [{ minDays: 1, maxDays: 99, dailyRate: dailyPrice }]
     };
     
-    const mockCarModel = MOCK_CAR_LIBRARY.find(m => m.make.toLowerCase() === apiCar.brand.toLowerCase() && m.model.toLowerCase() === apiCar.model.toLowerCase());
-
     return {
         id: String(apiCar.id),
         make: apiCar.brand,
         model: apiCar.model,
         year: new Date().getFullYear(),
         category: apiCar.category,
-        type: CarType.SEDAN, // Default value
-        sippCode: 'CDAR', // Default value
-        transmission: Transmission.AUTOMATIC, // Default value
-        passengers: 4, // Default value
-        bags: 2, // Default value
-        doors: 4, // Default value
-        airCon: true, // Default value
-        image: mockCarModel?.image || 'https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=2069&auto=format&fit=crop',
+        type: MOCK_CAR_LIBRARY.find(m => m.category === apiCar.category)?.type || CarType.SEDAN,
+        sippCode: apiCar.sippCode,
+        transmission: apiCar.transmission,
+        passengers: apiCar.passengers,
+        bags: apiCar.bags,
+        doors: apiCar.doors,
+        airCon: apiCar.airCon,
+        image: apiCar.image,
         supplier: supplier,
         features: [],
-        fuelPolicy: FuelPolicy.FULL_TO_FULL, // Default value
+        fuelPolicy: apiCar.fuelPolicy,
         isAvailable: apiCar.available,
         location: 'API Result',
         deposit: 300,
@@ -73,15 +76,16 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         stopSales: [],
         rateTiers: [apiRateTier],
         extras: [],
-        locationDetail: "In Terminal",
-        unlimitedMileage: true,
+        locationDetail: apiCar.locationDetail || '',
+        unlimitedMileage: apiCar.unlimitedMileage,
         tags: ["Online Deal"],
         detailedRatings: {
             cleanliness: 90,
             condition: 90,
             valueForMoney: 90,
             pickupSpeed: 90,
-        }
+        },
+        hasFinalPriceFromApi: hasFinalPrice,
     };
 };
 
@@ -190,8 +194,8 @@ export const Search: React.FC = () => {
   const allCategories = Object.values(CarCategory);
   const allSuppliers = React.useMemo(() => {
     if (!apiCars) return [];
-    // Now derives brands from the 'make' field, which is mapped from API 'brand'
-    return Array.from(new Set(apiCars.map(c => c.make))).sort();
+    // The filter is for "Car Rental Company", so use supplier name.
+    return Array.from(new Set(apiCars.map(c => c.supplier.name))).sort();
   }, [apiCars]);
   const allTransmissions = Object.values(Transmission);
   const allFuelPolicies = Object.values(FuelPolicy);
@@ -261,7 +265,7 @@ export const Search: React.FC = () => {
         
         const hasPromo = !!calculatePrice(car, days, startDate).promotionLabel || (car.tags && car.tags.length > 0);
 
-        const matchesSuppliers = selectedSuppliers.length === 0 || selectedSuppliers.includes(car.make);
+        const matchesSuppliers = selectedSuppliers.length === 0 || selectedSuppliers.includes(car.supplier.name);
         const matchesCategories = selectedCategories.length === 0 || selectedCategories.includes(car.category);
         const matchesTransmissions = selectedTransmissions.length === 0 || selectedTransmissions.includes(car.transmission);
         const matchesFuelPolicies = selectedFuelPolicies.length === 0 || selectedFuelPolicies.includes(car.fuelPolicy);
@@ -277,7 +281,7 @@ export const Search: React.FC = () => {
             counts.category.set(car.category, (counts.category.get(car.category) || 0) + 1);
         }
         if (commonMatches && matchesCategories && matchesTransmissions && matchesFuelPolicies && matchesPassengers && matchesPaymentTypes && matchesLocationTypes) {
-            counts.supplier.set(car.make, (counts.supplier.get(car.make) || 0) + 1);
+            counts.supplier.set(car.supplier.name, (counts.supplier.get(car.supplier.name) || 0) + 1);
         }
         if (commonMatches && matchesCategories && matchesSuppliers && matchesFuelPolicies && matchesPassengers && matchesPaymentTypes && matchesLocationTypes) {
             counts.transmission.set(car.transmission, (counts.transmission.get(car.transmission) || 0) + 1);
@@ -306,8 +310,7 @@ export const Search: React.FC = () => {
       const basePrice = getCarDailyPrice(car);
       if (basePrice > priceRange) return false;
       if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false;
-      // Filter by brand (make) using the supplier filter UI state
-      if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.make)) return false;
+      if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.supplier.name)) return false;
       if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
       if (selectedFuelPolicies.length > 0 && !selectedFuelPolicies.includes(car.fuelPolicy)) return false;
       if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
