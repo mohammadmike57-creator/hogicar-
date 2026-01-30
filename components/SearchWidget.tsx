@@ -43,6 +43,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // Autocomplete state
     const [suggestions, setSuggestions] = React.useState<LocationSuggestion[]>([]);
+    const [defaultSuggestions, setDefaultSuggestions] = React.useState<LocationSuggestion[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = React.useState(false);
     const [dropoffSuggestions, setDropoffSuggestions] = React.useState<LocationSuggestion[]>([]);
     const [isDropoffSuggestionsOpen, setIsDropoffSuggestionsOpen] = React.useState(false);
@@ -56,6 +57,23 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const mobileWidgetRef = React.useRef<HTMLDivElement>(null);
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
     const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+
+    // Fetch default locations on mount
+    React.useEffect(() => {
+        const loadDefaultLocations = async () => {
+            try {
+                const results = await fetchLocations(); // No query
+                setDefaultSuggestions(results);
+                // Also set the main suggestions if input is empty initially
+                if (!pickupQuery) {
+                    setSuggestions(results);
+                }
+            } catch (err) {
+                setSuggestionsError("Could not load initial locations.");
+            }
+        };
+        loadDefaultLocations();
+    }, []); // Empty dependency array means it runs once on mount
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -80,8 +98,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         }
 
         if (value.length < 2) {
-            setSuggestions([]);
-            setIsSuggestionsOpen(false);
+            setSuggestions(defaultSuggestions); // Show defaults when clearing input
+            setIsSuggestionsOpen(true);
             setIsLoadingSuggestions(false);
             return;
         }
@@ -109,7 +127,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleFocus = () => {
-        if ((pickupQuery || '').length > 1 && (suggestions.length > 0 || isLoadingSuggestions || suggestionsError)) {
+        if (!pickupQuery) {
+            setSuggestions(defaultSuggestions);
+            setIsSuggestionsOpen(true);
+        } else if ((pickupQuery || '').length > 1 && (suggestions.length > 0 || isLoadingSuggestions || suggestionsError)) {
             setIsSuggestionsOpen(true);
         }
     };
@@ -125,8 +146,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         }
         
         if (value.length < 2) {
-            setDropoffSuggestions([]);
-            setIsDropoffSuggestionsOpen(false);
+            setDropoffSuggestions(defaultSuggestions); // Also use defaults here
+            setIsDropoffSuggestionsOpen(true);
             setIsDropoffLoading(false);
             return;
         }
@@ -154,7 +175,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleDropoffFocus = () => {
-         if ((dropoffQuery || '').length > 1 && (dropoffSuggestions.length > 0 || isDropoffLoading || dropoffError)) {
+        if (!dropoffQuery) {
+            setDropoffSuggestions(defaultSuggestions);
+            setIsDropoffSuggestionsOpen(true);
+        } else if ((dropoffQuery || '').length > 1 && (dropoffSuggestions.length > 0 || isDropoffLoading || dropoffError)) {
             setIsDropoffSuggestionsOpen(true);
         }
     };
