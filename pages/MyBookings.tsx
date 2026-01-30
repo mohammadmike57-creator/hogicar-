@@ -208,7 +208,7 @@ const LoginScreen = ({ onLogin, error }: { onLogin: (email: string, ref: string)
     )
 }
 
-const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string) => void, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
+const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string | number) => void, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
     const car = MOCK_CARS.find(c => c.id === booking.carId);
     const { convertPrice, getCurrencySymbol } = useCurrency();
     const [isCancelling, setIsCancelling] = React.useState(false);
@@ -218,7 +218,8 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     if (!car) return <div>Error loading car details</div>;
 
     const handleSaveModification = (modifications: Partial<Booking>) => {
-        const updatedBooking = modifyMockBooking(booking.id, modifications);
+        // FIX: Convert booking.id to a string as modifyMockBooking expects a string.
+        const updatedBooking = modifyMockBooking(String(booking.id), modifications);
         if (updatedBooking) {
             onBookingModified(updatedBooking);
         }
@@ -385,8 +386,9 @@ const MyBookings: React.FC = () => {
       const normalizedRef = ref.toUpperCase().trim();
 
       // Find a booking matching BOTH email and ref
+      // FIX: Convert booking ID to string before calling toUpperCase, as it can be a number.
       const bookingMatch = MOCK_BOOKINGS.find(b => 
-          b.id.toUpperCase() === normalizedRef && 
+          String(b.id).toUpperCase() === normalizedRef && 
           (b.customerEmail?.toLowerCase() === normalizedEmail || b.customerName?.toLowerCase() === normalizedEmail)
       );
         
@@ -401,7 +403,7 @@ const MyBookings: React.FC = () => {
       }
   };
 
-  const handleCancelBooking = (bookingId: string) => {
+  const handleCancelBooking = (bookingId: string | number) => {
       const updatedList = userBookings.map(b => 
           b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
       );

@@ -1,12 +1,8 @@
 
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-// FIX: Corrected typo from 'updateApiPeterStatus' to 'updateApiPartnerStatus'.
 import { ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, MOCK_API_PARTNERS, addMockApiPartner, generateApiKey, updateApiPartnerStatus, MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode } from '../services/mockData';
-// FIX: Aliased `Car` icon to `CarIcon` to prevent name collision with the `Car` type.
-// FIX: Add 'Shield' icon to lucide-react import to fix missing icon errors.
-// FIX: Add 'CheckCircle' icon to lucide-react import to fix missing icon error.
-import { Users, Car as CarIcon, TrendingUp, AlertCircle, Edit, Save, X, LayoutDashboard, Building, Plus, Rss, Key, Link2, XCircle, RefreshCw, Copy, Check, DollarSign as DollarSignIcon, Share2, Power, Code, Menu, Mail, LogOut, FileText, Globe, Search as SearchIcon, ImageIcon, PlusCircle, Trash2, Shield, SlidersHorizontal, CheckCircle, ChevronDown, ChevronUp, PowerOff, MailQuestion, CheckSquare, XSquare, Tag, Calendar, Gift } from 'lucide-react';
+import { Users, Car as CarIcon, TrendingUp, AlertCircle, Edit, Save, X, LayoutDashboard, Building, Plus, Rss, Key, Link2, XCircle, RefreshCw, Copy, Check, DollarSign as DollarSignIcon, Share2, Power, Code, Menu, Mail, LogOut, FileText, Globe, Search as SearchIcon, ImageIcon, PlusCircle, Trash2, Shield, SlidersHorizontal, CheckCircle, ChevronDown, ChevronUp, PowerOff, MailQuestion, CheckSquare, XSquare, Tag, Calendar, Gift, Monitor, Tablet, Smartphone, Expand } from 'lucide-react';
 import { Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, PageContent, SEOConfig, HomepageContent, FeatureItem, StepItem, ValuePropositionItem, DestinationItem, FaqItem, CarModel, CarCategory, CarType, Affiliate, SupplierApplication, Car, RateTier, RateByDay, PromoCode } from '../types';
 import { useNavigate } from 'react-router-dom';
 
@@ -552,7 +548,6 @@ const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: { c
     );
 };
 
-// FIX: Changed component to be a named export to resolve module resolution error.
 export const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = React.useState<'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 'homepage' | 'sitesettings' | 'promotions'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -625,7 +620,6 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleToggleApiPartnerStatus = (id: string, status: 'active' | 'inactive') => {
-      // FIX: Corrected typo from 'updateApiPeterStatus' to 'updateApiPartnerStatus'.
       updateApiPartnerStatus(id, status);
       setApiPartners([...MOCK_API_PARTNERS]);
   };
@@ -1142,6 +1136,8 @@ export const AdminDashboard: React.FC = () => {
     const [categoryImages, setCategoryImages] = React.useState(MOCK_CATEGORY_IMAGES);
     const [saved, setSaved] = React.useState(false);
     const [activeAccordion, setActiveAccordion] = React.useState<string | null>('hero');
+    const [previewMode, setPreviewMode] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+    const [isPreviewFullScreen, setIsPreviewFullScreen] = React.useState(false);
 
     const handleSave = () => {
         updateHomepageContent(content);
@@ -1163,7 +1159,6 @@ export const AdminDashboard: React.FC = () => {
         });
     };
     
-    // FIX: Replaced handleItemChange and the original handleNestedItemChange with a single, more robust function.
     const handleNestedItemChange = (section: keyof HomepageContent, nestedKey: string | null, index: number, field: string, value: any) => {
         setContent(prev => {
             const newState = JSON.parse(JSON.stringify(prev));
@@ -1221,7 +1216,6 @@ export const AdminDashboard: React.FC = () => {
         </div>
     );
 
-    // FIX: Make children optional to fix TypeScript error.
     const AccordionSection = ({ title, id, children }: { title: string, id: string, children?: React.ReactNode }) => (
         <div className="border border-slate-200 rounded-lg mb-2">
             <button onClick={() => setActiveAccordion(activeAccordion === id ? null : id)} className="w-full flex justify-between items-center p-3 bg-slate-50 hover:bg-slate-100">
@@ -1232,129 +1226,164 @@ export const AdminDashboard: React.FC = () => {
         </div>
     );
     
+    const previewClasses = {
+        desktop: 'w-full h-[600px] border-4 border-slate-800 rounded-lg shadow-2xl',
+        tablet: 'w-[768px] h-[1024px] border-8 border-slate-800 rounded-2xl shadow-2xl scale-[.6] origin-top',
+        mobile: 'w-[375px] h-[667px] border-8 border-slate-800 rounded-2xl shadow-2xl scale-[.9] origin-top',
+    };
+    
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
-            <div className="sticky top-[70px] z-10 bg-white/80 backdrop-blur-sm py-3 mb-6 flex justify-between items-center border-b border-slate-200 -mx-6 px-6">
-                <h2 className="text-lg font-bold text-slate-800">Homepage Content Editor</h2>
-                <div className="flex items-center gap-3">
-                    {saved && <span className="text-green-600 text-xs font-bold flex items-center gap-1 animate-fadeIn"><CheckCircle className="w-4 h-4"/> Saved!</span>}
-                    <button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm">
-                        <Save className="w-3.5 h-3.5"/> Save All Changes
-                    </button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {isPreviewFullScreen && (
+                <div className="fixed inset-0 z-50 bg-black/80 p-4 flex items-center justify-center animate-fadeIn">
+                    <div className="relative w-full h-full">
+                        <iframe src="/#/" title="Live Preview" className="w-full h-full bg-white rounded-lg" />
+                        <button onClick={() => setIsPreviewFullScreen(false)} className="absolute -top-2 -right-2 bg-white text-slate-800 rounded-full p-1 shadow-lg hover:bg-red-500 hover:text-white transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            )}
+            {/* Left Column: Editor */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+                <div className="sticky top-[70px] z-10 bg-white/80 backdrop-blur-sm py-3 mb-6 flex justify-between items-center border-b border-slate-200 -mx-6 px-6">
+                    <h2 className="text-lg font-bold text-slate-800">Homepage Content Editor</h2>
+                    <div className="flex items-center gap-3">
+                        {saved && <span className="text-green-600 text-xs font-bold flex items-center gap-1 animate-fadeIn"><CheckCircle className="w-4 h-4"/> Saved!</span>}
+                        <button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm">
+                            <Save className="w-3.5 h-3.5"/> Save All Changes
+                        </button>
+                    </div>
+                </div>
+
+                <AccordionSection title="Hero Section" id="hero">
+                    <InputField label="Title" value={content.hero.title} onChange={e => handleTextChange('hero.title', e.target.value)} />
+                    <InputField label="Subtitle" value={content.hero.subtitle} onChange={e => handleTextChange('hero.subtitle', e.target.value)} />
+                    <InputField label="Background Image URL" value={content.hero.backgroundImage} onChange={e => handleTextChange('hero.backgroundImage', e.target.value)} />
+                </AccordionSection>
+
+                <AccordionSection title="Car Category Images" id="categoryimages">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Object.keys(categoryImages).map(cat => {
+                            const category = cat as CarCategory;
+                            return (
+                                <div key={category} className="space-y-2">
+                                    <label className="block text-sm font-bold text-slate-700">{category}</label>
+                                    <img src={categoryImages[category]} alt={category} className="w-full h-32 object-cover rounded-lg border border-slate-200" />
+                                    <label htmlFor={`img-upload-${category}`} className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer">
+                                        Change Image
+                                        <input 
+                                            id={`img-upload-${category}`}
+                                            type="file" 
+                                            className="sr-only" 
+                                            accept="image/*" 
+                                            onChange={(e) => {
+                                                if(e.target.files?.[0]) {
+                                                    handleCategoryImageChange(category, e.target.files[0])
+                                                }
+                                            }}
+                                        />
+                                    </label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </AccordionSection>
+                
+                <AccordionSection title="Features Section" id="features">
+                    {(content.features || []).map((item, index) => (
+                        <div key={item.id} className="p-3 border rounded mb-2 bg-slate-50 relative">
+                            <button onClick={() => handleDeleteItem('features', null, index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
+                            <InputField label="Icon" value={item.icon} onChange={e => handleNestedItemChange('features', null, index, 'icon', e.target.value)} />
+                            <InputField label="Title" value={item.title} onChange={e => handleNestedItemChange('features', null, index, 'title', e.target.value)} />
+                            <InputField label="Description" value={item.description} onChange={e => handleNestedItemChange('features', null, index, 'description', e.target.value)} />
+                        </div>
+                    ))}
+                    <button onClick={() => handleAddItem('features', null, {id: `f${Date.now()}`, icon: 'Globe', title: '', description: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Feature</button>
+                </AccordionSection>
+
+                <AccordionSection title="How It Works" id="howitworks">
+                    <InputField label="Section Title" value={content.howItWorks.title} onChange={e => handleTextChange('howItWorks.title', e.target.value)} />
+                    <InputField label="Section Subtitle" value={content.howItWorks.subtitle} onChange={e => handleTextChange('howItWorks.subtitle', e.target.value)} />
+                     {(content.howItWorks.steps || []).map((item, index) => (
+                        <div key={item.id} className="p-3 border rounded mt-3 mb-2 bg-slate-50 relative">
+                            <h4 className="text-xs font-bold mb-2">Step {index + 1}</h4>
+                            <button onClick={() => handleDeleteItem('howItWorks', 'steps', index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
+                            <InputField label="Icon" value={item.icon} onChange={e => handleNestedItemChange('howItWorks', 'steps', index, 'icon', e.target.value)} />
+                            <InputField label="Title" value={item.title} onChange={e => handleNestedItemChange('howItWorks', 'steps', index, 'title', e.target.value)} />
+                            <InputField label="Description" value={item.description} onChange={e => handleNestedItemChange('howItWorks', 'steps', index, 'description', e.target.value)} />
+                        </div>
+                    ))}
+                     <button onClick={() => handleAddItem('howItWorks', 'steps', {id: `s${Date.now()}`, icon: 'Search', title: '', description: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Step</button>
+                </AccordionSection>
+                <AccordionSection title="Value Propositions" id="valuepropositions">
+                    {(content.valuePropositions || []).map((item, index) => (
+                        <div key={item.id} className="p-3 border rounded mb-2 bg-slate-50 relative">
+                            <button onClick={() => handleDeleteItem('valuePropositions', null, index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
+                            <InputField label="Icon" value={item.icon} onChange={e => handleNestedItemChange('valuePropositions', null, index, 'icon', e.target.value)} />
+                            <InputField label="Title" value={item.title} onChange={e => handleNestedItemChange('valuePropositions', null, index, 'title', e.target.value)} />
+                            <InputField label="Description" value={item.description} onChange={e => handleNestedItemChange('valuePropositions', null, index, 'description', e.target.value)} />
+                        </div>
+                    ))}
+                    <button onClick={() => handleAddItem('valuePropositions', null, {id: `vp${Date.now()}`, icon: 'CheckCircle', title: '', description: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Proposition</button>
+                </AccordionSection>
+
+                <AccordionSection title="Popular Destinations" id="destinations">
+                     <InputField label="Section Title" value={content.popularDestinations.title} onChange={e => handleTextChange('popularDestinations.title', e.target.value)} />
+                    <InputField label="Section Subtitle" value={content.popularDestinations.subtitle} onChange={e => handleTextChange('popularDestinations.subtitle', e.target.value)} />
+                     {(content.popularDestinations.destinations || []).map((item, index) => (
+                        <div key={item.id} className="p-3 border rounded mt-3 mb-2 bg-slate-50 relative">
+                            <h4 className="text-xs font-bold mb-2">Destination {index + 1}</h4>
+                            <button onClick={() => handleDeleteItem('popularDestinations', 'destinations', index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
+                            <InputField label="Name" value={item.name} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'name', e.target.value)} />
+                            <InputField label="Country" value={item.country} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'country', e.target.value)} />
+    <InputField label="Price (number)" value={item.price.toString()} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'price', Number(e.target.value))} />
+                            <InputField label="Image URL" value={item.image} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'image', e.target.value)} />
+                        </div>
+                    ))}
+                    <button onClick={() => handleAddItem('popularDestinations', 'destinations', {id: `d${Date.now()}`, name: '', country: '', price: 0, image: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Destination</button>
+                </AccordionSection>
+
+                 <AccordionSection title="Partners & CTA Sections" id="misc">
+                    <InputField label="Partners Section Title" value={content.partners.title} onChange={e => handleTextChange('partners.title', e.target.value)} />
+                    <InputField label="CTA Title" value={content.cta.title} onChange={e => handleTextChange('cta.title', e.target.value)} />
+                    <InputField label="CTA Subtitle" value={content.cta.subtitle} onChange={e => handleTextChange('cta.subtitle', e.target.value)} />
+                </AccordionSection>
+
+                <AccordionSection title="FAQs" id="faqs">
+                     <InputField label="Section Title" value={content.faqs.title} onChange={e => handleTextChange('faqs.title', e.target.value)} />
+                     {(content.faqs.items || []).map((item, index) => (
+                        <div key={item.id} className="p-3 border rounded mt-3 mb-2 bg-slate-50 relative">
+                            <h4 className="text-xs font-bold mb-2">FAQ {index + 1}</h4>
+                            <button onClick={() => handleDeleteItem('faqs', 'items', index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
+                            <InputField label="Question" value={item.question} onChange={e => handleNestedItemChange('faqs', 'items', index, 'question', e.target.value)} />
+                            <InputField label="Answer" value={item.answer} onChange={e => handleNestedItemChange('faqs', 'items', index, 'answer', e.target.value)} />
+                        </div>
+                    ))}
+                     <button onClick={() => handleAddItem('faqs', 'items', {id: `faq${Date.now()}`, question: '', answer: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add FAQ</button>
+                </AccordionSection>
+            </div>
+            {/* Right Column: Preview */}
+            <div className="bg-slate-200 p-4 rounded-lg shadow-inner sticky top-20 h-[calc(100vh-10rem)]">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-bold text-slate-700">Live Preview</h3>
+                    <div className="flex items-center gap-1 bg-slate-300 p-1 rounded-lg">
+                        <button onClick={() => setPreviewMode('desktop')} className={`p-1 rounded-md ${previewMode === 'desktop' ? 'bg-white shadow' : 'text-slate-500 hover:bg-white/50'}`}><Monitor className="w-4 h-4"/></button>
+                        <button onClick={() => setPreviewMode('tablet')} className={`p-1 rounded-md ${previewMode === 'tablet' ? 'bg-white shadow' : 'text-slate-500 hover:bg-white/50'}`}><Tablet className="w-4 h-4"/></button>
+                        <button onClick={() => setPreviewMode('mobile')} className={`p-1 rounded-md ${previewMode === 'mobile' ? 'bg-white shadow' : 'text-slate-500 hover:bg-white/50'}`}><Smartphone className="w-4 h-4"/></button>
+                        <div className="w-px h-4 bg-slate-400 mx-1"></div>
+                        <button onClick={() => setIsPreviewFullScreen(true)} className="p-1 rounded-md text-slate-500 hover:bg-white/50"><Expand className="w-4 h-4"/></button>
+                    </div>
+                </div>
+                <div className="w-full h-[calc(100%-2.5rem)] bg-slate-300 rounded-md flex items-center justify-center overflow-auto">
+                    <iframe 
+                        key={`${previewMode}-${JSON.stringify(content)}`} 
+                        src="/#/" 
+                        title="Live Preview" 
+                        className={`bg-white transition-all duration-300 ease-in-out ${previewClasses[previewMode]}`}
+                    />
                 </div>
             </div>
-
-            <AccordionSection title="Hero Section" id="hero">
-                <InputField label="Title" value={content.hero.title} onChange={e => handleTextChange('hero.title', e.target.value)} />
-                <InputField label="Subtitle" value={content.hero.subtitle} onChange={e => handleTextChange('hero.subtitle', e.target.value)} />
-                <InputField label="Background Image URL" value={content.hero.backgroundImage} onChange={e => handleTextChange('hero.backgroundImage', e.target.value)} />
-            </AccordionSection>
-
-            <AccordionSection title="Car Category Images" id="categoryimages">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Object.keys(categoryImages).map(cat => {
-                        const category = cat as CarCategory;
-                        return (
-                            <div key={category} className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-700">{category}</label>
-                                <img src={categoryImages[category]} alt={category} className="w-full h-32 object-cover rounded-lg border border-slate-200" />
-                                <label htmlFor={`img-upload-${category}`} className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer">
-                                    Change Image
-                                    <input 
-                                        id={`img-upload-${category}`}
-                                        type="file" 
-                                        className="sr-only" 
-                                        accept="image/*" 
-                                        onChange={(e) => {
-                                            if(e.target.files?.[0]) {
-                                                handleCategoryImageChange(category, e.target.files[0])
-                                            }
-                                        }}
-                                    />
-                                </label>
-                            </div>
-                        )
-                    })}
-                </div>
-            </AccordionSection>
-            
-            <AccordionSection title="Features Section" id="features">
-                {(content.features || []).map((item, index) => (
-                    <div key={item.id} className="p-3 border rounded mb-2 bg-slate-50 relative">
-                        <button onClick={() => handleDeleteItem('features', null, index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
-                        {/* FIX: Updated to use the correct handler with a null nestedKey. */}
-                        <InputField label="Icon" value={item.icon} onChange={e => handleNestedItemChange('features', null, index, 'icon', e.target.value)} />
-                        <InputField label="Title" value={item.title} onChange={e => handleNestedItemChange('features', null, index, 'title', e.target.value)} />
-                        <InputField label="Description" value={item.description} onChange={e => handleNestedItemChange('features', null, index, 'description', e.target.value)} />
-                    </div>
-                ))}
-                <button onClick={() => handleAddItem('features', null, {id: `f${Date.now()}`, icon: 'Globe', title: '', description: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Feature</button>
-            </AccordionSection>
-
-            <AccordionSection title="How It Works" id="howitworks">
-                <InputField label="Section Title" value={content.howItWorks.title} onChange={e => handleTextChange('howItWorks.title', e.target.value)} />
-                <InputField label="Section Subtitle" value={content.howItWorks.subtitle} onChange={e => handleTextChange('howItWorks.subtitle', e.target.value)} />
-                 {(content.howItWorks.steps || []).map((item, index) => (
-                    <div key={item.id} className="p-3 border rounded mt-3 mb-2 bg-slate-50 relative">
-                        <h4 className="text-xs font-bold mb-2">Step {index + 1}</h4>
-                        <button onClick={() => handleDeleteItem('howItWorks', 'steps', index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
-                        {/* FIX: Corrected handler call. */}
-                        <InputField label="Icon" value={item.icon} onChange={e => handleNestedItemChange('howItWorks', 'steps', index, 'icon', e.target.value)} />
-                        <InputField label="Title" value={item.title} onChange={e => handleNestedItemChange('howItWorks', 'steps', index, 'title', e.target.value)} />
-                        <InputField label="Description" value={item.description} onChange={e => handleNestedItemChange('howItWorks', 'steps', index, 'description', e.target.value)} />
-                    </div>
-                ))}
-                 <button onClick={() => handleAddItem('howItWorks', 'steps', {id: `s${Date.now()}`, icon: 'Search', title: '', description: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Step</button>
-            </AccordionSection>
-            <AccordionSection title="Value Propositions" id="valuepropositions">
-                {(content.valuePropositions || []).map((item, index) => (
-                    <div key={item.id} className="p-3 border rounded mb-2 bg-slate-50 relative">
-                        <button onClick={() => handleDeleteItem('valuePropositions', null, index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
-                        <InputField label="Icon" value={item.icon} onChange={e => handleNestedItemChange('valuePropositions', null, index, 'icon', e.target.value)} />
-                        <InputField label="Title" value={item.title} onChange={e => handleNestedItemChange('valuePropositions', null, index, 'title', e.target.value)} />
-                        <InputField label="Description" value={item.description} onChange={e => handleNestedItemChange('valuePropositions', null, index, 'description', e.target.value)} />
-                    </div>
-                ))}
-                <button onClick={() => handleAddItem('valuePropositions', null, {id: `vp${Date.now()}`, icon: 'CheckCircle', title: '', description: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Proposition</button>
-            </AccordionSection>
-
-            <AccordionSection title="Popular Destinations" id="destinations">
-                 <InputField label="Section Title" value={content.popularDestinations.title} onChange={e => handleTextChange('popularDestinations.title', e.target.value)} />
-                <InputField label="Section Subtitle" value={content.popularDestinations.subtitle} onChange={e => handleTextChange('popularDestinations.subtitle', e.target.value)} />
-                 {(content.popularDestinations.destinations || []).map((item, index) => (
-                    <div key={item.id} className="p-3 border rounded mt-3 mb-2 bg-slate-50 relative">
-                        <h4 className="text-xs font-bold mb-2">Destination {index + 1}</h4>
-                        <button onClick={() => handleDeleteItem('popularDestinations', 'destinations', index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
-                        {/* FIX: Corrected handler call. */}
-                        <InputField label="Name" value={item.name} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'name', e.target.value)} />
-                        <InputField label="Country" value={item.country} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'country', e.target.value)} />
-                        {/* FIX: Changed item.price.String() to item.price.toString() to fix TypeError. */}
-<InputField label="Price (number)" value={item.price.toString()} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'price', Number(e.target.value))} />
-                        <InputField label="Image URL" value={item.image} onChange={e => handleNestedItemChange('popularDestinations', 'destinations', index, 'image', e.target.value)} />
-                    </div>
-                ))}
-                <button onClick={() => handleAddItem('popularDestinations', 'destinations', {id: `d${Date.now()}`, name: '', country: '', price: 0, image: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add Destination</button>
-            </AccordionSection>
-
-             <AccordionSection title="Partners & CTA Sections" id="misc">
-                <InputField label="Partners Section Title" value={content.partners.title} onChange={e => handleTextChange('partners.title', e.target.value)} />
-                <InputField label="CTA Title" value={content.cta.title} onChange={e => handleTextChange('cta.title', e.target.value)} />
-                <InputField label="CTA Subtitle" value={content.cta.subtitle} onChange={e => handleTextChange('cta.subtitle', e.target.value)} />
-            </AccordionSection>
-
-            <AccordionSection title="FAQs" id="faqs">
-                 <InputField label="Section Title" value={content.faqs.title} onChange={e => handleTextChange('faqs.title', e.target.value)} />
-                 {(content.faqs.items || []).map((item, index) => (
-                    <div key={item.id} className="p-3 border rounded mt-3 mb-2 bg-slate-50 relative">
-                        <h4 className="text-xs font-bold mb-2">FAQ {index + 1}</h4>
-                        <button onClick={() => handleDeleteItem('faqs', 'items', index)} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4"/></button>
-                        {/* FIX: Switched from handleItemChange to the new unified handleNestedItemChange. */}
-                        <InputField label="Question" value={item.question} onChange={e => handleNestedItemChange('faqs', 'items', index, 'question', e.target.value)} />
-                        <InputField label="Answer" value={item.answer} onChange={e => handleNestedItemChange('faqs', 'items', index, 'answer', e.target.value)} />
-                    </div>
-                ))}
-                 <button onClick={() => handleAddItem('faqs', 'items', {id: `faq${Date.now()}`, question: '', answer: ''})} className="text-blue-600 text-xs font-bold mt-2 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Add FAQ</button>
-            </AccordionSection>
         </div>
     );
 };

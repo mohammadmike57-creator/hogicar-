@@ -1,7 +1,4 @@
 
-
-
-
 import { Car, CarCategory, Transmission, FuelPolicy, Booking, Supplier, CommissionType, BookingMode, RateTier, CarType, Extra, ApiPartner, PageContent, Affiliate, RateByDay, SEOConfig, HomepageContent, CarModel, SupplierApplication, PromoCode } from '../types';
 
 export const SUPPLIERS: Supplier[] = [
@@ -1404,6 +1401,7 @@ export let MOCK_HOMEPAGE_CONTENT: HomepageContent = {
 
 export let MOCK_APP_CONFIG = {
   searchingScreenDuration: 5000, // default in ms
+  commissionPercent: 15,
 };
 
 export let MOCK_PROMO_CODES: PromoCode[] = [
@@ -1483,12 +1481,13 @@ export const calculatePrice = (car: Car, days: number, startDate: string): { dai
         tierName = tier.name;
     }
     
-    // If final price is from API, it's already the gross daily rate. Don't add commission.
+    // If final price is from API, it's already the gross daily rate.
     if (car.hasFinalPriceFromApi) {
+        const correctNetTotal = (car.netPrice || 0) * days;
         return {
             dailyRate: netDailyRate,
             total: netDailyRate * days,
-            netTotal: netDailyRate * days,
+            netTotal: correctNetTotal,
             promotionLabel,
             tierName
         };
@@ -1520,27 +1519,9 @@ export const calculatePrice = (car: Car, days: number, startDate: string): { dai
 };
 
 export const calculateBookingFinancials = (grossTotal: number, netTotal: number, extrasTotal: number, supplier: Supplier) => {
-    let payNow = 0;
-    let payAtDesk = 0;
     const commissionAmount = grossTotal - netTotal;
-
-    switch (supplier.commissionType) {
-        case CommissionType.FULL_PREPAID:
-            payNow = grossTotal;
-            payAtDesk = extrasTotal;
-            break;
-        case CommissionType.PARTIAL_PREPAID:
-            payNow = commissionAmount;
-            payAtDesk = netTotal + extrasTotal;
-            break;
-        case CommissionType.PAY_AT_DESK:
-            payNow = commissionAmount;
-            payAtDesk = netTotal + extrasTotal;
-            break;
-        default:
-            payNow = grossTotal;
-            payAtDesk = extrasTotal;
-    }
+    const payNow = commissionAmount;
+    const payAtDesk = netTotal + extrasTotal;
 
     return { payNow, payAtDesk };
 };

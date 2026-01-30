@@ -1,15 +1,14 @@
 
 import * as React from 'react';
-import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { MOCK_CARS, calculatePrice, calculateBookingFinancials, addMockBooking, getPromoCode } from '../services/mockData';
+import { useParams, useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
+import { MOCK_CARS, getPromoCode } from '../services/mockData';
 import { ShieldCheck, User, CreditCard, Shield, Car, Info, Calendar, Mail, Phone, Lock, Plus, Check, Plane, TrendingUp, Clock } from 'lucide-react';
-// FIX: Import `BookingMode` to correctly determine the booking status.
 import { Extra, BookingMode, PromoCode } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
+import { calcPricing, rentalDays } from '../utils/pricing';
 
-// FIX: Moved FormInput outside of the main component to prevent re-rendering issues (losing focus after one character).
 const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: string]: any }) => (
   <div className="relative">
     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -26,20 +25,35 @@ const BookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const car = MOCK_CARS.find(c => c.id === id) || MOCK_CARS[0];
+  const location = useLocation();
+  
+  // Get car object from persisted search results
+  const { car, cars } = React.useMemo(() => {
+    const carsFromState = location.state?.cars;
+    const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
+    const allCars = carsFromState || carsFromStorage;
+
+    if (!allCars || !Array.isArray(allCars) || !id) {
+        return { car: null, cars: [] };
+    }
+    
+    const foundCar = allCars.find((c: Car) => c.id === id);
+    return { car: foundCar || null, cars: allCars };
+  }, [id, location.state]);
+
   const { convertPrice, getCurrencySymbol } = useCurrency();
 
-  // Pre-select extras from URL
   const initialExtras = searchParams.get('extras')?.split(',').filter(Boolean) || [];
   const initialPromoCode = searchParams.get('promo');
 
-  const [driverName, setDriverName] = React.useState('');
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [phoneNumber, setPhoneNumber] = React.useState('');
   const [flightNumber, setFlightNumber] = React.useState('');
   const [insuranceOption, setInsuranceOption] = React.useState<'basic' | 'full'>('basic');
   const [selectedExtraIds, setSelectedExtraIds] = React.useState<string[]>(initialExtras);
-  const [timeLeft, setTimeLeft] = React.useState(20 * 60); // 20 minutes
+  const [timeLeft, setTimeLeft] = React.useState(20 * 60);
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
 
   React.useEffect(() => {
@@ -50,16 +64,19 @@ const BookingPage: React.FC = () => {
       }
     }
   }, [initialPromoCode]);
-  
-  const fullProtectionDailyCost = 12;
 
   React.useEffect(() => {
-    if (timeLeft === 0) return;
     const intervalId = setInterval(() => {
-      setTimeLeft(timeLeft - 1);
+      setTimeLeft(prevTimeLeft => {
+        if (prevTimeLeft <= 1) {
+          clearInterval(intervalId);
+          return 0;
+        }
+        return prevTimeLeft - 1;
+      });
     }, 1000);
     return () => clearInterval(intervalId);
-  }, [timeLeft]);
+  }, []);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -67,98 +84,87 @@ const BookingPage: React.FC = () => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  // Get dates from URL or use defaults
-  const startDateParam = searchParams.get('startDate');
-  const endDateParam = searchParams.get('endDate');
-
-  const today = new Date();
-  const defaultStart = today.toISOString().split('T')[0];
-  const defaultEnd = new Date(new Date().setDate(today.getDate() + 5)).toISOString().split('T')[0];
+  const search = JSON.parse(sessionStorage.getItem("hogicar_search") || "{}");
+  const startDate = search.pickupDate || new Date().toISOString().split('T')[0];
+  const endDate = search.dropoffDate || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const days = rentalDays(startDate, endDate);
   
-  const startDate = startDateParam || defaultStart;
-  const endDate = endDateParam || defaultEnd;
-  const startTime = "10:00"; // Default
-  const endTime = "10:00"; // Default
+  const priceDetails = React.useMemo(() => {
+    if (!car) {
+        return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
+    }
+    return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
+  }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
   
-  // Calculate duration
-  const startD = new Date(startDate);
-  const endD = new Date(endDate);
-  const diffTime = Math.abs(endD.getTime() - startD.getTime());
-  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // Default to 1 day
-
-  // Memoize price calculations
-  const { baseTotal, insuranceCost, extrasCost, finalTotal, finalPayNow, finalPayAtDesk, discountAmount } = React.useMemo(() => {
-    // 1. Calculate Base Rental Price (now returns gross and net)
-    const { total: carGrossTotal, netTotal: carNetTotal } = calculatePrice(car, days, startDate);
-    
-    // 1.5. Apply promo code discount ONLY to commission
-    const commission = carGrossTotal - carNetTotal;
-    const discount = appliedPromo ? commission * appliedPromo.discount : 0;
-    const discountedCarGrossTotal = carGrossTotal - discount;
-
-    // 2. Calculate Insurance (if full protection selected)
-    const insurance = insuranceOption === 'full' ? fullProtectionDailyCost * days : 0;
-    
-    // 3. Calculate Extras (Separately, paid at desk)
-    const extrasTotal = (car.extras || []).reduce((acc, extra) => {
-        if (!selectedExtraIds.includes(extra.id)) return acc;
-        return acc + (extra.type === 'per_day' ? extra.price * days : extra.price);
-    }, 0);
-
-    // 4. Calculate total gross amounts. Insurance is added on top of the car's gross price.
-    const rentalAndInsuranceGrossTotal = discountedCarGrossTotal + insurance;
-    const finalGrossTotal = rentalAndInsuranceGrossTotal + extrasTotal;
-
-    // 5. Calculate Financials. Insurance is assumed not commissionable and is part of the net cost. The discount does not affect the supplier's net.
-    const financialNetTotal = carNetTotal + insurance; 
-    const { payNow, payAtDesk } = calculateBookingFinancials(rentalAndInsuranceGrossTotal, financialNetTotal, extrasTotal, car.supplier);
-
-    return {
-      baseTotal: carGrossTotal, // Original gross price for summary display before discount
-      insuranceCost: insurance,
-      extrasCost: extrasTotal,
-      finalTotal: finalGrossTotal,
-      finalPayNow: payNow,
-      finalPayAtDesk: payAtDesk,
-      discountAmount: discount
-    };
-  }, [car, days, insuranceOption, startDate, selectedExtraIds, appliedPromo]);
-  
-  
-  const handleConfirmBooking = (e: React.FormEvent) => {
+  const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driverName || !email || !phoneNumber) {
-      alert("Please enter the driver's full name, email, and phone number.");
+    if (!car || !firstName || !lastName || !email || !phoneNumber) {
+      alert("Please fill in all required driver details.");
       return;
     }
 
-    // Retrieve Affiliate ID from session storage
-    const affiliateId = sessionStorage.getItem('hogicar_affiliate_ref') || undefined;
-
-    const newBooking = addMockBooking({
-        carId: car.id,
-        carName: `${car.make} ${car.model}`,
-        customerName: driverName,
-        customerEmail: email,
-        customerPhone: phoneNumber,
-        flightNumber: flightNumber,
-        startDate,
-        startTime,
-        endDate,
-        endTime,
-        totalPrice: finalTotal,
-        status: car.supplier.bookingMode === BookingMode.ON_REQUEST ? 'pending' : 'confirmed',
-        amountPaidOnline: finalPayNow,
-        amountToPayAtDesk: finalPayAtDesk,
-        bookingMode: car.supplier.bookingMode,
-        selectedExtras: (car.extras || []).filter(e => selectedExtraIds.includes(e.id)),
-        affiliateId: affiliateId,
-        appliedPromoCode: appliedPromo?.code,
-        discountAmount: discountAmount,
-    });
+    if (!search.pickupCode || !search.dropoffCode) {
+      alert("Pickup/Dropoff location code is missing. Please start your search again.");
+      return;
+    }
     
-    navigate(`/confirmation/${newBooking.id}`);
+    const payload = {
+        supplierId: car.supplierId,
+        supplierName: car.supplier.name,
+        pickupCode: search.pickupCode,
+        dropoffCode: search.dropoffCode,
+        pickupDate: startDate,
+        dropoffDate: endDate,
+        currency: car.currency,
+        netPrice: priceDetails.baseNetTotal,
+        commissionPercent: car.commissionPercent,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: phoneNumber,
+        // The backend recalculates these based on netPrice, but we send them for consistency
+        finalPrice: priceDetails.finalTotal,
+        payNow: priceDetails.payNow,
+        payAtDesk: priceDetails.payAtDesk
+    };
+
+    console.log("BOOKING PAYLOAD:", payload);
+
+    try {
+        const response = await fetch('https://hogicar-backend.onrender.com/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            const resp = await response.json();
+            console.log("BOOKING RESPONSE:", resp);
+            
+            // Set one-time flag for confirmation page
+            sessionStorage.setItem("allowConfirmationRef", resp.bookingRef);
+            sessionStorage.setItem("hogicar_booking", JSON.stringify(resp));
+            // Keep car data for confirmation page display
+            sessionStorage.setItem("hogicar_car", JSON.stringify(car));
+
+            const navUrl = `/confirmation?bookingRef=${resp.bookingRef}`;
+            console.log("NAV CONFIRM URL:", navUrl);
+            
+            navigate(navUrl);
+        } else {
+            const errorData = await response.json();
+            alert(`Booking failed: ${errorData.message || 'An unknown error occurred.'}`);
+        }
+    } catch (error) {
+        console.error("Booking submission error:", error);
+        alert("Could not connect to the booking service. Please try again later.");
+    }
   };
+  
+  if (!car) {
+    React.useEffect(() => { navigate('/'); }, [navigate]);
+    return null;
+  }
 
   return (
     <>
@@ -177,7 +183,7 @@ const BookingPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-5 flex items-center gap-6">
                <img src={car.image} alt={car.model} className="w-40 h-24 object-cover rounded" />
                <div>
-                  <h1 className="text-xl font-bold text-slate-900">{car.make} {car.model}</h1>
+                  <h1 className="text-xl font-bold text-slate-900">{car.displayName || `${car.make} ${car.model}`}</h1>
                   <p className="text-sm text-slate-500">{car.category} &bull; {car.transmission}</p>
                   <p className="text-xs text-slate-600 mt-2">Provided by <strong>{car.supplier.name}</strong></p>
                </div>
@@ -187,10 +193,10 @@ const BookingPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-6">
                <h2 className="text-lg font-semibold text-slate-800 mb-4">Driver Details</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label><FormInput icon={User} type="text" placeholder="John Doe" value={driverName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDriverName(e.target.value)} required /></div>
+                  <div><label className="block text-xs font-medium text-gray-700 mb-1">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required /></div>
+                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required /></div>
                   <div><label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label><FormInput icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required /></div>
                   <div><label className="block text-xs font-medium text-gray-700 mb-1">Phone Number</label><FormInput icon={Phone} type="tel" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Driver's Age</label><FormInput icon={Calendar} type="number" placeholder="25" required /></div>
                   <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-700 mb-1">Flight Number (Optional)</label><FormInput icon={Plane} type="text" placeholder="e.g. AA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value)} /> <p className="text-[10px] text-gray-500 mt-1">Helps the supplier track delays.</p></div>
                </div>
             </div>
@@ -209,7 +215,7 @@ const BookingPage: React.FC = () => {
                         <div>
                           <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-green-500" /> Full Protection</h3>
                           <p className="text-xs text-slate-500 mt-1">Peace of mind. Your excess is reduced to {getCurrencySymbol()}0, plus coverage for tyres and windows.</p>
-                          <span className="text-xs font-bold text-blue-600 mt-2 block">+ {getCurrencySymbol()}{convertPrice(fullProtectionDailyCost).toFixed(2)} / day</span>
+                          <span className="text-xs font-bold text-blue-600 mt-2 block">+ {getCurrencySymbol()}{convertPrice(12).toFixed(2)} / day</span>
                         </div>
                         <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                            <TrendingUp className="w-3 h-3"/> Popular
@@ -250,10 +256,9 @@ const BookingPage: React.FC = () => {
 
                 <h3 className="text-lg font-bold text-slate-900 mb-4">Price Summary</h3>
                 <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-xs text-slate-600"><span>Car Hire ({days} days)</span><span>{getCurrencySymbol()}{convertPrice(baseTotal).toFixed(2)}</span></div>
-                  {insuranceOption === 'full' && <div className="flex justify-between text-xs text-slate-600"><span>Full Protection</span><span>{getCurrencySymbol()}{convertPrice(insuranceCost).toFixed(2)}</span></div>}
+                  <div className="flex justify-between text-xs text-slate-600"><span>Car Hire ({days} days)</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-xs text-slate-600"><span>Full Protection</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
                   
-                  {/* Selected Extras Summary */}
                   {selectedExtraIds.length > 0 && (
                       <div className="pt-2 mt-2 border-t border-slate-100">
                           {car.extras?.filter(e => selectedExtraIds.includes(e.id)).map(extra => (
@@ -265,19 +270,19 @@ const BookingPage: React.FC = () => {
                       </div>
                   )}
 
-                  {discountAmount > 0 && <div className="flex justify-between text-xs text-green-600"><span>Discount ({appliedPromo?.code})</span><span>-{getCurrencySymbol()}{convertPrice(discountAmount).toFixed(2)}</span></div>}
+                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-xs text-green-600"><span>Discount ({appliedPromo?.code})</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
 
                   <div className="flex justify-between text-xs text-slate-600 pt-2 border-t border-slate-100"><span>Taxes & Fees</span><span className="text-green-600 font-medium">Included</span></div>
                 </div>
-                <div className="border-t border-slate-100 pt-3 mb-4">
-                  <div className="flex justify-between items-center"><span className="font-bold text-slate-900 text-base">Total</span><span className="font-bold text-slate-900 text-2xl">{getCurrencySymbol()}{convertPrice(finalTotal).toFixed(2)}</span></div>
-                </div>
-                <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-2 mb-6">
-                   <div className="flex justify-between font-bold text-blue-600"><span>Pay Online Now</span><span>{getCurrencySymbol()}{convertPrice(finalPayNow).toFixed(2)}</span></div>
-                   <div className="flex justify-between text-slate-600"><span>Pay at Counter</span><span>{getCurrencySymbol()}{convertPrice(finalPayAtDesk).toFixed(2)}</span></div>
-                </div>
+                <div className="border-t-2 border-dashed border-slate-200 pt-3 my-4">
+                  <div className="flex justify-between items-center"><span className="font-bold text-slate-900 text-base">Total</span><span className="font-bold text-slate-900 text-2xl">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
+               </div>
+               <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-2 mb-6">
+                   <div className="flex justify-between font-bold text-blue-600"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
+                   <div className="flex justify-between text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
+               </div>
                 <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm">
-                  Confirm & Pay {getCurrencySymbol()}{convertPrice(finalPayNow).toFixed(2)}
+                  Confirm & Pay {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}
                 </button>
                 <p className="text-center text-[10px] text-slate-400 mt-3 flex items-center justify-center gap-1"><ShieldCheck className="w-3 h-3"/> Secure payment processing by Stripe</p>
                 <div className="bg-blue-50 border border-blue-100 rounded p-2 mt-4 flex gap-2">

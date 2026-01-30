@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin } from 'lucide-react';
@@ -5,16 +6,66 @@ import { SUPPLIERS, MOCK_HOMEPAGE_CONTENT } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
+import { fetchLocations } from '../api';
+import { LocationSuggestion } from '../api';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
-  const handleSearch = (params: any) => {
-    const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
-    if (!pickup) return;
+  // --- START: NEW SEARCH LOGIC ---
+  const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
+  const [pickupCode, setPickupCode] = React.useState<string>('');
+  const [dropoffCode, setDropoffCode] = React.useState<string>('');
+  const [pickupName, setPickupName] = React.useState<string>('');
+  const [dropoffName, setDropoffName] = React.useState<string>('');
+  
+  // D) Load locations and set defaults
+  React.useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const options = await fetchLocations(); // A) fetchLocations handles empty query
+        
+        // B) Build dropdown options
+        const mappedOptions = options.map(l => ({
+          label: l.label ?? `${(l as any).name}, ${(l as any).country} (${(l as any).code})`,
+          value: l.value ?? (l as any).code,
+          type: l.type ?? 'AIRPORT'
+        }));
+        setLocationsOptions(mappedOptions);
 
+        if (mappedOptions.length > 0) {
+            const defaultOption = mappedOptions[0];
+            if (!pickupCode) { // only set if empty
+                setPickupCode(defaultOption.value);
+                setPickupName(defaultOption.label);
+                console.log("DEFAULT PICKUP CODE:", defaultOption.value);
+            }
+            if (!dropoffCode) { // only set if empty
+                setDropoffCode(defaultOption.value);
+                setDropoffName(defaultOption.label);
+                console.log("DEFAULT DROPOFF CODE:", defaultOption.value);
+            }
+        }
+      } catch (error) {
+         console.error("Failed to load locations on homepage:", error);
+      }
+    };
+    loadLocations();
+  }, []);
+  // --- END: NEW SEARCH LOGIC ---
+
+  const handleSearch = (params: any) => {
+    // E) Block search when codes empty
+    if (!params.pickup || !params.dropoff) {
+      console.log("BLOCKED SEARCH - EMPTY PICKUP/DROPOFF");
+      alert("Please select a pickup and dropoff location.");
+      return;
+    }
+
+    const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
+    
     const searchParams = new URLSearchParams();
     searchParams.set('pickup', pickup);
     if(pickupName) searchParams.set('pickupName', pickupName);
@@ -67,7 +118,17 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          <SearchWidget onSearch={handleSearch} showTitle={true} />
+          <SearchWidget 
+            onSearch={handleSearch} 
+            showTitle={true} 
+            // C) Bind dropdown selected value to state via initialValues for the widget
+            initialValues={{
+              pickup: pickupCode,
+              pickupName: pickupName,
+              dropoff: dropoffCode,
+              dropoffName: dropoffName
+            }}
+          />
           
         </div>
       </section>
@@ -262,5 +323,4 @@ const Home: React.FC = () => {
     </div>
   );
 };
-// FIX: Add default export for the Home component.
 export default Home;

@@ -1,8 +1,5 @@
 
 
-
-
-
 export enum CarCategory {
   ECONOMY = 'Economy',
   COMPACT = 'Compact',
@@ -97,6 +94,7 @@ export interface Supplier {
   
   // Operational Settings
   gracePeriodHours: number; // For returns (Late tolerance)
+  gracePeriodDays?: number;
   minBookingLeadTime?: number; // Hours required before pickup (e.g. 2 hours notice)
   termsAndConditions?: string; // HTML or Text terms
   includesCDW?: boolean; // Collision Damage Waiver
@@ -134,6 +132,11 @@ export interface Car {
   id: string;
   make: string;
   model: string;
+  displayName?: string;
+  netPrice?: number;
+  commissionPercent?: number;
+  commissionAmount?: number;
+  finalPrice?: number;
   year: number;
   category: CarCategory;
   type: CarType;
@@ -164,37 +167,54 @@ export interface Car {
   tags?: string[];
   detailedRatings?: CarRatings;
   hasFinalPriceFromApi?: boolean;
+  supplierId?: number | null;
+  currency?: string;
 }
 
 export interface ApiSearchResult {
-  id: number | string;
-  brand: string;
-  model: string;
-  category: CarCategory;
-  netPrice: number;
-  finalPrice?: number;
-  currency: string;
-  available: boolean;
-  image: string;
-  passengers: number;
-  bags: number;
-  doors: number;
-  transmission: Transmission;
-  airCon: boolean;
-  fuelPolicy: FuelPolicy;
-  unlimitedMileage: boolean;
-  supplier: {
+  id: string;
+  name?: string;
+  brand?: string;
+  model?: string;
+  category?: CarCategory;
+  netPrice?: number;
+  finalPrice?: number | null;
+  currency?: string;
+  available?: boolean;
+  image?: string;
+  passengers?: number;
+  bags?: number;
+  doors?: number;
+  transmission?: Transmission;
+  airCon?: boolean;
+  fuelPolicy?: FuelPolicy;
+  unlimitedMileage?: boolean;
+  locationDetail?: string;
+  sippCode?: string;
+  description?: string;
+  commissionAmount?: number;
+  commissionPercent?: number;
+  
+  // Fields for normalization
+  supplierId?: number | null;
+  supplierName?: string;
+  supplierLogoUrl?: string;
+  supplierTerms?: string;
+  supplierGracePeriodDays?: number;
+
+  supplier?: {
+    id?: number | null;
     name: string;
     logoUrl: string;
-    rating: number;
-  };
-  locationDetail: string;
-  sippCode: string;
+    terms: string;
+    gracePeriodDays: number;
+    rating?: number;
+  } | null;
 }
 
 
 export interface Booking {
-  id: string;
+  id: string | number;
   carId: string;
   carName: string;
   customerName: string;
@@ -229,6 +249,24 @@ export interface Booking {
 
   // Post-rental
   reviewSubmitted?: boolean;
+
+  // Fields from API response
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  finalPrice?: number;
+  payNow?: number;
+  payAtDesk?: number;
+  supplierName?: string;
+  pickupCode?: string;
+  dropoffCode?: string;
+  pickupDate?: string;
+  dropoffDate?: string;
+  currency?: string;
+  netPrice?: number;
+  commissionPercent?: number;
+  commissionAmount?: number;
 }
 
 export interface StatsData {

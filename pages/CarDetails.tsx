@@ -1,13 +1,14 @@
 
 import * as React from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
-import { MOCK_CARS, calculatePrice, calculateBookingFinancials, getPromoCode } from '../services/mockData';
+import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { MOCK_CARS, getPromoCode } from '../services/mockData';
 // FIX: Add 'Users' to lucide-react import to fix missing icon errors.
 import { Check, ShieldCheck, User, Users, Briefcase, Fuel, Info, CreditCard as CreditCardIcon, ShieldAlert, Calendar, Tag, Car as CarIcon, Snowflake, XCircle, FileText, Clock, Navigation, Baby, PlusCircle, Star, Sparkles, MapPin, CheckCircle, GaugeCircle, Hash, X, ArrowRight, Shield } from 'lucide-react';
-import { CommissionType, Supplier, PromoCode } from '../types';
+import { Car, CommissionType, Supplier, PromoCode } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
+import { calcPricing, rentalDays } from '../utils/pricing';
 
 const StructuredData: React.FC<{ car: typeof MOCK_CARS[0], total: number, currencyCode: string }> = ({ car, total, currencyCode }) => {
   const schema = {
@@ -57,7 +58,7 @@ const extraIconMap: { [key: string]: React.ElementType } = {
 };
 
 const CarDoorIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
         <path d="M19 15V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v9"/>
         <path d="M12 15V6"/>
         <path d="M4 15h16"/>
@@ -66,7 +67,7 @@ const CarDoorIcon = () => (
 );
 
 const AutomaticIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
     <path d="M12 2v2.34"/><path d="M12 10.32v1.34"/><path d="M7.11 4.41 8 6.1"/><path d="M16 6.1l.89-1.69"/><path d="M4.41 16.89l1.69-.89"/><path d="M17.9 16l1.69.89"/><path d="M2 12h2.34"/><path d="M19.66 12H22"/><path d="M12 14.66V16"/><path d="M12 22v-2.34"/><path d="m15 12-3-3-3 3"/><path d="M12 9v13"/>
   </svg>
 );
@@ -82,7 +83,7 @@ const MastercardIcon = () => (
 
 const AmexIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded-sm shadow-md">
-        <rect width="38" height="24" fill="#006FCF" rx="3"/>
+        <rect width="38" height="24" fill="#006CF" rx="3"/>
         <rect x="4" y="4" width="30" height="16" rx="1" fill="none" stroke="white" strokeWidth="1.5"/>
         <text x="19" y="15.5" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fontWeight="bold" fill="white">AMEX</text>
     </svg>
@@ -166,7 +167,23 @@ const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier, onCl
 const CarDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const car = MOCK_CARS.find(c => c.id === id) || MOCK_CARS[0];
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get car object from persisted search results
+  const { car, cars } = React.useMemo(() => {
+    const carsFromState = location.state?.cars;
+    const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
+    const allCars = carsFromState || carsFromStorage;
+
+    if (!allCars || !Array.isArray(allCars) || !id) {
+        return { car: null, cars: [] };
+    }
+    
+    const foundCar = allCars.find((c: Car) => c.id === id);
+    return { car: foundCar || null, cars: allCars };
+  }, [id, location.state]);
+
   const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
   
   const [selectedExtraIds, setSelectedExtraIds] = React.useState<string[]>([]);
@@ -194,7 +211,6 @@ const CarDetails: React.FC = () => {
       }
   };
 
-
   React.useEffect(() => {
     if (timeLeft === 0) return;
     const intervalId = setInterval(() => {
@@ -209,46 +225,20 @@ const CarDetails: React.FC = () => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
   
-  const startDateParam = searchParams.get('startDate');
-  const endDateParam = searchParams.get('endDate');
-
-  const today = new Date();
-  const defaultStart = today.toISOString().split('T')[0];
-  const defaultEnd = new Date(new Date().setDate(today.getDate() + 5)).toISOString().split('T')[0];
+  const startDate = searchParams.get('startDate') || new Date().toISOString().split('T')[0];
+  const endDate = searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const pickupCode = searchParams.get('pickup');
+  const dropoffCode = searchParams.get('dropoff');
   
-  const startDate = startDateParam || defaultStart;
-  const endDate = endDateParam || defaultEnd;
-
-  const startD = new Date(startDate);
-  const endD = new Date(endDate);
-  const diffTime = Math.abs(endD.getTime() - startD.getTime());
-  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+  const search = { pickupDate: startDate, dropoffDate: endDate };
+  const days = rentalDays(startDate, endDate);
   
-  const { total: baseTotal, netTotal, tierName } = calculatePrice(car, days, startDate);
-
-  const fullProtectionDailyCost = 12;
-
-  const { extrasCost, payNow, payAtDesk, finalTotal, insuranceCost, discountAmount } = React.useMemo(() => {
-    const calculatedExtrasCost = (car.extras || []).reduce((acc, extra) => {
-        if (!selectedExtraIds.includes(extra.id)) return acc;
-        return acc + (extra.type === 'per_day' ? extra.price * days : extra.price);
-    }, 0);
-
-    const insuranceCost = insuranceOption === 'full' ? fullProtectionDailyCost * days : 0;
-    
-    const commission = baseTotal - netTotal;
-    const discountAmount = appliedPromo ? commission * appliedPromo.discount : 0;
-    const discountedBaseTotal = baseTotal - discountAmount;
-    
-    const financialNetTotal = netTotal + insuranceCost; // Net for supplier is unaffected by discount
-    const rentalAndInsuranceGrossTotal = discountedBaseTotal + insuranceCost; // Gross for customer is reduced
-
-    const { payNow, payAtDesk } = calculateBookingFinancials(rentalAndInsuranceGrossTotal, financialNetTotal, calculatedExtrasCost, car.supplier);
-    const calculatedFinalTotal = discountedBaseTotal + insuranceCost + calculatedExtrasCost;
-
-    return { extrasCost: calculatedExtrasCost, payNow, payAtDesk, finalTotal: calculatedFinalTotal, insuranceCost, discountAmount };
-  }, [baseTotal, netTotal, car.supplier, selectedExtraIds, days, insuranceOption, appliedPromo]);
-  
+  const priceDetails = React.useMemo(() => {
+    if (!car) {
+        return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0 };
+    }
+    return calcPricing(car, search, selectedExtraIds, insuranceOption, appliedPromo);
+  }, [car, search, selectedExtraIds, insuranceOption, appliedPromo]);
   
   const handleToggleExtra = (extraId: string) => {
     setSelectedExtraIds(prev => 
@@ -259,10 +249,21 @@ const CarDetails: React.FC = () => {
   const bookingSearchParams = new URLSearchParams({ 
       startDate, 
       endDate,
+      ...(pickupCode && { pickup: pickupCode }),
+      ...(dropoffCode && { dropoff: dropoffCode }),
       ...(selectedExtraIds.length > 0 && { extras: selectedExtraIds.join(',') }),
       ...(appliedPromo && { promo: appliedPromo.code })
   }).toString();
 
+  // Handle case where car is not found (e.g., page refresh with no session data)
+  if (!car) {
+    React.useEffect(() => {
+        // Redirect to home if car data is lost
+        navigate('/');
+    }, [navigate]);
+    return null; // or a loading/error component
+  }
+  
   const carSpecs = [
     { icon: User, label: `${car.passengers} Seats` },
     { icon: CarDoorIcon, label: `${car.doors} Doors` },
@@ -280,7 +281,7 @@ const CarDetails: React.FC = () => {
       title={`Rent a ${car.make} ${car.model} in ${car.location} | Hogicar`}
       description={`Book a ${car.make} ${car.model} from ${car.supplier.name}. Check availability and get the best price for your rental in ${car.location} today.`}
     />
-    <StructuredData car={car} total={convertPrice(finalTotal)} currencyCode={selectedCurrency} />
+    <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
     {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
     <div className="bg-slate-50 min-h-screen py-6 font-sans pb-28 lg:pb-6">
@@ -298,16 +299,11 @@ const CarDetails: React.FC = () => {
                     <div className="md:w-2/5 flex items-center justify-center">
                          <div className="relative">
                              <img src={car.image} alt={`${car.make} ${car.model}`} className="max-w-xs w-full object-contain" />
-                             {tierName && (
-                                <div className="absolute top-0 right-0 bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1">
-                                    <Tag className="w-3 h-3"/> {tierName}
-                                </div>
-                             )}
                          </div>
                     </div>
                     <div className="md:w-3/5">
                         <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider">{car.category}</span>
-                        <h1 className="text-3xl font-extrabold text-slate-900 mt-2">{car.make} {car.model}</h1>
+                        <h1 className="text-3xl font-extrabold text-slate-900 mt-2">{car.displayName || `${car.make} ${car.model}`}</h1>
                         <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
                             or similar {car.type}
                             <InfoTooltip text="You are booking a car from a specific category. The model shown is an example, but you will receive a similar vehicle with the same main features (size, transmission, etc.)." />
@@ -387,7 +383,7 @@ const CarDetails: React.FC = () => {
                         </div>
                      </div>
                      <p className="text-xs text-slate-500 mt-2">Peace of mind. Your excess is reduced to {getCurrencySymbol()}0, plus coverage for tyres and windows.</p>
-                     <p className="text-xs font-bold text-blue-600 mt-2">+ {getCurrencySymbol()}{convertPrice(fullProtectionDailyCost).toFixed(2)} / day</p>
+                     <p className="text-xs font-bold text-blue-600 mt-2">+ {getCurrencySymbol()}{convertPrice(12).toFixed(2)} / day</p>
                      
                      {insuranceOption === 'full' && (
                         <div className="mt-3 pt-3 border-t border-blue-200 text-xs text-slate-600 space-y-1 animate-fadeIn">
@@ -508,10 +504,10 @@ const CarDetails: React.FC = () => {
                
                <h3 className="text-lg font-bold text-slate-900 mb-4">Price Summary</h3>
                 <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(baseTotal).toFixed(2)}</span></div>
-                  {insuranceOption === 'full' && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(insuranceCost).toFixed(2)}</span></div>}
-                  {extrasCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Extras</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(extrasCost).toFixed(2)}</span></div>}
-                  {discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount ({appliedPromo?.code})</span><span className="font-medium">-{getCurrencySymbol()}{convertPrice(discountAmount).toFixed(2)}</span></div>}
+                  <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                  {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Extras</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
+                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount ({appliedPromo?.code})</span><span className="font-medium">-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-slate-100">
@@ -536,14 +532,14 @@ const CarDetails: React.FC = () => {
                 </div>
                
                <div className="border-t-2 border-dashed border-slate-200 pt-3 my-4">
-                  <div className="flex justify-between items-center"><span className="font-bold text-slate-900 text-base">Total Price</span><span className="font-bold text-slate-900 text-2xl">{getCurrencySymbol()}{convertPrice(finalTotal).toFixed(2)}</span></div>
+                  <div className="flex justify-between items-center"><span className="font-bold text-slate-900 text-base">Total</span><span className="font-bold text-slate-900 text-2xl">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
                </div>
                <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-2 mb-4">
-                   <div className="flex justify-between font-bold text-blue-600"><span>Pay Online Now</span><span>{getCurrencySymbol()}{convertPrice(payNow).toFixed(2)}</span></div>
-                   <div className="flex justify-between text-slate-600"><span>Pay at Counter</span><span>{getCurrencySymbol()}{convertPrice(payAtDesk).toFixed(2)}</span></div>
+                   <div className="flex justify-between font-bold text-blue-600"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
+                   <div className="flex justify-between text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                </div>
 
-               <Link to={`/book/${car.id}?${bookingSearchParams}`} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm">
+               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm">
                   Continue to Book
                </Link>
                
@@ -558,9 +554,9 @@ const CarDetails: React.FC = () => {
           <div className="max-w-[1600px] mx-auto flex justify-between items-center gap-4">
               <div>
                   <p className="text-xs text-slate-500">Total Price</p>
-                  <p className="font-bold text-xl text-slate-900">{getCurrencySymbol()}{convertPrice(finalTotal).toFixed(2)}</p>
+                  <p className="font-bold text-xl text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
               </div>
-              <Link to={`/book/${car.id}?${bookingSearchParams}`} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform active:scale-95 text-sm whitespace-nowrap">
+              <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform active:scale-95 text-sm whitespace-nowrap">
                   Continue to Book
               </Link>
           </div>

@@ -185,10 +185,12 @@ const Searching: React.FC = () => {
     }, duration / searchMessages.length);
 
     const navigationTimeout = setTimeout(() => {
-      const location = searchParams.get('location') || '';
-      const startDate = searchParams.get('startDate') || '';
-      const endDate = searchParams.get('endDate') || '';
-      navigate(`/search?location=${encodeURIComponent(location)}&startDate=${startDate}&endDate=${endDate}`);
+      // Create a new URLSearchParams object from the current page's search params.
+      // This will correctly forward ALL parameters it received from the home page.
+      const forwardParams = new URLSearchParams(searchParams);
+      
+      // Navigate to the search results page with the preserved parameters.
+      navigate(`/search?${forwardParams.toString()}`);
     }, duration);
 
     return () => {

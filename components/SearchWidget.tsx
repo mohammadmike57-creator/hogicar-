@@ -109,7 +109,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleFocus = () => {
-        if (pickupQuery.length > 1 && (suggestions.length > 0 || isLoadingSuggestions || suggestionsError)) {
+        if ((pickupQuery || '').length > 1 && (suggestions.length > 0 || isLoadingSuggestions || suggestionsError)) {
             setIsSuggestionsOpen(true);
         }
     };
@@ -154,7 +154,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     };
 
     const handleDropoffFocus = () => {
-         if (dropoffQuery.length > 1 && (dropoffSuggestions.length > 0 || isDropoffLoading || dropoffError)) {
+         if ((dropoffQuery || '').length > 1 && (dropoffSuggestions.length > 0 || isDropoffLoading || dropoffError)) {
             setIsDropoffSuggestionsOpen(true);
         }
     };
@@ -182,7 +182,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const trimmedQuery = pickupQuery.trim();
+        const trimmedQuery = (pickupQuery || '').trim();
         let pickupLocation: string | undefined;
         let finalPickupName: string | undefined;
 
@@ -201,7 +201,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         let finalDropoffName: string | undefined = finalPickupName;
 
         if (differentDropoff) {
-            const trimmedDropoffQuery = dropoffQuery.trim();
+            const trimmedDropoffQuery = (dropoffQuery || '').trim();
             if (dropoffSelection) {
                 dropoffLocation = dropoffSelection.value;
                 finalDropoffName = dropoffSelection.label;

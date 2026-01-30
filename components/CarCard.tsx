@@ -1,17 +1,17 @@
 
-
 import * as React from 'react';
 import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { Link } from 'react-router-dom';
-import { calculatePrice, calculateBookingFinancials } from '../services/mockData';
+import { calculatePrice } from '../services/mockData';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { calcPricing } from '../utils/pricing';
 
 // --- ICONS ---
 
 // Custom icon for car doors
 const CarDoorIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
         <path d="M19 15V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v9"/>
         <path d="M12 15V6"/>
         <path d="M4 15h16"/>
@@ -21,7 +21,7 @@ const CarDoorIcon = () => (
 
 // A custom icon component for Automatic Transmission to match the design
 const AutomaticIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
     <path d="M12 2v2.34"/><path d="M12 10.32v1.34"/><path d="M7.11 4.41 8 6.1"/><path d="M16 6.1l.89-1.69"/><path d="M4.41 16.89l1.69-.89"/><path d="M17.9 16l1.69.89"/><path d="M2 12h2.34"/><path d="M19.66 12H22"/><path d="M12 14.66V16"/><path d="M12 22v-2.34"/><path d="m15 12-3-3-3 3"/><path d="M12 9v13"/>
   </svg>
 );
@@ -102,6 +102,7 @@ const DetailedRatingsTooltip: React.FC<{ ratings: CarRatings }> = ({ ratings }) 
 // --- RENTAL CONDITIONS MODAL ---
 const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier, onClose: () => void }) => {
     const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
+    const gracePeriodInfo = supplier.gracePeriodDays ? `${supplier.gracePeriodDays} day(s)` : `${supplier.gracePeriodHours} hour(s)`;
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
@@ -158,6 +159,8 @@ const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier, onCl
                         <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><FileText className="w-4 h-4 text-slate-500"/> Rental Policy & Terms</h4>
                         <div className="prose prose-sm max-w-none text-slate-600 leading-relaxed text-xs whitespace-pre-line border border-slate-200 bg-slate-50/50 p-4 rounded-lg h-48 overflow-y-auto">
                            {supplier.termsAndConditions || "No specific terms and conditions provided by this supplier."}
+                           <br /><br />
+                           <strong>Grace Period:</strong> A grace period of {gracePeriodInfo} is provided for returns.
                         </div>
                     </div>
                     <div>
@@ -242,19 +245,43 @@ const getRecentBookingInfo = (car: CarType): { isRecent: boolean; message: strin
 
 interface CarCardProps {
   car: CarType;
+  cars: CarType[];
   days: number;
   startDate: string;
   endDate: string;
+  pickupCode: string;
+  dropoffCode: string;
 }
 
-const CarCard: React.FC<CarCardProps> = ({ car, days, startDate, endDate }) => {
+const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, pickupCode, dropoffCode }) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
   const { convertPrice, getCurrencySymbol } = useCurrency();
-  const { total, netTotal, promotionLabel } = calculatePrice(car, days, startDate);
-  const { payNow } = calculateBookingFinancials(total, netTotal, 0, car.supplier);
-  const searchParams = new URLSearchParams({ startDate, endDate }).toString();
+
+  const { promotionLabel } = calculatePrice(car, days, startDate);
+
+  // Use the single source of truth for pricing
+  const search = { pickupDate: startDate, dropoffDate: endDate };
+  const price = calcPricing(car, search);
+  // FIX: Access the correct property 'finalTotal' instead of 'finalPrice'.
+  const totalFinalPrice = price.finalTotal;
+  const totalCommissionAmount = price.payNow;
+
+
+  const searchParams = new URLSearchParams({ 
+    startDate, 
+    endDate,
+    pickup: pickupCode,
+    dropoff: dropoffCode
+  }).toString();
 
   const recentBookingInfo = React.useMemo(() => getRecentBookingInfo(car), [car]);
+  
+  const handleSelectCar = () => {
+    // Persist the car ID and the full results list for the next page
+    sessionStorage.setItem('hogicar_selectedCarId', car.id);
+    sessionStorage.setItem('hogicar_cars', JSON.stringify(cars));
+    console.log("SAVED CAR ID:", car.id, "AND CARS LIST");
+  };
 
   return (
     <>
@@ -267,7 +294,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, days, startDate, endDate }) => {
                   <div> {/* Top Section for Car Info */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           {/* Image */}
-                          <Link to={`/car/${car.id}?${searchParams}`} className="sm:col-span-1 flex items-center justify-center relative group">
+                          <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="sm:col-span-1 flex items-center justify-center relative group">
                              <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-28 group-hover:scale-105 transition-transform duration-300" />
                              {promotionLabel ? (
                                  <span className="absolute top-0 left-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-br-lg md:rounded-tl-xl flex items-center gap-1">
@@ -282,8 +309,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, days, startDate, endDate }) => {
                           
                           {/* Title & Specs */}
                           <div className="sm:col-span-2">
-                              <Link to={`/car/${car.id}?${searchParams}`} className="group">
-                                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{car.make} {car.model}</h3>
+                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
+                                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{car.displayName}</h3>
                               </Link>
                               <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                                   or similar {car.category}
@@ -371,17 +398,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, days, startDate, endDate }) => {
               <div className="md:col-span-1 flex flex-col justify-end md:border-l md:border-slate-100 md:pl-4 pt-4 md:pt-0 border-t border-slate-100">
                   <div className="text-right flex flex-col items-end">
                       <div>
-                          <p className="text-xs text-slate-500">Price for {days} days:</p>
-                          <p className="text-xl font-extrabold text-slate-900 my-0.5">{getCurrencySymbol()}{convertPrice(total).toFixed(2)}</p>
-                          {payNow > 0 && (
-                              <div className="mt-1">
-                                  <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                                      Pay {getCurrencySymbol()}{convertPrice(payNow).toFixed(2)} now
-                                  </span>
-                              </div>
-                          )}
+                          <p className="font-bold text-slate-900 text-lg">
+                              Total: {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
+                          </p>
+                          <p className="text-green-800 text-sm font-medium mt-1">
+                              Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                          </p>
                       </div>
-                      <Link to={`/car/${car.id}?${searchParams}`} className="mt-2 w-full md:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-transform active:scale-95 text-center text-sm">
+                      <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="mt-2 w-full md:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-transform active:scale-95 text-center text-sm">
                           View Deal
                       </Link>
                   </div>
