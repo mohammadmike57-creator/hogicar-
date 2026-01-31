@@ -62,7 +62,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     React.useEffect(() => {
         const loadDefaultLocations = async () => {
             try {
-                const results = await fetchLocations(); // No query
+                // FIX: Pass an empty string to satisfy the function signature that expects an argument, even though the argument is optional in the definition.
+                const results = await fetchLocations(''); // No query
                 setDefaultSuggestions(results);
                 // Also set the main suggestions if input is empty initially
                 if (!pickupQuery) {

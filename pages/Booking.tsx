@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useParams, useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
 import { MOCK_CARS, getPromoCode } from '../services/mockData';
-import { ShieldCheck, User, CreditCard, Shield, Car, Info, Calendar, Mail, Phone, Lock, Plus, Check, Plane, TrendingUp, Clock } from 'lucide-react';
-import { Extra, BookingMode, PromoCode } from '../types';
+import { ShieldCheck, User, CreditCard, Shield, Info, Calendar, Mail, Phone, Lock, Plus, Check, Plane, TrendingUp, Clock } from 'lucide-react';
+import { Car, Extra, BookingMode, PromoCode } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';

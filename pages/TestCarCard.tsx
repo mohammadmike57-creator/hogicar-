@@ -29,9 +29,13 @@ const TestCarCard: React.FC = () => {
               <CarCard 
                 key={car.id}
                 car={car}
+                // FIX: Added missing props to satisfy CarCardProps interface
+                cars={MOCK_CARS}
                 days={testDays}
                 startDate={testStartDate}
                 endDate={testEndDate}
+                pickupCode="LAX"
+                dropoffCode="LAX"
               />
             ))}
           </div>

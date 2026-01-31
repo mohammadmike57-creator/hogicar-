@@ -54,6 +54,13 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Amadeus SDK for location search -->
+		<dependency>
+			<groupId>com.amadeus</groupId>
+			<artifactId>amadeus-java</artifactId>
+			<version>6.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

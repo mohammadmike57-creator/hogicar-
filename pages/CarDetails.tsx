@@ -235,7 +235,8 @@ const CarDetails: React.FC = () => {
   
   const priceDetails = React.useMemo(() => {
     if (!car) {
-        return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0 };
+        // FIX: Add 'commissionAmount' to the fallback object to match the return type of calcPricing.
+        return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
     }
     return calcPricing(car, search, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, search, selectedExtraIds, insuranceOption, appliedPromo]);

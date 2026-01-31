@@ -1124,8 +1124,9 @@ const SupplierDashboard: React.FC = () => {
 
          const term = searchTerm.toLowerCase();
          // Text Search: ID, Name
+         // FIX: Convert booking ID to string before calling toLowerCase
          const matchesSearch = b.customerName.toLowerCase().includes(term) || 
-                               b.id.toLowerCase().includes(term);
+                               String(b.id).toLowerCase().includes(term);
          
          if (!matchesSearch) return false;
 
@@ -1271,8 +1272,10 @@ const SupplierDashboard: React.FC = () => {
                           <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                               {booking.status === 'pending' ? (
                                   <div className="flex justify-end gap-2">
-                                      <button onClick={() => handleBookingAction(booking.id, 'confirm')} className="bg-white border border-green-200 text-green-600 hover:bg-green-50 p-1.5 rounded shadow-sm transition-colors" title="Confirm"><CheckCircle className="w-4 h-4"/></button>
-                                      <button onClick={() => handleBookingAction(booking.id, 'reject')} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 p-1.5 rounded shadow-sm transition-colors" title="Reject"><XCircle className="w-4 h-4"/></button>
+                                      {/* FIX: Convert booking.id to string before passing to handler */}
+                                      <button onClick={() => handleBookingAction(String(booking.id), 'confirm')} className="bg-white border border-green-200 text-green-600 hover:bg-green-50 p-1.5 rounded shadow-sm transition-colors" title="Confirm"><CheckCircle className="w-4 h-4"/></button>
+                                      {/* FIX: Convert booking.id to string before passing to handler */}
+                                      <button onClick={() => handleBookingAction(String(booking.id), 'reject')} className="bg-white border border-red-200 text-red-600 hover:bg-red-50 p-1.5 rounded shadow-sm transition-colors" title="Reject"><XCircle className="w-4 h-4"/></button>
                                   </div>
                               ) : (
                                   <button onClick={() => setSelectedBooking(booking)} className="text-blue-600 hover:text-blue-800 text-[10px] font-bold uppercase tracking-wide hover:underline flex items-center justify-end gap-1 w-full">
