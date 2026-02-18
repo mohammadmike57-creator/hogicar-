@@ -1,7 +1,9 @@
 
+// This file contains the fetch wrapper for all admin-authenticated API calls.
+// It enforces JWT via Authorization header only; no cookies are used.
 import { API_BASE_URL } from './config';
 
-const ADMIN_TOKEN_KEY = "adminToken";
+const ADMIN_TOKEN_KEY = "admin_token";
 
 export function getAdminToken(): string | null {
     return localStorage.getItem(ADMIN_TOKEN_KEY);
@@ -34,10 +36,12 @@ export async function adminFetch(path: string, options: RequestInit = {}, suppre
         response = await fetch(url, {
             ...options,
             headers,
+            credentials: 'omit',
         });
     } catch(e: any) {
         // Network error, CORS, etc.
-        throw new Error('Network error. Please check your connection.');
+        console.error(`Request to ${url} failed`, e);
+        throw new Error(`Cannot reach backend: ${API_BASE_URL}`);
     }
 
 

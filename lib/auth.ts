@@ -1,4 +1,4 @@
-const TOKEN_KEY = "supplierToken";
+const TOKEN_KEY = "supplier_token";
 
 export function setSupplierToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);

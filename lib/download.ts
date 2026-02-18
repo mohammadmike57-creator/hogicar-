@@ -23,6 +23,7 @@ export async function downloadRatesTemplateExcel() {
     res = await fetch(url, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
+      credentials: "omit", // Ensure no cookies are sent
     });
   } catch (e: any) {
     throw new Error(`Network/CORS error while downloading template: ${e?.message || String(e)}`);

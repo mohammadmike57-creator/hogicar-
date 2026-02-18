@@ -1,3 +1,5 @@
+// This file contains API helpers for public and supplier-authenticated endpoints.
+// All requests use JWT via Authorization header (for supplier routes) and explicitly omit cookies.
 import { ApiSearchResult, CarCategory, Booking, RateImportSummary } from './types';
 import { API_BASE_URL } from './lib/config';
 import { getSupplierToken, clearSupplierToken } from './lib/auth';
@@ -25,7 +27,7 @@ interface ApiLocation {
 export async function fetchLocations(query?: string): Promise<LocationSuggestion[]> {
   const url = query ? `${API_URL}/api/locations?query=${encodeURIComponent(query)}` : `${API_URL}/api/locations`;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { credentials: 'omit' });
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => 'Could not read error body');
@@ -53,7 +55,7 @@ export async function fetchLocations(query?: string): Promise<LocationSuggestion
 export async function fetchCars(pickup: string, dropoff: string, pickupDate: string, dropoffDate: string): Promise<ApiSearchResult[]> {
   const carsUrl = `${API_URL}/api/cars?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
 
-  const response = await fetch(carsUrl);
+  const response = await fetch(carsUrl, { credentials: 'omit' });
 
   if (!response.ok) {
     const body = await response.text();
@@ -143,7 +145,8 @@ export const api = {
         const response = await fetch(`${API_URL}/api/bookings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            credentials: 'omit',
         });
         return handleResponse(response);
     },
@@ -152,7 +155,7 @@ export const api = {
      * Get booking details by Reference Number (e.g. H123456)
      */
     getBookingByRef: async (ref: string): Promise<Booking> => {
-        const response = await fetch(`${API_URL}/api/bookings/ref/${ref}`);
+        const response = await fetch(`${API_URL}/api/bookings/ref/${ref}`, { credentials: 'omit' });
         return handleResponse(response);
     },
 
@@ -161,7 +164,7 @@ export const api = {
      */
     lookupBooking: async (email: string, ref: string): Promise<Booking> => {
         const params = new URLSearchParams({ email, ref });
-        const response = await fetch(`${API_URL}/api/bookings/lookup?${params.toString()}`);
+        const response = await fetch(`${API_URL}/api/bookings/lookup?${params.toString()}`, { credentials: 'omit' });
         return handleResponse(response);
     },
 
@@ -170,7 +173,8 @@ export const api = {
      */
     cancelBooking: async (id: string | number): Promise<Booking> => {
         const response = await fetch(`${API_URL}/api/bookings/${id}/cancel`, {
-            method: 'POST'
+            method: 'POST',
+            credentials: 'omit',
         });
         return handleResponse(response);
     },
@@ -182,7 +186,8 @@ export const api = {
         const response = await fetch(`${API_URL}/api/bookings/${id}/supplier-confirm`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ supplierConfirmationNumber })
+            body: JSON.stringify({ supplierConfirmationNumber }),
+            credentials: 'omit',
         });
         return handleResponse(response);
     },
@@ -194,7 +199,8 @@ export const api = {
         const response = await fetch(`${API_URL}/api/bookings/${id}/review`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(review)
+            body: JSON.stringify(review),
+            credentials: 'omit',
         });
         return handleResponse(response);
     }
@@ -207,7 +213,8 @@ export const supplierApi = {
     if (!token) throw new Error("Authentication failed. Please log in again.");
     
     const response = await fetch(`${API_URL}/api/supplier/rates/template`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        credentials: 'omit',
     });
     
     if (response.status === 401 || response.status === 403) {
@@ -245,7 +252,8 @@ export const supplierApi = {
     const response = await fetch(`${API_URL}/api/supplier/rates/import`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+        body: formData,
+        credentials: 'omit',
     });
 
     if (response.status === 401 || response.status === 403) {

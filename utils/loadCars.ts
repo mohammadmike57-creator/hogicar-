@@ -1,4 +1,5 @@
 
+
 import { ApiSearchResult, CarCategory } from '../types';
 import { LocationSuggestion } from '../api';
 import { MOCK_APP_CONFIG } from '../services/mockData';
@@ -29,7 +30,7 @@ export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[
     const url = `${API_URL}/api/cars?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { credentials: 'omit' });
 
         if (!response.ok) {
             const body = await response.text();

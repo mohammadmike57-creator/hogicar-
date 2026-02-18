@@ -1,4 +1,5 @@
 
+
 import * as React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { Car, Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram } from 'lucide-react';
@@ -174,7 +175,6 @@ const Layout: React.FC = () => {
     if (ref) {
       // Store affiliate ID in session storage for the duration of the booking session
       sessionStorage.setItem('hogicar_affiliate_ref', ref);
-      console.log(`Affiliate tracking activated: ${ref}`);
     }
   }, [location]);
 

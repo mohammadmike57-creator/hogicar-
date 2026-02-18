@@ -31,11 +31,12 @@ const SupplierLogin: React.FC = () => {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
+                credentials: 'omit',
             });
             
             if (!response.ok) {
-                let errorMessage = "Login failed. Please try again.";
+                let errorMessage = `Login failed (Status: ${response.status}).`;
                 try {
                     const errorData = await response.json();
                     errorMessage = errorData.message || errorMessage;
@@ -50,7 +51,12 @@ const SupplierLogin: React.FC = () => {
             navigate('/supplier', { state: { supplierId: data.supplierId } });
 
         } catch (err: any) {
-            setError(err.message || 'Login failed. Please try again.');
+            if (err instanceof TypeError) { // Network error
+                console.error(`Request to ${url} failed`, err);
+                setError(`Cannot reach backend: ${API_BASE_URL}`);
+            } else {
+                setError(err.message || 'An unknown login error occurred.');
+            }
         } finally {
             setIsLoading(false);
         }

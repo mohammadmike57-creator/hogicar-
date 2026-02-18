@@ -31,11 +31,12 @@ const AdminLogin: React.FC = () => {
             const response = await fetch(loginUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginBody)
+                body: JSON.stringify(loginBody),
+                credentials: 'omit',
             });
 
             if (!response.ok) {
-                let errorMessage = "Login failed. Please try again.";
+                let errorMessage = `Login failed (Status: ${response.status}).`;
                 try {
                     const errorData = await response.json();
                     if(errorData && errorData.message) {
@@ -52,7 +53,12 @@ const AdminLogin: React.FC = () => {
             navigate('/admin');
 
         } catch (err: any) {
-            setError(err.message || "Login failed. Please try again.");
+             if (err instanceof TypeError) { // This often indicates a network error
+                console.error(`Request to ${loginUrl} failed`, err);
+                setError(`Cannot reach backend: ${API_BASE_URL}`);
+            } else {
+                setError(err.message || "An unknown login error occurred.");
+            }
         } finally {
             setIsLoading(false);
         }
