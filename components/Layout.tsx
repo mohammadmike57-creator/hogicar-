@@ -1,5 +1,4 @@
 
-
 import * as React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { Car, Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram } from 'lucide-react';

@@ -33,7 +33,7 @@ const search = window.location.search || "";
 if (host.startsWith("admin.") && !hash.startsWith("#/admin")) {
   // Use replace to avoid adding to browser history and prevent loops.
   // We modify the hash for compatibility with HashRouter.
-  window.location.replace(`/#/admin/login${search}`);
+  window.location.replace(`/#/admin${search}`);
 } else if (host.startsWith("supplier.") && !hash.startsWith("#/supplier")) {
   window.location.replace(`/#/supplier/login${search}`);
 }

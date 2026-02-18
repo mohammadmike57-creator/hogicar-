@@ -133,11 +133,8 @@ const BookingPage: React.FC = () => {
         selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
     };
 
-    console.log("BOOKING PAYLOAD:", payload);
-
     try {
         const booking = await api.createBooking(payload);
-        console.log("BOOKING SUCCESS:", booking);
         
         // Set one-time flag for confirmation page
         // Use the bookingRef returned by the API (which might be in the Booking object)

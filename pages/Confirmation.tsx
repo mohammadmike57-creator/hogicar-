@@ -42,8 +42,7 @@ const Confirmation: React.FC = () => {
 
       // Determine which ref to use
       const bookingRef = bookingRefFromQuery || (storedBooking as any)?.bookingRef || (storedBooking as any)?.id;
-      console.log("CONFIRM bookingRef:", bookingRef);
-
+      
       if (!bookingRef) {
         if (!storedBooking) {
             navigate('/');

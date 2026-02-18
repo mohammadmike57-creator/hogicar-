@@ -3,7 +3,7 @@
 // It enforces JWT via Authorization header only; no cookies are used.
 import { API_BASE_URL } from './config';
 
-const ADMIN_TOKEN_KEY = "admin_token";
+const ADMIN_TOKEN_KEY = "adminToken";
 
 export function getAdminToken(): string | null {
     return localStorage.getItem(ADMIN_TOKEN_KEY);
