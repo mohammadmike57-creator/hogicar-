@@ -48,6 +48,8 @@ const SupplierLogin: React.FC = () => {
             
             const data = await response.json();
             setSupplierToken(data.token);
+            // Persist supplier ID for session robustness
+            sessionStorage.setItem('hogicar_supplierId', data.supplierId);
             navigate('/supplier', { state: { supplierId: data.supplierId } });
 
         } catch (err: any) {

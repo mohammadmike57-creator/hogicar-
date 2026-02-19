@@ -1,6 +1,7 @@
+
 // This file contains API helpers for public and supplier-authenticated endpoints.
 // All requests use JWT via Authorization header (for supplier routes) and explicitly omit cookies.
-import { ApiSearchResult, CarCategory, Booking, RateImportSummary } from './types';
+import { ApiSearchResult, CarCategory, Booking, RateImportSummary, TemplateConfig, CarRateTier } from './types';
 import { API_BASE_URL } from './lib/config';
 import { getSupplierToken, clearSupplierToken } from './lib/auth';
 import { parseFilenameFromContentDisposition } from './lib/httpFilename';
@@ -23,6 +24,56 @@ interface ApiLocation {
     value?: string;
     type?: string;
 }
+
+const handleSupplierApiResponse = async (response: Response) => {
+    if (response.status === 401 || response.status === 403) {
+        clearSupplierToken();
+        // Use a more robust way to redirect that works with HashRouter
+        window.location.hash = '/supplier-login?reason=session_expired';
+        throw new Error("Session expired.");
+    }
+    
+    if (response.headers.get('Content-Type')?.includes('application/json')) {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || `API request failed with status: ${response.status}`);
+        }
+        return data;
+    }
+    
+    if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Could not read error body');
+        throw new Error(`API request failed: ${response.status} ${response.statusText}. ${errorText}`);
+    }
+
+    // Handle non-JSON responses like file downloads
+    return response;
+};
+
+const supplierFetch = async (path: string, options: RequestInit = {}) => {
+    const token = getSupplierToken();
+    if (!token) throw new Error("Authentication failed. Please log in again.");
+
+    const defaultHeaders: HeadersInit = {
+        'Authorization': `Bearer ${token}`,
+    };
+
+    if (!(options.body instanceof FormData)) {
+        defaultHeaders['Content-Type'] = 'application/json';
+    }
+
+    const response = await fetch(`${API_URL}${path}`, {
+        ...options,
+        headers: {
+            ...defaultHeaders,
+            ...options.headers,
+        },
+        credentials: 'omit',
+    });
+
+    return handleSupplierApiResponse(response);
+};
+
 
 export async function fetchLocations(query?: string): Promise<LocationSuggestion[]> {
   const url = query ? `${API_URL}/api/locations?query=${encodeURIComponent(query)}` : `${API_URL}/api/locations`;
@@ -208,26 +259,20 @@ export const api = {
 
 // --- SUPPLIER API ---
 export const supplierApi = {
-  downloadSupplierRatesTemplate: async (): Promise<void> => {
-    const token = getSupplierToken();
-    if (!token) throw new Error("Authentication failed. Please log in again.");
-    
-    const response = await fetch(`${API_URL}/api/supplier/rates/template`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        credentials: 'omit',
+  getTemplateConfig: (): Promise<TemplateConfig> => {
+    return supplierFetch('/api/supplier/rates/template-config');
+  },
+  
+  updateTemplateConfig: (config: TemplateConfig): Promise<TemplateConfig> => {
+    return supplierFetch('/api/supplier/rates/template-config', {
+      method: 'PUT',
+      body: JSON.stringify(config),
     });
+  },
+
+  downloadSupplierRatesTemplate: async (): Promise<void> => {
+    const response = await supplierFetch('/api/supplier/rates/template') as Response;
     
-    if (response.status === 401 || response.status === 403) {
-        clearSupplierToken();
-        window.location.href = '/#/supplier-login?reason=session_expired';
-        throw new Error("Session expired.");
-    }
-
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Could not read error body');
-        throw new Error(`Failed to download template: ${response.status} ${response.statusText}. ${errorText}`);
-    }
-
     const disposition = response.headers.get('Content-Disposition');
     const filename = parseFilenameFromContentDisposition(disposition) || 'rates_template.xlsx';
     
@@ -242,32 +287,32 @@ export const supplierApi = {
     window.URL.revokeObjectURL(url);
     a.remove();
   },
+  
   importSupplierRatesExcel: async (file: File): Promise<RateImportSummary> => {
-    const token = getSupplierToken();
-    if (!token) throw new Error("Authentication failed. Please log in again.");
-
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await fetch(`${API_URL}/api/supplier/rates/import`, {
+    return supplierFetch('/api/supplier/rates/import', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
-        credentials: 'omit',
     });
+  },
 
-    if (response.status === 401 || response.status === 403) {
-        clearSupplierToken();
-        window.location.href = '/#/supplier-login?reason=session_expired';
-        throw new Error("Session expired.");
-    }
+  getRatesForCar: (carId: string): Promise<CarRateTier[]> => {
+    return supplierFetch(`/api/supplier/rates/cars/${carId}`);
+  },
 
-    const data = await response.json();
+  createRateTier: (carId: string, tierData: Omit<CarRateTier, 'id' | 'currency'>): Promise<CarRateTier> => {
+    return supplierFetch(`/api/supplier/rates/cars/${carId}`, {
+        method: 'POST',
+        body: JSON.stringify(tierData),
+    });
+  },
 
-    if (!response.ok) {
-        throw new Error(data.message || `Upload failed with status: ${response.status}`);
-    }
-    
-    return data;
-  }
+  updateRateTier: (tierId: number, tierData: Omit<CarRateTier, 'id' | 'currency'>): Promise<CarRateTier> => {
+     return supplierFetch(`/api/supplier/rates/tiers/${tierId}`, {
+        method: 'PUT',
+        body: JSON.stringify(tierData),
+    });
+  },
 };

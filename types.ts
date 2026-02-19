@@ -4,6 +4,10 @@
 
 
 
+
+
+
+
 export enum CarCategory {
   ECONOMY = 'Economy',
   COMPACT = 'Compact',
@@ -431,4 +435,44 @@ export interface RateImportSummary {
   carsUpdated: number;
   periodsReplaced: string[];
   ms: number;
+}
+
+
+// --- NEW PRICING / TEMPLATE TYPES ---
+
+export interface BandConfig {
+  minDays: number;
+  maxDays: number | null;
+  perMonth: boolean;
+  label?: string;
+}
+
+export interface PeriodConfig {
+  name: string;
+  startDate: string;
+  endDate: string;
+  usePreviousBands: boolean;
+  bands: BandConfig[];
+}
+
+export interface TemplateConfig {
+  currency: string;
+  bands: BandConfig[]; // Global bands
+  periods: PeriodConfig[];
+}
+
+export interface CarRateBand {
+  id: number;
+  minDays: number;
+  maxDays: number;
+  dailyRate: number;
+}
+
+export interface CarRateTier {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  currency: string;
+  bands: CarRateBand[];
 }

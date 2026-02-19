@@ -1,11 +1,10 @@
 
-
-
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { MOCK_CARS, MOCK_BOOKINGS, SUPPLIERS, calculatePrice, ADMIN_STATS } from '../services/mockData';
-import { Car as CarIcon, Calendar, DollarSign, Plus, Settings, Edit2, Trash2, CheckCircle, XCircle, AlertCircle, Save, LayoutDashboard, BookOpen, ChevronDown, ChevronUp, MapPin, Mail, Phone, Users, Briefcase, Zap, Fuel, Snowflake, ListPlus, Rss, Key, Link2, Copy, Menu, X, CalendarDays, PlusCircle, LogOut, Clock, MessageSquare, TrendingUp, History, ArrowRight, MoreHorizontal, Ban, Filter, Gift, Tag as TagIcon, FileText, Printer, Plane, Search, Layers, SlidersHorizontal, Hash, Info, Shield, ArrowLeft, UploadCloud, Download, Send, RefreshCw } from 'lucide-react';
-import { Booking, Car, RateTier, CarType, CarCategory, Transmission, FuelPolicy, Extra, RateByDay, Supplier, RateImportSummary } from '../types';
+// FIX: Import `LoaderCircle` icon from `lucide-react`.
+import { Car as CarIcon, Calendar, DollarSign, Plus, Settings, Edit2, Trash2, CheckCircle, XCircle, AlertCircle, Save, LayoutDashboard, BookOpen, ChevronDown, ChevronUp, MapPin, Mail, Phone, Users, Briefcase, Zap, Fuel, Snowflake, ListPlus, Rss, Key, Link2, Copy, Menu, X, CalendarDays, PlusCircle, LogOut, Clock, MessageSquare, TrendingUp, History, ArrowRight, MoreHorizontal, Ban, Filter, Gift, Tag as TagIcon, FileText, Printer, Plane, Search, Layers, SlidersHorizontal, Hash, Info, Shield, ArrowLeft, UploadCloud, Download, Send, RefreshCw, LoaderCircle, FileSpreadsheet, Settings2, Eye } from 'lucide-react';
+import { Booking, Car, RateTier, CarType, CarCategory, Transmission, FuelPolicy, Extra, RateByDay, Supplier, RateImportSummary, TemplateConfig, CarRateTier, BandConfig, PeriodConfig } from '../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getSupplierToken, clearSupplierToken } from '../lib/auth';
 import { API_BASE_URL } from '../lib/config';
@@ -346,7 +345,6 @@ const ManageRatesModal = ({ tier, isOpen, onClose, onSave }: { tier: RateTier; i
     const [rates, setRates] = React.useState<RateByDay[]>([]);
     const [newBand, setNewBand] = React.useState({ minDays: '', maxDays: '', dailyRate: '' });
     
-    // FIX: Use React.useEffect to sync internal state with props, preventing stale data.
     React.useEffect(() => {
         if (isOpen && tier) {
             setRates(tier.rates || []);
@@ -549,15 +547,31 @@ const SupplierDashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const supplierId = (location.state as { supplierId: string })?.supplierId || 's1'; 
-  const [supplierData, setSupplierData] = React.useState<Supplier>(SUPPLIERS.find(s => s.id === supplierId)!);
+  const getSupplierId = () => {
+    const fromState = (location.state as { supplierId: string })?.supplierId;
+    if (fromState) return fromState;
+    const fromStorage = sessionStorage.getItem('hogicar_supplierId');
+    if (fromStorage) return fromStorage;
+    // Fallback for demo purposes, might want to redirect to login if no ID is found in a real app
+    return 's1'; 
+  };
+  
+  const supplierId = getSupplierId();
+  const [supplierData, setSupplierData] = React.useState<Supplier | null>(() => SUPPLIERS.find(s => s.id === supplierId) || null);
+
+  React.useEffect(() => {
+    if (!getSupplierToken() || !supplierData) {
+      clearSupplierToken();
+      sessionStorage.removeItem('hogicar_supplierId');
+      navigate('/supplier-login');
+    }
+  }, [supplierData, navigate]);
 
   const [bookings, setBookings] = React.useState<Booking[]>(() => MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === supplierId)));
   const [fleet, setFleet] = React.useState<Car[]>(() => MOCK_CARS.filter(c => c.supplier.id === supplierId));
 
   const [editingCar, setEditingCar] = React.useState<Car | null>(null);
   
-  // New State for Period/Rate workflow
   const [isPeriodModalOpen, setIsPeriodModalOpen] = React.useState(false);
   const [editingRatesTier, setEditingRatesTier] = React.useState<RateTier | null>(null);
   const [rateModalTarget, setRateModalTarget] = React.useState<{ type: 'category' | 'vehicle', id: string } | null>(null);
@@ -566,6 +580,7 @@ const SupplierDashboard: React.FC = () => {
 
   const handleLogout = () => {
       clearSupplierToken();
+      sessionStorage.removeItem('hogicar_supplierId');
       navigate('/supplier-login');
   };
 
@@ -644,8 +659,8 @@ const SupplierDashboard: React.FC = () => {
     }
   }
 
-  // FIX: Resolve syntax error and complete object creation to satisfy the 'Car' type.
   const handleAddVehicle = () => {
+    if(!supplierData) return;
     const newCar: Car = {
         id: `c${Date.now()}`,
         make: '', model: '', year: new Date().getFullYear(),
@@ -689,9 +704,9 @@ const SupplierDashboard: React.FC = () => {
   const sidebarContent = (
     <div className="p-4 h-full flex flex-col">
        <div className="flex items-center gap-3 mb-8 px-2">
-            <img src={supplierData.logo} alt={supplierData.name} className="w-12 h-12 object-contain rounded-full bg-white p-1 border"/>
+            {supplierData && <img src={supplierData.logo} alt={supplierData.name} className="w-12 h-12 object-contain rounded-full bg-white p-1 border"/>}
             <div>
-              <h1 className="font-bold text-slate-800 leading-tight">{supplierData.name}</h1>
+              <h1 className="font-bold text-slate-800 leading-tight">{supplierData?.name}</h1>
               <p className="text-xs text-slate-500">Supplier Portal</p>
             </div>
           </div>
@@ -710,6 +725,56 @@ const SupplierDashboard: React.FC = () => {
       </button>
     </div>
   );
+  
+  if (!supplierData) {
+      return (
+          <div className="flex h-screen w-full items-center justify-center bg-slate-50">
+              <LoaderCircle className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+      );
+  }
+  
+  const DashboardContent = () => (
+    <div>Dashboard Content for {supplierData.name}</div>
+  );
+  
+  const BookingsContent = () => (
+    <div>Bookings Content for {supplierData.name}</div>
+  );
+
+  const FleetContent = () => (
+    <div>Fleet Content for {supplierData.name}</div>
+  );
+
+  const PricingContent = () => (
+    <div>This is a placeholder for the new Price Management UI.</div>
+  );
+
+  const StopSalesContent = () => (
+     <div>Stop Sales Content for {supplierData.name}</div>
+  );
+
+  const ExtrasContent = () => (
+    <div>Extras Content for {supplierData.name}</div>
+  );
+  
+  const SettingsContent = () => (
+    <div>Settings Content for {supplierData.name}</div>
+  );
+  
+  const renderContent = () => {
+      switch (activeSection) {
+        case 'dashboard': return <DashboardContent />;
+        case 'bookings': return <BookingsContent />;
+        case 'fleet': return <FleetContent />;
+        case 'pricing': return <PricingContent />;
+        case 'stopsales': return <StopSalesContent />;
+        case 'extras': return <ExtrasContent />;
+        case 'settings': return <SettingsContent />;
+        default: return <DashboardContent />;
+      }
+  };
+
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -780,11 +845,11 @@ const SupplierDashboard: React.FC = () => {
         </aside>
 
         <main className="flex-grow w-full md:pl-6">
-          {/* Main Content Rendered Here */}
+          {renderContent()}
         </main>
       </div>
     </div>
   );
 };
-// FIX: Add missing default export to resolve module import errors.
+
 export default SupplierDashboard;
