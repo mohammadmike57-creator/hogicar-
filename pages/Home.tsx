@@ -119,7 +119,7 @@ const Home: React.FC = () => {
                 {/* Decorative glow behind widget */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-[#FF9F1C] rounded-3xl blur-2xl opacity-20"></div>
                 
-                <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden p-2 sm:p-4">
+                <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 sm:p-4">
                     <SearchWidget 
                         onSearch={handleSearch} 
                         showTitle={false} 
@@ -177,79 +177,82 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* WHY CHOOSE US */}
-      <section className="py-20 bg-slate-50">
+      {/* WHY BOOK WITH HOGICAR? & STATS - NEW PROFESSIONAL DESIGN */}
+      <section className="py-24 lg:py-32 bg-slate-50/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">Why Book With Hogicar?</h2>
-                <p className="text-lg text-slate-600 leading-relaxed">
-                    Experience a seamless car rental journey with our premium service, transparent pricing, and global network.
+            <div className="max-w-3xl mx-auto text-center mb-20">
+                <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">The Hogicar Advantage</h2>
+                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
+                <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+                    We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
                 </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {content.features.slice(0, 3).map((feature) => {
-                    const Icon = iconMap[feature.icon];
+
+            {/* Feature Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
+                {content.features.slice(0, 4).map((feature) => {
+                    const Icon = iconMap[feature.icon] || CheckCircle;
                     return (
-                        <div key={feature.id} className="flex flex-col items-center text-center p-8 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <div key={feature.id} className="text-center p-8 bg-white rounded-3xl shadow-sm border border-slate-100/80">
+                            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl mb-6">
                                 <Icon className="w-8 h-8" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                            <h4 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h4>
                             <p className="text-slate-600 leading-relaxed">{feature.description}</p>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="mt-16 bg-[#003580] rounded-2xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl relative overflow-hidden">
-                {/* Decorative background for the stats banner */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-                <div className="absolute -bottom-8 -left-8 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-
-                <div className="flex-1 relative z-10">
-                    <h3 className="text-2xl md:text-3xl font-bold mb-3">Join our global network</h3>
-                    <p className="text-blue-100 text-lg">Connecting you with the best vehicles worldwide.</p>
+            {/* Integrated Stats & Network Section */}
+            <div className="relative bg-white rounded-3xl shadow-lg border border-slate-100/80 p-10 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-12">
+                <div className="lg:w-1/2 text-center lg:text-left">
+                    <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-5">Join our global network</h3>
+                    <p className="text-slate-600 text-lg max-w-lg leading-relaxed">
+                        We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.
+                    </p>
                 </div>
-                <div className="flex gap-8 md:gap-16 text-center md:text-left relative z-10">
-                    <div>
-                        <div className="text-4xl md:text-5xl font-black mb-1">900+</div>
-                        <div className="text-sm font-medium text-blue-200 uppercase tracking-wider">Trusted Suppliers</div>
+                <div className="lg:w-1/2 flex justify-center lg:justify-end gap-10 sm:gap-16">
+                    <div className="text-center">
+                        <div className="text-5xl md:text-7xl font-black text-blue-600 tracking-tight">900+</div>
+                        <div className="mt-1 text-sm font-semibold text-slate-500 uppercase tracking-widest">Suppliers</div>
                     </div>
-                    <div className="w-px bg-blue-400/50 hidden md:block"></div>
-                    <div>
-                        <div className="text-4xl md:text-5xl font-black mb-1">60k+</div>
-                        <div className="text-sm font-medium text-blue-200 uppercase tracking-wider">Global Locations</div>
+                    <div className="w-px bg-slate-200"></div>
+                    <div className="text-center">
+                        <div className="text-5xl md:text-7xl font-black text-blue-600 tracking-tight">60k+</div>
+                        <div className="mt-1 text-sm font-semibold text-slate-500 uppercase tracking-widest">Locations</div>
                     </div>
                 </div>
             </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS SECTION */}
-      <section className="py-20 bg-white relative overflow-hidden border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">{content.howItWorks.title}</h2>
-                <p className="text-slate-600 text-lg">{content.howItWorks.subtitle}</p>
+      {/* GET YOUR PERFECT CAR - NEW PROFESSIONAL DESIGN */}
+      <section className="py-24 lg:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto text-center mb-20">
+                <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Simple Process</h2>
+                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
+                <p className="mt-6 text-lg text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-                {/* Connecting line for desktop */}
-                <div className="hidden md:block absolute top-10 left-[20%] right-[20%] h-0.5 bg-slate-200 z-0"></div>
-                
+
+            <div className="max-w-4xl mx-auto space-y-20">
                 {content.howItWorks.steps.map((step, index) => {
-                    const Icon = iconMap[step.icon];
+                    const Icon = iconMap[step.icon] || CheckCircle;
                     return (
-                        <div key={step.id} className="relative z-10 flex flex-col items-center text-center group">
-                            <div className="w-20 h-20 bg-white rounded-2xl shadow-lg border border-slate-100 flex items-center justify-center mb-8 relative group-hover:-translate-y-2 transition-transform duration-300">
-                                <div className="absolute -top-3 -right-3 w-8 h-8 bg-[#003580] rounded-full text-white font-bold flex items-center justify-center text-sm shadow-md border-2 border-white">
-                                    {index + 1}
+                        <div key={step.id} className="relative flex items-center gap-8 sm:gap-12">
+                            {/* Number and Icon */}
+                            <div className="flex-shrink-0 relative">
+                                <span className="font-sans text-9xl font-black text-slate-100/80 -z-10">{`0${index + 1}`}</span>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-20 h-20 bg-blue-600 text-white rounded-full shadow-lg">
+                                    <Icon className="w-9 h-9" />
                                 </div>
-                                <Icon className="w-10 h-10 text-[#003580] transition-colors duration-300" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
-                            <p className="text-slate-600 leading-relaxed">{step.description}</p>
+                            {/* Text Content */}
+                            <div>
+                                <h4 className="text-3xl font-bold text-slate-900 mb-3">{step.title}</h4>
+                                <p className="text-slate-600 leading-relaxed text-lg">{step.description}</p>
+                            </div>
                         </div>
                     );
                 })}
@@ -257,108 +260,119 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* POPULAR DESTINATIONS */}
-      <section className="py-16 bg-white border-t border-slate-200">
+      {/* POPULAR DESTINATIONS - NEW PROFESSIONAL DESIGN */}
+      <section className="py-24 lg:py-32 bg-slate-50/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-               <div>
-                   <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{content.popularDestinations.title}</h2>
-                   <p className="text-slate-600 mt-2">{content.popularDestinations.subtitle}</p>
+           <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-6">
+               <div className="max-w-xl">
+                   <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Top Destinations</h2>
+                   <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{content.popularDestinations.title}</h3>
+                   <p className="mt-6 text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                </div>
-               <Link to="/search" className="hidden md:flex items-center gap-2 text-[#003580] font-semibold hover:underline transition-colors">
-                   See all locations <ArrowRight className="w-4 h-4" />
+               <Link to="/search" className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+                   Explore All Locations
                </Link>
            </div>
            
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-               {destinations.map((dest) => (
-                   <Link to={`/search?location=${encodeURIComponent(dest.name)}`} key={dest.name} className="group relative h-64 md:h-72 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+               {destinations.slice(0, 5).map((dest, index) => (
+                   <Link 
+                       to={`/search?location=${encodeURIComponent(dest.name)}`} 
+                       key={dest.name} 
+                       className={`group relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 block text-white ${index === 0 ? 'lg:col-span-2 lg:row-span-2' : ''}`}>
                        
-                       <div className="absolute bottom-0 left-0 right-0 p-5">
-                           <h3 className="text-xl font-bold text-white mb-1">{dest.name}</h3>
-                           <p className="text-slate-300 text-sm mb-4 flex items-center gap-1.5">
-                               <MapPin className="w-3.5 h-3.5" /> {dest.country}
+                       <div className={`w-full ${index === 0 ? 'h-full pt-[75%]' : 'h-0 pt-[100%]'}`}></div>
+
+                       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                       
+                       <div className="absolute inset-x-0 bottom-0 p-8">
+                           <h4 className={`font-bold text-white mb-2 ${index === 0 ? 'text-4xl' : 'text-3xl'}`}>{dest.name}</h4>
+                           <p className="text-blue-200/90 text-sm mb-4 flex items-center gap-2 font-medium">
+                               <MapPin className="w-4 h-4" /> {dest.country}
                            </p>
-                           <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium border border-white/10">
+                           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-medium border border-white/20">
                                From <span className="font-bold">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span> / day
                            </div>
                        </div>
                    </Link>
                ))}
            </div>
-           
-           <Link to="/search" className="md:hidden mt-6 flex items-center justify-center gap-2 text-[#003580] font-semibold w-full border border-slate-200 py-3 rounded-lg hover:bg-slate-50 transition-colors">
-               See all locations
-           </Link>
         </div>
       </section>
 
-      {/* CALL TO ACTION */}
-      <section className="py-20 bg-white border-t border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight text-slate-900">Get exclusive car rental deals</h2>
-            <p className="text-slate-600 mb-10 text-lg max-w-2xl mx-auto leading-relaxed">Sign up for our newsletter and receive special offers, travel inspiration, and discounts directly to your inbox.</p>
-            
-            <form className="max-w-xl mx-auto bg-slate-50 p-2 rounded-2xl flex flex-col sm:flex-row gap-2 border border-slate-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all duration-300">
-                <div className="flex-grow relative flex items-center">
-                    <div className="absolute left-4 text-slate-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+      {/* NEWSLETTER CTA - NEW PROFESSIONAL DESIGN */}
+      <section className="py-24 lg:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-slate-900 rounded-3xl overflow-hidden">
+                <div className="grid grid-cols-1 lg:grid-cols-2">
+                    <div className="p-10 md:p-16">
+                        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">Get exclusive car rental deals.</h2>
+                        <p className="mt-6 text-lg text-slate-300 max-w-md">Join our newsletter for insider offers, travel inspiration, and early access to our best discounts. Straight to your inbox.</p>
+                        <form className="mt-10 flex flex-col sm:flex-row gap-4 max-w-md">
+                            <input 
+                                type="email" 
+                                placeholder="Enter your email" 
+                                className="flex-grow px-5 py-4 rounded-full text-slate-900 text-base font-medium focus:outline-none focus:ring-4 focus:ring-blue-400/50 transition-all bg-white placeholder-slate-400"
+                            />
+                            <button 
+                                type="submit" 
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap">
+                                Subscribe
+                            </button>
+                        </form>
                     </div>
-                    <input type="email" placeholder="Enter your email address" className="w-full pl-12 pr-4 py-4 rounded-xl text-slate-900 text-base focus:outline-none bg-transparent"/>
+                    <div className="hidden lg:block relative">
+                        <img 
+                            src="https://images.unsplash.com/photo-1568605117036-5fe5e7185743?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                            alt="Modern car interior" 
+                            className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-slate-900/20"></div>
+                    </div>
                 </div>
-                <button type="submit" className="bg-[#003580] hover:bg-blue-900 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap">
-                    Subscribe
-                </button>
-            </form>
-            <p className="text-slate-400 text-sm mt-4">We respect your privacy. Unsubscribe at any time.</p>
+            </div>
         </div>
       </section>
       
-      {/* FAQs */}
-      <section className="py-16 bg-white border-t border-slate-200">
+      {/* FAQS - NEW PROFESSIONAL DESIGN */}
+      <section className="py-24 lg:py-32 bg-slate-50/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
-                <div className="lg:w-1/3">
-                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-4">{content.faqs.title}</h2>
-                    <p className="text-lg text-slate-600 leading-relaxed mb-8">Find answers to common questions about renting a car with Hogicar.</p>
-                    <div className="hidden lg:block">
-                        <p className="text-slate-600 mb-4 font-medium">Still have questions?</p>
-                        <Link to="/contact" className="inline-flex items-center justify-center px-6 py-3 border border-slate-300 shadow-sm text-base font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition-colors">
-                            Contact our support team
-                        </Link>
-                    </div>
-                </div>
-                
-                <div className="lg:w-2/3">
-                    <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
-                        {faqs.map((faq, index) => (
-                            <div key={faq.id} className="py-6">
-                                <button 
-                                    onClick={() => toggleFaq(index)} 
-                                    className="w-full flex justify-between items-center text-left focus:outline-none group"
-                                >
-                                    <span className="font-semibold text-slate-900 text-lg pr-6 group-hover:text-[#003580] transition-colors">{faq.question}</span>
-                                    <span className="ml-6 flex items-center">
-                                        <ChevronDown className={`w-5 h-5 text-slate-400 group-hover:text-[#003580] transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
-                                    </span>
-                                </button>
-                                <div 
-                                    className={`text-slate-600 leading-relaxed overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 pt-4 opacity-100' : 'max-h-0 opacity-0'}`}
-                                >
+            <div className="max-w-3xl mx-auto text-center mb-20">
+                <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Support</h2>
+                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
+                <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+                    Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.
+                </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto">
+                <div className="space-y-4">
+                    {faqs.map((faq, index) => (
+                        <div key={faq.id} className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden">
+                            <button 
+                                onClick={() => toggleFaq(index)} 
+                                className="w-full flex justify-between items-center text-left p-6 sm:p-8 focus:outline-none group"
+                            >
+                                <span className="font-bold text-lg sm:text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{faq.question}</span>
+                                <span className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full transition-colors ${openFaqIndex === index ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
+                                    <ChevronDown className={`w-6 h-6 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
+                                </span>
+                            </button>
+                            <div 
+                                className={`overflow-hidden transition-all duration-500 ease-in-out ${openFaqIndex === index ? 'max-h-96' : 'max-h-0'}`}
+                            >
+                                <div className="text-slate-600 leading-relaxed text-base sm:text-lg px-6 sm:px-8 pb-8">
                                     {faq.answer}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                    
-                    <div className="mt-8 lg:hidden text-center">
-                        <p className="text-slate-600 mb-4 font-medium">Still have questions?</p>
-                        <Link to="/contact" className="inline-flex items-center justify-center px-6 py-3 border border-slate-300 shadow-sm text-base font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition-colors w-full">
-                            Contact our support team
-                        </Link>
-                    </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-16 text-center">
+                    <Link to="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-700 bg-white hover:bg-slate-100 transition-all shadow-md border border-slate-200">
+                        Still have questions? Contact Support
+                    </Link>
                 </div>
             </div>
         </div>

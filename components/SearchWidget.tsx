@@ -322,7 +322,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <label className="absolute top-1 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Location</label>
                             <input
                                 type="text"
-                                className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-sm bg-transparent border-none focus:ring-0 focus:outline-none"
+                                className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-base bg-transparent border-none focus:ring-0 focus:outline-none"
                                 value={pickupQuery}
                                 onChange={handleLocationChange}
                                 onFocus={handleFocus}
@@ -348,7 +348,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <label className="absolute top-1 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Location</label>
                                 <input
                                     type="text"
-                                    className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-sm bg-transparent border-none focus:ring-0 focus:outline-none"
+                                    className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-base bg-transparent border-none focus:ring-0 focus:outline-none"
                                     value={dropoffQuery}
                                     onChange={handleDropoffLocationChange}
                                     onFocus={handleDropoffFocus}
@@ -456,7 +456,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             id="pickup-location" 
                             type="text" 
                             placeholder="City, airport, or station" 
-                            className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-sm font-bold placeholder-slate-400 text-slate-900 bg-transparent" 
+                            className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent" 
                             value={pickupQuery} 
                             onChange={handleLocationChange} 
                             onFocus={handleFocus} 
@@ -480,7 +480,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <input
                                 type="text"
                                 placeholder="Enter drop-off city"
-                                className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-sm font-bold placeholder-slate-400 text-slate-900 bg-transparent"
+                                className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent"
                                 value={dropoffQuery}
                                 onChange={handleDropoffLocationChange}
                                 onFocus={handleDropoffFocus}
@@ -507,12 +507,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={pickupDate} 
                                 onChange={e => setPickupDate(e.target.value)} 
                                 min={today.toISOString().split('T')[0]} 
-                                className="w-full h-full pl-11 pr-2 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer" 
+                                className="w-full h-full pl-11 pr-2 pt-4 pb-1 text-base font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer" 
                             />
                             <select 
                                 value={pickupTime} 
                                 onChange={e => setPickupTime(e.target.value)} 
-                                className="h-full pl-2 pr-6 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px_8px] bg-[right_8px_center] bg-no-repeat"
+                                className="h-full pl-2 pr-6 pt-4 pb-1 text-base font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px_8px] bg-[right_8px_center] bg-no-repeat"
                             >
                                 {timeOptions.map(t => <option key={t}>{t}</option>)}
                             </select>
@@ -528,12 +528,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={dropoffDate} 
                                 onChange={e => setDropoffDate(e.target.value)} 
                                 min={pickupDate} 
-                                className="w-full h-full pl-11 pr-2 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer" 
+                                className="w-full h-full pl-11 pr-2 pt-4 pb-1 text-base font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer" 
                             />
                             <select 
                                 value={dropoffTime} 
                                 onChange={e => setDropoffTime(e.target.value)} 
-                                className="h-full pl-2 pr-6 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px_8px] bg-[right_8px_center] bg-no-repeat"
+                                className="h-full pl-2 pr-6 pt-4 pb-1 text-base font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px_8px] bg-[right_8px_center] bg-no-repeat"
                             >
                                 {timeOptions.map(t => <option key={t}>{t}</option>)}
                             </select>

@@ -1048,55 +1048,87 @@ const SupplierDashboard: React.FC = () => {
     );
   };
 
-const TemplateConfigModal = ({ initialConfig, onClose, onSave, isSaving }: { initialConfig: TemplateConfig, onClose: () => void, onSave: (config: TemplateConfig) => void, isSaving: boolean }) => {
-    const [config, setConfig] = React.useState<TemplateConfig>(initialConfig);
+const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => void, onSave: (config: TemplateConfig) => void, isSaving: boolean }) => {
+    const [config, setConfig] = React.useState<TemplateConfig>({ periods: [], bands: [], currency: 'USD' });
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [error, setError] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        let isMounted = true;
+        setIsLoading(true);
+        setError(null);
+
+        supplierApi.getTemplateConfig()
+            .then(data => {
+                if (isMounted) {
+                    setConfig({
+                        currency: data?.currency || 'USD',
+                        bands: data?.bands || [],
+                        periods: data?.periods || []
+                    });
+                    setIsLoading(false);
+                }
+            })
+            .catch(err => {
+                if (isMounted) {
+                    console.error("Failed to load template config:", err);
+                    setError("Failed to load template configuration. Please try again.");
+                    setIsLoading(false);
+                }
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const handleAddPeriod = () => {
         setConfig({
             ...config,
-            periods: [...config.periods, { name: '', startDate: '', endDate: '', usePreviousBands: false, bands: [] }]
+            periods: [...(config.periods || []), { name: '', startDate: '', endDate: '', usePreviousBands: false, bands: [] }]
         });
     };
 
     const handleRemovePeriod = (index: number) => {
-        const newPeriods = [...config.periods];
+        const newPeriods = [...(config.periods || [])];
         newPeriods.splice(index, 1);
         setConfig({ ...config, periods: newPeriods });
     };
 
     const updatePeriod = (index: number, field: keyof PeriodConfig, value: any) => {
-        const newPeriods = [...config.periods];
+        const newPeriods = [...(config.periods || [])];
         newPeriods[index] = { ...newPeriods[index], [field]: value };
         setConfig({ ...config, periods: newPeriods });
     };
 
     const handleAddBand = (periodIndex: number) => {
-        const newPeriods = [...config.periods];
+        const newPeriods = [...(config.periods || [])];
+        if (!newPeriods[periodIndex].bands) newPeriods[periodIndex].bands = [];
         newPeriods[periodIndex].bands.push({ minDays: 1, maxDays: null, perMonth: false, label: '' });
         setConfig({ ...config, periods: newPeriods });
     };
 
     const handleRemoveBand = (periodIndex: number, bandIndex: number) => {
-        const newPeriods = [...config.periods];
+        const newPeriods = [...(config.periods || [])];
         newPeriods[periodIndex].bands.splice(bandIndex, 1);
         setConfig({ ...config, periods: newPeriods });
     };
 
     const updateBand = (periodIndex: number, bandIndex: number, field: keyof BandConfig, value: any) => {
-        const newPeriods = [...config.periods];
+        const newPeriods = [...(config.periods || [])];
         newPeriods[periodIndex].bands[bandIndex] = { ...newPeriods[periodIndex].bands[bandIndex], [field]: value };
         setConfig({ ...config, periods: newPeriods });
     };
 
     const handleSave = () => {
         // Validation
-        if (config.periods.length === 0) return alert("At least one period is required.");
+        if (!config?.periods?.length) return alert("At least one period is required.");
         for (const p of config.periods) {
             if (!p.name || !p.startDate || !p.endDate) return alert("All periods must have a name, start date, and end date.");
             if (new Date(p.startDate) > new Date(p.endDate)) return alert(`Start date must be before end date for period: ${p.name}`);
-            if (!p.usePreviousBands && p.bands.length === 0) return alert(`Period "${p.name}" must have at least one band if not using previous bands.`);
+            if (!p.usePreviousBands && (!p.bands || p.bands.length === 0)) return alert(`Period "${p.name}" must have at least one band if not using previous bands.`);
             
-            if (!p.usePreviousBands) {
+            if (!p.usePreviousBands && p.bands) {
                 for (const b of p.bands) {
                     if (b.minDays <= 0) return alert(`Min days must be > 0 in period "${p.name}".`);
                     if (b.maxDays !== null && b.maxDays < b.minDays) return alert(`Max days must be >= min days in period "${p.name}".`);
@@ -1120,97 +1152,123 @@ const TemplateConfigModal = ({ initialConfig, onClose, onSave, isSaving }: { ini
                 </div>
 
                 <div className="p-6 flex-grow space-y-8">
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <h4 className="text-lg font-bold text-slate-800">Pricing Periods (Seasons)</h4>
-                            <button onClick={handleAddPeriod} className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg font-medium text-sm hover:bg-slate-200 flex items-center gap-2">
-                                <Plus className="w-4 h-4"/> Add Period
-                            </button>
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <LoaderCircle className="w-8 h-8 text-blue-600 animate-spin mb-4" />
+                            <p className="text-slate-500">Loading configuration...</p>
                         </div>
-                        
-                        {config.periods.length === 0 && (
-                            <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                                <p className="text-slate-500">No periods defined. Add a period to get started.</p>
+                    ) : error ? (
+                        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-center">
+                            <p>{error}</p>
+                            <button onClick={() => {
+                                setIsLoading(true);
+                                setError(null);
+                                supplierApi.getTemplateConfig().then(data => {
+                                    setConfig({
+                                        currency: data?.currency || 'USD',
+                                        bands: data?.bands || [],
+                                        periods: data?.periods || []
+                                    });
+                                    setIsLoading(false);
+                                }).catch(() => {
+                                    setError("Failed to load template configuration. Please try again.");
+                                    setIsLoading(false);
+                                });
+                            }} className="mt-2 text-sm font-bold underline hover:text-red-800">Retry</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="text-lg font-bold text-slate-800">Pricing Periods (Seasons)</h4>
+                                <button onClick={handleAddPeriod} className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg font-medium text-sm hover:bg-slate-200 flex items-center gap-2">
+                                    <Plus className="w-4 h-4"/> Add Period
+                                </button>
                             </div>
-                        )}
+                            
+                            {(!config?.periods || config.periods.length === 0) && (
+                                <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                                    <p className="text-slate-500">No periods defined. Add a period to get started.</p>
+                                </div>
+                            )}
 
-                        <div className="space-y-6">
-                            {config.periods.map((period, pIdx) => (
-                                <div key={pIdx} className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                                    <div className="bg-slate-50 p-4 border-b border-slate-200 flex flex-wrap gap-4 items-end">
-                                        <div className="flex-grow min-w-[200px]">
-                                            <label className="block text-xs font-bold text-slate-700 mb-1">Period Name</label>
-                                            <input type="text" placeholder="e.g. Summer High Season" value={period.name} onChange={e => updatePeriod(pIdx, 'name', e.target.value)} className="w-full border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-700 mb-1">Start Date</label>
-                                            <input type="date" value={period.startDate} onChange={e => updatePeriod(pIdx, 'startDate', e.target.value)} className="border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-700 mb-1">End Date</label>
-                                            <input type="date" value={period.endDate} onChange={e => updatePeriod(pIdx, 'endDate', e.target.value)} className="border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                                        </div>
-                                        <button onClick={() => handleRemovePeriod(pIdx)} className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Remove Period">
-                                            <Trash2 className="w-5 h-5"/>
-                                        </button>
-                                    </div>
-
-                                    <div className="p-4">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" checked={!period.usePreviousBands} onChange={() => updatePeriod(pIdx, 'usePreviousBands', false)} className="text-blue-600 focus:ring-blue-500" />
-                                                <span className="text-sm font-medium text-slate-700">Custom bands for this period</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" checked={period.usePreviousBands} onChange={() => updatePeriod(pIdx, 'usePreviousBands', true)} className="text-blue-600 focus:ring-blue-500" />
-                                                <span className="text-sm font-medium text-slate-700">Use previous bands</span>
-                                            </label>
+                            <div className="space-y-6">
+                                {config?.periods?.map((period, pIdx) => (
+                                    <div key={pIdx} className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                                        <div className="bg-slate-50 p-4 border-b border-slate-200 flex flex-wrap gap-4 items-end">
+                                            <div className="flex-grow min-w-[200px]">
+                                                <label className="block text-xs font-bold text-slate-700 mb-1">Period Name</label>
+                                                <input type="text" placeholder="e.g. Summer High Season" value={period.name} onChange={e => updatePeriod(pIdx, 'name', e.target.value)} className="w-full border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-700 mb-1">Start Date</label>
+                                                <input type="date" value={period.startDate} onChange={e => updatePeriod(pIdx, 'startDate', e.target.value)} className="border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-700 mb-1">End Date</label>
+                                                <input type="date" value={period.endDate} onChange={e => updatePeriod(pIdx, 'endDate', e.target.value)} className="border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                                            </div>
+                                            <button onClick={() => handleRemovePeriod(pIdx)} className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Remove Period">
+                                                <Trash2 className="w-5 h-5"/>
+                                            </button>
                                         </div>
 
-                                        {!period.usePreviousBands && (
-                                            <div className="space-y-3 pl-4 border-l-2 border-blue-100">
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <h5 className="text-sm font-bold text-slate-700">Duration Bands</h5>
-                                                    <button onClick={() => handleAddBand(pIdx)} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100 font-medium flex items-center gap-1">
-                                                        <Plus className="w-3 h-3"/> Add Band
-                                                    </button>
-                                                </div>
-                                                
-                                                {period.bands.length === 0 && <p className="text-xs text-slate-500 italic">No bands defined. Click 'Add Band'.</p>}
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" checked={!period.usePreviousBands} onChange={() => updatePeriod(pIdx, 'usePreviousBands', false)} className="text-blue-600 focus:ring-blue-500" />
+                                                    <span className="text-sm font-medium text-slate-700">Custom bands for this period</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" checked={period.usePreviousBands} onChange={() => updatePeriod(pIdx, 'usePreviousBands', true)} className="text-blue-600 focus:ring-blue-500" />
+                                                    <span className="text-sm font-medium text-slate-700">Use previous bands</span>
+                                                </label>
+                                            </div>
 
-                                                {period.bands.map((band, bIdx) => (
-                                                    <div key={bIdx} className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                                                        <div className="flex items-center gap-2">
-                                                            <input type="number" min="1" placeholder="Min" value={band.minDays} onChange={e => updateBand(pIdx, bIdx, 'minDays', parseInt(e.target.value) || 0)} className="w-16 border-slate-300 rounded border px-2 py-1 text-sm" />
-                                                            <span className="text-slate-400">-</span>
-                                                            <input type="number" min="1" placeholder="Max (opt)" value={band.maxDays || ''} onChange={e => updateBand(pIdx, bIdx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} className="w-20 border-slate-300 rounded border px-2 py-1 text-sm" />
-                                                            <span className="text-xs text-slate-500">days</span>
-                                                        </div>
-                                                        <div className="w-px h-6 bg-slate-200 mx-1"></div>
-                                                        <input type="text" placeholder="Column Label (optional)" value={band.label || ''} onChange={e => updateBand(pIdx, bIdx, 'label', e.target.value)} className="flex-grow border-slate-300 rounded border px-2 py-1 text-sm" />
-                                                        <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer ml-2">
-                                                            <input type="checkbox" checked={band.perMonth} onChange={e => updateBand(pIdx, bIdx, 'perMonth', e.target.checked)} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                                                            Per Month
-                                                        </label>
-                                                        <button onClick={() => handleRemoveBand(pIdx, bIdx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors ml-auto">
-                                                            <X className="w-4 h-4"/>
+                                            {!period.usePreviousBands && (
+                                                <div className="space-y-3 pl-4 border-l-2 border-blue-100">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <h5 className="text-sm font-bold text-slate-700">Duration Bands</h5>
+                                                        <button onClick={() => handleAddBand(pIdx)} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100 font-medium flex items-center gap-1">
+                                                            <Plus className="w-3 h-3"/> Add Band
                                                         </button>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                    
+                                                    {(!period.bands || period.bands.length === 0) && <p className="text-xs text-slate-500 italic">No bands defined. Click 'Add Band'.</p>}
+
+                                                    {period?.bands?.map((band, bIdx) => (
+                                                        <div key={bIdx} className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                            <div className="flex items-center gap-2">
+                                                                <input type="number" min="1" placeholder="Min" value={band.minDays} onChange={e => updateBand(pIdx, bIdx, 'minDays', parseInt(e.target.value) || 0)} className="w-16 border-slate-300 rounded border px-2 py-1 text-sm" />
+                                                                <span className="text-slate-400">-</span>
+                                                                <input type="number" min="1" placeholder="Max (opt)" value={band.maxDays || ''} onChange={e => updateBand(pIdx, bIdx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} className="w-20 border-slate-300 rounded border px-2 py-1 text-sm" />
+                                                                <span className="text-xs text-slate-500">days</span>
+                                                            </div>
+                                                            <div className="w-px h-6 bg-slate-200 mx-1"></div>
+                                                            <input type="text" placeholder="Column Label (optional)" value={band.label || ''} onChange={e => updateBand(pIdx, bIdx, 'label', e.target.value)} className="flex-grow border-slate-300 rounded border px-2 py-1 text-sm" />
+                                                            <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer ml-2">
+                                                                <input type="checkbox" checked={band.perMonth} onChange={e => updateBand(pIdx, bIdx, 'perMonth', e.target.checked)} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                                                Per Month
+                                                            </label>
+                                                            <button onClick={() => handleRemoveBand(pIdx, bIdx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors ml-auto">
+                                                                <X className="w-4 h-4"/>
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 rounded-b-xl sticky bottom-0 z-10">
                     <button onClick={onClose} className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-100 transition-colors">
                         Cancel
                     </button>
-                    <button onClick={handleSave} disabled={isSaving} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50">
+                    <button onClick={handleSave} disabled={isSaving || isLoading || !!error} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50">
                         {isSaving ? <LoaderCircle className="w-4 h-4 animate-spin"/> : <Download className="w-4 h-4"/>}
                         Save & Download Template
                     </button>
@@ -1323,7 +1381,6 @@ const TemplateConfigModal = ({ initialConfig, onClose, onSave, isSaving }: { ini
 
         {isConfigModalOpen && templateConfig && (
             <TemplateConfigModal 
-                initialConfig={templateConfig} 
                 onClose={() => setIsConfigModalOpen(false)} 
                 onSave={async (newConfig) => {
                     setIsSavingConfig(true);
