@@ -6,6 +6,7 @@ import { Booking, Car as CarType } from '../types';
 import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
+import { Logo } from '../components/Logo';
 
 const SupplierConfirmation: React.FC = () => {
     const { bookingId } = useParams<{ bookingId: string }>();
@@ -105,11 +106,7 @@ const SupplierConfirmation: React.FC = () => {
             
             <header className="bg-white shadow-sm">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-2">
-                    <div className="relative">
-                        <Car className="h-6 w-6 text-[#003580]" />
-                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF9F1C] rounded-full border border-white"></div>
-                    </div>
-                    <span className="font-bold text-xl tracking-tight text-[#003580]">Hogi<span className="text-[#FF9F1C]">car</span></span>
+                    <Logo className="h-12 w-auto" variant="dark" />
                     <span className="text-slate-400 font-light text-xl mx-2">|</span>
                     <span className="text-sm font-semibold text-slate-500">Supplier Confirmation</span>
                 </div>

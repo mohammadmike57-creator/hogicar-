@@ -2,6 +2,7 @@ import * as React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Building, LogOut, Shield, Menu, X, LoaderCircle } from 'lucide-react';
 import { clearAdminToken, adminFetch } from '../../lib/adminApi';
+import { Logo } from '../../components/Logo';
 
 const AdminLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -47,11 +48,7 @@ const AdminLayout: React.FC = () => {
     const sidebarContent = (
          <div className="p-4 h-full flex flex-col">
             <div className="hidden md:flex items-center gap-3 mb-8">
-              <Shield className="w-8 h-8 text-blue-600" />
-              <div>
-                <h1 className="font-bold text-slate-800">Admin Panel</h1>
-                <p className="text-xs text-slate-500">Hogicar Inc.</p>
-              </div>
+              <Logo className="h-10 w-auto" />
             </div>
             <nav className="space-y-1.5 flex-grow">
               <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />
@@ -76,8 +73,7 @@ const AdminLayout: React.FC = () => {
         <div className="bg-slate-50 min-h-screen">
             <div className="md:hidden bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20">
                 <div className="flex items-center gap-2">
-                    <Shield className="w-6 h-6 text-blue-600" />
-                    <span className="font-bold text-slate-800">Admin Panel</span>
+                    <Logo className="h-8 w-auto" />
                 </div>
                 <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
                     {isSidebarOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}

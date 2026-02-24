@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, MOCK_API_PARTNERS, addMockApiPartner, generateApiKey, updateApiPartnerStatus, MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode } from '../../services/mockData';
-import { Users, Car as CarIcon, TrendingUp, AlertCircle, Edit, Save, X, LayoutDashboard, Building, Plus, Rss, Key, Link2, XCircle, RefreshCw, Copy, Check, DollarSign as DollarSignIcon, Share2, Power, Code, Menu, Mail, LogOut, FileText, Globe, Search as SearchIcon, ImageIcon, PlusCircle, Trash2, Shield, SlidersHorizontal, CheckCircle, ChevronDown, ChevronUp, PowerOff, MailQuestion, CheckSquare, XSquare, Tag, Calendar, Gift, Monitor, Tablet, Smartphone, Expand } from 'lucide-react';
-import { Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, PageContent, SEOConfig, HomepageContent, FeatureItem, StepItem, ValuePropositionItem, DestinationItem, FaqItem, CarModel, CarCategory, CarType, Affiliate, SupplierApplication, Car, RateTier, RateByDay, PromoCode } from '../../types';
+import { Users, Car as CarIcon, TrendingUp, AlertCircle, Edit, Save, X, LayoutDashboard, Building, Plus, Rss, Key, Link2, XCircle, RefreshCw, Copy, Check, DollarSign as DollarSignIcon, Share2, Power, Code, Menu, Mail, LogOut, FileText, Globe, Search as SearchIcon, ImageIcon, PlusCircle, Trash2, Shield, SlidersHorizontal, CheckCircle, ChevronDown, ChevronUp, PowerOff, MailQuestion, CheckSquare, XSquare, Tag, Calendar, Gift, Monitor, Tablet, Smartphone, Expand, MapPin } from 'lucide-react';
+import { Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, PageContent, SEOConfig, HomepageContent, FeatureItem, StepItem, ValuePropositionItem, DestinationItem, FaqItem, CarModel, CarCategory, CarType, Affiliate, SupplierApplication, Car, RateTier, RateByDay, PromoCode, Location } from '../../types';
 import { useNavigate } from 'react-router-dom';
 
 interface SupplierRowProps {
@@ -548,8 +548,39 @@ const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: { c
     );
 };
 
+const LocationApprovalModal = ({ location, supplierName, isOpen, onClose, onApprove }: { location: Location, supplierName: string, isOpen: boolean, onClose: () => void, onApprove: (commission: number) => void }) => {
+    const [commission, setCommission] = React.useState(0.15);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Approve Location</h3>
+                <p className="text-sm text-slate-600 mb-4">
+                    <strong>{supplierName}</strong> - {location.name}<br/>
+                    <span className="text-xs text-slate-400">{location.address}</span>
+                </p>
+                
+                <div className="mb-6">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Set Commission Rate</label>
+                    <div className="relative">
+                        <input type="number" step="0.01" min="0" max="1" value={commission} onChange={e => setCommission(parseFloat(e.target.value))} className="w-full border p-2 rounded" />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">% (0.15 = 15%)</span>
+                    </div>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded text-sm font-medium">Cancel</button>
+                    <button onClick={() => onApprove(commission)} className="bg-green-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-green-700">Approve & Activate</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export const AdminDashboard: React.FC = () => {
-  const [activeSection, setActiveSection] = React.useState<'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 'homepage' | 'sitesettings' | 'promotions'>('dashboard');
+  const [activeSection, setActiveSection] = React.useState<'dashboard' | 'suppliers' | 'supplierrequests' | 'locationrequests' | 'bookings' | 'fleet' | 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 'homepage' | 'sitesettings' | 'promotions'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -558,6 +589,7 @@ export const AdminDashboard: React.FC = () => {
   const [supplierApps, setSupplierApps] = React.useState(MOCK_SUPPLIER_APPLICATIONS);
   const [editingSupplier, setEditingSupplier] = React.useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = React.useState<SupplierApplication | null>(null);
+  const [approvingLocation, setApprovingLocation] = React.useState<{ loc: Location, supplierId: string, supplierName: string } | null>(null);
   const [isApiModalOpen, setIsApiModalOpen] = React.useState(false);
   
   const [apiPartners, setApiPartners] = React.useState(MOCK_API_PARTNERS);
@@ -838,6 +870,61 @@ export const AdminDashboard: React.FC = () => {
             </div>
         </div>
     );
+  };
+
+  const LocationRequestsContent = () => {
+      // Flatten all pending locations
+      const pendingLocations = suppliers.flatMap(s => 
+          (s.locations || []).filter(l => l.status === 'pending_approval').map(l => ({ loc: l, supplier: s }))
+      );
+
+      const handleApproveLoc = (commission: number) => {
+          if (!approvingLocation) return;
+          
+          const sIndex = SUPPLIERS.findIndex(s => s.id === approvingLocation.supplierId);
+          if (sIndex > -1) {
+              const supplier = SUPPLIERS[sIndex];
+              const lIndex = supplier.locations?.findIndex(l => l.id === approvingLocation.loc.id);
+              if (lIndex !== undefined && lIndex > -1 && supplier.locations) {
+                  supplier.locations[lIndex].status = 'active';
+                  supplier.locations[lIndex].commissionRate = commission;
+                  setSuppliers([...SUPPLIERS]);
+              }
+          }
+          setApprovingLocation(null);
+      };
+
+      return (
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+              <h2 className="text-lg font-bold text-slate-800 mb-4">Pending Location Approvals</h2>
+              {pendingLocations.length === 0 ? (
+                  <p className="text-slate-500 italic">No pending location requests.</p>
+              ) : (
+                  <div className="space-y-4">
+                      {pendingLocations.map(({ loc, supplier }) => (
+                          <div key={loc.id} className="border rounded-lg p-4 flex justify-between items-center hover:bg-slate-50">
+                              <div>
+                                  <h4 className="font-bold text-slate-800">{loc.name}</h4>
+                                  <p className="text-sm text-slate-600">{supplier.name}</p>
+                                  <p className="text-xs text-slate-400 mt-1"><MapPin className="w-3 h-3 inline mr-1"/> {loc.address}</p>
+                              </div>
+                              <button onClick={() => setApprovingLocation({ loc, supplierId: supplier.id, supplierName: supplier.name })} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700">Review</button>
+                          </div>
+                      ))}
+                  </div>
+              )}
+
+              {approvingLocation && (
+                  <LocationApprovalModal 
+                      isOpen={!!approvingLocation} 
+                      location={approvingLocation.loc} 
+                      supplierName={approvingLocation.supplierName} 
+                      onClose={() => setApprovingLocation(null)} 
+                      onApprove={handleApproveLoc} 
+                  />
+              )}
+          </div>
+      );
   };
 
   const BookingsContent = () => (
@@ -1509,6 +1596,7 @@ export const AdminDashboard: React.FC = () => {
       case 'dashboard': return <DashboardContent />;
       case 'suppliers': return <SuppliersContent />;
       case 'supplierrequests': return <SupplierRequestsContent />;
+      case 'locationrequests': return <LocationRequestsContent />;
       case 'bookings': return <BookingsContent />;
       case 'fleet': return <FleetContent />;
       case 'carlibrary': return <CarLibraryContent />;
@@ -1561,6 +1649,7 @@ export const AdminDashboard: React.FC = () => {
               <NavItem section="dashboard" label="Dashboard" icon={LayoutDashboard} />
               <NavItem section="suppliers" label="Suppliers" icon={Building} />
               <NavItem section="supplierrequests" label="Supplier Requests" icon={MailQuestion} count={supplierApps.length} />
+              <NavItem section="locationrequests" label="Location Approvals" icon={MapPin} count={suppliers.flatMap(s => (s.locations || []).filter(l => l.status === 'pending_approval')).length} />
               <NavItem section="bookings" label="Bookings" icon={CarIcon} />
               <NavItem section="fleet" label="Fleet" icon={CarIcon} />
               <NavItem section="promotions" label="Promotions" icon={Tag} />

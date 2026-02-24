@@ -8,6 +8,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import ModifyBookingModal from '../components/ModifyBookingModal';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import { Logo } from '../components/Logo';
 
 // --- SUB-COMPONENTS ---
 
@@ -40,11 +41,7 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                     <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-8">
                         <div>
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="relative">
-                                    <Car className="h-6 w-6 text-[#003580]" />
-                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF9F1C] rounded-full border border-white"></div>
-                                </div>
-                                <span className="font-bold text-xl text-[#003580]">Hogi<span className="text-[#FF9F1C]">car</span></span>
+                                <Logo className="h-12 w-auto" variant="dark" />
                             </div>
                             <h1 className="text-3xl font-extrabold text-slate-900 uppercase tracking-tight">Rental Voucher</h1>
                             <p className="text-sm text-slate-500 font-medium mt-1">Present this at the counter</p>

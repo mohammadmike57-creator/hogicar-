@@ -73,6 +73,14 @@ export interface ApiConnection {
   secretKey: string;
 }
 
+export interface Location {
+  id: string;
+  name: string;
+  address: string;
+  status: 'active' | 'pending_approval' | 'rejected';
+  commissionRate?: number; // Specific commission for this location
+}
+
 export interface WorkingHours {
     monday: string;
     tuesday: string;
@@ -94,7 +102,8 @@ export interface Supplier {
   status: 'active' | 'pending' | 'rejected';
   
   // Contact & Location Info
-  location: string;
+  location: string; // Primary location name (legacy)
+  locations: Location[]; // New multi-location support
   contactEmail: string;
   address?: string;
   phone?: string;
@@ -117,6 +126,8 @@ export interface Supplier {
   username?: string;
   password?: string;
   enableSocialProof?: boolean;
+  gracePeriod?: number;
+  leadTime?: number;
 }
 
 export interface Extra {
@@ -161,6 +172,7 @@ export interface Car {
   fuelPolicy: FuelPolicy;
   isAvailable: boolean;
   location: string;
+  locationId?: string; // Link to specific Location record
   
   // Advanced Pricing & Specs
   deposit: number; // Security deposit amount

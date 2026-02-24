@@ -1,12 +1,36 @@
 
 // This file contains API helpers for public and supplier-authenticated endpoints.
 // All requests use JWT via Authorization header (for supplier routes) and explicitly omit cookies.
+import axios from 'axios';
 import { ApiSearchResult, CarCategory, Booking, RateImportSummary, TemplateConfig, CarRateTier } from './types';
 import { API_BASE_URL } from './lib/config';
 import { getSupplierToken, clearSupplierToken } from './lib/auth';
 import { parseFilenameFromContentDisposition } from './lib/httpFilename';
 
 const API_URL = API_BASE_URL;
+
+const apiClient = axios.create({
+    baseURL: API_URL,
+});
+
+apiClient.interceptors.request.use((config) => {
+    const token = getSupplierToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            clearSupplierToken();
+            window.location.hash = '/supplier-login?reason=session_expired';
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Interface for the UI component
 export interface LocationSuggestion {
@@ -17,85 +41,37 @@ export interface LocationSuggestion {
 
 // Interface for the raw API response for locations
 interface ApiLocation {
-    name: string;
-    country: string;
-    code: string;
+    name?: string;
+    country?: string;
+    code?: string;
+    iataCode?: string;
+    municipality?: string;
     label?: string;
     value?: string;
     type?: string;
 }
 
-const handleSupplierApiResponse = async (response: Response) => {
-    if (response.status === 401 || response.status === 403) {
-        clearSupplierToken();
-        // Use a more robust way to redirect that works with HashRouter
-        window.location.hash = '/supplier-login?reason=session_expired';
-        throw new Error("Session expired.");
-    }
-    
-    if (response.headers.get('Content-Type')?.includes('application/json')) {
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message || `API request failed with status: ${response.status}`);
-        }
-        return data;
-    }
-    
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Could not read error body');
-        throw new Error(`API request failed: ${response.status} ${response.statusText}. ${errorText}`);
-    }
-
-    // Handle non-JSON responses like file downloads
-    return response;
-};
-
-const supplierFetch = async (path: string, options: RequestInit = {}) => {
-    const token = getSupplierToken();
-    if (!token) throw new Error("Authentication failed. Please log in again.");
-
-    const defaultHeaders: HeadersInit = {
-        'Authorization': `Bearer ${token}`,
-    };
-
-    if (!(options.body instanceof FormData)) {
-        defaultHeaders['Content-Type'] = 'application/json';
-    }
-
-    const response = await fetch(`${API_URL}${path}`, {
-        ...options,
-        headers: {
-            ...defaultHeaders,
-            ...options.headers,
-        },
-        credentials: 'omit',
-    });
-
-    return handleSupplierApiResponse(response);
-};
-
-
 export async function fetchLocations(query?: string): Promise<LocationSuggestion[]> {
-  const url = query ? `${API_URL}/api/locations?query=${encodeURIComponent(query)}` : `${API_URL}/api/locations`;
+  const url = query ? `/api/locations?keyword=${encodeURIComponent(query)}` : `/api/locations`;
   try {
-    const response = await fetch(url, { credentials: 'omit' });
-
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => 'Could not read error body');
-      throw new Error(`Failed to fetch locations: ${response.status} ${response.statusText}. Body: ${errorBody}`);
-    }
-
-    const locationsArray: ApiLocation[] = await response.json();
+    const response = await apiClient.get(url);
+    const locationsArray: ApiLocation[] = response.data;
     
     if (!Array.isArray(locationsArray)) {
        throw new Error("Locations API did not return an array.");
     }
     
-    return locationsArray.map(l => ({
-        label: l.label ?? `${l.name}, ${l.country} (${l.code})`,
-        value: l.value ?? l.code,
-        type: l.type ?? 'AIRPORT'
-    }));
+    return locationsArray.map(l => {
+        const code = l.iataCode || l.code || '';
+        const name = l.name || l.municipality || '';
+        const country = l.country || '';
+        const label = l.label || `${name}${country ? `, ${country}` : ''} (${code})`;
+        return {
+            label,
+            value: l.value || code,
+            type: l.type || 'AIRPORT'
+        };
+    });
 
   } catch (error) {
     console.error("Error fetching locations:", error);
@@ -104,17 +80,11 @@ export async function fetchLocations(query?: string): Promise<LocationSuggestion
 }
 
 export async function fetchCars(pickup: string, dropoff: string, pickupDate: string, dropoffDate: string): Promise<ApiSearchResult[]> {
-  const carsUrl = `${API_URL}/api/cars?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
+  const carsUrl = `/api/cars?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
 
-  const response = await fetch(carsUrl, { credentials: 'omit' });
+  const response = await apiClient.get(carsUrl);
 
-  if (!response.ok) {
-    const body = await response.text();
-    console.error("Failed to fetch cars. Status:", response.status, "Body:", body);
-    throw new Error(`Failed to fetch cars. The server responded with status: ${response.status}`);
-  }
-
-  const rawCars: ApiSearchResult[] = await response.json();
+  const rawCars: ApiSearchResult[] = response.data;
 
   const normalizedCars = rawCars.map(car => {
     const normalizedCar = { ...car };
@@ -173,41 +143,21 @@ interface ReviewPayload {
     pickupSpeed: number;
 }
 
-const handleResponse = async (response: Response) => {
-    if (!response.ok) {
-        const errorBody = await response.text();
-        let errorMessage = response.statusText;
-        try {
-            const json = JSON.parse(errorBody);
-            errorMessage = json.message || errorMessage;
-        } catch {
-            // ignore JSON parse error
-        }
-        throw new Error(errorMessage);
-    }
-    return response.json();
-};
-
 export const api = {
     /**
      * Create a new booking
      */
     createBooking: async (payload: CreateBookingPayload): Promise<Booking> => {
-        const response = await fetch(`${API_URL}/api/bookings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            credentials: 'omit',
-        });
-        return handleResponse(response);
+        const response = await apiClient.post('/api/bookings', payload);
+        return response.data;
     },
 
     /**
      * Get booking details by Reference Number (e.g. H123456)
      */
     getBookingByRef: async (ref: string): Promise<Booking> => {
-        const response = await fetch(`${API_URL}/api/bookings/ref/${ref}`, { credentials: 'omit' });
-        return handleResponse(response);
+        const response = await apiClient.get(`/api/bookings/ref/${ref}`);
+        return response.data;
     },
 
     /**
@@ -215,69 +165,90 @@ export const api = {
      */
     lookupBooking: async (email: string, ref: string): Promise<Booking> => {
         const params = new URLSearchParams({ email, ref });
-        const response = await fetch(`${API_URL}/api/bookings/lookup?${params.toString()}`, { credentials: 'omit' });
-        return handleResponse(response);
+        const response = await apiClient.get(`/api/bookings/lookup?${params.toString()}`);
+        return response.data;
     },
 
     /**
      * Cancel a booking
      */
     cancelBooking: async (id: string | number): Promise<Booking> => {
-        const response = await fetch(`${API_URL}/api/bookings/${id}/cancel`, {
-            method: 'POST',
-            credentials: 'omit',
-        });
-        return handleResponse(response);
+        const response = await apiClient.post(`/api/bookings/${id}/cancel`);
+        return response.data;
     },
 
     /**
      * Supplier confirms the booking
      */
     supplierConfirm: async (id: string | number, supplierConfirmationNumber: string): Promise<Booking> => {
-        const response = await fetch(`${API_URL}/api/bookings/${id}/supplier-confirm`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ supplierConfirmationNumber }),
-            credentials: 'omit',
-        });
-        return handleResponse(response);
+        const response = await apiClient.post(`/api/bookings/${id}/supplier-confirm`, { supplierConfirmationNumber });
+        return response.data;
     },
 
     /**
      * Submit a customer review
      */
     submitReview: async (id: string | number, review: ReviewPayload): Promise<Booking> => {
-        const response = await fetch(`${API_URL}/api/bookings/${id}/review`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(review),
-            credentials: 'omit',
-        });
-        return handleResponse(response);
+        const response = await apiClient.post(`/api/bookings/${id}/review`, review);
+        return response.data;
     }
 };
 
 // --- SUPPLIER API ---
 export const supplierApi = {
-  getTemplateConfig: (): Promise<TemplateConfig> => {
-    return supplierFetch('/api/supplier/rates/template-config');
+  // Auth
+  login: async (credentials: any): Promise<{ token: string }> => {
+    const response = await apiClient.post('/api/supplier/auth/login', credentials);
+    return response.data;
+  },
+
+  // Profile
+  getMe: async (): Promise<any> => {
+    const response = await apiClient.get('/api/supplier/me');
+    return response.data;
+  },
+
+  // Cars
+  getCars: async (): Promise<any[]> => {
+    const response = await apiClient.get('/api/supplier/dashboard/cars');
+    return response.data;
+  },
+  addCar: async (carData: any): Promise<any> => {
+    const response = await apiClient.post('/api/supplier/dashboard/cars', carData);
+    return response.data;
+  },
+  updateCar: async (carId: string, carData: any): Promise<any> => {
+    const response = await apiClient.put(`/api/supplier/dashboard/cars/${carId}`, carData);
+    return response.data;
+  },
+  deleteCar: async (carId: string): Promise<void> => {
+    await apiClient.delete(`/api/supplier/dashboard/cars/${carId}`);
+  },
+
+  // Car Models
+  getCarModels: async (): Promise<any[]> => {
+    const response = await apiClient.get('/api/supplier/car-models');
+    return response.data;
+  },
+
+  // Rates
+  getTemplateConfig: async (): Promise<TemplateConfig> => {
+    const response = await apiClient.get('/api/supplier/rates/template-config');
+    return response.data;
   },
   
-  updateTemplateConfig: (config: TemplateConfig): Promise<TemplateConfig> => {
-    return supplierFetch('/api/supplier/rates/template-config', {
-      method: 'PUT',
-      body: JSON.stringify(config),
-    });
+  updateTemplateConfig: async (config: TemplateConfig): Promise<TemplateConfig> => {
+    const response = await apiClient.put('/api/supplier/rates/template-config', config);
+    return response.data;
   },
 
   downloadSupplierRatesTemplate: async (): Promise<void> => {
-    const response = await supplierFetch('/api/supplier/rates/template') as Response;
+    const response = await apiClient.get('/api/supplier/rates/template', { responseType: 'blob' });
     
-    const disposition = response.headers.get('Content-Disposition');
+    const disposition = response.headers['content-disposition'];
     const filename = parseFilenameFromContentDisposition(disposition) || 'rates_template.xlsx';
     
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
@@ -292,27 +263,43 @@ export const supplierApi = {
     const formData = new FormData();
     formData.append('file', file);
     
-    return supplierFetch('/api/supplier/rates/import', {
-        method: 'POST',
-        body: formData,
+    const response = await apiClient.post('/api/supplier/rates/import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
 
-  getRatesForCar: (carId: string): Promise<CarRateTier[]> => {
-    return supplierFetch(`/api/supplier/rates/cars/${carId}`);
+  getRatesForCar: async (carId: string): Promise<CarRateTier[]> => {
+    const response = await apiClient.get(`/api/supplier/rates/cars/${carId}`);
+    return response.data;
   },
 
-  createRateTier: (carId: string, tierData: Omit<CarRateTier, 'id' | 'currency'>): Promise<CarRateTier> => {
-    return supplierFetch(`/api/supplier/rates/cars/${carId}`, {
-        method: 'POST',
-        body: JSON.stringify(tierData),
-    });
+  createRateTier: async (carId: string, tierData: Omit<CarRateTier, 'id' | 'currency'>): Promise<CarRateTier> => {
+    const response = await apiClient.post(`/api/supplier/rates/cars/${carId}`, tierData);
+    return response.data;
   },
 
-  updateRateTier: (tierId: number, tierData: Omit<CarRateTier, 'id' | 'currency'>): Promise<CarRateTier> => {
-     return supplierFetch(`/api/supplier/rates/tiers/${tierId}`, {
-        method: 'PUT',
-        body: JSON.stringify(tierData),
-    });
+  updateRateTier: async (tierId: number, tierData: Omit<CarRateTier, 'id' | 'currency'>): Promise<CarRateTier> => {
+     const response = await apiClient.put(`/api/supplier/rates/tiers/${tierId}`, tierData);
+     return response.data;
+  },
+  
+  deleteRateTier: async (tierId: number): Promise<void> => {
+     await apiClient.delete(`/api/supplier/rates/tiers/${tierId}`);
+  },
+
+  // Stop Sales
+  bulkAddStopSales: async (data: any): Promise<void> => {
+    await apiClient.post('/api/supplier/dashboard/stopsales/bulk', data);
+  },
+
+  // Locations
+  getLocations: async (): Promise<any[]> => {
+    const response = await apiClient.get('/api/supplier/locations');
+    return response.data;
+  },
+  requestLocation: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/api/supplier/locations', data);
+    return response.data;
   },
 };

@@ -174,52 +174,63 @@ const BookingPage: React.FC = () => {
         <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-5 flex items-center gap-6">
-               <img src={car.image} alt={car.model} className="w-40 h-24 object-cover rounded" />
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-6">
+               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                   <img src={car.image} alt={car.model} className="w-32 h-auto object-contain drop-shadow-md" />
+               </div>
                <div>
-                  <h1 className="text-xl font-bold text-slate-900">{car.displayName || `${car.make} ${car.model}`}</h1>
-                  <p className="text-sm text-slate-500">{car.category} &bull; {car.transmission}</p>
-                  <p className="text-xs text-slate-600 mt-2">Provided by <strong>{car.supplier.name}</strong></p>
+                  <h1 className="text-2xl font-extrabold text-slate-900">{car.displayName || `${car.make} ${car.model}`}</h1>
+                  <p className="text-sm font-medium text-slate-500 mt-1">{car.category} &bull; {car.transmission}</p>
+                  <div className="flex items-center gap-2 mt-3">
+                      <img src={car.supplier.logo} alt={car.supplier.name} className="h-6 object-contain" />
+                      <p className="text-xs font-bold text-slate-600">Provided by {car.supplier.name}</p>
+                  </div>
                </div>
             </div>
             
             {/* Driver Details */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-6">
-               <h2 className="text-lg font-semibold text-slate-800 mb-4">Driver Details</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label><FormInput icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Phone Number</label><FormInput icon={Phone} type="tel" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
-                  <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-700 mb-1">Flight Number (Optional)</label><FormInput icon={Plane} type="text" placeholder="e.g. AA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value)} /> <p className="text-[10px] text-gray-500 mt-1">Helps the supplier track delays.</p></div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+               <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><User className="w-5 h-5 text-blue-600"/> Driver Details</h2>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required /></div>
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required /></div>
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Email Address</label><FormInput icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required /></div>
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Phone Number</label><FormInput icon={Phone} type="tel" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                  <div className="md:col-span-2"><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Flight Number (Optional)</label><FormInput icon={Plane} type="text" placeholder="e.g. AA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value)} /> <p className="text-[10px] text-slate-400 mt-1.5 font-medium">Helps the supplier track delays.</p></div>
                </div>
             </div>
 
             {/* Insurance Options */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-6">
-               <h2 className="text-lg font-semibold text-slate-800 mb-4">Rental Protection</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+               <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><Shield className="w-5 h-5 text-blue-600"/> Rental Protection</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div onClick={() => setInsuranceOption('basic')} className={`p-4 border rounded-lg cursor-pointer transition-all ${insuranceOption === 'basic' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                     <h3 className="font-bold text-slate-800 text-sm">Basic Coverage</h3>
-                     <p className="text-xs text-slate-500 mt-1">Included. Covers theft and collision damage with an excess of {getCurrencySymbol()}{convertPrice(car.excess).toFixed(0)}.</p>
-                     <span className="text-xs font-bold text-blue-600 mt-2 block">Included in price</span>
-                  </div>
-                   <div onClick={() => setInsuranceOption('full')} className={`p-4 border rounded-lg cursor-pointer transition-all ${insuranceOption === 'full' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                     <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-green-500" /> Full Protection</h3>
-                          <p className="text-xs text-slate-500 mt-1">Peace of mind. Your excess is reduced to {getCurrencySymbol()}0, plus coverage for tyres and windows.</p>
-                          <span className="text-xs font-bold text-blue-600 mt-2 block">+ {getCurrencySymbol()}{convertPrice(12).toFixed(2)} / day</span>
-                        </div>
-                        <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                           <TrendingUp className="w-3 h-3"/> Popular
-                        </span>
+                  <div onClick={() => setInsuranceOption('basic')} className={`p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${insuranceOption === 'basic' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
+                     <div className="flex justify-between items-center mb-2">
+                         <h3 className="font-bold text-slate-800 text-sm">Basic Coverage</h3>
+                         <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${insuranceOption === 'basic' ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
+                              {insuranceOption === 'basic' && <Check className="w-3 h-3 text-white"/>}
+                         </div>
                      </div>
+                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Included. Covers theft and collision damage with an excess of {getCurrencySymbol()}{convertPrice(car.excess).toFixed(0)}.</p>
+                     <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mt-4 block">Included in price</span>
+                  </div>
+                   <div onClick={() => setInsuranceOption('full')} className={`p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${insuranceOption === 'full' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
+                     <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#16a34a]" /> Full Protection</h3>
+                        </div>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${insuranceOption === 'full' ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
+                              {insuranceOption === 'full' && <Check className="w-3 h-3 text-white"/>}
+                         </div>
+                     </div>
+                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Peace of mind. Your excess is reduced to {getCurrencySymbol()}0, plus coverage for tyres and windows.</p>
+                     <span className="text-sm font-extrabold text-blue-600 mt-3 block">+ {getCurrencySymbol()}{convertPrice(12).toFixed(2)} / day</span>
+                     
                      {insuranceOption === 'full' && (
-                        <div className="mt-3 pt-3 border-t border-blue-200 text-xs text-slate-600 space-y-1 animate-fadeIn">
-                           <p className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-green-500"/> Reduces your excess to {getCurrencySymbol()}0</p>
-                           <p className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-green-500"/> Covers windows, mirrors, wheels & tyres</p>
-                           <p className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-green-500"/> Covers undercarriage & roof</p>
+                        <div className="mt-4 pt-4 border-t border-blue-100 text-xs text-slate-600 space-y-2 animate-fadeIn">
+                           <p className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-[#16a34a]"/> Reduces your excess to {getCurrencySymbol()}0</p>
+                           <p className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-[#16a34a]"/> Covers windows, mirrors, wheels & tyres</p>
+                           <p className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-[#16a34a]"/> Covers undercarriage & roof</p>
                         </div>
                      )}
                   </div>
@@ -227,14 +238,14 @@ const BookingPage: React.FC = () => {
             </div>
 
             {/* Payment Details */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-6">
-               <h2 className="text-lg font-semibold text-slate-800 mb-4">Payment Details</h2>
-               <div className="space-y-4">
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" required /></div>
-                  <div><label className="block text-xs font-medium text-gray-700 mb-1">Card Number</label><FormInput icon={CreditCard} type="text" placeholder="•••• •••• •••• ••••" required /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                     <div><label className="block text-xs font-medium text-gray-700 mb-1">Expiry Date</label><FormInput icon={Calendar} type="text" placeholder="MM / YY" required /></div>
-                     <div><label className="block text-xs font-medium text-gray-700 mb-1">CVC / CVV</label><FormInput icon={Lock} type="text" placeholder="•••" required /></div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+               <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5 text-blue-600"/> Payment Details</h2>
+               <div className="space-y-5">
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" required /></div>
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Card Number</label><FormInput icon={CreditCard} type="text" placeholder="•••• •••• •••• ••••" required /></div>
+                  <div className="grid grid-cols-2 gap-6">
+                     <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Expiry Date</label><FormInput icon={Calendar} type="text" placeholder="MM / YY" required /></div>
+                     <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">CVC / CVV</label><FormInput icon={Lock} type="text" placeholder="•••" required /></div>
                   </div>
                </div>
             </div>
@@ -242,50 +253,50 @@ const BookingPage: React.FC = () => {
 
           {/* Sidebar / Booking Summary */}
           <div className="lg:col-span-1">
-             <div className="bg-white rounded-lg shadow-lg border border-slate-100 p-5 sticky top-24">
-               <div className="mb-4 p-3 rounded-lg border border-green-200 bg-green-50 flex items-center justify-between">
-                   <p className="text-xs font-bold text-green-700 flex items-center gap-1.5"><Clock className="w-4 h-4"/>Your car is held for:</p>
-                   <p className="text-lg font-mono font-extrabold text-green-700 tracking-tight">{formatTime(timeLeft)}</p>
+             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sticky top-28">
+               <div className="mb-6 p-4 rounded-xl border border-blue-100 bg-blue-50 flex items-center justify-between">
+                   <p className="text-sm font-bold text-blue-800 flex items-center gap-2"><Clock className="w-4 h-4"/>Your car is held for:</p>
+                   <p className="text-xl font-mono font-extrabold text-blue-800 tracking-tight">{formatTime(timeLeft)}</p>
                </div>
 
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Price Summary</h3>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-xs text-slate-600"><span>Car Hire ({days} days)</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-xs text-slate-600"><span>Full Protection</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                <h3 className="text-xl font-extrabold text-slate-900 mb-6">Price Summary</h3>
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
                   
                   {selectedExtraIds.length > 0 && (
-                      <div className="pt-2 mt-2 border-t border-slate-100">
+                      <div className="pt-3 mt-3 border-t border-slate-100 space-y-2">
                           {car.extras?.filter(e => selectedExtraIds.includes(e.id)).map(extra => (
-                              <div key={extra.id} className="flex justify-between text-xs text-slate-600 mb-1">
+                              <div key={extra.id} className="flex justify-between text-sm text-slate-600">
                                   <span>{extra.name}</span>
-                                  <span>{getCurrencySymbol()}{(extra.type === 'per_day' ? convertPrice(extra.price) * days : convertPrice(extra.price)).toFixed(2)}</span>
+                                  <span className="font-bold text-slate-900">{getCurrencySymbol()}{(extra.type === 'per_day' ? convertPrice(extra.price) * days : convertPrice(extra.price)).toFixed(2)}</span>
                               </div>
                           ))}
                       </div>
                   )}
 
-                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-xs text-green-600"><span>Discount ({appliedPromo?.code})</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-[#16a34a] font-bold"><span>Discount ({appliedPromo?.code})</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
 
-                  <div className="flex justify-between text-xs text-slate-600 pt-2 border-t border-slate-100"><span>Taxes & Fees</span><span className="text-green-600 font-medium">Included</span></div>
+                  <div className="flex justify-between text-sm text-slate-600 pt-3 border-t border-slate-100"><span>Taxes & Fees</span><span className="text-[#16a34a] font-bold">Included</span></div>
                 </div>
-                <div className="border-t-2 border-dashed border-slate-200 pt-3 my-4">
-                  <div className="flex justify-between items-center"><span className="font-bold text-slate-900 text-base">Total</span><span className="font-bold text-slate-900 text-2xl">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
+                <div className="border-t-2 border-dashed border-slate-200 pt-6 my-6">
+                  <div className="flex justify-between items-end"><span className="font-extrabold text-slate-900 text-lg">Total</span><span className="font-extrabold text-slate-900 text-3xl tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
                </div>
-               <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-2 mb-6">
-                   <div className="flex justify-between font-bold text-blue-600"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
-                   <div className="flex justify-between text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
+               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm space-y-3 mb-6">
+                   <div className="flex justify-between font-extrabold text-blue-700"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
+                   <div className="flex justify-between font-medium text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                </div>
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center justify-center text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Processing...' : `Confirm & Pay ${getCurrencySymbol()}${convertPrice(priceDetails.payNow).toFixed(2)}`}
                 </button>
-                <p className="text-center text-[10px] text-slate-400 mt-3 flex items-center justify-center gap-1"><ShieldCheck className="w-3 h-3"/> Secure payment processing by Stripe</p>
-                <div className="bg-blue-50 border border-blue-100 rounded p-2 mt-4 flex gap-2">
-                  <Info className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <p className="text-[10px] text-blue-800">By booking you agree to the <a href="#" className="underline font-medium">Terms of Service</a> and <a href="#" className="underline font-medium">Privacy Policy</a>.</p>
+                <p className="text-center text-xs font-bold text-slate-500 mt-4 flex items-center justify-center gap-1.5"><ShieldCheck className="w-4 h-4 text-green-500"/> Secure payment processing by Stripe</p>
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mt-6 flex gap-3 items-start">
+                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-800 leading-relaxed font-medium">By booking you agree to the <a href="#" className="underline font-bold hover:text-blue-900">Terms of Service</a> and <a href="#" className="underline font-bold hover:text-blue-900">Privacy Policy</a>.</p>
                 </div>
              </div>
           </div>

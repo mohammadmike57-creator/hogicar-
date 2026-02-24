@@ -92,9 +92,9 @@ const AmexIcon = () => (
 );
 
 const VisaIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded-sm shadow-md">
-    <rect width="38" height="24" rx="3" fill="#fff" stroke="#ccc" strokeWidth="1"/>
-    <path fill="#142688" d="M10.15 17.2h-2.3L4.6 7h2.55l1.95 7.2c.1.4.15.7.2 1h.05c.05-.3.1-.6.2-1L11.5 7h2.5L10.15 17.2zm11.2-10.2c-.5-.4-.9-.6-1.5-.6-1.8 0-3.1 1.2-3.1 2.9 0 1.4.9 2.2 2.1 2.7.5.2.7.4.7.6 0 .3-.3.5-.7.5-.5 0-.9-.2-1.2-.3l-.3-.2-.3-1.4h-1.6c.1 1.7 1.4 2.5 3 2.5 1.9 0 3.2-1.1 3.2-3 0-1.3-.8-2.1-2.1-2.6-.4-.2-.7-.4-.7-.6 0-.2.2-.5.7-.5.5 0 .8.1 1.1.3l.1.1.3 1.3H24c-.1-1.8-1.3-2.5-3.1-2.5zm5.7 10.2h1.7l-2.6-10.2h-1.8c-.2.4-.4.8-.5 1.2l-1.9 6.8h1.8l.4-1.6h2l.2 1.6zm-.9-3.2l.6-2.5.3-1.3c.05-.2.1-.4.1-.7h.05c.05.3.1.5.1.7l.4 2.1h-1.5zM29.6 7h-1.9l-1 10.2h1.8l1-10.2z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 24" width="38" height="24" className="rounded-sm shadow-md bg-white">
+    <rect width="38" height="24" rx="3" fill="white"/>
+    <path d="M16.66 16.24H14.1l1.62-10.2h2.56l-1.62 10.2zm10.95-9.96c-.97-.27-2.54-.52-4.05-.52-4.45 0-7.58 2.37-7.6 5.77-.02 2.5 2.24 3.9 3.95 4.74 1.75.86 2.34 1.42 2.34 2.2-.02 1.18-1.42 1.74-2.73 1.74-1.54 0-2.37-.23-3.63-.8l-.52-.24-.73 4.54c.94.43 2.68.8 4.48.82 4.7 0 7.78-2.3 7.8-5.9.02-1.97-1.17-3.46-3.77-4.7-1.58-.8-2.54-1.33-2.54-2.15.02-1.06 1.18-1.64 2.62-1.64 1.2-.02 2.1.25 2.84.57l.34.16.73-4.54zm8.08 9.96h-2.22c-.67 0-1.18-.2-1.46-.87l-4.15-9.32h2.7l.53 1.5h3.3l.3-1.5h2.34l-1.35 10.2zm-2.72-2.75l-1.28-3.5-1.03 3.5h2.3zm-22.25-7.2l-2.4 8.54-.6-3.1c-.2-.8-.78-1.3-1.66-1.56L1.5 8.9v1.24c.7.16 1.5.44 1.96.78.3.22.44.5.53.9l1.77 8.46h2.7l4.06-10.2H8.72z" fill="#1A1F71"/>
   </svg>
 );
 
@@ -297,27 +297,35 @@ const CarDetails: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Title, Image & Specs Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                <div className="flex flex-col md:flex-row gap-6">
-                    <div className="md:w-2/5 flex items-center justify-center">
-                         <div className="relative">
-                             <img src={car.image} alt={`${car.make} ${car.model}`} className="max-w-xs w-full object-contain" />
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                    <div className="md:w-1/2 bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center relative">
+                         {/* Subtle background pattern */}
+                         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                         <div className="relative z-10 w-full max-w-sm">
+                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-500" />
+                         </div>
+                         <div className="absolute top-4 left-4">
+                             <span className="bg-white text-blue-700 text-xs font-extrabold px-3 py-1.5 rounded-full shadow-sm border border-slate-100 uppercase tracking-wider">{car.category}</span>
                          </div>
                     </div>
-                    <div className="md:w-3/5">
-                        <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider">{car.category}</span>
-                        <h1 className="text-3xl font-extrabold text-slate-900 mt-2">{car.displayName || `${car.make} ${car.model}`}</h1>
-                        <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+                    <div className="md:w-1/2 p-8 flex flex-col justify-center">
+                        <div className="flex items-center gap-2 mb-2">
+                           <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1"><Sparkles className="w-3 h-3"/> Top Choice</span>
+                        </div>
+                        <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
+                        <p className="text-sm text-slate-500 mt-2 flex items-center gap-1.5 font-medium">
                             or similar {car.type}
                             <InfoTooltip text="You are booking a car from a specific category. The model shown is an example, but you will receive a similar vehicle with the same main features (size, transmission, etc.)." />
                         </p>
-                        <div className="mt-4 pt-4 border-t border-slate-100">
-                             <h3 className="text-sm font-bold text-slate-800 mb-3">Car Specifications</h3>
-                             <div className="grid grid-cols-2 gap-3">
+                        
+                        <div className="mt-8">
+                             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Vehicle Specifications</h3>
+                             <div className="grid grid-cols-2 gap-y-4 gap-x-6">
                                 {carSpecs.map(spec => (
-                                    <div key={spec.label} className="flex items-center gap-2 text-slate-700">
-                                        <div className="bg-slate-100 p-1.5 rounded-md"><spec.icon /></div>
-                                        <span className="text-xs font-semibold">{spec.label}</span>
+                                    <div key={spec.label} className="flex items-center gap-3 text-slate-700">
+                                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 text-blue-600"><spec.icon className="w-4 h-4" /></div>
+                                        <span className="text-sm font-semibold">{spec.label}</span>
                                     </div>
                                 ))}
                              </div>
@@ -327,23 +335,27 @@ const CarDetails: React.FC = () => {
             </div>
 
             {/* Pick-up & Supplier Info */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-               <h2 className="text-lg font-semibold text-slate-800 mb-4">Pick-up & Supplier Information</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
-                       <h3 className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-600"/> Pick-up Location</h3>
-                       <p className="font-semibold text-slate-800">{car.location}</p>
-                       <p className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full inline-block mt-2">{car.locationDetail}</p>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="relative">
+                       <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-600"/> Pick-up Details</h3>
+                       <p className="text-lg font-bold text-slate-900">{car.location}</p>
+                       <div className="inline-flex items-center gap-2 mt-3 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium border border-blue-100">
+                           <Navigation className="w-4 h-4" />
+                           {car.locationDetail}
+                       </div>
                    </div>
-                   <div>
-                       <h3 className="text-sm font-bold text-slate-700 mb-2">Rental Provider</h3>
-                        <div className="flex items-center gap-4">
-                            <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-20 object-contain" />
+                   <div className="md:border-l md:border-slate-100 md:pl-8">
+                       <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Rental Provider</h3>
+                        <div className="flex items-center gap-5">
+                            <div className="bg-white border border-slate-100 p-2 rounded-xl shadow-sm">
+                                <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 w-24 object-contain" />
+                            </div>
                             <div>
-                                <p className="font-bold text-slate-800">{car.supplier.name}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <div className="bg-blue-600 text-white font-bold w-10 h-7 flex items-center justify-center rounded text-sm">{car.supplier.rating}</div>
-                                    <p className="text-xs font-bold text-slate-700">Excellent</p>
+                                <p className="font-extrabold text-slate-900 text-lg">{car.supplier.name}</p>
+                                <div className="flex items-center gap-2 mt-1.5">
+                                    <div className="bg-[#16a34a] text-white font-bold w-10 h-7 flex items-center justify-center rounded-md text-sm shadow-sm">{car.supplier.rating}</div>
+                                    <p className="text-sm font-bold text-slate-700">Excellent</p>
                                 </div>
                             </div>
                         </div>
@@ -499,54 +511,57 @@ const CarDetails: React.FC = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 hidden lg:block">
-            <div className="bg-white rounded-xl shadow-lg border border-slate-100 p-5 sticky top-24">
-               <div className="mb-4 p-3 rounded-lg border border-green-200 bg-green-50 flex items-center justify-between">
-                   <p className="text-xs font-bold text-green-700 flex items-center gap-1.5"><Clock className="w-4 h-4"/>Price secured for:</p>
-                   <p className="text-lg font-mono font-extrabold text-green-700 tracking-tight">{formatTime(timeLeft)}</p>
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sticky top-28">
+               <div className="mb-6 p-4 rounded-xl border border-blue-100 bg-blue-50 flex items-center justify-between">
+                   <p className="text-sm font-bold text-blue-800 flex items-center gap-2"><Clock className="w-4 h-4"/>Price secured for:</p>
+                   <p className="text-xl font-mono font-extrabold text-blue-800 tracking-tight">{formatTime(timeLeft)}</p>
                </div>
                
-               <h3 className="text-lg font-bold text-slate-900 mb-4">Price Summary</h3>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                  {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Extras</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount ({appliedPromo?.code})</span><span className="font-medium">-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+               <h3 className="text-xl font-extrabold text-slate-900 mb-6">Price Summary</h3>
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                  {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Extras</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
+                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-[#16a34a] font-bold"><span>Discount ({appliedPromo?.code})</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-100">
+                <div className="mt-6 pt-6 border-t border-slate-100">
                     <div className="flex gap-2">
-                        <input 
-                        type="text" 
-                        placeholder="Promo Code" 
-                        value={promoCodeInput}
-                        onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
-                        className="w-full border-slate-300 rounded-md p-2 text-base"
-                        />
+                        <div className="relative flex-grow">
+                            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input 
+                                type="text" 
+                                placeholder="Promo Code" 
+                                value={promoCodeInput}
+                                onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
+                                className="w-full border-slate-300 rounded-lg py-2.5 pl-9 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
                         <button 
                         type="button" 
                         onClick={handleApplyPromo}
-                        className="bg-slate-800 text-white font-bold px-4 rounded-md text-sm hover:bg-slate-700"
+                        className="bg-slate-900 text-white font-bold px-5 rounded-lg text-sm hover:bg-slate-800 transition-colors"
                         >
                         Apply
                         </button>
                     </div>
-                    {promoError && <p className="text-red-500 text-xs mt-1">{promoError}</p>}
-                    {appliedPromo && <p className="text-green-600 text-xs mt-1 font-bold">Applied: {appliedPromo.code}!</p>}
+                    {promoError && <p className="text-red-500 text-xs mt-2 font-medium">{promoError}</p>}
+                    {appliedPromo && <p className="text-[#16a34a] text-xs mt-2 font-bold flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> Applied: {appliedPromo.code}!</p>}
                 </div>
                
-               <div className="border-t-2 border-dashed border-slate-200 pt-3 my-4">
-                  <div className="flex justify-between items-center"><span className="font-bold text-slate-900 text-base">Total</span><span className="font-bold text-slate-900 text-2xl">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
+               <div className="border-t-2 border-dashed border-slate-200 pt-6 my-6">
+                  <div className="flex justify-between items-end"><span className="font-extrabold text-slate-900 text-lg">Total</span><span className="font-extrabold text-slate-900 text-3xl tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
                </div>
-               <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-2 mb-4">
-                   <div className="flex justify-between font-bold text-blue-600"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
-                   <div className="flex justify-between text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
+               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm space-y-3 mb-6">
+                   <div className="flex justify-between font-extrabold text-blue-700"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
+                   <div className="flex justify-between font-medium text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                </div>
 
-               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm">
-                  Continue to Book
+               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center justify-center text-base">
+                  Continue to Book <ArrowRight className="w-5 h-5 ml-2"/>
                </Link>
                
-               <p className="text-center text-xs text-slate-400 mt-4 flex items-center justify-center gap-1.5"><Tag className="w-3.5 h-3.5"/> In high demand!</p>
+               <p className="text-center text-xs font-bold text-slate-500 mt-4 flex items-center justify-center gap-1.5"><ShieldCheck className="w-4 h-4 text-green-500"/> Secure booking</p>
             </div>
           </div>
         </div>

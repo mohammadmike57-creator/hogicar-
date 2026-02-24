@@ -33,6 +33,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         bookingMode: mockSupplier?.bookingMode || BookingMode.FREE_SALE,
         status: 'active',
         location: 'API Location',
+        locations: [],
         contactEmail: mockSupplier?.contactEmail || 'contact@api.supplier',
         gracePeriodHours: mockSupplier?.gracePeriodHours || 1,
         minBookingLeadTime: mockSupplier?.minBookingLeadTime || 2,

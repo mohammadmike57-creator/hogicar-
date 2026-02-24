@@ -310,17 +310,19 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         <>
         {/* --- START OF NEW MOBILE WIDGET --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
-            <div className="bg-[#FF9F1C] p-1 rounded-lg shadow-2xl relative z-10">
-                <form onSubmit={handleSearch} className="space-y-1">
+            <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
+                <form onSubmit={handleSearch} className="flex flex-col gap-2">
 
                     {/* Pick-up location */}
-                    <div className="bg-white rounded-md p-2 flex items-center gap-2 relative">
-                        <div className="flex-shrink-0">{getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}</div>
-                        <div className="w-full border border-slate-200 rounded-md p-1 focus-within:border-slate-200">
-                            <label className="text-xs text-slate-500">Pick-up location</label>
+                    <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full">
+                        <div className="pl-3 flex items-center pointer-events-none">
+                            {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
+                        </div>
+                        <div className="flex-1 relative h-full">
+                            <label className="absolute top-1 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Location</label>
                             <input
                                 type="text"
-                                className="w-full font-bold text-slate-800 text-base bg-transparent border-none focus:ring-0 focus:outline-none p-0"
+                                className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-sm bg-transparent border-none focus:ring-0 focus:outline-none"
                                 value={pickupQuery}
                                 onChange={handleLocationChange}
                                 onFocus={handleFocus}
@@ -330,7 +332,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             />
                         </div>
                         {isSuggestionsOpen && (
-                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
                                {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                             </div>
                         )}
@@ -338,13 +340,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     {/* Conditional Drop-off Location */}
                     {differentDropoff && (
-                        <div className="bg-white rounded-md p-2 flex items-center gap-2 relative">
-                            <div className="flex-shrink-0">{getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}</div>
-                            <div className="w-full border border-slate-200 rounded-md p-1 focus-within:border-slate-200">
-                                <label className="text-xs text-slate-500">Drop-off location</label>
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full">
+                            <div className="pl-3 flex items-center pointer-events-none">
+                                {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}
+                            </div>
+                            <div className="flex-1 relative h-full">
+                                <label className="absolute top-1 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Location</label>
                                 <input
                                     type="text"
-                                    className="w-full font-bold text-slate-800 text-base bg-transparent border-none focus:ring-0 focus:outline-none p-0"
+                                    className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-sm bg-transparent border-none focus:ring-0 focus:outline-none"
                                     value={dropoffQuery}
                                     onChange={handleDropoffLocationChange}
                                     onFocus={handleDropoffFocus}
@@ -354,7 +358,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 />
                             </div>
                             {isDropoffSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
                                     {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                 </div>
                             )}
@@ -362,46 +366,54 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     )}
 
                     {/* Date Row */}
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                         {/* Pick-up Date */}
-                        <div className="bg-white rounded-md p-2 flex items-center gap-2 w-1/2 relative">
-                            <Calendar className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                            <div className="w-full">
-                                <label className="text-xs text-slate-500">Pick-up</label>
-                                <p className="font-bold text-slate-800 text-sm">{formatDateForDisplay(pickupDate)}</p>
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
+                            <div className="pl-3 flex items-center pointer-events-none">
+                                <Calendar className="w-4 h-4 text-slate-400" />
+                            </div>
+                            <div className="flex-1 relative h-full">
+                                <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Date</label>
+                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs truncate pr-1">{formatDateForDisplay(pickupDate)}</p>
                                 <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={today.toISOString().split('T')[0]} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base" />
                             </div>
                         </div>
                         {/* Drop-off Date */}
-                        <div className="bg-white rounded-md p-2 flex items-center gap-2 w-1/2 relative">
-                            <Calendar className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                            <div className="w-full">
-                                <label className="text-xs text-slate-500">Drop-off</label>
-                                <p className="font-bold text-slate-800 text-sm">{formatDateForDisplay(dropoffDate)}</p>
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
+                            <div className="pl-3 flex items-center pointer-events-none">
+                                <Calendar className="w-4 h-4 text-slate-400" />
+                            </div>
+                            <div className="flex-1 relative h-full">
+                                <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Date</label>
+                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs truncate pr-1">{formatDateForDisplay(dropoffDate)}</p>
                                 <input type="date" value={dropoffDate} onChange={e => setDropoffDate(e.target.value)} min={pickupDate} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base" />
                             </div>
                         </div>
                     </div>
                     
                     {/* Time Row */}
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                         {/* Pick-up Time */}
-                        <div className="bg-white rounded-md p-2 flex items-center gap-1 w-1/2 relative">
-                            <Clock className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                            <div className="w-full">
-                                <label className="text-xs text-slate-500">Pick-up Time</label>
-                                <p className="font-bold text-slate-800 text-sm">{pickupTime}</p>
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
+                            <div className="pl-3 flex items-center pointer-events-none">
+                                <Clock className="w-4 h-4 text-slate-400" />
+                            </div>
+                            <div className="flex-1 relative h-full">
+                                <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Time</label>
+                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs">{pickupTime}</p>
                                 <select value={pickupTime} onChange={e => setPickupTime(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base">
                                     {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
                             </div>
                         </div>
                         {/* Drop-off Time */}
-                        <div className="bg-white rounded-md p-2 flex items-center gap-1 w-1/2 relative">
-                            <Clock className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                            <div className="w-full">
-                                <label className="text-xs text-slate-500">Drop-off Time</label>
-                                <p className="font-bold text-slate-800 text-sm">{dropoffTime}</p>
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
+                            <div className="pl-3 flex items-center pointer-events-none">
+                                <Clock className="w-4 h-4 text-slate-400" />
+                            </div>
+                            <div className="flex-1 relative h-full">
+                                <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Time</label>
+                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs">{dropoffTime}</p>
                                 <select value={dropoffTime} onChange={e => setDropoffTime(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base">
                                     {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
@@ -409,21 +421,19 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     </div>
 
-
-                    <button type="submit" className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-bold py-3 rounded-md text-base shadow-md">
+                    <button type="submit" className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-bold py-3 rounded-xl text-base shadow-md mt-1 transition-transform active:scale-95">
                         Search
                     </button>
 
                 </form>
-            </div>
-            <div className="p-2">
-                <div className="space-y-1">
-                    <label className="flex items-center text-sm font-medium text-white cursor-pointer select-none">
-                        <input type="checkbox" checked={differentDropoff} onChange={(e) => setDifferentDropoff(e.target.checked)} className="h-5 w-5 rounded bg-white text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-2 border-0 shadow" />
+                
+                <div className="mt-3 flex flex-col gap-2 px-1">
+                    <label className="flex items-center text-xs font-medium text-slate-600 cursor-pointer select-none">
+                        <input type="checkbox" checked={differentDropoff} onChange={(e) => setDifferentDropoff(e.target.checked)} className="h-4 w-4 rounded bg-slate-100 text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-2 border border-slate-300" />
                         Drop car off at different location
                     </label>
-                    <label className="flex items-center text-sm font-medium text-white cursor-pointer select-none">
-                        <input type="checkbox" defaultChecked className="h-5 w-5 rounded bg-white text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-2 border-0 shadow" />
+                    <label className="flex items-center text-xs font-medium text-slate-600 cursor-pointer select-none">
+                        <input type="checkbox" defaultChecked className="h-4 w-4 rounded bg-slate-100 text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-2 border border-slate-300" />
                         Driver aged between 30 - 65?
                     </label>
                 </div>
@@ -434,114 +444,117 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- START OF REVISED DESKTOP WIDGET --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="bg-[#FF9F1C] p-1 rounded-[4px] shadow-2xl relative z-10">
-                <div className="bg-white p-3 rounded-[3px]">
-                    {showTitle && (
-                        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <Compass className="w-5 h-5 text-[#003580]" />
-                            Let's find your ideal car
-                        </h2>
-                    )}
-                    <form onSubmit={handleSearch}>
-                        <div className="flex flex-col gap-2">
-                            {/* ROW 1: Locations */}
-                            <div className="grid grid-cols-2 gap-1.5">
-                                <div className={differentDropoff ? "col-span-1" : "col-span-2"}>
-                                    <div className="rounded-lg relative bg-white h-full">
-                                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Pick-up Location</label>
-                                        <div className="relative border border-slate-300 rounded-[4px] overflow-hidden group bg-white focus-within:border-slate-300">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{getLocationIcon(pickupSelection?.type || '')}</div>
-                                            <input id="pickup-location" type="text" placeholder="City, airport, or station" className="block w-full pl-9 pr-3 border-none focus:ring-0 focus:outline-none text-base md:text-sm font-medium placeholder-slate-400 text-slate-900 h-10" value={pickupQuery} onChange={handleLocationChange} onFocus={handleFocus} autoComplete="off" required />
-                                        </div>
-                                        {isSuggestionsOpen && (
-                                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
-                                                {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                {differentDropoff && (
-                                    <div className="col-span-1">
-                                         <div className="rounded-lg relative bg-white w-full h-full">
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Drop-off Location</label>
-                                            <div className="relative border border-slate-300 rounded-[4px] overflow-hidden group bg-white focus-within:border-slate-300">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{getLocationIcon(dropoffSelection?.type || '')}</div>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Enter drop-off city"
-                                                    className="block w-full pl-9 pr-3 border-none focus:ring-0 focus:outline-none text-base md:text-sm font-medium placeholder-slate-400 text-slate-900 h-10"
-                                                    value={dropoffQuery}
-                                                    onChange={handleDropoffLocationChange}
-                                                    onFocus={handleDropoffFocus}
-                                                    autoComplete="off"
-                                                />
-                                            </div>
-                                            {isDropoffSuggestionsOpen && (
-                                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
-                                                    {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+            <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
+                <form onSubmit={handleSearch} className="flex flex-col lg:flex-row items-center gap-2">
+                    {/* Pick-up Location */}
+                    <div className={`relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full`}>
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
+                        </div>
+                        <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pick-up</div>
+                        <input 
+                            id="pickup-location" 
+                            type="text" 
+                            placeholder="City, airport, or station" 
+                            className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-sm font-bold placeholder-slate-400 text-slate-900 bg-transparent" 
+                            value={pickupQuery} 
+                            onChange={handleLocationChange} 
+                            onFocus={handleFocus} 
+                            autoComplete="off" 
+                            required 
+                        />
+                        {isSuggestionsOpen && (
+                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-2 left-0 w-full min-w-[300px] bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                                {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                             </div>
+                        )}
+                    </div>
 
-                            {/* ROW 2: Dates & Search */}
-                            <div className="grid grid-cols-10 gap-1.5 items-end">
-                                <div className="lg:col-span-8">
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 px-1">Pick-up & Drop-off</label>
-                                    <div className="grid grid-cols-2 border border-slate-300 rounded-[4px] overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                                        {/* Pick-up */}
-                                        <div className="relative bg-white">
-                                            <div className="flex">
-                                                <div className="relative flex-grow">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="h-4 w-4 text-slate-400" /></div>
-                                                    <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={today.toISOString().split('T')[0]} className="w-full h-10 pl-9 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none text-slate-700 bg-transparent" />
-                                                </div>
-                                                <div className="relative w-[85px] border-l border-slate-200">
-                                                    <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none"><Clock className="h-3 w-3 text-slate-400" /></div>
-                                                    <select value={pickupTime} onChange={e => setPickupTime(e.target.value)} className="w-full h-10 pl-7 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none bg-slate-50 text-slate-700 appearance-none">
-                                                        {timeOptions.map(t => <option key={t}>{t}</option>)}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* Drop-off */}
-                                        <div className="relative bg-white border-l border-slate-300">
-                                            <div className="flex">
-                                                <div className="relative flex-grow">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="h-4 w-4 text-slate-400" /></div>
-                                                    <input type="date" value={dropoffDate} onChange={e => setDropoffDate(e.target.value)} min={pickupDate} className="w-full h-10 pl-9 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none text-slate-700 bg-transparent" />
-                                                </div>
-                                                <div className="relative w-[85px] border-l border-slate-200">
-                                                    <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none"><Clock className="h-3 w-3 text-slate-400" /></div>
-                                                    <select value={dropoffTime} onChange={e => setDropoffTime(e.target.value)} className="w-full h-10 pl-7 text-base md:text-sm font-medium border-none focus:ring-0 focus:outline-none bg-slate-50 text-slate-700 appearance-none">
-                                                        {timeOptions.map(t => <option key={t}>{t}</option>)}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="lg:col-span-2">
-                                    <button type="submit" className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-[4px] shadow-sm transition-transform active:scale-95 flex items-center justify-center text-lg h-10">
-                                        Search
-                                    </button>
-                                </div>
+                    {/* Drop-off Location */}
+                    {differentDropoff && (
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}
                             </div>
+                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Drop-off</div>
+                            <input
+                                type="text"
+                                placeholder="Enter drop-off city"
+                                className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-sm font-bold placeholder-slate-400 text-slate-900 bg-transparent"
+                                value={dropoffQuery}
+                                onChange={handleDropoffLocationChange}
+                                onFocus={handleDropoffFocus}
+                                autoComplete="off"
+                            />
+                            {isDropoffSuggestionsOpen && (
+                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-2 left-0 w-full min-w-[300px] bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                                    {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                                </div>
+                            )}
                         </div>
-                        
-                        <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4">
-                            <label className="flex items-center text-base font-medium text-slate-700 cursor-pointer select-none">
-                                <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-6 w-6 rounded-md bg-white text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-3 border-2 border-slate-300" />
-                                Drop car off at different location
-                            </label>
-                            <label className="flex items-center text-base font-medium text-slate-700 cursor-pointer select-none">
-                                <input type="checkbox" defaultChecked className="h-6 w-6 rounded-md bg-white text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-3 border-2 border-slate-300" />
-                                Driver aged between 30 - 65?
-                            </label>
+                    )}
+
+                    {/* Dates & Times */}
+                    <div className="flex items-center h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-[1.5] w-full divide-x divide-slate-200">
+                        {/* Pick-up Date/Time */}
+                        <div className="flex-1 flex items-center h-full relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                            </div>
+                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Date</div>
+                            <input 
+                                type="date" 
+                                value={pickupDate} 
+                                onChange={e => setPickupDate(e.target.value)} 
+                                min={today.toISOString().split('T')[0]} 
+                                className="w-full h-full pl-11 pr-2 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer" 
+                            />
+                            <select 
+                                value={pickupTime} 
+                                onChange={e => setPickupTime(e.target.value)} 
+                                className="h-full pl-2 pr-6 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px_8px] bg-[right_8px_center] bg-no-repeat"
+                            >
+                                {timeOptions.map(t => <option key={t}>{t}</option>)}
+                            </select>
                         </div>
-                    </form>
+                        {/* Drop-off Date/Time */}
+                        <div className="flex-1 flex items-center h-full relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                            </div>
+                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Date</div>
+                            <input 
+                                type="date" 
+                                value={dropoffDate} 
+                                onChange={e => setDropoffDate(e.target.value)} 
+                                min={pickupDate} 
+                                className="w-full h-full pl-11 pr-2 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer" 
+                            />
+                            <select 
+                                value={dropoffTime} 
+                                onChange={e => setDropoffTime(e.target.value)} 
+                                className="h-full pl-2 pr-6 pt-4 pb-1 text-sm font-bold border-none focus:ring-0 focus:outline-none text-slate-900 bg-transparent cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px_8px] bg-[right_8px_center] bg-no-repeat"
+                            >
+                                {timeOptions.map(t => <option key={t}>{t}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Search Button */}
+                    <button type="submit" className="h-14 px-8 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center text-lg whitespace-nowrap">
+                        Search
+                    </button>
+                </form>
+                
+                <div className="mt-3 flex items-center gap-6 px-2">
+                    <label className="flex items-center text-sm font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors">
+                        <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-5 w-5 rounded bg-slate-100 text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-2 border border-slate-300" />
+                        Drop car off at different location
+                    </label>
+                    <label className="flex items-center text-sm font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors">
+                        <input type="checkbox" defaultChecked className="h-5 w-5 rounded bg-slate-100 text-blue-600 focus:ring-0 focus:ring-offset-0 focus:outline-none mr-2 border border-slate-300" />
+                        Driver aged between 30 - 65?
+                    </label>
                 </div>
             </div>
         </div>
