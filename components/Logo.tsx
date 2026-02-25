@@ -8,7 +8,7 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({ className = "h-12 w-auto", variant = 'dark' }) => {
   const primaryColor = variant === 'dark' ? '#123C69' : '#FFFFFF';
   const accentColor = '#F57C00';
-  const circleColor = variant === 'dark' ? '#123C69' : '#FFFFFF';
+  const circleColor = '#123C69';
 
   return (
     <svg 

@@ -1,10 +1,13 @@
 
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, MOCK_API_PARTNERS, addMockApiPartner, generateApiKey, updateApiPartnerStatus, MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode } from '../services/mockData';
 import { Users, Car as CarIcon, TrendingUp, AlertCircle, Edit, Save, X, LayoutDashboard, Building, Plus, Rss, Key, Link2, XCircle, RefreshCw, Copy, Check, DollarSign as DollarSignIcon, Share2, Power, Code, Menu, Mail, LogOut, FileText, Globe, Search as SearchIcon, ImageIcon, PlusCircle, Trash2, Shield, SlidersHorizontal, CheckCircle, ChevronDown, ChevronUp, PowerOff, MailQuestion, CheckSquare, XSquare, Tag, Calendar, Gift, Monitor, Tablet, Smartphone, Expand } from 'lucide-react';
 import { Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, PageContent, SEOConfig, HomepageContent, FeatureItem, StepItem, ValuePropositionItem, DestinationItem, FaqItem, CarModel, CarCategory, CarType, Affiliate, SupplierApplication, Car, RateTier, RateByDay, PromoCode } from '../types';
 import { useNavigate } from 'react-router-dom';
+
+import { adminApi } from '../api';
 
 interface SupplierRowProps {
   supplier: Supplier;
@@ -15,10 +18,12 @@ interface SupplierRowProps {
 
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: { supplier: Supplier | null, isOpen: boolean, onClose: () => void, onSave: (s: Supplier) => void }) => {
     const [editedSupplier, setEditedSupplier] = React.useState<Partial<Supplier>>({});
+    const [locations, setLocations] = React.useState<any[]>([]);
 
     React.useEffect(() => {
         if (isOpen) {
             setEditedSupplier(supplier || {});
+            adminApi.getLocations().then(setLocations).catch(console.error);
         }
     }, [supplier, isOpen]);
 
@@ -74,7 +79,27 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: { supplier: Su
                         <div className="md:col-span-2 space-y-4">
                             <InputField label="Company Name" value={editedSupplier.name || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('name', e.target.value)} />
                             <InputField label="Contact Email" type="email" value={editedSupplier.contactEmail || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('contactEmail', e.target.value)} />
-                            <InputField label="Primary Location" value={editedSupplier.location || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('location', e.target.value)} />
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">Primary Location</label>
+                                <select 
+                                    value={editedSupplier.locationCode || ''} 
+                                    onChange={(e) => {
+                                        handleChange('locationCode', e.target.value);
+                                        const selectedLoc = locations.find(l => l.iataCode === e.target.value);
+                                        if (selectedLoc) {
+                                            handleChange('location', selectedLoc.name);
+                                        }
+                                    }}
+                                    className="block w-full border-gray-300 rounded border shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-3"
+                                >
+                                    <option value="">Select a location</option>
+                                    {locations.map((loc) => (
+                                        <option key={loc.iataCode} value={loc.iataCode}>
+                                            {loc.name} ({loc.iataCode})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                     {/* Section 2: Commission */}
@@ -586,16 +611,41 @@ export const AdminDashboard: React.FC = () => {
     setAffiliates(MOCK_AFFILIATES);
   }, []);
 
-  const handleSaveSupplier = (updatedSupplier: Supplier) => {
-    addMockSupplier(updatedSupplier);
-    setSuppliers([...SUPPLIERS]); // Re-fetch to update list
-    setEditingSupplier(null);
+  const handleSaveSupplier = async (updatedSupplier: Supplier) => {
+    try {
+        if (!updatedSupplier.id) {
+            // Create new supplier
+            const payload = {
+                name: updatedSupplier.name,
+                email: updatedSupplier.contactEmail,
+                phone: updatedSupplier.phone || '',
+                logoUrl: updatedSupplier.logo || '',
+                active: true,
+                location: updatedSupplier.location || '',
+                locationCode: updatedSupplier.locationCode || '',
+                bookingMode: updatedSupplier.bookingMode || 'FREE_SALE',
+                commissionPercent: updatedSupplier.commissionValue || 0,
+                password: updatedSupplier.password || 'defaultPassword123'
+            };
+            await adminApi.createSupplier(payload);
+            alert("Supplier created successfully in backend.");
+        } else {
+            // Update existing supplier (mock for now)
+            addMockSupplier(updatedSupplier);
+        }
+        
+        setSuppliers([...SUPPLIERS]); // Re-fetch to update list
+        setEditingSupplier(null);
 
-    // If this save came from approving an application, remove the application
-    if (approvingApplication) {
-      removeSupplierApplication(approvingApplication.id);
-      setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]);
-      setApprovingApplication(null);
+        // If this save came from approving an application, remove the application
+        if (approvingApplication) {
+          removeSupplierApplication(approvingApplication.id);
+          setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]);
+          setApprovingApplication(null);
+        }
+    } catch (error: any) {
+        console.error("Failed to save supplier:", error);
+        alert(`Failed to save supplier: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -1533,7 +1583,12 @@ export const AdminDashboard: React.FC = () => {
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => { setIsPromotionModalOpen(false); setManagingPromosForCar(null); }} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       
       {/* Mobile Header */}
-      <div className="md:hidden bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="md:hidden bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20"
+      >
           <div className="flex items-center gap-2">
              <Shield className="w-6 h-6 text-blue-600" />
              <span className="font-bold text-slate-800">Admin Panel</span>
@@ -1541,7 +1596,7 @@ export const AdminDashboard: React.FC = () => {
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
              {isSidebarOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
           </button>
-       </div>
+       </motion.div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">
         {/* Mobile Sidebar Overlay */}
@@ -1549,7 +1604,12 @@ export const AdminDashboard: React.FC = () => {
         
         {/* Sidebar */}
         <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:shadow-none md:bg-transparent md:w-60 flex-shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="p-4 h-full flex flex-col">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="p-4 h-full flex flex-col"
+          >
             <div className="hidden md:flex items-center gap-3 mb-8">
               <Shield className="w-8 h-8 text-blue-600" />
               <div>
@@ -1576,11 +1636,21 @@ export const AdminDashboard: React.FC = () => {
               <LogOut className="w-5 h-5 mr-3" />
               <span>Logout</span>
             </button>
-          </div>
+          </motion.div>
         </aside>
 
         <main className="flex-grow w-full md:pl-6">
-          {renderContent()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

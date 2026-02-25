@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Building, Car, LoaderCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { setSupplierToken } from '../lib/auth';
 import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
@@ -47,8 +48,18 @@ const SupplierLogin: React.FC = () => {
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-4 relative overflow-hidden">
             {/* Dynamic Background Elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#FF9F1C]/15 rounded-full blur-[120px] pointer-events-none"></div>
-            <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none"></div>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#FF9F1C]/15 rounded-full blur-[120px] pointer-events-none"
+            ></motion.div>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none"
+            ></motion.div>
 
             <style>
                 {`
@@ -66,7 +77,12 @@ const SupplierLogin: React.FC = () => {
 
             <div className="w-full max-w-md relative z-10">
                 {/* Dynamic Logo Area */}
-                <div className="flex flex-col items-center mb-10 relative">
+                <motion.div 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="flex flex-col items-center mb-10 relative"
+                >
                     <Link to="/" className="relative z-10 block hover:opacity-80 transition-opacity" title="Back to Home">
                         <Logo className="h-16 w-auto" variant="light" />
                     </Link>
@@ -75,14 +91,24 @@ const SupplierLogin: React.FC = () => {
                         <Car className="w-8 h-8 text-[#FF9F1C]" />
                         <div className="w-12 h-0.5 bg-gradient-to-r from-[#FF9F1C]/50 to-transparent ml-1 rounded-full"></div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Glassmorphism Login Card */}
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl">
+                <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl"
+                >
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FF9F1C]/20 border border-[#FF9F1C]/30 mb-4">
+                        <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
+                            className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FF9F1C]/20 border border-[#FF9F1C]/30 mb-4"
+                        >
                             <Building className="w-6 h-6 text-[#FF9F1C]" />
-                        </div>
+                        </motion.div>
                         <h1 className="text-2xl font-bold text-white">Supplier Portal</h1>
                         <p className="text-sm text-slate-400 mt-1">Manage your fleet and bookings</p>
                     </div>
@@ -111,24 +137,39 @@ const SupplierLogin: React.FC = () => {
                             />
                         </div>
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-lg flex items-center gap-2">
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="bg-red-500/10 border border-red-500/50 p-3 rounded-lg flex items-center gap-2"
+                            >
                                 <p className="text-red-400 text-sm font-medium">{error}</p>
-                            </div>
+                            </motion.div>
                         )}
-                        <button type="submit" disabled={isLoading} className="w-full bg-[#FF9F1C] hover:bg-[#e88d15] text-white font-bold py-3.5 rounded-lg shadow-[0_0_15px_rgba(255,159,28,0.4)] transition-all flex items-center justify-center disabled:opacity-50 mt-2">
+                        <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="submit" 
+                            disabled={isLoading} 
+                            className="w-full bg-[#FF9F1C] hover:bg-[#e88d15] text-white font-bold py-3.5 rounded-lg shadow-[0_0_15px_rgba(255,159,28,0.4)] transition-all flex items-center justify-center disabled:opacity-50 mt-2"
+                        >
                             {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : 'Sign In'}
-                        </button>
+                        </motion.button>
                     </form>
 
                     <div className="mt-6 text-center border-t border-white/10 pt-6">
                         <p className="text-sm text-slate-400 mb-2">Not a partner yet?</p>
                         <Link to="/become-supplier" className="text-[#FF9F1C] font-bold hover:text-[#e88d15] transition-colors">Join the Hogicar Network</Link>
                     </div>
-                </div>
+                </motion.div>
                 
-                <div className="mt-8 text-center">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-8 text-center"
+                >
                     <p className="text-xs text-slate-500">&copy; {new Date().getFullYear()} Hogicar Inc. All rights reserved.</p>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

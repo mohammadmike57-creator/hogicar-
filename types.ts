@@ -103,6 +103,7 @@ export interface Supplier {
   
   // Contact & Location Info
   location: string; // Primary location name (legacy)
+  locationCode?: string; // Airport code (e.g., LHR)
   locations: Location[]; // New multi-location support
   contactEmail: string;
   address?: string;

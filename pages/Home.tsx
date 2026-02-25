@@ -15,10 +15,10 @@ const Home: React.FC = () => {
   
   // --- START: NEW SEARCH LOGIC ---
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
-  const [pickupCode, setPickupCode] = React.useState<string>('AMM');
-  const [dropoffCode, setDropoffCode] = React.useState<string>('AMM');
-  const [pickupName, setPickupName] = React.useState<string>('Amman, Jordan (AMM)');
-  const [dropoffName, setDropoffName] = React.useState<string>('Amman, Jordan (AMM)');
+  const [pickupCode, setPickupCode] = React.useState<string>('');
+  const [dropoffCode, setDropoffCode] = React.useState<string>('');
+  const [pickupName, setPickupName] = React.useState<string>('');
+  const [dropoffName, setDropoffName] = React.useState<string>('');
   
   React.useEffect(() => {
     const loadLocations = async () => {
@@ -158,19 +158,42 @@ const Home: React.FC = () => {
       </section>
 
       {/* TRUSTED PARTNERS */}
-      <section className="py-12 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-slate-900">Trusted by the world's leading car rental suppliers</h2>
-                <p className="text-slate-500 mt-2">We partner with top brands to bring you the best vehicles at the best prices.</p>
+      <section className="py-8 md:py-12 bg-white border-b border-slate-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 md:mb-8">
+            <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Trusted by the world's leading car rental suppliers</h2>
+                <p className="text-base text-slate-500 mt-2">We partner with top brands to bring you the best vehicles at the best prices, ensuring quality and reliability wherever you go.</p>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-70">
-                {SUPPLIERS.slice(0, 6).map((s) => (
+        </div>
+        
+        <style>
+            {`
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+                .animate-marquee {
+                    display: flex;
+                    width: max-content;
+                    animation: marquee 40s linear infinite;
+                }
+                .animate-marquee:hover {
+                    animation-play-state: paused;
+                }
+            `}
+        </style>
+
+        <div className="relative w-full flex overflow-hidden py-4">
+            <div className="absolute inset-y-0 left-0 w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 right-0 w-24 md:w-48 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+            
+            <div className="animate-marquee flex items-center gap-20 md:gap-32 opacity-80 px-12">
+                {[...SUPPLIERS, ...SUPPLIERS, ...SUPPLIERS].map((s, idx) => (
                     <img 
-                        key={s.id}
+                        key={`${s.id}-${idx}`}
                         src={s.logo} 
                         alt={s.name} 
-                        className="h-8 md:h-10 object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
+                        className="h-20 md:h-32 lg:h-40 w-auto max-w-[250px] md:max-w-[350px] object-contain filter grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer hover:scale-105"
                     />
                 ))}
             </div>
@@ -178,49 +201,61 @@ const Home: React.FC = () => {
       </section>
 
       {/* WHY BOOK WITH HOGICAR? & STATS - NEW PROFESSIONAL DESIGN */}
-      <section className="py-24 lg:py-32 bg-slate-50/70">
+      <section className="py-12 lg:py-16 bg-slate-50/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center mb-20">
-                <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">The Hogicar Advantage</h2>
-                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
-                <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+            <div className="max-w-3xl mx-auto text-center mb-10">
+                <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">The Hogicar Advantage</h2>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
+                <p className="mt-3 text-base text-slate-600 leading-relaxed">
                     We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
                 </p>
             </div>
 
             {/* Feature Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                 {content.features.slice(0, 4).map((feature) => {
                     const Icon = iconMap[feature.icon] || CheckCircle;
                     return (
-                        <div key={feature.id} className="text-center p-8 bg-white rounded-3xl shadow-sm border border-slate-100/80">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl mb-6">
-                                <Icon className="w-8 h-8" />
+                        <div key={feature.id} className="text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100/80">
+                            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl mb-4">
+                                <Icon className="w-6 h-6" />
                             </div>
-                            <h4 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h4>
-                            <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                            <h4 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h4>
+                            <p className="text-sm text-slate-600 leading-relaxed">{feature.description}</p>
                         </div>
                     );
                 })}
             </div>
 
-            {/* Integrated Stats & Network Section */}
-            <div className="relative bg-white rounded-3xl shadow-lg border border-slate-100/80 p-10 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-12">
-                <div className="lg:w-1/2 text-center lg:text-left">
-                    <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-5">Join our global network</h3>
-                    <p className="text-slate-600 text-lg max-w-lg leading-relaxed">
-                        We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.
-                    </p>
-                </div>
-                <div className="lg:w-1/2 flex justify-center lg:justify-end gap-10 sm:gap-16">
-                    <div className="text-center">
-                        <div className="text-5xl md:text-7xl font-black text-blue-600 tracking-tight">900+</div>
-                        <div className="mt-1 text-sm font-semibold text-slate-500 uppercase tracking-widest">Suppliers</div>
+            {/* Integrated Stats & Network Section - PRO DESIGN */}
+            <div className="relative bg-slate-900 rounded-[1.5rem] shadow-xl overflow-hidden mt-6">
+                {/* Decorative background elements */}
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none"></div>
+                
+                <div className="relative p-6 md:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <div className="lg:w-1/2 text-center lg:text-left z-10">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-blue-300 text-[10px] font-semibold tracking-wide uppercase mb-3 backdrop-blur-md">
+                            <Globe className="w-3 h-3" /> Global Reach
+                        </div>
+                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3 leading-tight">Join our global network</h3>
+                        <p className="text-slate-300 text-sm md:text-base max-w-lg leading-relaxed mb-5 mx-auto lg:mx-0">
+                            We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.
+                        </p>
+                        <Link to="/supplier-login" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] text-sm">
+                            Become a Partner <ArrowRight className="w-4 h-4" />
+                        </Link>
                     </div>
-                    <div className="w-px bg-slate-200"></div>
-                    <div className="text-center">
-                        <div className="text-5xl md:text-7xl font-black text-blue-600 tracking-tight">60k+</div>
-                        <div className="mt-1 text-sm font-semibold text-slate-500 uppercase tracking-widest">Locations</div>
+                    
+                    <div className="lg:w-1/2 flex flex-col sm:flex-row justify-center lg:justify-end gap-4 sm:gap-6 w-full z-10">
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5 text-center flex-1 transform hover:-translate-y-1 transition-transform duration-300">
+                            <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight mb-1">900<span className="text-blue-500">+</span></div>
+                            <div className="text-[10px] font-bold text-blue-300 uppercase tracking-widest">Trusted Suppliers</div>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5 text-center flex-1 transform hover:-translate-y-1 transition-transform duration-300">
+                            <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight mb-1">60k<span className="text-blue-500">+</span></div>
+                            <div className="text-[10px] font-bold text-blue-300 uppercase tracking-widest">Global Locations</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -228,30 +263,30 @@ const Home: React.FC = () => {
       </section>
 
       {/* GET YOUR PERFECT CAR - NEW PROFESSIONAL DESIGN */}
-      <section className="py-24 lg:py-32 bg-white">
+      <section className="py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center mb-20">
-                <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Simple Process</h2>
-                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
-                <p className="mt-6 text-lg text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
+            <div className="max-w-3xl mx-auto text-center mb-12">
+                <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">Simple Process</h2>
+                <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
+                <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
             </div>
 
-            <div className="max-w-4xl mx-auto space-y-20">
+            <div className="max-w-4xl mx-auto space-y-12">
                 {content.howItWorks.steps.map((step, index) => {
                     const Icon = iconMap[step.icon] || CheckCircle;
                     return (
-                        <div key={step.id} className="relative flex items-center gap-8 sm:gap-12">
+                        <div key={step.id} className="relative flex items-center gap-6 sm:gap-8">
                             {/* Number and Icon */}
                             <div className="flex-shrink-0 relative">
-                                <span className="font-sans text-9xl font-black text-slate-100/80 -z-10">{`0${index + 1}`}</span>
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-20 h-20 bg-blue-600 text-white rounded-full shadow-lg">
-                                    <Icon className="w-9 h-9" />
+                                <span className="font-sans text-7xl font-black text-slate-100/80 -z-10">{`0${index + 1}`}</span>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg">
+                                    <Icon className="w-6 h-6" />
                                 </div>
                             </div>
                             {/* Text Content */}
                             <div>
-                                <h4 className="text-3xl font-bold text-slate-900 mb-3">{step.title}</h4>
-                                <p className="text-slate-600 leading-relaxed text-lg">{step.description}</p>
+                                <h4 className="text-xl font-bold text-slate-900 mb-2">{step.title}</h4>
+                                <p className="text-slate-600 leading-relaxed text-sm">{step.description}</p>
                             </div>
                         </div>
                     );
@@ -260,43 +295,78 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* POPULAR DESTINATIONS - NEW PROFESSIONAL DESIGN */}
-      <section className="py-24 lg:py-32 bg-slate-50/70">
+      {/* POPULAR DESTINATIONS - PRO DESIGN */}
+      <section className="py-16 lg:py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-6">
-               <div className="max-w-xl">
-                   <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Top Destinations</h2>
-                   <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{content.popularDestinations.title}</h3>
-                   <p className="mt-6 text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
+           <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+               <div className="max-w-2xl">
+                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold tracking-widest uppercase mb-3">
+                       <MapPin className="w-3 h-3" /> Top Destinations
+                   </div>
+                   <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">{content.popularDestinations.title}</h3>
+                   <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                </div>
-               <Link to="/search" className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-blue-600 transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
                    Explore All Locations
+                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                </Link>
            </div>
            
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-               {destinations.slice(0, 5).map((dest, index) => (
-                   <Link 
-                       to={`/search?location=${encodeURIComponent(dest.name)}`} 
-                       key={dest.name} 
-                       className={`group relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 block text-white ${index === 0 ? 'lg:col-span-2 lg:row-span-2' : ''}`}>
-                       
-                       <div className={`w-full ${index === 0 ? 'h-full pt-[75%]' : 'h-0 pt-[100%]'}`}></div>
+           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6">
+               {destinations.slice(0, 5).map((dest, index) => {
+                   // Create a dynamic bento-box style layout
+                   let colSpan = "md:col-span-6 lg:col-span-4";
+                   let aspectRatio = "aspect-[4/3] lg:aspect-[3/2]";
+                   
+                   if (index === 0) {
+                       colSpan = "md:col-span-12 lg:col-span-8";
+                       aspectRatio = "aspect-[16/9] lg:aspect-[21/9]";
+                   } else if (index === 1 || index === 2) {
+                       colSpan = "md:col-span-6 lg:col-span-4";
+                       aspectRatio = "aspect-[4/3] lg:aspect-[4/3]";
+                   } else if (index === 3 || index === 4) {
+                       colSpan = "md:col-span-6 lg:col-span-6";
+                       aspectRatio = "aspect-[4/3] lg:aspect-[16/9]";
+                   }
 
-                       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                       
-                       <div className="absolute inset-x-0 bottom-0 p-8">
-                           <h4 className={`font-bold text-white mb-2 ${index === 0 ? 'text-4xl' : 'text-3xl'}`}>{dest.name}</h4>
-                           <p className="text-blue-200/90 text-sm mb-4 flex items-center gap-2 font-medium">
-                               <MapPin className="w-4 h-4" /> {dest.country}
-                           </p>
-                           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-medium border border-white/20">
-                               From <span className="font-bold">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span> / day
+                   return (
+                       <Link 
+                           to={`/search?location=${encodeURIComponent(dest.name)}`} 
+                           key={dest.name} 
+                           className={`group relative rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 block text-white ${colSpan}`}>
+                           
+                           <div className={`w-full ${aspectRatio}`}>
+                               <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
+                               
+                               {/* Enhanced gradient overlay */}
+                               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                               
+                               <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
+                                   <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                       <div className="flex items-center justify-between mb-2">
+                                           <h4 className={`font-extrabold text-white tracking-tight ${index === 0 ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>
+                                               {dest.name}
+                                           </h4>
+                                           <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                                               <ArrowRight className="w-5 h-5 text-white" />
+                                           </div>
+                                       </div>
+                                       
+                                       <p className="text-blue-200 text-sm md:text-base mb-4 flex items-center gap-1.5 font-medium">
+                                           <MapPin className="w-4 h-4" /> {dest.country}
+                                       </p>
+                                       
+                                       <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl px-4 py-2 rounded-xl text-white font-medium border border-white/20 shadow-inner">
+                                           <span className="text-slate-300 text-xs">Starting from</span>
+                                           <span className="font-bold text-lg">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
+                                           <span className="text-slate-300 text-xs">/ day</span>
+                                       </div>
+                                   </div>
+                               </div>
                            </div>
-                       </div>
-                   </Link>
-               ))}
+                       </Link>
+                   );
+               })}
            </div>
         </div>
       </section>

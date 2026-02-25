@@ -15,10 +15,12 @@ interface SupplierRowProps {
 
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: { supplier: Supplier | null, isOpen: boolean, onClose: () => void, onSave: (s: Supplier) => void }) => {
     const [editedSupplier, setEditedSupplier] = React.useState<Partial<Supplier>>({});
+    const [locations, setLocations] = React.useState<any[]>([]);
 
     React.useEffect(() => {
         if (isOpen) {
             setEditedSupplier(supplier || {});
+            adminApi.getLocations().then(setLocations).catch(console.error);
         }
     }, [supplier, isOpen]);
 
@@ -74,7 +76,24 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: { supplier: Su
                         <div className="md:col-span-2 space-y-4">
                             <InputField label="Company Name" value={editedSupplier.name || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('name', e.target.value)} />
                             <InputField label="Contact Email" type="email" value={editedSupplier.contactEmail || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('contactEmail', e.target.value)} />
-                            <InputField label="Primary Location" value={editedSupplier.location || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('location', e.target.value)} />
+                            <label className="block">
+                                <span className="block text-xs font-medium text-slate-700 mb-1">Primary Location</span>
+                                <select 
+                                    className="block w-full border-gray-300 rounded-md border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-base py-2 px-3 appearance-none bg-white"
+                                    value={editedSupplier.locationCode || editedSupplier.location || ''}
+                                    onChange={(e) => {
+                                        handleChange('locationCode', e.target.value);
+                                        handleChange('location', e.target.value); // Keep for backward compatibility
+                                    }}
+                                >
+                                    <option value="">Select a location...</option>
+                                    {locations.map(loc => (
+                                        <option key={loc.iataCode} value={loc.iataCode}>
+                                            {loc.iataCode} – {loc.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
                         </div>
                     </div>
                     {/* Section 2: Commission */}
@@ -118,7 +137,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: { supplier: Su
                 </div>
                 <div className="flex justify-end gap-3 p-4 border-t bg-slate-50">
                     <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded font-bold flex items-center gap-2">
+                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded font-bold flex items-center gap-2">
                         <Save className="w-4 h-4"/> Save Supplier
                     </button>
                 </div>
@@ -156,7 +175,7 @@ const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: { supplier: S
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center p-4 border-b">
-                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2"><Rss className="w-5 h-5 text-blue-600"/> API Connection for {supplier.name}</h3>
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2"><Rss className="w-5 h-5 text-indigo-600"/> API Connection for {supplier.name}</h3>
                     <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-full"><XCircle className="w-5 h-5 text-slate-400"/></button>
                 </div>
                 <div className="p-6 space-y-4">
@@ -200,7 +219,7 @@ const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: { supplier: S
                 </div>
                 <div className="flex justify-end items-center p-4 bg-slate-50 border-t gap-3 sticky bottom-0">
                     <button onClick={onClose} className="bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 px-4 py-1.5 rounded-md font-medium text-xs">Cancel</button>
-                    <button onClick={() => onSave(editedSupplier)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md font-medium text-xs flex items-center gap-2"><Save className="w-3.5 h-3.5"/> Save Connection</button>
+                    <button onClick={() => onSave(editedSupplier)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-md font-medium text-xs flex items-center gap-2"><Save className="w-3.5 h-3.5"/> Save Connection</button>
                 </div>
             </div>
         </div>
@@ -254,7 +273,7 @@ const PageEditorModal = ({ page, isOpen, onClose }: { page: PageContent | null; 
                 </div>
                 <div className="flex justify-end gap-3 p-4 border-t bg-slate-50 rounded-b-lg">
                     <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded font-bold flex items-center gap-2">
+                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded font-bold flex items-center gap-2">
                         <Save className="w-4 h-4"/> Save Changes
                     </button>
                 </div>
@@ -322,7 +341,7 @@ const SEOEditorModal = ({ config, isOpen, onClose }: { config: SEOConfig | null,
                 </div>
                 <div className="flex justify-end gap-3 p-4 border-t bg-slate-50">
                     <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded font-bold flex items-center gap-2">
+                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded font-bold flex items-center gap-2">
                         <Save className="w-4 h-4"/> Save SEO
                     </button>
                 </div>
@@ -413,7 +432,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: { carModel: Ca
                 </div>
                 <div className="flex justify-end gap-3 p-4 border-t bg-slate-50">
                     <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded font-bold flex items-center gap-2">
+                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded font-bold flex items-center gap-2">
                         <Save className="w-4 h-4"/> Save Model
                     </button>
                 </div>
@@ -450,7 +469,7 @@ const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: { affiliate:
                 </div>
                 <div className="flex justify-end gap-3 p-4 border-t bg-slate-50">
                     <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded">Cancel</button>
-                    <button onClick={() => onSave(affiliate.id, rate)} className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded font-bold">Save</button>
+                    <button onClick={() => onSave(affiliate.id, rate)} className="px-4 py-2 text-sm bg-indigo-600 text-white hover:bg-indigo-700 rounded font-bold">Save</button>
                 </div>
             </div>
         </div>
@@ -535,7 +554,7 @@ const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: { c
                                 <InputField label="Promotional Daily Rate ($)" type="number" placeholder="e.g. 45.00" value={dailyRate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDailyRate(e.target.value)} />
                              </div>
                         </div>
-                         <button onClick={handleSave} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2">
+                         <button onClick={handleSave} className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2">
                             <PlusCircle className="w-4 h-4"/> Add Promotion
                         </button>
                     </div>
@@ -700,7 +719,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const NavItem = ({ section, label, icon: Icon, count }: { section: typeof activeSection, label: string, icon: React.ElementType, count?: number }) => (
-    <button onClick={() => { setActiveSection(section); setIsSidebarOpen(false); }} className={`flex items-center justify-between w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === section ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+    <button onClick={() => { setActiveSection(section); setIsSidebarOpen(false); }} className={`flex items-center justify-between w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === section ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
       <div className="flex items-center">
         <Icon className="w-5 h-5 mr-3" />
         <span>{label}</span>
@@ -724,7 +743,7 @@ export const AdminDashboard: React.FC = () => {
         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm border ${supplier.status === 'active' ? 'bg-green-50 text-green-700 border-green-100' : supplier.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{supplier.status}</span>
       </td>
       <td className="py-3 px-4">
-        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium ${supplier.connectionType === 'api' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium ${supplier.connectionType === 'api' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
             {supplier.connectionType === 'api' ? <Rss className="w-3 h-3" /> : <Edit className="w-3 h-3" />}
             {supplier.connectionType === 'api' ? 'API' : 'Manual'}
         </span>
@@ -1612,7 +1631,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-slate-100 min-h-screen">
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => { setEditingSupplier(null); setApprovingApplication(null); }} onSave={handleSaveSupplier} supplier={editingSupplier} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => { setIsApiModalOpen(false); setEditingSupplier(null); }} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
@@ -1623,7 +1642,7 @@ export const AdminDashboard: React.FC = () => {
       {/* Mobile Header */}
       <div className="md:hidden bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20">
           <div className="flex items-center gap-2">
-             <Shield className="w-6 h-6 text-blue-600" />
+             <Shield className="w-6 h-6 text-indigo-600" />
              <span className="font-bold text-slate-800">Admin Panel</span>
           </div>
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
@@ -1639,7 +1658,7 @@ export const AdminDashboard: React.FC = () => {
         <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:shadow-none md:bg-transparent md:w-60 flex-shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-4 h-full flex flex-col">
             <div className="hidden md:flex items-center gap-3 mb-8">
-              <Shield className="w-8 h-8 text-blue-600" />
+              <Shield className="w-8 h-8 text-indigo-600" />
               <div>
                 <h1 className="font-bold text-slate-800">Admin Panel</h1>
                 <p className="text-xs text-slate-500">Hogicar Inc.</p>

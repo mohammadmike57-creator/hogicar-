@@ -526,7 +526,7 @@ const EditExtraModal = ({ extra, isOpen, onClose, onSave }: { extra: Extra | nul
     );
 };
 
-const InputField = ({ label, ...props }: { label: string, [key: string]: any }) => (<label className="block"><span className="block text-xs font-medium text-slate-700 mb-1">{label}</span><input {...props} className="block w-full border-gray-300 rounded-md border shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-3" /></label>);
+const InputField = ({ label, containerClassName, className, ...props }: { label: string, containerClassName?: string, className?: string, [key: string]: any }) => (<label className={`block ${containerClassName || ''}`}><span className="block text-xs font-medium text-slate-700 mb-1">{label}</span><input {...props} className={`block w-full border-gray-300 rounded-md border shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-3 ${className || ''}`} /></label>);
 const SelectField = ({ label, options, ...props }: { label: string, options: string[], [key: string]: any }) => (<label className="block"><span className="block text-xs font-medium text-slate-700 mb-1">{label}</span><select {...props} className="block w-full border-gray-300 rounded-md border shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-3 appearance-none bg-white">{options.map(o => <option key={o} value={o}>{o}</option>)}</select></label>);
 
 const getRateStatus = (endDate: string): { label: string, color: string, icon: React.ElementType } => {
@@ -541,12 +541,21 @@ const getRateStatus = (endDate: string): { label: string, color: string, icon: R
     return { label: 'Active', color: 'bg-green-100 text-green-700', icon: CheckCircle };
 };
 
+import { getPublicLocations } from '../api';
+
 const AddLocationModal = ({ isOpen, onClose, onSave, existingLocations, existingFleet }: { isOpen: boolean, onClose: () => void, onSave: (data: any) => void, existingLocations: Location[], existingFleet: Car[] }) => {
     const [step, setStep] = React.useState(1);
-    const [locationData, setLocationData] = React.useState({ name: '', address: '' });
+    const [locationData, setLocationData] = React.useState({ name: '', address: '', locationCode: '' });
     const [fleetStrategy, setFleetStrategy] = React.useState<'empty' | 'copy'>('empty');
     const [sourceLocationId, setSourceLocationId] = React.useState(existingLocations[0]?.id || '');
     const [rateStrategy, setRateStrategy] = React.useState<'new' | 'copy'>('new');
+    const [availableLocations, setAvailableLocations] = React.useState<any[]>([]);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            getPublicLocations().then(setAvailableLocations).catch(console.error);
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -582,7 +591,30 @@ const AddLocationModal = ({ isOpen, onClose, onSave, existingLocations, existing
                     {step === 1 && (
                         <div className="space-y-4">
                             <h4 className="font-bold text-slate-700">Location Details</h4>
-                            <InputField label="Location Name" placeholder="e.g. Downtown Office" value={locationData.name} onChange={e => setLocationData({...locationData, name: e.target.value})} />
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">Select Location</label>
+                                <select 
+                                    value={locationData.locationCode} 
+                                    onChange={(e) => {
+                                        const code = e.target.value;
+                                        const selectedLoc = availableLocations.find(l => l.iataCode === code);
+                                        setLocationData({
+                                            ...locationData, 
+                                            locationCode: code,
+                                            name: selectedLoc ? selectedLoc.name : locationData.name
+                                        });
+                                    }}
+                                    className="block w-full border-gray-300 rounded border shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base py-2 px-3"
+                                >
+                                    <option value="">Select an airport/location</option>
+                                    {availableLocations.map((loc) => (
+                                        <option key={loc.iataCode} value={loc.iataCode}>
+                                            {loc.iataCode} – {loc.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <InputField label="Location Name (Display)" placeholder="e.g. Downtown Office" value={locationData.name} onChange={e => setLocationData({...locationData, name: e.target.value})} />
                             <InputField label="Address" placeholder="Full address" value={locationData.address} onChange={e => setLocationData({...locationData, address: e.target.value})} />
                         </div>
                     )}
@@ -854,7 +886,7 @@ const SupplierDashboard: React.FC = () => {
 };
 
   const NavItem = ({ section, label, icon: Icon, count }: { section: typeof activeSection, label: string, icon: React.ElementType, count?: number }) => (
-    <button onClick={() => { setActiveSection(section); setIsSidebarOpen(false); }} className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${activeSection === section ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-blue-600'}`}>
+    <button onClick={() => { setActiveSection(section); setIsSidebarOpen(false); }} className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${activeSection === section ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600'}`}>
       <div className="flex items-center">
         <Icon className={`w-5 h-5 mr-3 ${activeSection === section ? 'text-white' : 'text-slate-400'}`} />
         <span>{label}</span>
@@ -894,7 +926,7 @@ const SupplierDashboard: React.FC = () => {
   if (!supplierData) {
       return (
           <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-              <LoaderCircle className="h-8 w-8 animate-spin text-blue-600" />
+              <LoaderCircle className="h-8 w-8 animate-spin text-indigo-600" />
           </div>
       );
   }
@@ -918,7 +950,7 @@ const SupplierDashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-blue-600"/>Booking Trends - Last 12 Months</h3>
+            <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/>Booking Trends - Last 12 Months</h3>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={supplierBookingStats} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -964,9 +996,9 @@ const SupplierDashboard: React.FC = () => {
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100">
             {selectedBooking && <BookingVoucherModal booking={selectedBooking} onClose={() => setSelectedBooking(null)} />}
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2"><BookOpen className="w-5 h-5 text-blue-600"/>Manage Bookings</h3>
+                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2"><BookOpen className="w-5 h-5 text-indigo-600"/>Manage Bookings</h3>
                 <div className="flex items-center gap-2">
-                    <button className={`px-3 py-1 text-xs rounded-full ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => setFilter('all')}>All</button>
+                    <button className={`px-3 py-1 text-xs rounded-full ${filter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => setFilter('all')}>All</button>
                     <button className={`px-3 py-1 text-xs rounded-full ${filter === 'pending' ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => setFilter('pending')}>Pending</button>
                     <button className={`px-3 py-1 text-xs rounded-full ${filter === 'confirmed' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => setFilter('confirmed')}>Confirmed</button>
                     <button className={`px-3 py-1 text-xs rounded-full ${filter === 'cancelled' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => setFilter('cancelled')}>Cancelled</button>
@@ -1025,8 +1057,8 @@ const SupplierDashboard: React.FC = () => {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><CarIcon className="w-6 h-6 text-blue-600"/> Fleet Management</h3>
-            <button onClick={handleAddVehicle} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 flex items-center gap-2"><Plus className="w-4 h-4"/> Add Vehicle</button>
+            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><CarIcon className="w-6 h-6 text-indigo-600"/> Fleet Management</h3>
+            <button onClick={handleAddVehicle} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 flex items-center gap-2"><Plus className="w-4 h-4"/> Add Vehicle</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {fleet.map(car => (
@@ -1052,226 +1084,258 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
     const [config, setConfig] = React.useState<TemplateConfig>({ periods: [], bands: [], currency: 'USD' });
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
+    const [selectedPeriodIndex, setSelectedPeriodIndex] = React.useState<number | null>(null);
 
-    React.useEffect(() => {
+    const fetchConfig = React.useCallback(() => {
         let isMounted = true;
         setIsLoading(true);
         setError(null);
-
         supplierApi.getTemplateConfig()
             .then(data => {
                 if (isMounted) {
-                    setConfig({
+                    const loadedConfig = {
                         currency: data?.currency || 'USD',
                         bands: data?.bands || [],
                         periods: data?.periods || []
-                    });
-                    setIsLoading(false);
+                    };
+                    setConfig(loadedConfig);
+                    if (loadedConfig.periods.length > 0) {
+                        setSelectedPeriodIndex(0);
+                    }
                 }
             })
             .catch(err => {
                 if (isMounted) {
                     console.error("Failed to load template config:", err);
                     setError("Failed to load template configuration. Please try again.");
-                    setIsLoading(false);
                 }
+            })
+            .finally(() => {
+                if (isMounted) setIsLoading(false);
             });
-
-        return () => {
-            isMounted = false;
-        };
+        return () => { isMounted = false; };
     }, []);
 
+    React.useEffect(() => {
+        fetchConfig();
+    }, [fetchConfig]);
+
     const handleAddPeriod = () => {
-        setConfig({
-            ...config,
-            periods: [...(config.periods || []), { name: '', startDate: '', endDate: '', usePreviousBands: false, bands: [] }]
-        });
+        const isFirst = config.periods.length === 0;
+        const previousBands = isFirst ? [] : JSON.parse(JSON.stringify(config.periods[config.periods.length - 1].bands));
+        const newPeriod: PeriodConfig = { 
+            name: `New Period ${config.periods.length + 1}`, 
+            startDate: '', 
+            endDate: '', 
+            usePreviousBands: !isFirst, 
+            bands: isFirst ? [{ minDays: 1, maxDays: null, perMonth: false, label: '1+ Days' }] : previousBands 
+        };
+        const newPeriods = [...config.periods, newPeriod];
+        setConfig({ ...config, periods: newPeriods });
+        setSelectedPeriodIndex(newPeriods.length - 1);
     };
 
     const handleRemovePeriod = (index: number) => {
-        const newPeriods = [...(config.periods || [])];
-        newPeriods.splice(index, 1);
+        const newPeriods = config.periods.filter((_, i) => i !== index);
         setConfig({ ...config, periods: newPeriods });
+        if (selectedPeriodIndex === index) {
+            setSelectedPeriodIndex(newPeriods.length > 0 ? 0 : null);
+        } else if (selectedPeriodIndex && selectedPeriodIndex > index) {
+            setSelectedPeriodIndex(selectedPeriodIndex - 1);
+        }
     };
 
     const updatePeriod = (index: number, field: keyof PeriodConfig, value: any) => {
-        const newPeriods = [...(config.periods || [])];
+        const newPeriods = [...config.periods];
         newPeriods[index] = { ...newPeriods[index], [field]: value };
         setConfig({ ...config, periods: newPeriods });
+        setError(null);
     };
 
     const handleAddBand = (periodIndex: number) => {
-        const newPeriods = [...(config.periods || [])];
-        if (!newPeriods[periodIndex].bands) newPeriods[periodIndex].bands = [];
-        newPeriods[periodIndex].bands.push({ minDays: 1, maxDays: null, perMonth: false, label: '' });
+        const newPeriods = [...config.periods];
+        const period = newPeriods[periodIndex];
+        if (!period.bands) period.bands = [];
+        period.bands.push({ minDays: 1, maxDays: null, perMonth: false, label: '' });
         setConfig({ ...config, periods: newPeriods });
+        setError(null);
     };
 
     const handleRemoveBand = (periodIndex: number, bandIndex: number) => {
-        const newPeriods = [...(config.periods || [])];
+        const newPeriods = [...config.periods];
         newPeriods[periodIndex].bands.splice(bandIndex, 1);
         setConfig({ ...config, periods: newPeriods });
+        setError(null);
     };
 
     const updateBand = (periodIndex: number, bandIndex: number, field: keyof BandConfig, value: any) => {
-        const newPeriods = [...(config.periods || [])];
+        const newPeriods = [...config.periods];
         newPeriods[periodIndex].bands[bandIndex] = { ...newPeriods[periodIndex].bands[bandIndex], [field]: value };
         setConfig({ ...config, periods: newPeriods });
+        setError(null);
     };
 
     const handleSave = () => {
-        // Validation
-        if (!config?.periods?.length) return alert("At least one period is required.");
+        if (!config?.periods?.length) return setError("At least one period is required.");
         for (const p of config.periods) {
-            if (!p.name || !p.startDate || !p.endDate) return alert("All periods must have a name, start date, and end date.");
-            if (new Date(p.startDate) > new Date(p.endDate)) return alert(`Start date must be before end date for period: ${p.name}`);
-            if (!p.usePreviousBands && (!p.bands || p.bands.length === 0)) return alert(`Period "${p.name}" must have at least one band if not using previous bands.`);
-            
+            if (!p.name || !p.startDate || !p.endDate) return setError("All periods must have a name, start date, and end date.");
+            if (new Date(p.startDate) > new Date(p.endDate)) return setError(`Start date must be before end date for period: ${p.name}`);
+            if (!p.usePreviousBands && (!p.bands || p.bands.length === 0)) return setError(`Period "${p.name}" must have at least one band if not using previous bands.`);
             if (!p.usePreviousBands && p.bands) {
                 for (const b of p.bands) {
-                    if (b.minDays <= 0) return alert(`Min days must be > 0 in period "${p.name}".`);
-                    if (b.maxDays !== null && b.maxDays < b.minDays) return alert(`Max days must be >= min days in period "${p.name}".`);
+                    if (b.minDays <= 0) return setError(`Min days must be > 0 in period "${p.name}".`);
+                    if (b.maxDays !== null && b.maxDays < b.minDays) return setError(`Max days must be >= min days in period "${p.name}".`);
                 }
             }
         }
+        setError(null);
         onSave(config);
     };
 
+    const selectedPeriod = selectedPeriodIndex !== null ? config.periods[selectedPeriodIndex] : null;
+
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 flex flex-col font-sans">
-                <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-xl sticky top-0 z-10">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-slate-50 rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col font-sans">
+                <div className="flex justify-between items-center p-5 border-b border-slate-200">
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                            <Settings2 className="w-6 h-6 text-blue-600"/> Configure Excel Template
+                        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                            <Settings2 className="w-6 h-6 text-blue-600"/> Configure Rate Template
                         </h3>
-                        <p className="text-sm text-slate-500 mt-1">Define your pricing periods and duration bands before downloading the template.</p>
+                        <p className="text-sm text-slate-500 mt-1">Define pricing seasons and rental duration bands for your Excel export.</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"><X className="w-5 h-5"/></button>
                 </div>
 
-                <div className="p-6 flex-grow space-y-8">
-                    {isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-12">
-                            <LoaderCircle className="w-8 h-8 text-blue-600 animate-spin mb-4" />
-                            <p className="text-slate-500">Loading configuration...</p>
+                <div className="flex-grow flex min-h-0">
+                    {/* Left Panel: Periods List */}
+                    <div className="w-1/3 bg-white border-r border-slate-200 flex flex-col">
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+                            <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider">Pricing Periods</h4>
+                            <button onClick={handleAddPeriod} className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md">
+                                <Plus className="w-4 h-4"/>
+                            </button>
                         </div>
-                    ) : error ? (
-                        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-center">
-                            <p>{error}</p>
-                            <button onClick={() => {
-                                setIsLoading(true);
-                                setError(null);
-                                supplierApi.getTemplateConfig().then(data => {
-                                    setConfig({
-                                        currency: data?.currency || 'USD',
-                                        bands: data?.bands || [],
-                                        periods: data?.periods || []
-                                    });
-                                    setIsLoading(false);
-                                }).catch(() => {
-                                    setError("Failed to load template configuration. Please try again.");
-                                    setIsLoading(false);
-                                });
-                            }} className="mt-2 text-sm font-bold underline hover:text-red-800">Retry</button>
-                        </div>
-                    ) : (
-                        <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-lg font-bold text-slate-800">Pricing Periods (Seasons)</h4>
-                                <button onClick={handleAddPeriod} className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg font-medium text-sm hover:bg-slate-200 flex items-center gap-2">
-                                    <Plus className="w-4 h-4"/> Add Period
-                                </button>
-                            </div>
-                            
-                            {(!config?.periods || config.periods.length === 0) && (
-                                <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                                    <p className="text-slate-500">No periods defined. Add a period to get started.</p>
+                        <div className="flex-grow overflow-y-auto">
+                            {isLoading ? (
+                                <div className="p-4 text-center text-sm text-slate-500">Loading...</div>
+                            ) : config.periods.length === 0 ? (
+                                <div className="p-6 text-center text-sm text-slate-500">
+                                    <p>No periods defined. <br/> Click '+' to add one.</p>
                                 </div>
+                            ) : (
+                                <ul className="divide-y divide-slate-100">
+                                    {config.periods.map((period, index) => (
+                                        <li key={index} onClick={() => setSelectedPeriodIndex(index)} className={`p-4 cursor-pointer hover:bg-blue-50 transition-colors ${selectedPeriodIndex === index ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}>
+                                            <p className={`font-bold text-slate-800 ${selectedPeriodIndex === index ? 'text-blue-700' : ''}`}>{period.name || 'Untitled Period'}</p>
+                                            <p className="text-xs text-slate-500 mt-1">{period.startDate && period.endDate ? `${period.startDate} to ${period.endDate}` : 'Set dates'}</p>
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
-
-                            <div className="space-y-6">
-                                {config?.periods?.map((period, pIdx) => (
-                                    <div key={pIdx} className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                                        <div className="bg-slate-50 p-4 border-b border-slate-200 flex flex-wrap gap-4 items-end">
-                                            <div className="flex-grow min-w-[200px]">
-                                                <label className="block text-xs font-bold text-slate-700 mb-1">Period Name</label>
-                                                <input type="text" placeholder="e.g. Summer High Season" value={period.name} onChange={e => updatePeriod(pIdx, 'name', e.target.value)} className="w-full border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-slate-700 mb-1">Start Date</label>
-                                                <input type="date" value={period.startDate} onChange={e => updatePeriod(pIdx, 'startDate', e.target.value)} className="border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-slate-700 mb-1">End Date</label>
-                                                <input type="date" value={period.endDate} onChange={e => updatePeriod(pIdx, 'endDate', e.target.value)} className="border-slate-300 rounded-md border shadow-sm px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                                            </div>
-                                            <button onClick={() => handleRemovePeriod(pIdx)} className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Remove Period">
-                                                <Trash2 className="w-5 h-5"/>
-                                            </button>
-                                        </div>
-
-                                        <div className="p-4">
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" checked={!period.usePreviousBands} onChange={() => updatePeriod(pIdx, 'usePreviousBands', false)} className="text-blue-600 focus:ring-blue-500" />
-                                                    <span className="text-sm font-medium text-slate-700">Custom bands for this period</span>
-                                                </label>
-                                                <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" checked={period.usePreviousBands} onChange={() => updatePeriod(pIdx, 'usePreviousBands', true)} className="text-blue-600 focus:ring-blue-500" />
-                                                    <span className="text-sm font-medium text-slate-700">Use previous bands</span>
-                                                </label>
-                                            </div>
-
-                                            {!period.usePreviousBands && (
-                                                <div className="space-y-3 pl-4 border-l-2 border-blue-100">
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <h5 className="text-sm font-bold text-slate-700">Duration Bands</h5>
-                                                        <button onClick={() => handleAddBand(pIdx)} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100 font-medium flex items-center gap-1">
-                                                            <Plus className="w-3 h-3"/> Add Band
-                                                        </button>
-                                                    </div>
-                                                    
-                                                    {(!period.bands || period.bands.length === 0) && <p className="text-xs text-slate-500 italic">No bands defined. Click 'Add Band'.</p>}
-
-                                                    {period?.bands?.map((band, bIdx) => (
-                                                        <div key={bIdx} className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                                                            <div className="flex items-center gap-2">
-                                                                <input type="number" min="1" placeholder="Min" value={band.minDays} onChange={e => updateBand(pIdx, bIdx, 'minDays', parseInt(e.target.value) || 0)} className="w-16 border-slate-300 rounded border px-2 py-1 text-sm" />
-                                                                <span className="text-slate-400">-</span>
-                                                                <input type="number" min="1" placeholder="Max (opt)" value={band.maxDays || ''} onChange={e => updateBand(pIdx, bIdx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} className="w-20 border-slate-300 rounded border px-2 py-1 text-sm" />
-                                                                <span className="text-xs text-slate-500">days</span>
-                                                            </div>
-                                                            <div className="w-px h-6 bg-slate-200 mx-1"></div>
-                                                            <input type="text" placeholder="Column Label (optional)" value={band.label || ''} onChange={e => updateBand(pIdx, bIdx, 'label', e.target.value)} className="flex-grow border-slate-300 rounded border px-2 py-1 text-sm" />
-                                                            <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer ml-2">
-                                                                <input type="checkbox" checked={band.perMonth} onChange={e => updateBand(pIdx, bIdx, 'perMonth', e.target.checked)} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                                                                Per Month
-                                                            </label>
-                                                            <button onClick={() => handleRemoveBand(pIdx, bIdx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors ml-auto">
-                                                                <X className="w-4 h-4"/>
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
                         </div>
-                    )}
+                    </div>
+
+                    {/* Right Panel: Period & Bands Editor */}
+                    <div className="w-2/3 flex-grow overflow-y-auto p-8">
+                        {selectedPeriod ? (
+                            <div className="space-y-8">
+                                {/* Period Details */}
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-2xl font-bold text-slate-800">{selectedPeriod.name || 'Edit Period'}</h3>
+                                    <button onClick={() => handleRemovePeriod(selectedPeriodIndex!)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                                        <Trash2 className="w-4 h-4"/> Delete Period
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-100 p-4 rounded-lg border border-slate-200">
+                                    <InputField label="Period Name" value={selectedPeriod.name} onChange={e => updatePeriod(selectedPeriodIndex!, 'name', e.target.value)} />
+                                    <InputField label="Start Date" type="date" value={selectedPeriod.startDate} onChange={e => updatePeriod(selectedPeriodIndex!, 'startDate', e.target.value)} />
+                                    <InputField label="End Date" type="date" value={selectedPeriod.endDate} onChange={e => updatePeriod(selectedPeriodIndex!, 'endDate', e.target.value)} />
+                                </div>
+
+                                {/* Bands Section */}
+                                <div>
+                                    <h4 className="text-lg font-bold text-slate-800 mb-4">Duration Bands</h4>
+                                    
+                                    {selectedPeriodIndex! > 0 && (
+                                        <div className="mb-4">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={selectedPeriod.usePreviousBands || false}
+                                                    onChange={(e) => {
+                                                        const usePrev = e.target.checked;
+                                                        updatePeriod(selectedPeriodIndex!, 'usePreviousBands', usePrev);
+                                                        if (usePrev) {
+                                                            // Copy bands from previous period
+                                                            const prevBands = config.periods[selectedPeriodIndex! - 1].bands;
+                                                            updatePeriod(selectedPeriodIndex!, 'bands', JSON.parse(JSON.stringify(prevBands)));
+                                                        }
+                                                    }}
+                                                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                />
+                                                <span className="text-sm font-medium text-slate-700">Use bands from previous period</span>
+                                            </label>
+                                        </div>
+                                    )}
+
+                                    {!selectedPeriod.usePreviousBands && (
+                                        <>
+                                            <div className="space-y-3">
+                                                {selectedPeriod.bands?.map((band, bIdx) => (
+                                                    <div key={bIdx} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                                        <InputField label="Min Days" type="number" min="1" value={band.minDays} containerClassName="flex-shrink-0" className="w-20" onChange={e => updateBand(selectedPeriodIndex!, bIdx, 'minDays', parseInt(e.target.value) || 1)} />
+                                                        <InputField 
+                                                            label="Max Days (optional)" 
+                                                            type="number" 
+                                                            min={band.minDays} 
+                                                            value={band.maxDays || ''} 
+                                                            containerClassName="flex-shrink-0" 
+                                                            className="w-28" 
+                                                            onChange={e => updateBand(selectedPeriodIndex!, bIdx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} 
+                                                            onBlur={() => {
+                                                                if (band.maxDays !== null && band.maxDays < band.minDays) {
+                                                                    setError(`Max days must be >= min days for band "${band.label || 'Unnamed'}" in period "${selectedPeriod.name}"`);
+                                                                } else {
+                                                                    setError(null);
+                                                                }
+                                                            }}
+                                                        />
+                                                        <InputField label="Column Label" placeholder="e.g., 1-3 Days" value={band.label || ''} containerClassName="flex-grow" onChange={e => updateBand(selectedPeriodIndex!, bIdx, 'label', e.target.value)} />
+                                                        <button onClick={() => handleRemoveBand(selectedPeriodIndex!, bIdx)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md self-end mb-1"><X className="w-4 h-4"/></button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <button onClick={() => handleAddBand(selectedPeriodIndex!)} className="mt-4 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-100 flex items-center gap-2">
+                                                <PlusCircle className="w-4 h-4"/> Add Duration Band
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-full text-center">
+                                <Layers className="w-16 h-16 text-slate-300 mb-4"/>
+                                <h3 className="text-xl font-bold text-slate-700">Select a Period</h3>
+                                <p className="text-slate-500 mt-1">Select a period from the left panel to edit its details, or add a new one.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 rounded-b-xl sticky bottom-0 z-10">
-                    <button onClick={onClose} className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-100 transition-colors">
-                        Cancel
-                    </button>
-                    <button onClick={handleSave} disabled={isSaving || isLoading || !!error} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50">
-                        {isSaving ? <LoaderCircle className="w-4 h-4 animate-spin"/> : <Download className="w-4 h-4"/>}
-                        Save & Download Template
-                    </button>
+                <div className="p-5 border-t border-slate-200 flex justify-between items-center">
+                    <div className="text-red-500 text-sm font-medium">
+                        {error && <span className="flex items-center gap-1"><AlertCircle className="w-4 h-4"/> {error}</span>}
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={onClose} className="bg-white border border-slate-300 text-slate-700 px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-slate-100 transition-colors">
+                            Cancel
+                        </button>
+                        <button onClick={handleSave} disabled={isSaving || isLoading || !!error} className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50">
+                            {isSaving ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Download className="w-5 h-5"/>}
+                            Save & Download
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1326,50 +1390,136 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
         }
     };
 
-    const handleDownloadTemplate = () => {
-        setIsConfigModalOpen(true);
-    };
+  const handleDownloadTemplate = async () => {
+    try {
+      const token = getSupplierToken();
+      if (!token) {
+        alert('Authentication error. Please log in again.');
+        return;
+      }
+      const response = await fetch('https://hogicar-backend.onrender.com/api/supplier/rates/template', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rates_template.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download template');
+    }
+  };
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex justify-between items-center">
-            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><DollarSign className="w-6 h-6 text-blue-600"/> Price Management</h3>
+            <div>
+                <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2"><DollarSign className="w-7 h-7 text-indigo-600"/> Price Management</h3>
+                <p className="text-slate-500 mt-1">Manage your fleet pricing efficiently using our Excel-based template system.</p>
+            </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Download Section */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
                 <div>
-                    <h4 className="text-base font-bold text-slate-800 mb-2 flex items-center gap-2"><Download className="w-5 h-5 text-blue-600"/> Create / Download Excel Template</h4>
-                    <p className="text-sm text-slate-500 mb-4">Define your pricing periods and bands, then download an Excel file pre-filled with your fleet. Fill out the prices and upload it back.</p>
+                    <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+                        <Download className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-800 mb-3">1. Configure & Download</h4>
+                    <p className="text-slate-600 mb-6 leading-relaxed">
+                        Start by defining your pricing periods (e.g., Summer Season, Winter Sale) and duration bands (e.g., 1-3 days, 4-7 days). We'll generate a custom Excel template pre-filled with your entire fleet.
+                    </p>
                 </div>
-                <button onClick={handleDownloadTemplate} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors">
-                    <FileSpreadsheet className="w-5 h-5"/> Configure & Download Template
-                </button>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h4 className="text-base font-bold text-slate-800 mb-2 flex items-center gap-2"><UploadCloud className="w-5 h-5 text-green-600"/> Upload Filled Template</h4>
-                <p className="text-sm text-slate-500 mb-4">Once you've filled out the template, upload it here. The system will validate and import the new rates.</p>
-                <div className="flex items-center gap-2">
-                    <label className="flex-grow cursor-pointer bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg p-3 text-center hover:bg-slate-100 transition-colors">
-                        <span className="text-sm font-medium text-slate-600">{file ? file.name : 'Click to choose Excel file...'}</span>
-                        <input type="file" className="hidden" accept=".xlsx" onChange={e => setFile(e.target.files ? e.target.files[0] : null)} />
-                    </label>
-                    <button onClick={handleFileUpload} disabled={!file || isUploading} className="bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                        {isUploading ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
+                <div className="flex gap-4">
+                    <button 
+                        onClick={() => setIsConfigModalOpen(true)} 
+                        className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-indigo-700 flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+                    >
+                        <Settings2 className="w-5 h-5"/> Configure Template
+                    </button>
+                    <button 
+                        onClick={handleDownloadTemplate} 
+                        className="w-full bg-slate-600 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-slate-700 flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+                    >
+                        <Download className="w-5 h-5"/> Download Template
                     </button>
                 </div>
+            </div>
+
+            {/* Upload Section */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+                <div>
+                    <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-6">
+                        <UploadCloud className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-bold text-slate-800 mb-3">2. Upload Filled Template</h4>
+                    <p className="text-slate-600 mb-6 leading-relaxed">
+                        Once you've entered your prices in the downloaded Excel file, upload it here. Our system will automatically validate the data and update your live pricing instantly.
+                    </p>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${file ? 'border-green-400 bg-green-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'}`}>
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            {file ? (
+                                <>
+                                    <FileSpreadsheet className="w-8 h-8 text-green-500 mb-2" />
+                                    <p className="text-sm font-semibold text-green-700">{file.name}</p>
+                                    <p className="text-xs text-green-600 mt-1">Ready to upload</p>
+                                </>
+                            ) : (
+                                <>
+                                    <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
+                                    <p className="text-sm font-semibold text-slate-700">Click to browse or drag and drop</p>
+                                    <p className="text-xs text-slate-500 mt-1">.xlsx files only</p>
+                                </>
+                            )}
+                        </div>
+                        <input type="file" className="hidden" accept=".xlsx" onChange={e => setFile(e.target.files ? e.target.files[0] : null)} />
+                    </label>
+                    
+                    <button 
+                        onClick={handleFileUpload} 
+                        disabled={!file || isUploading} 
+                        className={`w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm ${!file || isUploading ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-md active:scale-[0.98]'}`}
+                    >
+                        {isUploading ? (
+                            <><LoaderCircle className="w-5 h-5 animate-spin"/> Processing...</>
+                        ) : (
+                            <><Send className="w-5 h-5"/> Upload & Apply Rates</>
+                        )}
+                    </button>
+                </div>
+
                 {uploadSummary && (
-                    <div className="mt-4 bg-green-50 border border-green-200 p-4 rounded-lg text-sm">
-                        <p className="font-bold text-green-800 flex items-center gap-2"><CheckCircle className="w-4 h-4"/> Import Complete</p>
-                        <ul className="mt-2 space-y-1 text-green-700">
-                            <li>Cars Updated: <strong>{uploadSummary.carsUpdated}</strong></li>
-                            <li>Rates Imported: <strong>{uploadSummary.ratesImported}</strong></li>
-                        </ul>
+                    <div className="mt-6 bg-green-50 border border-green-200 p-5 rounded-xl text-sm animate-fadeIn">
+                        <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle className="w-5 h-5 text-green-600"/>
+                            <p className="font-bold text-green-800 text-base">Import Successful</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 mb-2">
+                            <div className="bg-white p-3 rounded-lg border border-green-100">
+                                <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Cars Updated</p>
+                                <p className="text-xl font-black text-green-700">{uploadSummary.carsUpdated}</p>
+                            </div>
+                            <div className="bg-white p-3 rounded-lg border border-green-100">
+                                <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Rates Imported</p>
+                                <p className="text-xl font-black text-green-700">{uploadSummary.ratesImported}</p>
+                            </div>
+                        </div>
                         {uploadSummary.warnings.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-green-200">
-                                <p className="text-orange-700 font-semibold mb-1">Warnings:</p>
-                                <ul className="list-disc list-inside text-orange-600 text-xs space-y-1">
+                            <div className="mt-4 pt-4 border-t border-green-200">
+                                <p className="text-orange-700 font-bold mb-2 flex items-center gap-1.5"><AlertCircle className="w-4 h-4"/> Warnings ({uploadSummary.warnings.length})</p>
+                                <ul className="list-disc list-inside text-orange-600 text-xs space-y-1.5 max-h-32 overflow-y-auto pr-2">
                                     {uploadSummary.warnings.map((w: string, i: number) => <li key={i}>{w}</li>)}
                                 </ul>
                             </div>
@@ -1387,11 +1537,10 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
                     try {
                         const updatedConfig = await supplierApi.updateTemplateConfig(newConfig);
                         setTemplateConfig(updatedConfig);
-                        await supplierApi.downloadSupplierRatesTemplate();
                         setIsConfigModalOpen(false);
                     } catch (error) {
-                        console.error(error);
-                        alert('Failed to save config or download template.');
+                        console.error('Save error:', error);
+                        alert('Failed to save configuration.');
                     } finally {
                         setIsSavingConfig(false);
                     }
@@ -1435,7 +1584,7 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Filter className="w-5 h-5 text-blue-600"/> Bulk Action</h3>
+                <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Filter className="w-5 h-5 text-indigo-600"/> Bulk Action</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label className="block text-xs font-bold text-slate-700 mb-1">Location</label>
@@ -1541,8 +1690,8 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
         <div className="space-y-6">
             {editingExtra !== undefined && <EditExtraModal isOpen={editingExtra !== undefined} extra={editingExtra} onClose={() => setEditingExtra(undefined)} onSave={handleSaveExtra} />}
             <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><PlusCircle className="w-6 h-6 text-blue-600"/> Manage Optional Extras</h3>
-                <button onClick={() => setEditingExtra(null)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 flex items-center gap-2"><Plus className="w-4 h-4"/> Add New Extra</button>
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><PlusCircle className="w-6 h-6 text-indigo-600"/> Manage Optional Extras</h3>
+                <button onClick={() => setEditingExtra(null)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 flex items-center gap-2"><Plus className="w-4 h-4"/> Add New Extra</button>
             </div>
 
             <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100">
@@ -1599,7 +1748,7 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
 
     return (
         <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Settings className="w-6 h-6 text-blue-600"/> Company Settings</h3>
+            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Settings className="w-6 h-6 text-indigo-600"/> Company Settings</h3>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
                     <h4 className="font-bold mb-2 text-sm text-slate-600">Company Information</h4>
@@ -1657,8 +1806,8 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><MapPin className="w-6 h-6 text-blue-600"/> Manage Locations</h3>
-                <button onClick={() => setIsAddLocationModalOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><MapPin className="w-6 h-6 text-indigo-600"/> Manage Locations</h3>
+                <button onClick={() => setIsAddLocationModalOpen(true)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 flex items-center gap-2">
                     <PlusCircle className="w-4 h-4"/> Add New Location
                 </button>
             </div>
@@ -1718,48 +1867,31 @@ const TemplateConfigModal = ({ onClose, onSave, isSaving }: { onClose: () => voi
 
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+    <div className="bg-slate-100 min-h-screen font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
       {isAddLocationModalOpen && <AddLocationModal 
         isOpen={isAddLocationModalOpen} 
         onClose={() => setIsAddLocationModalOpen(false)} 
         existingLocations={supplierData?.locations || []}
         existingFleet={fleet}
-        onSave={(data) => {
+        onSave={async (data) => {
             if (!supplierData) return;
-            const newLocation: Location = {
-                id: `loc-${Date.now()}`,
-                name: data.location.name,
-                address: data.location.address,
-                status: 'pending_approval'
-            };
-            
-            // Update Supplier Data
-            const updatedSupplier = { ...supplierData, locations: [...(supplierData.locations || []), newLocation] };
-            setSupplierData(updatedSupplier);
-            
-            // Handle Fleet Copy Strategy
-            if (data.fleetStrategy === 'copy' && data.sourceLocationId) {
-                const sourceLocName = supplierData.locations?.find(l => l.id === data.sourceLocationId)?.name;
-                if (sourceLocName) {
-                    const carsToCopy = fleet.filter(c => c.location === sourceLocName);
-                    const newCars = carsToCopy.map(c => ({
-                        ...c,
-                        id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-                        location: newLocation.name,
-                        locationId: newLocation.id,
-                        rateTiers: data.rateStrategy === 'copy' ? c.rateTiers : [] // Handle Rate Strategy
-                    }));
-                    setFleet([...fleet, ...newCars]);
-                    // Update global mock if needed, but local state is enough for demo
-                    MOCK_CARS.push(...newCars);
-                }
+            try {
+                // Call the backend API
+                await supplierApi.requestLocation({
+                    locationCode: data.locationCode,
+                    displayName: data.name
+                });
+                
+                // Refresh supplier data to get the new location
+                const me = await supplierApi.getMe();
+                setSupplierData(me);
+                
+                alert("Location submitted for approval!");
+                setIsAddLocationModalOpen(false);
+            } catch (error) {
+                console.error("Failed to request location:", error);
+                alert("Failed to submit location request. Please try again.");
             }
-            
-            // Update global supplier mock
-            const sIndex = SUPPLIERS.findIndex(s => s.id === supplierId);
-            if (sIndex > -1) SUPPLIERS[sIndex] = updatedSupplier;
-            
-            alert("Location submitted for approval!");
         }}
       />}
 

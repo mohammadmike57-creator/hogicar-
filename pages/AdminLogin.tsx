@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Shield, Car, Info, LoaderCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../lib/config';
 import { setAdminToken } from '../lib/adminApi';
 
@@ -69,8 +70,18 @@ const AdminLogin: React.FC = () => {
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-4 relative overflow-hidden">
             {/* Dynamic Background Elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#FF9F1C]/10 rounded-full blur-[120px] pointer-events-none"></div>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"
+            ></motion.div>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#FF9F1C]/10 rounded-full blur-[120px] pointer-events-none"
+            ></motion.div>
 
             <style>
                 {`
@@ -88,7 +99,12 @@ const AdminLogin: React.FC = () => {
 
             <div className="w-full max-w-md relative z-10">
                 {/* Dynamic Logo Area */}
-                <div className="flex flex-col items-center mb-10 relative">
+                <motion.div 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="flex flex-col items-center mb-10 relative"
+                >
                     <Link to="/" className="relative z-10 block hover:opacity-80 transition-opacity" title="Back to Home">
                         <Logo className="h-16 w-auto" variant="light" />
                     </Link>
@@ -97,14 +113,24 @@ const AdminLogin: React.FC = () => {
                         <Car className="w-8 h-8 text-[#FF9F1C]" />
                         <div className="w-12 h-0.5 bg-gradient-to-r from-[#FF9F1C]/50 to-transparent ml-1 rounded-full"></div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Glassmorphism Login Card */}
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl">
+                <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl"
+                >
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 border border-blue-500/30 mb-4">
+                        <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
+                            className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 border border-blue-500/30 mb-4"
+                        >
                             <Shield className="w-6 h-6 text-blue-400" />
-                        </div>
+                        </motion.div>
                         <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
                         <p className="text-sm text-slate-400 mt-1">Secure access to system controls</p>
                     </div>
@@ -133,20 +159,35 @@ const AdminLogin: React.FC = () => {
                             />
                         </div>
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-lg flex items-center gap-2">
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="bg-red-500/10 border border-red-500/50 p-3 rounded-lg flex items-center gap-2"
+                            >
                                 <p className="text-red-400 text-sm font-medium">{error}</p>
-                            </div>
+                            </motion.div>
                         )}
                         
-                        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center disabled:opacity-50 mt-2" disabled={isLoading}>
+                        <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="submit" 
+                            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center disabled:opacity-50 mt-2" 
+                            disabled={isLoading}
+                        >
                             {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : 'Authenticate'}
-                        </button>
+                        </motion.button>
                     </form>
-                </div>
+                </motion.div>
                 
-                <div className="mt-8 text-center">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-8 text-center"
+                >
                     <p className="text-xs text-slate-500">&copy; {new Date().getFullYear()} Hogicar Inc. All rights reserved.</p>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

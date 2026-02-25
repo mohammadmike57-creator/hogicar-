@@ -4,7 +4,7 @@
 import axios from 'axios';
 import { ApiSearchResult, CarCategory, Booking, RateImportSummary, TemplateConfig, CarRateTier } from './types';
 import { API_BASE_URL } from './lib/config';
-import { getSupplierToken, clearSupplierToken } from './lib/auth';
+import { getSupplierToken, clearSupplierToken, getAdminToken, clearAdminToken } from './lib/auth';
 import { parseFilenameFromContentDisposition } from './lib/httpFilename';
 
 const API_URL = API_BASE_URL;
@@ -14,9 +14,17 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-    const token = getSupplierToken();
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    // Check if it's an admin route
+    if (config.url?.startsWith('/api/admin')) {
+        const adminToken = getAdminToken();
+        if (adminToken) {
+            config.headers.Authorization = `Bearer ${adminToken}`;
+        }
+    } else {
+        const token = getSupplierToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
     }
     return config;
 });
@@ -25,8 +33,13 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            clearSupplierToken();
-            window.location.hash = '/supplier-login?reason=session_expired';
+            if (error.config.url?.startsWith('/api/admin')) {
+                clearAdminToken();
+                window.location.hash = '/admin-login?reason=session_expired';
+            } else {
+                clearSupplierToken();
+                window.location.hash = '/supplier-login?reason=session_expired';
+            }
         }
         return Promise.reject(error);
     }
@@ -77,6 +90,11 @@ export async function fetchLocations(query?: string): Promise<LocationSuggestion
     console.error("Error fetching locations:", error);
     throw error;
   }
+}
+
+export async function getPublicLocations(): Promise<any[]> {
+  const response = await apiClient.get('/api/public/locations');
+  return response.data;
 }
 
 export async function fetchCars(pickup: string, dropoff: string, pickupDate: string, dropoffDate: string): Promise<ApiSearchResult[]> {
@@ -302,4 +320,20 @@ export const supplierApi = {
     const response = await apiClient.post('/api/supplier/locations', data);
     return response.data;
   },
+};
+
+// --- ADMIN API ---
+export const adminApi = {
+  login: async (credentials: any): Promise<{ token: string }> => {
+    const response = await apiClient.post('/api/admin/auth/login', credentials);
+    return response.data;
+  },
+  getLocations: async (): Promise<any[]> => {
+    const response = await apiClient.get('/api/admin/locations');
+    return response.data;
+  },
+  createSupplier: async (supplierData: any): Promise<any> => {
+    const response = await apiClient.post('/api/admin/suppliers', supplierData);
+    return response.data;
+  }
 };
