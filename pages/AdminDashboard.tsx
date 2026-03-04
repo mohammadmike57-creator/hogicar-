@@ -1,3 +1,4 @@
+<div style="position:fixed; top:0; left:0; background:red; color:white; z-index:9999; padding:4px;">ADMIN DASHBOARD UPDATED</div>
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -824,7 +825,7 @@ const DashboardContent = ({ stats, pendingCount }: any) => (
           <TrendingUp className="w-5 h-5 text-orange-600" />
           Monthly Revenue
         </h3>
-        <div className="h-80 w-full">
+        <div className="min-h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={ADMIN_STATS}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
@@ -1830,3 +1831,8 @@ export const AdminDashboard: React.FC = () => {
     </div>
   );
 };
+
+// Force orange theme override
+const style = document.createElement('style');
+style.innerHTML = '.bg-blue-600, .bg-gradient-to-r.from-blue-500 { background: #f97316 !important; } .text-blue-600 { color: #f97316 !important; }';
+document.head.appendChild(style);
