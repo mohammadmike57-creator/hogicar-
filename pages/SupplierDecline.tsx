@@ -22,10 +22,17 @@ const SupplierDecline: React.FC = () => {
       navigate('/supplier-login');
       return;
     }
-    supplierApi.getBookingByToken(token)
-      .then(res => setBooking(res.data))
-      .catch(() => setError('Invalid or expired token'))
-      .finally(() => setLoading(false));
+    const fetchBooking = async () => {
+      try {
+        const response = await supplierApi.getBookingByToken(token);
+        setBooking(response.data);
+      } catch (err: any) {
+        setError(err.response?.data || 'Invalid or expired token');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooking();
   }, [token, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,9 +44,9 @@ const SupplierDecline: React.FC = () => {
     setSubmitting(true);
     try {
       await supplierApi.rejectBooking(token, reason);
-      navigate('/supplier-decline-success', { state: { action: 'declined', bookingRef: booking.bookingRef } });
-    } catch (err) {
-      setError('Failed to decline booking. Please try again.');
+      navigate('/supplier-decline-success', { state: { bookingRef: booking.bookingRef } });
+    } catch (err: any) {
+      setError(err.response?.data || 'Failed to decline booking. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -85,7 +92,7 @@ const SupplierDecline: React.FC = () => {
             <p className="text-2xl font-bold text-gray-800">{booking.bookingRef}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-xs text-gray-500">Customer</p>
               <p className="font-semibold">{booking.firstName} {booking.lastName}</p>
