@@ -10,6 +10,7 @@ export default function SupplierConfirm() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debug, setDebug] = useState<string>('');
   const [bookingRef, setBookingRef] = useState('');
   const [confirmationNumber, setConfirmationNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -21,14 +22,34 @@ export default function SupplierConfirm() {
       return;
     }
 
+    console.log('Fetching booking for token:', token);
+    setDebug('Fetching booking...');
+
     supplierApi.getBookingByToken(token)
       .then(res => {
-        setBookingRef(res.data.bookingRef);
+        console.log('API response:', res);
+        setDebug('API response received: ' + JSON.stringify(res.data));
+        if (res.data && res.data.bookingRef) {
+          setBookingRef(res.data.bookingRef);
+        } else {
+          setError('Invalid response from server');
+        }
         setLoading(false);
       })
       .catch(err => {
-        console.error(err);
-        setError('Invalid or expired token');
+        console.error('API error:', err);
+        let errorMsg = 'Invalid or expired token';
+        if (err.response) {
+          console.error('Error response data:', err.response.data);
+          console.error('Error response status:', err.response.status);
+          errorMsg = `Server error (${err.response.status}): ${err.response.data?.message || err.response.statusText}`;
+        } else if (err.request) {
+          errorMsg = 'No response from server – check your connection';
+        } else {
+          errorMsg = err.message;
+        }
+        setError(errorMsg);
+        setDebug('Error: ' + errorMsg);
         setLoading(false);
       });
   }, [token]);
@@ -38,10 +59,20 @@ export default function SupplierConfirm() {
     if (!token || !confirmationNumber.trim()) return;
     setSubmitting(true);
     try {
-      await supplierApi.confirmBooking(token, confirmationNumber.trim());
+      const response = await supplierApi.confirmBooking(token, confirmationNumber.trim());
+      console.log('Confirm response:', response);
       navigate(`/supplier-confirm-success?ref=${bookingRef}&number=${encodeURIComponent(confirmationNumber.trim())}`);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to confirm booking');
+      console.error('Confirm error:', err);
+      let errorMsg = 'Failed to confirm booking';
+      if (err.response) {
+        errorMsg = err.response.data?.message || `Server error (${err.response.status})`;
+      } else if (err.request) {
+        errorMsg = 'No response from server';
+      } else {
+        errorMsg = err.message;
+      }
+      setError(errorMsg);
       setSubmitting(false);
     }
   };
@@ -51,6 +82,7 @@ export default function SupplierConfirm() {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <Logo className="mb-8" />
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
+        <p className="mt-4 text-gray-600">Loading booking details...</p>
       </div>
     );
   }
@@ -59,11 +91,14 @@ export default function SupplierConfirm() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <Logo className="mb-8" />
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
-          <div className="text-red-500 text-5xl mb-4">✕</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Error</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <a href="/" className="text-orange-500 hover:underline">Go to home</a>
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
+          <div className="text-red-500 text-5xl mb-4 text-center">✕</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">Error</h1>
+          <p className="text-gray-600 mb-4 text-center">{error}</p>
+          {debug && <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">{debug}</pre>}
+          <div className="text-center mt-6">
+            <a href="/" className="text-orange-500 hover:underline">Go to home</a>
+          </div>
         </div>
       </div>
     );
