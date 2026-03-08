@@ -109,7 +109,7 @@ export const api = {
   createBooking,
 };
 
-// ---------- Supplier API (keep as is) ----------
+// ---------- Supplier API ----------
 export const supplierApi = {
   getBookingByToken: (token: string) => 
     axios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${token}`),

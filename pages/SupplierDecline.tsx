@@ -1,142 +1,102 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { XCircle, LoaderCircle } from 'lucide-react';
-import { Logo } from '../components/Logo';
 import { supplierApi } from '../api';
+import { Logo } from '../components/Logo';
 
-const SupplierDecline: React.FC = () => {
+export default function SupplierDecline() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
 
-  const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bookingRef, setBookingRef] = useState('');
   const [reason, setReason] = useState('');
-  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!token) {
-      navigate('/supplier-login');
+      setError('Missing token');
+      setLoading(false);
       return;
     }
-    const fetchBooking = async () => {
-      try {
-        const response = await supplierApi.getBookingByToken(token);
-        setBooking(response.data);
-      } catch (err: any) {
-        setError(err.response?.data || 'Invalid or expired token');
-      } finally {
+
+    supplierApi.getBookingByToken(token)
+      .then(res => {
+        setBookingRef(res.data.bookingRef);
         setLoading(false);
-      }
-    };
-    fetchBooking();
-  }, [token, navigate]);
+      })
+      .catch(err => {
+        console.error(err);
+        setError('Invalid or expired token');
+        setLoading(false);
+      });
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason.trim()) {
-      setError('Please provide a reason');
-      return;
-    }
+    if (!token) return;
     setSubmitting(true);
     try {
-      await supplierApi.rejectBooking(token, reason);
-      navigate('/supplier-decline-success', { state: { bookingRef: booking.bookingRef } });
+      await supplierApi.rejectBooking(token, reason || 'No reason provided');
+      navigate(`/supplier-decline-success?ref=${bookingRef}`);
     } catch (err: any) {
-      setError(err.response?.data || 'Failed to decline booking. Please try again.');
-    } finally {
+      setError(err.response?.data?.message || 'Failed to decline booking');
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoaderCircle className="w-8 h-8 animate-spin text-orange-600" />
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Logo className="mb-8" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
       </div>
     );
   }
 
-  if (error || !booking) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Invalid Link</h2>
-          <p className="text-gray-600 mb-6">{error || 'This link is no longer valid.'}</p>
-          <a href="/" className="text-orange-600 hover:underline">Return to Home</a>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Logo className="mb-8" />
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="text-red-500 text-5xl mb-4">✕</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Error</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <a href="/" className="text-orange-500 hover:underline">Go to home</a>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden"
-      >
-        <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-white">
-          <div className="flex items-center gap-3">
-            <Logo className="w-10 h-10" variant="light" />
-            <h1 className="text-2xl font-bold">Decline Booking</h1>
-          </div>
-        </div>
-        <div className="p-8">
-          <div className="mb-6 p-4 bg-red-50 rounded-xl border border-red-100">
-            <p className="text-sm text-gray-600 mb-1">Booking Reference</p>
-            <p className="text-2xl font-bold text-gray-800">{booking.bookingRef}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <p className="text-xs text-gray-500">Customer</p>
-              <p className="font-semibold">{booking.firstName} {booking.lastName}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Email</p>
-              <p className="font-semibold">{booking.email}</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reason for declining <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                rows={4}
-                placeholder="e.g. Car not available, maintenance issue..."
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm flex items-center gap-2">
-                <XCircle className="w-4 h-4" /> {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {submitting ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
-              {submitting ? 'Processing...' : 'Decline Booking'}
-            </button>
-          </form>
-        </div>
-      </motion.div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <Logo className="mb-8" />
+      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Decline Booking</h1>
+        <p className="text-gray-600 mb-6">
+          Booking reference: <span className="font-semibold">{bookingRef}</span>
+        </p>
+        <form onSubmit={handleSubmit}>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Reason (optional)
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={3}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Why are you declining?"
+          />
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-6 w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? 'Submitting...' : 'Decline Booking'}
+          </button>
+        </form>
+      </div>
     </div>
   );
-};
-
-export default SupplierDecline;
+}

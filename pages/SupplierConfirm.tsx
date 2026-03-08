@@ -1,151 +1,103 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CheckCircle, XCircle, LoaderCircle } from 'lucide-react';
-import { Logo } from '../components/Logo';
 import { supplierApi } from '../api';
+import { Logo } from '../components/Logo';
 
-const SupplierConfirm: React.FC = () => {
+export default function SupplierConfirm() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
 
-  const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bookingRef, setBookingRef] = useState('');
   const [confirmationNumber, setConfirmationNumber] = useState('');
-  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!token) {
-      navigate('/supplier-login');
+      setError('Missing confirmation token');
+      setLoading(false);
       return;
     }
-    const fetchBooking = async () => {
-      try {
-        const response = await supplierApi.getBookingByToken(token);
-        setBooking(response.data);
-      } catch (err: any) {
-        setError(err.response?.data || 'Invalid or expired token');
-      } finally {
+
+    supplierApi.getBookingByToken(token)
+      .then(res => {
+        setBookingRef(res.data.bookingRef);
         setLoading(false);
-      }
-    };
-    fetchBooking();
-  }, [token, navigate]);
+      })
+      .catch(err => {
+        console.error(err);
+        setError('Invalid or expired token');
+        setLoading(false);
+      });
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirmationNumber.trim()) {
-      setError('Please enter a confirmation number');
-      return;
-    }
+    if (!token || !confirmationNumber.trim()) return;
     setSubmitting(true);
     try {
-      await supplierApi.confirmBooking(token, confirmationNumber);
-      navigate('/supplier-confirm-success', { state: { bookingRef: booking.bookingRef } });
+      await supplierApi.confirmBooking(token, confirmationNumber.trim());
+      navigate(`/supplier-confirm-success?ref=${bookingRef}&number=${encodeURIComponent(confirmationNumber.trim())}`);
     } catch (err: any) {
-      setError(err.response?.data || 'Failed to confirm booking. Please try again.');
-    } finally {
+      setError(err.response?.data?.message || 'Failed to confirm booking');
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoaderCircle className="w-8 h-8 animate-spin text-orange-600" />
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Logo className="mb-8" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
       </div>
     );
   }
 
-  if (error || !booking) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Invalid Link</h2>
-          <p className="text-gray-600 mb-6">{error || 'This confirmation link is no longer valid.'}</p>
-          <a href="/" className="text-orange-600 hover:underline">Return to Home</a>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Logo className="mb-8" />
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="text-red-500 text-5xl mb-4">✕</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Error</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <a href="/" className="text-orange-500 hover:underline">Go to home</a>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden"
-      >
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 text-white">
-          <div className="flex items-center gap-3">
-            <Logo className="w-10 h-10" variant="light" />
-            <h1 className="text-2xl font-bold">Confirm Booking</h1>
-          </div>
-        </div>
-        <div className="p-8">
-          <div className="mb-6 p-4 bg-orange-50 rounded-xl border border-orange-100">
-            <p className="text-sm text-gray-600 mb-1">Booking Reference</p>
-            <p className="text-2xl font-bold text-gray-800">{booking.bookingRef}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <p className="text-xs text-gray-500">Customer</p>
-              <p className="font-semibold">{booking.firstName} {booking.lastName}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Email</p>
-              <p className="font-semibold">{booking.email}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Pick‑up</p>
-              <p className="font-semibold">{booking.pickupDate} · {booking.startTime}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Drop‑off</p>
-              <p className="font-semibold">{booking.dropoffDate} · {booking.endTime}</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirmation Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={confirmationNumber}
-                onChange={(e) => setConfirmationNumber(e.target.value)}
-                placeholder="e.g. CON-12345"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                required
-              />
-              <p className="text-xs text-gray-400 mt-1">This number will appear on the customer's voucher.</p>
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm flex items-center gap-2">
-                <XCircle className="w-4 h-4" /> {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-xl font-bold hover:from-orange-600 hover:to-orange-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {submitting ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-              {submitting ? 'Confirming...' : 'Confirm Booking'}
-            </button>
-          </form>
-        </div>
-      </motion.div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <Logo className="mb-8" />
+      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Confirm Booking</h1>
+        <p className="text-gray-600 mb-6">
+          Booking reference: <span className="font-semibold">{bookingRef}</span>
+        </p>
+        <form onSubmit={handleSubmit}>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Your confirmation number
+          </label>
+          <input
+            type="text"
+            value={confirmationNumber}
+            onChange={(e) => setConfirmationNumber(e.target.value)}
+            placeholder="e.g., CONFIRM-123"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            required
+          />
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-6 w-full bg-orange-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? 'Confirming...' : 'Confirm Booking'}
+          </button>
+        </form>
+      </div>
     </div>
   );
-};
-
-export default SupplierConfirm;
+}

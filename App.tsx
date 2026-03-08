@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -23,6 +22,12 @@ import LeaveReview from './pages/LeaveReview';
 // Admin imports
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import { AdminDashboard } from './admin/pages/AdminDashboard';
+
+// New confirm/decline page imports
+import SupplierConfirm from './pages/SupplierConfirm';
+import SupplierDecline from './pages/SupplierDecline';
+import SupplierConfirmSuccess from './pages/SupplierConfirmSuccess';
+import SupplierDeclineSuccess from './pages/SupplierDeclineSuccess';
 
 // --- SUBDOMAIN REDIRECT LOGIC ---
 // This runs before the component renders to handle redirection immediately.
@@ -54,6 +59,12 @@ const App: React.FC = () => {
         
         <Route path="/supplier" element={<SupplierDashboard />} />
         <Route path="/supplier-confirmation/:bookingId" element={<SupplierConfirmation />} />
+
+        {/* New confirm/decline pages (standalone) */}
+        <Route path="/supplier-confirm" element={<SupplierConfirm />} />
+        <Route path="/supplier-decline" element={<SupplierDecline />} />
+        <Route path="/supplier-confirm-success" element={<SupplierConfirmSuccess />} />
+        <Route path="/supplier-decline-success" element={<SupplierDeclineSuccess />} />
 
         {/* Customer-facing application with main Layout */}
         <Route element={<Layout />}>
