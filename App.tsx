@@ -23,21 +23,18 @@ import LeaveReview from './pages/LeaveReview';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import { AdminDashboard } from './admin/pages/AdminDashboard';
 
-// New confirm/decline page imports
+// Supplier confirm/decline pages
 import SupplierConfirm from './pages/SupplierConfirm';
 import SupplierDecline from './pages/SupplierDecline';
 import SupplierConfirmSuccess from './pages/SupplierConfirmSuccess';
 import SupplierDeclineSuccess from './pages/SupplierDeclineSuccess';
 
-// --- SUBDOMAIN REDIRECT LOGIC ---
-// This runs before the component renders to handle redirection immediately.
+// --- SUBDOMAIN REDIRECT LOGIC (keep if you use subdomains) ---
 const host = window.location.hostname.toLowerCase();
 const hash = window.location.hash;
 const search = window.location.search || "";
 
 if (host.startsWith("admin.") && !hash.startsWith("#/admin")) {
-  // Use replace to avoid adding to browser history and prevent loops.
-  // We modify the hash for compatibility with HashRouter.
   window.location.replace(`/#/admin${search}`);
 } else if (host.startsWith("supplier.") && !hash.startsWith("#/supplier")) {
   window.location.replace(`/#/supplier/login${search}`);
@@ -52,7 +49,7 @@ const App: React.FC = () => {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/supplier-login" element={<SupplierLogin />} />
         
-        {/* Protected Admin Routes - Reverted to single-page dashboard */}
+        {/* Protected Admin Routes */}
         <Route path="/admin" element={<AdminProtectedRoute />}>
             <Route index element={<AdminDashboard />} />
         </Route>
@@ -60,7 +57,7 @@ const App: React.FC = () => {
         <Route path="/supplier" element={<SupplierDashboard />} />
         <Route path="/supplier-confirmation/:bookingId" element={<SupplierConfirmation />} />
 
-        {/* New confirm/decline pages (standalone) */}
+        {/* Supplier confirm/decline pages */}
         <Route path="/supplier-confirm" element={<SupplierConfirm />} />
         <Route path="/supplier-decline" element={<SupplierDecline />} />
         <Route path="/supplier-confirm-success" element={<SupplierConfirmSuccess />} />
@@ -81,6 +78,9 @@ const App: React.FC = () => {
           <Route path="/careers" element={<Careers />} />
           <Route path="/:slug" element={<DynamicPage />} />
         </Route>
+
+        {/* Catch‑all 404 route */}
+        <Route path="*" element={<div className="min-h-screen flex items-center justify-center">404 – Page Not Found</div>} />
       </Routes>
     </CurrencyProvider>
   );
