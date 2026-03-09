@@ -10,7 +10,9 @@ export default function SupplierConfirm() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookingRef, setBookingRef] = useState('');
+  const [booking, setBooking] = useState<any>(null);
+  const [car, setCar] = useState<any>(null);
+  const [supplier, setSupplier] = useState<any>(null);
   const [confirmationNumber, setConfirmationNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -23,7 +25,9 @@ export default function SupplierConfirm() {
 
     supplierApi.getBookingByToken(token)
       .then(res => {
-        setBookingRef(res.data.bookingRef);
+        setBooking(res.data);
+        setCar(res.data.car);
+        setSupplier(res.data.supplier);
         setLoading(false);
       })
       .catch(err => {
@@ -39,7 +43,7 @@ export default function SupplierConfirm() {
     setSubmitting(true);
     try {
       await supplierApi.confirmBooking(token, confirmationNumber.trim());
-      navigate(`/supplier-confirm-success?ref=${bookingRef}&number=${encodeURIComponent(confirmationNumber.trim())}`);
+      navigate(`/supplier-confirm-success?ref=${booking.bookingRef}&number=${encodeURIComponent(confirmationNumber.trim())}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to confirm booking');
       setSubmitting(false);
@@ -70,33 +74,142 @@ export default function SupplierConfirm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <Logo className="mb-8" />
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Confirm Booking</h1>
-        <p className="text-gray-600 mb-6">
-          Booking reference: <span className="font-semibold">{bookingRef}</span>
-        </p>
-        <form onSubmit={handleSubmit}>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Your confirmation number
-          </label>
-          <input
-            type="text"
-            value={confirmationNumber}
-            onChange={(e) => setConfirmationNumber(e.target.value)}
-            placeholder="e.g., CONFIRM-123"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="mt-6 w-full bg-orange-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? 'Confirming...' : 'Confirm Booking'}
-          </button>
-        </form>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <Logo className="h-12 mx-auto" />
+        </div>
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+            <h1 className="text-2xl font-bold text-white">Confirm Booking</h1>
+            <p className="text-orange-100">Reference: {booking.bookingRef}</p>
+          </div>
+          <div className="p-6 md:p-8">
+            {/* Booking details */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-gray-50 rounded-xl p-5">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
+                  Customer & Flight
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span className="font-medium">{booking.firstName} {booking.lastName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Email:</span>
+                    <span className="font-medium">{booking.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="font-medium">{booking.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Flight:</span>
+                    <span className="font-medium">{booking.flightNumber || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-5">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
+                  Vehicle
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Make/Model:</span>
+                    <span className="font-medium">{car?.make} {car?.model}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Category:</span>
+                    <span className="font-medium">{car?.category}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Transmission:</span>
+                    <span className="font-medium">{car?.transmission}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Fuel policy:</span>
+                    <span className="font-medium">{car?.fuelPolicy}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-gray-50 rounded-xl p-5">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
+                  Rental Period
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Pick-up:</span>
+                    <span className="font-medium">{booking.pickupDate} at {booking.startTime}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Drop-off:</span>
+                    <span className="font-medium">{booking.dropoffDate} at {booking.endTime}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Location:</span>
+                    <span className="font-medium">{booking.pickupCode}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-5">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
+                  Price Breakdown
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Net rate:</span>
+                    <span className="font-medium">${booking.netPrice}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Commission:</span>
+                    <span className="font-medium">${booking.commissionAmount}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
+                    <span>Total:</span>
+                    <span className="text-orange-600">${booking.finalPrice}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Paid now:</span>
+                    <span className="font-medium">${booking.payNow}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Pay at desk:</span>
+                    <span className="font-medium">${booking.payAtDesk}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="border-t pt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Enter your confirmation number
+              </label>
+              <input
+                type="text"
+                value={confirmationNumber}
+                onChange={(e) => setConfirmationNumber(e.target.value)}
+                placeholder="e.g., CONF-123"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                required
+              />
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-4 w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {submitting ? 'Confirming...' : 'Confirm Booking'}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

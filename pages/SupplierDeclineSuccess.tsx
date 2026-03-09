@@ -1,15 +1,27 @@
 import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Logo } from '../components/Logo';
 
 export default function SupplierDeclineSuccess() {
   const [searchParams] = useSearchParams();
   const ref = searchParams.get('ref');
 
   return (
-    <div style={{ padding: '40px', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      <h1>⚠️ Booking Declined</h1>
-      <p>Reference: <strong>{ref}</strong></p>
-      <p><Link to="/" style={{ color: '#F57C00' }}>Go to home</Link></p>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <Logo className="h-12 mb-8" />
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
+        <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-10 h-10 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Booking Declined</h1>
+        <p className="text-gray-600 mb-4">Booking <span className="font-semibold">{ref}</span> has been declined.</p>
+        <p className="text-sm text-gray-500 mb-6">The customer has been notified.</p>
+        <Link to="/" className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition">
+          Return to home
+        </Link>
+      </div>
     </div>
   );
 }
