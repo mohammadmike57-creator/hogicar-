@@ -4,6 +4,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hogica
 
 // ---------- Types ----------
 export interface LocationSuggestion {
+  value: string;      // IATA code
+  label: string;      // Display text (e.g., "Amman (AMM), Jordan")
   iataCode: string;
   name: string;
   municipality: string;
@@ -44,7 +46,15 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
   if (!query || query.length < 2) return [];
   try {
     const response = await axios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
-    return response.data;
+    // Map the backend response to { value, label } format
+    return response.data.map((loc: any) => ({
+      value: loc.iataCode,
+      label: `${loc.municipality} (${loc.iataCode})${loc.isoCountry ? ', ' + loc.isoCountry : ''}`,
+      iataCode: loc.iataCode,
+      name: loc.name,
+      municipality: loc.municipality,
+      countryCode: loc.isoCountry,
+    }));
   } catch (error) {
     console.error('Error fetching locations:', error);
     return [];
@@ -54,7 +64,14 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
 export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/public/locations`);
-    return response.data;
+    return response.data.map((loc: any) => ({
+      value: loc.iataCode,
+      label: `${loc.municipality} (${loc.iataCode})${loc.isoCountry ? ', ' + loc.isoCountry : ''}`,
+      iataCode: loc.iataCode,
+      name: loc.name,
+      municipality: loc.municipality,
+      countryCode: loc.isoCountry,
+    }));
   } catch (error) {
     console.error('Error fetching all locations:', error);
     return [];
