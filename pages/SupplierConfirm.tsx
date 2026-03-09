@@ -159,17 +159,13 @@ export default function SupplierConfirm() {
                 </div>
               </div>
               
-              {/* SIMPLIFIED PRICE BREAKDOWN – only total and pay at desk */}
+              {/* SIMPLIFIED PRICE – only pay at desk */}
               <div className="bg-gray-50 rounded-xl p-5">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
-                  Payment Summary
+                  Payment
                 </h2>
                 <div className="space-y-3">
-                  <div className="flex justify-between text-lg font-bold border-b pb-2">
-                    <span>Total</span>
-                    <span className="text-orange-600">${booking.finalPrice}</span>
-                  </div>
                   <div className="flex justify-between items-center bg-orange-50 p-3 rounded-lg">
                     <span className="font-medium">Pay at rental desk</span>
                     <span className="text-xl font-bold text-orange-600">${booking.payAtDesk}</span>
