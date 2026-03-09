@@ -158,32 +158,27 @@ export default function SupplierConfirm() {
                   </div>
                 </div>
               </div>
+              
+              {/* SIMPLIFIED PRICE BREAKDOWN – only total and pay at desk */}
               <div className="bg-gray-50 rounded-xl p-5">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
-                  Price Breakdown
+                  Payment Summary
                 </h2>
                 <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Net rate:</span>
-                    <span className="font-medium">${booking.netPrice}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Commission:</span>
-                    <span className="font-medium">${booking.commissionAmount}</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
-                    <span>Total:</span>
+                  <div className="flex justify-between text-lg font-bold border-b pb-2">
+                    <span>Total</span>
                     <span className="text-orange-600">${booking.finalPrice}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Paid now:</span>
-                    <span className="font-medium">${booking.payNow}</span>
+                  <div className="flex justify-between items-center bg-orange-50 p-3 rounded-lg">
+                    <span className="font-medium">Pay at rental desk</span>
+                    <span className="text-xl font-bold text-orange-600">${booking.payAtDesk}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Pay at desk:</span>
-                    <span className="font-medium">${booking.payAtDesk}</span>
-                  </div>
+                  {booking.payNow > 0 && (
+                    <div className="text-sm text-gray-500 italic">
+                      * ${booking.payNow} already paid online
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
