@@ -5,7 +5,6 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
 
 // --- SVG Payment Icons ---
-
 const VisaIcon = () => (
   <div className="w-[38px] h-[24px] bg-white rounded-sm shadow-md flex items-center justify-center overflow-hidden px-1">
     <img 
@@ -47,10 +46,8 @@ const PciDssIcon = () => (
 const FullFooter = () => (
     <footer className="bg-[#003580] text-white pt-12 pb-8">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* TOP ROW: Brand Info & Trustpilot */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10 pb-10 border-b border-blue-800">
-            {/* Brand */}
             <div>
                 <div className="flex items-center gap-2 mb-4">
                    <Logo className="h-16 w-auto" variant="light" />
@@ -59,7 +56,6 @@ const FullFooter = () => (
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
                 </p>
             </div>
-            {/* Trustpilot */}
             <div className="bg-blue-900/50 p-4 rounded-lg border border-blue-700 w-full md:w-auto flex-shrink-0">
                 <p className="font-bold text-sm mb-2 text-blue-100">Rated on Trustpilot</p>
                 <div className="flex items-center gap-2">
@@ -151,116 +147,116 @@ const Layout: React.FC = () => {
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
+  const isSearchingPage = location.pathname === '/searching';
 
-  // Affiliate Tracking Logic
   React.useEffect(() => {
     const params = new URLSearchParams(location.search);
     const ref = params.get('ref');
     if (ref) {
-      // Store affiliate ID in session storage for the duration of the booking session
       sessionStorage.setItem('hogicar_affiliate_ref', ref);
     }
   }, [location]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-[#004099] border-b border-[#003580] shadow-md transition-all duration-300">
-        <div className="max-w-[1600px] mx-auto pl-0 pr-4 sm:pr-6 lg:pr-8">
-          <div className="flex justify-between h-20">
-            <div className="flex items-center">
-              <Link to="/" className="flex-shrink-0 flex items-center gap-2 group transition-transform hover:scale-105">
-                <Logo className="h-16 w-auto" variant="light" />
-              </Link>
-            </div>
+      {/* Navbar - Hidden on homepage */}
+      {!isHomePage && (
+        <nav className="sticky top-0 z-50 bg-[#004099] border-b border-[#003580] shadow-md transition-all duration-300">
+          <div className="max-w-[1600px] mx-auto pl-0 pr-4 sm:pr-6 lg:pr-8">
+            <div className="flex justify-between h-20">
+              <div className="flex items-center">
+                <Link to="/" className="flex-shrink-0 flex items-center gap-2 group transition-transform hover:scale-105">
+                  <Logo className="h-16 w-auto" variant="light" />
+                </Link>
+              </div>
 
-            <div className="hidden md:flex items-center space-x-6">
-               <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
+              <div className="hidden md:flex items-center space-x-6">
+                <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
                   <User className="w-4 h-4" />
                   Manage Booking
                 </Link>
-               {/* Currency Selector */}
-              <div className="relative">
-                <button 
-                  onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
-                  className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+                    className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span>{selectedCurrency}</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isCurrencyOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setIsCurrencyOpen(false)}></div>
+                      <div className="absolute right-0 w-72 mt-3 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-20 max-h-96 overflow-y-auto custom-scrollbar transform origin-top-right transition-all">
+                        <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
+                          <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
+                        </div>
+                        <div className="p-2">
+                          {currencies.map(currency => (
+                            <button 
+                              key={currency.code} 
+                              onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
+                              className={`block w-full text-left px-4 py-3 text-sm rounded-xl transition-colors ${selectedCurrency === currency.code ? 'text-blue-700 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span>{currency.code} - {currency.name}</span>
+                                {selectedCurrency === currency.code && <Check className="w-4 h-4 text-blue-600" />}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile menu button */}
+              <div className="-mr-2 flex items-center md:hidden">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="inline-flex items-center justify-center p-2 rounded-lg text-white hover:text-blue-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors"
                 >
-                  <Globe className="h-4 w-4" />
-                  <span>{selectedCurrency}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
+                  <span className="sr-only">Open main menu</span>
+                  {isMenuOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
                 </button>
-                {isCurrencyOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setIsCurrencyOpen(false)}></div>
-                    <div className="absolute right-0 w-72 mt-3 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-20 max-h-96 overflow-y-auto custom-scrollbar transform origin-top-right transition-all">
-                      <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
-                        <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
-                      </div>
-                      <div className="p-2">
-                        {currencies.map(currency => (
-                           <button 
-                             key={currency.code} 
-                             onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
-                             className={`block w-full text-left px-4 py-3 text-sm rounded-xl transition-colors ${selectedCurrency === currency.code ? 'text-blue-700 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
-                           >
-                             <div className="flex justify-between items-center">
-                               <span>{currency.code} - {currency.name}</span>
-                               {selectedCurrency === currency.code && <Check className="w-4 h-4 text-blue-600" />}
-                             </div>
-                           </button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
-
-            {/* Mobile menu button */}
-            <div className="-mr-2 flex items-center md:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-white hover:text-blue-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors"
-              >
-                <span className="sr-only">Open main menu</span>
-                {isMenuOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
-              </button>
-            </div>
           </div>
-        </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-[#003580] bg-[#004099] absolute w-full shadow-xl">
-            <div className="pt-2 pb-3 space-y-1">
-              <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
-                <User className="w-5 h-5" />
-                Manage Booking
-              </Link>
-            </div>
-            <div className="pt-4 pb-6 border-t border-[#003580]">
-               <div className="px-4">
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="md:hidden border-t border-[#003580] bg-[#004099] absolute w-full shadow-xl">
+              <div className="pt-2 pb-3 space-y-1">
+                <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
+                  <User className="w-5 h-5" />
+                  Manage Booking
+                </Link>
+              </div>
+              <div className="pt-4 pb-6 border-t border-[#003580]">
+                <div className="px-4">
                   <p className="text-xs font-extrabold text-blue-300 uppercase tracking-widest mb-3">Currency</p>
                   <div className="grid grid-cols-3 gap-2">
                     {currencies.slice(0,6).map(curr => (
-                       <button key={curr.code} onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} className={`text-sm font-bold p-3 rounded-xl border transition-colors ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}>
-                         {curr.code}
-                       </button>
+                      <button key={curr.code} onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} className={`text-sm font-bold p-3 rounded-xl border transition-colors ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}>
+                        {curr.code}
+                      </button>
                     ))}
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
-      </nav>
+          )}
+        </nav>
+      )}
 
       {/* Main Content */}
       <main className="flex-grow">
         <Outlet />
       </main>
 
-      {/* Footer - Only on home page */}
-      {isHomePage && <FullFooter />}
+      {/* Footer - Only on home page (or keep as before) */}
+      {isHomePage && !isSearchingPage && <FullFooter />}
     </div>
   );
 };
