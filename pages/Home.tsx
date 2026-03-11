@@ -7,7 +7,6 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { fetchLocations } from '../api';
 import { LocationSuggestion } from '../api';
-import { Logo } from '../components/Logo';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -75,28 +74,6 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* ===== PROFESSIONAL HEADER WITH LOGO ===== */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 md:h-20">
-            <Link to="/" className="flex items-center">
-              <Logo className="h-8 md:h-10 w-auto" />
-            </Link>
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link to="/" className="text-slate-700 hover:text-blue-600 font-medium transition px-3 py-2 text-sm lg:text-base">Home</Link>
-              <Link to="/cars" className="text-slate-700 hover:text-blue-600 font-medium transition px-3 py-2 text-sm lg:text-base">Cars</Link>
-              <Link to="/my-bookings" className="text-slate-700 hover:text-blue-600 font-medium transition px-3 py-2 text-sm lg:text-base">My Bookings</Link>
-              <Link to="/help" className="text-slate-700 hover:text-blue-600 font-medium transition px-3 py-2 text-sm lg:text-base">Help</Link>
-            </nav>
-            <button className="md:hidden p-2 rounded-md text-slate-700 hover:bg-slate-100">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* 1. HERO SECTION & SEARCH WIDGET */}
       <section className="relative bg-[#003580] pt-4 pb-8 lg:pt-10 lg:pb-16 overflow-hidden">
         {/* Dynamic Background Elements */}
@@ -116,7 +93,7 @@ const Home: React.FC = () => {
                     <span>Rated 4.9/5 by 10,000+ customers</span>
                 </div>
                 
-                {/* Title hidden on mobile to keep only logo + search */}
+                {/* Title hidden on mobile */}
                 <h1 className="hidden sm:block text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-2 lg:mb-4 leading-[1.1] mt-2 sm:mt-0">
                   {content.hero.title.split(' ').map((word, i) => 
                     word.toLowerCase() === 'perfect' || word.toLowerCase() === 'car' ? 
