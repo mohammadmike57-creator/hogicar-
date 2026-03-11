@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import './src/index.css';   // ✅ Add this line for Tailwind styles
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
