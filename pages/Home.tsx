@@ -74,7 +74,7 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* 1. HERO SECTION & SEARCH WIDGET */}
+      {/* 1. HERO SECTION & SEARCH WIDGET (NO EXTRA HEADER) */}
       <section className="relative bg-[#003580] pt-4 pb-8 lg:pt-10 lg:pb-16 overflow-hidden">
         {/* Dynamic Background Elements */}
         <div className="absolute inset-0 z-0">
