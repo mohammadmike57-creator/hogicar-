@@ -74,77 +74,41 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* 1. HERO SECTION & SEARCH WIDGET (NO EXTRA HEADER) */}
-      <section className="relative bg-[#003580] pt-4 pb-8 lg:pt-10 lg:pb-16 overflow-hidden">
-        {/* Dynamic Background Elements */}
-        <div className="absolute inset-0 z-0">
-            <img src={content.hero.backgroundImage} alt="Background" className="w-full h-full object-cover opacity-20 mix-blend-overlay" />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#001a40]/95"></div>
-        </div>
-        
-        {/* Decorative Shapes */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF9F1C] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto text-center mb-4 lg:mb-6">
-                <div className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-sm font-medium mb-4 shadow-lg">
-                    <Star className="w-4 h-4 text-[#FF9F1C] fill-[#FF9F1C]" />
-                    <span>Rated 4.9/5 by 10,000+ customers</span>
-                </div>
-                
-                {/* Title visible on all screens */}
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-2 lg:mb-4 leading-[1.1] mt-2 sm:mt-0">
-                  {content.hero.title.split(' ').map((word, i) => 
-                    word.toLowerCase() === 'perfect' || word.toLowerCase() === 'car' ? 
-                    <span key={i} className="text-[#FF9F1C]">{word} </span> : 
-                    <span key={i}>{word} </span>
-                  )}
-                </h1>
-                
-                <p className="hidden sm:block text-blue-100 text-base sm:text-lg font-medium mb-6 max-w-2xl mx-auto leading-relaxed">
-                  {content.hero.subtitle}
-                </p>
+      {/* === MOBILE‑SAFE HERO SECTION (NO ABSOLUTE ELEMENTS) === */}
+      <section className="bg-[#003580] pt-20 pb-14 text-center text-white">
+        <div className="max-w-4xl mx-auto px-5">
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-4 leading-tight">
+            Find the <span className="text-[#FF9F1C]">Perfect Car</span> for your trip
+          </h1>
+          <p className="text-blue-100 text-base mb-8">
+            Compare prices from 900+ car rental suppliers worldwide.
+          </p>
+          <div className="bg-white rounded-xl shadow-xl p-4">
+            <SearchWidget 
+              onSearch={handleSearch} 
+              showTitle={false} 
+              initialValues={{
+                pickup: pickupCode,
+                pickupName: pickupName,
+                dropoff: dropoffCode,
+                dropoffName: dropoffName
+              }}
+            />
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
+              <CheckCircle className="text-green-400 w-4 h-4" />
+              Free Cancellation
             </div>
-
-            <div className="relative z-20 max-w-5xl mx-auto">
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-[#FF9F1C] rounded-3xl blur-2xl opacity-20"></div>
-                
-                <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 sm:p-4">
-                    <SearchWidget 
-                        onSearch={handleSearch} 
-                        showTitle={false} 
-                        initialValues={{
-                        pickup: pickupCode,
-                        pickupName: pickupName,
-                        dropoff: dropoffCode,
-                        dropoffName: dropoffName
-                        }}
-                    />
-                </div>
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
+              <Shield className="text-blue-300 w-4 h-4" />
+              No Hidden Fees
             </div>
-            
-            {/* Quick Trust Badges */}
-            <div className="mt-6 lg:mt-8 flex flex-wrap justify-center gap-3 sm:gap-6 text-white text-xs sm:text-sm font-medium">
-                <div className="flex items-center gap-2 sm:gap-3 bg-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/10 backdrop-blur-sm">
-                    <div className="bg-green-500/20 p-1 sm:p-1.5 rounded-full">
-                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                    </div>
-                    <span>Free Cancellation</span>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-3 bg-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/10 backdrop-blur-sm">
-                    <div className="bg-blue-500/20 p-1 sm:p-1.5 rounded-full">
-                        <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-                    </div>
-                    <span>No Hidden Fees</span>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-3 bg-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/10 backdrop-blur-sm">
-                    <div className="bg-[#FF9F1C]/20 p-1 sm:p-1.5 rounded-full">
-                        <Award className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF9F1C]" />
-                    </div>
-                    <span>24/7 Support</span>
-                </div>
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
+              <Award className="text-orange-400 w-4 h-4" />
+              24/7 Support
             </div>
+          </div>
         </div>
       </section>
 
