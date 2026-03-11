@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
   const [pickupCode, setPickupCode] = React.useState<string>('');
-  const [dropoffCode, setDropoffCode] React.useState<string>('');
+  const [dropoffCode, setDropoffCode] = React.useState<string>(''); // ✅ fixed
   const [pickupName, setPickupName] = React.useState<string>('');
   const [dropoffName, setDropoffName] = React.useState<string>('');
   
@@ -81,7 +81,7 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#001a40]/95"></div>
         </div>
         
-        {/* Decorative shapes (optional) – keep them behind as well */}
+        {/* Decorative shapes – behind content */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob z-0"></div>
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF9F1C] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 z-0"></div>
 
