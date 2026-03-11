@@ -20,10 +20,19 @@ if (!rootElement) {
     );
   } catch (error) {
     rootElement.innerHTML = `
-      <div style="color: red; padding: 20px; font-family: sans-serif; white-space: pre-wrap;">
+      <div style="color: red; padding: 20px; font-family: sans-serif; white-space: pre-wrap; background: #fee;">
         <h2>React failed to start</h2>
         <pre>${error instanceof Error ? error.stack : String(error)}</pre>
       </div>
     `;
   }
+
+  // Also catch global errors
+  window.addEventListener('error', (event) => {
+    rootElement.innerHTML += `<div style="color: red; padding: 10px; border-top: 1px solid red;">Global error: ${event.message}</div>`;
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    rootElement.innerHTML += `<div style="color: red; padding: 10px; border-top: 1px solid red;">Unhandled promise: ${event.reason}</div>`;
+  });
 }
