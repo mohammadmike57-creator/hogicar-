@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
   const [pickupCode, setPickupCode] = React.useState<string>('');
-  const [dropoffCode, setDropoffCode] = React.useState<string>('');
+  const [dropoffCode, setDropoffCode] React.useState<string>('');
   const [pickupName, setPickupName] = React.useState<string>('');
   const [dropoffName, setDropoffName] = React.useState<string>('');
   
@@ -73,10 +73,21 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* SIMPLE HERO SECTION – NO ABSOLUTE DECORATIVE ELEMENTS */}
-      <section className="bg-[#003580] pt-12 pb-16 text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-6">
+      {/* HERO SECTION – with proper z‑index layering */}
+      <section className="relative bg-[#003580] pt-12 pb-16 overflow-hidden">
+        {/* Background image & gradient */}
+        <div className="absolute inset-0 z-0">
+          <img src={content.hero.backgroundImage} alt="" className="w-full h-full object-cover opacity-20 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#001a40]/95"></div>
+        </div>
+        
+        {/* Decorative shapes (optional) – keep them behind as well */}
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob z-0"></div>
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF9F1C] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 z-0"></div>
+
+        {/* Content – sits above background */}
+        <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center mb-6">
             <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-xs font-medium mb-4 shadow-lg">
               <Star className="w-3 h-3 text-[#FF9F1C] fill-[#FF9F1C]" />
               <span>Rated 4.9/5 by 10,000+ customers</span>
@@ -89,7 +100,7 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          {/* Search widget – clean, no absolute/inset wrappers */}
+          {/* Search widget – white card */}
           <div className="max-w-5xl mx-auto">
             <div className="bg-white rounded-xl shadow-xl p-4">
               <SearchWidget 
