@@ -102,12 +102,10 @@ const Home: React.FC = () => {
                     <span>Rated 4.9/5 by 10,000+ customers</span>
                 </div>
                 
-                <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold break-words text-white tracking-tight mb-2 lg:mb-3 leading-[1.1] mt-2 sm:mt-0">
-                  {content.hero.title.split(' ').map((word, i) => 
-                    word.toLowerCase() === 'perfect' || word.toLowerCase() === 'car' ? 
-                    <span key={i} className="text-[#FF9F1C]">{word} </span> : 
-                    <span key={i}>{word} </span>
-                  )}
+                {/* FIXED TITLE: no dynamic splitting */}
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-white text-center leading-tight">
+                  Search, Compare & Save on
+                  <span className="text-[#FF9F1C]"> Car Rentals</span>
                 </h1>
                 
                 <p className="hidden sm:block text-blue-100 text-sm sm:text-base font-medium mb-5 max-w-xl mx-auto leading-relaxed">
