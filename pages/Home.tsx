@@ -73,6 +73,7 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
+      {/* HERO SECTION – NO SEPARATE "CAR" ELEMENT */}
       <section className="relative bg-[#003580] pt-4 pb-8 lg:pt-10 lg:pb-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
             <img src={content.hero.backgroundImage} alt="Background" className="w-full h-full object-cover opacity-20 mix-blend-overlay" />
@@ -89,8 +90,9 @@ const Home: React.FC = () => {
                     <span>Rated 4.9/5 by 10,000+ customers</span>
                 </div>
                 
+                {/* FIXED TITLE – NO DYNAMIC SPLITTING */}
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-white text-center leading-tight">
-                  Search, Compare & Save on <span className="text-[#FF9F1C]">Car Rentals</span>
+                  Search, Compare & Save on Car Rentals
                 </h1>
                 
                 <p className="hidden sm:block text-blue-100 text-sm sm:text-base font-medium mb-5 max-w-xl mx-auto leading-relaxed">
@@ -138,6 +140,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* TRUSTED PARTNERS */}
       <section className="py-6 md:py-8 bg-white border-b border-slate-100 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 md:mb-6">
             <div className="text-center max-w-3xl mx-auto">
@@ -178,6 +181,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* WHY BOOK WITH HOGICAR? & STATS */}
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-10">
@@ -243,6 +247,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* GET YOUR PERFECT CAR */}
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-12">
@@ -279,6 +284,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* POPULAR DESTINATIONS */}
       <section className="py-8 lg:py-12 bg-slate-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
@@ -296,34 +302,33 @@ const Home: React.FC = () => {
            </div>
            
            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-               {destinations.slice(0, 5).map((dest, index) => {
-                   return (
-                       <Link 
-                           to={`/search?location=${encodeURIComponent(dest.name)}`} 
-                           key={dest.name} 
-                           className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white aspect-[4/3]">
-                           <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
-                           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-                           <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                               <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                   <h4 className="font-bold text-white tracking-tight text-lg">{dest.name}</h4>
-                                   <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
-                                       <MapPin className="w-3 h-3" /> {dest.country}
-                                   </p>
-                                   <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
-                                       <span className="text-slate-300 text-[10px]">From</span>
-                                       <span className="font-bold text-sm">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
-                                       <span className="text-slate-300 text-[10px]">/d</span>
-                                   </div>
+               {destinations.slice(0, 5).map((dest, index) => (
+                   <Link 
+                       to={`/search?location=${encodeURIComponent(dest.name)}`} 
+                       key={dest.name} 
+                       className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white aspect-[4/3]">
+                       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
+                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                       <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                           <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                               <h4 className="font-bold text-white tracking-tight text-lg">{dest.name}</h4>
+                               <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
+                                   <MapPin className="w-3 h-3" /> {dest.country}
+                               </p>
+                               <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
+                                   <span className="text-slate-300 text-[10px]">From</span>
+                                   <span className="font-bold text-sm">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
+                                   <span className="text-slate-300 text-[10px]">/d</span>
                                </div>
                            </div>
-                       </Link>
-                   );
-               })}
+                       </div>
+                   </Link>
+               ))}
            </div>
         </div>
       </section>
 
+      {/* NEWSLETTER CTA */}
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-slate-900 rounded-3xl overflow-hidden">
@@ -357,6 +362,7 @@ const Home: React.FC = () => {
         </div>
       </section>
       
+      {/* FAQS */}
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mx-auto text-center mb-6">
