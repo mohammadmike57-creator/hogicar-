@@ -13,7 +13,6 @@ const Home: React.FC = () => {
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
-  // --- SEARCH LOGIC ---
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
   const [pickupCode, setPickupCode] = React.useState<string>('');
   const [dropoffCode, setDropoffCode] = React.useState<string>('');
