@@ -13,7 +13,6 @@ const Home: React.FC = () => {
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
-  // --- SEARCH LOGIC ---
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
   const [pickupCode, setPickupCode] = React.useState<string>('');
   const [dropoffCode, setDropoffCode] = React.useState<string>('');
@@ -74,15 +73,12 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* 1. HERO SECTION & SEARCH WIDGET */}
       <section className="relative bg-[#003580] pt-4 pb-8 lg:pt-10 lg:pb-16 overflow-hidden">
-        {/* Dynamic Background Elements */}
         <div className="absolute inset-0 z-0">
             <img src={content.hero.backgroundImage} alt="Background" className="w-full h-full object-cover opacity-20 mix-blend-overlay" />
             <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#001a40]/95"></div>
         </div>
         
-        {/* Decorative Shapes */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF9F1C] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
@@ -93,7 +89,6 @@ const Home: React.FC = () => {
                     <span>Rated 4.9/5 by 10,000+ customers</span>
                 </div>
                 
-                {/* FIXED TITLE – SINGLE LINE, NO SEPARATE "CAR" ELEMENT */}
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-white text-center leading-tight">
                   Search, Compare & Save on <span className="text-[#FF9F1C]">Car Rentals</span>
                 </h1>
@@ -143,7 +138,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* TRUSTED PARTNERS */}
       <section className="py-6 md:py-8 bg-white border-b border-slate-100 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 md:mb-6">
             <div className="text-center max-w-3xl mx-auto">
@@ -152,8 +146,7 @@ const Home: React.FC = () => {
             </div>
         </div>
         
-        <style>
-            {`
+        <style>{`
                 @keyframes marquee {
                     0% { transform: translateX(0); }
                     100% { transform: translateX(-50%); }
@@ -166,8 +159,7 @@ const Home: React.FC = () => {
                 .animate-marquee:hover {
                     animation-play-state: paused;
                 }
-            `}
-        </style>
+            `}</style>
 
         <div className="relative w-full flex overflow-hidden py-4">
             <div className="absolute inset-y-0 left-0 w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
@@ -186,7 +178,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* WHY BOOK WITH HOGICAR? & STATS */}
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-10">
@@ -197,7 +188,6 @@ const Home: React.FC = () => {
                 </p>
             </div>
 
-            {/* Feature Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                 {content.features.slice(0, 4).map((feature, index) => {
                     const Icon = iconMap[feature.icon] || CheckCircle;
@@ -220,7 +210,6 @@ const Home: React.FC = () => {
                 })}
             </div>
 
-            {/* Integrated Stats & Network Section */}
             <div className="relative bg-slate-900 rounded-[1.5rem] shadow-xl overflow-hidden mt-6">
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none"></div>
@@ -254,7 +243,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* GET YOUR PERFECT CAR */}
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-12">
@@ -291,7 +279,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* POPULAR DESTINATIONS */}
       <section className="py-8 lg:py-12 bg-slate-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
@@ -310,37 +297,23 @@ const Home: React.FC = () => {
            
            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                {destinations.slice(0, 5).map((dest, index) => {
-                   let colSpan = "col-span-1";
-                   let aspectRatio = "aspect-[4/3]";
-
                    return (
                        <Link 
                            to={`/search?location=${encodeURIComponent(dest.name)}`} 
                            key={dest.name} 
-                           className={`group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white ${colSpan}`}>
-                           
-                           <div className={`w-full ${aspectRatio}`}>
-                               <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
-                               
-                               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-                               
-                               <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                                   <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                       <div className="flex items-center justify-between mb-1">
-                                           <h4 className="font-bold text-white tracking-tight text-lg">
-                                               {dest.name}
-                                           </h4>
-                                       </div>
-                                       
-                                       <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
-                                           <MapPin className="w-3 h-3" /> {dest.country}
-                                       </p>
-                                       
-                                       <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
-                                           <span className="text-slate-300 text-[10px]">From</span>
-                                           <span className="font-bold text-sm">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
-                                           <span className="text-slate-300 text-[10px]">/d</span>
-                                       </div>
+                           className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white aspect-[4/3]">
+                           <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
+                           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                           <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                               <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                   <h4 className="font-bold text-white tracking-tight text-lg">{dest.name}</h4>
+                                   <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
+                                       <MapPin className="w-3 h-3" /> {dest.country}
+                                   </p>
+                                   <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
+                                       <span className="text-slate-300 text-[10px]">From</span>
+                                       <span className="font-bold text-sm">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
+                                       <span className="text-slate-300 text-[10px]">/d</span>
                                    </div>
                                </div>
                            </div>
@@ -351,7 +324,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* NEWSLETTER CTA */}
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-slate-900 rounded-3xl overflow-hidden">
@@ -385,7 +357,6 @@ const Home: React.FC = () => {
         </div>
       </section>
       
-      {/* FAQS */}
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mx-auto text-center mb-6">
