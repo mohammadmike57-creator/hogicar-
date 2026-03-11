@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Safe area support for iOS */
+html, body {
+  padding: 0;
+  margin: 0;
+  background: #fff;
+}
+
+/* Apply safe-area inset to any element with .safe-top class */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}

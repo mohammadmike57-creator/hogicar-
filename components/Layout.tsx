@@ -53,7 +53,7 @@ const FullFooter = () => (
             {/* Brand */}
             <div>
                 <div className="flex items-center gap-2 mb-4">
-                   <Logo className="h-16 w-auto" variant="light" />
+                   <Logo className="h-14 w-auto md:h-16 w-auto" variant="light" />
                 </div>
                 <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
@@ -172,7 +172,7 @@ const Layout: React.FC = () => {
           <div className="flex justify-between h-20">
             <div className="flex items-center">
               <Link to="/" className="flex-shrink-0 flex items-center gap-2 group transition-transform hover:scale-105">
-                <Logo className="h-16 w-auto" variant="light" />
+                <Logo className="h-14 w-auto md:h-16 w-auto" variant="light" />
               </Link>
             </div>
 
