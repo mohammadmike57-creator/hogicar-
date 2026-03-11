@@ -1,17 +1,20 @@
-
 import * as React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Car, Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check } from 'lucide-react';
+import { Car, Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check, Lock } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
 
 // --- SVG Payment Icons ---
 
 const VisaIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 24" width="38" height="24" className="rounded-sm shadow-md bg-white">
-    <rect width="38" height="24" rx="3" fill="white"/>
-    <path d="M16.66 16.24H14.1l1.62-10.2h2.56l-1.62 10.2zm10.95-9.96c-.97-.27-2.54-.52-4.05-.52-4.45 0-7.58 2.37-7.6 5.77-.02 2.5 2.24 3.9 3.95 4.74 1.75.86 2.34 1.42 2.34 2.2-.02 1.18-1.42 1.74-2.73 1.74-1.54 0-2.37-.23-3.63-.8l-.52-.24-.73 4.54c.94.43 2.68.8 4.48.82 4.7 0 7.78-2.3 7.8-5.9.02-1.97-1.17-3.46-3.77-4.7-1.58-.8-2.54-1.33-2.54-2.15.02-1.06 1.18-1.64 2.62-1.64 1.2-.02 2.1.25 2.84.57l.34.16.73-4.54zm8.08 9.96h-2.22c-.67 0-1.18-.2-1.46-.87l-4.15-9.32h2.7l.53 1.5h3.3l.3-1.5h2.34l-1.35 10.2zm-2.72-2.75l-1.28-3.5-1.03 3.5h2.3zm-22.25-7.2l-2.4 8.54-.6-3.1c-.2-.8-.78-1.3-1.66-1.56L1.5 8.9v1.24c.7.16 1.5.44 1.96.78.3.22.44.5.53.9l1.77 8.46h2.7l4.06-10.2H8.72z" fill="#1A1F71"/>
-  </svg>
+  <div className="w-[38px] h-[24px] bg-white rounded-sm shadow-md flex items-center justify-center overflow-hidden px-1">
+    <img 
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Former_Visa_%28company%29_logo.svg/1024px-Former_Visa_%28company%29_logo.svg.png" 
+      alt="Visa" 
+      className="w-full h-auto object-contain"
+      referrerPolicy="no-referrer"
+    />
+  </div>
 );
 
 const MastercardIcon = () => (
@@ -40,7 +43,6 @@ const PciDssIcon = () => (
         </div>
     </div>
 );
-
 
 const FullFooter = () => (
     <footer className="bg-[#003580] text-white pt-12 pb-8">
@@ -75,32 +77,41 @@ const FullFooter = () => (
         </div>
 
         {/* MIDDLE ROW: Link Groups */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Company</h3>
             <ul className="space-y-3 text-sm text-white">
                <li><Link to="/about" className="hover:text-blue-200 transition-colors">About Us</Link></li>
-               <li><Link to="/press" className="hover:text-blue-200 transition-colors">Press</Link></li>
-               <li><a href="#" className="hover:text-blue-200 transition-colors">Blog</a></li>
+               <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
+               <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Support</h3>
             <ul className="space-y-3 text-sm text-white">
               <li><Link to="/help" className="hover:text-blue-200 transition-colors">Help Center</Link></li>
+              <li><Link to="/contact" className="hover:text-blue-200 transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Legal</h3>
+            <ul className="space-y-3 text-sm text-white">
               <li><Link to="/terms" className="hover:text-blue-200 transition-colors">Terms of Service</Link></li>
               <li><Link to="/privacy" className="hover:text-blue-200 transition-colors">Privacy Policy</Link></li>
               <li><Link to="/cookies" className="hover:text-blue-200 transition-colors">Cookie Policy</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Partners</h3>
-            <ul className="space-y-3 text-sm text-white">
-              <li><Link to="/supplier-login" className="hover:text-blue-200 transition-colors">Supplier Login</Link></li>
-              <li><Link to="/admin-login" className="hover:text-blue-200 transition-colors">Admin Login</Link></li>
-              <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
-              <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
-            </ul>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Security</h3>
+            <div className="flex items-center gap-3 bg-blue-900/40 p-3 rounded-lg border border-blue-800/50 w-max">
+                <div className="bg-green-500/20 p-2 rounded-full">
+                    <Lock className="w-5 h-5 text-green-400" />
+                </div>
+                <div>
+                    <p className="text-sm font-bold text-white leading-tight">SSL Secure</p>
+                    <p className="text-[10px] text-blue-200">256-bit Encryption</p>
+                </div>
+            </div>
           </div>
         </div>
 
@@ -133,27 +144,13 @@ const FullFooter = () => (
     </footer>
 );
 
-const SimpleFooter = () => (
-    <footer className="bg-white border-t-4 border-[#003580]">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-                <Logo className="h-12 w-auto" variant="dark" />
-            </Link>
-            <p className="text-slate-500 text-xs">&copy; 2024 Hogicar. All rights reserved.</p>
-        </div>
-    </footer>
-);
-
-
 const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = React.useState(false);
   const { selectedCurrency, setSelectedCurrency, currencies } = useCurrency();
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path;
   const isHomePage = location.pathname === '/';
-  const isSearchingPage = location.pathname === '/searching';
 
   // Affiliate Tracking Logic
   React.useEffect(() => {
@@ -262,7 +259,8 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {isSearchingPage ? null : (isHomePage ? <FullFooter /> : <SimpleFooter />)}
+      {/* Footer - Only on home page */}
+      {isHomePage && <FullFooter />}
     </div>
   );
 };

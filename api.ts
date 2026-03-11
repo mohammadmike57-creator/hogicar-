@@ -10,6 +10,7 @@ export interface LocationSuggestion {
   name: string;
   municipality: string;
   countryCode: string;
+  type: 'airport' | 'city';  // For icon selection
 }
 
 export interface Booking {
@@ -46,8 +47,12 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
   if (!query || query.length < 2) return [];
   try {
     const response = await axios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
-    // Map the backend response to { value, label } format including airport name
+    // Map the backend response to { value, label, type } format
     return response.data.map((loc: any) => {
+      // Determine type based on airport name
+      const nameLower = (loc.name || '').toLowerCase();
+      const isAirport = nameLower.includes('airport') || nameLower.includes('heliport') || nameLower.includes('airstrip');
+      
       let label = loc.name;
       if (loc.municipality) {
         label += `, ${loc.municipality}`;
@@ -63,6 +68,7 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
         name: loc.name,
         municipality: loc.municipality || '',
         countryCode: loc.isoCountry || '',
+        type: isAirport ? 'airport' : 'city',
       };
     });
   } catch (error) {
@@ -75,6 +81,9 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/public/locations`);
     return response.data.map((loc: any) => {
+      const nameLower = (loc.name || '').toLowerCase();
+      const isAirport = nameLower.includes('airport') || nameLower.includes('heliport') || nameLower.includes('airstrip');
+      
       let label = loc.name;
       if (loc.municipality) {
         label += `, ${loc.municipality}`;
@@ -90,6 +99,7 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
         name: loc.name,
         municipality: loc.municipality || '',
         countryCode: loc.isoCountry || '',
+        type: isAirport ? 'airport' : 'city',
       };
     });
   } catch (error) {

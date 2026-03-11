@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogiCar · Rental Voucher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef2f7;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        @keyframes glow {
+            0% {
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)) drop-shadow(0 0 2px rgba(255,255,255,0.2));
+            }
+            50% {
+                filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(245,124,0,0.6));
+            }
+            100% {
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)) drop-shadow(0 0 2px rgba(255,255,255,0.2));
+            }
+        }
+
+        .voucher {
+            max-width: 1000px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.3), 0 0 0 1px rgba(18, 60, 105, 0.1) inset;
+            overflow: hidden;
+        }
+
+        /* header – rich navy for perfect logo contrast */
+        .voucher-header {
+            background: #2C4A6E;
+            padding: 24px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 4px solid #F57C00;
+        }
+
+        .logo svg {
+            width: 200px;
+            height: auto;
+            display: block;
+            animation: glow 3s infinite ease-in-out;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.08);
+            padding: 6px 20px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .header-title span {
+            color: #F57C00;
+            font-weight: 700;
+        }
+
+        /* content */
+        .voucher-body {
+            padding: 40px 45px 30px;
+        }
+
+        /* reference badge – more professional */
+        .ref-badge {
+            background: linear-gradient(135deg, #F57C00, #FF9F4D);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 80px;
+            font-size: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 20px -6px rgba(245,124,0,0.4);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .ref-badge svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .ref-badge strong {
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section {
+            background: #f9fbfd;
+            border-radius: 20px;
+            padding: 20px 24px;
+            border: 1px solid #e0e7f0;
+        }
+
+        .section-title {
+            color: #123C69;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title .accent {
+            width: 5px;
+            height: 22px;
+            background: #F57C00;
+            border-radius: 4px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px 12px;
+        }
+
+        .detail-label {
+            color: #5f7397;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #0a1a2e;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* car details – professional grid */
+        .car-details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 15px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 10px;
+            border: 1px solid rgba(245,124,0,0.15);
+        }
+
+        .car-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-detail-label {
+            font-size: 12px;
+            color: #7f8fa6;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .car-detail-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #123C69;
+            margin-top: 4px;
+        }
+
+        .car-image {
+            width: 100%;
+            max-height: 160px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e7f0;
+        }
+
+        .similar {
+            font-size: 13px;
+            color: #F57C00;
+            font-style: italic;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* rental period with supplier logo */
+        .rental-period {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .supplier-info-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 1px solid #e0e7f0;
+        }
+
+        .supplier-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #F57C00;
+        }
+
+        .supplier-details {
+            flex: 1;
+        }
+
+        .supplier-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #123C69;
+        }
+
+        .supplier-extra {
+            font-size: 13px;
+            color: #F57C00;
+            font-weight: 500;
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #f2f6fd;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #d0dbe9;
+            margin-top: 8px;
+        }
+
+        .price-table tr {
+            border-bottom: 1px solid #dbe5f0;
+        }
+
+        .price-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .price-table td {
+            padding: 14px 20px;
+            font-size: 15px;
+        }
+
+        .price-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .price-table .total-row {
+            background: #e2eaf8;
+            font-weight: 800;
+            color: #123C69;
+            font-size: 17px;
+        }
+
+        .pay-now td {
+            color: #0f7b5a;
+        }
+
+        .pay-desk td {
+            color: #F57C00;
+            font-weight: 700;
+            background: rgba(245,124,0,0.05);
+        }
+
+        /* footer – email left, copyright right, fully visible */
+        .voucher-footer {
+            background: #f2f5fa;
+            padding: 24px 50px 24px 45px;
+            border-top: 2px solid rgba(18,60,105,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .support-email {
+            color: #F57C00;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px solid #F57C0066;
+            padding-bottom: 2px;
+        }
+
+        .support-email:hover {
+            border-bottom: 1px solid;
+        }
+
+        .copyright {
+            color: #7f8fa6;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+
+        .fine-print {
+            font-size: 12px;
+            color: #8698b3;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 18px;
+            margin-top: 25px;
+            line-height: 1.6;
+        }
+
+        .fine-print strong {
+            color: #F57C00;
+        }
+    </style>
+</head>
+<body>
+    <div class="voucher">
+        <!-- header with animated logo -->
+        <div class="voucher-header">
+            <div class="logo">
+                <svg width="200" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="55" fill="#123C69"/>
+                    <path d="M60 105 Q100 65 140 95" stroke="#F57C00" stroke-width="16" fill="none" stroke-linecap="round"/>
+                    <line x1="75" y1="120" x2="125" y2="120" stroke="#F57C00" stroke-width="10" stroke-linecap="round"/>
+                    <text x="190" y="125" font-family="Montserrat, Arial, sans-serif" font-size="140" font-weight="700" letter-spacing="4" fill="white">
+                        HOGI<tspan fill="#F57C00">CAR</tspan>
+                    </text>
+                </svg>
+            </div>
+            <div class="header-title">
+                RENTAL <span>VOUCHER</span>
+            </div>
+        </div>
+
+        <div class="voucher-body">
+            <!-- reference badge -->
+            <div class="ref-badge">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+                </svg>
+                Booking reference <strong>H23446</strong>
+            </div>
+
+            <!-- two‑column sections -->
+            <div class="grid-2">
+                <!-- driver & flight -->
+                <div class="section">
+                    <div class="section-title"><span class="accent"></span> DRIVER & FLIGHT</div>
+                    <div class="detail-row">
+                        <span class="detail-label">Full name</span><span class="detail-value">John Michael Doe</span>
+                        <span class="detail-label">Email</span><span class="detail-value">john.doe@example.com</span>
+                        <span class="detail-label">Phone</span><span class="detail-value">+1 (555) 123‑4567</span>
+                        <span class="detail-label">Flight</span><span class="detail-value">AA 123 · 5 MAR</span>
+                    </div>
+                </div>
+
+                <!-- vehicle summary -->
+                <div class="section">
+                    <div class="section-title"><span class="accent"></span> VEHICLE</div>
+                    <div class="detail-row">
+                        <span class="detail-label">Make / Model</span><span class="detail-value">Nissan Kicks</span>
+                        <span class="detail-label">Category</span><span class="detail-value">SUV (intermediate)</span>
+                        <span class="detail-label">Transmission</span><span class="detail-value">Automatic</span>
+                        <span class="detail-label">Fuel policy</span><span class="detail-value">Full to full</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- detailed car specs + rental period (with supplier) in two columns -->
+            <div class="grid-2">
+                <!-- car details extended with image -->
+                <div class="section">
+                    <div class="section-title"><span class="accent"></span> CAR DETAILS</div>
+                    <!-- car image -->
+                    <img class="car-image" src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format" alt="Nissan Kicks">
+                    <!-- specs grid -->
+                    <div class="car-details-grid">
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">SIPP code</span>
+                            <span class="car-detail-value">CFAR</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Make</span>
+                            <span class="car-detail-value">Nissan</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Model</span>
+                            <span class="car-detail-value">Kicks</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Year</span>
+                            <span class="car-detail-value">2023</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Passengers</span>
+                            <span class="car-detail-value">5</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Bags</span>
+                            <span class="car-detail-value">2</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Doors</span>
+                            <span class="car-detail-value">5</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">A/C</span>
+                            <span class="car-detail-value">Yes</span>
+                        </div>
+                        <div class="car-detail-item">
+                            <span class="car-detail-label">Unlimited miles</span>
+                            <span class="car-detail-value">Yes</span>
+                        </div>
+                    </div>
+                    <div class="similar">or similar vehicle</div>
+                </div>
+
+                <!-- rental period with supplier logo -->
+                <div class="section">
+                    <div class="section-title"><span class="accent"></span> RENTAL PERIOD</div>
+                    <div class="rental-period">
+                        <div class="detail-row">
+                            <span class="detail-label">Pick‑up</span><span class="detail-value">2026‑03‑01 · 10:00</span>
+                            <span class="detail-label">Drop‑off</span><span class="detail-value">2026‑03‑05 · 10:00</span>
+                            <span class="detail-label">Location</span><span class="detail-value">Enfidha–Hammamet (NBE)</span>
+                            <span class="detail-label">Drop‑off</span><span class="detail-value">Same as pick‑up</span>
+                        </div>
+
+                        <!-- supplier logo and details – professional card -->
+                        <div class="supplier-info-card">
+                            <img class="supplier-logo" src="https://via.placeholder.com/48x48/F57C00/FFFFFF?text=S" alt="Supplier logo">
+                            <div class="supplier-details">
+                                <div class="supplier-name">Test Supplier</div>
+                                <div class="supplier-extra">Premium partner · 4.8 ★</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- price breakdown – commission removed -->
+            <div class="section" style="margin-top: 20px;">
+                <div class="section-title"><span class="accent"></span> PRICE BREAKDOWN</div>
+                <table class="price-table">
+                    <tr><td>Net rate (4 days)</td><td>$200.00</td></tr>
+                    <tr><td>Airport surcharge</td><td>included</td></tr>
+                    <tr class="total-row"><td><strong>Total</strong></td><td><strong>$220.00</strong></td></tr>
+                    <tr class="pay-now"><td>Paid</td><td>$20.00</td></tr>
+                    <tr class="pay-desk"><td>Pay at desk</td><td>$200.00</td></tr>
+                </table>
+            </div>
+
+            <!-- fine print -->
+            <div class="fine-print">
+                <strong>✦ INCLUSIONS</strong>  CDW, TP, airport surcharges, unlimited mileage.<br>
+                <strong>✦ REQUIREMENTS</strong>  Valid driver’s license, credit card, passport.
+            </div>
+        </div>
+
+        <!-- footer – with full copyright text -->
+        <div class="voucher-footer">
+            <a href="mailto:support@hogicar.com" class="support-email">support@hogicar.com</a>
+            <span class="copyright">© 2024 Hogicar. All rights reserved.</span>
+        </div>
+    </div>
+</body>
+</html>

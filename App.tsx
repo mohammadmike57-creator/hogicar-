@@ -11,6 +11,7 @@ import BookingPage from './pages/Booking';
 import Confirmation from './pages/Confirmation';
 import AdminLogin from './pages/AdminLogin';
 import SupplierLogin from './pages/SupplierLogin';
+import Contact from './pages/Contact';
 import DynamicPage from './pages/DynamicPage';
 import AffiliateProgram from './pages/AffiliateProgram';
 import BecomeSupplier from './pages/BecomeSupplier';
@@ -23,13 +24,7 @@ import LeaveReview from './pages/LeaveReview';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import { AdminDashboard } from './admin/pages/AdminDashboard';
 
-// Supplier confirm/decline pages
-import SupplierConfirm from './pages/SupplierConfirm';
-import SupplierDecline from './pages/SupplierDecline';
-import SupplierConfirmSuccess from './pages/SupplierConfirmSuccess';
-import SupplierDeclineSuccess from './pages/SupplierDeclineSuccess';
-
-// --- SUBDOMAIN REDIRECT LOGIC (keep if you use subdomains) ---
+// --- SUBDOMAIN REDIRECT LOGIC ---
 const host = window.location.hostname.toLowerCase();
 const hash = window.location.hash;
 const search = window.location.search || "";
@@ -57,12 +52,6 @@ const App: React.FC = () => {
         <Route path="/supplier" element={<SupplierDashboard />} />
         <Route path="/supplier-confirmation/:bookingId" element={<SupplierConfirmation />} />
 
-        {/* Supplier confirm/decline pages */}
-        <Route path="/supplier-confirm" element={<SupplierConfirm />} />
-        <Route path="/supplier-decline" element={<SupplierDecline />} />
-        <Route path="/supplier-confirm-success" element={<SupplierConfirmSuccess />} />
-        <Route path="/supplier-decline-success" element={<SupplierDeclineSuccess />} />
-
         {/* Customer-facing application with main Layout */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -76,11 +65,9 @@ const App: React.FC = () => {
           <Route path="/affiliate-program" element={<AffiliateProgram />} />
           <Route path="/become-supplier" element={<BecomeSupplier />} />
           <Route path="/careers" element={<Careers />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/:slug" element={<DynamicPage />} />
         </Route>
-
-        {/* Catch‑all 404 route */}
-        <Route path="*" element={<div className="min-h-screen flex items-center justify-center">404 – Page Not Found</div>} />
       </Routes>
     </CurrencyProvider>
   );

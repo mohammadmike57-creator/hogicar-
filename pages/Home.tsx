@@ -95,14 +95,14 @@ const Home: React.FC = () => {
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF9F1C] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto text-center mb-4 lg:mb-6">
-                <div className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-sm font-medium mb-4 shadow-lg">
-                    <Star className="w-4 h-4 text-[#FF9F1C] fill-[#FF9F1C]" />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto text-center mb-4 lg:mb-6">
+                <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-xs font-medium mb-3 shadow-lg">
+                    <Star className="w-3 h-3 text-[#FF9F1C] fill-[#FF9F1C]" />
                     <span>Rated 4.9/5 by 10,000+ customers</span>
                 </div>
                 
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-2 lg:mb-4 leading-[1.1] mt-2 sm:mt-0">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-2 lg:mb-3 leading-[1.1] mt-2 sm:mt-0">
                   {content.hero.title.split(' ').map((word, i) => 
                     word.toLowerCase() === 'perfect' || word.toLowerCase() === 'car' ? 
                     <span key={i} className="text-[#FF9F1C]">{word} </span> : 
@@ -110,12 +110,12 @@ const Home: React.FC = () => {
                   )}
                 </h1>
                 
-                <p className="hidden sm:block text-blue-100 text-base sm:text-lg font-medium mb-6 max-w-2xl mx-auto leading-relaxed">
+                <p className="hidden sm:block text-blue-100 text-sm sm:text-base font-medium mb-5 max-w-xl mx-auto leading-relaxed">
                   {content.hero.subtitle}
                 </p>
             </div>
 
-            <div className="relative z-20 max-w-5xl mx-auto">
+            <div className="relative z-20 max-w-4xl mx-auto">
                 {/* Decorative glow behind widget */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-[#FF9F1C] rounded-3xl blur-2xl opacity-20"></div>
                 
@@ -158,8 +158,8 @@ const Home: React.FC = () => {
       </section>
 
       {/* TRUSTED PARTNERS */}
-      <section className="py-8 md:py-12 bg-white border-b border-slate-100 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 md:mb-8">
+      <section className="py-6 md:py-8 bg-white border-b border-slate-100 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 md:mb-6">
             <div className="text-center max-w-3xl mx-auto">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Trusted by the world's leading car rental suppliers</h2>
                 <p className="text-base text-slate-500 mt-2">We partner with top brands to bring you the best vehicles at the best prices, ensuring quality and reliability wherever you go.</p>
@@ -201,8 +201,8 @@ const Home: React.FC = () => {
       </section>
 
       {/* WHY BOOK WITH HOGICAR? & STATS - NEW PROFESSIONAL DESIGN */}
-      <section className="py-12 lg:py-16 bg-slate-50/70">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-8 lg:py-12 bg-slate-50/70">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-10">
                 <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">The Hogicar Advantage</h2>
                 <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
@@ -213,11 +213,18 @@ const Home: React.FC = () => {
 
             {/* Feature Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                {content.features.slice(0, 4).map((feature) => {
+                {content.features.slice(0, 4).map((feature, index) => {
                     const Icon = iconMap[feature.icon] || CheckCircle;
+                    const colors = [
+                        'bg-blue-100 text-blue-600',
+                        'bg-green-100 text-green-600',
+                        'bg-yellow-100 text-yellow-600',
+                        'bg-purple-100 text-purple-600'
+                    ];
+                    const colorClass = colors[index % colors.length];
                     return (
                         <div key={feature.id} className="text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100/80">
-                            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl mb-4">
+                            <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${colorClass}`}>
                                 <Icon className="w-6 h-6" />
                             </div>
                             <h4 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h4>
@@ -235,26 +242,26 @@ const Home: React.FC = () => {
                 
                 <div className="relative p-6 md:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-8">
                     <div className="lg:w-1/2 text-center lg:text-left z-10">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-blue-300 text-[10px] font-semibold tracking-wide uppercase mb-3 backdrop-blur-md">
-                            <Globe className="w-3 h-3" /> Global Reach
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/10 border border-white/10 text-blue-300 text-[9px] font-semibold tracking-wide uppercase mb-2 backdrop-blur-md">
+                            <Globe className="w-2.5 h-2.5" /> Global Reach
                         </div>
-                        <h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3 leading-tight">Join our global network</h3>
-                        <p className="text-slate-300 text-sm md:text-base max-w-lg leading-relaxed mb-5 mx-auto lg:mx-0">
+                        <h3 className="text-lg md:text-xl lg:text-2xl font-extrabold text-white tracking-tight mb-2 leading-tight">Join our global network</h3>
+                        <p className="text-slate-300 text-xs max-w-sm leading-relaxed mb-4 mx-auto lg:mx-0">
                             We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.
                         </p>
-                        <Link to="/supplier-login" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] text-sm">
-                            Become a Partner <ArrowRight className="w-4 h-4" />
+                        <Link to="/supplier-login" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] text-[10px]">
+                            Become a Partner <ArrowRight className="w-3 h-3" />
                         </Link>
                     </div>
                     
-                    <div className="lg:w-1/2 flex flex-col sm:flex-row justify-center lg:justify-end gap-4 sm:gap-6 w-full z-10">
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5 text-center flex-1 transform hover:-translate-y-1 transition-transform duration-300">
-                            <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight mb-1">900<span className="text-blue-500">+</span></div>
-                            <div className="text-[10px] font-bold text-blue-300 uppercase tracking-widest">Trusted Suppliers</div>
+                    <div className="lg:w-1/2 flex flex-col sm:flex-row justify-center lg:justify-end gap-2 sm:gap-3 w-full z-10">
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-3 text-center flex-1 transform hover:-translate-y-1 transition-transform duration-300">
+                            <div className="text-xl md:text-2xl lg:text-3xl font-black text-white tracking-tight mb-1">900<span className="text-blue-500">+</span></div>
+                            <div className="text-[8px] font-bold text-blue-300 uppercase tracking-widest">Trusted Suppliers</div>
                         </div>
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5 text-center flex-1 transform hover:-translate-y-1 transition-transform duration-300">
-                            <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight mb-1">60k<span className="text-blue-500">+</span></div>
-                            <div className="text-[10px] font-bold text-blue-300 uppercase tracking-widest">Global Locations</div>
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-3 text-center flex-1 transform hover:-translate-y-1 transition-transform duration-300">
+                            <div className="text-xl md:text-2xl lg:text-3xl font-black text-white tracking-tight mb-1">60k<span className="text-blue-500">+</span></div>
+                            <div className="text-[8px] font-bold text-blue-300 uppercase tracking-widest">Global Locations</div>
                         </div>
                     </div>
                 </div>
@@ -263,30 +270,36 @@ const Home: React.FC = () => {
       </section>
 
       {/* GET YOUR PERFECT CAR - NEW PROFESSIONAL DESIGN */}
-      <section className="py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-8 lg:py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-12">
                 <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">Simple Process</h2>
                 <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
                 <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
             </div>
 
-            <div className="max-w-4xl mx-auto space-y-12">
+            <div className="max-w-4xl mx-auto space-y-6">
                 {content.howItWorks.steps.map((step, index) => {
                     const Icon = iconMap[step.icon] || CheckCircle;
+                    const colors = [
+                        'from-blue-500 to-cyan-400',
+                        'from-purple-500 to-pink-400',
+                        'from-emerald-500 to-teal-400'
+                    ];
+                    const colorClass = colors[index % colors.length];
                     return (
-                        <div key={step.id} className="relative flex items-center gap-6 sm:gap-8">
+                        <div key={step.id} className={`relative flex items-center gap-6 sm:gap-8 p-6 rounded-2xl bg-gradient-to-r ${colorClass} text-white shadow-lg transform hover:-translate-y-1 transition-transform duration-300`}>
                             {/* Number and Icon */}
                             <div className="flex-shrink-0 relative">
-                                <span className="font-sans text-7xl font-black text-slate-100/80 -z-10">{`0${index + 1}`}</span>
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg">
+                                <span className="font-sans text-7xl font-black text-white/20 -z-10">{`0${index + 1}`}</span>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-md text-white rounded-full shadow-inner border border-white/30">
                                     <Icon className="w-6 h-6" />
                                 </div>
                             </div>
                             {/* Text Content */}
                             <div>
-                                <h4 className="text-xl font-bold text-slate-900 mb-2">{step.title}</h4>
-                                <p className="text-slate-600 leading-relaxed text-sm">{step.description}</p>
+                                <h4 className="text-xl font-bold text-white mb-2">{step.title}</h4>
+                                <p className="text-white/90 leading-relaxed text-sm">{step.description}</p>
                             </div>
                         </div>
                     );
@@ -296,9 +309,9 @@ const Home: React.FC = () => {
       </section>
 
       {/* POPULAR DESTINATIONS - PRO DESIGN */}
-      <section className="py-16 lg:py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+      <section className="py-8 lg:py-12 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                <div className="max-w-2xl">
                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold tracking-widest uppercase mb-3">
                        <MapPin className="w-3 h-3" /> Top Destinations
@@ -312,28 +325,17 @@ const Home: React.FC = () => {
                </Link>
            </div>
            
-           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6">
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                {destinations.slice(0, 5).map((dest, index) => {
-                   // Create a dynamic bento-box style layout
-                   let colSpan = "md:col-span-6 lg:col-span-4";
-                   let aspectRatio = "aspect-[4/3] lg:aspect-[3/2]";
-                   
-                   if (index === 0) {
-                       colSpan = "md:col-span-12 lg:col-span-8";
-                       aspectRatio = "aspect-[16/9] lg:aspect-[21/9]";
-                   } else if (index === 1 || index === 2) {
-                       colSpan = "md:col-span-6 lg:col-span-4";
-                       aspectRatio = "aspect-[4/3] lg:aspect-[4/3]";
-                   } else if (index === 3 || index === 4) {
-                       colSpan = "md:col-span-6 lg:col-span-6";
-                       aspectRatio = "aspect-[4/3] lg:aspect-[16/9]";
-                   }
+                   // Make all cards the same small size
+                   let colSpan = "col-span-1";
+                   let aspectRatio = "aspect-[4/3]";
 
                    return (
                        <Link 
                            to={`/search?location=${encodeURIComponent(dest.name)}`} 
                            key={dest.name} 
-                           className={`group relative rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 block text-white ${colSpan}`}>
+                           className={`group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white ${colSpan}`}>
                            
                            <div className={`w-full ${aspectRatio}`}>
                                <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
@@ -341,25 +343,22 @@ const Home: React.FC = () => {
                                {/* Enhanced gradient overlay */}
                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
                                
-                               <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
+                               <div className="absolute inset-0 p-4 flex flex-col justify-end">
                                    <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                       <div className="flex items-center justify-between mb-2">
-                                           <h4 className={`font-extrabold text-white tracking-tight ${index === 0 ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>
+                                       <div className="flex items-center justify-between mb-1">
+                                           <h4 className="font-bold text-white tracking-tight text-lg">
                                                {dest.name}
                                            </h4>
-                                           <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                                               <ArrowRight className="w-5 h-5 text-white" />
-                                           </div>
                                        </div>
                                        
-                                       <p className="text-blue-200 text-sm md:text-base mb-4 flex items-center gap-1.5 font-medium">
-                                           <MapPin className="w-4 h-4" /> {dest.country}
+                                       <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
+                                           <MapPin className="w-3 h-3" /> {dest.country}
                                        </p>
                                        
-                                       <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl px-4 py-2 rounded-xl text-white font-medium border border-white/20 shadow-inner">
-                                           <span className="text-slate-300 text-xs">Starting from</span>
-                                           <span className="font-bold text-lg">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
-                                           <span className="text-slate-300 text-xs">/ day</span>
+                                       <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
+                                           <span className="text-slate-300 text-[10px]">From</span>
+                                           <span className="font-bold text-sm">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
+                                           <span className="text-slate-300 text-[10px]">/d</span>
                                        </div>
                                    </div>
                                </div>
@@ -372,22 +371,22 @@ const Home: React.FC = () => {
       </section>
 
       {/* NEWSLETTER CTA - NEW PROFESSIONAL DESIGN */}
-      <section className="py-24 lg:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-8 lg:py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-slate-900 rounded-3xl overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-2">
-                    <div className="p-10 md:p-16">
-                        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">Get exclusive car rental deals.</h2>
-                        <p className="mt-6 text-lg text-slate-300 max-w-md">Join our newsletter for insider offers, travel inspiration, and early access to our best discounts. Straight to your inbox.</p>
-                        <form className="mt-10 flex flex-col sm:flex-row gap-4 max-w-md">
+                    <div className="p-5 md:p-8">
+                        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white leading-tight">Get exclusive car rental deals.</h2>
+                        <p className="mt-3 text-xs text-slate-300 max-w-sm">Join our newsletter for insider offers, travel inspiration, and early access to our best discounts. Straight to your inbox.</p>
+                        <form className="mt-5 flex flex-col sm:flex-row gap-2 max-w-sm">
                             <input 
                                 type="email" 
                                 placeholder="Enter your email" 
-                                className="flex-grow px-5 py-4 rounded-full text-slate-900 text-base font-medium focus:outline-none focus:ring-4 focus:ring-blue-400/50 transition-all bg-white placeholder-slate-400"
+                                className="flex-grow px-3 py-2 rounded-full text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all bg-white placeholder-slate-400"
                             />
                             <button 
                                 type="submit" 
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap">
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md whitespace-nowrap text-xs">
                                 Subscribe
                             </button>
                         </form>
@@ -406,41 +405,41 @@ const Home: React.FC = () => {
       </section>
       
       {/* FAQS - NEW PROFESSIONAL DESIGN */}
-      <section className="py-24 lg:py-32 bg-slate-50/70">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center mb-20">
-                <h2 className="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Support</h2>
-                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
-                <p className="mt-6 text-lg text-slate-600 leading-relaxed">
+      <section className="py-8 lg:py-12 bg-slate-50/70">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-xl mx-auto text-center mb-6">
+                <h2 className="text-[10px] font-bold tracking-widest text-blue-600 uppercase mb-1.5">Support</h2>
+                <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
+                <p className="mt-3 text-xs text-slate-600 leading-relaxed">
                     Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.
                 </p>
             </div>
 
-            <div className="max-w-4xl mx-auto">
-                <div className="space-y-4">
+            <div className="max-w-2xl mx-auto">
+                <div className="space-y-2">
                     {faqs.map((faq, index) => (
-                        <div key={faq.id} className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden">
+                        <div key={faq.id} className="bg-white rounded-lg shadow-sm border border-slate-100/80 overflow-hidden">
                             <button 
                                 onClick={() => toggleFaq(index)} 
-                                className="w-full flex justify-between items-center text-left p-6 sm:p-8 focus:outline-none group"
+                                className="w-full flex justify-between items-center text-left p-3 sm:p-4 focus:outline-none group"
                             >
-                                <span className="font-bold text-lg sm:text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{faq.question}</span>
-                                <span className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full transition-colors ${openFaqIndex === index ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
-                                    <ChevronDown className={`w-6 h-6 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
+                                <span className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 transition-colors">{faq.question}</span>
+                                <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
                                 </span>
                             </button>
                             <div 
                                 className={`overflow-hidden transition-all duration-500 ease-in-out ${openFaqIndex === index ? 'max-h-96' : 'max-h-0'}`}
                             >
-                                <div className="text-slate-600 leading-relaxed text-base sm:text-lg px-6 sm:px-8 pb-8">
+                                <div className="text-slate-600 leading-relaxed text-xs sm:text-sm px-3 sm:px-4 pb-4">
                                     {faq.answer}
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
-                <div className="mt-16 text-center">
-                    <Link to="/contact" className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-700 bg-white hover:bg-slate-100 transition-all shadow-md border border-slate-200">
+                <div className="mt-8 text-center">
+                    <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-extrabold rounded-full text-white bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 transform border-none">
                         Still have questions? Contact Support
                     </Link>
                 </div>

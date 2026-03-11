@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Notification Email Preview</title>
+    <style>
+        body {
+            background: #eef2f7;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,20,40,0.25);
+        }
+        .header {
+            background: #2C4A6E;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 4px solid #F57C00;
+        }
+        .header-logo svg {
+            width: 140px;
+            height: auto;
+            display: block;
+        }
+        .header-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-left: auto;
+        }
+        .supplier-strip {
+            background: #f8fafd;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #e9edf2;
+        }
+        .supplier-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2px solid #F57C00;
+            background: white;
+        }
+        .supplier-details {
+            flex: 1;
+        }
+        .supplier-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #123C69;
+        }
+        .supplier-extra {
+            font-size: 13px;
+            color: #F57C00;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .content {
+            padding: 32px;
+        }
+        .ref-badge {
+            background: linear-gradient(135deg, #F57C00, #FF9F4D);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 20px;
+            background: #f8fcff;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid #e6ecf5;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-label {
+            color: #5f7397;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .info-value {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .car-card {
+            margin-top: 24px;
+            display: flex;
+            gap: 20px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid #e0e7f0;
+            box-shadow: 0 4px 10px -6px rgba(0,0,0,0.1);
+        }
+        .car-image {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #e0e7f0;
+        }
+        .car-specs {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px 16px;
+        }
+        .spec-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .spec-label {
+            font-size: 11px;
+            color: #8a9bb8;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .spec-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #123C69;
+            margin-top: 2px;
+        }
+        .footer {
+            background: #f2f5fa;
+            padding: 20px 32px;
+            text-align: center;
+            color: #7f8fa6;
+            font-size: 13px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="header-logo">
+                <svg width="140" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="55" fill="#123C69"/>
+                    <path d="M60 105 Q100 65 140 95" stroke="#F57C00" stroke-width="16" fill="none" stroke-linecap="round"/>
+                    <line x1="75" y1="120" x2="125" y2="120" stroke="#F57C00" stroke-width="10" stroke-linecap="round"/>
+                    <text x="190" y="125" font-family="Montserrat, Arial, sans-serif" font-size="140" font-weight="700" letter-spacing="4" fill="white">
+                        HOGI<tspan fill="#F57C00">CAR</tspan>
+                    </text>
+                </svg>
+            </div>
+            <div class="header-title">Booking Confirmed</div>
+        </div>
+
+        <div class="supplier-strip">
+            <img class="supplier-logo" src="https://via.placeholder.com/56x56/F57C00/FFFFFF?text=S" alt="Supplier logo">
+            <div class="supplier-details">
+                <div class="supplier-name">Test Supplier</div>
+                <div class="supplier-extra">Premium partner · 4.8 ★</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="ref-badge">
+                <span>Booking reference: <strong>H23446</strong></span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Customer</span>
+                    <span class="info-value">John Michael Doe</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">john.doe@example.com</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">+1 (555) 123‑4567</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Flight</span>
+                    <span class="info-value">AA 123 · 5 MAR</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Pick‑up</span>
+                    <span class="info-value">2026‑03‑01 · 10:00</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Drop‑off</span>
+                    <span class="info-value">2026‑03‑05 · 10:00</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Location</span>
+                    <span class="info-value">Enfidha–Hammamet (NBE)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Drop‑off</span>
+                    <span class="info-value">Same as pick‑up</span>
+                </div>
+            </div>
+
+            <div class="car-card">
+                <img class="car-image" src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=200&auto=format" alt="Car">
+                <div class="car-specs">
+                    <div class="spec-item">
+                        <span class="spec-label">Make/Model</span>
+                        <span class="spec-value">Nissan Kicks</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">SIPP</span>
+                        <span class="spec-value">CFAR</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Year</span>
+                        <span class="spec-value">2023</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Transmission</span>
+                        <span class="spec-value">Automatic</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Fuel</span>
+                        <span class="spec-value">Full to full</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Passengers</span>
+                        <span class="spec-value">5</span>
+                    </div>
+                </div>
+            </div>
+
+            <p style="margin-top: 28px; font-size: 16px; color: #2d405e; text-align: center;">
+                This booking has been automatically confirmed. You can view details in your dashboard.
+            </p>
+        </div>
+
+        <div class="footer">
+            © 2026 Hogicar · all rights reserved
+        </div>
+    </div>
+</body>
+</html>
