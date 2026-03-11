@@ -13,7 +13,6 @@ const Home: React.FC = () => {
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
-  // --- SEARCH LOGIC ---
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
   const [pickupCode, setPickupCode] = React.useState<string>('');
   const [dropoffCode, setDropoffCode] = React.useState<string>('');
@@ -76,13 +75,11 @@ const Home: React.FC = () => {
       
       {/* 1. HERO SECTION & SEARCH WIDGET */}
       <section className="relative bg-[#003580] pt-4 pb-8 lg:pt-10 lg:pb-16 overflow-hidden">
-        {/* Dynamic Background Elements */}
         <div className="absolute inset-0 z-0">
             <img src={content.hero.backgroundImage} alt="Background" className="w-full h-full object-cover opacity-20 mix-blend-overlay" />
             <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#001a40]/95"></div>
         </div>
         
-        {/* Decorative Shapes */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF9F1C] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
@@ -124,7 +121,6 @@ const Home: React.FC = () => {
                 </div>
             </div>
             
-            {/* Quick Trust Badges */}
             <div className="mt-6 lg:mt-8 flex flex-wrap justify-center gap-3 sm:gap-6 text-white text-xs sm:text-sm font-medium">
                 <div className="flex items-center gap-2 sm:gap-3 bg-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="bg-green-500/20 p-1 sm:p-1.5 rounded-full">
@@ -157,8 +153,7 @@ const Home: React.FC = () => {
             </div>
         </div>
         
-        <style>
-            {`
+        <style>{`
                 @keyframes marquee {
                     0% { transform: translateX(0); }
                     100% { transform: translateX(-50%); }
@@ -171,8 +166,7 @@ const Home: React.FC = () => {
                 .animate-marquee:hover {
                     animation-play-state: paused;
                 }
-            `}
-        </style>
+            `}</style>
 
         <div className="relative w-full flex overflow-hidden py-4">
             <div className="absolute inset-y-0 left-0 w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
@@ -191,7 +185,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* WHY BOOK WITH HOGICAR? & STATS - NEW PROFESSIONAL DESIGN */}
+      {/* WHY BOOK WITH HOGICAR? & STATS */}
       <section className="py-12 lg:py-16 bg-slate-50/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-10">
@@ -202,7 +196,6 @@ const Home: React.FC = () => {
                 </p>
             </div>
 
-            {/* Feature Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
                 {content.features.slice(0, 4).map((feature) => {
                     const Icon = iconMap[feature.icon] || CheckCircle;
@@ -218,7 +211,6 @@ const Home: React.FC = () => {
                 })}
             </div>
 
-            {/* Integrated Stats & Network Section */}
             <div className="relative bg-slate-900 rounded-[1.5rem] shadow-xl overflow-hidden mt-6">
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none"></div>
@@ -252,7 +244,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* GET YOUR PERFECT CAR - NEW PROFESSIONAL DESIGN */}
+      {/* GET YOUR PERFECT CAR */}
       <section className="py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-12">
@@ -283,7 +275,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* POPULAR DESTINATIONS - PRO DESIGN */}
+      {/* POPULAR DESTINATIONS */}
       <section className="py-16 lg:py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
@@ -357,7 +349,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* NEWSLETTER CTA - NEW PROFESSIONAL DESIGN */}
+      {/* NEWSLETTER CTA */}
       <section className="py-24 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-slate-900 rounded-3xl overflow-hidden">
@@ -391,7 +383,7 @@ const Home: React.FC = () => {
         </div>
       </section>
       
-      {/* FAQS - NEW PROFESSIONAL DESIGN */}
+      {/* FAQS */}
       <section className="py-24 lg:py-32 bg-slate-50/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-20">
