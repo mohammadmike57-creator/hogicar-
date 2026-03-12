@@ -73,8 +73,8 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO SECTION – NO EXTRA WRAPPER AROUND SEARCHWIDGET */}
-      <section className="bg-[#003580] pt-16 pb-14 text-center text-white">
+      {/* HERO SECTION – NO EXTRA WRAPPER, WITH OVERFLOW HIDDEN */}
+      <section className="bg-[#003580] pt-16 pb-14 text-center text-white overflow-hidden">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-4">
             Search, Compare & Save on
@@ -98,22 +98,22 @@ const Home: React.FC = () => {
 
           <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
             <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
-              <CheckCircle className="text-green-400 w-4 h-4" />
+              <CheckCircle className="w-4 h-4 text-green-400" />
               Free Cancellation
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
-              <Shield className="text-blue-300 w-4 h-4" />
+              <Shield className="w-4 h-4 text-blue-300" />
               No Hidden Fees
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
-              <Award className="text-orange-400 w-4 h-4" />
+              <Award className="w-4 h-4 text-orange-400" />
               24/7 Support
             </div>
           </div>
         </div>
       </section>
 
-      {/* TRUSTED PARTNERS */}
+      {/* TRUSTED PARTNERS – FIXED MARQUEE */}
       <section className="py-6 md:py-8 bg-white border-b border-slate-100 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 md:mb-6">
           <div className="text-center max-w-3xl mx-auto">
@@ -129,6 +129,7 @@ const Home: React.FC = () => {
           .animate-marquee {
             display: flex;
             width: max-content;
+            max-width: 100%;
             animation: marquee 40s linear infinite;
           }
           .animate-marquee:hover {
@@ -138,13 +139,13 @@ const Home: React.FC = () => {
         <div className="relative w-full flex overflow-hidden py-4">
           <div className="absolute inset-y-0 left-0 w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
           <div className="absolute inset-y-0 right-0 w-24 md:w-48 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-          <div className="animate-marquee flex items-center gap-20 md:gap-32 opacity-80 px-12">
+          <div className="animate-marquee flex items-center gap-10 md:gap-20 opacity-80 px-6 max-w-full overflow-hidden">
             {[...SUPPLIERS, ...SUPPLIERS, ...SUPPLIERS].map((s, idx) => (
               <img 
                 key={`${s.id}-${idx}`}
                 src={s.logo} 
                 alt={s.name} 
-                className="h-20 md:h-32 lg:h-40 w-auto max-w-[250px] md:max-w-[350px] object-contain filter grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer hover:scale-105"
+                className="h-12 md:h-16 lg:h-20 w-auto max-w-[120px] md:max-w-[180px] object-contain filter grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer hover:scale-105"
               />
             ))}
           </div>
