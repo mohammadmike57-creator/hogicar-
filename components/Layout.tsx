@@ -153,6 +153,15 @@ const Layout: React.FC = () => {
     }
   }, [location]);
 
+  // Debugging: log state changes
+  React.useEffect(() => {
+    console.log('isCurrencyOpen:', isCurrencyOpen);
+  }, [isCurrencyOpen]);
+
+  React.useEffect(() => {
+    console.log('isMenuOpen:', isMenuOpen);
+  }, [isMenuOpen]);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
       {/* HEADER – fully constrained */}
@@ -171,7 +180,10 @@ const Layout: React.FC = () => {
             </Link>
             <div className="relative">
               <button 
-                onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+                onClick={() => {
+                  console.log('Currency button clicked');
+                  setIsCurrencyOpen(!isCurrencyOpen);
+                }}
                 className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
               >
                 <Globe className="h-4 w-4" />
@@ -180,8 +192,8 @@ const Layout: React.FC = () => {
               </button>
               {isCurrencyOpen && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setIsCurrencyOpen(false)}></div>
-                  <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
+                  <div className="fixed inset-0 z-40" onClick={() => setIsCurrencyOpen(false)}></div>
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
                       <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
                     </div>
@@ -189,7 +201,11 @@ const Layout: React.FC = () => {
                       {currencies.map(currency => (
                         <button 
                           key={currency.code} 
-                          onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
+                          onClick={() => { 
+                            console.log('Currency selected:', currency.code);
+                            setSelectedCurrency(currency.code); 
+                            setIsCurrencyOpen(false); 
+                          }}
                           className={`block w-full text-left px-4 py-3 text-sm rounded-xl transition-colors ${selectedCurrency === currency.code ? 'text-blue-700 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                         >
                           <div className="flex justify-between items-center">
@@ -208,7 +224,10 @@ const Layout: React.FC = () => {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => {
+                console.log('Mobile menu button clicked');
+                setIsMenuOpen(!isMenuOpen);
+              }}
               className="inline-flex items-center justify-center p-2 rounded-lg text-white hover:text-blue-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors"
             >
               <span className="sr-only">Open main menu</span>
@@ -219,7 +238,7 @@ const Layout: React.FC = () => {
 
         {/* Mobile menu panel */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-[#003580] bg-[#004099] absolute w-full shadow-xl">
+          <div className="md:hidden border-t border-[#003580] bg-[#004099] absolute w-full shadow-xl z-50">
             <div className="pt-2 pb-3 space-y-1">
               <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
                 <User className="w-5 h-5" />
@@ -231,7 +250,11 @@ const Layout: React.FC = () => {
                 <p className="text-xs font-extrabold text-blue-300 uppercase tracking-widest mb-3">Currency</p>
                 <div className="grid grid-cols-3 gap-2">
                   {currencies.slice(0,6).map(curr => (
-                    <button key={curr.code} onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} className={`text-sm font-bold p-3 rounded-xl border transition-colors ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}>
+                    <button key={curr.code} onClick={() => {
+                      console.log('Mobile currency selected:', curr.code);
+                      setSelectedCurrency(curr.code); 
+                      setIsMenuOpen(false);
+                    }} className={`text-sm font-bold p-3 rounded-xl border transition-colors ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}>
                       {curr.code}
                     </button>
                   ))}
