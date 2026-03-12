@@ -5,44 +5,48 @@ interface LogoProps {
   variant?: 'dark' | 'light';
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = "h-12 w-auto", variant = 'dark' }) => {
+export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'dark' }) => {
   const primaryColor = variant === 'dark' ? '#123C69' : '#FFFFFF';
   const accentColor = '#F57C00';
   const circleColor = '#123C69';
 
   return (
-    <svg 
-      className={className} 
-      viewBox="45 0 595 180" 
+    <svg
+      viewBox="0 0 1200 200"
+      preserveAspectRatio="xMidYMid meet"
+      width="100%"
+      height="100%"
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Icon Circle */}
-      <circle cx="100" cy="90" r="50" fill={circleColor}/>
-      {/* Sleek Car Roofline */}
-      <path 
-        d="M60 95 Q100 60 140 85"
+      <circle cx="100" cy="100" r="55" fill={circleColor}/>
+      {/* Car Roofline */}
+      <path
+        d="M60 105 Q100 65 140 95"
         stroke={accentColor}
-        strokeWidth="5"
+        strokeWidth="16"
         fill="none"
         strokeLinecap="round"
       />
-      {/* Subtle Base Line */}
-      <line 
-        x1="75" y1="105" x2="125" y2="105"
+      {/* Base Line */}
+      <line
+        x1="75" y1="120" x2="125" y2="120"
         stroke={accentColor}
-        strokeWidth="3"
+        strokeWidth="10"
         strokeLinecap="round"
       />
-      {/* Brand Name + Integrated .com */}
-      <text 
-        x="165" y="102"
+      {/* Brand Name */}
+      <text
+        x="190" y="125"
         fontFamily="Montserrat, Arial, sans-serif"
-        fontSize="52"
+        fontSize="140"
         fontWeight="700"
-        letterSpacing="1.2"
+        letterSpacing="4"
         fill={primaryColor}
       >
-        HOGI<tspan fill={accentColor}>CAR</tspan><tspan fontSize="28" fill={accentColor}>.com</tspan>
+        HOGI<tspan fill={accentColor}>CAR</tspan>
+        <tspan fontSize="70" fill={accentColor}>.com</tspan>
       </text>
     </svg>
   );
