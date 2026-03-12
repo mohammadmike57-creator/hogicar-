@@ -73,7 +73,7 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* === NEW MOBILE‑SAFE HERO (NO ABSOLUTE, NO BLUR) === */}
+      {/* HERO SECTION – NO EXTRA WRAPPER AROUND SEARCHWIDGET */}
       <section className="bg-[#003580] pt-16 pb-14 text-center text-white">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-4">
@@ -83,18 +83,19 @@ const Home: React.FC = () => {
           <p className="text-blue-100 text-base mb-8">
             Compare prices from 900+ car rental suppliers worldwide.
           </p>
-          <div className="rounded-xl shadow-xl p-4 relative z-10" style={{ backgroundColor: "#ffffff" }}>
-            <SearchWidget
-              onSearch={handleSearch}
-              showTitle={false}
-              initialValues={{
-                pickup: pickupCode,
-                pickupName: pickupName,
-                dropoff: dropoffCode,
-                dropoffName: dropoffName
-              }}
-            />
-          </div>
+
+          {/* SearchWidget directly – no extra white card wrapper */}
+          <SearchWidget
+            onSearch={handleSearch}
+            showTitle={false}
+            initialValues={{
+              pickup: pickupCode,
+              pickupName: pickupName,
+              dropoff: dropoffCode,
+              dropoffName: dropoffName
+            }}
+          />
+
           <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
             <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
               <CheckCircle className="text-green-400 w-4 h-4" />
