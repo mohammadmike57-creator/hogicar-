@@ -13,10 +13,10 @@ const navigate = useNavigate();
 const { convertPrice, getCurrencySymbol } = useCurrency();
 const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
 
-const [pickupCode, setPickupCode] = React.useState<string>("");
-const [dropoffCode, setDropoffCode] = React.useState<string>("");
-const [pickupName, setPickupName] = React.useState<string>("");
-const [dropoffName, setDropoffName] = React.useState<string>("");
+const [pickupCode, setPickupCode] = React.useState("");
+const [dropoffCode, setDropoffCode] = React.useState("");
+const [pickupName, setPickupName] = React.useState("");
+const [dropoffName, setDropoffName] = React.useState("");
 
 React.useEffect(() => {
 const loadLocations = async () => {
@@ -27,8 +27,8 @@ if (amm) {
 setPickupName(amm.label);
 setDropoffName(amm.label);
 }
-} catch (error) {
-console.error(error);
+} catch (e) {
+console.error(e);
 }
 };
 loadLocations();
@@ -48,7 +48,7 @@ return ( <div className="bg-white text-slate-900">
 ```
   <SEOMetadata
     title="Hogicar | Affordable Car Rentals Worldwide"
-    description="Compare car rental deals from 900+ suppliers worldwide."
+    description="Compare car rental deals from hundreds of suppliers worldwide."
   />
 
   {/* HERO */}
@@ -71,7 +71,7 @@ return ( <div className="bg-white text-slate-900">
           pickup: pickupCode,
           pickupName: pickupName,
           dropoff: dropoffCode,
-          dropoffName: dropoffName,
+          dropoffName: dropoffName
         }}
       />
 
@@ -125,7 +125,7 @@ return ( <div className="bg-white text-slate-900">
       </h3>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {destinations.slice(0, 5).map((dest) => (
+        {destinations.slice(0,5).map((dest) => (
           <Link
             key={dest.name}
             to={"/search?location=" + dest.name}
@@ -139,14 +139,10 @@ return ( <div className="bg-white text-slate-900">
             />
 
             <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4">
-
               <h4 className="font-bold">{dest.name}</h4>
-
               <span className="text-xs">
-                {getCurrencySymbol()}
-                {convertPrice(dest.price)}
+                {getCurrencySymbol()}{convertPrice(dest.price)}
               </span>
-
             </div>
 
           </Link>
@@ -164,9 +160,7 @@ return ( <div className="bg-white text-slate-900">
         <div key={faq.id} className="bg-white border rounded mb-3">
 
           <button
-            onClick={() =>
-              setOpenFaqIndex(openFaqIndex === i ? null : i)
-            }
+            onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)}
             className="w-full flex justify-between p-4 font-semibold"
           >
             {faq.question}
