@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Car, Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check, Lock } from 'lucide-react';
+import { Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check, Lock } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
 
-// --- SVG Payment Icons (unchanged) ---
 const VisaIcon = () => (
   <div className="w-[38px] h-[24px] bg-white rounded-sm shadow-md flex items-center justify-center overflow-hidden px-1">
     <img 
@@ -156,15 +155,15 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
-      {/* NAVBAR – fully constrained */}
-      <header className="bg-[#004099] border-b border-[#003580] shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16 overflow-hidden">
-          {/* Logo link with max width and overflow hidden */}
+      {/* HEADER – fully constrained */}
+      <header className="sticky top-0 z-50 bg-[#004099] border-b border-[#003580] shadow-md w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+          {/* Logo container with max width */}
           <Link to="/" className="flex items-center max-w-[150px] overflow-hidden">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 
-          {/* Desktop right side */}
+          {/* Desktop navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
               <User className="w-4 h-4" />
@@ -218,7 +217,7 @@ const Layout: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile menu panel (unchanged) */}
+        {/* Mobile menu panel */}
         {isMenuOpen && (
           <div className="md:hidden border-t border-[#003580] bg-[#004099] absolute w-full shadow-xl">
             <div className="pt-2 pb-3 space-y-1">

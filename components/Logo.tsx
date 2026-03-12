@@ -19,32 +19,10 @@ export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'dark' }) 
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Icon Circle */}
       <circle cx="100" cy="100" r="55" fill={circleColor}/>
-      {/* Car Roofline */}
-      <path
-        d="M60 105 Q100 65 140 95"
-        stroke={accentColor}
-        strokeWidth="16"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* Base Line */}
-      <line
-        x1="75" y1="120" x2="125" y2="120"
-        stroke={accentColor}
-        strokeWidth="10"
-        strokeLinecap="round"
-      />
-      {/* Brand Name */}
-      <text
-        x="190" y="125"
-        fontFamily="Montserrat, Arial, sans-serif"
-        fontSize="140"
-        fontWeight="700"
-        letterSpacing="4"
-        fill={primaryColor}
-      >
+      <path d="M60 105 Q100 65 140 95" stroke={accentColor} strokeWidth="16" fill="none" strokeLinecap="round"/>
+      <line x1="75" y1="120" x2="125" y2="120" stroke={accentColor} strokeWidth="10" strokeLinecap="round"/>
+      <text x="190" y="125" fontFamily="Montserrat, Arial, sans-serif" fontSize="140" fontWeight="700" letterSpacing="4" fill={primaryColor}>
         HOGI<tspan fill={accentColor}>CAR</tspan>
         <tspan fontSize="70" fill={accentColor}>.com</tspan>
       </text>
