@@ -181,7 +181,7 @@ const Layout: React.FC = () => {
               {isCurrencyOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setIsCurrencyOpen(false)}></div>
-                  <div className="absolute right-0 w-72 mt-3 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-20 max-h-96 overflow-y-auto custom-scrollbar">
+                  <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
                       <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
                     </div>
