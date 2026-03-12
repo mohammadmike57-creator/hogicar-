@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   
   const [locationsOptions, setLocationsOptions] = React.useState<LocationSuggestion[]>([]);
   const [pickupCode, setPickupCode] = React.useState<string>('');
-  const [dropoffCode, setDropoffCode] React.useState<string>('');
+  const [dropoffCode, setDropoffCode] = React.useState<string>('');
   const [pickupName, setPickupName] = React.useState<string>('');
   const [dropoffName, setDropoffName] = React.useState<string>('');
   
