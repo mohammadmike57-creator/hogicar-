@@ -83,7 +83,7 @@ const Home: React.FC = () => {
           <p className="text-blue-100 text-base mb-8">
             Compare prices from 900+ car rental suppliers worldwide.
           </p>
-          <div className="bg-white rounded-xl shadow-xl p-4">
+          <div className="rounded-xl shadow-xl p-4 relative z-10" style={{ backgroundColor: "#ffffff" }}>
             <SearchWidget
               onSearch={handleSearch}
               showTitle={false}
