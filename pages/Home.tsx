@@ -73,7 +73,7 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO SECTION – NO EXTRA WRAPPER, WITH OVERFLOW HIDDEN */}
+      {/* HERO SECTION */}
       <section className="bg-[#003580] pt-16 pb-14 text-center text-white overflow-hidden">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-4">
@@ -84,7 +84,6 @@ const Home: React.FC = () => {
             Compare prices from 900+ car rental suppliers worldwide.
           </p>
 
-          {/* SearchWidget directly – no extra white card wrapper */}
           <SearchWidget
             onSearch={handleSearch}
             showTitle={false}
@@ -113,42 +112,23 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* TRUSTED PARTNERS – FIXED MARQUEE */}
-      <section className="py-6 md:py-8 bg-white border-b border-slate-100 overflow-hidden">
+      {/* TRUSTED PARTNERS – STATIC (NO MARQUEE) */}
+      <section className="py-6 md:py-8 bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 md:mb-6">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Trusted by the world's leading car rental suppliers</h2>
             <p className="text-base text-slate-500 mt-2">We partner with top brands to bring you the best vehicles at the best prices, ensuring quality and reliability wherever you go.</p>
           </div>
         </div>
-        <style>{`
-          @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-marquee {
-            display: flex;
-            width: max-content;
-            max-width: 100%;
-            animation: marquee 40s linear infinite;
-          }
-          .animate-marquee:hover {
-            animation-play-state: paused;
-          }
-        `}</style>
-        <div className="relative w-full flex overflow-hidden py-4">
-          <div className="absolute inset-y-0 left-0 w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute inset-y-0 right-0 w-24 md:w-48 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-          <div className="animate-marquee flex items-center gap-10 md:gap-20 opacity-80 px-6 max-w-full overflow-hidden">
-            {[...SUPPLIERS, ...SUPPLIERS, ...SUPPLIERS].map((s, idx) => (
-              <img 
-                key={`${s.id}-${idx}`}
-                src={s.logo} 
-                alt={s.name} 
-                className="h-12 md:h-16 lg:h-20 w-auto max-w-[120px] md:max-w-[180px] object-contain filter grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer hover:scale-105"
-              />
-            ))}
-          </div>
+        <div className="flex flex-wrap justify-center items-center gap-8 opacity-80 px-6">
+          {SUPPLIERS.map((s) => (
+            <img 
+              key={s.id}
+              src={s.logo} 
+              alt={s.name} 
+              className="h-10 md:h-14 lg:h-16 w-auto max-w-[140px] object-contain filter grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer hover:scale-105"
+            />
+          ))}
         </div>
       </section>
 
