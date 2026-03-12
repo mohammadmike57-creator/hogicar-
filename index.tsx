@@ -27,12 +27,21 @@ if (!rootElement) {
     `;
   }
 
-  // Also catch global errors
   window.addEventListener('error', (event) => {
-    rootElement.innerHTML += `<div style="color: red; padding: 10px; border-top: 1px solid red;">Global error: ${event.message}</div>`;
+    const errorDiv = document.createElement('div');
+    errorDiv.style.color = 'red';
+    errorDiv.style.padding = '10px';
+    errorDiv.style.borderTop = '1px solid red';
+    errorDiv.textContent = `Global error: ${event.message}`;
+    rootElement.appendChild(errorDiv);
   });
 
   window.addEventListener('unhandledrejection', (event) => {
-    rootElement.innerHTML += `<div style="color: red; padding: 10px; border-top: 1px solid red;">Unhandled promise: ${event.reason}</div>`;
+    const errorDiv = document.createElement('div');
+    errorDiv.style.color = 'red';
+    errorDiv.style.padding = '10px';
+    errorDiv.style.borderTop = '1px solid red';
+    errorDiv.textContent = `Unhandled promise: ${event.reason}`;
+    rootElement.appendChild(errorDiv);
   });
 }
