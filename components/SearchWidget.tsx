@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft, Star, TrendingUp } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -60,17 +60,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalSearchQuery, setModalSearchQuery] = React.useState('');
     const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
     const [modalLoading, setModalLoading] = React.useState(false);
-    const [modalError, setModalError] = React.useState<string | null>(null);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
-
-    // Popular locations for quick selection
-    const popularLocations: LocationSuggestion[] = [
-        { value: 'AMM', label: 'Queen Alia International Airport, Amman (AMM)', iataCode: 'AMM', name: 'Queen Alia International Airport', municipality: 'Amman', countryCode: 'JO', type: 'airport' },
-        { value: 'DXB', label: 'Dubai International Airport (DXB)', iataCode: 'DXB', name: 'Dubai International Airport', municipality: 'Dubai', countryCode: 'AE', type: 'airport' },
-        { value: 'LHR', label: 'London Heathrow Airport (LHR)', iataCode: 'LHR', name: 'London Heathrow Airport', municipality: 'London', countryCode: 'GB', type: 'airport' },
-        { value: 'JFK', label: 'John F. Kennedy International Airport (JFK)', iataCode: 'JFK', name: 'John F. Kennedy International Airport', municipality: 'New York', countryCode: 'US', type: 'airport' },
-        { value: 'CDG', label: 'Charles de Gaulle Airport (CDG)', iataCode: 'CDG', name: 'Charles de Gaulle Airport', municipality: 'Paris', countryCode: 'FR', type: 'airport' }
-    ];
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -83,7 +73,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers ---
+    // --- Desktop suggestion handlers (unchanged) ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -194,30 +184,20 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- Modal location search logic ---
     React.useEffect(() => {
-        if (!isLocationModalOpen) {
-            setModalResults([]);
-            setModalLoading(false);
-            setModalError(null);
-            return;
-        }
+        if (!isLocationModalOpen) return;
         if (modalSearchQuery.length < 2) {
             setModalResults([]);
             setModalLoading(false);
-            setModalError(null);
             return;
         }
         setModalLoading(true);
-        setModalError(null);
         if (modalDebounceTimer.current) clearTimeout(modalDebounceTimer.current);
         modalDebounceTimer.current = setTimeout(async () => {
             try {
                 const results = await fetchLocations(modalSearchQuery);
                 setModalResults(results);
-                setModalError(null);
             } catch (err) {
-                console.error('Modal location search error:', err);
                 setModalResults([]);
-                setModalError('Unable to load locations. Please try again.');
             } finally {
                 setModalLoading(false);
             }
@@ -231,7 +211,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setModalType(type);
         setModalSearchQuery(type === 'pickup' ? pickupQuery : dropoffQuery);
         setModalResults([]);
-        setModalError(null);
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
     };
@@ -544,11 +523,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- Professional Location Modal for Mobile --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
-                {/* Header with back button and search input */}
-                <div className="sticky top-0 bg-white border-b border-slate-200 px-4 pt-4 pb-3">
-                    <div className="flex items-center gap-3 mb-3">
-                        <button onClick={closeLocationModal} className="p-1 -ml-1">
+            <div className="fixed inset-0 z-[100] bg-white flex flex-col" style={{ overflowY: 'auto' }}>
+                {/* Sticky header with back button and search field */}
+                <div className="sticky top-0 bg-white border-b border-slate-100 shadow-sm px-4 py-3 z-10">
+                    <div className="flex items-center gap-3">
+                        <button onClick={closeLocationModal} className="p-1 -ml-1 active:opacity-60 transition-opacity">
                             <ArrowLeft className="w-6 h-6 text-slate-600" />
                         </button>
                         <div className="flex-1 relative">
@@ -562,77 +541,42 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 autoCapitalize="off"
                                 autoComplete="off"
                                 inputMode="search"
-                                className="w-full pl-9 pr-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+                                className="w-full pl-9 pr-4 py-3 text-base border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
                                 style={{ fontSize: '16px' }}
                             />
                         </div>
                     </div>
-                    {modalSearchQuery.length === 0 && (
-                        <div className="flex items-center gap-1 text-xs text-slate-500 px-1">
-                            <TrendingUp className="w-3 h-3" />
-                            <span>Popular destinations</span>
-                        </div>
-                    )}
                 </div>
 
-                {/* Results or popular locations */}
+                {/* Results list */}
                 <div className="flex-1 overflow-y-auto p-4">
                     {modalLoading ? (
                         <div className="flex justify-center items-center py-10">
                             <LoaderCircle className="w-6 h-6 animate-spin text-slate-400" />
                         </div>
-                    ) : modalError ? (
-                        <div className="text-center text-red-500 py-10">
-                            {modalError}
+                    ) : modalResults.length === 0 ? (
+                        <div className="text-center text-slate-500 py-10">
+                            {modalSearchQuery.length >= 2 ? 'No locations found' : 'Type at least 2 letters to search'}
                         </div>
-                    ) : modalSearchQuery.length >= 2 ? (
-                        modalResults.length === 0 ? (
-                            <div className="text-center text-slate-500 py-10">
-                                No locations found
-                            </div>
-                        ) : (
-                            <ul className="space-y-1">
-                                {modalResults.map((loc) => (
-                                    <li key={loc.value}>
-                                        <button
-                                            onClick={() => selectLocation(loc)}
-                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
-                                        >
-                                            <div className="flex-shrink-0">
-                                                {getLocationIcon(loc.type, 'w-5 h-5')}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
-                                                <div className="text-xs text-slate-500">{loc.iataCode}</div>
-                                            </div>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )
                     ) : (
-                        // Show popular locations when not searching
-                        <div>
-                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">POPULAR</div>
-                            <ul className="space-y-1">
-                                {popularLocations.map((loc) => (
-                                    <li key={loc.value}>
-                                        <button
-                                            onClick={() => selectLocation(loc)}
-                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
-                                        >
-                                            <div className="flex-shrink-0">
-                                                {getLocationIcon(loc.type, 'w-5 h-5')}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
-                                                <div className="text-xs text-slate-500">{loc.iataCode}</div>
-                                            </div>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                        <ul className="space-y-1">
+                            {modalResults.map((loc) => (
+                                <li key={loc.value}>
+                                    <button
+                                        onClick={() => selectLocation(loc)}
+                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                                    >
+                                        <div className="flex-shrink-0">
+                                            {getLocationIcon(loc.type, 'w-5 h-5')}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
+                                            <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                                        </div>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </div>
             </div>
