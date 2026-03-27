@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft, Star, TrendingUp } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -60,7 +60,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalSearchQuery, setModalSearchQuery] = React.useState('');
     const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
     const [modalLoading, setModalLoading] = React.useState(false);
+    const [modalError, setModalError] = React.useState<string | null>(null);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+
+    // Popular locations for quick selection
+    const popularLocations: LocationSuggestion[] = [
+        { value: 'AMM', label: 'Queen Alia International Airport, Amman (AMM)', iataCode: 'AMM', name: 'Queen Alia International Airport', municipality: 'Amman', countryCode: 'JO', type: 'airport' },
+        { value: 'DXB', label: 'Dubai International Airport (DXB)', iataCode: 'DXB', name: 'Dubai International Airport', municipality: 'Dubai', countryCode: 'AE', type: 'airport' },
+        { value: 'LHR', label: 'London Heathrow Airport (LHR)', iataCode: 'LHR', name: 'London Heathrow Airport', municipality: 'London', countryCode: 'GB', type: 'airport' },
+        { value: 'JFK', label: 'John F. Kennedy International Airport (JFK)', iataCode: 'JFK', name: 'John F. Kennedy International Airport', municipality: 'New York', countryCode: 'US', type: 'airport' },
+        { value: 'CDG', label: 'Charles de Gaulle Airport (CDG)', iataCode: 'CDG', name: 'Charles de Gaulle Airport', municipality: 'Paris', countryCode: 'FR', type: 'airport' }
+    ];
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -184,20 +194,30 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- Modal location search logic ---
     React.useEffect(() => {
-        if (!isLocationModalOpen) return;
+        if (!isLocationModalOpen) {
+            setModalResults([]);
+            setModalLoading(false);
+            setModalError(null);
+            return;
+        }
         if (modalSearchQuery.length < 2) {
             setModalResults([]);
             setModalLoading(false);
+            setModalError(null);
             return;
         }
         setModalLoading(true);
+        setModalError(null);
         if (modalDebounceTimer.current) clearTimeout(modalDebounceTimer.current);
         modalDebounceTimer.current = setTimeout(async () => {
             try {
                 const results = await fetchLocations(modalSearchQuery);
                 setModalResults(results);
+                setModalError(null);
             } catch (err) {
+                console.error('Modal location search error:', err);
                 setModalResults([]);
+                setModalError('Unable to load locations. Please try again.');
             } finally {
                 setModalLoading(false);
             }
@@ -211,6 +231,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setModalType(type);
         setModalSearchQuery(type === 'pickup' ? pickupQuery : dropoffQuery);
         setModalResults([]);
+        setModalError(null);
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
     };
@@ -385,7 +406,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     return (
         <>
-        {/* --- MOBILE WIDGET with professional modal location picker (no zoom, no expansion) --- */}
+        {/* --- MOBILE WIDGET with professional modal location picker --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -521,60 +542,97 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- Professional Location Modal for Mobile (no zoom, smooth) --- */}
+        {/* --- Professional Location Modal for Mobile --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col" style={{ overflowY: 'auto' }}>
-                {/* Sticky header with back button */}
-                <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3 z-10">
-                    <button onClick={closeLocationModal} className="p-1 -ml-1">
-                        <ArrowLeft className="w-6 h-6 text-slate-600" />
-                    </button>
-                    <div className="flex-1 relative">
-                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder={`Search for ${modalType === 'pickup' ? 'pickup location' : 'dropoff location'}`}
-                            value={modalSearchQuery}
-                            onChange={(e) => setModalSearchQuery(e.target.value)}
-                            autoFocus
-                            autoCapitalize="off"
-                            autoComplete="off"
-                            inputMode="search"
-                            className="w-full pl-9 pr-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
-                            style={{ fontSize: '16px' }} // prevents zoom on iOS
-                        />
+            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+                {/* Header with back button and search input */}
+                <div className="sticky top-0 bg-white border-b border-slate-200 px-4 pt-4 pb-3">
+                    <div className="flex items-center gap-3 mb-3">
+                        <button onClick={closeLocationModal} className="p-1 -ml-1">
+                            <ArrowLeft className="w-6 h-6 text-slate-600" />
+                        </button>
+                        <div className="flex-1 relative">
+                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder={`Search for ${modalType === 'pickup' ? 'pickup location' : 'dropoff location'}`}
+                                value={modalSearchQuery}
+                                onChange={(e) => setModalSearchQuery(e.target.value)}
+                                autoFocus
+                                autoCapitalize="off"
+                                autoComplete="off"
+                                inputMode="search"
+                                className="w-full pl-9 pr-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+                                style={{ fontSize: '16px' }}
+                            />
+                        </div>
                     </div>
+                    {modalSearchQuery.length === 0 && (
+                        <div className="flex items-center gap-1 text-xs text-slate-500 px-1">
+                            <TrendingUp className="w-3 h-3" />
+                            <span>Popular destinations</span>
+                        </div>
+                    )}
                 </div>
 
-                {/* Results list */}
+                {/* Results or popular locations */}
                 <div className="flex-1 overflow-y-auto p-4">
                     {modalLoading ? (
                         <div className="flex justify-center items-center py-10">
                             <LoaderCircle className="w-6 h-6 animate-spin text-slate-400" />
                         </div>
-                    ) : modalResults.length === 0 ? (
-                        <div className="text-center text-slate-500 py-10">
-                            {modalSearchQuery.length >= 2 ? 'No locations found' : 'Type at least 2 letters to search'}
+                    ) : modalError ? (
+                        <div className="text-center text-red-500 py-10">
+                            {modalError}
                         </div>
+                    ) : modalSearchQuery.length >= 2 ? (
+                        modalResults.length === 0 ? (
+                            <div className="text-center text-slate-500 py-10">
+                                No locations found
+                            </div>
+                        ) : (
+                            <ul className="space-y-1">
+                                {modalResults.map((loc) => (
+                                    <li key={loc.value}>
+                                        <button
+                                            onClick={() => selectLocation(loc)}
+                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                                        >
+                                            <div className="flex-shrink-0">
+                                                {getLocationIcon(loc.type, 'w-5 h-5')}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
+                                                <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                                            </div>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )
                     ) : (
-                        <ul className="space-y-1">
-                            {modalResults.map((loc) => (
-                                <li key={loc.value}>
-                                    <button
-                                        onClick={() => selectLocation(loc)}
-                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
-                                    >
-                                        <div className="flex-shrink-0">
-                                            {getLocationIcon(loc.type, 'w-5 h-5')}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
-                                            <div className="text-xs text-slate-500">{loc.iataCode}</div>
-                                        </div>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                        // Show popular locations when not searching
+                        <div>
+                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">POPULAR</div>
+                            <ul className="space-y-1">
+                                {popularLocations.map((loc) => (
+                                    <li key={loc.value}>
+                                        <button
+                                            onClick={() => selectLocation(loc)}
+                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                                        >
+                                            <div className="flex-shrink-0">
+                                                {getLocationIcon(loc.type, 'w-5 h-5')}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
+                                                <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                                            </div>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     )}
                 </div>
             </div>
