@@ -40,9 +40,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [pickupTime, setPickupTime] = React.useState(initialValues?.startTime || '10:00');
     const [dropoffTime, setDropoffTime] = React.useState(initialValues?.endTime || '10:00');
 
-    const pickupDateRef = React.useRef<HTMLInputElement>(null);
-    const dropoffDateRef = React.useRef<HTMLInputElement>(null);
-
     const [suggestions, setSuggestions] = React.useState<LocationSuggestion[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = React.useState(false);
     const [dropoffSuggestions, setDropoffSuggestions] = React.useState<LocationSuggestion[]>([]);
@@ -280,7 +277,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     return (
         <>
-        {/* --- MOBILE WIDGET (unchanged) --- */}
+        {/* --- MOBILE WIDGET (unchanged, visible date inputs) --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -336,7 +333,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     )}
 
-                    {/* Date Row */}
+                    {/* Date Row – visible date inputs */}
                     <div className="flex gap-2">
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -422,7 +419,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – full clickable date boxes --- */}
+        {/* --- DESKTOP WIDGET – date fields use absolute input covering container, visible text is non‑clickable --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -477,24 +474,23 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* ROW 2: Four separate fields (Pick-up Date, Pick-up Time, Drop-off Date, Drop-off Time) */}
+                    {/* ROW 2: Four separate fields */}
                     <div className="flex flex-row items-center gap-2 w-full">
-                        {/* Pick-up Date – full clickable area */}
-                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        {/* Pick-up Date – absolute input covers whole container */}
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 overflow-hidden">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Pick-up Date</div>
-                            <div className="w-full h-full pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none">
+                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none z-10">Pick-up Date</div>
+                            <div className="absolute inset-0 pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none z-10">
                                 {formatDateForDisplay(pickupDate)}
                             </div>
                             <input
-                                ref={pickupDateRef}
                                 type="date"
                                 value={pickupDate}
                                 onChange={e => setPickupDate(e.target.value)}
                                 min={today.toISOString().split('T')[0]}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                             />
                         </div>
 
@@ -513,22 +509,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             </select>
                         </div>
 
-                        {/* Drop-off Date – full clickable area */}
-                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        {/* Drop-off Date – absolute input covers whole container */}
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 overflow-hidden">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Drop-off Date</div>
-                            <div className="w-full h-full pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none">
+                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none z-10">Drop-off Date</div>
+                            <div className="absolute inset-0 pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none z-10">
                                 {formatDateForDisplay(dropoffDate)}
                             </div>
                             <input
-                                ref={dropoffDateRef}
                                 type="date"
                                 value={dropoffDate}
                                 onChange={e => setDropoffDate(e.target.value)}
                                 min={pickupDate}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                             />
                         </div>
 
