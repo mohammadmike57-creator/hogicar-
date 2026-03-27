@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Search as SearchIcon, Compass, X, Plane, Building, LoaderCircle } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -40,11 +40,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [pickupTime, setPickupTime] = React.useState(initialValues?.startTime || '10:00');
     const [dropoffTime, setDropoffTime] = React.useState(initialValues?.endTime || '10:00');
 
-    const pickupDateRef = React.useRef<HTMLInputElement>(null);
-    const dropoffDateRef = React.useRef<HTMLInputElement>(null);
-    const pickupTimeRef = React.useRef<HTMLSelectElement>(null);
-    const dropoffTimeRef = React.useRef<HTMLSelectElement>(null);
-
     const [suggestions, setSuggestions] = React.useState<LocationSuggestion[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = React.useState(false);
     const [dropoffSuggestions, setDropoffSuggestions] = React.useState<LocationSuggestion[]>([]);
@@ -76,9 +71,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setPickupSelection(null);
         setSuggestionsError(null);
 
-        if (debounceTimer.current) {
-            clearTimeout(debounceTimer.current);
-        }
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
         if (value.length < 3) {
             setSuggestions([]);
@@ -94,9 +87,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             try {
                 const results = await fetchLocations(value);
                 setSuggestions(results);
-                if (results.length > 0) {
-                    setIsSuggestionsOpen(true);
-                }
+                if (results.length > 0) setIsSuggestionsOpen(true);
             } catch (err) {
                 setSuggestionsError('Locations temporarily unavailable.');
                 setSuggestions([]);
@@ -125,9 +116,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setDropoffSelection(null);
         setDropoffError(null);
 
-        if (debounceTimer.current) {
-            clearTimeout(debounceTimer.current);
-        }
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
         
         if (value.length < 3) {
             setDropoffSuggestions([]);
@@ -143,9 +132,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
              try {
                 const results = await fetchLocations(value);
                 setDropoffSuggestions(results);
-                if (results.length > 0) {
-                    setIsDropoffSuggestionsOpen(true);
-                }
+                if (results.length > 0) setIsDropoffSuggestionsOpen(true);
             } catch (err) {
                 setDropoffError('Locations temporarily unavailable.');
                 setDropoffSuggestions([]);
@@ -182,9 +169,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
-            if (debounceTimer.current) {
-                clearTimeout(debounceTimer.current);
-            }
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
         };
     }, []);
 
@@ -290,18 +275,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    const openDatePicker = (inputRef: React.RefObject<HTMLInputElement>) => {
-        if (inputRef.current) {
-            // Try showPicker() if available (modern Chrome, Edge, etc.)
-            if (typeof inputRef.current.showPicker === 'function') {
-                inputRef.current.showPicker();
-            } else {
-                // Fallback to click() for Safari and older browsers
-                inputRef.current.click();
-            }
-        }
-    };
-
     return (
         <>
         {/* --- MOBILE WIDGET --- */}
@@ -360,91 +333,71 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     )}
 
-                    {/* Date Row */}
+                    {/* Date Row – using visible date inputs */}
                     <div className="flex gap-2">
                         {/* Pick-up Date */}
-                        <div 
-                            className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center cursor-pointer"
-                            onClick={() => openDatePicker(pickupDateRef)}
-                        >
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
                                 <Calendar className="w-4 h-4 text-slate-400" />
                             </div>
-                            <div className="flex-1 relative h-full pointer-events-none">
+                            <div className="flex-1 relative">
                                 <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Date</label>
-                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs truncate pr-1">{formatDateForDisplay(pickupDate)}</p>
-                                <input 
-                                    ref={pickupDateRef}
-                                    type="date" 
-                                    value={pickupDate} 
-                                    onChange={e => setPickupDate(e.target.value)} 
-                                    min={today.toISOString().split('T')[0]} 
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                <input
+                                    type="date"
+                                    value={pickupDate}
+                                    onChange={e => setPickupDate(e.target.value)}
+                                    min={today.toISOString().split('T')[0]}
+                                    className="w-full h-full bg-transparent pl-2 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer"
                                 />
                             </div>
                         </div>
                         {/* Drop-off Date */}
-                        <div 
-                            className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center cursor-pointer"
-                            onClick={() => openDatePicker(dropoffDateRef)}
-                        >
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
                                 <Calendar className="w-4 h-4 text-slate-400" />
                             </div>
-                            <div className="flex-1 relative h-full pointer-events-none">
+                            <div className="flex-1 relative">
                                 <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Date</label>
-                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs truncate pr-1">{formatDateForDisplay(dropoffDate)}</p>
-                                <input 
-                                    ref={dropoffDateRef}
-                                    type="date" 
-                                    value={dropoffDate} 
-                                    onChange={e => setDropoffDate(e.target.value)} 
-                                    min={pickupDate} 
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                <input
+                                    type="date"
+                                    value={dropoffDate}
+                                    onChange={e => setDropoffDate(e.target.value)}
+                                    min={pickupDate}
+                                    className="w-full h-full bg-transparent pl-2 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer"
                                 />
                             </div>
                         </div>
                     </div>
                     
-                    {/* Time Row */}
+                    {/* Time Row – using visible select elements */}
                     <div className="flex gap-2">
                         {/* Pick-up Time */}
-                        <div 
-                            className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center cursor-pointer"
-                            onClick={() => pickupTimeRef.current?.click()}
-                        >
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
                                 <Clock className="w-4 h-4 text-slate-400" />
                             </div>
-                            <div className="flex-1 relative h-full pointer-events-none">
+                            <div className="flex-1 relative">
                                 <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Time</label>
-                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs">{pickupTime}</p>
-                                <select 
-                                    ref={pickupTimeRef}
-                                    value={pickupTime} 
-                                    onChange={e => setPickupTime(e.target.value)} 
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base"
+                                <select
+                                    value={pickupTime}
+                                    onChange={e => setPickupTime(e.target.value)}
+                                    className="w-full h-full bg-transparent pl-2 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                                 >
                                     {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
                             </div>
                         </div>
                         {/* Drop-off Time */}
-                        <div 
-                            className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center cursor-pointer"
-                            onClick={() => dropoffTimeRef.current?.click()}
-                        >
+                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
                                 <Clock className="w-4 h-4 text-slate-400" />
                             </div>
-                            <div className="flex-1 relative h-full pointer-events-none">
+                            <div className="flex-1 relative">
                                 <label className="absolute top-1 left-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Time</label>
-                                <p className="absolute bottom-1 left-2 font-bold text-slate-900 text-xs">{dropoffTime}</p>
-                                <select 
-                                    ref={dropoffTimeRef}
-                                    value={dropoffTime} 
-                                    onChange={e => setDropoffTime(e.target.value)} 
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base"
+                                <select
+                                    value={dropoffTime}
+                                    onChange={e => setDropoffTime(e.target.value)}
+                                    className="w-full h-full bg-transparent pl-2 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                                 >
                                     {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
@@ -470,7 +423,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – SEPARATE DATE/TIME FIELDS --- */}
+        {/* --- DESKTOP WIDGET – separate fields (same pattern as mobile but with distinct fields) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -525,91 +478,63 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* ROW 2: Dates & Times (4 separate fields) */}
+                    {/* ROW 2: Four separate fields (Pick-up Date, Pick-up Time, Drop-off Date, Drop-off Time) */}
                     <div className="flex flex-row items-center gap-2 w-full">
                         {/* Pick-up Date */}
-                        <div 
-                            className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => openDatePicker(pickupDateRef)}
-                        >
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
                             <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Pick-up Date</div>
-                            <div className="w-full h-full pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none">
-                                {formatDateForDisplay(pickupDate)}
-                            </div>
-                            <input 
-                                ref={pickupDateRef}
-                                type="date" 
-                                value={pickupDate} 
-                                onChange={e => setPickupDate(e.target.value)} 
-                                min={today.toISOString().split('T')[0]} 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                            <input
+                                type="date"
+                                value={pickupDate}
+                                onChange={e => setPickupDate(e.target.value)}
+                                min={today.toISOString().split('T')[0]}
+                                className="w-full h-full bg-transparent pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer"
                             />
                         </div>
 
                         {/* Pick-up Time */}
-                        <div 
-                            className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => pickupTimeRef.current?.click()}
-                        >
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Clock className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
                             <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Pick-up Time</div>
-                            <div className="w-full h-full pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none">
-                                {pickupTime}
-                            </div>
-                            <select 
-                                ref={pickupTimeRef}
-                                value={pickupTime} 
-                                onChange={e => setPickupTime(e.target.value)} 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            <select
+                                value={pickupTime}
+                                onChange={e => setPickupTime(e.target.value)}
+                                className="w-full h-full bg-transparent pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                             >
                                 {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                             </select>
                         </div>
 
                         {/* Drop-off Date */}
-                        <div 
-                            className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => openDatePicker(dropoffDateRef)}
-                        >
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
                             <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Drop-off Date</div>
-                            <div className="w-full h-full pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none">
-                                {formatDateForDisplay(dropoffDate)}
-                            </div>
-                            <input 
-                                ref={dropoffDateRef}
-                                type="date" 
-                                value={dropoffDate} 
-                                onChange={e => setDropoffDate(e.target.value)} 
-                                min={pickupDate} 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                            <input
+                                type="date"
+                                value={dropoffDate}
+                                onChange={e => setDropoffDate(e.target.value)}
+                                min={pickupDate}
+                                className="w-full h-full bg-transparent pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer"
                             />
                         </div>
 
                         {/* Drop-off Time */}
-                        <div 
-                            className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => dropoffTimeRef.current?.click()}
-                        >
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Clock className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
                             <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Drop-off Time</div>
-                            <div className="w-full h-full pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none">
-                                {dropoffTime}
-                            </div>
-                            <select 
-                                ref={dropoffTimeRef}
-                                value={dropoffTime} 
-                                onChange={e => setDropoffTime(e.target.value)} 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            <select
+                                value={dropoffTime}
+                                onChange={e => setDropoffTime(e.target.value)}
+                                className="w-full h-full bg-transparent pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                             >
                                 {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                             </select>
