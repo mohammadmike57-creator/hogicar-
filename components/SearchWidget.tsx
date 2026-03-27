@@ -275,10 +275,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Date field with transparent input covering the whole area
-    const DateField = ({ label, value, onChange, min, refProp }: any) => (
-        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
-            {/* Visual display – behind the input */}
+    // Date field with label that activates hidden input
+    const DateField = ({ label, value, onChange, min, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string; id: string }) => (
+        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
             <div className="absolute inset-0 flex items-center pointer-events-none">
                 <div className="pl-4 flex items-center">
                     <Calendar className="w-5 h-5 text-slate-400" />
@@ -288,27 +287,20 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
                 </div>
             </div>
-            {/* Transparent input – covers the whole area and receives clicks */}
             <input
                 type="date"
+                id={id}
                 value={value}
                 onChange={onChange}
                 min={min}
-                ref={refProp}
-                className="absolute inset-0 w-full h-full cursor-pointer z-10 bg-transparent border-none text-transparent"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-        </div>
+        </label>
     );
 
-    const TimeField = ({ label, value, onChange, options }: any) => (
-        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
-            <select
-                value={value}
-                onChange={onChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            >
-                {options.map((t: string) => <option key={t} value={t}>{t}</option>)}
-            </select>
+    // Time field remains a select with label (optional)
+    const TimeField = ({ label, value, onChange, options, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[]; id: string }) => (
+        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
             <div className="absolute inset-0 flex items-center pointer-events-none">
                 <div className="pl-4 flex items-center">
                     <Clock className="w-5 h-5 text-slate-400" />
@@ -318,19 +310,29 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="text-base font-bold text-slate-900">{value}</div>
                 </div>
             </div>
-        </div>
+            <select
+                id={id}
+                value={value}
+                onChange={onChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            >
+                {options.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+        </label>
     );
 
-    const pickupDateRef = React.useRef<HTMLInputElement>(null);
-    const dropoffDateRef = React.useRef<HTMLInputElement>(null);
+    // Unique IDs for each field (avoid conflicts)
+    const pickupDateId = React.useId();
+    const pickupTimeId = React.useId();
+    const dropoffDateId = React.useId();
+    const dropoffTimeId = React.useId();
 
     return (
         <>
-        {/* --- MOBILE WIDGET --- */}
+        {/* --- MOBILE WIDGET (unchanged) --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
-                    {/* Pick-up location */}
                     <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full">
                         <div className="pl-3 flex items-center pointer-events-none">
                             {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
@@ -355,7 +357,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* Conditional Drop-off Location */}
                     {differentDropoff && (
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -382,7 +383,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     )}
 
-                    {/* Date Row */}
                     <div className="flex gap-2">
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -416,7 +416,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     </div>
                     
-                    {/* Time Row */}
                     <div className="flex gap-2">
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -468,7 +467,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET --- */}
+        {/* --- DESKTOP WIDGET – with label-activated date pickers --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -520,33 +519,35 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* ROW 2: Date & Time fields */}
+                    {/* ROW 2: Date & Time fields (with label-activated inputs) */}
                     <div className="flex flex-row items-center gap-2 w-full">
                         <DateField
                             label="Pick-up Date"
                             value={pickupDate}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPickupDate(e.target.value)}
+                            onChange={(e) => setPickupDate(e.target.value)}
                             min={today.toISOString().split('T')[0]}
-                            refProp={pickupDateRef}
+                            id={pickupDateId}
                         />
                         <TimeField
                             label="Pick-up Time"
                             value={pickupTime}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPickupTime(e.target.value)}
+                            onChange={(e) => setPickupTime(e.target.value)}
                             options={timeOptions}
+                            id={pickupTimeId}
                         />
                         <DateField
                             label="Drop-off Date"
                             value={dropoffDate}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDropoffDate(e.target.value)}
+                            onChange={(e) => setDropoffDate(e.target.value)}
                             min={pickupDate}
-                            refProp={dropoffDateRef}
+                            id={dropoffDateId}
                         />
                         <TimeField
                             label="Drop-off Time"
                             value={dropoffTime}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDropoffTime(e.target.value)}
+                            onChange={(e) => setDropoffTime(e.target.value)}
                             options={timeOptions}
+                            id={dropoffTimeId}
                         />
                         <button type="submit" className="h-14 px-8 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center text-lg whitespace-nowrap">
                             Search
