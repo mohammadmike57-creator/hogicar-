@@ -290,9 +290,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
+    const openDatePicker = (inputRef: React.RefObject<HTMLInputElement>) => {
+        if (inputRef.current) {
+            // Try showPicker() if available (modern Chrome, Edge, etc.)
+            if (typeof inputRef.current.showPicker === 'function') {
+                inputRef.current.showPicker();
+            } else {
+                // Fallback to click() for Safari and older browsers
+                inputRef.current.click();
+            }
+        }
+    };
+
     return (
         <>
-        {/* --- MOBILE WIDGET (unchanged) --- */}
+        {/* --- MOBILE WIDGET --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -353,7 +365,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* Pick-up Date */}
                         <div 
                             className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center cursor-pointer"
-                            onClick={() => pickupDateRef.current?.click()}
+                            onClick={() => openDatePicker(pickupDateRef)}
                         >
                             <div className="pl-3 flex items-center pointer-events-none">
                                 <Calendar className="w-4 h-4 text-slate-400" />
@@ -374,7 +386,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* Drop-off Date */}
                         <div 
                             className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center cursor-pointer"
-                            onClick={() => dropoffDateRef.current?.click()}
+                            onClick={() => openDatePicker(dropoffDateRef)}
                         >
                             <div className="pl-3 flex items-center pointer-events-none">
                                 <Calendar className="w-4 h-4 text-slate-400" />
@@ -458,7 +470,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – SEPARATE FIELDS FOR DATE AND TIME --- */}
+        {/* --- DESKTOP WIDGET – SEPARATE DATE/TIME FIELDS --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -518,7 +530,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* Pick-up Date */}
                         <div 
                             className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => pickupDateRef.current?.click()}
+                            onClick={() => openDatePicker(pickupDateRef)}
                         >
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -562,7 +574,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* Drop-off Date */}
                         <div 
                             className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => dropoffDateRef.current?.click()}
+                            onClick={() => openDatePicker(dropoffDateRef)}
                         >
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
