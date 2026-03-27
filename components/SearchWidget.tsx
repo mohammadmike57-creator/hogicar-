@@ -280,7 +280,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     return (
         <>
-        {/* --- MOBILE WIDGET (unchanged, uses visible date inputs) --- */}
+        {/* --- MOBILE WIDGET (unchanged) --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -422,7 +422,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – date fields have clickable container (full area) --- */}
+        {/* --- DESKTOP WIDGET – full clickable date boxes --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -479,11 +479,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     {/* ROW 2: Four separate fields (Pick-up Date, Pick-up Time, Drop-off Date, Drop-off Time) */}
                     <div className="flex flex-row items-center gap-2 w-full">
-                        {/* Pick-up Date – clickable container */}
-                        <div 
-                            className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => pickupDateRef.current?.click()}
-                        >
+                        {/* Pick-up Date – full clickable area */}
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
@@ -516,11 +513,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             </select>
                         </div>
 
-                        {/* Drop-off Date – clickable container */}
-                        <div 
-                            className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer"
-                            onClick={() => dropoffDateRef.current?.click()}
-                        >
+                        {/* Drop-off Date – full clickable area */}
+                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
