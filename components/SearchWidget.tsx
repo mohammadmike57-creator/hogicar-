@@ -275,19 +275,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Helper for date fields – renders a container where the entire area is clickable
+    // Date field with transparent input covering the whole area
     const DateField = ({ label, value, onChange, min, refProp }: any) => (
-        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
-            {/* Native date input covering the whole area */}
-            <input
-                type="date"
-                value={value}
-                onChange={onChange}
-                min={min}
-                ref={refProp}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            />
-            {/* Visual overlay (icon, label, value) – click goes through to input */}
+        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
+            {/* Visual display – behind the input */}
             <div className="absolute inset-0 flex items-center pointer-events-none">
                 <div className="pl-4 flex items-center">
                     <Calendar className="w-5 h-5 text-slate-400" />
@@ -297,6 +288,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
                 </div>
             </div>
+            {/* Transparent input – covers the whole area and receives clicks */}
+            <input
+                type="date"
+                value={value}
+                onChange={onChange}
+                min={min}
+                ref={refProp}
+                className="absolute inset-0 w-full h-full cursor-pointer z-10 bg-transparent border-none text-transparent"
+            />
         </div>
     );
 
@@ -321,13 +321,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         </div>
     );
 
-    // Desktop refs for date fields (to allow programmatic open, though not needed for click)
     const pickupDateRef = React.useRef<HTMLInputElement>(null);
     const dropoffDateRef = React.useRef<HTMLInputElement>(null);
 
     return (
         <>
-        {/* --- MOBILE WIDGET (simpler: visible date inputs) --- */}
+        {/* --- MOBILE WIDGET --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -469,7 +468,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – professional fields with clickable whole area (date picker) --- */}
+        {/* --- DESKTOP WIDGET --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
