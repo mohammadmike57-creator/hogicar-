@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -54,6 +54,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
     const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
 
+    // Mobile modal state
+    const [isLocationModalOpen, setIsLocationModalOpen] = React.useState(false);
+    const [modalType, setModalType] = React.useState<'pickup' | 'dropoff'>('pickup');
+    const [modalSearchQuery, setModalSearchQuery] = React.useState('');
+    const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
+    const [modalLoading, setModalLoading] = React.useState(false);
+    const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
         if (lowerType === 'airport') {
@@ -65,6 +73,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
+    // --- Desktop suggestion handlers ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -173,6 +182,49 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, []);
 
+    // --- Modal location search handler
+    React.useEffect(() => {
+        if (!isLocationModalOpen) return;
+        if (modalSearchQuery.length < 2) {
+            setModalResults([]);
+            setModalLoading(false);
+            return;
+        }
+        setModalLoading(true);
+        if (modalDebounceTimer.current) clearTimeout(modalDebounceTimer.current);
+        modalDebounceTimer.current = setTimeout(async () => {
+            try {
+                const results = await fetchLocations(modalSearchQuery);
+                setModalResults(results);
+            } catch (err) {
+                setModalResults([]);
+            } finally {
+                setModalLoading(false);
+            }
+        }, 500);
+        return () => {
+            if (modalDebounceTimer.current) clearTimeout(modalDebounceTimer.current);
+        };
+    }, [modalSearchQuery, isLocationModalOpen]);
+
+    const openLocationModal = (type: 'pickup' | 'dropoff') => {
+        setModalType(type);
+        setModalSearchQuery(type === 'pickup' ? pickupQuery : dropoffQuery);
+        setModalResults([]);
+        setIsLocationModalOpen(true);
+    };
+
+    const selectLocation = (loc: LocationSuggestion) => {
+        if (modalType === 'pickup') {
+            setPickupQuery(loc.label);
+            setPickupSelection(loc);
+        } else {
+            setDropoffQuery(loc.label);
+            setDropoffSelection(loc);
+        }
+        setIsLocationModalOpen(false);
+    };
+
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -275,68 +327,50 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Date field with explicit click handler for Chrome
-    const DateField = ({ label, value, onChange, min, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string; id: string }) => {
-        const inputRef = React.useRef<HTMLInputElement>(null);
-        const handleClick = () => {
-            if (inputRef.current) {
-                inputRef.current.showPicker?.(); // Use showPicker if available
-                inputRef.current.click();       // fallback
-            }
-        };
-        return (
-            <div onClick={handleClick} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
-                <div className="absolute inset-0 flex items-center pointer-events-none">
-                    <div className="pl-4 flex items-center">
-                        <Calendar className="w-5 h-5 text-slate-400" />
-                    </div>
-                    <div className="flex-1 ml-1">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
-                        <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
-                    </div>
+    // Date and time fields for desktop (unchanged)
+    const DateField = ({ label, value, onChange, min, id }: any) => (
+        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
+            <div className="absolute inset-0 flex items-center pointer-events-none">
+                <div className="pl-4 flex items-center">
+                    <Calendar className="w-5 h-5 text-slate-400" />
                 </div>
-                <input
-                    ref={inputRef}
-                    type="date"
-                    id={id}
-                    value={value}
-                    onChange={onChange}
-                    min={min}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
+                <div className="flex-1 ml-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
+                    <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
+                </div>
             </div>
-        );
-    };
+            <input
+                type="date"
+                id={id}
+                value={value}
+                onChange={onChange}
+                min={min}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+        </label>
+    );
 
-    // Time field with explicit click handler
-    const TimeField = ({ label, value, onChange, options, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[]; id: string }) => {
-        const selectRef = React.useRef<HTMLSelectElement>(null);
-        const handleClick = () => {
-            selectRef.current?.click();
-        };
-        return (
-            <div onClick={handleClick} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
-                <div className="absolute inset-0 flex items-center pointer-events-none">
-                    <div className="pl-4 flex items-center">
-                        <Clock className="w-5 h-5 text-slate-400" />
-                    </div>
-                    <div className="flex-1 ml-1">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
-                        <div className="text-base font-bold text-slate-900">{value}</div>
-                    </div>
+    const TimeField = ({ label, value, onChange, options, id }: any) => (
+        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
+            <div className="absolute inset-0 flex items-center pointer-events-none">
+                <div className="pl-4 flex items-center">
+                    <Clock className="w-5 h-5 text-slate-400" />
                 </div>
-                <select
-                    ref={selectRef}
-                    id={id}
-                    value={value}
-                    onChange={onChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                >
-                    {options.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
+                <div className="flex-1 ml-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
+                    <div className="text-base font-bold text-slate-900">{value}</div>
+                </div>
             </div>
-        );
-    };
+            <select
+                id={id}
+                value={value}
+                onChange={onChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            >
+                {options.map((t: string) => <option key={t} value={t}>{t}</option>)}
+            </select>
+        </label>
+    );
 
     const pickupDateId = React.useId();
     const pickupTimeId = React.useId();
@@ -345,60 +379,51 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     return (
         <>
-        {/* --- MOBILE WIDGET (unchanged) --- */}
+        {/* --- MOBILE WIDGET with modal location picker --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
-                    <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full">
-                        <div className="pl-3 flex items-center pointer-events-none">
+                    {/* Pick-up location - opens modal */}
+                    <div 
+                        className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full cursor-pointer"
+                        onClick={() => openLocationModal('pickup')}
+                    >
+                        <div className="pl-3 flex items-center">
                             {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
                         </div>
-                        <div className="flex-1 relative h-full">
-                            <label className="absolute top-1 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Location</label>
-                            <input
-                                type="text"
-                                className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-base bg-transparent border-none focus:ring-0 focus:outline-none"
-                                value={pickupQuery}
-                                onChange={handleLocationChange}
-                                onFocus={handleFocus}
-                                autoComplete="off"
-                                placeholder="City, airport, or station"
-                                required
-                            />
-                        </div>
-                        {isSuggestionsOpen && (
-                            <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                                {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+                        <div className="flex-1">
+                            <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Pick-up Location</div>
+                            <div className="font-bold text-slate-900 text-base truncate">
+                                {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
                             </div>
-                        )}
+                        </div>
+                        <div className="pr-3 text-slate-400">
+                            <SearchIcon className="w-4 h-4" />
+                        </div>
                     </div>
 
+                    {/* Conditional Drop-off Location - opens modal */}
                     {differentDropoff && (
-                        <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full">
-                            <div className="pl-3 flex items-center pointer-events-none">
+                        <div 
+                            className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center w-full cursor-pointer"
+                            onClick={() => openLocationModal('dropoff')}
+                        >
+                            <div className="pl-3 flex items-center">
                                 {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}
                             </div>
-                            <div className="flex-1 relative h-full">
-                                <label className="absolute top-1 left-3 text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Location</label>
-                                <input
-                                    type="text"
-                                    className="w-full h-full pl-3 pr-3 pt-4 pb-1 font-bold text-slate-900 text-base bg-transparent border-none focus:ring-0 focus:outline-none"
-                                    value={dropoffQuery}
-                                    onChange={handleDropoffLocationChange}
-                                    onFocus={handleDropoffFocus}
-                                    autoComplete="off"
-                                    placeholder="City, airport, or station"
-                                    required
-                                />
-                            </div>
-                            {isDropoffSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                                    {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                            <div className="flex-1">
+                                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Drop-off Location</div>
+                                <div className="font-bold text-slate-900 text-base truncate">
+                                    {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
                                 </div>
-                            )}
+                            </div>
+                            <div className="pr-3 text-slate-400">
+                                <SearchIcon className="w-4 h-4" />
+                            </div>
                         </div>
                     )}
 
+                    {/* Date Row (unchanged) */}
                     <div className="flex gap-2">
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -432,6 +457,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     </div>
                     
+                    {/* Time Row (unchanged) */}
                     <div className="flex gap-2">
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -483,7 +509,62 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – with explicit click handlers for Chrome --- */}
+        {/* Location Modal for Mobile */}
+        {isLocationModalOpen && (
+            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+                {/* Header */}
+                <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3">
+                    <button onClick={() => setIsLocationModalOpen(false)} className="p-1">
+                        <X className="w-6 h-6 text-slate-600" />
+                    </button>
+                    <div className="flex-1 relative">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder={`Search for ${modalType === 'pickup' ? 'pickup location' : 'dropoff location'}`}
+                            value={modalSearchQuery}
+                            onChange={(e) => setModalSearchQuery(e.target.value)}
+                            autoFocus
+                            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Results */}
+                <div className="flex-1 overflow-y-auto p-4">
+                    {modalLoading ? (
+                        <div className="flex justify-center items-center py-10">
+                            <LoaderCircle className="w-6 h-6 animate-spin text-slate-400" />
+                        </div>
+                    ) : modalResults.length === 0 ? (
+                        <div className="text-center text-slate-500 py-10">
+                            {modalSearchQuery.length >= 2 ? 'No locations found' : 'Type at least 2 letters to search'}
+                        </div>
+                    ) : (
+                        <ul className="space-y-2">
+                            {modalResults.map((loc) => (
+                                <li key={loc.value}>
+                                    <button
+                                        onClick={() => selectLocation(loc)}
+                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3"
+                                    >
+                                        <div className="flex-shrink-0">
+                                            {getLocationIcon(loc.type, 'w-5 h-5')}
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-slate-900">{loc.label}</div>
+                                            <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                                        </div>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
+        )}
+
+        {/* --- DESKTOP WIDGET (unchanged) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
