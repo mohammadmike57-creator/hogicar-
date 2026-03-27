@@ -275,53 +275,69 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Date field with label that activates hidden input
-    const DateField = ({ label, value, onChange, min, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string; id: string }) => (
-        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
-            <div className="absolute inset-0 flex items-center pointer-events-none">
-                <div className="pl-4 flex items-center">
-                    <Calendar className="w-5 h-5 text-slate-400" />
+    // Date field with explicit click handler for Chrome
+    const DateField = ({ label, value, onChange, min, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string; id: string }) => {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        const handleClick = () => {
+            if (inputRef.current) {
+                inputRef.current.showPicker?.(); // Use showPicker if available
+                inputRef.current.click();       // fallback
+            }
+        };
+        return (
+            <div onClick={handleClick} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
+                <div className="absolute inset-0 flex items-center pointer-events-none">
+                    <div className="pl-4 flex items-center">
+                        <Calendar className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="flex-1 ml-1">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
+                        <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
+                    </div>
                 </div>
-                <div className="flex-1 ml-1">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
-                    <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
-                </div>
+                <input
+                    ref={inputRef}
+                    type="date"
+                    id={id}
+                    value={value}
+                    onChange={onChange}
+                    min={min}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
             </div>
-            <input
-                type="date"
-                id={id}
-                value={value}
-                onChange={onChange}
-                min={min}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-        </label>
-    );
+        );
+    };
 
-    // Time field remains a select with label (optional)
-    const TimeField = ({ label, value, onChange, options, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[]; id: string }) => (
-        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
-            <div className="absolute inset-0 flex items-center pointer-events-none">
-                <div className="pl-4 flex items-center">
-                    <Clock className="w-5 h-5 text-slate-400" />
+    // Time field with explicit click handler
+    const TimeField = ({ label, value, onChange, options, id }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[]; id: string }) => {
+        const selectRef = React.useRef<HTMLSelectElement>(null);
+        const handleClick = () => {
+            selectRef.current?.click();
+        };
+        return (
+            <div onClick={handleClick} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
+                <div className="absolute inset-0 flex items-center pointer-events-none">
+                    <div className="pl-4 flex items-center">
+                        <Clock className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="flex-1 ml-1">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
+                        <div className="text-base font-bold text-slate-900">{value}</div>
+                    </div>
                 </div>
-                <div className="flex-1 ml-1">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
-                    <div className="text-base font-bold text-slate-900">{value}</div>
-                </div>
+                <select
+                    ref={selectRef}
+                    id={id}
+                    value={value}
+                    onChange={onChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                >
+                    {options.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
             </div>
-            <select
-                id={id}
-                value={value}
-                onChange={onChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            >
-                {options.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-        </label>
-    );
+        );
+    };
 
-    // Unique IDs for each field (avoid conflicts)
     const pickupDateId = React.useId();
     const pickupTimeId = React.useId();
     const dropoffDateId = React.useId();
@@ -467,7 +483,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – with label-activated date pickers --- */}
+        {/* --- DESKTOP WIDGET – with explicit click handlers for Chrome --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -519,7 +535,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* ROW 2: Date & Time fields (with label-activated inputs) */}
+                    {/* ROW 2: Date & Time fields */}
                     <div className="flex flex-row items-center gap-2 w-full">
                         <DateField
                             label="Pick-up Date"
