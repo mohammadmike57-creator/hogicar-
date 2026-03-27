@@ -73,7 +73,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers (unchanged) ---
+    // --- Desktop suggestion handlers ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -197,6 +197,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 const results = await fetchLocations(modalSearchQuery);
                 setModalResults(results);
             } catch (err) {
+                console.error("Modal fetch error:", err);
                 setModalResults([]);
             } finally {
                 setModalLoading(false);
@@ -521,57 +522,78 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- Professional Location Modal for Mobile --- */}
+        {/* --- PREMIUM LOCATION MODAL FOR MOBILE --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col" style={{ overflowY: 'auto' }}>
-                {/* Sticky header with back button and search field */}
-                <div className="sticky top-0 bg-white border-b border-slate-100 shadow-sm px-4 py-3 z-10">
+            <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in fade-in duration-200">
+                {/* Sticky header with elegant design */}
+                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
-                        <button onClick={closeLocationModal} className="p-1 -ml-1 active:opacity-60 transition-opacity">
+                        <button 
+                            onClick={closeLocationModal} 
+                            className="p-1 -ml-1 active:opacity-60 transition-opacity"
+                        >
                             <ArrowLeft className="w-6 h-6 text-slate-600" />
                         </button>
                         <div className="flex-1 relative">
-                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder={`Search for ${modalType === 'pickup' ? 'pickup location' : 'dropoff location'}`}
+                                placeholder={`Search ${modalType === 'pickup' ? 'pickup' : 'drop-off'} location`}
                                 value={modalSearchQuery}
                                 onChange={(e) => setModalSearchQuery(e.target.value)}
                                 autoFocus
                                 autoCapitalize="off"
                                 autoComplete="off"
                                 inputMode="search"
-                                className="w-full pl-9 pr-4 py-3 text-base border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+                                className="w-full pl-12 pr-4 py-3.5 text-base border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 placeholder:text-slate-400"
                                 style={{ fontSize: '16px' }}
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Results list */}
-                <div className="flex-1 overflow-y-auto p-4">
-                    {modalLoading ? (
-                        <div className="flex justify-center items-center py-10">
-                            <LoaderCircle className="w-6 h-6 animate-spin text-slate-400" />
+                {/* Results area */}
+                <div className="flex-1 overflow-y-auto px-5 py-4">
+                    {modalLoading && (
+                        <div className="flex justify-center items-center py-12">
+                            <LoaderCircle className="w-7 h-7 animate-spin text-blue-500" />
                         </div>
-                    ) : modalResults.length === 0 ? (
-                        <div className="text-center text-slate-500 py-10">
-                            {modalSearchQuery.length >= 2 ? 'No locations found' : 'Type at least 2 letters to search'}
+                    )}
+
+                    {!modalLoading && modalSearchQuery.length >= 2 && modalResults.length === 0 && (
+                        <div className="text-center py-12">
+                            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <MapPin className="w-7 h-7 text-slate-400" />
+                            </div>
+                            <p className="text-slate-500 text-base">No locations found</p>
+                            <p className="text-slate-400 text-sm mt-1">Try a different spelling</p>
                         </div>
-                    ) : (
-                        <ul className="space-y-1">
+                    )}
+
+                    {!modalLoading && modalSearchQuery.length < 2 && (
+                        <div className="text-center py-12">
+                            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <SearchIcon className="w-7 h-7 text-slate-400" />
+                            </div>
+                            <p className="text-slate-500 text-base">Start typing</p>
+                            <p className="text-slate-400 text-sm mt-1">Enter at least 2 letters</p>
+                        </div>
+                    )}
+
+                    {!modalLoading && modalResults.length > 0 && (
+                        <ul className="space-y-2">
                             {modalResults.map((loc) => (
                                 <li key={loc.value}>
                                     <button
                                         onClick={() => selectLocation(loc)}
-                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center gap-3"
                                     >
-                                        <div className="flex-shrink-0">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
                                             {getLocationIcon(loc.type, 'w-5 h-5')}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="font-semibold text-slate-900 text-base truncate">{loc.label}</div>
-                                            <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                                            <div className="text-xs text-slate-500 mt-0.5">{loc.iataCode} • {loc.municipality || loc.countryCode}</div>
                                         </div>
                                     </button>
                                 </li>
