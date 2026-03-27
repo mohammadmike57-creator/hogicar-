@@ -275,9 +275,59 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
+    // Helper for date fields – renders a container where the entire area is clickable
+    const DateField = ({ label, value, onChange, min, refProp }: any) => (
+        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer">
+            {/* Native date input covering the whole area */}
+            <input
+                type="date"
+                value={value}
+                onChange={onChange}
+                min={min}
+                ref={refProp}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            {/* Visual overlay (icon, label, value) – click goes through to input */}
+            <div className="absolute inset-0 flex items-center pointer-events-none">
+                <div className="pl-4 flex items-center">
+                    <Calendar className="w-5 h-5 text-slate-400" />
+                </div>
+                <div className="flex-1 ml-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
+                    <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
+                </div>
+            </div>
+        </div>
+    );
+
+    const TimeField = ({ label, value, onChange, options }: any) => (
+        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
+            <select
+                value={value}
+                onChange={onChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            >
+                {options.map((t: string) => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <div className="absolute inset-0 flex items-center pointer-events-none">
+                <div className="pl-4 flex items-center">
+                    <Clock className="w-5 h-5 text-slate-400" />
+                </div>
+                <div className="flex-1 ml-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
+                    <div className="text-base font-bold text-slate-900">{value}</div>
+                </div>
+            </div>
+        </div>
+    );
+
+    // Desktop refs for date fields (to allow programmatic open, though not needed for click)
+    const pickupDateRef = React.useRef<HTMLInputElement>(null);
+    const dropoffDateRef = React.useRef<HTMLInputElement>(null);
+
     return (
         <>
-        {/* --- MOBILE WIDGET (unchanged, visible date inputs) --- */}
+        {/* --- MOBILE WIDGET (simpler: visible date inputs) --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -333,7 +383,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     )}
 
-                    {/* Date Row – visible date inputs */}
+                    {/* Date Row */}
                     <div className="flex gap-2">
                         <div className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 flex-1 flex items-center">
                             <div className="pl-3 flex items-center pointer-events-none">
@@ -419,20 +469,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- DESKTOP WIDGET – date fields use absolute input covering container, visible text is non‑clickable --- */}
+        {/* --- DESKTOP WIDGET – professional fields with clickable whole area (date picker) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
                     {/* ROW 1: Locations */}
                     <div className="flex flex-row items-center gap-2 w-full">
-                        {/* Pick-up Location */}
                         <div className={`relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full`}>
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
                             </div>
                             <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pick-up</div>
                             <input 
-                                id="pickup-location" 
                                 type="text" 
                                 placeholder="City, airport, or station" 
                                 className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent" 
@@ -449,7 +497,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             )}
                         </div>
 
-                        {/* Drop-off Location */}
                         {differentDropoff && (
                             <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -474,75 +521,34 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* ROW 2: Four separate fields */}
+                    {/* ROW 2: Date & Time fields */}
                     <div className="flex flex-row items-center gap-2 w-full">
-                        {/* Pick-up Date – absolute input covers whole container */}
-                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 overflow-hidden">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                                <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                            </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none z-10">Pick-up Date</div>
-                            <div className="absolute inset-0 pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none z-10">
-                                {formatDateForDisplay(pickupDate)}
-                            </div>
-                            <input
-                                type="date"
-                                value={pickupDate}
-                                onChange={e => setPickupDate(e.target.value)}
-                                min={today.toISOString().split('T')[0]}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                            />
-                        </div>
-
-                        {/* Pick-up Time */}
-                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Clock className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                            </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Pick-up Time</div>
-                            <select
-                                value={pickupTime}
-                                onChange={e => setPickupTime(e.target.value)}
-                                className="w-full h-full bg-transparent pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
-                            >
-                                {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
-                        </div>
-
-                        {/* Drop-off Date – absolute input covers whole container */}
-                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 overflow-hidden">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                                <Calendar className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                            </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none z-10">Drop-off Date</div>
-                            <div className="absolute inset-0 pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 bg-transparent pointer-events-none z-10">
-                                {formatDateForDisplay(dropoffDate)}
-                            </div>
-                            <input
-                                type="date"
-                                value={dropoffDate}
-                                onChange={e => setDropoffDate(e.target.value)}
-                                min={pickupDate}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                            />
-                        </div>
-
-                        {/* Drop-off Time */}
-                        <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Clock className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                            </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider pointer-events-none">Drop-off Time</div>
-                            <select
-                                value={dropoffTime}
-                                onChange={e => setDropoffTime(e.target.value)}
-                                className="w-full h-full bg-transparent pl-11 pr-4 pt-4 pb-1 text-base font-bold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
-                            >
-                                {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
-                        </div>
-
-                        {/* Search Button */}
+                        <DateField
+                            label="Pick-up Date"
+                            value={pickupDate}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPickupDate(e.target.value)}
+                            min={today.toISOString().split('T')[0]}
+                            refProp={pickupDateRef}
+                        />
+                        <TimeField
+                            label="Pick-up Time"
+                            value={pickupTime}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPickupTime(e.target.value)}
+                            options={timeOptions}
+                        />
+                        <DateField
+                            label="Drop-off Date"
+                            value={dropoffDate}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDropoffDate(e.target.value)}
+                            min={pickupDate}
+                            refProp={dropoffDateRef}
+                        />
+                        <TimeField
+                            label="Drop-off Time"
+                            value={dropoffTime}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDropoffTime(e.target.value)}
+                            options={timeOptions}
+                        />
                         <button type="submit" className="h-14 px-8 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center text-lg whitespace-nowrap">
                             Search
                         </button>
