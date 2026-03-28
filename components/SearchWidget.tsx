@@ -62,7 +62,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
     const modalScrollRef = React.useRef<HTMLDivElement>(null);
-    const inputRef = React.useRef<HTMLInputElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -75,7 +74,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers (unchanged) ---
+    // --- Desktop suggestion handlers ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -209,25 +208,24 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
+    // Scroll modal to top after it opens
+    React.useEffect(() => {
+        if (isLocationModalOpen && modalScrollRef.current) {
+            const timer = setTimeout(() => {
+                if (modalScrollRef.current) {
+                    modalScrollRef.current.scrollTop = 0;
+                }
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [isLocationModalOpen]);
+
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
         setModalType(type);
         setModalSearchQuery(type === 'pickup' ? pickupQuery : dropoffQuery);
         setModalResults([]);
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
-        
-        // Use requestAnimationFrame to ensure the modal is rendered, then scroll to top,
-        // then focus the input – all in the same microtask queue (retaining user gesture).
-        requestAnimationFrame(() => {
-            if (modalScrollRef.current) {
-                modalScrollRef.current.scrollTop = 0;
-            }
-            requestAnimationFrame(() => {
-                if (inputRef.current) {
-                    inputRef.current.focus();
-                }
-            });
-        });
     };
 
     const closeLocationModal = () => {
@@ -536,7 +534,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (automatic keyboard) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (autoFocus + scroll after open) --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
@@ -555,7 +553,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <div className="flex-1 relative">
                             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
-                                ref={inputRef}
+                                autoFocus
                                 type="text"
                                 placeholder={`Search ${modalType === 'pickup' ? 'pickup' : 'drop-off'} location`}
                                 value={modalSearchQuery}
