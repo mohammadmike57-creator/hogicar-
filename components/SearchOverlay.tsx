@@ -22,52 +22,36 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
-  let scrollY = 0;
 
-  // Viewport height fix (prevents modal jump when keyboard opens)
-  useEffect(() => {
-    const setViewportHeight = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-    setViewportHeight();
-    window.addEventListener('resize', setViewportHeight);
-    return () => window.removeEventListener('resize', setViewportHeight);
-  }, []);
-
-  const lockBodyScroll = () => {
-    scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.width = '100%';
-  };
-
-  const unlockBodyScroll = () => {
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
-    window.scrollTo(0, scrollY);
-  };
-
-  // Open/close logic with body scroll locking
+  // Lock body scroll when overlay opens
   useEffect(() => {
     if (isOpen) {
-      lockBodyScroll();
-      // Delay focus to ensure the overlay is rendered
+      // Save scroll position
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      // Focus input after a short delay to ensure keyboard appears
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      unlockBodyScroll();
+      // Restore scroll
+      const top = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (top) {
+        window.scrollTo(0, parseInt(top, 10) * -1);
+      }
     }
     return () => {
-      if (!isOpen) unlockBodyScroll();
+      // Cleanup on unmount
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
     };
   }, [isOpen]);
 
-  // Search with debounce
+  // Debounced search
   useEffect(() => {
     if (!isOpen) return;
     if (searchQuery.length < 2) {
@@ -108,10 +92,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[200] bg-white flex flex-col"
-      style={{ height: 'calc(var(--vh) * 100)' }}
-    >
+    <div className="fixed inset-0 z-[200] bg-white flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 border-b border-slate-200 bg-white">
         <div className="flex items-center gap-3">
@@ -205,7 +186,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty states */}
         {!loading && searchQuery.length >= 2 && results.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
