@@ -216,17 +216,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
         
-        // First: scroll modal to top immediately
+        // First, scroll modal to top immediately
         setTimeout(() => {
             if (modalScrollRef.current) {
                 modalScrollRef.current.scrollTop = 0;
             }
-            // Second: after 1 second, focus the input to show keyboard
+            // After 300ms (still within user gesture window), focus the input to trigger keyboard
             setTimeout(() => {
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
-            }, 1000);
+            }, 300);
         }, 10);
     };
 
@@ -536,7 +536,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (keyboard after 1 sec) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (keyboard after 300ms) --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
