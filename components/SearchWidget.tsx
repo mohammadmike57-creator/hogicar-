@@ -209,25 +209,28 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
+    // Automatically focus input when modal opens
+    React.useEffect(() => {
+        if (isLocationModalOpen && inputRef.current) {
+            // Ensure scroll to top first, then focus
+            if (modalScrollRef.current) {
+                modalScrollRef.current.scrollTop = 0;
+            }
+            // Use setTimeout to allow the DOM to settle, but keep delay minimal
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 0);
+        }
+    }, [isLocationModalOpen]);
+
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
         setModalType(type);
         setModalSearchQuery(type === 'pickup' ? pickupQuery : dropoffQuery);
         setModalResults([]);
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
-        
-        // Use setTimeout to ensure modal is rendered, then scroll to top and focus
-        setTimeout(() => {
-            if (modalScrollRef.current) {
-                modalScrollRef.current.scrollTop = 0;
-            }
-            // Short delay for focus to be within user gesture window
-            setTimeout(() => {
-                if (inputRef.current) {
-                    inputRef.current.focus();
-                }
-            }, 30);
-        }, 10);
     };
 
     const closeLocationModal = () => {
@@ -536,7 +539,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (automatic keyboard + top scroll) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (auto‑keyboard + top scroll) --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
@@ -560,6 +563,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 placeholder={`Search ${modalType === 'pickup' ? 'pickup' : 'drop-off'} location`}
                                 value={modalSearchQuery}
                                 onChange={(e) => setModalSearchQuery(e.target.value)}
+                                autoFocus
                                 autoCapitalize="off"
                                 autoComplete="off"
                                 inputMode="search"
