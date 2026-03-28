@@ -62,6 +62,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
     const modalScrollRef = React.useRef<HTMLDivElement>(null);
+    const modalHeaderRef = React.useRef<HTMLDivElement>(null);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
@@ -209,19 +210,26 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Automatically focus input when modal opens
+    // Ensure modal scrolls to top AND keyboard appears, while keeping header visible
     React.useEffect(() => {
-        if (isLocationModalOpen && inputRef.current) {
-            // Ensure scroll to top first, then focus
+        if (isLocationModalOpen) {
+            // First, reset scroll container to top
             if (modalScrollRef.current) {
                 modalScrollRef.current.scrollTop = 0;
             }
-            // Use setTimeout to allow the DOM to settle, but keep delay minimal
-            setTimeout(() => {
+            // Use requestAnimationFrame to allow layout to settle
+            requestAnimationFrame(() => {
+                // Focus input to open keyboard
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
-            }, 0);
+                // After focusing, scroll the header into view (makes sure it's at the top)
+                requestAnimationFrame(() => {
+                    if (modalHeaderRef.current) {
+                        modalHeaderRef.current.scrollIntoView({ block: 'start', behavior: 'auto' });
+                    }
+                });
+            });
         }
     }, [isLocationModalOpen]);
 
@@ -539,15 +547,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (auto‑keyboard + top scroll) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (top scroll + keyboard + header visible) --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
                 style={{ scrollBehavior: 'smooth' }}
             >
-                {/* Sticky header */}
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
+                {/* Sticky header - ref for scrolling into view */}
+                <div ref={modalHeaderRef} className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={closeLocationModal} 
