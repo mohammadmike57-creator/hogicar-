@@ -216,21 +216,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
         
-        // Ensure the modal is rendered, then scroll to top, then focus input
-        requestAnimationFrame(() => {
+        // Use setTimeout to ensure modal is rendered, then scroll to top and focus
+        setTimeout(() => {
             if (modalScrollRef.current) {
-                // Force scroll to top without animation
                 modalScrollRef.current.scrollTop = 0;
-                // Also use scrollTo for good measure
-                modalScrollRef.current.scrollTo({ top: 0, behavior: 'instant' });
             }
-            // Focus input after scrolling (will open keyboard)
-            requestAnimationFrame(() => {
+            // Short delay for focus to be within user gesture window
+            setTimeout(() => {
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
-            });
-        });
+            }, 30);
+        }, 10);
     };
 
     const closeLocationModal = () => {
@@ -539,12 +536,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (scrolls to top, then keyboard) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (automatic keyboard + top scroll) --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
-                style={{ scrollBehavior: 'smooth', overflowAnchor: 'none' }}
+                style={{ scrollBehavior: 'smooth' }}
             >
                 {/* Sticky header */}
                 <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
