@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, Search as SearchIcon, MapPin, History, Plane, Building, LoaderCircle } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
@@ -22,32 +23,31 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
+  let scrollY = 0;
 
-  // Lock body scroll when overlay opens
+  // Lock/unlock body scroll when overlay opens/closes
   useEffect(() => {
     if (isOpen) {
-      // Save scroll position
-      const scrollY = window.scrollY;
+      scrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      // Focus input after a short delay to ensure keyboard appears
+      // Small delay to ensure the DOM is ready
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      // Restore scroll
-      const top = document.body.style.top;
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      if (top) {
-        window.scrollTo(0, parseInt(top, 10) * -1);
-      }
+      window.scrollTo(0, scrollY);
     }
     return () => {
-      // Cleanup on unmount
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
+      // Cleanup if unmounted while open
+      if (isOpen) {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      }
     };
   }, [isOpen]);
 
@@ -91,8 +91,12 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[200] bg-white flex flex-col">
+  // Use a portal to attach directly to body, avoiding any parent CSS issues
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] bg-white flex flex-col"
+      style={{ top: 0, left: 0, right: 0, bottom: 0, margin: 0, padding: 0 }}
+    >
       {/* Header */}
       <div className="px-4 py-3 border-b border-slate-200 bg-white">
         <div className="flex items-center gap-3">
@@ -207,7 +211,8 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
