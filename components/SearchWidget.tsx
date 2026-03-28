@@ -62,6 +62,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
     const modalScrollRef = React.useRef<HTMLDivElement>(null);
+    const modalHeaderRef = React.useRef<HTMLDivElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -208,18 +209,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Guarantee scroll to top when modal opens
+    // Force modal to scroll to top after opening (accounts for keyboard)
     const scrollModalToTop = () => {
         if (modalScrollRef.current) {
             modalScrollRef.current.scrollTop = 0;
         }
+        if (modalHeaderRef.current) {
+            modalHeaderRef.current.scrollIntoView({ block: 'start', behavior: 'auto' });
+        }
     };
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         if (isLocationModalOpen) {
+            // Immediate scroll
             scrollModalToTop();
-            // Additional safety for dynamic content
-            const timer = setTimeout(scrollModalToTop, 30);
+            // Delay to account for keyboard animation
+            const timer = setTimeout(scrollModalToTop, 300);
             return () => clearTimeout(timer);
         }
     }, [isLocationModalOpen]);
@@ -538,15 +543,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PREMIUM MODAL – GUARANTEED TOP SCROLL --- */}
+        {/* --- PREMIUM MODAL – FORCED SCROLL TO TOP, HANDLES KEYBOARD --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
                 style={{ scrollBehavior: 'smooth' }}
             >
-                {/* Sticky header – always at the very top of the modal */}
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
+                {/* Sticky header – this is the element we want at the top */}
+                <div ref={modalHeaderRef} className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={closeLocationModal} 
