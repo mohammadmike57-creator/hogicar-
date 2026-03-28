@@ -74,7 +74,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers ---
+    // --- Desktop suggestion handlers (unchanged) ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -183,7 +183,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, []);
 
-    // --- Modal location search logic ---
+    // --- Modal search logic ---
     React.useEffect(() => {
         if (!isLocationModalOpen) return;
         if (modalSearchQuery.length < 2) {
@@ -208,25 +208,19 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Force scroll to top when modal opens
-    React.useEffect(() => {
-        if (isLocationModalOpen && modalScrollRef.current) {
-            // Use multiple techniques to ensure scroll position is at top
-            const scrollToTop = () => {
-                if (modalScrollRef.current) {
-                    modalScrollRef.current.scrollTop = 0;
-                }
-            };
-            // Immediate scroll
-            scrollToTop();
-            // After a short delay (for content to render)
-            const timer1 = setTimeout(scrollToTop, 30);
-            // After animation frames
-            requestAnimationFrame(() => {
-                scrollToTop();
-                requestAnimationFrame(scrollToTop);
-            });
-            return () => clearTimeout(timer1);
+    // Guarantee scroll to top when modal opens
+    const scrollModalToTop = () => {
+        if (modalScrollRef.current) {
+            modalScrollRef.current.scrollTop = 0;
+        }
+    };
+
+    React.useLayoutEffect(() => {
+        if (isLocationModalOpen) {
+            scrollModalToTop();
+            // Additional safety for dynamic content
+            const timer = setTimeout(scrollModalToTop, 30);
+            return () => clearTimeout(timer);
         }
     }, [isLocationModalOpen]);
 
@@ -356,7 +350,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Date and time fields for desktop
+    // Desktop date/time fields (unchanged)
     const DateField = ({ label, value, onChange, min, id }: any) => (
         <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
             <div className="absolute inset-0 flex items-center pointer-events-none">
@@ -544,13 +538,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- MODAL – FORCED SCROLL TO TOP & BLACK TEXT --- */}
+        {/* --- PREMIUM MODAL – GUARANTEED TOP SCROLL --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
+                style={{ scrollBehavior: 'smooth' }}
             >
-                {/* Sticky header */}
+                {/* Sticky header – always at the very top of the modal */}
                 <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
