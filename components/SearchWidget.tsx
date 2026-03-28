@@ -211,16 +211,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     // Force scroll to top when modal opens
     React.useEffect(() => {
         if (isLocationModalOpen && modalScrollRef.current) {
-            // Wait for DOM to settle then scroll to top
+            // Use multiple techniques to ensure scroll position is at top
             const scrollToTop = () => {
                 if (modalScrollRef.current) {
                     modalScrollRef.current.scrollTop = 0;
                 }
             };
+            // Immediate scroll
             scrollToTop();
-            // Additional safety after a short delay
-            const timer = setTimeout(scrollToTop, 50);
-            return () => clearTimeout(timer);
+            // After a short delay (for content to render)
+            const timer1 = setTimeout(scrollToTop, 30);
+            // After animation frames
+            requestAnimationFrame(() => {
+                scrollToTop();
+                requestAnimationFrame(scrollToTop);
+            });
+            return () => clearTimeout(timer1);
         }
     }, [isLocationModalOpen]);
 
@@ -538,14 +544,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PREMIUM MODAL – FORCED SCROLL TO TOP --- */}
+        {/* --- MODAL – FORCED SCROLL TO TOP & BLACK TEXT --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
-                style={{ scrollBehavior: 'smooth' }}
             >
-                {/* Sticky header - always at top */}
+                {/* Sticky header */}
                 <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
