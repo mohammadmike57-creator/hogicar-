@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ArrowLeft } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -61,7 +61,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
-    const modalInputRef = React.useRef<HTMLInputElement>(null);
+    const modalScrollRef = React.useRef<HTMLDivElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -198,7 +198,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 const results = await fetchLocations(modalSearchQuery);
                 setModalResults(results);
             } catch (err) {
-                console.error("Modal fetch error:", err);
                 setModalResults([]);
             } finally {
                 setModalLoading(false);
@@ -209,12 +208,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Focus input when modal opens
+    // Scroll modal to top when opened
     React.useEffect(() => {
-        if (isLocationModalOpen && modalInputRef.current) {
-            setTimeout(() => {
-                modalInputRef.current?.focus();
-            }, 100);
+        if (isLocationModalOpen && modalScrollRef.current) {
+            modalScrollRef.current.scrollTop = 0;
         }
     }, [isLocationModalOpen]);
 
@@ -396,7 +393,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     return (
         <>
-        {/* --- MOBILE WIDGET with professional modal location picker --- */}
+        {/* --- MOBILE WIDGET --- */}
         <div className="lg:hidden" ref={mobileWidgetRef}>
             <div className="bg-white p-3 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -422,7 +419,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     </button>
 
-                    {/* Drop-off location button (only if enabled) */}
+                    {/* Drop-off location button */}
                     {differentDropoff && (
                         <button
                             type="button"
@@ -532,11 +529,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- ULTRA-PREMIUM LOCATION MODAL (opens at top, input fully visible) --- */}
+        {/* --- PREMIUM MODAL – OPENS AT TOP, TYPING VISIBLE --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white">
-                {/* Sticky header at very top */}
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 pt-4 pb-3 z-10 shadow-sm">
+            <div 
+                ref={modalScrollRef}
+                className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
+                style={{ scrollBehavior: 'smooth' }}
+            >
+                {/* Sticky header - always at top */}
+                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={closeLocationModal} 
@@ -547,7 +548,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <div className="flex-1 relative">
                             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
-                                ref={modalInputRef}
                                 type="text"
                                 placeholder={`Search ${modalType === 'pickup' ? 'pickup' : 'drop-off'} location`}
                                 value={modalSearchQuery}
@@ -556,15 +556,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 autoCapitalize="off"
                                 autoComplete="off"
                                 inputMode="search"
-                                className="w-full pl-12 pr-4 py-3.5 text-base border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 placeholder:text-slate-400"
-                                style={{ fontSize: '16px' }}
+                                className="w-full pl-12 pr-4 py-3.5 text-base text-slate-900 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 placeholder:text-slate-400"
+                                style={{ fontSize: '16px', color: '#0f172a' }}
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Scrollable results - starts below header */}
-                <div className="flex-1 overflow-y-auto px-5 py-4">
+                {/* Results area */}
+                <div className="flex-1 px-5 py-4">
                     {modalLoading && (
                         <div className="flex justify-center items-center py-12">
                             <LoaderCircle className="w-7 h-7 animate-spin text-blue-500" />
@@ -619,7 +619,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
-                    {/* ROW 1: Locations */}
                     <div className="flex flex-row items-center gap-2 w-full">
                         <div className={`relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full`}>
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -667,7 +666,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    {/* ROW 2: Date & Time fields */}
                     <div className="flex flex-row items-center gap-2 w-full">
                         <DateField
                             label="Pick-up Date"
