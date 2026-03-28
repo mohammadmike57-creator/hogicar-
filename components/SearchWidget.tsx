@@ -63,6 +63,25 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [recentLocations, setRecentLocations] = React.useState<LocationSuggestion[]>([]);
     const inputRef = React.useRef<HTMLInputElement>(null);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+    let scrollY = 0;
+
+    const lockBodyScroll = () => {
+        scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+    };
+
+    const unlockBodyScroll = () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+    };
 
     // Load recent locations from localStorage on mount
     React.useEffect(() => {
@@ -223,13 +242,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Professional open function – no height, body fixed, autoFocus
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
         setModalType(type);
         setModalSearchQuery('');
         setModalResults([]);
         setIsLocationModalOpen(true);
-        document.body.style.position = 'fixed';
+
+        lockBodyScroll();
 
         setTimeout(() => {
             inputRef.current?.focus();
@@ -238,7 +257,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     const closeLocationModal = () => {
         setIsLocationModalOpen(false);
-        document.body.style.position = '';
+        unlockBodyScroll();
     };
 
     const selectLocation = (loc: LocationSuggestion) => {
@@ -562,10 +581,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- FINAL PROFESSIONAL MODAL (fixed inset-0, scrollable content, body position fixed) --- */}
+        {/* --- PROFESSIONAL MODAL (scroll locked) --- */}
         {isLocationModalOpen && (
             <div className="fixed inset-0 z-[100] bg-white flex flex-col">
-                {/* Header (non‑sticky, just top section) */}
+                {/* Header */}
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white">
                     <button
                         onClick={closeLocationModal}
@@ -591,7 +610,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
                 </div>
 
-                {/* Scrollable content area with bottom padding to prevent keyboard covering results */}
+                {/* Scrollable content area with bottom padding */}
                 <div
                     className="flex-1 overflow-y-auto"
                     style={{
