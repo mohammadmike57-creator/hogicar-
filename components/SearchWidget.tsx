@@ -62,7 +62,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
     const modalScrollRef = React.useRef<HTMLDivElement>(null);
-    const inputRef = React.useRef<HTMLInputElement>(null);
+    const modalInputRef = React.useRef<HTMLInputElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -75,7 +75,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers (unchanged) ---
+    // --- Desktop suggestion handlers ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -216,18 +216,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
         
-        // After modal is rendered, scroll to top, then focus input after a delay
+        // Scroll to top and focus input after modal is rendered
         setTimeout(() => {
             if (modalScrollRef.current) {
                 modalScrollRef.current.scrollTop = 0;
             }
-            // Small delay to let scroll finish, then focus input
-            setTimeout(() => {
-                if (inputRef.current) {
-                    inputRef.current.focus();
-                }
-            }, 50);
-        }, 10);
+            if (modalInputRef.current) {
+                modalInputRef.current.focus();
+            }
+        }, 50);
     };
 
     const closeLocationModal = () => {
@@ -348,7 +345,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Desktop date/time fields (unchanged)
+    // Desktop date/time fields
     const DateField = ({ label, value, onChange, min, id }: any) => (
         <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
             <div className="absolute inset-0 flex items-center pointer-events-none">
@@ -543,7 +540,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
                 style={{ scrollBehavior: 'smooth' }}
             >
-                {/* Sticky header – always visible */}
+                {/* Sticky header */}
                 <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
@@ -555,11 +552,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <div className="flex-1 relative">
                             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
-                                ref={inputRef}
+                                ref={modalInputRef}
                                 type="text"
                                 placeholder={`Search ${modalType === 'pickup' ? 'pickup' : 'drop-off'} location`}
                                 value={modalSearchQuery}
                                 onChange={(e) => setModalSearchQuery(e.target.value)}
+                                autoFocus
                                 autoCapitalize="off"
                                 autoComplete="off"
                                 inputMode="search"
@@ -573,28 +571,29 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 {/* Results area */}
                 <div className="flex-1 px-5 py-4">
                     {modalLoading && (
-                        <div className="flex justify-center items-center py-12">
+                        <div className="flex flex-col items-center justify-center py-12 gap-2">
                             <LoaderCircle className="w-7 h-7 animate-spin text-blue-500" />
+                            <p className="text-slate-500 text-sm">Searching...</p>
                         </div>
                     )}
 
                     {!modalLoading && modalSearchQuery.length >= 2 && modalResults.length === 0 && (
-                        <div className="text-center py-12">
-                            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div className="flex flex-col items-center justify-center py-12 gap-2">
+                            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center">
                                 <MapPin className="w-7 h-7 text-slate-400" />
                             </div>
                             <p className="text-slate-500 text-base">No locations found</p>
-                            <p className="text-slate-400 text-sm mt-1">Try a different spelling</p>
+                            <p className="text-slate-400 text-sm">Try a different spelling</p>
                         </div>
                     )}
 
                     {!modalLoading && modalSearchQuery.length < 2 && (
-                        <div className="text-center py-12">
-                            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div className="flex flex-col items-center justify-center py-12 gap-2">
+                            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center">
                                 <SearchIcon className="w-7 h-7 text-slate-400" />
                             </div>
-                            <p className="text-slate-500 text-base">Start typing</p>
-                            <p className="text-slate-400 text-sm mt-1">Enter at least 2 letters</p>
+                            <p className="text-slate-500 text-base">Start typing to search</p>
+                            <p className="text-slate-400 text-sm">Enter at least 2 letters</p>
                         </div>
                     )}
 
