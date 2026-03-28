@@ -65,6 +65,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
     let scrollY = 0;
 
+    // Viewport height fix (prevents modal jump when keyboard opens)
+    React.useEffect(() => {
+        const setViewportHeight = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        setViewportHeight();
+        window.addEventListener('resize', setViewportHeight);
+        return () => window.removeEventListener('resize', setViewportHeight);
+    }, []);
+
     const lockBodyScroll = () => {
         scrollY = window.scrollY;
         document.body.style.position = 'fixed';
@@ -243,12 +254,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     }, [modalSearchQuery, isLocationModalOpen]);
 
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
+        lockBodyScroll();
         setModalType(type);
         setModalSearchQuery('');
         setModalResults([]);
         setIsLocationModalOpen(true);
-
-        lockBodyScroll();
 
         setTimeout(() => {
             inputRef.current?.focus();
@@ -581,36 +591,41 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL MODAL (scroll locked) --- */}
+        {/* --- PROFESSIONAL MODAL WITH VIEWPORT HEIGHT FIX --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+            <div
+                className="fixed inset-0 z-[100] bg-white flex flex-col"
+                style={{ height: 'calc(var(--vh) * 100)' }}
+            >
                 {/* Header */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white">
-                    <button
-                        onClick={closeLocationModal}
-                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
-                    >
-                        <ArrowLeft className="w-5 h-5 text-slate-600" />
-                    </button>
-                    <div className="flex-1 relative">
-                        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            ref={inputRef}
-                            autoFocus
-                            type="text"
-                            placeholder="Search location"
-                            value={modalSearchQuery}
-                            onChange={(e) => setModalSearchQuery(e.target.value)}
-                            autoCapitalize="off"
-                            autoComplete="off"
-                            inputMode="search"
-                            className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            style={{ fontSize: '16px' }}
-                        />
+                <div className="px-4 py-3 border-b border-slate-200 bg-white">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={closeLocationModal}
+                            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-slate-600" />
+                        </button>
+                        <div className="flex-1 relative">
+                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                ref={inputRef}
+                                autoFocus
+                                type="text"
+                                placeholder="Search city or airport"
+                                value={modalSearchQuery}
+                                onChange={(e) => setModalSearchQuery(e.target.value)}
+                                autoCapitalize="off"
+                                autoComplete="off"
+                                inputMode="search"
+                                className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                style={{ fontSize: '16px' }}
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* Scrollable content area with bottom padding */}
+                {/* Scrollable content area */}
                 <div
                     className="flex-1 overflow-y-auto"
                     style={{
