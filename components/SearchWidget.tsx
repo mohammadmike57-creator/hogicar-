@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ArrowLeft, X } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -61,6 +61,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+    const modalContentRef = React.useRef<HTMLDivElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -73,7 +74,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers ---
+    // --- Desktop suggestion handlers (unchanged) ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -214,6 +215,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setModalResults([]);
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
+        // Scroll to top after modal renders
+        setTimeout(() => {
+            if (modalContentRef.current) {
+                modalContentRef.current.scrollTop = 0;
+            }
+        }, 50);
     };
 
     const closeLocationModal = () => {
@@ -522,10 +529,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PREMIUM LOCATION MODAL FOR MOBILE --- */}
+        {/* --- PREMIUM LOCATION MODAL FOR MOBILE (top-aligned, fully functional) --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in fade-in duration-200">
-                {/* Sticky header with elegant design */}
+            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+                {/* Sticky header with search */}
                 <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
@@ -552,8 +559,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
                 </div>
 
-                {/* Results area */}
-                <div className="flex-1 overflow-y-auto px-5 py-4">
+                {/* Scrollable results area - ensure scroll starts at top */}
+                <div 
+                    ref={modalContentRef}
+                    className="flex-1 overflow-y-auto px-5 py-4"
+                >
                     {modalLoading && (
                         <div className="flex justify-center items-center py-12">
                             <LoaderCircle className="w-7 h-7 animate-spin text-blue-500" />
