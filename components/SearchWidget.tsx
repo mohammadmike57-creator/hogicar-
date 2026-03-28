@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ArrowLeft, X } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, X, Search as SearchIcon, ArrowLeft } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchParams {
@@ -61,7 +61,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
     const [modalLoading, setModalLoading] = React.useState(false);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
-    const modalContentRef = React.useRef<HTMLDivElement>(null);
+    const modalInputRef = React.useRef<HTMLInputElement>(null);
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
         const lowerType = (type || '').toLowerCase();
@@ -74,7 +74,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         return <MapPin className={`${sizeClass} text-slate-400`} />;
     };
 
-    // --- Desktop suggestion handlers (unchanged) ---
+    // --- Desktop suggestion handlers ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPickupQuery(value);
@@ -209,18 +209,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
+    // Focus input when modal opens
+    React.useEffect(() => {
+        if (isLocationModalOpen && modalInputRef.current) {
+            setTimeout(() => {
+                modalInputRef.current?.focus();
+            }, 100);
+        }
+    }, [isLocationModalOpen]);
+
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
         setModalType(type);
         setModalSearchQuery(type === 'pickup' ? pickupQuery : dropoffQuery);
         setModalResults([]);
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
-        // Scroll to top after modal renders
-        setTimeout(() => {
-            if (modalContentRef.current) {
-                modalContentRef.current.scrollTop = 0;
-            }
-        }, 50);
     };
 
     const closeLocationModal = () => {
@@ -529,11 +532,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PREMIUM LOCATION MODAL FOR MOBILE (top-aligned, fully functional) --- */}
+        {/* --- ULTRA-PREMIUM LOCATION MODAL (opens at top, input fully visible) --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
-                {/* Sticky header with search */}
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 z-10 shadow-sm">
+            <div className="fixed inset-0 z-[100] bg-white">
+                {/* Sticky header at very top */}
+                <div className="sticky top-0 bg-white border-b border-slate-100 px-5 pt-4 pb-3 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={closeLocationModal} 
@@ -544,6 +547,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <div className="flex-1 relative">
                             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
+                                ref={modalInputRef}
                                 type="text"
                                 placeholder={`Search ${modalType === 'pickup' ? 'pickup' : 'drop-off'} location`}
                                 value={modalSearchQuery}
@@ -559,11 +563,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
                 </div>
 
-                {/* Scrollable results area - ensure scroll starts at top */}
-                <div 
-                    ref={modalContentRef}
-                    className="flex-1 overflow-y-auto px-5 py-4"
-                >
+                {/* Scrollable results - starts below header */}
+                <div className="flex-1 overflow-y-auto px-5 py-4">
                     {modalLoading && (
                         <div className="flex justify-center items-center py-12">
                             <LoaderCircle className="w-7 h-7 animate-spin text-blue-500" />
