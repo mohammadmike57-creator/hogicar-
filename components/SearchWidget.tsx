@@ -223,23 +223,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Professional open function – modal fixed, header sticky, only content scrolls
+    // Professional open function – no height, body fixed, autoFocus
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
         setModalType(type);
         setModalSearchQuery('');
         setModalResults([]);
         setIsLocationModalOpen(true);
-        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
 
-        // Focus input after modal renders (keyboard opens)
         setTimeout(() => {
             inputRef.current?.focus();
-        }, 50);
+        }, 100);
     };
 
     const closeLocationModal = () => {
         setIsLocationModalOpen(false);
-        document.body.style.overflow = '';
+        document.body.style.position = '';
     };
 
     const selectLocation = (loc: LocationSuggestion) => {
@@ -563,43 +562,41 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL MODAL – FIXED HEIGHT, STICKY HEADER, SCROLLABLE CONTENT --- */}
+        {/* --- FINAL PROFESSIONAL MODAL (fixed inset-0, scrollable content, body position fixed) --- */}
         {isLocationModalOpen && (
-            <div className="fixed inset-0 z-[100] bg-white flex flex-col" style={{ height: '100dvh' }}>
-                {/* Sticky header */}
-                <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 z-10">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={closeLocationModal}
-                            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5 text-slate-600" />
-                        </button>
-                        <div className="flex-1 relative">
-                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                                ref={inputRef}
-                                autoFocus
-                                type="text"
-                                placeholder="Search location"
-                                value={modalSearchQuery}
-                                onChange={(e) => setModalSearchQuery(e.target.value)}
-                                autoCapitalize="off"
-                                autoComplete="off"
-                                inputMode="search"
-                                className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                style={{ fontSize: '16px' }}
-                            />
-                        </div>
+            <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+                {/* Header (non‑sticky, just top section) */}
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white">
+                    <button
+                        onClick={closeLocationModal}
+                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-slate-600" />
+                    </button>
+                    <div className="flex-1 relative">
+                        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            ref={inputRef}
+                            autoFocus
+                            type="text"
+                            placeholder="Search location"
+                            value={modalSearchQuery}
+                            onChange={(e) => setModalSearchQuery(e.target.value)}
+                            autoCapitalize="off"
+                            autoComplete="off"
+                            inputMode="search"
+                            className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            style={{ fontSize: '16px' }}
+                        />
                     </div>
                 </div>
 
-                {/* Scrollable content area */}
+                {/* Scrollable content area with bottom padding to prevent keyboard covering results */}
                 <div
                     className="flex-1 overflow-y-auto"
                     style={{
                         WebkitOverflowScrolling: 'touch',
-                        paddingBottom: 'env(safe-area-inset-bottom)'
+                        paddingBottom: '300px'
                     }}
                 >
                     {/* Recent searches */}
