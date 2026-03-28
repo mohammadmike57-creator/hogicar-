@@ -216,18 +216,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         setIsLocationModalOpen(true);
         document.body.style.overflow = 'hidden';
         
-        // First, scroll modal to top immediately
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure the modal is rendered, then scroll to top,
+        // then focus the input – all in the same microtask queue (retaining user gesture).
+        requestAnimationFrame(() => {
             if (modalScrollRef.current) {
                 modalScrollRef.current.scrollTop = 0;
             }
-            // After 300ms (still within user gesture window), focus the input to trigger keyboard
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
-            }, 300);
-        }, 10);
+            });
+        });
     };
 
     const closeLocationModal = () => {
@@ -536,7 +536,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (keyboard after 300ms) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (automatic keyboard) --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
