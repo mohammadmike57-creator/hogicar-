@@ -61,6 +61,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
     const [modalLoading, setModalLoading] = React.useState(false);
     const [recentLocations, setRecentLocations] = React.useState<LocationSuggestion[]>([]);
+    const [shouldFocusInput, setShouldFocusInput] = React.useState(false);
     const modalContainerRef = React.useRef<HTMLDivElement>(null);
     const inputRef = React.useRef<HTMLInputElement>(null);
     const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
@@ -224,33 +225,34 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Open modal: scroll to top, focus input after delay
+    // Professional open function (autoFocus + scroll + guaranteed focus)
     const openLocationModal = (type: 'pickup' | 'dropoff') => {
         setModalType(type);
         setModalSearchQuery('');
         setModalResults([]);
+        setShouldFocusInput(true);
         setIsLocationModalOpen(true);
+
         document.body.style.overflow = 'hidden';
 
-        // Scroll to top
         requestAnimationFrame(() => {
             if (modalContainerRef.current) {
                 modalContainerRef.current.scrollTop = 0;
             }
         });
 
-        // Focus input to open keyboard after a short delay (ensures scroll settled)
+        // Extra guarantee for all browsers
         setTimeout(() => {
             if (inputRef.current) {
                 inputRef.current.focus();
-                inputRef.current.setSelectionRange(0, 0);
             }
-        }, 120);
+        }, 50);
     };
 
     const closeLocationModal = () => {
         setIsLocationModalOpen(false);
         document.body.style.overflow = '';
+        setShouldFocusInput(false);
     };
 
     const selectLocation = (loc: LocationSuggestion) => {
@@ -574,15 +576,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL LOCATION MODAL (full feature) --- */}
+        {/* --- PROFESSIONAL LOCATION MODAL (autoFocus + recent + skeleton) --- */}
         {isLocationModalOpen && (
             <div
                 ref={modalContainerRef}
                 className="fixed inset-0 z-[100] bg-white flex flex-col overflow-y-auto"
                 style={{
                     WebkitOverflowScrolling: 'touch',
-                    overscrollBehavior: 'contain',
-                    height: '100dvh'
+                    height: '100dvh',
+                    overscrollBehavior: 'contain'
                 }}
             >
                 {/* Sticky header */}
@@ -598,10 +600,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 ref={inputRef}
+                                autoFocus={shouldFocusInput}
                                 type="text"
                                 placeholder="Search location"
                                 value={modalSearchQuery}
                                 onChange={(e) => setModalSearchQuery(e.target.value)}
+                                onFocus={() => setShouldFocusInput(false)}
                                 autoCapitalize="off"
                                 autoComplete="off"
                                 inputMode="search"
