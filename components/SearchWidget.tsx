@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ArrowLeft, History } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
+import SearchOverlay from './SearchOverlay';
 
 interface SearchParams {
     location: string;
@@ -54,45 +55,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
     const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
 
-    // Modal state
-    const [isLocationModalOpen, setIsLocationModalOpen] = React.useState(false);
-    const [modalType, setModalType] = React.useState<'pickup' | 'dropoff'>('pickup');
-    const [modalSearchQuery, setModalSearchQuery] = React.useState('');
-    const [modalResults, setModalResults] = React.useState<LocationSuggestion[]>([]);
-    const [modalLoading, setModalLoading] = React.useState(false);
+    // Overlay state
+    const [isSearchOverlayOpen, setIsSearchOverlayOpen] = React.useState(false);
+    const [overlayType, setOverlayType] = React.useState<'pickup' | 'dropoff'>('pickup');
     const [recentLocations, setRecentLocations] = React.useState<LocationSuggestion[]>([]);
-    const inputRef = React.useRef<HTMLInputElement>(null);
-    const modalDebounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
-    let scrollY = 0;
-
-    // Viewport height fix (prevents modal jump when keyboard opens)
-    React.useEffect(() => {
-        const setViewportHeight = () => {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        };
-        setViewportHeight();
-        window.addEventListener('resize', setViewportHeight);
-        return () => window.removeEventListener('resize', setViewportHeight);
-    }, []);
-
-    const lockBodyScroll = () => {
-        scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.width = '100%';
-    };
-
-    const unlockBodyScroll = () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.width = '';
-        window.scrollTo(0, scrollY);
-    };
 
     // Load recent locations from localStorage on mount
     React.useEffect(() => {
@@ -106,6 +72,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     const saveRecentLocations = (locs: LocationSuggestion[]) => {
         localStorage.setItem('hogicar_recent_locations', JSON.stringify(locs));
+        setRecentLocations(locs);
+    };
+
+    const saveRecentLocation = (loc: LocationSuggestion) => {
+        setRecentLocations(prev => {
+            const exists = prev.find(p => p.value === loc.value);
+            if (exists) return prev;
+            const updated = [loc, ...prev].slice(0, 5);
+            saveRecentLocations(updated);
+            return updated;
+        });
     };
 
     const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
@@ -228,66 +205,23 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, []);
 
-    // Modal search logic with debounce
-    React.useEffect(() => {
-        if (!isLocationModalOpen) return;
-        if (modalSearchQuery.length < 2) {
-            setModalResults([]);
-            setModalLoading(false);
-            return;
-        }
-        setModalLoading(true);
-        if (modalDebounceTimer.current) clearTimeout(modalDebounceTimer.current);
-        modalDebounceTimer.current = setTimeout(async () => {
-            try {
-                const results = await fetchLocations(modalSearchQuery);
-                setModalResults(results);
-            } catch (err) {
-                setModalResults([]);
-            } finally {
-                setModalLoading(false);
-            }
-        }, 300);
-        return () => {
-            if (modalDebounceTimer.current) clearTimeout(modalDebounceTimer.current);
-        };
-    }, [modalSearchQuery, isLocationModalOpen]);
-
-    const openLocationModal = (type: 'pickup' | 'dropoff') => {
-        lockBodyScroll();
-        setModalType(type);
-        setModalSearchQuery('');
-        setModalResults([]);
-        setIsLocationModalOpen(true);
-
-        setTimeout(() => {
-            inputRef.current?.focus();
-        }, 100);
+    const openSearchOverlay = (type: 'pickup' | 'dropoff') => {
+        setOverlayType(type);
+        setIsSearchOverlayOpen(true);
     };
 
-    const closeLocationModal = () => {
-        setIsLocationModalOpen(false);
-        unlockBodyScroll();
+    const closeSearchOverlay = () => {
+        setIsSearchOverlayOpen(false);
     };
 
-    const selectLocation = (loc: LocationSuggestion) => {
-        // Save to recent searches
-        setRecentLocations(prev => {
-            const exists = prev.find(p => p.value === loc.value);
-            if (exists) return prev;
-            const updated = [loc, ...prev].slice(0, 5);
-            saveRecentLocations(updated);
-            return updated;
-        });
-
-        if (modalType === 'pickup') {
+    const handleOverlaySelect = (loc: LocationSuggestion) => {
+        if (overlayType === 'pickup') {
             setPickupQuery(loc.label);
             setPickupSelection(loc);
         } else {
             setDropoffQuery(loc.label);
             setDropoffSelection(loc);
         }
-        closeLocationModal();
     };
 
     const handleSearch = (e: React.FormEvent) => {
@@ -462,7 +396,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {/* Pick-up location button */}
                     <button
                         type="button"
-                        onClick={() => openLocationModal('pickup')}
+                        onClick={() => openSearchOverlay('pickup')}
                         className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 flex items-center w-full text-left px-3 focus:outline-none active:bg-slate-100 transition-colors"
                     >
                         <div className="flex items-center gap-2 w-full min-w-0">
@@ -485,7 +419,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {differentDropoff && (
                         <button
                             type="button"
-                            onClick={() => openLocationModal('dropoff')}
+                            onClick={() => openSearchOverlay('dropoff')}
                             className="relative h-12 bg-slate-50 rounded-xl border border-slate-200 flex items-center w-full text-left px-3 focus:outline-none active:bg-slate-100 transition-colors"
                         >
                             <div className="flex items-center gap-2 w-full min-w-0">
@@ -591,126 +525,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PROFESSIONAL MODAL WITH VIEWPORT HEIGHT FIX --- */}
-        {isLocationModalOpen && (
-            <div
-                className="fixed inset-0 z-[100] bg-white flex flex-col"
-                style={{ height: 'calc(var(--vh) * 100)' }}
-            >
-                {/* Header */}
-                <div className="px-4 py-3 border-b border-slate-200 bg-white">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={closeLocationModal}
-                            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5 text-slate-600" />
-                        </button>
-                        <div className="flex-1 relative">
-                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                                ref={inputRef}
-                                autoFocus
-                                type="text"
-                                placeholder="Search city or airport"
-                                value={modalSearchQuery}
-                                onChange={(e) => setModalSearchQuery(e.target.value)}
-                                autoCapitalize="off"
-                                autoComplete="off"
-                                inputMode="search"
-                                className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                style={{ fontSize: '16px' }}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Scrollable content area */}
-                <div
-                    className="flex-1 overflow-y-auto"
-                    style={{
-                        WebkitOverflowScrolling: 'touch',
-                        paddingBottom: '300px'
-                    }}
-                >
-                    {/* Recent searches */}
-                    {modalSearchQuery.length === 0 && recentLocations.length > 0 && (
-                        <div className="mt-2">
-                            <div className="text-xs font-semibold text-slate-400 px-4 mb-2 flex items-center gap-1">
-                                <History className="w-3 h-3" /> Recent searches
-                            </div>
-                            {recentLocations.map((loc) => (
-                                <button
-                                    key={loc.value}
-                                    onClick={() => selectLocation(loc)}
-                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
-                                >
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                        {getLocationIcon(loc.type, 'w-5 h-5')}
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="font-semibold text-slate-900 text-base">{loc.label}</div>
-                                        <div className="text-xs text-slate-500">{loc.iataCode}</div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Skeleton loading */}
-                    {modalLoading && (
-                        <div>
-                            <SkeletonItem />
-                            <SkeletonItem />
-                            <SkeletonItem />
-                            <SkeletonItem />
-                        </div>
-                    )}
-
-                    {/* Search results */}
-                    {!modalLoading && modalResults.length > 0 && (
-                        <div>
-                            {modalResults.map((loc) => (
-                                <button
-                                    key={loc.value}
-                                    onClick={() => selectLocation(loc)}
-                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
-                                >
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                        {getLocationIcon(loc.type, 'w-5 h-5')}
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="font-semibold text-slate-900 text-base">{loc.label}</div>
-                                        <div className="text-xs text-slate-500">{loc.iataCode}</div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Empty state */}
-                    {!modalLoading && modalSearchQuery.length >= 2 && modalResults.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                <MapPin className="w-7 h-7 text-slate-400" />
-                            </div>
-                            <p className="text-slate-500 text-base">No locations found</p>
-                            <p className="text-slate-400 text-sm mt-1">Try a different spelling</p>
-                        </div>
-                    )}
-
-                    {!modalLoading && modalSearchQuery.length < 2 && recentLocations.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                <SearchIcon className="w-7 h-7 text-slate-400" />
-                            </div>
-                            <p className="text-slate-500 text-base">Start typing</p>
-                            <p className="text-slate-400 text-sm mt-1">Enter at least 2 letters</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        )}
+        {/* --- PROFESSIONAL SEARCH OVERLAY (full-screen) --- */}
+        <SearchOverlay
+            isOpen={isSearchOverlayOpen}
+            onClose={closeSearchOverlay}
+            onSelectLocation={handleOverlaySelect}
+            recentLocations={recentLocations}
+            saveRecentLocation={saveRecentLocation}
+        />
 
         {/* --- DESKTOP WIDGET (unchanged) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
