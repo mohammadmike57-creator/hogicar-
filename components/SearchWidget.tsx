@@ -208,10 +208,19 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         };
     }, [modalSearchQuery, isLocationModalOpen]);
 
-    // Scroll modal to top when opened
+    // Force scroll to top when modal opens
     React.useEffect(() => {
         if (isLocationModalOpen && modalScrollRef.current) {
-            modalScrollRef.current.scrollTop = 0;
+            // Wait for DOM to settle then scroll to top
+            const scrollToTop = () => {
+                if (modalScrollRef.current) {
+                    modalScrollRef.current.scrollTop = 0;
+                }
+            };
+            scrollToTop();
+            // Additional safety after a short delay
+            const timer = setTimeout(scrollToTop, 50);
+            return () => clearTimeout(timer);
         }
     }, [isLocationModalOpen]);
 
@@ -529,7 +538,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             </div>
         </div>
 
-        {/* --- PREMIUM MODAL – OPENS AT TOP, TYPING VISIBLE --- */}
+        {/* --- PREMIUM MODAL – FORCED SCROLL TO TOP --- */}
         {isLocationModalOpen && (
             <div 
                 ref={modalScrollRef}
