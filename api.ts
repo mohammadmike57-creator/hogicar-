@@ -42,11 +42,27 @@ export interface Booking {
   updatedAt: string;
 }
 
+// Create axios instances with interceptors for auth
+const publicAxios = axios.create();
+const adminAxios = axios.create();
+
+// Add request interceptor to adminAxios to attach token
+adminAxios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // ---------- Standalone customer API functions (named exports) ----------
 export const fetchLocations = async (query: string): Promise<LocationSuggestion[]> => {
   if (!query || query.length < 2) return [];
   try {
-    const response = await axios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
     // Map the backend response to { value, label, type } format
     return response.data.map((loc: any) => {
       // Determine type based on airport name
@@ -79,7 +95,7 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
 
 export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/api/public/locations`);
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/locations`);
     return response.data.map((loc: any) => {
       const nameLower = (loc.name || '').toLowerCase();
       const isAirport = nameLower.includes('airport') || nameLower.includes('heliport') || nameLower.includes('airstrip');
@@ -109,37 +125,37 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
 };
 
 export const lookupBooking = async (email: string, bookingRef: string): Promise<Booking> => {
-  const response = await axios.get(`${API_BASE_URL}/api/bookings/lookup?email=${encodeURIComponent(email)}&ref=${encodeURIComponent(bookingRef)}`);
+  const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/lookup?email=${encodeURIComponent(email)}&ref=${encodeURIComponent(bookingRef)}`);
   return response.data;
 };
 
 export const getBooking = async (id: number): Promise<Booking> => {
-  const response = await axios.get(`${API_BASE_URL}/api/bookings/${id}`);
+  const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/${id}`);
   return response.data;
 };
 
 export const cancelBooking = async (id: number): Promise<Booking> => {
-  const response = await axios.post(`${API_BASE_URL}/api/bookings/${id}/cancel`);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/cancel`);
   return response.data;
 };
 
 export const requestModification = async (id: number, data: any): Promise<any> => {
-  const response = await axios.post(`${API_BASE_URL}/api/bookings/${id}/modification/request`, data);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/modification/request`, data);
   return response.data;
 };
 
 export const confirmModification = async (id: number): Promise<Booking> => {
-  const response = await axios.post(`${API_BASE_URL}/api/bookings/${id}/modification/confirm`);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/modification/confirm`);
   return response.data;
 };
 
 export const submitReview = async (id: number, reviewData: any): Promise<any> => {
-  const response = await axios.post(`${API_BASE_URL}/api/bookings/${id}/review`, reviewData);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/review`, reviewData);
   return response.data;
 };
 
 export const createBooking = async (bookingData: any): Promise<Booking & { clientSecret?: string }> => {
-  const response = await axios.post(`${API_BASE_URL}/api/bookings`, bookingData);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings`, bookingData);
   return response.data;
 };
 
@@ -182,8 +198,8 @@ export const supplierApi = {
   },
 };
 
-// ---------- Admin API ----------
+// ---------- Admin API (with authentication interceptor) ----------
 export const adminApi = {
-  createSupplier: (payload: any) => axios.post(`${API_BASE_URL}/api/admin/suppliers`, payload),
-  getLocations: () => axios.get(`${API_BASE_URL}/api/admin/locations`),
+  createSupplier: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/suppliers`, payload),
+  getLocations: () => adminAxios.get(`${API_BASE_URL}/api/admin/locations`),
 };
