@@ -326,60 +326,32 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
       </>
     );
 
-    // Skeleton loading component
-    const SkeletonItem = () => (
-        <div className="flex items-center gap-3 px-4 py-3 animate-pulse">
-            <div className="w-10 h-10 rounded-full bg-slate-200"></div>
-            <div className="flex-1">
-                <div className="h-3 bg-slate-200 rounded w-1/2 mb-2"></div>
-                <div className="h-2 bg-slate-200 rounded w-1/3"></div>
-            </div>
-        </div>
-    );
-
-    // Desktop date/time fields (unchanged)
-    const DateField = ({ label, value, onChange, min, id }: any) => (
-        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
-            <div className="absolute inset-0 flex items-center pointer-events-none">
-                <div className="pl-4 flex items-center">
-                    <Calendar className="w-5 h-5 text-slate-400" />
-                </div>
-                <div className="flex-1 ml-1">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
-                    <div className="text-base font-bold text-slate-900">{formatDateForDisplay(value)}</div>
-                </div>
-            </div>
+    // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
+    const DesktopDateField = ({ label, value, onChange, min }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string }) => (
+        <div className="relative flex-1">
+            <label className="absolute top-1 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
             <input
                 type="date"
-                id={id}
                 value={value}
                 onChange={onChange}
                 min={min}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                className="w-full h-14 pt-5 pb-1 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer"
+                style={{ colorScheme: 'light' }}
             />
-        </label>
+        </div>
     );
 
-    const TimeField = ({ label, value, onChange, options, id }: any) => (
-        <label htmlFor={id} className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 cursor-pointer block">
-            <div className="absolute inset-0 flex items-center pointer-events-none">
-                <div className="pl-4 flex items-center">
-                    <Clock className="w-5 h-5 text-slate-400" />
-                </div>
-                <div className="flex-1 ml-1">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</div>
-                    <div className="text-base font-bold text-slate-900">{value}</div>
-                </div>
-            </div>
+    const DesktopTimeField = ({ label, value, onChange, options }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[] }) => (
+        <div className="relative flex-1">
+            <label className="absolute top-1 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
             <select
-                id={id}
                 value={value}
                 onChange={onChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                className="w-full h-14 pt-5 pb-1 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer appearance-none"
             >
-                {options.map((t: string) => <option key={t} value={t}>{t}</option>)}
+                {options.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-        </label>
+        </div>
     );
 
     const pickupDateId = React.useId();
@@ -534,7 +506,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             saveRecentLocation={saveRecentLocation}
         />
 
-        {/* --- DESKTOP WIDGET (unchanged) --- */}
+        {/* --- DESKTOP WIDGET (fixed date pickers) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
@@ -586,33 +558,29 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
 
                     <div className="flex flex-row items-center gap-2 w-full">
-                        <DateField
+                        <DesktopDateField
                             label="Pick-up Date"
                             value={pickupDate}
                             onChange={(e) => setPickupDate(e.target.value)}
                             min={today.toISOString().split('T')[0]}
-                            id={pickupDateId}
                         />
-                        <TimeField
+                        <DesktopTimeField
                             label="Pick-up Time"
                             value={pickupTime}
                             onChange={(e) => setPickupTime(e.target.value)}
                             options={timeOptions}
-                            id={pickupTimeId}
                         />
-                        <DateField
+                        <DesktopDateField
                             label="Drop-off Date"
                             value={dropoffDate}
                             onChange={(e) => setDropoffDate(e.target.value)}
                             min={pickupDate}
-                            id={dropoffDateId}
                         />
-                        <TimeField
+                        <DesktopTimeField
                             label="Drop-off Time"
                             value={dropoffTime}
                             onChange={(e) => setDropoffTime(e.target.value)}
                             options={timeOptions}
-                            id={dropoffTimeId}
                         />
                         <button type="submit" className="h-14 px-8 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center text-lg whitespace-nowrap">
                             Search
