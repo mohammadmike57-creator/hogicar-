@@ -28,9 +28,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   // Lock/unlock body scroll and force body to no margins
   useEffect(() => {
     if (isOpen) {
-      // Save scroll position
       scrollY = window.scrollY;
-      // Force body to have no margin/padding and fix position
       const originalMargin = document.body.style.margin;
       const originalPadding = document.body.style.padding;
       const originalPosition = document.body.style.position;
@@ -42,18 +40,14 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      
-      // Also force html to no margin/padding
       document.documentElement.style.margin = '0';
       document.documentElement.style.padding = '0';
       
-      // Focus input after render
       setTimeout(() => {
         inputRef.current?.focus();
       }, 50);
       
       return () => {
-        // Restore original styles
         document.body.style.margin = originalMargin;
         document.body.style.padding = originalPadding;
         document.body.style.position = originalPosition;
@@ -106,7 +100,6 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
   if (!isOpen) return null;
 
-  // Portal to body with absolute positioning to ensure top
   return createPortal(
     <div
       style={{
@@ -221,18 +214,12 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
           </div>
         )}
 
-        {/* Skeleton loading */}
+        {/* Professional Loading Message (instead of skeleton) */}
         {loading && (
-          <div>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', animation: 'pulse 1.5s ease-in-out infinite' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#e2e8f0' }}></div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ height: '12px', backgroundColor: '#e2e8f0', borderRadius: '4px', width: '50%', marginBottom: '8px' }}></div>
-                  <div style={{ height: '8px', backgroundColor: '#e2e8f0', borderRadius: '4px', width: '33%' }}></div>
-                </div>
-              </div>
-            ))}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
+            <LoaderCircle size={32} style={{ color: '#16a34a', animation: 'spin 1s linear infinite', marginBottom: '16px' }} />
+            <p style={{ color: '#475569', fontSize: '15px', fontWeight: 500 }}>We are currently searching...</p>
+            <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>Please wait a moment</p>
           </div>
         )}
 
