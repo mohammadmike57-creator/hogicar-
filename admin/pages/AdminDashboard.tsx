@@ -181,6 +181,8 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
 
 // ==================== Edit Supplier Modal (with location dropdown + inline custom location) ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList, onLocationCreated }: any) => {
+  useEffect(() => { console.log("EditSupplierModal received locationsList:", locationsList); }, [locationsList]);
+
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [newLocationName, setNewLocationName] = useState('');
   const [newLocationCode, setNewLocationCode] = useState('');
@@ -393,11 +395,17 @@ export const AdminDashboard: React.FC = () => {
   const [managingPromosForCar, setManagingPromosForCar] = useState<CarType | null>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
   const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
-  const [locationsList, setLocationsList] = useState<LocationSuggestion[]>([]);
+  const [locationsList, setLocationsList] = useState<LocationSuggestion[]>([{ label: "Dubai (DXB)", value: "DXB", type: "AIRPORT", iataCode: "DXB" }, { label: "Abu Dhabi (AUH)", value: "AUH", type: "AIRPORT", iataCode: "AUH" }]);
   const [loadingLocations, setLoadingLocations] = useState(false);
   const [isCreateLocationModalOpen, setIsCreateLocationModalOpen] = useState(false);
 
   const loadLocations = async () => { setLoadingLocations(true); try { const results = await getAllLocations(); setLocationsList(results); } catch (error) { console.error(error); } finally { setLoadingLocations(false); } };
+    if (results.length === 0) console.warn("No locations found – check API or localStorage");
+
+    console.log("Locations loaded:", results);
+
+    console.log("Loading locations...");
+
   useEffect(() => { loadLocations(); }, []);
   const handleLocationCreated = (newLocation: LocationSuggestion) => { saveCustomLocation(newLocation); setLocationsList(prev => [newLocation, ...prev]); alert(`Location "${newLocation.label}" created.`); };
 
