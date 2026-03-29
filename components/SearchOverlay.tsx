@@ -25,30 +25,45 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
   let scrollY = 0;
 
-  // Lock/unlock body scroll when overlay opens/closes
+  // Lock/unlock body scroll and force body to no margins
   useEffect(() => {
     if (isOpen) {
+      // Save scroll position
       scrollY = window.scrollY;
+      // Force body to have no margin/padding and fix position
+      const originalMargin = document.body.style.margin;
+      const originalPadding = document.body.style.padding;
+      const originalPosition = document.body.style.position;
+      const originalTop = document.body.style.top;
+      const originalWidth = document.body.style.width;
+      
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      // Small delay to ensure the DOM is ready
-      setTimeout(() => inputRef.current?.focus(), 100);
-    } else {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      window.scrollTo(0, scrollY);
-    }
-    return () => {
-      // Cleanup if unmounted while open
-      if (isOpen) {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
+      
+      // Also force html to no margin/padding
+      document.documentElement.style.margin = '0';
+      document.documentElement.style.padding = '0';
+      
+      // Focus input after render
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      
+      return () => {
+        // Restore original styles
+        document.body.style.margin = originalMargin;
+        document.body.style.padding = originalPadding;
+        document.body.style.position = originalPosition;
+        document.body.style.top = originalTop;
+        document.body.style.width = originalWidth;
+        document.documentElement.style.margin = '';
+        document.documentElement.style.padding = '';
         window.scrollTo(0, scrollY);
-      }
-    };
+      };
+    }
   }, [isOpen]);
 
   // Debounced search
@@ -91,23 +106,49 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
   if (!isOpen) return null;
 
-  // Use a portal to attach directly to body, avoiding any parent CSS issues
+  // Portal to body with absolute positioning to ensure top
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] bg-white flex flex-col"
-      style={{ top: 0, left: 0, right: 0, bottom: 0, margin: 0, padding: 0 }}
+      style={{
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'white',
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        margin: '0',
+        padding: '0',
+        boxSizing: 'border-box'
+      }}
     >
       {/* Header */}
-      <div className="px-4 py-3 border-b border-slate-200 bg-white">
-        <div className="flex items-center gap-3">
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', backgroundColor: 'white' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+            style={{
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '9999px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
+            <ArrowLeft size={20} color="#475569" />
           </button>
-          <div className="flex-1 relative">
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <div style={{ flex: 1, position: 'relative' }}>
+            <SearchIcon size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
             <input
               ref={inputRef}
               autoFocus
@@ -118,8 +159,18 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
               autoCapitalize="off"
               autoComplete="off"
               inputMode="search"
-              className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              style={{ fontSize: '16px' }}
+              style={{
+                width: '100%',
+                padding: '12px 16px 12px 40px',
+                borderRadius: '16px',
+                border: '1px solid #e2e8f0',
+                backgroundColor: '#f8fafc',
+                fontSize: '16px',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => e.currentTarget.style.outline = '2px solid #3b82f6'}
+              onBlur={(e) => e.currentTarget.style.outline = 'none'}
             />
           </div>
         </div>
@@ -127,27 +178,43 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
       {/* Scrollable content */}
       <div
-        className="flex-1 overflow-y-auto"
-        style={{ WebkitOverflowScrolling: 'touch', paddingBottom: '300px' }}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: '300px'
+        }}
       >
         {/* Recent searches */}
         {searchQuery.length === 0 && recentLocations.length > 0 && (
-          <div className="mt-2">
-            <div className="text-xs font-semibold text-slate-400 px-4 mb-2 flex items-center gap-1">
-              <History className="w-3 h-3" /> Recent searches
+          <div style={{ marginTop: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', padding: '0 16px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <History size={12} /> Recent searches
             </div>
             {recentLocations.map((loc) => (
               <button
                 key={loc.value}
                 onClick={() => handleSelect(loc)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {getLocationIcon(loc.type, 'w-5 h-5')}
                 </div>
-                <div className="text-left">
-                  <div className="font-semibold text-slate-900 text-base">{loc.label}</div>
-                  <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '16px' }}>{loc.label}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>{loc.iataCode}</div>
                 </div>
               </button>
             ))}
@@ -158,11 +225,11 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
         {loading && (
           <div>
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-slate-200"></div>
-                <div className="flex-1">
-                  <div className="h-3 bg-slate-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-2 bg-slate-200 rounded w-1/3"></div>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', animation: 'pulse 1.5s ease-in-out infinite' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#e2e8f0' }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ height: '12px', backgroundColor: '#e2e8f0', borderRadius: '4px', width: '50%', marginBottom: '8px' }}></div>
+                  <div style={{ height: '8px', backgroundColor: '#e2e8f0', borderRadius: '4px', width: '33%' }}></div>
                 </div>
               </div>
             ))}
@@ -176,14 +243,26 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
               <button
                 key={loc.value}
                 onClick={() => handleSelect(loc)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {getLocationIcon(loc.type, 'w-5 h-5')}
                 </div>
-                <div className="text-left">
-                  <div className="font-semibold text-slate-900 text-base">{loc.label}</div>
-                  <div className="text-xs text-slate-500">{loc.iataCode}</div>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '16px' }}>{loc.label}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>{loc.iataCode}</div>
                 </div>
               </button>
             ))}
@@ -192,22 +271,22 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
         {/* Empty states */}
         {!loading && searchQuery.length >= 2 && results.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-              <MapPin className="w-7 h-7 text-slate-400" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <MapPin size={28} color="#94a3b8" />
             </div>
-            <p className="text-slate-500 text-base">No locations found</p>
-            <p className="text-slate-400 text-sm mt-1">Try a different spelling</p>
+            <p style={{ color: '#64748b', fontSize: '16px' }}>No locations found</p>
+            <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Try a different spelling</p>
           </div>
         )}
 
         {!loading && searchQuery.length < 2 && recentLocations.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-              <SearchIcon className="w-7 h-7 text-slate-400" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <SearchIcon size={28} color="#94a3b8" />
             </div>
-            <p className="text-slate-500 text-base">Start typing</p>
-            <p className="text-slate-400 text-sm mt-1">Enter at least 2 letters</p>
+            <p style={{ color: '#64748b', fontSize: '16px' }}>Start typing</p>
+            <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Enter at least 2 letters</p>
           </div>
         )}
       </div>
