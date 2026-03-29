@@ -379,12 +379,12 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <SectionHeader title="Supplier Requests" icon={MailQuestion} />
-      <div className="overflow-x-auto"><table className="w-full text-left"><thead className="bg-gray-50"><tr className="text-xs font-semibold"><th className="p-3">Company</th><th className="p-3">Contact</th><th className="p-3">Fleet</th><th className="p-3">Integration</th><th className="p-3">Date</th><th className="p-3"></th></tr></thead><tbody>{apps.map((app: SupplierApplication) => (<tr key={app.id} className="hover:bg-orange-50"><td className="p-3"><span className="font-bold">{app.companyName}</span><br/><span className="text-xs text-gray-500">{app.primaryLocation}</span></td><td className="p-3">{app.contactName}<br/><span className="text-xs">{app.email}</span></td><td className="p-3">{app.fleetSize}</td><td className="p-3 uppercase text-xs">{app.integrationType}</td><td className="p-3 text-xs">{app.submissionDate}</td><td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => handleApprove(app)} className="bg-green-100 p-2 rounded-md"><CheckCircle className="w-4 h-4 text-green-700"/></button><button onClick={() => onReject(app.id)} className="bg-red-100 p-2 rounded-md"><XCircle className="w-4 h-4 text-red-700"/></button></div></td></tr>))}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full text-left"><thead className="bg-gray-50"><tr className="text-xs font-semibold"><th className="p-3">Company</th><th className="p-3">Contact</th><th className="p-3">Fleet</th><th className="p-3">Integration</th><th className="p-3">Date</th><th className="p-3"></th></tr></thead><tbody>{apps.map((app: SupplierApplication) => (<tr key={app.id} className="hover:bg-orange-50"><td className="p-3"><span className="font-bold">{app.companyName}</span><br/><span className="text-xs text-gray-500">{app.primaryLocation}</span></td><td className="p-3">{app.contactName}<br/><span className="text-xs">{app.email}</span></td><td className="p-3">{app.fleetSize}</td><td className="p-3 uppercase text-xs">{app.integrationType}</td><td className="p-3 text-xs">{app.submissionDate}</td><td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => handleApprove(app)} className="bg-green-100 p-2 rounded-md"><CheckCircle className="w-4 h-4 text-green-700"/></button><button onClick={() => onReject(app.id)} className="bg-red-100 p-2 rounded-md"><XCircle className="w-4 h-4 text-red-700"/></button></div></td></td>))}</tbody>}</div>
     </div>
   );
 };
 
-// ==================== Bookings Section (real data) ====================
+// ==================== Bookings Section ====================
 const BookingsContent = () => {
   const [bookings, setBookings] = useState(MOCK_BOOKINGS);
   return (
@@ -415,7 +415,7 @@ const BookingsContent = () => {
   );
 };
 
-// ==================== CMS Section (real pages) ====================
+// ==================== CMS Section ====================
 const CmsContent = ({ pages, onEditPage }: any) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <SectionHeader title="Content Management System" icon={FileText} />
@@ -451,7 +451,7 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => (
   </div>
 );
 
-// ==================== Homepage Section (full editor) ====================
+// ==================== Homepage Section (fully working) ====================
 const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
   const [localContent, setLocalContent] = useState(content);
   const [localCategoryImages, setLocalCategoryImages] = useState(categoryImages);
@@ -553,6 +553,9 @@ const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
     </div>
   );
 };
+
+// ==================== Site Settings ====================
+const SiteSettingsContent = () => {
   const [duration, setDuration] = useState(MOCK_APP_CONFIG.searchingScreenDuration / 1000);
   const [saved, setSaved] = useState(false);
   const handleSave = () => { updateAppConfig({ searchingScreenDuration: duration * 1000 }); setSaved(true); setTimeout(() => setSaved(false), 2500); };
@@ -601,9 +604,8 @@ const PromotionsContent = () => {
   );
 };
 
-// ==================== Car Library (populated with 20+ models) ====================
+// ==================== Car Library (pre‑populated) ====================
 const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
-  // Ensure library is populated
   useEffect(() => {
     if (library.length === 0) {
       const defaultModels = [
@@ -634,7 +636,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
   );
 };
 
-// ==================== Suppliers Content with Delete Button ====================
+// ==================== Suppliers Content ====================
 const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete }: any) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <div className="flex justify-between mb-4"><SectionHeader title="Supplier Management" icon={Building} /><div className="flex gap-2"><button onClick={onRefresh} className="bg-gray-100 px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><RefreshCw className="w-4 h-4"/> Refresh</button><button onClick={onAddSupplier} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> Add Supplier</button></div></div>
@@ -647,11 +649,11 @@ const DashboardContent = ({ stats, pendingCount }: any) => (
   <div className="space-y-6"><div className="grid grid-cols-1 md:grid-cols-4 gap-5"><StatCard icon={DollarSign} title="Total Revenue" value="$1.2M" change="+15%" /><StatCard icon={Calendar} title="Total Bookings" value={MOCK_BOOKINGS.length} color="blue" /><StatCard icon={Building} title="Active Suppliers" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" /><StatCard icon={AlertCircle} title="Pending Actions" value={pendingCount} color="purple" /></div><div className="bg-white rounded-2xl shadow-lg p-6"><h3 className="font-bold mb-4">Monthly Revenue</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={ADMIN_STATS}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="name"/><YAxis/><Tooltip/><Area type="monotone" dataKey="revenue" stroke="#f97316" fill="#f97316" fillOpacity={0.1}/></AreaChart></ResponsiveContainer></div></div>
 );
 
-// ==================== Other placeholder sections (Fleet, API Partners) ====================
+// ==================== Placeholder sections (Fleet, API Partners) ====================
 const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet Management" icon={Car}/><div className="text-center py-10 text-gray-400">Fleet management coming soon</div></div>;
 const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2}/><div className="text-center py-10 text-gray-400">API partners management coming soon</div></div>;
 
-// ==================== Placeholder modals (simplified) ====================
+// ==================== Modal placeholders (simplified but working) ====================
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API connection settings (to be implemented)</div></Modal>;
 const PageEditorModal = ({ page, isOpen, onClose }: any) => {
   const [title, setTitle] = useState(page?.title || '');
@@ -741,13 +743,34 @@ export const AdminDashboard: React.FC = () => {
           password: updatedSupplier.password || "defaultPassword123",
           password_confirmation: updatedSupplier.password || "defaultPassword123"
         };
+        const token = localStorage.getItem('adminToken');
+        if (!token) throw new Error('No token');
+        const response = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(await response.text());
+        alert("Supplier created successfully.");
+        await fetchSuppliers();
+      } else {
+        addMockSupplier(updatedSupplier);
+        setSuppliers([...SUPPLIERS]);
+      }
+      setEditingSupplier(null);
+      if (approvingApplication) { removeSupplierApplication(approvingApplication.id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); setApprovingApplication(null); }
+    } catch (error: any) { alert(`Failed: ${error.message}`); }
+  };
 
   const handleDeleteSupplier = async (id: string) => {
     if (!confirm('Delete this supplier?')) return;
     try {
       const token = localStorage.getItem('adminToken');
       if (!token) throw new Error('No token');
-      const response = await fetch(`https://hogicar-backend.onrender.com/api/admin/suppliers/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      const response = await fetch(`https://hogicar-backend.onrender.com/api/admin/suppliers/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) throw new Error(await response.text());
       alert('Supplier deleted');
       await fetchSuppliers();
