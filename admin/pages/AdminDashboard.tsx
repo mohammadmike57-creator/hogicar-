@@ -456,11 +456,11 @@ const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
   const [localContent, setLocalContent] = useState(content);
   const [localCategoryImages, setLocalCategoryImages] = useState(categoryImages);
   const [saved, setSaved] = useState(false);
-  const [activeAccordion, setActiveAccordion] = useState<string | null>('hero');
+  const [activeAccordion, setActiveAccordion] = useState<string | null>("hero");
 
   const handleSave = () => { onSave(localContent, localCategoryImages); setSaved(true); setTimeout(() => setSaved(false), 2500); };
   const handleTextChange = (path: string, value: string) => {
-    const keys = path.split('.');
+    const keys = path.split(".");
     setLocalContent((prev: HomepageContent) => {
       const newState = JSON.parse(JSON.stringify(prev));
       let currentLevel: any = newState;
@@ -495,8 +495,8 @@ const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
       return newState;
     });
   };
-  const InputFieldComp = ({ label, value, onChange }: any) => (
-    <div className="mb-2"><label className="block text-xs font-bold text-gray-500">{label}</label><input type="text" value={value} onChange={onChange} className="w-full p-2 border border-gray-200 rounded-lg" /></div>
+  const InputFieldComp = ({ label, value, onChange, fieldKey }: any) => (
+    <div key={fieldKey} className="mb-2"><label className="block text-xs font-bold text-gray-500">{label}</label><input type="text" value={value} onChange={onChange} className="w-full p-2 border border-gray-200 rounded-lg" /></div>
   );
   const AccordionSection = ({ title, id, children }: any) => (
     <div className="border border-gray-200 rounded-lg mb-2">
@@ -508,18 +508,51 @@ const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="bg-white rounded-2xl shadow-lg p-6">
         <div className="sticky top-0 bg-white/80 backdrop-blur-sm py-3 mb-6 flex justify-between border-b"><h2 className="text-lg font-bold">Homepage Editor</h2><button onClick={handleSave} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><Save className="w-4 h-4"/> Save</button>{saved && <span className="text-green-600 text-xs">Saved!</span>}</div>
-        <AccordionSection title="Hero Section" id="hero"><InputFieldComp label="Title" value={localContent.hero.title} onChange={e => handleTextChange('hero.title', e.target.value)} /><InputFieldComp label="Subtitle" value={localContent.hero.subtitle} onChange={e => handleTextChange('hero.subtitle', e.target.value)} /><InputFieldComp label="Background Image URL" value={localContent.hero.backgroundImage} onChange={e => handleTextChange('hero.backgroundImage', e.target.value)} /></AccordionSection>
-        <AccordionSection title="Features" id="features">{(localContent.features || []).map((item: FeatureItem, idx: number) => (<div key={item.id} className="p-3 border rounded mb-2 relative"><button onClick={() => handleDeleteItem('features', null, idx)} className="absolute top-2 right-2 text-red-400"><Trash2 className="w-4 h-4"/></button><InputFieldComp label="Icon" value={item.icon} onChange={e => handleNestedItemChange('features', null, idx, 'icon', e.target.value)} /><InputFieldComp label="Title" value={item.title} onChange={e => handleNestedItemChange('features', null, idx, 'title', e.target.value)} /><InputFieldComp label="Description" value={item.description} onChange={e => handleNestedItemChange('features', null, idx, 'description', e.target.value)} /></div>))}<button onClick={() => handleAddItem('features', null, {id: Date.now().toString(), icon: 'Globe', title: '', description: ''})} className="text-orange-600 text-xs"><PlusCircle className="w-4 h-4 inline"/> Add Feature</button></AccordionSection>
-        <AccordionSection title="How It Works" id="howitworks"><InputFieldComp label="Title" value={localContent.howItWorks.title} onChange={e => handleTextChange('howItWorks.title', e.target.value)} /><InputFieldComp label="Subtitle" value={localContent.howItWorks.subtitle} onChange={e => handleTextChange('howItWorks.subtitle', e.target.value)} />{(localContent.howItWorks.steps || []).map((step: StepItem, idx: number) => (<div key={step.id} className="p-3 border rounded mb-2 relative"><button onClick={() => handleDeleteItem('howItWorks', 'steps', idx)} className="absolute top-2 right-2 text-red-400"><Trash2 className="w-4 h-4"/></button><InputFieldComp label="Icon" value={step.icon} onChange={e => handleNestedItemChange('howItWorks', 'steps', idx, 'icon', e.target.value)} /><InputFieldComp label="Title" value={step.title} onChange={e => handleNestedItemChange('howItWorks', 'steps', idx, 'title', e.target.value)} /><InputFieldComp label="Description" value={step.description} onChange={e => handleNestedItemChange('howItWorks', 'steps', idx, 'description', e.target.value)} /></div>))}<button onClick={() => handleAddItem('howItWorks', 'steps', {id: Date.now().toString(), icon: 'Search', title: '', description: ''})} className="text-orange-600 text-xs"><PlusCircle className="w-4 h-4 inline"/> Add Step</button></AccordionSection>
-        <AccordionSection title="FAQs" id="faqs"><InputFieldComp label="Title" value={localContent.faqs.title} onChange={e => handleTextChange('faqs.title', e.target.value)} />{(localContent.faqs.items || []).map((faq: FaqItem, idx: number) => (<div key={faq.id} className="p-3 border rounded mb-2 relative"><button onClick={() => handleDeleteItem('faqs', 'items', idx)} className="absolute top-2 right-2 text-red-400"><Trash2 className="w-4 h-4"/></button><InputFieldComp label="Question" value={faq.question} onChange={e => handleNestedItemChange('faqs', 'items', idx, 'question', e.target.value)} /><InputFieldComp label="Answer" value={faq.answer} onChange={e => handleNestedItemChange('faqs', 'items', idx, 'answer', e.target.value)} /></div>))}<button onClick={() => handleAddItem('faqs', 'items', {id: Date.now().toString(), question: '', answer: ''})} className="text-orange-600 text-xs"><PlusCircle className="w-4 h-4 inline"/> Add FAQ</button></AccordionSection>
+        <AccordionSection title="Hero Section" id="hero">
+          <InputFieldComp fieldKey="hero-title" label="Title" value={localContent.hero.title} onChange={e => handleTextChange("hero.title", e.target.value)} />
+          <InputFieldComp fieldKey="hero-subtitle" label="Subtitle" value={localContent.hero.subtitle} onChange={e => handleTextChange("hero.subtitle", e.target.value)} />
+          <InputFieldComp fieldKey="hero-bg" label="Background Image URL" value={localContent.hero.backgroundImage} onChange={e => handleTextChange("hero.backgroundImage", e.target.value)} />
+        </AccordionSection>
+        <AccordionSection title="Features" id="features">
+          {(localContent.features || []).map((item: FeatureItem, idx: number) => (
+            <div key={item.id} className="p-3 border rounded mb-2 relative">
+              <button onClick={() => handleDeleteItem("features", null, idx)} className="absolute top-2 right-2 text-red-400"><Trash2 className="w-4 h-4"/></button>
+              <InputFieldComp fieldKey={`feature-icon-${idx}`} label="Icon" value={item.icon} onChange={e => handleNestedItemChange("features", null, idx, "icon", e.target.value)} />
+              <InputFieldComp fieldKey={`feature-title-${idx}`} label="Title" value={item.title} onChange={e => handleNestedItemChange("features", null, idx, "title", e.target.value)} />
+              <InputFieldComp fieldKey={`feature-desc-${idx}`} label="Description" value={item.description} onChange={e => handleNestedItemChange("features", null, idx, "description", e.target.value)} />
+            </div>
+          ))}
+          <button onClick={() => handleAddItem("features", null, {id: Date.now().toString(), icon: "Globe", title: "", description: ""})} className="text-orange-600 text-xs"><PlusCircle className="w-4 h-4 inline"/> Add Feature</button>
+        </AccordionSection>
+        <AccordionSection title="How It Works" id="howitworks">
+          <InputFieldComp fieldKey="how-title" label="Title" value={localContent.howItWorks.title} onChange={e => handleTextChange("howItWorks.title", e.target.value)} />
+          <InputFieldComp fieldKey="how-subtitle" label="Subtitle" value={localContent.howItWorks.subtitle} onChange={e => handleTextChange("howItWorks.subtitle", e.target.value)} />
+          {(localContent.howItWorks.steps || []).map((step: StepItem, idx: number) => (
+            <div key={step.id} className="p-3 border rounded mb-2 relative">
+              <button onClick={() => handleDeleteItem("howItWorks", "steps", idx)} className="absolute top-2 right-2 text-red-400"><Trash2 className="w-4 h-4"/></button>
+              <InputFieldComp fieldKey={`step-icon-${idx}`} label="Icon" value={step.icon} onChange={e => handleNestedItemChange("howItWorks", "steps", idx, "icon", e.target.value)} />
+              <InputFieldComp fieldKey={`step-title-${idx}`} label="Title" value={step.title} onChange={e => handleNestedItemChange("howItWorks", "steps", idx, "title", e.target.value)} />
+              <InputFieldComp fieldKey={`step-desc-${idx}`} label="Description" value={step.description} onChange={e => handleNestedItemChange("howItWorks", "steps", idx, "description", e.target.value)} />
+            </div>
+          ))}
+          <button onClick={() => handleAddItem("howItWorks", "steps", {id: Date.now().toString(), icon: "Search", title: "", description: ""})} className="text-orange-600 text-xs"><PlusCircle className="w-4 h-4 inline"/> Add Step</button>
+        </AccordionSection>
+        <AccordionSection title="FAQs" id="faqs">
+          <InputFieldComp fieldKey="faq-title" label="Title" value={localContent.faqs.title} onChange={e => handleTextChange("faqs.title", e.target.value)} />
+          {(localContent.faqs.items || []).map((faq: FaqItem, idx: number) => (
+            <div key={faq.id} className="p-3 border rounded mb-2 relative">
+              <button onClick={() => handleDeleteItem("faqs", "items", idx)} className="absolute top-2 right-2 text-red-400"><Trash2 className="w-4 h-4"/></button>
+              <InputFieldComp fieldKey={`faq-q-${idx}`} label="Question" value={faq.question} onChange={e => handleNestedItemChange("faqs", "items", idx, "question", e.target.value)} />
+              <InputFieldComp fieldKey={`faq-a-${idx}`} label="Answer" value={faq.answer} onChange={e => handleNestedItemChange("faqs", "items", idx, "answer", e.target.value)} />
+            </div>
+          ))}
+          <button onClick={() => handleAddItem("faqs", "items", {id: Date.now().toString(), question: "", answer: ""})} className="text-orange-600 text-xs"><PlusCircle className="w-4 h-4 inline"/> Add FAQ</button>
+        </AccordionSection>
       </div>
       <div className="bg-gray-100 p-4 rounded-lg sticky top-20 h-[calc(100vh-10rem)]"><div className="h-full flex items-center justify-center text-gray-500">Live preview (iframe) would appear here</div></div>
     </div>
   );
 };
-
-// ==================== Site Settings ====================
-const SiteSettingsContent = () => {
   const [duration, setDuration] = useState(MOCK_APP_CONFIG.searchingScreenDuration / 1000);
   const [saved, setSaved] = useState(false);
   const handleSave = () => { updateAppConfig({ searchingScreenDuration: duration * 1000 }); setSaved(true); setTimeout(() => setSaved(false), 2500); };
@@ -695,21 +728,19 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveSupplier = async (updatedSupplier: Supplier) => {
     try {
       if (!updatedSupplier.id) {
-        const payload = { name: updatedSupplier.name, email: updatedSupplier.contactEmail, phone: updatedSupplier.phone || '', logoUrl: updatedSupplier.logo || '', active: true, location: updatedSupplier.location || '', locationCode: updatedSupplier.locationCode || '', bookingMode: updatedSupplier.bookingMode || 'FREE_SALE', commissionPercent: updatedSupplier.commissionValue || 0, password: updatedSupplier.password || 'defaultPassword123' };
-        const token = localStorage.getItem('adminToken');
-        if (!token) throw new Error('No token');
-        const response = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
-        if (!response.ok) throw new Error(await response.text());
-        alert("Supplier created successfully.");
-        await fetchSuppliers();
-      } else {
-        addMockSupplier(updatedSupplier);
-        setSuppliers([...SUPPLIERS]);
-      }
-      setEditingSupplier(null);
-      if (approvingApplication) { removeSupplierApplication(approvingApplication.id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); setApprovingApplication(null); }
-    } catch (error: any) { alert(`Failed: ${error.message}`); }
-  };
+        const payload = {
+          name: updatedSupplier.name,
+          email: updatedSupplier.contactEmail,
+          phone: updatedSupplier.phone || "",
+          logoUrl: updatedSupplier.logo || "",
+          active: true,
+          location: updatedSupplier.location || "",
+          locationCode: updatedSupplier.locationCode || "",
+          bookingMode: updatedSupplier.bookingMode || "FREE_SALE",
+          commissionPercent: updatedSupplier.commissionValue || 0,
+          password: updatedSupplier.password || "defaultPassword123",
+          password_confirmation: updatedSupplier.password || "defaultPassword123"
+        };
 
   const handleDeleteSupplier = async (id: string) => {
     if (!confirm('Delete this supplier?')) return;
