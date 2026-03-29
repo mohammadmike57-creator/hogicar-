@@ -13,10 +13,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
-import { adminApi } from '../../api';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
-  ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, 
+  ADMIN_STATS, MOCK_BOOKINGS, addMockSupplier, 
   MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, 
   MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, 
   MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, 
@@ -37,7 +36,7 @@ type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fl
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions';
 
-// ==================== UI Components ====================
+// ==================== UI Components (same as before) ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
   const colorClasses: any = { orange: 'bg-orange-100 text-orange-600', blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600' };
   return (
@@ -108,7 +107,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   );
 };
 
-// ==================== Sidebar ====================
+// ==================== Sidebar (unchanged) ====================
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
@@ -152,7 +151,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Searchable Location Picker ====================
+// ==================== Searchable Location Picker (unchanged) ====================
 const LocationPicker = ({ value, onChange, placeholder = "Search location..." }: { value: string; onChange: (location: LocationSuggestion | null) => void; placeholder?: string }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -160,12 +159,6 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState('');
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => {
-    if (value) {
-      // If a location code is passed, we could fetch its label, but for simplicity we store label separately
-    }
-  }, [value]);
 
   useEffect(() => {
     if (query.length < 2) {
@@ -232,7 +225,7 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
   );
 };
 
-// ==================== Edit Supplier Modal (with searchable location) ====================
+// ==================== Edit Supplier Modal ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
@@ -251,7 +244,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     if (isOpen) {
       setEditedSupplier(supplier || {});
       if (supplier?.locationCode && supplier?.location) {
-        setSelectedLocation({ label: supplier.location, value: supplier.locationCode, type: 'AIRPORT', iataCode: supplier.locationCode });
+        setSelectedLocation({ label: supplier.location, value: supplier.locationCode, type: 'airport', iataCode: supplier.locationCode, name: supplier.location, municipality: '', countryCode: '' });
         setNewLocationName('');
         setNewLocationCode('');
       } else {
@@ -284,11 +277,10 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     if (!newLocationName) { alert("Please enter location name."); return; }
     let code = newLocationCode.trim().toUpperCase();
     if (!code) {
-      // Generate code from name: remove spaces, take first 3-6 letters
       code = newLocationName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
       if (code.length < 2) code = newLocationName.substring(0, 3).toUpperCase();
     }
-    const newLoc: LocationSuggestion = { label: newLocationName, value: code, type: 'CITY', iataCode: code };
+    const newLoc: LocationSuggestion = { label: newLocationName, value: code, type: 'city', iataCode: code, name: newLocationName, municipality: '', countryCode: '' };
     const updated = [...customLocations, newLoc];
     setCustomLocations(updated);
     localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated));
@@ -392,14 +384,45 @@ const DashboardContent = ({ stats, pendingCount }: any) => (
   </div>
 );
 
-const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier }: any) => (
+// ==================== Suppliers Content (loads from backend) ====================
+const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh }: any) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
-    <div className="flex justify-between mb-4"><SectionHeader title="Supplier Management" icon={Building} /><button onClick={onAddSupplier} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> Add Supplier</button></div>
-    <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Connection</th><th className="p-3">Fleet</th><th className="p-3">Bookings</th><th className="p-3"></th></tr></thead><tbody>{suppliers.map((s: Supplier) => (<tr key={s.id} className="hover:bg-orange-50"><td className="p-3 flex items-center gap-3"><img src={s.logo} className="w-8 h-8 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td><td className="p-3"><Badge status={s.status}/></td><td className="p-3"><span className="text-xs bg-gray-100 px-2 py-1 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td><td className="p-3">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td><td className="p-3">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td><td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => onManageApi(s)} className="p-2 bg-gray-100 rounded-md"><Rss className="w-4 h-4"/></button><button onClick={() => onEdit(s)} className="p-2 bg-gray-100 rounded-md"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
+    <div className="flex justify-between mb-4">
+      <SectionHeader title="Supplier Management" icon={Building} />
+      <div className="flex gap-2">
+        <button onClick={onRefresh} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+          <RefreshCw className="w-4 h-4"/> Refresh
+        </button>
+        <button onClick={onAddSupplier} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+          <Plus className="w-4 h-4"/> Add Supplier
+        </button>
+      </div>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-50">
+          <tr className="text-xs">
+            <th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Connection</th><th className="p-3">Fleet</th><th className="p-3">Bookings</th><th className="p-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {suppliers.map((s: Supplier) => (
+            <tr key={s.id} className="hover:bg-orange-50">
+              <td className="p-3 flex items-center gap-3"><img src={s.logo} className="w-8 h-8 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td>
+              <td className="p-3"><Badge status={s.status}/></td>
+              <td className="p-3"><span className="text-xs bg-gray-100 px-2 py-1 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td>
+              <td className="p-3">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td>
+              <td className="p-3">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td>
+              <td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => onManageApi(s)} className="p-2 bg-gray-100 rounded-md"><Rss className="w-4 h-4"/></button><button onClick={() => onEdit(s)} className="p-2 bg-gray-100 rounded-md"><Edit className="w-4 h-4"/></button></div></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 
-// Other sections (placeholders)
+// Other sections (placeholders – unchanged)
 const BookingsContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Bookings" icon={Calendar}/><div className="text-center py-10 text-gray-400">Booking management placeholder</div></div>;
 const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet" icon={Car}/><div className="text-center py-10 text-gray-400">Fleet placeholder</div></div>;
 const CarLibraryContent = ({ library, onEdit, onDelete }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Car Library" icon={Car}/><div className="text-center py-10 text-gray-400">Car library placeholder</div></div>;
@@ -424,7 +447,8 @@ export const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const [suppliers, setSuppliers] = useState(SUPPLIERS);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(true);
   const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<SupplierApplication | null>(null);
@@ -444,23 +468,96 @@ export const AdminDashboard: React.FC = () => {
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
   const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
 
-  const stats = { totalSuppliers: suppliers.length, activeSuppliers: suppliers.filter(s => s.status === 'active').length, totalBookings: MOCK_BOOKINGS.length, totalRevenue: 1200000 };
-  const pendingCount = supplierApps.length;
+  // Load suppliers from backend
+  const fetchSuppliers = async () => {
+    setLoadingSuppliers(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        console.warn('No admin token found');
+        setSuppliers([]);
+        return;
+      }
+      const response = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSuppliers(data);
+      } else {
+        console.error('Failed to fetch suppliers', response.status);
+        setSuppliers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      setSuppliers([]);
+    } finally {
+      setLoadingSuppliers(false);
+    }
+  };
 
-  useEffect(() => { setSuppliers(SUPPLIERS); setSupplierApps(MOCK_SUPPLIER_APPLICATIONS); setApiPartners(MOCK_API_PARTNERS); setCarLibrary(MOCK_CAR_LIBRARY); setAffiliates(MOCK_AFFILIATES); }, []);
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  const stats = {
+    totalSuppliers: suppliers.length,
+    activeSuppliers: suppliers.filter(s => s.status === 'active').length,
+    totalBookings: MOCK_BOOKINGS.length,
+    totalRevenue: 1200000,
+  };
+  const pendingCount = supplierApps.length;
 
   const handleSaveSupplier = async (updatedSupplier: Supplier) => {
     try {
       if (!updatedSupplier.id) {
-        const payload = { name: updatedSupplier.name, email: updatedSupplier.contactEmail, phone: updatedSupplier.phone || '', logoUrl: updatedSupplier.logo || '', active: true, location: updatedSupplier.location || '', locationCode: updatedSupplier.locationCode || '', bookingMode: updatedSupplier.bookingMode || 'FREE_SALE', commissionPercent: updatedSupplier.commissionValue || 0, password: updatedSupplier.password || 'defaultPassword123' };
-        await adminApi.createSupplier(payload);
-        alert("Supplier created.");
-      } else { addMockSupplier(updatedSupplier); }
-      setSuppliers([...SUPPLIERS]); setEditingSupplier(null);
-      if (approvingApplication) { removeSupplierApplication(approvingApplication.id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); setApprovingApplication(null); }
-    } catch (error: any) { alert(`Failed: ${error.message}`); }
+        const payload = {
+          name: updatedSupplier.name,
+          email: updatedSupplier.contactEmail,
+          phone: updatedSupplier.phone || '',
+          logoUrl: updatedSupplier.logo || '',
+          active: true,
+          location: updatedSupplier.location || '',
+          locationCode: updatedSupplier.locationCode || '',
+          bookingMode: updatedSupplier.bookingMode || 'FREE_SALE',
+          commissionPercent: updatedSupplier.commissionValue || 0,
+          password: updatedSupplier.password || 'defaultPassword123'
+        };
+        const token = localStorage.getItem('adminToken');
+        if (!token) { alert("No admin token found. Please log in again."); return; }
+        const response = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        alert("Supplier created successfully.");
+        // Refresh the supplier list
+        await fetchSuppliers();
+      } else {
+        // For editing, use mock data (or implement PUT)
+        addMockSupplier(updatedSupplier);
+        setSuppliers([...SUPPLIERS]);
+      }
+      setEditingSupplier(null);
+      if (approvingApplication) {
+        removeSupplierApplication(approvingApplication.id);
+        setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]);
+        setApprovingApplication(null);
+      }
+    } catch (error: any) {
+      console.error('Save supplier error:', error);
+      alert(`Failed to create supplier: ${error.message}`);
+    }
   };
-  const handleApproveSupplier = (id: string) => { const s = SUPPLIERS.find(s => s.id === id); if (s) { s.status = 'active'; setSuppliers([...SUPPLIERS]); } };
+
+  const handleApproveSupplier = (id: string) => {
+    const s = suppliers.find(s => s.id === id);
+    if (s) { s.status = 'active'; setSuppliers([...suppliers]); }
+  };
   const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
   const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
@@ -480,7 +577,16 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} />;
-      case 'suppliers': return (<><SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: Supplier) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({} as Supplier)} /></>);
+      case 'suppliers': return (
+        <SuppliersContent 
+          suppliers={suppliers} 
+          onEdit={setEditingSupplier} 
+          onApprove={handleApproveSupplier} 
+          onManageApi={(s: Supplier) => { setEditingSupplier(s); setIsApiModalOpen(true); }} 
+          onAddSupplier={() => setEditingSupplier({} as Supplier)}
+          onRefresh={fetchSuppliers}
+        />
+      );
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
       case 'bookings': return <BookingsContent />;
       case 'fleet': return <FleetContent />;
