@@ -19,7 +19,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, parseISO } from 'date-fns';
 import { Logo } from '../../components/Logo';
 import { adminApi } from '../../api';
-import { getAllLocations, saveCustomLocation } from '../utils/locations';
+import { getAllLocations, saveCustomLocation } from '../../../utils/locations';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
   ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, 
