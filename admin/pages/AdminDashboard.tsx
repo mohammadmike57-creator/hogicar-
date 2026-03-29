@@ -36,7 +36,7 @@ type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fl
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions';
 
-// ==================== UI Components (same as before) ====================
+// ==================== UI Components (unchanged) ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
   const colorClasses: any = { orange: 'bg-orange-100 text-orange-600', blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600' };
   return (
@@ -151,7 +151,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Searchable Location Picker (unchanged) ====================
+// ==================== Searchable Location Picker ====================
 const LocationPicker = ({ value, onChange, placeholder = "Search location..." }: { value: string; onChange: (location: LocationSuggestion | null) => void; placeholder?: string }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -300,6 +300,10 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
       alert("Please select or create a primary location.");
       return;
     }
+    // Ensure status is 'active' for new suppliers
+    if (!editedSupplier.id) {
+      editedSupplier.status = 'active';
+    }
     onSave(editedSupplier as Supplier);
   };
 
@@ -384,8 +388,27 @@ const DashboardContent = ({ stats, pendingCount }: any) => (
   </div>
 );
 
-// ==================== Suppliers Content (loads from backend) ====================
-const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh }: any) => (
+// ==================== Default Car Library (populated) ====================
+const DEFAULT_CAR_MODELS: CarModel[] = [
+  { id: '1', make: 'Toyota', model: 'Corolla', year: 2023, category: CarCategory.ECONOMY, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2018/03/13/19/09/toyota-3223474_1280.png', passengers: 5, bags: 2, doors: 4 },
+  { id: '2', make: 'Toyota', model: 'Camry', year: 2023, category: CarCategory.MIDSIZE, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2018/03/13/19/09/toyota-3223474_1280.png', passengers: 5, bags: 3, doors: 4 },
+  { id: '3', make: 'Honda', model: 'Civic', year: 2023, category: CarCategory.ECONOMY, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2015/09/02/12/43/honda-918522_1280.jpg', passengers: 5, bags: 2, doors: 4 },
+  { id: '4', make: 'Honda', model: 'CR-V', year: 2023, category: CarCategory.SUV, type: VehicleType.SUV, image: 'https://cdn.pixabay.com/photo/2018/04/07/12/54/honda-3298743_1280.jpg', passengers: 5, bags: 4, doors: 5 },
+  { id: '5', make: 'BMW', model: '3 Series', year: 2023, category: CarCategory.PREMIUM, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2020/05/23/11/58/bmw-5210777_1280.jpg', passengers: 5, bags: 3, doors: 4 },
+  { id: '6', make: 'Mercedes', model: 'C-Class', year: 2023, category: CarCategory.PREMIUM, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2017/12/22/18/31/mercedes-benz-3034659_1280.jpg', passengers: 5, bags: 3, doors: 4 },
+  { id: '7', make: 'Nissan', model: 'Altima', year: 2023, category: CarCategory.MIDSIZE, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2016/11/29/05/21/nissan-1867732_1280.jpg', passengers: 5, bags: 2, doors: 4 },
+  { id: '8', make: 'Hyundai', model: 'Elantra', year: 2023, category: CarCategory.ECONOMY, type: VehicleType.SEDAN, image: 'https://cdn.pixabay.com/photo/2017/06/20/12/32/hyundai-2423283_1280.jpg', passengers: 5, bags: 2, doors: 4 },
+  { id: '9', make: 'Kia', model: 'Sportage', year: 2023, category: CarCategory.SUV, type: VehicleType.SUV, image: 'https://cdn.pixabay.com/photo/2020/01/12/18/34/kia-4761653_1280.jpg', passengers: 5, bags: 4, doors: 5 },
+  { id: '10', make: 'Ford', model: 'Mustang', year: 2023, category: CarCategory.PREMIUM, type: VehicleType.CONVERTIBLE, image: 'https://cdn.pixabay.com/photo/2017/08/31/16/40/ford-2701767_1280.jpg', passengers: 4, bags: 1, doors: 2 },
+];
+
+// Initialize car library if empty
+if (MOCK_CAR_LIBRARY.length === 0) {
+  DEFAULT_CAR_MODELS.forEach(model => saveCarModel(model));
+}
+
+// ==================== Suppliers Content with Delete Button ====================
+const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete }: any) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <div className="flex justify-between mb-4">
       <SectionHeader title="Supplier Management" icon={Building} />
@@ -402,18 +425,24 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
       <table className="w-full">
         <thead className="bg-gray-50">
           <tr className="text-xs">
-            <th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Connection</th><th className="p-3">Fleet</th><th className="p-3">Bookings</th><th className="p-3"></th>
+            <th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Connection</th><th className="p-3">Fleet</th><th className="p-3">Bookings</th><th className="p-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           {suppliers.map((s: Supplier) => (
             <tr key={s.id} className="hover:bg-orange-50">
               <td className="p-3 flex items-center gap-3"><img src={s.logo} className="w-8 h-8 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td>
-              <td className="p-3"><Badge status={s.status}/></td>
+              <td className="p-3"><Badge status={s.status || 'active'}/></td>
               <td className="p-3"><span className="text-xs bg-gray-100 px-2 py-1 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td>
               <td className="p-3">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td>
               <td className="p-3">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td>
-              <td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => onManageApi(s)} className="p-2 bg-gray-100 rounded-md"><Rss className="w-4 h-4"/></button><button onClick={() => onEdit(s)} className="p-2 bg-gray-100 rounded-md"><Edit className="w-4 h-4"/></button></div></td>
+              <td className="p-3 text-right">
+                <div className="flex justify-end gap-2">
+                  <button onClick={() => onManageApi(s)} className="p-2 bg-gray-100 rounded-md" title="Manage API"><Rss className="w-4 h-4"/></button>
+                  <button onClick={() => onEdit(s)} className="p-2 bg-gray-100 rounded-md" title="Edit"><Edit className="w-4 h-4"/></button>
+                  <button onClick={() => onDelete(s.id)} className="p-2 bg-red-100 text-red-600 rounded-md" title="Delete"><Trash2 className="w-4 h-4"/></button>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -422,10 +451,50 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
   </div>
 );
 
-// Other sections (placeholders – unchanged)
+// ==================== Car Library Content (with populated data) ====================
+const CarLibraryContent = ({ library, onEdit, onDelete }: any) => (
+  <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="flex justify-between items-center mb-4">
+      <SectionHeader title="Car Model Library" subtitle="Base images and specifications" icon={Car} />
+      <button onClick={() => onEdit(null)} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-md">
+        <Plus className="w-4 h-4"/> Add Model
+      </button>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead className="bg-gray-50">
+          <tr className="text-xs font-semibold text-gray-500">
+            <th className="py-2 px-4">Image</th><th className="py-2 px-4">Make & Model</th><th className="py-2 px-4">Year</th><th className="py-2 px-4">Category</th><th className="py-2 px-4">Type</th><th className="py-2 px-4"></th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {library.map((model: CarModel) => (
+            <tr key={model.id} className="hover:bg-orange-50">
+              <td className="py-3 px-4"><img src={model.image} alt={model.model} className="w-16 h-10 object-cover rounded bg-gray-100 border" /></td>
+              <td className="py-3 px-4"><span className="font-bold text-gray-800">{model.make} {model.model}</span></td>
+              <td className="py-3 px-4">{model.year}</td>
+              <td className="py-3 px-4 text-xs">{model.category}</td>
+              <td className="py-3 px-4 text-xs">{model.type}</td>
+              <td className="py-3 px-4 text-right">
+                <div className="flex justify-end gap-2">
+                  <button onClick={() => onEdit(model)} className="bg-gray-100 p-2 rounded-md"><Edit className="w-4 h-4"/></button>
+                  <button onClick={() => onDelete(model.id)} className="bg-red-50 text-red-600 p-2 rounded-md"><Trash2 className="w-4 h-4"/></button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {library.length === 0 && (
+            <tr><td colSpan={6} className="text-center py-10 text-gray-400">No car models. Click "Add Model" to create.</td></tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+// Other sections (placeholders – keep as before)
 const BookingsContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Bookings" icon={Calendar}/><div className="text-center py-10 text-gray-400">Booking management placeholder</div></div>;
 const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet" icon={Car}/><div className="text-center py-10 text-gray-400">Fleet placeholder</div></div>;
-const CarLibraryContent = ({ library, onEdit, onDelete }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Car Library" icon={Car}/><div className="text-center py-10 text-gray-400">Car library placeholder</div></div>;
 const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2}/><div className="text-center py-10 text-gray-400">API partners placeholder</div></div>;
 const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editingAffiliate, setEditingAffiliate, onSaveCommission }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Affiliates" icon={DollarSign}/><div className="text-center py-10 text-gray-400">Affiliates placeholder</div></div>;
 const CmsContent = ({ pages, onEditPage }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="CMS" icon={FileText}/><div className="text-center py-10 text-gray-400">CMS placeholder</div></div>;
@@ -438,7 +507,24 @@ const PromotionsContent = () => <div className="bg-white rounded-2xl shadow-lg p
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API connection modal (to be implemented)</div></Modal>;
 const PageEditorModal = ({ page, isOpen, onClose }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Edit Page"><div>Page editor</div></Modal>;
 const SEOEditorModal = ({ config, isOpen, onClose }: any) => <Modal isOpen={isOpen} onClose={onClose} title="SEO Editor"><div>SEO editor</div></Modal>;
-const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Car Model"><div>Car model editor</div></Modal>;
+const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
+  const [model, setModel] = useState<CarModel>(carModel || { id: '', make: '', model: '', year: new Date().getFullYear(), category: CarCategory.ECONOMY, type: VehicleType.SEDAN, image: '', passengers: 4, bags: 2, doors: 4 });
+  useEffect(() => { if (carModel) setModel(carModel); }, [carModel]);
+  const handleChange = (field: keyof CarModel, value: any) => setModel(prev => ({ ...prev, [field]: value }));
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('image', reader.result as string); reader.readAsDataURL(e.target.files[0]); }
+  };
+  const handleSave = () => { if (!model.make || !model.model || !model.image) { alert('Make, Model, and Image are required.'); return; } onSave(model); };
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={carModel ? 'Edit Car Model' : 'Add New Car Model'} size="lg">
+      <div className="space-y-4"><div className="grid grid-cols-3 gap-4"><InputField label="Make" value={model.make} onChange={e => handleChange('make', e.target.value)} /><InputField label="Model" value={model.model} onChange={e => handleChange('model', e.target.value)} /><InputField label="Year" type="number" value={model.year} onChange={e => handleChange('year', parseInt(e.target.value))} /></div>
+      <div><label className="block text-xs font-medium">Car Image</label><div className="mt-1 flex items-center gap-4">{model.image ? <img src={model.image} className="w-48 h-24 object-cover rounded-xl border" /> : <div className="w-48 h-24 bg-gray-100 rounded-xl border flex items-center justify-center"><ImageIcon className="w-8 h-8 text-gray-400"/></div>}<label htmlFor="file-upload" className="cursor-pointer bg-white py-2 px-3 border rounded-xl text-sm">Upload<input id="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload}/></label></div></div>
+      <div className="grid grid-cols-2 gap-4"><SelectField label="Category" value={model.category} onChange={e => handleChange('category', e.target.value)} options={Object.values(CarCategory).map(v => ({ value: v, label: v }))} /><SelectField label="Type" value={model.type} onChange={e => handleChange('type', e.target.value)} options={Object.values(VehicleType).map(v => ({ value: v, label: v }))} /></div>
+      <div className="grid grid-cols-3 gap-4"><InputField label="Passengers" type="number" value={model.passengers} onChange={e => handleChange('passengers', parseInt(e.target.value))} /><InputField label="Bags" type="number" value={model.bags} onChange={e => handleChange('bags', parseInt(e.target.value))} /><InputField label="Doors" type="number" value={model.doors} onChange={e => handleChange('doors', parseInt(e.target.value))} /></div>
+      <div className="flex justify-end gap-3"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-4 py-2 rounded-lg">Save</button></div></div>
+    </Modal>
+  );
+};
 const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Affiliate"><div>Affiliate editor</div></Modal>;
 const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Promotion"><div>Promotion editor</div></Modal>;
 
@@ -468,16 +554,11 @@ export const AdminDashboard: React.FC = () => {
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
   const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
 
-  // Load suppliers from backend
   const fetchSuppliers = async () => {
     setLoadingSuppliers(true);
     try {
       const token = localStorage.getItem('adminToken');
-      if (!token) {
-        console.warn('No admin token found');
-        setSuppliers([]);
-        return;
-      }
+      if (!token) { setSuppliers([]); return; }
       const response = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -485,11 +566,10 @@ export const AdminDashboard: React.FC = () => {
         const data = await response.json();
         setSuppliers(data);
       } else {
-        console.error('Failed to fetch suppliers', response.status);
         setSuppliers([]);
       }
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
+      console.error(error);
       setSuppliers([]);
     } finally {
       setLoadingSuppliers(false);
@@ -524,21 +604,17 @@ export const AdminDashboard: React.FC = () => {
           password: updatedSupplier.password || 'defaultPassword123'
         };
         const token = localStorage.getItem('adminToken');
-        if (!token) { alert("No admin token found. Please log in again."); return; }
+        if (!token) throw new Error('No token');
         const response = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
         });
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
+        if (!response.ok) throw new Error(await response.text());
         alert("Supplier created successfully.");
-        // Refresh the supplier list
-        await fetchSuppliers();
+        await fetchSuppliers(); // refresh list
       } else {
-        // For editing, use mock data (or implement PUT)
+        // For editing, use mock (or implement PUT)
         addMockSupplier(updatedSupplier);
         setSuppliers([...SUPPLIERS]);
       }
@@ -549,8 +625,24 @@ export const AdminDashboard: React.FC = () => {
         setApprovingApplication(null);
       }
     } catch (error: any) {
-      console.error('Save supplier error:', error);
-      alert(`Failed to create supplier: ${error.message}`);
+      alert(`Failed: ${error.message}`);
+    }
+  };
+
+  const handleDeleteSupplier = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this supplier?')) return;
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) throw new Error('No token');
+      const response = await fetch(`https://hogicar-backend.onrender.com/api/admin/suppliers/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error(await response.text());
+      alert('Supplier deleted');
+      await fetchSuppliers();
+    } catch (error: any) {
+      alert(`Delete failed: ${error.message}`);
     }
   };
 
@@ -562,7 +654,7 @@ export const AdminDashboard: React.FC = () => {
   const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleSaveCarModel = (model: CarModel) => { saveCarModel(model); setCarLibrary([...MOCK_CAR_LIBRARY]); setIsCarModelModalOpen(false); setEditingCarModel(null); };
-  const handleDeleteCarModel = (id: string) => { if (confirm("Delete?")) { deleteCarModel(id); setCarLibrary([...MOCK_CAR_LIBRARY]); } };
+  const handleDeleteCarModel = (id: string) => { if (confirm("Delete car model?")) { deleteCarModel(id); setCarLibrary([...MOCK_CAR_LIBRARY]); } };
   const handleUpdateAffiliateStatus = (id: string, status: any) => { updateAffiliateStatus(id, status); setAffiliates([...MOCK_AFFILIATES]); };
   const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
   const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
@@ -585,6 +677,7 @@ export const AdminDashboard: React.FC = () => {
           onManageApi={(s: Supplier) => { setEditingSupplier(s); setIsApiModalOpen(true); }} 
           onAddSupplier={() => setEditingSupplier({} as Supplier)}
           onRefresh={fetchSuppliers}
+          onDelete={handleDeleteSupplier}
         />
       );
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
