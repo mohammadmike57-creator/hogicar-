@@ -2,57 +2,45 @@ import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Menu, X, LogOut, LayoutDashboard, Car, Users, MapPin, User, 
-  Calendar, Download, Upload, Save, Plus, Trash2, Edit, 
-  ChevronDown, ChevronUp, DollarSign, Settings, AlertCircle, 
-  CheckCircle, Shield, BarChart3, TrendingUp, Package,
-  Clock, History, Zap, Gift, FileText, PieChart, Activity, 
-  Percent, Coins, Award, Star, Bell, Moon, Sun, Home,
-  Briefcase, Truck, CreditCard, Globe, Lock, Key, Building,
-  Rss, Link2, XCircle, RefreshCw, Copy, Share2, Power, Code,
-  Mail, MailQuestion, CheckSquare, XSquare, Tag, ImageIcon,
-  PlusCircle, Monitor, Tablet, Smartphone, Expand, PowerOff,
-  LoaderCircle, Filter, Search
+  Menu, X, LogOut, LayoutDashboard, Car, Building, Calendar, 
+  Save, Plus, Trash2, Edit, ChevronDown, ChevronUp, DollarSign, 
+  Settings, AlertCircle, CheckCircle, Shield, TrendingUp, 
+  MailQuestion, Rss, Link2, XCircle, RefreshCw, Copy, Share2, 
+  Power, Tag, ImageIcon, PlusCircle, Monitor, Tablet, Smartphone, 
+  Expand, PowerOff, LoaderCircle, FileText, Globe, Users 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { format, parseISO } from 'date-fns';
 import { Logo } from '../../components/Logo';
 import { adminApi } from '../../api';
-import { getAllLocations, saveCustomLocation } from '../../utils/locations';
-import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
-  ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, 
-  MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, MOCK_CARS, 
-  MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, MOCK_HOMEPAGE_CONTENT, 
-  updateHomepageContent, MOCK_APP_CONFIG, updateAppConfig, MOCK_CAR_LIBRARY, 
-  saveCarModel, deleteCarModel, MOCK_AFFILIATES, updateAffiliateStatus, 
-  updateAffiliateCommissionRate, MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, 
-  MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, addPromoCode, 
-  MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
+  ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, 
+  MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, 
+  MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, 
+  MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, 
+  updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, 
+  MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, 
+  MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, 
+  MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, 
+  addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
 } from '../../services/mockData';
 import { 
-  Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, PageContent, 
-  SEOConfig, HomepageContent, FeatureItem, StepItem, ValuePropositionItem, 
-  DestinationItem, FaqItem, CarModel, CarCategory, CarType as VehicleType, Affiliate, 
-  SupplierApplication, Car as CarType, RateTier, RateByDay, PromoCode 
+  Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, 
+  PageContent, SEOConfig, HomepageContent, CarModel, CarCategory, 
+  CarType as VehicleType, Affiliate, SupplierApplication, Car as CarType, 
+  RateTier 
 } from '../../types';
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions';
 
-// ==================== UI Components (simplified but complete) ====================
+// ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
-  const colorClasses: Record<string, string> = {
-    orange: 'bg-orange-100 text-orange-600',
-    blue: 'bg-blue-100 text-blue-600',
-    green: 'bg-green-100 text-green-600',
-    purple: 'bg-purple-100 text-purple-600',
-  };
+  const colorClasses: any = { orange: 'bg-orange-100 text-orange-600', blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600' };
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300">
+      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all">
       <div className="flex items-start justify-between">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
           <Icon className="w-6 h-6" />
@@ -99,38 +87,26 @@ const SelectField = ({ label, options, error, ...props }: any) => (
 );
 
 const Badge = ({ status }: { status: string }) => {
-  const colors: Record<string, string> = {
-    active: 'bg-green-100 text-green-700 border-green-200',
-    pending: 'bg-orange-100 text-orange-700 border-orange-200',
-    approved: 'bg-blue-100 text-blue-700 border-blue-200',
-    rejected: 'bg-red-100 text-red-700 border-red-200',
-  };
-  return (
-    <span className={`px-2 py-1 text-xs font-bold rounded-full border ${colors[status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
+  const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-orange-100 text-orange-700', approved: 'bg-blue-100 text-blue-700', rejected: 'bg-red-100 text-red-700' };
+  return <span className={`px-2 py-1 text-xs font-bold rounded-full border ${colors[status] || 'bg-gray-100'}`}>{status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}</span>;
 };
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   if (!isOpen) return null;
-  const sizes = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-6xl' };
+  const sizes: any = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-6xl' };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
         className={`bg-white rounded-2xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] flex flex-col`} onClick={e => e.stopPropagation()}>
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full text-gray-500"><X className="w-5 h-5" /></button>
-        </div>
+        <div className="p-6 border-b flex justify-between items-center"><h2 className="text-xl font-bold">{title}</h2><button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full"><X className="w-5 h-5" /></button></div>
         <div className="flex-grow overflow-y-auto p-6">{children}</div>
       </motion.div>
     </motion.div>
   );
 };
 
-// ==================== Sidebar ====================
+// ==================== Sidebar (unchanged) ====================
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
@@ -138,9 +114,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
     return (
       <motion.button whileHover={{ x: 5 }} whileTap={{ scale: 0.95 }}
         onClick={() => { setActiveSection(section); setIsOpen(false); }}
-        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all ${
-          active ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg' : 'text-gray-300 hover:bg-white/10 hover:text-white'
-        }`}>
+        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all ${active ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
         <div className="flex items-center gap-3"><Icon className="w-5 h-5" /><span className="text-sm font-medium">{label}</span></div>
         {count !== undefined && count > 0 && <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{count}</span>}
       </motion.button>
@@ -151,10 +125,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
       <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:z-auto ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-white/10">
-            <div className="flex items-center gap-3"><Logo className="w-10 h-10" variant="light" /><div><h1 className="font-bold text-white text-xl">HogiCar</h1><p className="text-xs text-gray-400">Admin Portal</p></div></div>
-            <div className="mt-4 pt-4 border-t border-white/10"><div className="flex items-center gap-2 text-white/80"><Shield className="w-4 h-4" /><span className="text-sm">Admin Access</span></div></div>
-          </div>
+          <div className="p-6 border-b border-white/10"><div className="flex items-center gap-3"><Logo className="w-10 h-10" variant="light" /><div><h1 className="font-bold text-white text-xl">HogiCar</h1><p className="text-xs text-gray-400">Admin Portal</p></div></div><div className="mt-4 pt-4 border-t border-white/10"><div className="flex items-center gap-2 text-white/80"><Shield className="w-4 h-4" /><span className="text-sm">Admin Access</span></div></div></div>
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
             <NavItem section="dashboard" label="Dashboard" icon={LayoutDashboard} />
             <NavItem section="suppliers" label="Suppliers" icon={Building} />
@@ -179,37 +150,64 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Edit Supplier Modal (with location dropdown + inline custom location) ====================
-const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList, onLocationCreated }: any) => {
-  useEffect(() => { console.log("EditSupplierModal received locationsList:", locationsList); }, [locationsList]);
-
+// ==================== Edit Supplier Modal (with hardcoded locations) ====================
+const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [newLocationName, setNewLocationName] = useState('');
   const [newLocationCode, setNewLocationCode] = useState('');
+  const [customLocations, setCustomLocations] = useState<any[]>([]);
 
-  useEffect(() => { if (isOpen) setEditedSupplier(supplier || {}); }, [supplier, isOpen]);
+  // Hardcoded base locations (always available)
+  const baseLocations = [
+    { label: "Dubai (DXB)", value: "DXB", type: "AIRPORT" },
+    { label: "Abu Dhabi (AUH)", value: "AUH", type: "AIRPORT" },
+    { label: "Sharjah (SHJ)", value: "SHJ", type: "AIRPORT" },
+    { label: "Ras Al Khaimah (RAK)", value: "RAK", type: "AIRPORT" },
+  ];
+
+  // Load custom locations from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('hogicar_custom_locations');
+    if (stored) {
+      try {
+        setCustomLocations(JSON.parse(stored));
+      } catch(e) {}
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) setEditedSupplier(supplier || {});
+  }, [supplier, isOpen]);
 
   const handleChange = (field: keyof Supplier, value: any) => setEditedSupplier(prev => ({ ...prev, [field]: value }));
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('logo', reader.result as string); reader.readAsDataURL(e.target.files[0]); }
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onloadend = () => handleChange('logo', reader.result as string);
+      reader.readAsDataURL(e.target.files[0]);
+    }
   };
-  const handleSave = () => { if (!editedSupplier.name || !editedSupplier.contactEmail) { alert("Supplier Name and Contact Email are required."); return; } onSave(editedSupplier as Supplier); };
-  
+  const handleSave = () => {
+    if (!editedSupplier.name || !editedSupplier.contactEmail) {
+      alert("Supplier Name and Contact Email are required.");
+      return;
+    }
+    onSave(editedSupplier as Supplier);
+  };
+
   const handleCreateCustomLocation = () => {
-    if (!newLocationName || !newLocationCode) { alert("Please enter both location name and code."); return; }
-    const newLoc: LocationSuggestion = {
-      label: newLocationName,
-      value: newLocationCode.toUpperCase(),
-      type: 'CITY',
-      iataCode: newLocationCode.toUpperCase()
-    };
-    onLocationCreated(newLoc);
-    setNewLocationName('');
-    setNewLocationCode('');
-    // Auto-select the newly created location
+    if (!newLocationName || !newLocationCode) { alert("Please enter both name and code."); return; }
+    const newLoc = { label: newLocationName, value: newLocationCode.toUpperCase(), type: 'CITY' };
+    const updated = [...customLocations, newLoc];
+    setCustomLocations(updated);
+    localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated));
     handleChange('locationCode', newLoc.value);
     handleChange('location', newLoc.label);
+    setNewLocationName('');
+    setNewLocationCode('');
   };
+
+  const allLocations = [...baseLocations, ...customLocations];
 
   if (!isOpen) return null;
 
@@ -220,8 +218,8 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList, o
           <div className="md:col-span-1">
             <label className="block text-xs font-bold text-gray-700 mb-1">Logo</label>
             <div className="flex flex-col items-center gap-2">
-              {editedSupplier.logo ? <img src={editedSupplier.logo} alt="Logo Preview" className="w-24 h-24 object-contain rounded-full border p-1 bg-gray-50"/> : <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center"><ImageIcon className="w-8 h-8 text-gray-400"/></div>}
-              <label htmlFor="logo-upload" className="text-xs font-semibold text-orange-600 hover:underline cursor-pointer">{editedSupplier.logo ? 'Change' : 'Upload'}<input id="logo-upload" type="file" className="sr-only" accept="image/*" onChange={handleLogoUpload}/></label>
+              {editedSupplier.logo ? <img src={editedSupplier.logo} alt="Logo" className="w-24 h-24 object-contain rounded-full border p-1 bg-gray-50"/> : <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center"><ImageIcon className="w-8 h-8 text-gray-400"/></div>}
+              <label htmlFor="logo-upload" className="text-xs font-semibold text-orange-600 hover:underline cursor-pointer">Upload<input id="logo-upload" type="file" className="sr-only" accept="image/*" onChange={handleLogoUpload}/></label>
             </div>
           </div>
           <div className="md:col-span-2 space-y-4">
@@ -229,33 +227,32 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList, o
             <InputField label="Contact Email" type="email" value={editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('contactEmail', e.target.value)} />
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">Primary Location</label>
-              <select value={editedSupplier.locationCode || ''} onChange={(e) => { const selectedCode = e.target.value; handleChange('locationCode', selectedCode); const selectedLoc = locationsList.find((l: any) => l.value === selectedCode); if (selectedLoc) handleChange('location', selectedLoc.label); }} className="w-full border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white">
-                <option value="">Select a location</option>
-                {locationsList.map((loc: any) => (<option key={loc.value} value={loc.value}>{loc.label} ({loc.value})</option>))}
+              <select value={editedSupplier.locationCode || ''} onChange={(e) => { const val = e.target.value; handleChange('locationCode', val); const loc = allLocations.find(l => l.value === val); if (loc) handleChange('location', loc.label); }} className="w-full border border-gray-200 rounded-xl px-3 py-2 bg-white">
+                <option value="">-- Select a location --</option>
+                {allLocations.map((loc) => (<option key={loc.value} value={loc.value}>{loc.label} ({loc.value})</option>))}
               </select>
             </div>
-            {/* Inline custom location creation */}
-            <div className="border-t border-gray-100 pt-4 mt-2">
+            <div className="border-t pt-4 mt-2">
               <p className="text-xs font-bold text-gray-500 mb-2">Or create a new location:</p>
               <div className="grid grid-cols-2 gap-3">
-                <InputField label="Location Name" value={newLocationName} onChange={(e: any) => setNewLocationName(e.target.value)} placeholder="e.g., My City" />
+                <InputField label="Name" value={newLocationName} onChange={(e: any) => setNewLocationName(e.target.value)} placeholder="e.g., My City" />
                 <InputField label="Code" value={newLocationCode} onChange={(e: any) => setNewLocationCode(e.target.value.toUpperCase())} placeholder="e.g., MYC" />
               </div>
               <button type="button" onClick={handleCreateCustomLocation} className="mt-2 bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1"><Plus className="w-3 h-3"/> Create & Select</button>
             </div>
           </div>
         </div>
-        <div className="pt-4 border-t border-gray-100">
-          <h4 className="text-sm font-bold text-gray-700 mb-2">Commission & Booking</h4>
+        <div className="pt-4 border-t">
+          <h4 className="text-sm font-bold mb-2">Commission & Booking</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={(e: any) => handleChange('commissionType', e.target.value)} options={Object.values(CommissionType).map(v => ({ value: v, label: v }))} />
-            <div><label className="block text-xs font-bold text-gray-700 mb-1">Commission Value</label><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{editedSupplier.commissionType === 'Pay at Desk' ? '$' : '%'}</span><input type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={(e: any) => handleChange('commissionValue', parseFloat(e.target.value))} className="pl-7 w-full border border-gray-200 rounded-xl py-2 px-3 focus:ring-2 focus:ring-orange-500" /></div></div>
+            <div><label className="block text-xs font-bold">Commission Value</label><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{editedSupplier.commissionType === 'Pay at Desk' ? '$' : '%'}</span><input type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={(e: any) => handleChange('commissionValue', parseFloat(e.target.value))} className="pl-7 w-full border rounded-xl py-2 px-3" /></div></div>
             <SelectField label="Booking Mode" value={editedSupplier.bookingMode || ''} onChange={(e: any) => handleChange('bookingMode', e.target.value)} options={Object.values(BookingMode).map(v => ({ value: v, label: v }))} />
           </div>
         </div>
-        <div className="pt-4 border-t border-gray-100"><h4 className="text-sm font-bold text-gray-700 mb-2">Marketing Features</h4><div className="bg-orange-50 p-3 rounded-xl border border-orange-100"><label className="flex items-center text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 mr-3" /><span>Enable "Recently Booked" social proof messages on car cards.</span></label></div></div>
-        <div className="pt-4 border-t border-gray-100"><h4 className="text-sm font-bold text-gray-700 mb-2">Supplier Portal Credentials</h4><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><InputField label="Username" value={editedSupplier.username || ''} onChange={(e: any) => handleChange('username', e.target.value)} /><InputField label="Password" type="password" value={editedSupplier.password || ''} onChange={(e: any) => handleChange('password', e.target.value)} /></div></div>
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100"><button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button><button onClick={handleSave} className="px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg font-bold flex items-center gap-2 shadow-md"><Save className="w-4 h-4"/> Save Supplier</button></div>
+        <div className="pt-4 border-t"><h4 className="text-sm font-bold mb-2">Marketing Features</h4><div className="bg-orange-50 p-3 rounded-xl"><label className="flex items-center text-sm"><input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="mr-3" />Enable social proof messages</label></div></div>
+        <div className="pt-4 border-t"><h4 className="text-sm font-bold mb-2">Supplier Portal Credentials</h4><div className="grid grid-cols-2 gap-4"><InputField label="Username" value={editedSupplier.username || ''} onChange={(e: any) => handleChange('username', e.target.value)} /><InputField label="Password" type="password" value={editedSupplier.password || ''} onChange={(e: any) => handleChange('password', e.target.value)} /></div></div>
+        <div className="flex justify-end gap-3 pt-4 border-t"><button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button><button onClick={handleSave} className="px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-bold flex items-center gap-2"><Save className="w-4 h-4"/> Save Supplier</button></div>
       </div>
     </Modal>
   );
@@ -265,111 +262,62 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList, o
 const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   const handleApprove = (app: SupplierApplication) => {
     const newSupplier: Partial<Supplier> = {
-      name: app.companyName,
-      contactEmail: app.email,
-      location: app.primaryLocation,
-      connectionType: app.integrationType === 'api' ? 'api' : 'manual',
-      status: 'active',
-      commissionType: CommissionType.PARTIAL_PREPAID,
-      commissionValue: 0.15,
-      bookingMode: BookingMode.FREE_SALE,
-      username: app.companyName.toLowerCase().replace(/\s/g, ''),
+      name: app.companyName, contactEmail: app.email, location: app.primaryLocation,
+      connectionType: app.integrationType === 'api' ? 'api' : 'manual', status: 'active',
+      commissionType: CommissionType.PARTIAL_PREPAID, commissionValue: 0.15,
+      bookingMode: BookingMode.FREE_SALE, username: app.companyName.toLowerCase().replace(/\s/g, ''),
       password: Math.random().toString(36).slice(-8),
     };
     onApprove(newSupplier, app);
   };
+  if (apps.length === 0) return <div className="bg-white rounded-2xl shadow-lg p-6 text-center text-gray-400">No pending supplier requests.</div>;
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl shadow-lg p-6">
       <SectionHeader title="Supplier Requests" icon={MailQuestion} />
-      {apps.length === 0 ? (
-        <div className="text-center py-10 text-gray-400 text-sm italic">No pending supplier requests.</div>
-      ) : (
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50/50">
-              <tr className="text-xs font-semibold text-gray-500">
-                <th className="p-3 border-b border-gray-200">Company</th>
-                <th className="p-3 border-b border-gray-200">Contact</th>
-                <th className="p-3 border-b border-gray-200">Fleet Size</th>
-                <th className="p-3 border-b border-gray-200">Integration</th>
-                <th className="p-3 border-b border-gray-200">Date</th>
-                <th className="p-3 border-b border-gray-200">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {apps.map((app: SupplierApplication) => (
-                <tr key={app.id} className="hover:bg-orange-50/50">
-                  <td className="p-3"><span className="font-bold text-gray-800">{app.companyName}</span><br/><span className="text-xs text-gray-500">{app.primaryLocation}</span></td>
-                  <td className="p-3">{app.contactName}<br/><span className="text-xs text-gray-500">{app.email}</span></td>
-                  <td className="p-3 text-xs">{app.fleetSize}</td>
-                  <td className="p-3 text-xs uppercase font-medium">{app.integrationType}</td>
-                  <td className="p-3 text-xs">{app.submissionDate}</td>
-                  <td className="p-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => handleApprove(app)} className="bg-green-100 text-green-700 hover:bg-green-200 p-2 rounded-md"><CheckCircle className="w-4 h-4" /></button>
-                      <button onClick={() => onReject(app.id)} className="bg-red-100 text-red-700 hover:bg-red-200 p-2 rounded-md"><XCircle className="w-4 h-4" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="overflow-x-auto"><table className="w-full text-left"><thead className="bg-gray-50"><tr className="text-xs font-semibold"><th className="p-3">Company</th><th className="p-3">Contact</th><th className="p-3">Fleet</th><th className="p-3">Integration</th><th className="p-3">Date</th><th className="p-3"></th></tr></thead><tbody>{apps.map((app: SupplierApplication) => (<tr key={app.id} className="hover:bg-orange-50"><td className="p-3"><span className="font-bold">{app.companyName}</span><br/><span className="text-xs text-gray-500">{app.primaryLocation}</span></td><td className="p-3">{app.contactName}<br/><span className="text-xs">{app.email}</span></td><td className="p-3">{app.fleetSize}</td><td className="p-3 uppercase text-xs">{app.integrationType}</td><td className="p-3 text-xs">{app.submissionDate}</td><td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => handleApprove(app)} className="bg-green-100 p-2 rounded-md"><CheckCircle className="w-4 h-4 text-green-700"/></button><button onClick={() => onReject(app.id)} className="bg-red-100 p-2 rounded-md"><XCircle className="w-4 h-4 text-red-700"/></button></div></td></tr>))}</tbody></table></div>
     </div>
   );
 };
 
-// ==================== Other minimal sections (to avoid missing imports) ====================
+// ==================== Dashboard Content (placeholder but working) ====================
 const DashboardContent = ({ stats, pendingCount }: any) => (
   <div className="space-y-6">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-      <StatCard icon={DollarSign} title="Total Revenue" value="$1.2M" change="+15%" color="orange" />
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+      <StatCard icon={DollarSign} title="Total Revenue" value="$1.2M" change="+15%" />
       <StatCard icon={Calendar} title="Total Bookings" value={MOCK_BOOKINGS.length} color="blue" />
       <StatCard icon={Building} title="Active Suppliers" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" />
       <StatCard icon={AlertCircle} title="Pending Actions" value={pendingCount} color="purple" />
     </div>
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-      <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-orange-600" />Monthly Revenue</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={ADMIN_STATS}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Area type="monotone" dataKey="revenue" stroke="#f97316" fill="#f97316" fillOpacity={0.1} />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
+    <div className="bg-white rounded-2xl shadow-lg p-6"><h3 className="font-bold mb-4">Monthly Revenue</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={ADMIN_STATS}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="name"/><YAxis/><Tooltip/><Area type="monotone" dataKey="revenue" stroke="#f97316" fill="#f97316" fillOpacity={0.1}/></AreaChart></ResponsiveContainer></div>
   </div>
 );
 
 const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-    <div className="flex justify-between items-center mb-4"><SectionHeader title="Supplier Management" icon={Building} /><button onClick={onAddSupplier} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-md"><Plus className="w-4 h-4"/> Add Supplier</button></div>
-    <div className="overflow-x-auto mt-4"><table className="w-full text-left border-collapse"><thead className="bg-gray-50/50"><tr className="text-xs font-semibold text-gray-500"><th className="py-2 px-4 border-b border-gray-200">Supplier</th><th className="py-2 px-4 border-b border-gray-200">Status</th><th className="py-2 px-4 border-b border-gray-200">Connection</th><th className="py-2 px-4 border-b border-gray-200">Fleet Size</th><th className="py-2 px-4 border-b border-gray-200">Bookings</th><th className="py-2 px-4 border-b border-gray-200"></th></tr></thead><tbody className="divide-y divide-gray-100">{suppliers.map((s: Supplier) => (<tr key={s.id} className="hover:bg-orange-50/50"><td className="py-3 px-4 flex items-center gap-3"><img src={s.logo} alt={s.name} className="w-10 h-10 object-contain rounded-full bg-white border border-gray-200" /><div><span className="block font-bold text-gray-900 text-sm">{s.name}</span><span className="text-xs text-gray-500">{s.location}</span></div></td><td className="py-3 px-4"><Badge status={s.status || 'pending'} /></td><td className="py-3 px-4"><span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${s.connectionType === 'api' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>{s.connectionType === 'api' ? <Rss className="w-3 h-3" /> : <Edit className="w-3 h-3" />}{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td><td className="py-3 px-4 text-xs text-gray-500">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td><td className="py-3 px-4 text-xs text-gray-500">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td><td className="py-3 px-4 text-right"><div className="flex items-center justify-end gap-2">{s.status === 'pending' && <button onClick={() => onApprove(s.id)} className="bg-green-100 text-green-700 hover:bg-green-200 p-2 rounded-md"><CheckCircle className="w-4 h-4" /></button>}<button onClick={() => onManageApi(s)} className="bg-gray-100 text-gray-600 hover:bg-gray-200 p-2 rounded-md"><Rss className="w-4 h-4" /></button><button onClick={() => onEdit(s)} className="bg-gray-100 text-gray-600 hover:bg-gray-200 p-2 rounded-md"><Edit className="w-4 h-4" /></button></div></td></tr>))}</tbody></table></div>
+  <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="flex justify-between mb-4"><SectionHeader title="Supplier Management" icon={Building} /><button onClick={onAddSupplier} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> Add Supplier</button></div>
+    <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Connection</th><th className="p-3">Fleet</th><th className="p-3">Bookings</th><th className="p-3"></th></tr></thead><tbody>{suppliers.map((s: Supplier) => (<tr key={s.id} className="hover:bg-orange-50"><td className="p-3 flex items-center gap-3"><img src={s.logo} className="w-8 h-8 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td><td className="p-3"><Badge status={s.status}/></td><td className="p-3"><span className="text-xs bg-gray-100 px-2 py-1 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td><td className="p-3">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td><td className="p-3">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td><td className="p-3 text-right"><div className="flex gap-2"><button onClick={() => onManageApi(s)} className="p-2 bg-gray-100 rounded-md"><Rss className="w-4 h-4"/></button><button onClick={() => onEdit(s)} className="p-2 bg-gray-100 rounded-md"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
   </div>
 );
 
-// Placeholders for other sections (to avoid breaking imports)
-const BookingsContent = () => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="All Bookings" icon={Calendar} /><div className="text-center py-10 text-gray-400">Bookings content placeholder</div></div>;
-const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="Fleet Management" icon={Car} /><div className="text-center py-10 text-gray-400">Fleet content placeholder</div></div>;
-const CarLibraryContent = ({ library, onEdit, onDelete }: any) => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="Car Library" icon={Car} /><div className="text-center py-10 text-gray-400">Car library placeholder</div></div>;
-const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">API partners placeholder</div></div>;
-const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editingAffiliate, setEditingAffiliate, onSaveCommission }: any) => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="Affiliates" icon={DollarSign} /><div className="text-center py-10 text-gray-400">Affiliates placeholder</div></div>;
-const CmsContent = ({ pages, onEditPage }: any) => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="CMS" icon={FileText} /><div className="text-center py-10 text-gray-400">CMS placeholder</div></div>;
-const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="SEO" icon={Globe} /><div className="text-center py-10 text-gray-400">SEO placeholder</div></div>;
-const HomepageContentSection = ({ content, categoryImages, onSave }: any) => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="Homepage Editor" icon={ImageIcon} /><div className="text-center py-10 text-gray-400">Homepage editor placeholder</div></div>;
-const SiteSettingsContent = () => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="Site Settings" icon={Settings} /><div className="text-center py-10 text-gray-400">Site settings placeholder</div></div>;
-const PromotionsContent = () => <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"><SectionHeader title="Promotions" icon={Tag} /><div className="text-center py-10 text-gray-400">Promotions placeholder</div></div>;
+// Other placeholders (to avoid missing imports)
+const BookingsContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Bookings" icon={Calendar}/><div className="text-center py-10 text-gray-400">Booking management placeholder</div></div>;
+const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet" icon={Car}/><div className="text-center py-10 text-gray-400">Fleet placeholder</div></div>;
+const CarLibraryContent = ({ library, onEdit, onDelete }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Car Library" icon={Car}/><div className="text-center py-10 text-gray-400">Car library placeholder</div></div>;
+const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2}/><div className="text-center py-10 text-gray-400">API partners placeholder</div></div>;
+const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editingAffiliate, setEditingAffiliate, onSaveCommission }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Affiliates" icon={DollarSign}/><div className="text-center py-10 text-gray-400">Affiliates placeholder</div></div>;
+const CmsContent = ({ pages, onEditPage }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="CMS" icon={FileText}/><div className="text-center py-10 text-gray-400">CMS placeholder</div></div>;
+const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="SEO" icon={Globe}/><div className="text-center py-10 text-gray-400">SEO placeholder</div></div>;
+const HomepageContentSection = ({ content, categoryImages, onSave }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Homepage" icon={ImageIcon}/><div className="text-center py-10 text-gray-400">Homepage editor placeholder</div></div>;
+const SiteSettingsContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Site Settings" icon={Settings}/><div className="text-center py-10 text-gray-400">Settings placeholder</div></div>;
+const PromotionsContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Promotions" icon={Tag}/><div className="text-center py-10 text-gray-400">Promotions placeholder</div></div>;
 
-// Placeholder modals (to satisfy references)
-const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API Connection Modal (to be implemented)</div></Modal>;
-const PageEditorModal = ({ page, isOpen, onClose }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Edit Page"><div>Page Editor Modal</div></Modal>;
-const SEOEditorModal = ({ config, isOpen, onClose }: any) => <Modal isOpen={isOpen} onClose={onClose} title="SEO Editor"><div>SEO Editor Modal</div></Modal>;
-const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Edit Car Model"><div>Car Model Editor</div></Modal>;
-const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Edit Affiliate"><div>Affiliate Editor</div></Modal>;
-const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Manage Promotions"><div>Promotion Modal</div></Modal>;
+// Placeholder modals
+const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API connection modal (to be implemented)</div></Modal>;
+const PageEditorModal = ({ page, isOpen, onClose }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Edit Page"><div>Page editor</div></Modal>;
+const SEOEditorModal = ({ config, isOpen, onClose }: any) => <Modal isOpen={isOpen} onClose={onClose} title="SEO Editor"><div>SEO editor</div></Modal>;
+const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Car Model"><div>Car model editor</div></Modal>;
+const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Affiliate"><div>Affiliate editor</div></Modal>;
+const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => <Modal isOpen={isOpen} onClose={onClose} title="Promotion"><div>Promotion editor</div></Modal>;
 
 // ==================== Main AdminDashboard ====================
 export const AdminDashboard: React.FC = () => {
@@ -395,19 +343,6 @@ export const AdminDashboard: React.FC = () => {
   const [managingPromosForCar, setManagingPromosForCar] = useState<CarType | null>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
   const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
-  const [locationsList, setLocationsList] = useState<LocationSuggestion[]>([{ label: "Dubai (DXB)", value: "DXB", type: "AIRPORT", iataCode: "DXB" }, { label: "Abu Dhabi (AUH)", value: "AUH", type: "AIRPORT", iataCode: "AUH" }]);
-  const [loadingLocations, setLoadingLocations] = useState(false);
-  const [isCreateLocationModalOpen, setIsCreateLocationModalOpen] = useState(false);
-
-  const loadLocations = async () => { setLoadingLocations(true); try { const results = await getAllLocations(); setLocationsList(results); } catch (error) { console.error(error); } finally { setLoadingLocations(false); } };
-    if (results.length === 0) console.warn("No locations found – check API or localStorage");
-
-    console.log("Locations loaded:", results);
-
-    console.log("Loading locations...");
-
-  useEffect(() => { loadLocations(); }, []);
-  const handleLocationCreated = (newLocation: LocationSuggestion) => { saveCustomLocation(newLocation); setLocationsList(prev => [newLocation, ...prev]); alert(`Location "${newLocation.label}" created.`); };
 
   const stats = { totalSuppliers: suppliers.length, activeSuppliers: suppliers.filter(s => s.status === 'active').length, totalBookings: MOCK_BOOKINGS.length, totalRevenue: 1200000 };
   const pendingCount = supplierApps.length;
@@ -445,7 +380,7 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} />;
-      case 'suppliers': return (<div><SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: Supplier) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({} as Supplier)} /><div className="mt-4 flex justify-end"><button onClick={() => setIsCreateLocationModalOpen(true)} className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><Plus className="w-4 h-4"/> Create New Location (global)</button></div></div>);
+      case 'suppliers': return (<><SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: Supplier) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({} as Supplier)} /></>);
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
       case 'bookings': return <BookingsContent />;
       case 'fleet': return <FleetContent />;
@@ -463,22 +398,14 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <EditSupplierModal isOpen={!!editingSupplier} onClose={() => { setEditingSupplier(null); setApprovingApplication(null); }} onSave={handleSaveSupplier} supplier={editingSupplier} locationsList={locationsList} onLocationCreated={handleLocationCreated} />
+      <EditSupplierModal isOpen={!!editingSupplier} onClose={() => { setEditingSupplier(null); setApprovingApplication(null); }} onSave={handleSaveSupplier} supplier={editingSupplier} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => { setIsApiModalOpen(false); setEditingSupplier(null); }} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
       {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => { setIsCarModelModalOpen(false); setEditingCarModel(null); }} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => { setIsPromotionModalOpen(false); setManagingPromosForCar(null); }} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
-      {/* Global create location modal (optional) */}
-      <Modal isOpen={isCreateLocationModalOpen} onClose={() => setIsCreateLocationModalOpen(false)} title="Create New Location" size="sm">
-        <div className="space-y-4">
-          <InputField label="Location Name" placeholder="e.g., My City" onChange={(e: any) => {}} />
-          <InputField label="Code" placeholder="e.g., MYC" onChange={(e: any) => {}} />
-          <button onClick={() => setIsCreateLocationModalOpen(false)} className="bg-orange-600 text-white px-4 py-2 rounded-lg">Create</button>
-        </div>
-      </Modal>
-      <div className="md:hidden bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm"><div className="flex items-center gap-2"><Shield className="w-6 h-6 text-orange-600" /><span className="font-bold text-gray-800">Admin Panel</span></div><button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">{isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}</button></div>
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">{isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}<Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} /><main className="flex-grow lg:pl-8"><AnimatePresence mode="wait"><motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>{renderContent()}</motion.div></AnimatePresence></main></div>
+      <div className="md:hidden bg-white border-b px-4 py-3 flex justify-between sticky top-0 z-20"><div className="flex items-center gap-2"><Shield className="w-6 h-6 text-orange-600"/><span className="font-bold">Admin Panel</span></div><button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2"><Menu/></button></div>
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex"><Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} /><main className="flex-grow lg:pl-8"><AnimatePresence mode="wait"><motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>{renderContent()}</motion.div></AnimatePresence></main></div>
     </div>
   );
 };
