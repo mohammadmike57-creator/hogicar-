@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Menu, X, LogOut, LayoutDashboard, Car, Building, Calendar, 
@@ -7,12 +7,14 @@ import {
   Settings, AlertCircle, CheckCircle, Shield, TrendingUp, 
   MailQuestion, Rss, Link2, XCircle, RefreshCw, Copy, Share2, 
   Power, Tag, ImageIcon, PlusCircle, Monitor, Tablet, Smartphone, 
-  Expand, PowerOff, LoaderCircle, FileText, Globe, Users 
+  Expand, PowerOff, LoaderCircle, FileText, Globe, Users, Search,
+  Loader
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
 import { adminApi } from '../../api';
+import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
   ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, 
   MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, 
@@ -106,7 +108,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   );
 };
 
-// ==================== Sidebar (unchanged) ====================
+// ==================== Sidebar ====================
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
@@ -150,33 +152,112 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Edit Supplier Modal (with hardcoded locations) ====================
+// ==================== Searchable Location Picker ====================
+const LocationPicker = ({ value, onChange, placeholder = "Search location..." }: { value: string; onChange: (location: LocationSuggestion | null) => void; placeholder?: string }) => {
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState('');
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (value) {
+      // If a location code is passed, we could fetch its label, but for simplicity we store label separately
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (query.length < 2) {
+      setSuggestions([]);
+      setIsOpen(false);
+      return;
+    }
+    setLoading(true);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const results = await fetchLocations(query);
+        setSuggestions(results);
+        setIsOpen(results.length > 0);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+  }, [query]);
+
+  const handleSelect = (loc: LocationSuggestion) => {
+    setSelectedLabel(loc.label);
+    setQuery(loc.label);
+    onChange(loc);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input
+          type="text"
+          value={query || selectedLabel}
+          onChange={(e) => { setQuery(e.target.value); setSelectedLabel(''); onChange(null); }}
+          placeholder={placeholder}
+          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+        />
+      </div>
+      {isOpen && (
+        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+          {loading ? (
+            <div className="p-3 text-center text-gray-500"><Loader className="w-4 h-4 animate-spin inline mr-2" /> Loading...</div>
+          ) : suggestions.length === 0 ? (
+            <div className="p-3 text-center text-gray-500">No locations found</div>
+          ) : (
+            suggestions.map(loc => (
+              <button
+                key={loc.value}
+                type="button"
+                onClick={() => handleSelect(loc)}
+                className="w-full text-left px-4 py-2 hover:bg-orange-50 text-sm"
+              >
+                <span className="font-medium">{loc.label}</span>
+                <span className="text-gray-400 text-xs ml-2">({loc.value})</span>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==================== Edit Supplier Modal (with searchable location) ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
+  const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
   const [newLocationName, setNewLocationName] = useState('');
   const [newLocationCode, setNewLocationCode] = useState('');
-  const [customLocations, setCustomLocations] = useState<any[]>([]);
+  const [customLocations, setCustomLocations] = useState<LocationSuggestion[]>([]);
 
-  // Hardcoded base locations (always available)
-  const baseLocations = [
-    { label: "Dubai (DXB)", value: "DXB", type: "AIRPORT" },
-    { label: "Abu Dhabi (AUH)", value: "AUH", type: "AIRPORT" },
-    { label: "Sharjah (SHJ)", value: "SHJ", type: "AIRPORT" },
-    { label: "Ras Al Khaimah (RAK)", value: "RAK", type: "AIRPORT" },
-  ];
-
-  // Load custom locations from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('hogicar_custom_locations');
     if (stored) {
-      try {
-        setCustomLocations(JSON.parse(stored));
-      } catch(e) {}
+      try { setCustomLocations(JSON.parse(stored)); } catch(e) {}
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen) setEditedSupplier(supplier || {});
+    if (isOpen) {
+      setEditedSupplier(supplier || {});
+      if (supplier?.locationCode && supplier?.location) {
+        setSelectedLocation({ label: supplier.location, value: supplier.locationCode, type: 'AIRPORT', iataCode: supplier.locationCode });
+        setNewLocationName('');
+        setNewLocationCode('');
+      } else {
+        setSelectedLocation(null);
+      }
+    }
   }, [supplier, isOpen]);
 
   const handleChange = (field: keyof Supplier, value: any) => setEditedSupplier(prev => ({ ...prev, [field]: value }));
@@ -187,27 +268,48 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
       reader.readAsDataURL(e.target.files[0]);
     }
   };
-  const handleSave = () => {
-    if (!editedSupplier.name || !editedSupplier.contactEmail) {
-      alert("Supplier Name and Contact Email are required.");
-      return;
+
+  const handleLocationSelect = (loc: LocationSuggestion | null) => {
+    setSelectedLocation(loc);
+    if (loc) {
+      handleChange('locationCode', loc.value);
+      handleChange('location', loc.label);
+    } else {
+      handleChange('locationCode', '');
+      handleChange('location', '');
     }
-    onSave(editedSupplier as Supplier);
   };
 
   const handleCreateCustomLocation = () => {
-    if (!newLocationName || !newLocationCode) { alert("Please enter both name and code."); return; }
-    const newLoc = { label: newLocationName, value: newLocationCode.toUpperCase(), type: 'CITY' };
+    if (!newLocationName) { alert("Please enter location name."); return; }
+    let code = newLocationCode.trim().toUpperCase();
+    if (!code) {
+      // Generate code from name: remove spaces, take first 3-6 letters
+      code = newLocationName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
+      if (code.length < 2) code = newLocationName.substring(0, 3).toUpperCase();
+    }
+    const newLoc: LocationSuggestion = { label: newLocationName, value: code, type: 'CITY', iataCode: code };
     const updated = [...customLocations, newLoc];
     setCustomLocations(updated);
     localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated));
+    setSelectedLocation(newLoc);
     handleChange('locationCode', newLoc.value);
     handleChange('location', newLoc.label);
     setNewLocationName('');
     setNewLocationCode('');
   };
 
-  const allLocations = [...baseLocations, ...customLocations];
+  const handleSave = () => {
+    if (!editedSupplier.name || !editedSupplier.contactEmail) {
+      alert("Supplier Name and Contact Email are required.");
+      return;
+    }
+    if (!selectedLocation) {
+      alert("Please select or create a primary location.");
+      return;
+    }
+    onSave(editedSupplier as Supplier);
+  };
 
   if (!isOpen) return null;
 
@@ -227,16 +329,14 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
             <InputField label="Contact Email" type="email" value={editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('contactEmail', e.target.value)} />
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">Primary Location</label>
-              <select value={editedSupplier.locationCode || ''} onChange={(e) => { const val = e.target.value; handleChange('locationCode', val); const loc = allLocations.find(l => l.value === val); if (loc) handleChange('location', loc.label); }} className="w-full border border-gray-200 rounded-xl px-3 py-2 bg-white">
-                <option value="">-- Select a location --</option>
-                {allLocations.map((loc) => (<option key={loc.value} value={loc.value}>{loc.label} ({loc.value})</option>))}
-              </select>
+              <LocationPicker value={selectedLocation?.value || ''} onChange={handleLocationSelect} placeholder="Search city or airport..." />
+              {selectedLocation && <p className="text-xs text-green-600 mt-1">Selected: {selectedLocation.label} ({selectedLocation.value})</p>}
             </div>
             <div className="border-t pt-4 mt-2">
-              <p className="text-xs font-bold text-gray-500 mb-2">Or create a new location:</p>
+              <p className="text-xs font-bold text-gray-500 mb-2">Or create a new location (Code optional):</p>
               <div className="grid grid-cols-2 gap-3">
-                <InputField label="Name" value={newLocationName} onChange={(e: any) => setNewLocationName(e.target.value)} placeholder="e.g., My City" />
-                <InputField label="Code" value={newLocationCode} onChange={(e: any) => setNewLocationCode(e.target.value.toUpperCase())} placeholder="e.g., MYC" />
+                <InputField label="Name (required)" value={newLocationName} onChange={(e: any) => setNewLocationName(e.target.value)} placeholder="e.g., My City" />
+                <InputField label="Code (optional)" value={newLocationCode} onChange={(e: any) => setNewLocationCode(e.target.value.toUpperCase())} placeholder="auto-generated if empty" />
               </div>
               <button type="button" onClick={handleCreateCustomLocation} className="mt-2 bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1"><Plus className="w-3 h-3"/> Create & Select</button>
             </div>
@@ -279,7 +379,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   );
 };
 
-// ==================== Dashboard Content (placeholder but working) ====================
+// ==================== Dashboard Content ====================
 const DashboardContent = ({ stats, pendingCount }: any) => (
   <div className="space-y-6">
     <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
@@ -299,7 +399,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
   </div>
 );
 
-// Other placeholders (to avoid missing imports)
+// Other sections (placeholders)
 const BookingsContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Bookings" icon={Calendar}/><div className="text-center py-10 text-gray-400">Booking management placeholder</div></div>;
 const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet" icon={Car}/><div className="text-center py-10 text-gray-400">Fleet placeholder</div></div>;
 const CarLibraryContent = ({ library, onEdit, onDelete }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Car Library" icon={Car}/><div className="text-center py-10 text-gray-400">Car library placeholder</div></div>;
