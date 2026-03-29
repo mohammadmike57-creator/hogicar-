@@ -19,7 +19,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, parseISO } from 'date-fns';
 import { Logo } from '../../components/Logo';
 import { adminApi } from '../../api';
-import { fetchLocations, LocationSuggestion } from '../../api'; // <-- ADDED
+import { getAllLocations, saveCustomLocation } from '../utils/locations';
+import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
   ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, processSupplierXmlUpdate, 
   MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, MOCK_CARS, 
@@ -175,7 +176,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: { isOpen: bool
   );
 };
 
-// ==================== Sidebar Component (unchanged) ====================
+// ==================== Sidebar Component ====================
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
   
@@ -319,10 +320,9 @@ const CreateLocationModal = ({ isOpen, onClose, onLocationCreated }: { isOpen: b
   );
 };
 
-// ==================== Updated EditSupplierModal (uses fetchLocations) ====================
+// ==================== EditSupplierModal (updated to use locationsList) ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }: { supplier: Supplier | null, isOpen: boolean, onClose: () => void, onSave: (s: Supplier) => void, locationsList: LocationSuggestion[] }) => {
     const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
-    const [loadingLocations, setLoadingLocations] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -357,7 +357,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? 'Edit Supplier' : 'Add New Supplier'} size="lg">
             <div className="space-y-6">
-                {/* Section 1: Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Logo</label>
@@ -400,7 +399,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
                         </div>
                     </div>
                 </div>
-                {/* Section 2: Commission */}
                 <div className="pt-4 border-t border-gray-100">
                     <h4 className="text-sm font-bold text-gray-700 mb-2">Commission & Booking</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -415,7 +413,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
                         <SelectField label="Booking Mode" value={editedSupplier.bookingMode || ''} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange('bookingMode', e.target.value)} options={Object.values(BookingMode).map(v => ({ value: v, label: v }))} />
                     </div>
                 </div>
-                {/* Section: Marketing */}
                 <div className="pt-4 border-t border-gray-100">
                     <h4 className="text-sm font-bold text-gray-700 mb-2">Marketing Features</h4>
                     <div className="bg-orange-50 p-3 rounded-xl border border-orange-100">
@@ -430,7 +427,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
                         </label>
                     </div>
                 </div>
-                {/* Section 3: Credentials */}
                 <div className="pt-4 border-t border-gray-100">
                     <h4 className="text-sm font-bold text-gray-700 mb-2">Supplier Portal Credentials</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -449,7 +445,8 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
     );
 };
 
-// ==================== Other modals (unchanged) ====================
+// ==================== Other modals (kept as in your original file – included here) ====================
+
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: { supplier: Supplier; isOpen: boolean; onClose: () => void; onSave: (updatedSupplier: Supplier) => void; }) => {
     const [editedSupplier, setEditedSupplier] = useState(supplier);
     const [syncing, setSyncing] = useState(false);
@@ -818,7 +815,7 @@ const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: { c
     );
 };
 
-// ==================== Section Components (unchanged) ====================
+// ==================== Section Components ====================
 const DashboardContent = ({ stats, pendingCount }: any) => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -869,7 +866,6 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                     {suppliers.map((s: Supplier) => {
-                        const rowProps = { supplier: s, onEdit, onApprove, onManageApi };
                         return (
                             <tr key={s.id} className="hover:bg-orange-50/50 transition-colors">
                                 <td className="py-3 px-4 flex items-center gap-3">
@@ -878,7 +874,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                                         <span className="block font-bold text-gray-900 text-sm">{s.name}</span>
                                         <span className="text-xs text-gray-500">{s.location}</span>
                                     </div>
-                                 </td>
+                                </td>
                                 <td className="py-3 px-4"><Badge status={s.status || 'pending'} /></td>
                                 <td className="py-3 px-4"><span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${s.connectionType === 'api' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>{s.connectionType === 'api' ? <Rss className="w-3 h-3" /> : <Edit className="w-3 h-3" />}{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td>
                                 <td className="py-3 px-4 text-xs text-gray-500">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td>
@@ -894,7 +890,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                         );
                     })}
                 </tbody>
-            </table>
+             </table>
         </div>
     </div>
 );
@@ -929,7 +925,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
                             <th className="p-3 border-b border-gray-200">Integration</th>
                             <th className="p-3 border-b border-gray-200">Date</th>
                             <th className="p-3 border-b border-gray-200"></th>
-                        </tr>
+                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {apps.map((app: SupplierApplication) => (
@@ -948,10 +944,10 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
                              </tr>
                         ))}
                         {apps.length === 0 && (
-                             <tr><td colSpan={6} className="text-center py-10 text-gray-400 text-sm italic">No pending supplier requests.</td></tr>
+                              <tr><td colSpan={6} className="text-center py-10 text-gray-400 text-sm italic">No pending supplier requests.</td></tr>
                         )}
                     </tbody>
-                </table>
+                 </table>
             </div>
         </div>
     );
@@ -1036,7 +1032,7 @@ const FleetContent = () => {
                                             <span className="block font-bold text-gray-800 text-sm">{car.make} {car.model}</span>
                                             <span className="text-xs text-gray-500">{car.category}</span>
                                         </div>
-                                    </td>
+                                     </td>
                                     <td className="py-3 px-4 text-sm text-gray-600">{car.supplier.name}</td>
                                     <td className="py-3 px-4 text-sm text-gray-600">${basePrice.toFixed(2)}/day</td>
                                     <td className="py-3 px-4 text-sm text-gray-600">{promoTiers > 0 ? `${promoTiers} active` : 'None'}</td>
@@ -1044,15 +1040,15 @@ const FleetContent = () => {
                                         <button onClick={() => {}} className="bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-bold px-3 py-1.5 rounded-md flex items-center gap-1.5">
                                             <Tag className="w-3 h-3"/> Manage Promotions
                                         </button>
-                                    </td>
-                                </tr>
+                                     </td>
+                                 </tr>
                             );
                         })}
                         {filteredFleet.length === 0 && (
-                            <tr><td colSpan={5} className="text-center py-10 text-gray-400 text-sm italic">No vehicles match the current filters.</td></tr>
+                             <tr><td colSpan={5} className="text-center py-10 text-gray-400 text-sm italic">No vehicles match the current filters.</td></tr>
                         )}
                     </tbody>
-                </table>
+                 </table>
             </div>
         </div>
     );
@@ -1083,10 +1079,10 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => (
                         <tr key={model.id} className="hover:bg-orange-50/50 transition-colors">
                             <td className="py-3 px-4">
                                 <img src={model.image} alt={`${model.make} ${model.model}`} className="w-16 h-10 object-cover rounded bg-gray-100 border border-gray-200" />
-                            </td>
+                             </td>
                             <td className="py-3 px-4">
                                 <span className="block font-bold text-gray-800 text-sm">{model.make} {model.model}</span>
-                            </td>
+                             </td>
                             <td className="py-3 px-4 text-sm text-gray-600">{model.year}</td>
                             <td className="py-3 px-4 text-xs text-gray-500">{model.category}</td>
                             <td className="py-3 px-4 text-xs text-gray-500">{model.type}</td>
@@ -1095,11 +1091,11 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => (
                                     <button onClick={() => onEdit(model)} className="bg-gray-100 text-gray-600 hover:bg-gray-200 p-2 rounded-md" title="Edit Model"><Edit className="w-4 h-4" /></button>
                                     <button onClick={() => onDelete(model.id)} className="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-md" title="Delete Model"><Trash2 className="w-4 h-4" /></button>
                                 </div>
-                            </td>
-                        </tr>
+                             </td>
+                         </tr>
                     ))}
                 </tbody>
-            </table>
+             </table>
         </div>
     </div>
 );
@@ -1163,10 +1159,10 @@ const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editi
                             <td className="py-3 px-4">
                                 <span className="block font-bold text-gray-800 text-sm">{affiliate.name}</span>
                                 <span className="text-xs text-gray-500">{affiliate.email}</span>
-                            </td>
+                             </td>
                             <td className="py-3 px-4">
                                 <Badge status={affiliate.status} />
-                            </td>
+                             </td>
                             <td className="py-3 px-4 text-sm font-medium text-gray-700">{(affiliate.commissionRate * 100).toFixed(2)}%</td>
                             <td className="py-3 px-4 text-sm text-gray-600">{affiliate.clicks}</td>
                             <td className="py-3 px-4 text-sm text-gray-600">{affiliate.conversions}</td>
@@ -1183,11 +1179,11 @@ const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editi
                                     {affiliate.status === 'rejected' && <button onClick={() => onUpdateStatus(affiliate.id, 'active')} className="bg-gray-100 text-gray-600 hover:bg-gray-200 p-2 rounded-md" title="Activate"><Power className="w-4 h-4"/></button>}
                                     <button onClick={() => setEditingAffiliate(affiliate)} className="bg-gray-100 text-gray-600 hover:bg-gray-200 p-2 rounded-md" title="Edit Commission"><Edit className="w-4 h-4"/></button>
                                 </div>
-                            </td>
-                        </tr>
+                             </td>
+                         </tr>
                     ))}
                 </tbody>
-            </table>
+             </table>
         </div>
     </div>
 );
@@ -1583,7 +1579,7 @@ const PromotionsContent = () => {
                                 <td className="p-3 text-sm text-gray-600">{(p.discount * 100).toFixed(0)}%</td>
                                 <td className="p-3">
                                     <Badge status={p.status} />
-                                </td>
+                                 </td>
                                 <td className="p-3 text-right">
                                     <div className="flex justify-end gap-2">
                                         <button onClick={() => handleToggle(p.id, p.status === 'active' ? 'inactive' : 'active')} className="p-2 hover:bg-gray-100 rounded-md text-gray-500" title={p.status === 'active' ? 'Deactivate' : 'Activate'}>
@@ -1593,11 +1589,11 @@ const PromotionsContent = () => {
                                             <Trash2 className="w-4 h-4"/>
                                         </button>
                                     </div>
-                                </td>
-                            </tr>
+                                 </td>
+                             </tr>
                         ))}
                     </tbody>
-                </table>
+                 </table>
             </div>
         </div>
     );
@@ -1635,12 +1631,11 @@ export const AdminDashboard: React.FC = () => {
   const [loadingLocations, setLoadingLocations] = useState(false);
   const [isCreateLocationModalOpen, setIsCreateLocationModalOpen] = useState(false);
 
-  // Load locations using fetchLocations (works already)
+  // Load locations using getAllLocations (API + custom)
   const loadLocations = async () => {
     setLoadingLocations(true);
     try {
-      // Fetch locations by searching for 'a' to get many results
-      const results = await fetchLocations('a');
+      const results = await getAllLocations();
       setLocationsList(results);
     } catch (error) {
       console.error("Failed to load locations", error);
@@ -1649,18 +1644,14 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Load locations when component mounts
   useEffect(() => {
     loadLocations();
   }, []);
 
   const handleLocationCreated = (newLocation: LocationSuggestion) => {
-    // Add to the list (optimistically)
+    saveCustomLocation(newLocation);
     setLocationsList(prev => [newLocation, ...prev]);
-    // Optionally save to backend/localStorage
-    const stored = localStorage.getItem('custom_locations');
-    const customLocs = stored ? JSON.parse(stored) : [];
-    customLocs.push(newLocation);
-    localStorage.setItem('custom_locations', JSON.stringify(customLocs));
     alert(`Location "${newLocation.label}" created successfully.`);
   };
 
@@ -1816,7 +1807,6 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const renderContent = () => {
-    console.log("renderContent called, activeSection=", activeSection);
     switch (activeSection) {
       case 'dashboard':
         return <DashboardContent stats={stats} pendingCount={pendingCount} />;

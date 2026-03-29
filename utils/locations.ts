@@ -6,7 +6,6 @@ export const getAllLocations = async (searchTerm?: string): Promise<LocationSugg
   // 1. Fetch from API (public endpoint, no auth required)
   let apiLocations: LocationSuggestion[] = [];
   try {
-    // Use a generic search if no term provided
     const term = searchTerm && searchTerm.length >= 2 ? searchTerm : 'a';
     apiLocations = await fetchLocations(term);
   } catch (error) {
@@ -24,8 +23,7 @@ export const getAllLocations = async (searchTerm?: string): Promise<LocationSugg
     console.error('Failed to load custom locations:', error);
   }
 
-  // 3. Merge – custom locations first (they are user‑added), then API locations
-  // Avoid duplicates by value (code)
+  // 3. Merge – custom locations first, then API locations (no duplicates by value)
   const all = [...customLocations];
   for (const loc of apiLocations) {
     if (!all.some(existing => existing.value === loc.value)) {
@@ -39,7 +37,6 @@ export const saveCustomLocation = (location: LocationSuggestion): void => {
   try {
     const stored = localStorage.getItem(CUSTOM_LOCATIONS_KEY);
     const existing: LocationSuggestion[] = stored ? JSON.parse(stored) : [];
-    // Avoid duplicates by value
     if (!existing.some(l => l.value === location.value)) {
       existing.push(location);
       localStorage.setItem(CUSTOM_LOCATIONS_KEY, JSON.stringify(existing));
