@@ -226,7 +226,7 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
 // ==================== Edit Supplier Modal ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
   const [newLocName, setNewLocName] = useState('');
   const [newLocCode, setNewLocCode] = useState('');
   const [customLocs, setCustomLocs] = useState<any[]>([]);
@@ -246,24 +246,48 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   useEffect(() => { 
     if (isOpen) { 
         setEditedSupplier(supplier || {}); 
-        if (supplier?.locationCode && supplier?.location) 
-            setSelectedLocation({ label: supplier.location, value: supplier.locationCode }); 
+        if (supplier?.locations && supplier.locations.length > 0) 
+            setSelectedLocations(supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode }))); 
+        else if (supplier?.location && supplier?.locationCode)
+            setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
         else 
-            setSelectedLocation(null); 
+            setSelectedLocations([]); 
     } 
   }, [supplier, isOpen]);
 
   const handleChange = (field: any, val: any) => setEditedSupplier(prev => ({ ...prev, [field]: val }));
   const handleLogo = (e: any) => { if (e.target.files?.[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('logo', reader.result); reader.readAsDataURL(e.target.files[0]); } };
-  const handleLocSelect = (loc: any) => { setSelectedLocation(loc); if (loc) { handleChange('locationCode', loc.value); handleChange('location', loc.label); } else { handleChange('locationCode', ''); handleChange('location', ''); } };
-  const handleCreateCustom = () => { if (!newLocName) return alert("Enter name"); let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); const newLoc = { label: newLocName, value: code }; const updated = [...customLocs, newLoc]; setCustomLocs(updated); localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); handleLocSelect(newLoc); setNewLocName(''); setNewLocCode(''); };
+  
+  const handleLocSelect = (loc: any) => { 
+    if (loc && !selectedLocations.find(l => l.value === loc.value)) {
+        setSelectedLocations(prev => [...prev, loc]);
+    }
+  };
+
+  const removeLocation = (code: string) => {
+    setSelectedLocations(prev => prev.filter(l => l.value !== code));
+  };
+
+  const handleCreateCustom = () => { 
+    if (!newLocName) return alert("Enter name"); 
+    let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); 
+    const newLoc = { label: newLocName, value: code }; 
+    const updated = [...customLocs, newLoc]; 
+    setCustomLocs(updated); 
+    localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); 
+    handleLocSelect(newLoc); 
+    setNewLocName(''); 
+    setNewLocCode(''); 
+  };
+
   const handleSave = () => { 
     if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and contact email required"); 
-    if (!selectedLocation) return alert("Select location"); 
+    if (selectedLocations.length === 0) return alert("Select at least one location"); 
     
     // Ensure booking mode and commission type are set if not present
     const finalSupplier = {
         ...editedSupplier,
+        locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
         bookingMode: editedSupplier.bookingMode || BookingMode.FREE_SALE,
         commissionType: editedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
         commissionValue: editedSupplier.commissionValue || 0.15,
@@ -277,7 +301,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
 
     if (!finalSupplier.id) {
         finalSupplier.status = 'active';
-        if (!finalSupplier.password) finalSupplier.password = 'defaultPassword123';
+        if (!finalSupplier.password) finalSupplier.password = 'changeMe123!';
     }
     onSave(finalSupplier); 
   };
@@ -307,12 +331,12 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
           </div>
           <div className="flex-grow space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Company Name" placeholder="e.g. HogiCar Global" value={editedSupplier.name || ''} onChange={e => handleChange('name', e.target.value)} />
-                <InputField label="Reservation Email" placeholder="bookings@partner.com" value={editedSupplier.contactEmail || ''} onChange={e => handleChange('contactEmail', e.target.value)} />
+                <InputField label="Company Name" placeholder="e.g. HogiCar Global" value={editedSupplier.name || ''} onChange={(e: any) => handleChange('name', e.target.value)} />
+                <InputField label="Reservation Email (For Requests)" placeholder="bookings@partner.com" value={editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('contactEmail', e.target.value)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Login/Admin Email" placeholder="admin@partner.com" value={editedSupplier.email || editedSupplier.contactEmail || ''} onChange={e => handleChange('email', e.target.value)} />
-                <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={e => handleChange('phone', e.target.value)} />
+                <InputField label="Login Email (Supplier Dashboard)" placeholder="admin@partner.com" value={editedSupplier.email || editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('email', e.target.value)} />
+                <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={(e: any) => handleChange('phone', e.target.value)} />
             </div>
           </div>
         </div>
@@ -322,15 +346,27 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                     <MapPin className="w-4 h-4 text-orange-600" />
-                    <h3 className="text-sm font-bold text-gray-700">Service Coverage</h3>
+                    <h3 className="text-sm font-bold text-gray-700">Service Locations</h3>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                     <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Primary Hub</label>
-                        <LocationPicker value={selectedLocation?.value || ''} onChange={handleLocSelect} />
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Add New Location</label>
+                        <LocationPicker value="" onChange={handleLocSelect} />
                     </div>
+                    
+                    {selectedLocations.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-2">
+                            {selectedLocations.map(loc => (
+                                <div key={loc.value} className="flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1.5 rounded-xl border border-orange-100 group">
+                                    <span className="text-xs font-bold">{loc.label} <span className="text-orange-400">({loc.value})</span></span>
+                                    <button onClick={() => removeLocation(loc.value)} className="hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="pt-4 border-t border-gray-50">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quick Add New Location</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block text-center">Or Create Custom Location</label>
                         <div className="flex gap-2">
                             <input placeholder="City Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
                             <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-16 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
@@ -758,7 +794,10 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                                 <div>
                                     <div className="text-[13px] font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-tight">{s.name}</div>
                                     <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
-                                        <MapPin className="w-2.5 h-2.5" /> {s.location}
+                                        <MapPin className="w-2.5 h-2.5" /> 
+                                        {s.locations?.length > 0 
+                                            ? s.locations.slice(0, 2).map((l:any) => l.displayName || l.locationCode).join(', ') + (s.locations.length > 2 ? '...' : '')
+                                            : (s.location || 'Global')}
                                     </div>
                                 </div>
                             </div>
@@ -1195,8 +1234,7 @@ export const AdminDashboard: React.FC = () => {
         contactEmail: updatedSupplier.contactEmail, // Reservation email
         phone: updatedSupplier.phone || "",
         logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
-        location: updatedSupplier.location || "",
-        locationCode: updatedSupplier.locationCode || "",
+        locations: updatedSupplier.locations || [],
         commissionPercent: updatedSupplier.commissionValue || 0,
         bookingMode: updatedSupplier.bookingMode || BookingMode.FREE_SALE,
         active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
