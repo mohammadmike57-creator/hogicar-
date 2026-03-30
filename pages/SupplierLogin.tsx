@@ -25,10 +25,14 @@ const SupplierLogin: React.FC = () => {
         setError('');
 
         try {
+            // Try different possible field names
             const credentials = {
                 email: email.trim(),
-                password,
-                plainPassword: password // include both for backend compatibility
+                password: password,
+                plainPassword: password,
+                username: email.trim(),
+                plain_password: password,
+                password_confirmation: password
             };
 
             const response = await fetch(`${API_BASE_URL}/api/supplier/login`, {
@@ -38,10 +42,11 @@ const SupplierLogin: React.FC = () => {
             });
 
             const data = await response.json();
+            console.log('Login response:', response.status, data);
 
             if (!response.ok) {
-                console.error('Login failed:', response.status, data);
-                throw new Error(data.message || `Login failed (${response.status})`);
+                const msg = data.message || data.error || `Login failed (${response.status})`;
+                throw new Error(msg);
             }
 
             if (!data.token) {
