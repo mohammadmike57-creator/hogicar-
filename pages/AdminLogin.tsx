@@ -207,12 +207,12 @@ const AdminLogin: React.FC = () => {
                                     <Mail className="w-4.5 h-4.5" />
                                 </div>
                                 <input
-                                    type="email"
+                                    type="text"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
-                                    placeholder="system.admin@hogicar.net"
+                                    placeholder="admin or system.admin@hogicar.net"
                                     disabled={isLoading}
                                 />
                             </div>
