@@ -1,12 +1,9 @@
-
 import * as React from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Building, Car, LoaderCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { setSupplierToken } from '../lib/auth';
 import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
-import { supplierApi } from '../api';
 
 const SupplierLogin: React.FC = () => {
     const [email, setEmail] = React.useState('');
@@ -28,17 +25,32 @@ const SupplierLogin: React.FC = () => {
         setError('');
 
         try {
-            const data = await supplierApi.login({ email: email.trim(), password });
-            
+            const response = await fetch(`${API_BASE_URL}/api/supplier/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim(), password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
             if (!data.token) {
                 throw new Error('Login successful but no token received.');
             }
+
+            // Store token and supplier info
+            localStorage.setItem('supplierToken', data.token);
+            if (data.supplier?.id) {
+                localStorage.setItem('supplierId', data.supplier.id);
+            }
             
-            setSupplierToken(data.token);
             navigate('/supplier');
 
         } catch (err: any) {
-            const msg = err.response?.data?.message || err.message || 'An unknown login error occurred.';
+            const msg = err.message || 'An unknown login error occurred.';
             setError(msg);
         } finally {
             setIsLoading(false);
@@ -47,19 +59,18 @@ const SupplierLogin: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-4 relative overflow-hidden">
-            {/* Dynamic Background Elements */}
             <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#FF9F1C]/15 rounded-full blur-[120px] pointer-events-none"
-            ></motion.div>
+            />
             <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
                 className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none"
-            ></motion.div>
+            />
 
             <style>
                 {`
@@ -76,7 +87,6 @@ const SupplierLogin: React.FC = () => {
             </style>
 
             <div className="w-full max-w-md relative z-10">
-                {/* Dynamic Logo Area */}
                 <motion.div 
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -86,14 +96,12 @@ const SupplierLogin: React.FC = () => {
                     <Link to="/" className="relative z-10 block hover:opacity-80 transition-opacity" title="Back to Home">
                         <Logo className="h-16 w-auto" variant="light" />
                     </Link>
-                    {/* The moving car coming out from behind the logo */}
                     <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-0 animate-drive flex items-center">
                         <Car className="w-8 h-8 text-[#FF9F1C]" />
                         <div className="w-12 h-0.5 bg-gradient-to-r from-[#FF9F1C]/50 to-transparent ml-1 rounded-full"></div>
                     </div>
                 </motion.div>
 
-                {/* Glassmorphism Login Card */}
                 <motion.div 
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
