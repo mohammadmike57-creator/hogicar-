@@ -61,101 +61,102 @@ const AdminLogin: React.FC = () => {
     return (
         <div 
             onMouseMove={handleMouseMove}
-            className="min-h-screen bg-[#05070a] flex items-center justify-center relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-200"
+            className="min-h-screen bg-slate-50 flex items-center justify-center relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
         >
-            {/* --- SYSTEM CORE BACKGROUND --- */}
+            {/* --- ADMINISTRATIVE CORE BACKGROUND --- */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Dynamic Data Nodes */}
+                {/* Sophisticated Gradients */}
                 <motion.div 
                     style={{ x: bgX, y: bgY }}
-                    className="absolute -top-[10%] -right-[10%] w-[70%] h-[70%] bg-orange-600/5 rounded-full blur-[100px]"
+                    className="absolute -top-[5%] -right-[5%] w-[50%] h-[50%] bg-orange-100/30 rounded-full blur-[100px]"
                 />
                 <motion.div 
-                    style={{ x: useTransform(springX, [0, window.innerWidth], [-20, 20]), y: useTransform(springY, [0, window.innerHeight], [-20, 20]) }}
-                    className="absolute -bottom-[10%] -left-[10%] w-[70%] h-[70%] bg-slate-600/5 rounded-full blur-[120px]"
+                    style={{ x: useTransform(springX, [0, window.innerWidth], [-25, 25]), y: useTransform(springY, [0, window.innerHeight], [-25, 25]) }}
+                    className="absolute -bottom-[5%] -left-[5%] w-[50%] h-[50%] bg-blue-100/20 rounded-full blur-[120px]"
                 />
 
-                {/* Animated Grid Lines */}
-                <div className="absolute inset-0 opacity-[0.05]" 
+                {/* Professional Grid System */}
+                <div className="absolute inset-0 opacity-[0.4]" 
                     style={{ 
-                        backgroundImage: `linear-gradient(to right, #334155 1px, transparent 1px), linear-gradient(to bottom, #334155 1px, transparent 1px)`,
-                        backgroundSize: '60px 60px'
+                        backgroundImage: `linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)`,
+                        backgroundSize: '48px 48px'
                     }} 
                 />
 
-                {/* Pulsing Core */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-[160px] animate-pulse" />
+                {/* Pulse Points */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-200/5 rounded-full blur-[140px] animate-pulse" />
             </div>
 
             {/* --- MAIN LOGIN CONTAINER --- */}
             <motion.div 
-                style={{ rotateX: cardRotateX, rotateY: cardRotateY, perspective: 1000 }}
+                style={{ rotateX: cardRotateX, rotateY: cardRotateY, perspective: 1200 }}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="relative z-10 w-full max-w-[420px] px-6"
+                transition={{ duration: 0.8 }}
+                className="relative z-10 w-full max-w-[440px] px-6"
             >
-                {/* System Identification */}
-                <div className="text-center mb-8">
+                {/* Brand Header */}
+                <div className="text-center mb-10">
                     <motion.div 
-                        initial={{ y: -10, opacity: 0 }}
+                        initial={{ y: -15, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="inline-block mb-6 p-3 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-md"
+                        className="inline-block mb-6 p-4 rounded-3xl bg-white border border-slate-200 shadow-sm"
                     >
-                        <Logo variant="light" className="h-8" />
+                        <Logo variant="dark" className="h-10" />
                     </motion.div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-white/5 text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">
-                        <Shield className="w-3 h-3 text-orange-500" />
-                        Administrative Command Center
+                    <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-lg">
+                        <Shield className="w-3.5 h-3.5 text-orange-500" />
+                        Command Infrastructure
                     </div>
                 </div>
 
                 {/* Authentication Interface */}
-                <div className="bg-[#0d1117]/90 backdrop-blur-3xl border border-white/[0.08] rounded-[40px] p-10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] relative overflow-hidden">
-                    {/* Decorative Scanner Line */}
+                <div className="bg-white border border-slate-100 rounded-[3rem] p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.06)] relative overflow-hidden">
+                    {/* Visual Security Sweep */}
                     <motion.div 
-                        animate={{ y: [0, 400, 0] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                        className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-500/20 to-transparent pointer-events-none"
+                        animate={{ y: [0, 450, 0] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                        className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-orange-500/10 to-transparent pointer-events-none"
                     />
 
-                    <form onSubmit={handleLogin} className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-7">
                         <AnimatePresence mode="wait">
                             {error && (
                                 <motion.div 
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3"
+                                    className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3.5 shadow-sm"
                                 >
-                                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
-                                    <p className="text-[10px] font-bold text-red-200 uppercase tracking-tight">{error}</p>
+                                    <AlertCircle className="w-4.5 h-4.5 text-red-500 shrink-0" />
+                                    <p className="text-[10px] font-black text-red-600 uppercase tracking-tight leading-tight">{error}</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
 
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Identifier</label>
+                        <div className="space-y-5">
+                            <div className="space-y-2.5">
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Identity</label>
                                 <div className="relative group/field">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/field:text-orange-500 transition-colors">
-                                        <Mail className="w-3.5 h-3.5" />
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/field:text-orange-500 transition-colors">
+                                        <Mail className="w-4.5 h-4.5" />
                                     </div>
                                     <input 
                                         type="email" 
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="admin@hogicar.internal"
-                                        className="w-full bg-black/40 border border-white/[0.05] rounded-2xl py-4 pl-12 pr-4 text-xs font-bold text-white placeholder:text-slate-700 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                                        placeholder="system.admin@hogicar.net"
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-14 pr-5 text-xs font-black text-slate-900 placeholder:text-slate-300 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Encrypted Access Token</label>
+                            <div className="space-y-2.5">
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Security Token</label>
                                 <div className="relative group/field">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/field:text-orange-500 transition-colors">
-                                        <Lock className="w-3.5 h-3.5" />
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/field:text-orange-500 transition-colors">
+                                        <Lock className="w-4.5 h-4.5" />
                                     </div>
                                     <input 
                                         type="password" 
@@ -163,7 +164,7 @@ const AdminLogin: React.FC = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••••••"
-                                        className="w-full bg-black/40 border border-white/[0.05] rounded-2xl py-4 pl-12 pr-4 text-xs font-bold text-white placeholder:text-slate-700 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/10 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-14 pr-5 text-xs font-black text-slate-900 placeholder:text-slate-300 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all"
                                     />
                                 </div>
                             </div>
@@ -171,40 +172,43 @@ const AdminLogin: React.FC = () => {
 
                         <button 
                             disabled={isLoading}
-                            className="w-full bg-white text-black font-black text-[10px] uppercase tracking-[0.25em] py-5 rounded-2xl shadow-xl shadow-white/5 hover:bg-orange-600 hover:text-white transition-all duration-500 flex items-center justify-center gap-3 group/btn disabled:opacity-50"
+                            className="w-full bg-slate-900 text-white font-black text-[11px] uppercase tracking-[0.3em] py-6 rounded-2xl shadow-2xl shadow-slate-200 hover:bg-orange-600 transition-all duration-500 flex items-center justify-center gap-3 group/btn disabled:opacity-50"
                         >
                             {isLoading ? (
-                                <LoaderCircle className="w-5 h-5 animate-spin" />
+                                <LoaderCircle className="w-6 h-6 animate-spin" />
                             ) : (
                                 <>
-                                    Initiate Uplink
-                                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                    Establish Link
+                                    <ArrowRight className="w-4.5 h-4.5 group-hover/btn:translate-x-1.5 transition-transform" />
                                 </>
                             )}
                         </button>
                     </form>
 
-                    <div className="mt-10 grid grid-cols-3 gap-4 pt-8 border-t border-white/[0.05]">
-                        <div className="flex flex-col items-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
-                            <Cpu className="w-4 h-4 text-slate-400" />
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">Core V4</span>
+                    <div className="mt-12 grid grid-cols-3 gap-6 pt-10 border-t border-slate-50">
+                        <div className="flex flex-col items-center gap-2.5 group/icon">
+                            <Cpu className="w-5 h-5 text-slate-200 group-hover/icon:text-orange-500 transition-colors" />
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">System 4.0</span>
                         </div>
-                        <div className="flex flex-col items-center gap-2 opacity-40 hover:opacity-100 transition-opacity border-x border-white/[0.05]">
-                            <Server className="w-4 h-4 text-slate-400" />
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">Secure Srv</span>
+                        <div className="flex flex-col items-center gap-2.5 group/icon border-x border-slate-50">
+                            <Server className="w-5 h-5 text-slate-200 group-hover/icon:text-orange-500 transition-colors" />
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Encrypted</span>
                         </div>
-                        <div className="flex flex-col items-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
-                            <Activity className="w-4 h-4 text-orange-500" />
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">Live Ops</span>
+                        <div className="flex flex-col items-center gap-2.5 group/icon">
+                            <Activity className="w-5 h-5 text-slate-200 group-hover/icon:text-orange-500 transition-colors" />
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Live Sync</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer Telemetry */}
-                <div className="mt-8 flex justify-center items-center gap-4 text-slate-700 font-black text-[8px] uppercase tracking-[0.3em]">
-                    <span>Node: SG-PROD-01</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500/40 animate-pulse" />
-                    <span>Lat: 12ms</span>
+                {/* System Diagnostics */}
+                <div className="mt-10 flex justify-center items-center gap-6 text-slate-400 font-black text-[9px] uppercase tracking-[0.35em]">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                        <span>Core Operational</span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-slate-300" />
+                    <span>Ping: 8ms</span>
                 </div>
             </motion.div>
         </div>

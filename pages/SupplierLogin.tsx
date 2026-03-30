@@ -70,160 +70,161 @@ const SupplierLogin: React.FC = () => {
     return (
         <div 
             onMouseMove={handleMouseMove}
-            className="min-h-screen bg-[#030407] flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-200"
+            className="min-h-screen bg-slate-50 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
         >
-            {/* --- PRETER-PROFESSIONAL BACKGROUND --- */}
+            {/* --- SOPHISTICATED ENTERPRISE BACKGROUND --- */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Mesh Gradients */}
+                {/* Soft Gradient Orbs */}
                 <motion.div 
                     style={{ x: bgX, y: bgY }}
-                    className="absolute -top-[20%] -left-[10%] w-[80%] h-[80%] bg-orange-600/5 rounded-full blur-[120px]"
+                    className="absolute -top-[10%] -left-[5%] w-[60%] h-[60%] bg-orange-100/40 rounded-full blur-[100px]"
                 />
                 <motion.div 
-                    style={{ x: useTransform(springX, [0, window.innerWidth], [-30, 30]), y: useTransform(springY, [0, window.innerHeight], [-30, 30]) }}
-                    className="absolute -bottom-[20%] -right-[10%] w-[80%] h-[80%] bg-slate-600/5 rounded-full blur-[140px]"
+                    style={{ x: useTransform(springX, [0, window.innerWidth], [-40, 40]), y: useTransform(springY, [0, window.innerHeight], [-40, 40]) }}
+                    className="absolute -bottom-[10%] -right-[5%] w-[60%] h-[60%] bg-blue-100/30 rounded-full blur-[120px]"
                 />
 
-                {/* Micro-Grid */}
-                <div className="absolute inset-0 opacity-[0.03]" 
-                    style={{ backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`, backgroundSize: '40px 40px' }} 
+                {/* Refined Dot Pattern */}
+                <div className="absolute inset-0 opacity-[0.4]" 
+                    style={{ backgroundImage: `radial-gradient(#e2e8f0 1.5px, transparent 0)`, backgroundSize: '32px 32px' }} 
                 />
 
-                {/* Moving Cars Parallax (Subtle) */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-[0.05]">
-                    {[...Array(3)].map((_, i) => (
+                {/* Animated Car Outlines (High-End Motion) */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.08]">
+                    {[...Array(4)].map((_, i) => (
                         <motion.div
                             key={i}
-                            initial={{ x: -1000, opacity: 0 }}
-                            animate={{ x: 2000, opacity: [0, 1, 1, 0] }}
-                            transition={{ duration: 15 + i * 5, repeat: Infinity, ease: "linear", delay: i * 7 }}
+                            initial={{ x: -1200, opacity: 0 }}
+                            animate={{ x: 2200, opacity: [0, 1, 1, 0] }}
+                            transition={{ duration: 12 + i * 4, repeat: Infinity, ease: "linear", delay: i * 6 }}
                             className="absolute"
-                            style={{ top: `${20 + i * 25}%` }}
+                            style={{ top: `${15 + i * 22}%` }}
                         >
-                            <Car className="w-64 h-64 text-white rotate-12" />
+                            <div className="flex items-center gap-3">
+                                <Car className="w-48 h-48 text-orange-600 rotate-6" />
+                                <div className="h-px w-96 bg-gradient-to-r from-orange-400 to-transparent" />
+                            </div>
                         </motion.div>
                     ))}
                 </div>
             </div>
 
-            {/* --- LEFT SIDE: CONTENT --- */}
-            <div className="relative z-10 flex-1 flex flex-col justify-between p-10 lg:p-24">
+            {/* --- LEFT SIDE: PREMIUM BRANDING --- */}
+            <div className="relative z-10 flex-1 flex flex-col justify-between p-12 lg:p-24">
                 <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <Logo className="h-10 w-auto" variant="light" />
+                    <Logo className="h-12 w-auto" variant="dark" />
                 </motion.div>
 
-                <div className="max-w-2xl">
+                <div className="max-w-xl">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
                     >
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8">
-                            <Sparkles className="w-3 h-3" />
-                            Global Supply Chain Enterprise
+                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] mb-10">
+                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                            Enterprise Fleet Logistics
                         </div>
-                        <h1 className="text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tight mb-8">
-                            Empowering the World's <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-yellow-500 italic">
-                                Leading Fleet Partners.
+                        <h1 className="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.05] tracking-tight mb-8">
+                            Global Supply Chain <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">
+                                Mastery Unleashed.
                             </span>
                         </h1>
-                        <p className="text-sm lg:text-base text-slate-400 font-medium leading-relaxed max-w-lg mb-12">
-                            Access a high-performance ecosystem designed for modern mobility operations. 
-                            Synchronize your inventory with global demand in real-time.
+                        <p className="text-base lg:text-lg text-slate-500 font-bold leading-relaxed max-w-lg mb-12">
+                            Access the world's most advanced mobility ecosystem. 
+                            Manage your fleet with precision, scale with intelligence, 
+                            and dominate your local market with HogiCar.
                         </p>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { icon: TrendingUp, title: "Yield Optimization", desc: "Maximize ROI per vehicle." },
-                            { icon: Globe, title: "Global Reach", desc: "Connect with 140+ countries." },
-                            { icon: Zap, title: "Instant Sync", desc: "Zero-latency data updates." }
+                            { icon: TrendingUp, title: "Yield Engine", desc: "AI-driven pricing." },
+                            { icon: Globe, title: "Global Hub", desc: "Direct OTA sync." },
+                            { icon: Zap, title: "Elite Tech", desc: "Real-time fleet ops." }
                         ].map((feature, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, y: 10 }}
+                                initial={{ opacity: 0, y: 15 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.5 + i * 0.1 }}
+                                transition={{ duration: 0.6, delay: 0.6 + i * 0.1 }}
                                 className="group cursor-default"
                             >
-                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 group-hover:bg-white/[0.04] group-hover:border-orange-500/30 transition-all duration-300">
-                                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">
-                                        <feature.icon className="w-4 h-4" />
+                                <div className="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm group-hover:shadow-xl group-hover:shadow-orange-100 group-hover:border-orange-200 transition-all duration-500">
+                                    <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-4 group-hover:rotate-12 transition-all">
+                                        <feature.icon className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-white font-bold text-xs mb-1.5 tracking-tight">{feature.title}</h3>
-                                    <p className="text-slate-500 text-[10px] leading-relaxed font-medium">{feature.desc}</p>
+                                    <h3 className="text-slate-900 font-black text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
+                                    <p className="text-slate-400 text-[10px] leading-relaxed font-bold">{feature.desc}</p>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">
+                <div className="flex items-center gap-8 text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">
                     <span>&copy; {new Date().getFullYear()} Hogicar Partnership</span>
-                    <div className="w-8 h-px bg-slate-800" />
-                    <span className="cursor-default">Privacy Infrastructure</span>
+                    <div className="w-12 h-px bg-slate-200" />
+                    <span className="hover:text-slate-900 transition-colors cursor-pointer">Security Protocol</span>
                 </div>
             </div>
 
-            {/* --- RIGHT SIDE: FORM --- */}
-            <div className="relative z-10 w-full lg:w-[540px] flex items-center justify-center p-6 lg:p-12 bg-white/[0.01] backdrop-blur-sm border-l border-white/5">
+            {/* --- RIGHT SIDE: FORM CONTAINER --- */}
+            <div className="relative z-10 w-full lg:w-[600px] flex items-center justify-center p-8 lg:p-16 bg-white shadow-[-40px_0_100px_rgba(0,0,0,0.03)] border-l border-slate-100">
                 <motion.div
-                    style={{ rotateX: cardRotateX, rotateY: cardRotateY, perspective: 1000 }}
-                    initial={{ opacity: 0, x: 20 }}
+                    style={{ rotateX: cardRotateX, rotateY: cardRotateY, perspective: 1200 }}
+                    initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
-                    className="w-full max-w-sm bg-[#0a0c14] border border-white/10 p-10 lg:p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.6)] relative overflow-hidden"
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className="w-full max-w-md bg-white p-12 lg:p-14 rounded-[3rem] border border-slate-100 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.05)] relative"
                 >
-                    {/* Decorative Form Glow */}
-                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none" />
-                    
-                    <div className="mb-10 text-center">
-                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-600/20 to-orange-500/10 border border-orange-500/20 text-orange-500 mb-6">
-                            <Building className="w-7 h-7" />
+                    <div className="mb-12 text-center">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-[2rem] bg-orange-50 border border-orange-100 text-orange-600 mb-6 shadow-inner">
+                            <Building className="w-8 h-8" />
                         </div>
-                        <h2 className="text-xl lg:text-2xl font-black text-white tracking-tight mb-2">Partner Portal</h2>
-                        <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest">Authorized Entry Only</p>
+                        <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter mb-2">Partner Access</h2>
+                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.25em]">Authorized Supply Nodes Only</p>
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-5">
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Credential Identifier</label>
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Partner Email</label>
                             <div className="relative group/input">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-700 group-focus-within/input:text-orange-500 transition-colors">
-                                    <Mail className="w-4 h-4" />
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
+                                    <Mail className="w-4.5 h-4.5" />
                                 </div>
                                 <input
                                     type="email"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-800 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-xs font-bold"
-                                    placeholder="partner@enterprise.com"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
+                                    placeholder="node.admin@hogicar.com"
                                     disabled={isLoading}
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Secret Key</label>
-                                <button type="button" className="text-[8px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-400 transition-colors">Lost Key?</button>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Access Key</label>
+                                <button type="button" className="text-[9px] font-black text-orange-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Reset</button>
                             </div>
                             <div className="relative group/input">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-700 group-focus-within/input:text-orange-500 transition-colors">
-                                    <Lock className="w-4 h-4" />
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
+                                    <Lock className="w-4.5 h-4.5" />
                                 </div>
                                 <input
                                     type="password"
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-800 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-xs font-bold"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
                                     placeholder="••••••••"
                                     disabled={isLoading}
                                 />
@@ -233,38 +234,38 @@ const SupplierLogin: React.FC = () => {
                         <AnimatePresence>
                             {error && (
                                 <motion.div
-                                    initial={{ opacity: 0, y: -5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3.5"
                                 >
-                                    <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                                    <p className="text-red-400 text-[10px] font-bold leading-tight">{error}</p>
+                                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                                    <p className="text-red-600 text-[10px] font-black leading-tight uppercase tracking-tight">{error}</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
 
                         <motion.button
-                            whileHover={{ y: -1 }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
                             disabled={isLoading}
-                            className="w-full bg-orange-600 hover:bg-orange-500 text-white font-black py-4 rounded-xl shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-300 mt-4 group"
+                            className="w-full bg-slate-900 hover:bg-orange-600 text-white font-black py-5 rounded-[1.5rem] shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-6 group"
                         >
                             {isLoading ? (
-                                <LoaderCircle className="w-4 h-4 animate-spin" />
+                                <LoaderCircle className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    <span className="text-xs uppercase tracking-[0.2em]">Establish Session</span>
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    <span className="text-xs uppercase tracking-[0.25em]">Initialize Session</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
                                 </>
                             )}
                         </motion.button>
                     </form>
 
-                    <div className="mt-10 text-center">
-                        <p className="text-slate-600 text-[9px] font-black uppercase tracking-widest">
+                    <div className="mt-12 text-center">
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
                             New partner?{' '}
-                            <Link to="/apply" className="text-orange-500 hover:text-orange-400 transition-colors ml-1">Apply for Membership</Link>
+                            <Link to="/apply" className="text-orange-600 hover:text-slate-900 transition-colors ml-1 border-b-2 border-orange-100 hover:border-slate-900 pb-0.5">Application Form</Link>
                         </p>
                     </div>
                 </motion.div>
