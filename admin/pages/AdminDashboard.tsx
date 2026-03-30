@@ -42,30 +42,31 @@ type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fl
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
   const colors: any = { 
-    orange: 'from-orange-500 to-orange-600 shadow-orange-200', 
-    blue: 'from-blue-500 to-blue-600 shadow-blue-200', 
-    green: 'from-green-500 to-green-600 shadow-green-200', 
-    purple: 'from-purple-500 to-purple-600 shadow-purple-200' 
+    orange: 'from-orange-500 to-orange-600 shadow-orange-200/50 text-orange-600 bg-orange-50', 
+    blue: 'from-blue-500 to-blue-600 shadow-blue-200/50 text-blue-600 bg-blue-50', 
+    green: 'from-green-500 to-green-600 shadow-green-200/50 text-green-600 bg-green-50', 
+    purple: 'from-purple-500 to-purple-600 shadow-purple-200/50 text-purple-600 bg-purple-50' 
   };
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4 }}
-      className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/50 border border-gray-50 flex flex-col justify-between relative overflow-hidden group">
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${colors[color]} opacity-[0.03] -mr-8 -mt-8 rounded-full transition-transform group-hover:scale-110`} />
-      <div className="flex items-center justify-between mb-4 relative z-10">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${colors[color]} text-white shadow-lg`}>
-          <Icon className="w-6 h-6" />
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -5, scale: 1.02 }}
+      className="bg-white rounded-[2rem] p-7 shadow-2xl shadow-gray-200/40 border border-gray-100 flex flex-col justify-between relative overflow-hidden group transition-all duration-300">
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${colors[color].split(' ').slice(0,2).join(' ')} opacity-[0.03] -mr-10 -mt-10 rounded-full transition-transform duration-500 group-hover:scale-125`} />
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br ${colors[color].split(' ').slice(0,2).join(' ')} text-white shadow-xl transform transition-transform group-hover:rotate-6`}>
+          <Icon className="w-7 h-7" />
         </div>
         {change && (
           <div className="flex flex-col items-end">
-            <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg border border-green-100 flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" /> {change}
+            <span className={`text-[10px] font-black px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all duration-300 ${change.startsWith('+') ? 'text-green-600 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100'}`}>
+              {change.startsWith('+') ? <TrendingUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              {change}
             </span>
           </div>
         )}
       </div>
       <div className="relative z-10">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{title}</p>
-        <p className="text-3xl font-black text-gray-900 mt-1">{value}</p>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">{title}</p>
+        <p className="text-3xl font-black text-gray-900 tracking-tight leading-none">{value}</p>
       </div>
     </motion.div>
   );
@@ -119,19 +120,26 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
     const active = activeSection === section;
     return (
-      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+      <motion.button 
+        whileHover={{ x: 6, backgroundColor: active ? '' : 'rgba(249, 250, 251, 1)' }} 
+        whileTap={{ scale: 0.98 }}
         onClick={() => { setActiveSection(section); setIsOpen(false); }}
-        className={`flex items-center justify-between w-full px-4 py-3.5 rounded-2xl transition-all duration-300 group ${active ? 'bg-orange-600 text-white shadow-xl shadow-orange-200' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900'}`}>
-        <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl transition-colors ${active ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-white'}`}>
-                <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-500 group-hover:text-orange-600'}`} />
+        className={`flex items-center justify-between w-full px-4 py-4 rounded-2xl transition-all duration-300 group ${active ? 'bg-orange-600 text-white shadow-2xl shadow-orange-200' : 'text-gray-400 hover:text-gray-900'}`}
+      >
+        <div className="flex items-center gap-3.5">
+            <div className={`p-2.5 rounded-xl transition-all duration-300 ${active ? 'bg-white/20 rotate-6' : 'bg-gray-100 group-hover:bg-white group-hover:rotate-6 group-hover:shadow-md'}`}>
+                <Icon className={`w-5 h-5 transition-colors ${active ? 'text-white' : 'text-gray-500 group-hover:text-orange-600'}`} />
             </div>
-            <span className={`text-sm font-bold tracking-tight ${active ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`}>{label}</span>
+            <span className={`text-sm font-black tracking-tight ${active ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`}>{label}</span>
         </div>
         {count !== undefined && count > 0 && (
-            <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${active ? 'bg-white text-orange-600' : 'bg-orange-600 text-white shadow-lg shadow-orange-200'}`}>
+            <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className={`text-[10px] font-black px-2 py-1 rounded-lg ${active ? 'bg-white text-orange-600' : 'bg-orange-600 text-white shadow-lg shadow-orange-200'}`}
+            >
                 {count}
-            </span>
+            </motion.span>
         )}
       </motion.button>
     );
@@ -139,41 +147,48 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
 
   return (
     <>
-      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:z-auto p-4 flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="mb-8 px-2 flex items-center gap-3 py-4 border-b border-gray-50">
-            <div className="bg-orange-600 p-2 rounded-2xl shadow-lg shadow-orange-200">
-                <Shield className="w-6 h-6 text-white" />
+      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 md:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-100 shadow-2xl md:shadow-none transform transition-all duration-500 ease-in-out md:translate-x-0 md:static md:z-auto p-6 flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="mb-10 px-2 flex items-center gap-4 py-6 border-b border-gray-50 relative group cursor-pointer">
+            <div className="bg-orange-600 p-3 rounded-[1.25rem] shadow-xl shadow-orange-200 group-hover:rotate-12 transition-transform duration-500">
+                <Shield className="w-7 h-7 text-white" />
             </div>
             <div>
-                <h1 className="font-black text-gray-900 text-lg tracking-tighter leading-none">HogiCar</h1>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Admin Control</span>
+                <h1 className="font-black text-gray-900 text-2xl tracking-tighter leading-none">HogiCar</h1>
+                <div className="flex items-center gap-1.5 mt-1">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Live Control</span>
+                </div>
             </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
-          <div className="px-3 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Core Operations</div>
+        <nav className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+          <div className="px-4 mb-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] opacity-60">Core Operations</div>
           <NavItem section="dashboard" label="Performance" icon={LayoutDashboard} />
           <NavItem section="suppliers" label="Supply Partners" icon={Building} />
           <NavItem section="supplierrequests" label="Requests" icon={MailQuestion} count={countSupplierRequests} />
           <NavItem section="bookings" label="Reservations" icon={Calendar} />
           <NavItem section="fleet" label="Active Fleet" icon={Car} />
 
-          <div className="px-3 mb-2 mt-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Inventory & Growth</div>
+          <div className="px-4 mb-4 mt-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] opacity-60">Inventory & Growth</div>
           <NavItem section="promotions" label="Smart Offers" icon={Tag} />
           <NavItem section="carlibrary" label="Global Library" icon={Car} />
           <NavItem section="apipartners" label="Integrations" icon={Share2} />
           <NavItem section="affiliates" label="Affiliate Hub" icon={DollarSign} />
 
-          <div className="px-3 mb-2 mt-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Content & SEO</div>
+          <div className="px-4 mb-4 mt-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] opacity-60">Content & SEO</div>
           <NavItem section="cms" label="Pages Content" icon={FileText} />
           <NavItem section="seo" label="Meta Data" icon={Globe} />
           <NavItem section="homepage" label="Site Assets" icon={ImageIcon} />
           <NavItem section="sitesettings" label="Configuration" icon={Settings} />
         </nav>
 
-        <div className="mt-auto pt-4 border-t border-gray-50">
-          <motion.button whileHover={{ backgroundColor: '#f9fafb' }} onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} className="flex items-center w-full px-4 py-3 text-gray-500 hover:text-red-600 rounded-2xl transition-all group font-bold text-sm">
+        <div className="mt-8 pt-6 border-t border-gray-50">
+          <motion.button 
+            whileHover={{ x: 5, color: '#dc2626' }} 
+            onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} 
+            className="flex items-center w-full px-4 py-4 text-gray-400 hover:bg-red-50 rounded-2xl transition-all group font-black text-sm uppercase tracking-widest"
+          >
             <LogOut className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
             <span>Sign Out</span>
           </motion.button>
@@ -1310,59 +1325,99 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/50 flex flex-col font-sans">
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
       {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
-      <div className="md:hidden bg-white border-b px-4 py-3 flex justify-between sticky top-0 z-20"><div className="flex items-center gap-2"><Shield className="w-6 h-6 text-orange-600"/><span className="font-bold">Admin Panel</span></div><button onClick={() => setIsSidebarOpen(!isSidebarOpen)}><Menu/></button></div>
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">
+      
+      <div className="md:hidden bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-30 shadow-sm">
+        <div className="flex items-center gap-2">
+            <div className="bg-orange-600 p-1.5 rounded-lg shadow-lg">
+                <Shield className="w-5 h-5 text-white"/>
+            </div>
+            <span className="font-black text-gray-900 tracking-tighter uppercase">Admin Portal</span>
+        </div>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+            <Menu className="w-6 h-6 text-gray-600" />
+        </button>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-10 py-8 flex gap-8">
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
-        <main className="flex-grow lg:pl-8">
-          <div className="flex items-center justify-between mb-8 bg-white p-4 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100">
+        
+        <main className="flex-grow min-w-0">
+          <header className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6 bg-white p-6 rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-gray-100">
             <div>
-              <h1 className="text-2xl font-black text-gray-900 capitalize tracking-tight">{activeSection}</h1>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Global Operations Portal</p>
+              <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1.5">
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                <span>Administration / {activeSection}</span>
+              </div>
+              <h1 className="text-3xl font-black text-gray-900 capitalize tracking-tight leading-none">
+                {activeSection === 'dashboard' ? 'Performance Overview' : activeSection}
+              </h1>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               {['dashboard', 'bookings', 'fleet'].includes(activeSection) && (
-                <div className="flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 focus-within:ring-2 focus-within:ring-orange-500/20 transition-all">
-                  <div className="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center text-orange-600 ml-1">
-                    <Building className="w-4 h-4" />
+                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-100/50 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-orange-600 border border-gray-50">
+                    <Building className="w-5 h-5" />
                   </div>
-                  <select 
-                    className="bg-transparent text-sm font-bold text-gray-700 outline-none pr-4 min-w-[180px] cursor-pointer"
-                    value={selectedSupplierId || ''}
-                    onChange={(e) => setSelectedSupplierId(e.target.value || null)}
-                  >
-                    <option value="">All Partners Activity</option>
-                    {suppliers.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-col pr-4">
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Global Filter</span>
+                    <select 
+                        className="bg-transparent text-sm font-black text-gray-900 outline-none cursor-pointer"
+                        value={selectedSupplierId || ''}
+                        onChange={(e) => setSelectedSupplierId(e.target.value || null)}
+                    >
+                        <option value="">All Supply Partners</option>
+                        {suppliers.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                    </select>
+                  </div>
                 </div>
               )}
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-100 ml-2">
-                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-lg font-black text-lg">A</div>
-                 <div className="hidden sm:block">
-                    <p className="text-xs font-black text-gray-900">Admin Account</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">System Master</p>
+
+              <div className="flex items-center gap-4 pl-6 border-l border-gray-100">
+                 <motion.div 
+                    whileHover={{ scale: 1.05, rotate: 5 }}
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-xl font-black text-xl cursor-pointer"
+                 >
+                    A
+                 </motion.div>
+                 <div className="hidden xl:block">
+                    <p className="text-sm font-black text-gray-900 leading-none">Admin System</p>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                        <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></span>
+                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em]">Verified Access</p>
                     </div>
                  </div>
               </div>
             </div>
-          </div>
+          </header>
 
           <AnimatePresence mode="wait">
-            <motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div 
+                key={activeSection} 
+                initial={{ opacity: 0, y: 20, scale: 0.98 }} 
+                animate={{ opacity: 1, y: 0, scale: 1 }} 
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="min-h-[600px]"
+            >
               {renderContent()}
             </motion.div>
           </AnimatePresence>
+
+          <footer className="mt-16 py-8 border-t border-gray-100 text-center">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
+                &copy; {new Date().getFullYear()} Hogicar Global Infrastructure. All Systems Operational.
+            </p>
+          </footer>
         </main>
       </div>
     </div>
