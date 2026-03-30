@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
 import { fetchLocations, LocationSuggestion } from '../../api';
+import { adminFetch, getAdminToken } from '../../lib/adminApi';
+import { API_BASE_URL } from '../../lib/config';
 import { 
   ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, 
   MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, 
@@ -178,21 +180,92 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const handleLogo = (e: any) => { if (e.target.files?.[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('logo', reader.result); reader.readAsDataURL(e.target.files[0]); } };
   const handleLocSelect = (loc: any) => { setSelectedLocation(loc); if (loc) { handleChange('locationCode', loc.value); handleChange('location', loc.label); } else { handleChange('locationCode', ''); handleChange('location', ''); } };
   const handleCreateCustom = () => { if (!newLocName) return alert("Enter name"); let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); const newLoc = { label: newLocName, value: code }; const updated = [...customLocs, newLoc]; setCustomLocs(updated); localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); handleLocSelect(newLoc); setNewLocName(''); setNewLocCode(''); };
-  const handleSave = () => { if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and email required"); if (!selectedLocation) return alert("Select location"); if (!editedSupplier.id) editedSupplier.status = 'active'; onSave(editedSupplier); };
+  const handleSave = () => { 
+    if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and email required"); 
+    if (!selectedLocation) return alert("Select location"); 
+    if (!editedSupplier.id) {
+        editedSupplier.status = 'active';
+        if (!editedSupplier.password) editedSupplier.password = 'defaultPassword123';
+    }
+    onSave(editedSupplier); 
+  };
   if (!isOpen) return null;
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? 'Edit Supplier' : 'Add Supplier'} size="lg">
-      <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
-          <div><label className="text-xs font-bold">Logo</label><div className="mt-1 flex flex-col items-center">{editedSupplier.logo ? <img src={editedSupplier.logo} className="w-20 h-20 rounded-full border" /> : <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center"><ImageIcon className="w-8 h-8"/></div>}<label className="text-xs text-orange-600 cursor-pointer">Upload<input type="file" className="hidden" accept="image/*" onChange={handleLogo}/></label></div></div>
-          <div className="col-span-2"><InputField label="Company Name" value={editedSupplier.name || ''} onChange={e => handleChange('name', e.target.value)} /><InputField label="Contact Email" value={editedSupplier.contactEmail || ''} onChange={e => handleChange('contactEmail', e.target.value)} /></div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
+            <label className="text-sm font-semibold text-gray-700 mb-3">Company Logo</label>
+            <div className="relative group">
+                {editedSupplier.logo || editedSupplier.logoUrl ? (
+                    <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-24 h-24 rounded-2xl object-cover shadow-md border-2 border-white" />
+                ) : (
+                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center border-2 border-white shadow-sm">
+                        <Building className="w-10 h-10 text-gray-300"/>
+                    </div>
+                )}
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer">
+                    <ImageIcon className="w-6 h-6 text-white" />
+                    <input type="file" className="hidden" accept="image/*" onChange={handleLogo}/>
+                </label>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-2 text-center">Click to upload (JPG, PNG)</p>
+          </div>
+          <div className="md:col-span-2 space-y-4">
+            <InputField label="Company Name" placeholder="e.g. HogiCar Global" value={editedSupplier.name || ''} onChange={e => handleChange('name', e.target.value)} />
+            <InputField label="Login Email" placeholder="partner@hogicar.com" value={editedSupplier.contactEmail || ''} onChange={e => handleChange('contactEmail', e.target.value)} />
+            <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={e => handleChange('phone', e.target.value)} />
+          </div>
         </div>
-        <div><label className="text-xs font-bold">Location</label><LocationPicker value={selectedLocation?.value || ''} onChange={handleLocSelect} /></div>
-        <div className="border-t pt-2"><p className="text-xs font-bold">Or create new location</p><div className="grid grid-cols-2 gap-2 mt-1"><InputField placeholder="Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} /><InputField placeholder="Code (optional)" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} /></div><button onClick={handleCreateCustom} className="mt-1 text-xs bg-gray-600 text-white px-2 py-1 rounded">Create & Select</button></div>
-        <div className="grid grid-cols-3 gap-2"><SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={Object.values(CommissionType).map(v => ({ value: v, label: v }))} /><InputField label="Commission Value" type="number" value={editedSupplier.commissionValue || 0} onChange={e => handleChange('commissionValue', parseFloat(e.target.value))} /><SelectField label="Booking Mode" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={Object.values(BookingMode).map(v => ({ value: v, label: v }))} /></div>
-        <div><label className="flex items-center"><input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="mr-2" />Enable social proof</label></div>
-        <div className="grid grid-cols-2 gap-2"><InputField label="Username" value={editedSupplier.username || ''} onChange={e => handleChange('username', e.target.value)} /><InputField label="Password" type="password" value={editedSupplier.password || ''} onChange={e => handleChange('password', e.target.value)} /></div>
-        <div className="flex justify-end gap-2"><button onClick={onClose} className="px-3 py-1 text-gray-600">Cancel</button><button onClick={handleSave} className="px-3 py-1 bg-orange-600 text-white rounded">Save</button></div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Primary Location</label>
+                <LocationPicker value={selectedLocation?.value || ''} onChange={handleLocSelect} />
+            </div>
+            <div className="flex items-end gap-2">
+                <div className="flex-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Quick Add Location</label>
+                    <div className="flex gap-2">
+                        <input placeholder="Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm" />
+                        <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-20 px-3 py-2 border border-gray-200 rounded-xl text-sm" />
+                    </div>
+                </div>
+                <button onClick={handleCreateCustom} className="p-2.5 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-colors">
+                    <Plus className="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-4">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Business Settings</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={Object.values(CommissionType).map(v => ({ value: v, label: v }))} />
+                <InputField label="Commission Value" type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={e => handleChange('commissionValue', parseFloat(e.target.value))} />
+                <SelectField label="Booking Mode" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={Object.values(BookingMode).map(v => ({ value: v, label: v }))} />
+            </div>
+        </div>
+
+        <div className="bg-orange-50/50 rounded-2xl p-4 space-y-4 border border-orange-100">
+            <h3 className="text-xs font-bold text-orange-600 uppercase tracking-wider">Credentials & Access</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InputField label="Login Password" type="password" placeholder={editedSupplier.id ? "Leave blank to keep current" : "Set password"} value={editedSupplier.password || ''} onChange={e => handleChange('password', e.target.value)} />
+                <div className="flex flex-col justify-end">
+                    <label className="flex items-center p-3 bg-white rounded-xl border border-orange-100 cursor-pointer hover:bg-orange-50 transition-colors">
+                        <input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500 mr-3" />
+                        <span className="text-sm font-medium text-gray-700">Enable Social Proof Badge</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t">
+            <button onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancel</button>
+            <button onClick={handleSave} className="px-8 py-2.5 bg-orange-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-orange-600/20 hover:bg-orange-700 hover:shadow-orange-600/30 transition-all flex items-center gap-2">
+                <Save className="w-4 h-4" />
+                {supplier?.id ? 'Update Supplier' : 'Create Supplier'}
+            </button>
+        </div>
       </div>
     </Modal>
   );
@@ -241,32 +314,62 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
 };
 
 // ==================== Bookings ====================
-const BookingsContent = () => (
-  <div className="bg-white rounded-2xl shadow-lg p-6">
-    <SectionHeader title="Bookings" icon={Calendar} />
+const BookingsContent = ({ bookings, onRefresh }: any) => (
+  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+        <SectionHeader title="Bookings" icon={Calendar} subtitle="Monitor all car rental reservations" />
+        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-xl border border-gray-200 transition-colors shadow-sm">
+            <RefreshCw className="w-4 h-4 text-gray-600" />
+        </button>
+    </div>
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50">
-          <tr className="text-xs">
-            <th className="p-2">Ref</th>
-            <th className="p-2">Customer</th>
-            <th className="p-2">Pickup</th>
-            <th className="p-2">Dropoff</th>
-            <th className="p-2">Dates</th>
-            <th className="p-2">Status</th>
+      <table className="w-full text-left">
+        <thead className="bg-gray-50/50 border-b border-gray-100">
+          <tr className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-4">Reference</th>
+            <th className="px-6 py-4">Customer</th>
+            <th className="px-6 py-4">Supplier</th>
+            <th className="px-6 py-4">Route (P/D)</th>
+            <th className="px-6 py-4">Rental Dates</th>
+            <th className="px-6 py-4">Status</th>
           </tr>
         </thead>
-        <tbody>
-          {MOCK_BOOKINGS.map((b: any) => (
-            <tr key={b.id} className="hover:bg-orange-50">
-              <td className="p-2 font-mono text-xs">{b.bookingRef}</td>
-              <td className="p-2">{b.firstName} {b.lastName}</td>
-              <td className="p-2">{b.pickupCode}</td>
-              <td className="p-2">{b.dropoffCode}</td>
-              <td className="p-2 text-xs">{b.pickupDate} → {b.dropoffDate}</td>
-              <td className="p-2"><Badge status={b.status}/></td>
+        <tbody className="divide-y divide-gray-50">
+          {bookings.map((b: any) => (
+            <tr key={b.id} className="hover:bg-orange-50/30 transition-colors group">
+              <td className="px-6 py-4">
+                <span className="font-mono text-xs font-semibold bg-gray-100 text-gray-700 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                    {b.bookingRef}
+                </span>
+              </td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                {b.firstName} {b.lastName}
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-600">
+                {b.supplierName || 'N/A'}
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                    <span className="text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{b.pickupCode}</span>
+                    <span className="text-gray-300">→</span>
+                    <span className="text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">{b.dropoffCode}</span>
+                </div>
+              </td>
+              <td className="px-6 py-4 text-xs text-gray-500 font-medium">
+                {b.pickupDate} — {b.dropoffDate}
+              </td>
+              <td className="px-6 py-4">
+                <Badge status={b.status}/>
+              </td>
             </tr>
           ))}
+          {bookings.length === 0 && (
+            <tr>
+              <td colSpan={6} className="px-6 py-12 text-center text-gray-400 font-medium italic">
+                No bookings found in the database.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -411,12 +514,143 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
 );
 
 // ==================== Dashboard ====================
-const DashboardContent = ({ stats, pendingCount }: any) => (
-  <div className="space-y-6"><div className="grid grid-cols-1 md:grid-cols-4 gap-4"><StatCard icon={DollarSign} title="Revenue" value="$1.2M" change="+15%" /><StatCard icon={Calendar} title="Bookings" value={MOCK_BOOKINGS.length} color="blue" /><StatCard icon={Building} title="Active Suppliers" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" /><StatCard icon={AlertCircle} title="Pending Actions" value={pendingCount} color="purple" /></div><div className="bg-white rounded-2xl shadow-lg p-6"><h3 className="font-bold mb-4">Monthly Revenue</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={ADMIN_STATS}><CartesianGrid /><XAxis dataKey="name" /><YAxis /><Tooltip /><Area type="monotone" dataKey="revenue" stroke="#f97316" fill="#f97316" fillOpacity={0.1} /></AreaChart></ResponsiveContainer></div></div>
+const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
+  <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatCard icon={DollarSign} title="Gross Revenue" value={`$${(stats.totalRevenue / 1000).toFixed(1)}k`} change="+15%" />
+        <StatCard icon={Calendar} title="Total Bookings" value={stats.totalBookings} color="blue" />
+        <StatCard icon={Building} title="Partners" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" />
+        <StatCard icon={AlertCircle} title="Tasks" value={pendingCount} color="purple" />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-orange-600" />
+                    Revenue Analytics
+                </h3>
+                <select className="text-xs border rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-orange-500">
+                    <option>Last 6 Months</option>
+                    <option>Last Year</option>
+                </select>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={ADMIN_STATS}>
+                    <defs>
+                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#f97316" stopOpacity={0.1}/>
+                            <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
+                    <Tooltip 
+                        contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                    />
+                    <Area type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                </AreaChart>
+            </ResponsiveContainer>
+        </div>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <History className="w-5 h-5 text-blue-600" />
+                Recent Bookings
+            </h3>
+            <div className="space-y-4">
+                {bookings.slice(0, 5).map((b: any) => (
+                    <div key={b.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                                {b.firstName?.[0]}{b.lastName?.[0]}
+                            </div>
+                            <div>
+                                <div className="text-sm font-bold text-gray-800">{b.firstName} {b.lastName}</div>
+                                <div className="text-[10px] text-gray-400 font-mono">{b.bookingRef}</div>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-xs font-bold text-gray-700">${b.finalPrice}</div>
+                            <div className={`text-[10px] font-bold ${b.status === 'confirmed' ? 'text-green-500' : 'text-orange-500'}`}>
+                                {b.status?.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <button className="w-full mt-4 py-2 text-xs font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">View All Bookings</button>
+        </div>
+    </div>
+  </div>
 );
 
-// ==================== Placeholder sections ====================
-const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet" icon={Car} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
+// ==================== Fleet ====================
+const FleetContent = ({ cars, onRefresh }: any) => (
+  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+        <SectionHeader title="Global Fleet" icon={Car} subtitle="Fleet availability across all suppliers" />
+        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-xl border border-gray-200 transition-colors shadow-sm">
+            <RefreshCw className="w-4 h-4 text-gray-600" />
+        </button>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead className="bg-gray-50/50 border-b border-gray-100">
+          <tr className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-4">Vehicle</th>
+            <th className="px-6 py-4">Category</th>
+            <th className="px-6 py-4">Supplier</th>
+            <th className="px-6 py-4">Location</th>
+            <th className="px-6 py-4">SIPP</th>
+            <th className="px-6 py-4">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {cars.map((c: any) => (
+            <tr key={c.id} className="hover:bg-orange-50/30 transition-colors">
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                    <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" />
+                    <div>
+                        <div className="text-sm font-bold text-gray-800">{c.displayName}</div>
+                        <div className="text-[10px] text-gray-400 uppercase tracking-tighter">{c.make} {c.model}</div>
+                    </div>
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                    {c.category}
+                </span>
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-600">
+                {c.supplierName || 'Global'}
+              </td>
+              <td className="px-6 py-4 text-xs font-medium text-gray-500">
+                {c.location}
+              </td>
+              <td className="px-6 py-4 font-mono text-xs text-orange-600 font-bold">
+                {c.sippCode}
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-1.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${c.isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <span className="text-xs font-medium">{c.isAvailable ? 'Available' : 'Sold Out'}</span>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {cars.length === 0 && (
+            <tr>
+              <td colSpan={6} className="px-6 py-12 text-center text-gray-400 font-medium italic">
+                No vehicles listed in the global fleet.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
 const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
 
 // ==================== Modals ====================
@@ -458,6 +692,10 @@ export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState(true);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [fleet, setFleet] = useState<any[]>([]);
+  const [loadingFleet, setLoadingFleet] = useState(false);
   const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<any>(null);
@@ -480,61 +718,113 @@ export const AdminDashboard: React.FC = () => {
   const fetchSuppliers = async () => {
     setLoadingSuppliers(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      if (!token) { setSuppliers([]); return; }
-      const res = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', { headers: { 'Authorization': `Bearer ${token}` } });
-      if (res.ok) setSuppliers(await res.json());
-      else setSuppliers([]);
-    } catch (e) { setSuppliers([]); } finally { setLoadingSuppliers(false); }
+      const res = await adminFetch('/api/admin/suppliers');
+      const normalized = (Array.isArray(res) ? res : []).map((s: any) => ({
+        ...s,
+        contactEmail: s.email, // Map backend 'email' to frontend 'contactEmail'
+        logo: s.logoUrl,       // Map backend 'logoUrl' to frontend 'logo'
+        commissionValue: s.commissionPercent // Map backend 'commissionPercent' to frontend 'commissionValue'
+      }));
+      setSuppliers(normalized);
+    } catch (e) { 
+      console.error('Failed to fetch suppliers', e);
+      setSuppliers([]); 
+    } finally { setLoadingSuppliers(false); }
   };
-  useEffect(() => { fetchSuppliers(); }, []);
 
-  const stats = { totalSuppliers: suppliers.length, activeSuppliers: suppliers.filter(s => s.status === 'active').length, totalBookings: MOCK_BOOKINGS.length, totalRevenue: 1200000 };
+  const fetchBookings = async () => {
+    setLoadingBookings(true);
+    try {
+        const res = await adminFetch('/api/bookings');
+        setBookings(Array.isArray(res) ? res : []);
+    } catch (e) {
+        console.error('Failed to fetch bookings', e);
+        setBookings([]);
+    } finally { setLoadingBookings(false); }
+  };
+
+  const fetchFleet = async () => {
+    setLoadingFleet(true);
+    try {
+        const res = await adminFetch('/api/admin/fleet/cars');
+        setFleet(Array.isArray(res) ? res : []);
+    } catch (e) {
+        console.error('Failed to fetch fleet', e);
+        setFleet([]);
+    } finally { setLoadingFleet(false); }
+  };
+
+  useEffect(() => { 
+    fetchSuppliers(); 
+    fetchBookings();
+    fetchFleet();
+  }, []);
+
+  const stats = { 
+    totalSuppliers: suppliers.length, 
+    activeSuppliers: suppliers.filter(s => s.status === 'active' || (s as any).active).length, 
+    totalBookings: bookings.length, 
+    totalRevenue: bookings.reduce((acc, b) => acc + (b.finalPrice || 0), 0) || 1200000 
+  };
   const pendingCount = supplierApps.length;
 
-  const handleSaveSupplier = async (updatedSupplier: Supplier) => {
+  const handleSaveSupplier = async (updatedSupplier: any) => {
     try {
+      const payload = {
+        name: updatedSupplier.name,
+        email: updatedSupplier.contactEmail, // Use contactEmail as the primary email for login
+        phone: updatedSupplier.phone || "",
+        logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
+        location: updatedSupplier.location || "",
+        locationCode: updatedSupplier.locationCode || "",
+        commissionPercent: updatedSupplier.commissionValue || 0,
+        bookingMode: updatedSupplier.bookingMode || BookingMode.FREE_SALE,
+        active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
+        password: updatedSupplier.password || undefined,
+        enableSocialProof: updatedSupplier.enableSocialProof || false,
+        // Optional fields
+        address: updatedSupplier.address || "",
+        termsAndConditions: updatedSupplier.termsAndConditions || "",
+        includesCDW: updatedSupplier.includesCDW ?? true,
+        includesTP: updatedSupplier.includesTP ?? true,
+        oneWayFee: updatedSupplier.oneWayFee || 0,
+        gracePeriodHours: updatedSupplier.gracePeriodHours || 0,
+        minBookingLeadTime: updatedSupplier.minBookingLeadTime || 0,
+        connectionType: updatedSupplier.connectionType || 'manual',
+        rating: updatedSupplier.rating || 5.0
+      };
+
       if (!updatedSupplier.id) {
-        const payload = {
-          email: updatedSupplier.contactEmail,
-          password: updatedSupplier.password || "defaultPassword123",
-          plainPassword: updatedSupplier.password || "defaultPassword123",
-          name: updatedSupplier.name,
-          location: updatedSupplier.location || "",
-          locationCode: updatedSupplier.locationCode || "",
-          commissionPercent: updatedSupplier.commissionValue || 0,
-          active: true
-        };
-        const token = localStorage.getItem('adminToken');
-        if (!token) throw new Error('No token');
-        const res = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
+        await adminFetch('/api/admin/suppliers', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText);
-        }
         alert("Supplier created successfully");
-        await fetchSuppliers();
       } else {
-        addMockSupplier(updatedSupplier);
-        setSuppliers([...SUPPLIERS]);
+        await adminFetch(`/api/admin/suppliers/${updatedSupplier.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+        alert("Supplier updated successfully");
       }
+      
+      await fetchSuppliers();
       setEditingSupplier(null);
-      if (approvingApplication) { removeSupplierApplication(approvingApplication.id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); setApprovingApplication(null); }
-    } catch (err: any) { alert(`Error: ${err.message}`); }
+      if (approvingApplication) { 
+        removeSupplierApplication(approvingApplication.id); 
+        setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); 
+        setApprovingApplication(null); 
+      }
+    } catch (err: any) { 
+        alert(`Action failed: ${err.message}`); 
+    }
   };
 
   const handleDeleteSupplier = async (id: string) => {
-    if (!confirm('Delete supplier?')) return;
+    if (!confirm('Are you sure you want to delete this supplier? This action cannot be undone.')) return;
     try {
-      const token = localStorage.getItem('adminToken');
-      if (!token) throw new Error('No token');
-      const res = await fetch(`https://hogicar-backend.onrender.com/api/admin/suppliers/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) throw new Error(await res.text());
-      alert('Deleted');
+      await adminFetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
+      alert('Supplier deleted successfully');
       await fetchSuppliers();
     } catch (err: any) { alert(`Delete failed: ${err.message}`); }
   };
@@ -558,11 +848,11 @@ export const AdminDashboard: React.FC = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} />;
+      case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
       case 'suppliers': return <SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
-      case 'bookings': return <BookingsContent />;
-      case 'fleet': return <FleetContent />;
+      case 'bookings': return <BookingsContent bookings={bookings} onRefresh={fetchBookings} />;
+      case 'fleet': return <FleetContent cars={fleet} onRefresh={fetchFleet} />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
       case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
