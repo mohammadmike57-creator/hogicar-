@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
 
 const AdminLogin: React.FC = () => {
-    const [email, setEmail] = React.useState('');
+    const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
     const [isLoading, setIsLoading] = React.useState(false);
@@ -39,7 +39,7 @@ const AdminLogin: React.FC = () => {
         setError('');
 
         try {
-            const credentials = { email: email.trim(), password };
+            const credentials = { username: username.trim(), password };
             const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -209,8 +209,8 @@ const AdminLogin: React.FC = () => {
                                 <input
                                     type="text"
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
                                     placeholder="admin or system.admin@hogicar.net"
                                     disabled={isLoading}
