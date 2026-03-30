@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Menu, X, LogOut, LayoutDashboard, Car, Building, Calendar, 
   Save, Plus, Trash2, Edit, ChevronDown, ChevronUp, DollarSign, 
-  Settings, AlertCircle, CheckCircle, Shield, MailQuestion, 
-  Rss, Link2, XCircle, RefreshCw, Share2, Power, Tag, ImageIcon, 
-  PlusCircle, PowerOff, FileText, Globe, Search, Loader,
-  Clock, Gift, PieChart, Activity, Percent, Coins, Award, Star,
-  Home, Truck, CreditCard, Key, Code, Mail, CheckSquare, XSquare
+  Settings, AlertCircle, CheckCircle, Shield, TrendingUp, 
+  MailQuestion, Rss, Link2, XCircle, RefreshCw, Copy, Share2, 
+  Power, Tag, ImageIcon, PlusCircle, LoaderCircle, FileText, Globe, 
+  Users, Search, Loader
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -22,14 +21,14 @@ import {
   updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, 
   MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, 
   MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, 
-  MOCK_CATEGORY_IMAGES, updateCategoryImages, addPromoCode, 
-  MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
+  MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, 
+  addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
 } from '../../services/mockData';
 import { 
-  Supplier, CommissionType, BookingMode, ApiPartner, PageContent, 
-  SEOConfig, HomepageContent, CarModel, CarCategory, CarType as VehicleType, 
-  Affiliate, SupplierApplication, Car as CarType, RateTier, FeatureItem, 
-  StepItem, FaqItem
+  Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, 
+  PageContent, SEOConfig, HomepageContent, CarModel, CarCategory, 
+  CarType as VehicleType, Affiliate, SupplierApplication, Car as CarType, 
+  RateTier, FeatureItem, StepItem, FaqItem
 } from '../../types';
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
@@ -95,7 +94,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   );
 };
 
-// ==================== Sidebar ====================
+// ==================== Sidebar (unchanged but compact) ====================
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
@@ -139,7 +138,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Location Picker ====================
+// ==================== Location Picker (unchanged) ====================
 const LocationPicker = ({ value, onChange, placeholder = "Search location..." }: any) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -164,7 +163,7 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
   );
 };
 
-// ==================== Edit Supplier Modal ====================
+// ==================== Edit Supplier Modal (with enhanced fields) ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
@@ -179,6 +178,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const handleCreateCustom = () => { if (!newLocName) return alert("Enter name"); let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); const newLoc = { label: newLocName, value: code }; const updated = [...customLocs, newLoc]; setCustomLocs(updated); localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); handleLocSelect(newLoc); setNewLocName(''); setNewLocCode(''); };
   const handleSave = () => { if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and email required"); if (!selectedLocation) return alert("Select location"); if (!editedSupplier.id) editedSupplier.status = 'active'; onSave(editedSupplier); };
   if (!isOpen) return null;
+  const allLocs = [...customLocs];
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? 'Edit Supplier' : 'Add Supplier'} size="lg">
       <div className="space-y-4">
@@ -197,7 +197,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   );
 };
 
-// ==================== Supplier Requests ====================
+// ==================== Supplier Requests (fixed table) ====================
 const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   const handleApprove = (app: any) => { const newSup: any = { name: app.companyName, contactEmail: app.email, location: app.primaryLocation, connectionType: app.integrationType === 'api' ? 'api' : 'manual', status: 'active', commissionType: CommissionType.PARTIAL_PREPAID, commissionValue: 0.15, bookingMode: BookingMode.FREE_SALE, username: app.companyName.toLowerCase().replace(/\s/g, ''), password: Math.random().toString(36).slice(-8) }; onApprove(newSup, app); };
   if (!apps.length) return <div className="bg-white rounded-2xl shadow-lg p-6 text-center text-gray-400">No pending requests</div>;
@@ -214,7 +214,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
               <th className="p-2">Integration</th>
               <th className="p-2">Date</th>
               <th className="p-2"></th>
-            </tr>
+             </tr>
           </thead>
           <tbody>
             {apps.map((app: any) => (
@@ -239,7 +239,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   );
 };
 
-// ==================== Bookings ====================
+// ==================== Bookings (fixed table) ====================
 const BookingsContent = () => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <SectionHeader title="Bookings" icon={Calendar} />
@@ -348,7 +348,7 @@ const SiteSettingsContent = () => {
 };
 
 // ==================== Affiliates ====================
-const AffiliatesContent = ({ affiliates, onUpdateStatus, editingAffiliate, setEditingAffiliate, onSaveCommission }: any) => {
+const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editingAffiliate, setEditingAffiliate, onSaveCommission }: any) => {
   const EditModal = ({ affiliate, isOpen, onClose, onSave }: any) => {
     const [rate, setRate] = useState(affiliate?.commissionRate || 0);
     if (!isOpen) return null;
@@ -358,33 +358,7 @@ const AffiliatesContent = ({ affiliates, onUpdateStatus, editingAffiliate, setEd
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <SectionHeader title="Affiliates" icon={DollarSign} />
       <EditModal affiliate={editingAffiliate} isOpen={!!editingAffiliate} onClose={() => setEditingAffiliate(null)} onSave={onSaveCommission} />
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr className="text-xs">
-              <th className="p-2">Name</th><th className="p-2">Status</th><th className="p-2">Commission</th><th className="p-2">Clicks</th><th className="p-2">Conversions</th><th className="p-2">Earnings</th><th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {affiliates.map((aff: any) => (
-              <tr key={aff.id} className="hover:bg-orange-50">
-                <td className="p-2"><div className="font-bold">{aff.name}</div><div className="text-xs">{aff.email}</div></td>
-                <td className="p-2"><Badge status={aff.status}/></td>
-                <td className="p-2">{aff.commissionRate*100}%</td>
-                <td className="p-2">{aff.clicks}</td>
-                <td className="p-2">{aff.conversions}</td>
-                <td className="p-2">${aff.totalEarnings}</td>
-                <td className="p-2 text-right">
-                  <div className="flex gap-1">
-                    {aff.status === 'pending' && <><button onClick={() => onUpdateStatus(aff.id, 'active')} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button><button onClick={() => onUpdateStatus(aff.id, 'rejected')} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button></>}
-                    <button onClick={() => setEditingAffiliate(aff)} className="bg-gray-100 p-1 rounded"><Edit className="w-4 h-4"/></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Name</th><th>Status</th><th>Commission</th><th>Clicks</th><th>Conversions</th><th>Earnings</th><th></th></tr></thead><tbody>{affiliates.map((aff: any) => (<tr key={aff.id} className="hover:bg-orange-50"><td className="p-2"><div className="font-bold">{aff.name}</div><div className="text-xs">{aff.email}</div></td><td className="p-2"><Badge status={aff.status}/></td><td className="p-2">{aff.commissionRate*100}%</td><td className="p-2">{aff.clicks}</td><td className="p-2">{aff.conversions}</td><td className="p-2">${aff.totalEarnings}</td><td className="p-2 text-right"><div className="flex gap-1">{aff.status === 'pending' && <><button onClick={() => onUpdateStatus(aff.id, 'active')} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button><button onClick={() => onUpdateStatus(aff.id, 'rejected')} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button></>}<button onClick={() => setEditingAffiliate(aff)} className="bg-gray-100 p-1 rounded"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
     </div>
   );
 };
@@ -401,24 +375,7 @@ const PromotionsContent = () => {
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <SectionHeader title="Promotions" icon={Tag} />
       <form onSubmit={handleAdd} className="flex gap-2 mb-4"><input type="text" placeholder="Code" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="border rounded p-1" /><input type="number" placeholder="%" value={newDiscount} onChange={e => setNewDiscount(parseInt(e.target.value))} className="border rounded p-1 w-16" /><button type="submit" className="bg-orange-600 text-white px-3 py-1 rounded">Add</button></form>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead><tr className="text-xs"><th className="p-2">Code</th><th className="p-2">Discount</th><th className="p-2">Status</th><th className="p-2"></th></tr></thead>
-          <tbody>
-            {promos.map(p => (
-              <tr key={p.id}>
-                <td className="p-2 font-mono">{p.code}</td>
-                <td className="p-2">{p.discount*100}%</td>
-                <td className="p-2"><Badge status={p.status}/></td>
-                <td className="p-2 text-right">
-                  <button onClick={() => handleToggle(p.id, p.status === 'active' ? 'inactive' : 'active')} className="p-1 bg-gray-100 rounded mr-1">{p.status === 'active' ? <PowerOff className="w-4 h-4"/> : <Power className="w-4 h-4"/>}</button>
-                  <button onClick={() => handleDelete(p.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <div className="overflow-x-auto"><table className="w-full"><thead><tr className="text-xs"><th>Code</th><th>Discount</th><th>Status</th><th></th></tr></thead><tbody>{promos.map(p => (<tr key={p.id}><td className="p-2 font-mono">{p.code}</td><td className="p-2">{p.discount*100}%</td><td className="p-2"><Badge status={p.status}/></td><td className="p-2 text-right"><button onClick={() => handleToggle(p.id, p.status === 'active' ? 'inactive' : 'active')} className="p-1 bg-gray-100 rounded mr-1">{p.status === 'active' ? <PowerOff className="w-4 h-4"/> : <Power className="w-4 h-4"/>}</button><button onClick={() => handleDelete(p.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></td></tr>))}</tbody></table></div>
     </div>
   );
 };
@@ -439,84 +396,27 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <div className="flex justify-between"><SectionHeader title="Car Library" icon={Car} /><button onClick={() => onEdit(null)} className="bg-orange-600 text-white px-3 py-1 rounded text-sm">Add Model</button></div>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50"><tr className="text-xs"><th className="p-2">Image</th><th className="p-2">Make/Model</th><th className="p-2">Year</th><th className="p-2">Category</th><th className="p-2">Type</th><th className="p-2"></th></tr></thead>
-          <tbody>
-            {library.map((m: any) => (
-              <tr key={m.id} className="hover:bg-orange-50">
-                <td className="p-2"><img src={m.image} className="w-12 h-8 object-cover rounded"/></td>
-                <td className="p-2 font-bold">{m.make} {m.model}</td>
-                <td className="p-2">{m.year}</td>
-                <td className="p-2">{m.category}</td>
-                <td className="p-2">{m.type}</td>
-                <td className="p-2 text-right">
-                  <button onClick={() => onEdit(m)} className="bg-gray-100 p-1 rounded mr-1"><Edit className="w-4 h-4"/></button>
-                  <button onClick={() => onDelete(m.id)} className="bg-red-100 p-1 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Image</th><th>Make/Model</th><th>Year</th><th>Category</th><th>Type</th><th></th></tr></thead><tbody>{library.map((m: any) => (<tr key={m.id} className="hover:bg-orange-50"><td className="p-2"><img src={m.image} className="w-12 h-8 object-cover rounded"/></td><td className="p-2 font-bold">{m.make} {m.model}</td><td className="p-2">{m.year}</td><td className="p-2">{m.category}</td><td className="p-2">{m.type}</td><td className="p-2 text-right"><button onClick={() => onEdit(m)} className="bg-gray-100 p-1 rounded mr-1"><Edit className="w-4 h-4"/></button><button onClick={() => onDelete(m.id)} className="bg-red-100 p-1 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></td></tr>))}</tbody></table></div>
     </div>
   );
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, onEdit, onManageApi, onAddSupplier, onRefresh, onDelete }: any) => (
+const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete }: any) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <div className="flex justify-between mb-4"><SectionHeader title="Suppliers" icon={Building} /><div className="flex gap-2"><button onClick={onRefresh} className="bg-gray-100 px-3 py-1 rounded text-sm">Refresh</button><button onClick={onAddSupplier} className="bg-orange-600 text-white px-3 py-1 rounded text-sm">Add Supplier</button></div></div>
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50"><tr className="text-xs"><th className="p-2">Supplier</th><th className="p-2">Status</th><th className="p-2">Connection</th><th className="p-2">Fleet</th><th className="p-2">Bookings</th><th className="p-2 text-right">Actions</th></tr></thead>
-        <tbody>
-          {suppliers.map((s: any) => (
-            <tr key={s.id} className="hover:bg-orange-50">
-              <td className="p-2 flex items-center gap-2"><img src={s.logo} className="w-6 h-6 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td>
-              <td className="p-2"><Badge status={s.status || 'active'}/></td>
-              <td className="p-2"><span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td>
-              <td className="p-2">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td>
-              <td className="p-2">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td>
-              <td className="p-2 text-right">
-                <div className="flex justify-end gap-1">
-                  <button onClick={() => onManageApi(s)} className="p-1 bg-gray-100 rounded"><Rss className="w-4 h-4"/></button>
-                  <button onClick={() => onEdit(s)} className="p-1 bg-gray-100 rounded"><Edit className="w-4 h-4"/></button>
-                  <button onClick={() => onDelete(s.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Supplier</th><th>Status</th><th>Connection</th><th>Fleet</th><th>Bookings</th><th className="text-right">Actions</th></tr></thead><tbody>{suppliers.map((s: any) => (<tr key={s.id} className="hover:bg-orange-50"><td className="p-2 flex items-center gap-2"><img src={s.logo} className="w-6 h-6 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td><td className="p-2"><Badge status={s.status || 'active'}/></td><td className="p-2"><span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td><td className="p-2">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td><td className="p-2">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td><td className="p-2 text-right"><div className="flex justify-end gap-1"><button onClick={() => onManageApi(s)} className="p-1 bg-gray-100 rounded"><Rss className="w-4 h-4"/></button><button onClick={() => onEdit(s)} className="p-1 bg-gray-100 rounded"><Edit className="w-4 h-4"/></button><button onClick={() => onDelete(s.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></div></td></tr>))}</tbody></table></div>
   </div>
 );
 
 // ==================== Dashboard ====================
 const DashboardContent = ({ stats, pendingCount }: any) => (
-  <div className="space-y-6">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <StatCard icon={DollarSign} title="Revenue" value="$1.2M" change="+15%" />
-      <StatCard icon={Calendar} title="Bookings" value={MOCK_BOOKINGS.length} color="blue" />
-      <StatCard icon={Building} title="Active Suppliers" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" />
-      <StatCard icon={AlertCircle} title="Pending Actions" value={pendingCount} color="purple" />
-    </div>
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <h3 className="font-bold mb-4">Monthly Revenue</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={ADMIN_STATS}>
-          <CartesianGrid /><XAxis dataKey="name" /><YAxis /><Tooltip />
-          <Area type="monotone" dataKey="revenue" stroke="#f97316" fill="#f97316" fillOpacity={0.1} />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
+  <div className="space-y-6"><div className="grid grid-cols-1 md:grid-cols-4 gap-4"><StatCard icon={DollarSign} title="Revenue" value="$1.2M" change="+15%" /><StatCard icon={Calendar} title="Bookings" value={MOCK_BOOKINGS.length} color="blue" /><StatCard icon={Building} title="Active Suppliers" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" /><StatCard icon={AlertCircle} title="Pending Actions" value={pendingCount} color="purple" /></div><div className="bg-white rounded-2xl shadow-lg p-6"><h3 className="font-bold mb-4">Monthly Revenue</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={ADMIN_STATS}><CartesianGrid /><XAxis dataKey="name" /><YAxis /><Tooltip /><Area type="monotone" dataKey="revenue" stroke="#f97316" fill="#f97316" fillOpacity={0.1} /></AreaChart></ResponsiveContainer></div></div>
 );
 
 // ==================== Placeholder sections ====================
 const FleetContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="Fleet" icon={Car} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
-const ApiPartnersContent = () => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
+const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
 
 // ==================== Modals ====================
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API settings</div></Modal>;
@@ -547,6 +447,8 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
   if (!isOpen) return null;
   return (<Modal isOpen={isOpen} onClose={onClose} title={carModel ? 'Edit Car' : 'Add Car'}><div className="grid grid-cols-2 gap-2"><InputField label="Make" value={model.make} onChange={e => handleChange('make', e.target.value)} /><InputField label="Model" value={model.model} onChange={e => handleChange('model', e.target.value)} /><InputField label="Year" type="number" value={model.year} onChange={e => handleChange('year', parseInt(e.target.value))} /><SelectField label="Category" value={model.category} onChange={e => handleChange('category', e.target.value)} options={Object.values(CarCategory).map(v => ({ value: v, label: v }))} /><SelectField label="Type" value={model.type} onChange={e => handleChange('type', e.target.value)} options={Object.values(VehicleType).map(v => ({ value: v, label: v }))} /><InputField label="Passengers" type="number" value={model.passengers} onChange={e => handleChange('passengers', parseInt(e.target.value))} /><InputField label="Bags" type="number" value={model.bags} onChange={e => handleChange('bags', parseInt(e.target.value))} /><InputField label="Doors" type="number" value={model.doors} onChange={e => handleChange('doors', parseInt(e.target.value))} /></div><div className="mt-2"><label>Image</label><div className="flex gap-2 items-center">{model.image && <img src={model.image} className="w-20 h-12 object-cover rounded"/>}<label className="bg-gray-100 px-3 py-1 rounded cursor-pointer">Upload<input type="file" className="hidden" accept="image/*" onChange={handleImage}/></label></div></div><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
+const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => null;
+const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => null;
 
 // ==================== Main AdminDashboard ====================
 export const AdminDashboard: React.FC = () => {
@@ -559,6 +461,7 @@ export const AdminDashboard: React.FC = () => {
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<any>(null);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
+  const [apiPartners, setApiPartners] = useState(MOCK_API_PARTNERS);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<any>(null);
   const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
@@ -568,6 +471,8 @@ export const AdminDashboard: React.FC = () => {
   const [editingCarModel, setEditingCarModel] = useState<any>(null);
   const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
   const [editingAffiliate, setEditingAffiliate] = useState<any>(null);
+  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
+  const [managingPromosForCar, setManagingPromosForCar] = useState<any>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
   const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
 
@@ -590,20 +495,31 @@ export const AdminDashboard: React.FC = () => {
     try {
       if (!updatedSupplier.id) {
         const payload = {
-          name: updatedSupplier.name, email: updatedSupplier.contactEmail, phone: updatedSupplier.phone || '',
-          logoUrl: updatedSupplier.logo || '', active: true, location: updatedSupplier.location || '',
-          locationCode: updatedSupplier.locationCode || '', bookingMode: updatedSupplier.bookingMode || 'FREE_SALE',
-          commissionPercent: updatedSupplier.commissionValue || 0, password: updatedSupplier.password || 'defaultPassword123',
-          password_confirmation: updatedSupplier.password || 'defaultPassword123'
+          name: updatedSupplier.name,
+          email: updatedSupplier.contactEmail,
+          phone: updatedSupplier.phone || "",
+          logoUrl: updatedSupplier.logo || "",
+          active: true,
+          location: updatedSupplier.location || "",
+          locationCode: updatedSupplier.locationCode || "",
+          bookingMode: updatedSupplier.bookingMode || "FREE_SALE",
+          commissionPercent: updatedSupplier.commissionValue || 0,
+          password: updatedSupplier.password || "defaultPassword123",
+          password_confirmation: updatedSupplier.password || "defaultPassword123",
+          plainPassword: updatedSupplier.password || "defaultPassword123"   // extra field for some backends
         };
         const token = localStorage.getItem('adminToken');
         if (!token) throw new Error('No token');
         const res = await fetch('https://hogicar-backend.onrender.com/api/admin/suppliers', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(await res.text());
-        alert("Supplier created");
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
+        }
+        alert("Supplier created successfully");
         await fetchSuppliers();
       } else {
         addMockSupplier(updatedSupplier);
@@ -626,11 +542,16 @@ export const AdminDashboard: React.FC = () => {
     } catch (err: any) { alert(`Delete failed: ${err.message}`); }
   };
 
+  const handleApproveSupplier = (id: string) => { const s = suppliers.find(s => s.id === id); if (s) { s.status = 'active'; setSuppliers([...suppliers]); } };
   const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
+  const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
+  const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleSaveCarModel = (model: any) => { saveCarModel(model); setCarLibrary([...MOCK_CAR_LIBRARY]); setIsCarModelModalOpen(false); setEditingCarModel(null); };
   const handleDeleteCarModel = (id: string) => { if (confirm('Delete car model?')) { deleteCarModel(id); setCarLibrary([...MOCK_CAR_LIBRARY]); } };
   const handleUpdateAffiliateStatus = (id: string, status: any) => { updateAffiliateStatus(id, status); setAffiliates([...MOCK_AFFILIATES]); };
   const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
+  const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
+  const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
   const handleRejectApplication = (id: string) => { if (confirm('Reject?')) { removeSupplierApplication(id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); } };
   const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
   const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
@@ -641,13 +562,13 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} />;
-      case 'suppliers': return <SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
       case 'bookings': return <BookingsContent />;
       case 'fleet': return <FleetContent />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
-      case 'apipartners': return <ApiPartnersContent />;
-      case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
+      case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
+      case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
       case 'cms': return <CmsContent pages={MOCK_PAGES} onEditPage={handleEditPage} />;
       case 'seo': return <SeoContent configs={MOCK_SEO_CONFIGS} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} />;
       case 'homepage': return <HomepageContentSection content={homepageContent} categoryImages={categoryImages} onSave={handleSaveHomepage} />;
@@ -664,11 +585,9 @@ export const AdminDashboard: React.FC = () => {
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
       {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
+      {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       <div className="md:hidden bg-white border-b px-4 py-3 flex justify-between sticky top-0 z-20"><div className="flex items-center gap-2"><Shield className="w-6 h-6 text-orange-600"/><span className="font-bold">Admin Panel</span></div><button onClick={() => setIsSidebarOpen(!isSidebarOpen)}><Menu/></button></div>
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">
-        <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
-        <main className="flex-grow lg:pl-8"><AnimatePresence mode="wait"><motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>{renderContent()}</motion.div></AnimatePresence></main>
-      </div>
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex"><Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} /><main className="flex-grow lg:pl-8"><AnimatePresence mode="wait"><motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>{renderContent()}</motion.div></AnimatePresence></main></div>
     </div>
   );
 };
