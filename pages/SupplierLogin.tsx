@@ -110,66 +110,72 @@ const SupplierLogin: React.FC = () => {
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex flex-col items-center mb-10 relative"
+                    className="flex flex-col items-center mb-8 relative"
                 >
-                    <Link to="/" className="relative z-10 block hover:opacity-80 transition-opacity" title="Back to Home">
-                        <Logo className="h-16 w-auto" variant="light" />
+                    <Link to="/" className="relative z-10 block hover:opacity-80 transition-all transform hover:scale-105" title="Back to Home">
+                        <Logo className="h-20 w-auto" variant="light" />
                     </Link>
-                    <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-0 animate-drive flex items-center">
-                        <Car className="w-8 h-8 text-[#FF9F1C]" />
-                        <div className="w-12 h-0.5 bg-gradient-to-r from-[#FF9F1C]/50 to-transparent ml-1 rounded-full"></div>
-                    </div>
                 </motion.div>
 
                 <motion.div 
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                    className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl"
+                    className="bg-white/5 backdrop-blur-3xl border border-white/10 p-10 rounded-[2.5rem] shadow-2xl shadow-black/50"
                 >
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-10">
                         <motion.div 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
-                            className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FF9F1C]/20 border border-[#FF9F1C]/30 mb-4"
+                            className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-orange-600/20 border border-orange-500/30 mb-6 shadow-lg shadow-orange-200/10"
                         >
-                            <Building className="w-6 h-6 text-[#FF9F1C]" />
+                            <Building className="w-8 h-8 text-orange-500" />
                         </motion.div>
-                        <h1 className="text-2xl font-bold text-white">Supplier Portal</h1>
-                        <p className="text-sm text-slate-400 mt-1">Manage your fleet and bookings</p>
+                        <h1 className="text-3xl font-black text-white tracking-tighter">Supplier Portal</h1>
+                        <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Manage your global fleet</p>
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1.5">Email Address</label>
-                            <input 
-                                type="email" 
-                                value={email} 
-                                onChange={e => setEmail(e.target.value)} 
-                                disabled={isLoading} 
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-lg text-white py-3 px-4 focus:ring-2 focus:ring-[#FF9F1C] focus:border-[#FF9F1C] outline-none transition-all placeholder:text-slate-600" 
-                                placeholder="partner@example.com"
-                            />
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Business Email</label>
+                            <div className="relative group">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-orange-500 transition-colors" />
+                                <input 
+                                    type="email" 
+                                    value={email} 
+                                    onChange={e => setEmail(e.target.value)} 
+                                    disabled={isLoading} 
+                                    className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl text-white py-4 pl-12 pr-4 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all font-bold text-sm" 
+                                    placeholder="partner@hogicar.com"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
-                            <input 
-                                type="password" 
-                                value={password} 
-                                onChange={e => setPassword(e.target.value)} 
-                                disabled={isLoading} 
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-lg text-white py-3 px-4 focus:ring-2 focus:ring-[#FF9F1C] focus:border-[#FF9F1C] outline-none transition-all placeholder:text-slate-600" 
-                                placeholder="••••••••"
-                            />
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center ml-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Password</label>
+                                <button type="button" className="text-[10px] font-black text-orange-500 uppercase tracking-widest hover:text-orange-400 transition-colors">Forgot?</button>
+                            </div>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-orange-500 transition-colors" />
+                                <input 
+                                    type="password" 
+                                    value={password} 
+                                    onChange={e => setPassword(e.target.value)} 
+                                    disabled={isLoading} 
+                                    className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl text-white py-4 pl-12 pr-4 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all font-bold text-sm" 
+                                    placeholder="••••••••••••"
+                                />
+                            </div>
                         </div>
                         {error && (
                             <motion.div 
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                className="bg-red-500/10 border border-red-500/50 p-3 rounded-lg flex items-center gap-2"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="bg-red-500/10 border border-red-500/30 p-4 rounded-2xl flex items-center gap-3"
                             >
-                                <p className="text-red-400 text-sm font-medium">{error}</p>
+                                <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                                <p className="text-red-400 text-xs font-bold leading-relaxed">{error}</p>
                             </motion.div>
                         )}
                         <motion.button 
@@ -177,15 +183,15 @@ const SupplierLogin: React.FC = () => {
                             whileTap={{ scale: 0.98 }}
                             type="submit" 
                             disabled={isLoading} 
-                            className="w-full bg-[#FF9F1C] hover:bg-[#e88d15] text-white font-bold py-3.5 rounded-lg shadow-[0_0_15px_rgba(255,159,28,0.4)] transition-all flex items-center justify-center disabled:opacity-50 mt-2"
+                            className="w-full bg-orange-600 hover:bg-orange-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-orange-600/20 transition-all flex items-center justify-center disabled:opacity-50 mt-4 uppercase tracking-widest text-xs"
                         >
-                            {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : 'Sign In'}
+                            {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : 'Secure Authorization'}
                         </motion.button>
                     </form>
 
-                    <div className="mt-6 text-center border-t border-white/10 pt-6">
-                        <p className="text-sm text-slate-400 mb-2">Not a partner yet?</p>
-                        <Link to="/become-supplier" className="text-[#FF9F1C] font-bold hover:text-[#e88d15] transition-colors">Join the Hogicar Network</Link>
+                    <div className="mt-8 text-center border-t border-white/5 pt-8">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">New to the network?</p>
+                        <Link to="/become-supplier" className="text-orange-500 font-black text-sm hover:text-orange-400 transition-all">Apply for Partnership <ChevronRight className="inline w-4 h-4 mb-0.5" /></Link>
                     </div>
                 </motion.div>
                 

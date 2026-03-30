@@ -45,11 +45,24 @@ export interface Booking {
 // Create axios instances with interceptors for auth
 const publicAxios = axios.create();
 const adminAxios = axios.create();
+const supplierAxios = axios.create();
 
 // Add request interceptor to adminAxios to attach token
 adminAxios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Add request interceptor to supplierAxios to attach token
+supplierAxios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('supplierToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -175,31 +188,50 @@ export const api = {
 // ---------- Supplier API ----------
 export const supplierApi = {
   getBookingByToken: (token: string) => 
-    axios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${token}`),
+    supplierAxios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${token}`),
 
   confirmBooking: (token: string, confirmationNumber: string) =>
-    axios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${token}&confirmationNumber=${confirmationNumber}`),
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${token}&confirmationNumber=${confirmationNumber}`),
 
   rejectBooking: (token: string, reason: string) =>
-    axios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${token}&reason=${encodeURIComponent(reason)}`),
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${token}&reason=${encodeURIComponent(reason)}`),
 
-  getCars: () => axios.get(`${API_BASE_URL}/api/supplier/cars`),
-  getMe: () => axios.get(`${API_BASE_URL}/api/supplier/me`),
-  getLocations: () => axios.get(`${API_BASE_URL}/api/supplier/locations`),
-  getTemplateConfig: () => axios.get(`${API_BASE_URL}/api/supplier/rates/template-config`),
-  saveTemplateConfig: (config: any) => axios.post(`${API_BASE_URL}/api/supplier/rates/template-config`, config),
-  downloadTemplate: () => axios.get(`${API_BASE_URL}/api/supplier/rates/template`, { responseType: 'blob' }),
+  getCars: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/cars`),
+  createCar: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/cars`, payload),
+  updateCar: (id: number, payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/cars/${id}`, payload),
+  deleteCar: (id: number) => supplierAxios.delete(`${API_BASE_URL}/api/supplier/cars/${id}`),
+  getCarModels: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/car-models`),
+  
+  getMe: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/me`),
+  getMyLocations: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/locations`),
+  requestLocation: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/locations/request`, payload),
+  getBookings: () => supplierAxios.get(`${API_BASE_URL}/api/bookings`),
+  confirmBookingBySupplier: (id: number, confirmationNumber: string) => 
+    supplierAxios.post(`${API_BASE_URL}/api/bookings/${id}/supplier-confirm`, { supplierConfirmationNumber: confirmationNumber }),
+  
+  getTemplateConfig: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template-config`),
+  saveTemplateConfig: (config: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/rates/template-config`, config),
+  downloadTemplate: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template`, { responseType: 'blob' }),
   importRates: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return axios.post(`${API_BASE_URL}/api/supplier/rates/import`, formData, {
+    return supplierAxios.post(`${API_BASE_URL}/api/supplier/rates/import`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
+  post: (url: string, payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier${url}`, payload),
 };
 
 // ---------- Admin API (with authentication interceptor) ----------
 export const adminApi = {
+  getSuppliers: () => adminAxios.get(`${API_BASE_URL}/api/admin/suppliers`),
   createSupplier: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/suppliers`, payload),
+  updateSupplier: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/suppliers/${id}`, payload),
+  deleteSupplier: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/suppliers/${id}`),
   getLocations: () => adminAxios.get(`${API_BASE_URL}/api/admin/locations`),
+  getCars: (supplierId?: number) => adminAxios.get(`${API_BASE_URL}/api/admin/fleet/cars${supplierId ? `?supplierId=${supplierId}` : ''}`),
+  getCarModels: () => adminAxios.get(`${API_BASE_URL}/api/admin/car-models`),
+  createCarModel: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/car-models`, payload),
+  updateCarModel: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/car-models/${id}`, payload),
+  deleteCarModel: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/car-models/${id}`),
 };

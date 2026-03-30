@@ -245,11 +245,26 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const handleSave = () => { 
     if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and contact email required"); 
     if (!selectedLocation) return alert("Select location"); 
-    if (!editedSupplier.id) {
-        editedSupplier.status = 'active';
-        if (!editedSupplier.password) editedSupplier.password = 'defaultPassword123';
+    
+    // Ensure booking mode and commission type are set if not present
+    const finalSupplier = {
+        ...editedSupplier,
+        bookingMode: editedSupplier.bookingMode || BookingMode.FREE_SALE,
+        commissionType: editedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
+        commissionValue: editedSupplier.commissionValue || 0.15,
+        includesCDW: editedSupplier.includesCDW ?? true,
+        includesTP: editedSupplier.includesTP ?? true,
+        gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
+        minBookingLeadTime: editedSupplier.minBookingLeadTime ?? 0,
+        oneWayFee: editedSupplier.oneWayFee ?? 0,
+        connectionType: editedSupplier.connectionType || 'manual'
+    };
+
+    if (!finalSupplier.id) {
+        finalSupplier.status = 'active';
+        if (!finalSupplier.password) finalSupplier.password = 'defaultPassword123';
     }
-    onSave(editedSupplier); 
+    onSave(finalSupplier); 
   };
 
   if (!isOpen) return null;
@@ -319,7 +334,53 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                     <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={COMMISSION_TYPE_OPTIONS} />
                     <InputField label="Commission Value" type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={e => handleChange('commissionValue', parseFloat(e.target.value))} />
                     <SelectField label="Booking Policy" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={BOOKING_MODE_OPTIONS} />
+                    <SelectField label="Connection Type" value={editedSupplier.connectionType || 'manual'} onChange={e => handleChange('connectionType', e.target.value)} options={[{value:'manual', label:'Manual Entry'}, {value:'api', label:'Real-time API'}]} />
                 </div>
+            </div>
+        </div>
+
+        {/* Operational Constraints */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-orange-500" /> Time Constraints
+                </h4>
+                <InputField label="Grace Period (Hrs)" type="number" value={editedSupplier.gracePeriodHours || 0} onChange={e => handleChange('gracePeriodHours', parseInt(e.target.value))} />
+                <InputField label="Min. Lead Time (Hrs)" type="number" value={editedSupplier.minBookingLeadTime || 0} onChange={e => handleChange('minBookingLeadTime', parseInt(e.target.value))} />
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <DollarSign className="w-3 h-3 text-green-500" /> Financials
+                </h4>
+                <InputField label="One-Way Fee" type="number" value={editedSupplier.oneWayFee || 0} onChange={e => handleChange('oneWayFee', parseFloat(e.target.value))} />
+                <InputField label="Initial Rating" type="number" step="0.1" min="1" max="5" value={editedSupplier.rating || 5.0} onChange={e => handleChange('rating', parseFloat(e.target.value))} />
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Shield className="w-3 h-3 text-blue-500" /> Inclusions
+                </h4>
+                <div className="space-y-2 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={editedSupplier.includesCDW ?? true} onChange={e => handleChange('includesCDW', e.target.checked)} className="rounded text-orange-600 focus:ring-orange-500" />
+                        <span className="text-xs font-bold text-gray-600">CDW Included</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={editedSupplier.includesTP ?? true} onChange={e => handleChange('includesTP', e.target.checked)} className="rounded text-orange-600 focus:ring-orange-500" />
+                        <span className="text-xs font-bold text-gray-600">Theft Protection Included</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        {/* Detailed Info */}
+        <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+                <FileText className="w-4 h-4 text-orange-600" />
+                <h3 className="text-sm font-bold text-gray-700">Detailed Information</h3>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                <InputField label="Office Address" placeholder="123 Airport Road, Terminal 1..." value={editedSupplier.address || ''} onChange={e => handleChange('address', e.target.value)} />
+                <TextAreaField label="Terms & Conditions Summary" rows={3} placeholder="Key rental terms for the customer..." value={editedSupplier.termsAndConditions || ''} onChange={e => handleChange('termsAndConditions', e.target.value)} />
             </div>
         </div>
 
@@ -1043,9 +1104,9 @@ export const AdminDashboard: React.FC = () => {
       const res = await adminFetch('/api/admin/suppliers');
       const normalized = (Array.isArray(res) ? res : []).map((s: any) => ({
         ...s,
-        contactEmail: s.email, // Map backend 'email' to frontend 'contactEmail'
-        logo: s.logoUrl,       // Map backend 'logoUrl' to frontend 'logo'
-        commissionValue: s.commissionPercent // Map backend 'commissionPercent' to frontend 'commissionValue'
+        contactEmail: s.contactEmail,
+        logo: s.logoUrl,
+        commissionValue: s.commissionPercent
       }));
       setSuppliers(normalized);
     } catch (e) { 
