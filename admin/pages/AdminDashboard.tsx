@@ -570,17 +570,6 @@ const PromotionsContent = () => {
 
 // ==================== Car Library ====================
 const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
-  useEffect(() => {
-    if (library.length === 0) {
-      const defaultModels = [
-        { id: '1', make: 'Toyota', model: 'Corolla', year: 2023, category: 'ECONOMY', type: 'SEDAN', image: 'https://cdn.pixabay.com/photo/2018/03/13/19/09/toyota-3223474_1280.png', passengers: 5, bags: 2, doors: 4 },
-        { id: '2', make: 'Honda', model: 'Civic', year: 2023, category: 'ECONOMY', type: 'SEDAN', image: 'https://cdn.pixabay.com/photo/2015/09/02/12/43/honda-918522_1280.jpg', passengers: 5, bags: 2, doors: 4 },
-        { id: '3', make: 'BMW', model: '3 Series', year: 2023, category: 'PREMIUM', type: 'SEDAN', image: 'https://cdn.pixabay.com/photo/2020/05/23/11/58/bmw-5210777_1280.jpg', passengers: 5, bags: 3, doors: 4 },
-        { id: '4', make: 'Mercedes', model: 'C-Class', year: 2023, category: 'PREMIUM', type: 'SEDAN', image: 'https://cdn.pixabay.com/photo/2017/12/22/18/31/mercedes-benz-3034659_1280.jpg', passengers: 5, bags: 3, doors: 4 },
-      ];
-      defaultModels.forEach(m => saveCarModel(m));
-    }
-  }, []);
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <div className="flex justify-between"><SectionHeader title="Car Library" icon={Car} /><button onClick={() => onEdit(null)} className="bg-orange-600 text-white px-3 py-1 rounded text-sm">Add Model</button></div>
@@ -867,6 +856,7 @@ const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any
 // ==================== Main AdminDashboard ====================
 export const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -875,6 +865,8 @@ export const AdminDashboard: React.FC = () => {
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [fleet, setFleet] = useState<any[]>([]);
   const [loadingFleet, setLoadingFleet] = useState(false);
+  const [carLibrary, setCarLibrary] = useState<any[]>([]);
+  const [loadingCarLibrary, setLoadingCarLibrary] = useState(false);
   const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<any>(null);
@@ -884,7 +876,6 @@ export const AdminDashboard: React.FC = () => {
   const [editingPage, setEditingPage] = useState<any>(null);
   const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
   const [editingSeoConfig, setEditingSeoConfig] = useState<any>(null);
-  const [carLibrary, setCarLibrary] = useState(MOCK_CAR_LIBRARY);
   const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
   const [editingCarModel, setEditingCarModel] = useState<any>(null);
   const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
@@ -911,10 +902,11 @@ export const AdminDashboard: React.FC = () => {
     } finally { setLoadingSuppliers(false); }
   };
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (supplierId?: string | null) => {
     setLoadingBookings(true);
     try {
-        const res = await adminFetch('/api/bookings');
+        const url = supplierId ? `/api/bookings?supplierId=${supplierId}` : '/api/bookings';
+        const res = await adminFetch(url);
         setBookings(Array.isArray(res) ? res : []);
     } catch (e) {
         console.error('Failed to fetch bookings', e);
@@ -922,10 +914,11 @@ export const AdminDashboard: React.FC = () => {
     } finally { setLoadingBookings(false); }
   };
 
-  const fetchFleet = async () => {
+  const fetchFleet = async (supplierId?: string | null) => {
     setLoadingFleet(true);
     try {
-        const res = await adminFetch('/api/admin/fleet/cars');
+        const url = supplierId ? `/api/admin/fleet/cars?supplierId=${supplierId}` : '/api/admin/fleet/cars';
+        const res = await adminFetch(url);
         setFleet(Array.isArray(res) ? res : []);
     } catch (e) {
         console.error('Failed to fetch fleet', e);
@@ -933,11 +926,30 @@ export const AdminDashboard: React.FC = () => {
     } finally { setLoadingFleet(false); }
   };
 
+  const fetchCarLibrary = async () => {
+    setLoadingCarLibrary(true);
+    try {
+        const res = await adminFetch('/api/admin/car-models');
+        const normalized = Array.isArray(res) ? res.map(m => ({
+            ...m,
+            image: m.imageUrl // Map backend 'imageUrl' to frontend 'image'
+        })) : [];
+        setCarLibrary(normalized);
+    } catch (e) {
+        console.error('Failed to fetch car library', e);
+        setCarLibrary([]);
+    } finally { setLoadingCarLibrary(false); }
+  };
+
   useEffect(() => { 
     fetchSuppliers(); 
-    fetchBookings();
-    fetchFleet();
+    fetchCarLibrary();
   }, []);
+
+  useEffect(() => {
+    fetchBookings(selectedSupplierId);
+    fetchFleet(selectedSupplierId);
+  }, [selectedSupplierId]);
 
   const stats = { 
     totalSuppliers: suppliers.length, 
@@ -1012,8 +1024,48 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
   const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
-  const handleSaveCarModel = (model: any) => { saveCarModel(model); setCarLibrary([...MOCK_CAR_LIBRARY]); setIsCarModelModalOpen(false); setEditingCarModel(null); };
-  const handleDeleteCarModel = (id: string) => { if (confirm('Delete car model?')) { deleteCarModel(id); setCarLibrary([...MOCK_CAR_LIBRARY]); } };
+  const handleSaveCarModel = async (model: any) => {
+    try {
+        const payload = {
+            make: model.make,
+            model: model.model,
+            year: model.year,
+            category: model.category,
+            type: model.type,
+            imageUrl: model.image || model.imageUrl,
+            passengers: model.passengers,
+            bags: model.bags,
+            doors: model.doors
+        };
+
+        if (!model.id) {
+            await adminFetch('/api/admin/car-models', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+        } else {
+            await adminFetch(`/api/admin/car-models/${model.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+        }
+        await fetchCarLibrary();
+        setIsCarModelModalOpen(false);
+        setEditingCarModel(null);
+    } catch (e: any) {
+        alert(`Failed to save car model: ${e.message}`);
+    }
+  };
+
+  const handleDeleteCarModel = async (id: string) => { 
+    if (!confirm('Are you sure you want to delete this car model?')) return;
+    try {
+        await adminFetch(`/api/admin/car-models/${id}`, { method: 'DELETE' });
+        await fetchCarLibrary();
+    } catch (e: any) {
+        alert(`Delete failed: ${e.message}`);
+    }
+  };
   const handleUpdateAffiliateStatus = (id: string, status: any) => { updateAffiliateStatus(id, status); setAffiliates([...MOCK_AFFILIATES]); };
   const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
   const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
@@ -1053,7 +1105,53 @@ export const AdminDashboard: React.FC = () => {
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       <div className="md:hidden bg-white border-b px-4 py-3 flex justify-between sticky top-0 z-20"><div className="flex items-center gap-2"><Shield className="w-6 h-6 text-orange-600"/><span className="font-bold">Admin Panel</span></div><button onClick={() => setIsSidebarOpen(!isSidebarOpen)}><Menu/></button></div>
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex"><Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} /><main className="flex-grow lg:pl-8"><AnimatePresence mode="wait"><motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>{renderContent()}</motion.div></AnimatePresence></main></div>
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">
+        <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
+        <main className="flex-grow lg:pl-8">
+          <div className="flex items-center justify-between mb-8 bg-white p-4 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100">
+            <div>
+              <h1 className="text-2xl font-black text-gray-900 capitalize tracking-tight">{activeSection}</h1>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Global Operations Portal</p>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {['dashboard', 'bookings', 'fleet'].includes(activeSection) && (
+                <div className="flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 focus-within:ring-2 focus-within:ring-orange-500/20 transition-all">
+                  <div className="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center text-orange-600 ml-1">
+                    <Building className="w-4 h-4" />
+                  </div>
+                  <select 
+                    className="bg-transparent text-sm font-bold text-gray-700 outline-none pr-4 min-w-[180px] cursor-pointer"
+                    value={selectedSupplierId || ''}
+                    onChange={(e) => setSelectedSupplierId(e.target.value || null)}
+                  >
+                    <option value="">All Partners Activity</option>
+                    {suppliers.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="flex items-center gap-3 pl-4 border-l border-gray-100 ml-2">
+                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-lg font-black text-lg">A</div>
+                 <div className="hidden sm:block">
+                    <p className="text-xs font-black text-gray-900">Admin Account</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">System Master</p>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div key={activeSection} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 };
