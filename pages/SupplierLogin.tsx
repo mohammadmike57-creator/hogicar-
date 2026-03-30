@@ -25,7 +25,6 @@ const SupplierLogin: React.FC = () => {
         setError('');
 
         try {
-            // Try different possible field names
             const credentials = {
                 email: email.trim(),
                 password: password,
@@ -45,6 +44,7 @@ const SupplierLogin: React.FC = () => {
             console.log('Login response:', response.status, data);
 
             if (!response.ok) {
+                // Display the server's error message if available
                 const msg = data.message || data.error || `Login failed (${response.status})`;
                 throw new Error(msg);
             }
@@ -63,6 +63,8 @@ const SupplierLogin: React.FC = () => {
         } catch (err: any) {
             const msg = err.message || 'An unknown login error occurred.';
             setError(msg);
+            // Also log full error to console
+            console.error('Login error details:', err);
         } finally {
             setIsLoading(false);
         }
