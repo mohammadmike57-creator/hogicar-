@@ -7,7 +7,9 @@ import {
   Settings, AlertCircle, CheckCircle, Shield, TrendingUp, 
   MailQuestion, Rss, Link2, XCircle, RefreshCw, Copy, Share2, 
   Power, Tag, ImageIcon, PlusCircle, LoaderCircle, FileText, Globe, 
-  Users, Search, Loader
+  Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
+  Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins,
+  Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -40,7 +42,7 @@ const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) =
   const colors: any = { orange: 'bg-orange-100 text-orange-600', blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600' };
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl">
+      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all">
       <div className="flex items-start justify-between">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colors[color]}`}>
           <Icon className="w-6 h-6" />
@@ -94,7 +96,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   );
 };
 
-// ==================== Sidebar (unchanged but compact) ====================
+// ==================== Sidebar ====================
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
@@ -138,7 +140,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Location Picker (unchanged) ====================
+// ==================== Location Picker ====================
 const LocationPicker = ({ value, onChange, placeholder = "Search location..." }: any) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -163,7 +165,7 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
   );
 };
 
-// ==================== Edit Supplier Modal (with enhanced fields) ====================
+// ==================== Edit Supplier Modal ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
@@ -178,7 +180,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const handleCreateCustom = () => { if (!newLocName) return alert("Enter name"); let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); const newLoc = { label: newLocName, value: code }; const updated = [...customLocs, newLoc]; setCustomLocs(updated); localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); handleLocSelect(newLoc); setNewLocName(''); setNewLocCode(''); };
   const handleSave = () => { if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and email required"); if (!selectedLocation) return alert("Select location"); if (!editedSupplier.id) editedSupplier.status = 'active'; onSave(editedSupplier); };
   if (!isOpen) return null;
-  const allLocs = [...customLocs];
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? 'Edit Supplier' : 'Add Supplier'} size="lg">
       <div className="space-y-4">
@@ -197,7 +198,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   );
 };
 
-// ==================== Supplier Requests (fixed table) ====================
+// ==================== Supplier Requests ====================
 const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   const handleApprove = (app: any) => { const newSup: any = { name: app.companyName, contactEmail: app.email, location: app.primaryLocation, connectionType: app.integrationType === 'api' ? 'api' : 'manual', status: 'active', commissionType: CommissionType.PARTIAL_PREPAID, commissionValue: 0.15, bookingMode: BookingMode.FREE_SALE, username: app.companyName.toLowerCase().replace(/\s/g, ''), password: Math.random().toString(36).slice(-8) }; onApprove(newSup, app); };
   if (!apps.length) return <div className="bg-white rounded-2xl shadow-lg p-6 text-center text-gray-400">No pending requests</div>;
@@ -214,7 +215,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
               <th className="p-2">Integration</th>
               <th className="p-2">Date</th>
               <th className="p-2"></th>
-             </tr>
+              </tr>
           </thead>
           <tbody>
             {apps.map((app: any) => (
@@ -239,7 +240,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
   );
 };
 
-// ==================== Bookings (fixed table) ====================
+// ==================== Bookings ====================
 const BookingsContent = () => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <SectionHeader title="Bookings" icon={Calendar} />
@@ -305,7 +306,7 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => (
   </div>
 );
 
-// ==================== Homepage (simplified but working) ====================
+// ==================== Homepage ====================
 const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
   const [localContent, setLocalContent] = useState(content);
   const [saved, setSaved] = useState(false);
@@ -506,7 +507,7 @@ export const AdminDashboard: React.FC = () => {
           commissionPercent: updatedSupplier.commissionValue || 0,
           password: updatedSupplier.password || "defaultPassword123",
           password_confirmation: updatedSupplier.password || "defaultPassword123",
-          plainPassword: updatedSupplier.password || "defaultPassword123"   // extra field for some backends
+          plainPassword: updatedSupplier.password || "defaultPassword123"
         };
         const token = localStorage.getItem('adminToken');
         if (!token) throw new Error('No token');
