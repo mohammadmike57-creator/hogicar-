@@ -33,7 +33,7 @@ const SupplierLogin: React.FC = () => {
                 plain_password: password
             };
 
-            const response = await fetch(`${API_BASE_URL}/api/supplier/login`, {
+            const response = await fetch(`${API_BASE_URL}/api/supplier/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(credentials)

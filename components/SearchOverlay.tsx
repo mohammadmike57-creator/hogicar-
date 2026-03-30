@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Search as SearchIcon, MapPin, History, Plane, Building, LoaderCircle } from 'lucide-react';
+import { getAllLocations } from '../utils/locations';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 interface SearchOverlayProps {
@@ -72,7 +73,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(async () => {
       try {
-        const locations = await fetchLocations(searchQuery);
+        const locations = await getAllLocations(searchQuery);
         setResults(locations);
       } catch (err) {
         setResults([]);

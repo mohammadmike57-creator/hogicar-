@@ -1574,3 +1574,17 @@ export const getAvailableLocations = (): string[] => {
     const locations = new Set(MOCK_CARS.map(car => car.location));
     return Array.from(locations).sort();
 };
+// Add a sample supplier application if none exist
+if (MOCK_SUPPLIER_APPLICATIONS.length === 0) {
+  MOCK_SUPPLIER_APPLICATIONS.push({
+    id: 'app1',
+    companyName: 'Test Supplier Co.',
+    contactName: 'John Doe',
+    email: 'john@testsupplier.com',
+    primaryLocation: 'Dubai (DXB)',
+    fleetSize: 25,
+    integrationType: 'api',
+    submissionDate: new Date().toISOString().split('T')[0],
+    status: 'pending'
+  });
+}
