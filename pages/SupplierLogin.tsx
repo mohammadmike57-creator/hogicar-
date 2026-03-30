@@ -25,23 +25,29 @@ const SupplierLogin: React.FC = () => {
         setError('');
 
         try {
+            const credentials = {
+                email: email.trim(),
+                password,
+                plainPassword: password // include both for backend compatibility
+            };
+
             const response = await fetch(`${API_BASE_URL}/api/supplier/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email.trim(), password })
+                body: JSON.stringify(credentials)
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Login failed');
+                console.error('Login failed:', response.status, data);
+                throw new Error(data.message || `Login failed (${response.status})`);
             }
 
             if (!data.token) {
                 throw new Error('Login successful but no token received.');
             }
 
-            // Store token and supplier info
             localStorage.setItem('supplierToken', data.token);
             if (data.supplier?.id) {
                 localStorage.setItem('supplierId', data.supplier.id);
