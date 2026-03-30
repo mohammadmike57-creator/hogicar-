@@ -57,14 +57,14 @@ export interface RateTier {
 }
 
 export enum CommissionType {
-  FULL_PREPAID = 'Full Prepaid',
-  PARTIAL_PREPAID = 'Partial Prepaid',
-  PAY_AT_DESK = 'Pay at Desk'
+  FULL_PREPAID = 'FULL_PREPAID',
+  PARTIAL_PREPAID = 'PARTIAL_PREPAID',
+  PAY_AT_DESK = 'PAY_AT_DESK'
 }
 
 export enum BookingMode {
-  FREE_SALE = 'Free Sale', // Instant confirmation
-  ON_REQUEST = 'On Request' // Supplier must confirm
+  FREE_SALE = 'FREE_SALE', // Instant confirmation
+  ON_REQUEST = 'ON_REQUEST' // Supplier must confirm
 }
 
 export interface ApiConnection {

@@ -41,17 +41,32 @@ type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fl
 
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
-  const colors: any = { orange: 'bg-orange-100 text-orange-600', blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600' };
+  const colors: any = { 
+    orange: 'from-orange-500 to-orange-600 shadow-orange-200', 
+    blue: 'from-blue-500 to-blue-600 shadow-blue-200', 
+    green: 'from-green-500 to-green-600 shadow-green-200', 
+    purple: 'from-purple-500 to-purple-600 shadow-purple-200' 
+  };
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all">
-      <div className="flex items-start justify-between">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colors[color]}`}>
+      className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/50 border border-gray-50 flex flex-col justify-between relative overflow-hidden group">
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${colors[color]} opacity-[0.03] -mr-8 -mt-8 rounded-full transition-transform group-hover:scale-110`} />
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${colors[color]} text-white shadow-lg`}>
           <Icon className="w-6 h-6" />
         </div>
-        {change && <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">{change}</span>}
+        {change && (
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg border border-green-100 flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" /> {change}
+            </span>
+          </div>
+        )}
       </div>
-      <div className="mt-4"><p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{title}</p><p className="text-2xl font-bold text-gray-800 mt-1">{value}</p></div>
+      <div className="relative z-10">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{title}</p>
+        <p className="text-3xl font-black text-gray-900 mt-1">{value}</p>
+      </div>
     </motion.div>
   );
 };
@@ -104,38 +119,64 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   const NavItem = ({ section, label, icon: Icon, count }: any) => {
     const active = activeSection === section;
     return (
-      <motion.button whileHover={{ x: 5 }} whileTap={{ scale: 0.95 }}
+      <motion.button whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
         onClick={() => { setActiveSection(section); setIsOpen(false); }}
-        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all ${active ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
-        <div className="flex items-center gap-3"><Icon className="w-5 h-5" /><span className="text-sm font-medium">{label}</span></div>
-        {count !== undefined && count > 0 && <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{count}</span>}
+        className={`flex items-center justify-between w-full px-4 py-3.5 rounded-2xl transition-all duration-300 group ${active ? 'bg-orange-600 text-white shadow-xl shadow-orange-200' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900'}`}>
+        <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl transition-colors ${active ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-white'}`}>
+                <Icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-500 group-hover:text-orange-600'}`} />
+            </div>
+            <span className={`text-sm font-bold tracking-tight ${active ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`}>{label}</span>
+        </div>
+        {count !== undefined && count > 0 && (
+            <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${active ? 'bg-white text-orange-600' : 'bg-orange-600 text-white shadow-lg shadow-orange-200'}`}>
+                {count}
+            </span>
+        )}
       </motion.button>
     );
   };
+
   return (
     <>
-      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:z-auto ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-white/10"><div className="flex items-center gap-3"><Logo className="w-10 h-10" variant="light" /><div><h1 className="font-bold text-white text-xl">HogiCar</h1><p className="text-xs text-gray-400">Admin Portal</p></div></div></div>
-          <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-            <NavItem section="dashboard" label="Dashboard" icon={LayoutDashboard} />
-            <NavItem section="suppliers" label="Suppliers" icon={Building} />
-            <NavItem section="supplierrequests" label="Supplier Requests" icon={MailQuestion} count={countSupplierRequests} />
-            <NavItem section="bookings" label="Bookings" icon={Calendar} />
-            <NavItem section="fleet" label="Fleet" icon={Car} />
-            <NavItem section="promotions" label="Promotions" icon={Tag} />
-            <NavItem section="carlibrary" label="Car Library" icon={Car} />
-            <NavItem section="apipartners" label="API Partners" icon={Share2} />
-            <NavItem section="affiliates" label="Affiliates" icon={DollarSign} />
-            <NavItem section="cms" label="CMS" icon={FileText} />
-            <NavItem section="seo" label="SEO" icon={Globe} />
-            <NavItem section="homepage" label="Homepage" icon={ImageIcon} />
-            <NavItem section="sitesettings" label="Site Settings" icon={Settings} />
-          </nav>
-          <div className="p-4 border-t border-white/10">
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} className="flex items-center w-full px-4 py-2 text-gray-300 hover:bg-white/10 hover:text-white rounded-xl"><LogOut className="w-5 h-5 mr-3" /><span>Logout</span></motion.button>
-          </div>
+      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:z-auto p-4 flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="mb-8 px-2 flex items-center gap-3 py-4 border-b border-gray-50">
+            <div className="bg-orange-600 p-2 rounded-2xl shadow-lg shadow-orange-200">
+                <Shield className="w-6 h-6 text-white" />
+            </div>
+            <div>
+                <h1 className="font-black text-gray-900 text-lg tracking-tighter leading-none">HogiCar</h1>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Admin Control</span>
+            </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+          <div className="px-3 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Core Operations</div>
+          <NavItem section="dashboard" label="Performance" icon={LayoutDashboard} />
+          <NavItem section="suppliers" label="Supply Partners" icon={Building} />
+          <NavItem section="supplierrequests" label="Requests" icon={MailQuestion} count={countSupplierRequests} />
+          <NavItem section="bookings" label="Reservations" icon={Calendar} />
+          <NavItem section="fleet" label="Active Fleet" icon={Car} />
+
+          <div className="px-3 mb-2 mt-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Inventory & Growth</div>
+          <NavItem section="promotions" label="Smart Offers" icon={Tag} />
+          <NavItem section="carlibrary" label="Global Library" icon={Car} />
+          <NavItem section="apipartners" label="Integrations" icon={Share2} />
+          <NavItem section="affiliates" label="Affiliate Hub" icon={DollarSign} />
+
+          <div className="px-3 mb-2 mt-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Content & SEO</div>
+          <NavItem section="cms" label="Pages Content" icon={FileText} />
+          <NavItem section="seo" label="Meta Data" icon={Globe} />
+          <NavItem section="homepage" label="Site Assets" icon={ImageIcon} />
+          <NavItem section="sitesettings" label="Configuration" icon={Settings} />
+        </nav>
+
+        <div className="mt-auto pt-4 border-t border-gray-50">
+          <motion.button whileHover={{ backgroundColor: '#f9fafb' }} onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} className="flex items-center w-full px-4 py-3 text-gray-500 hover:text-red-600 rounded-2xl transition-all group font-bold text-sm">
+            <LogOut className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
+            <span>Sign Out</span>
+          </motion.button>
         </div>
       </aside>
     </>
@@ -174,14 +215,35 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [newLocName, setNewLocName] = useState('');
   const [newLocCode, setNewLocCode] = useState('');
   const [customLocs, setCustomLocs] = useState<any[]>([]);
+  
+  const BOOKING_MODE_OPTIONS = [
+    { value: BookingMode.FREE_SALE, label: 'Free Sale (Instant)' },
+    { value: BookingMode.ON_REQUEST, label: 'On Request (Manual)' }
+  ];
+
+  const COMMISSION_TYPE_OPTIONS = [
+    { value: CommissionType.FULL_PREPAID, label: 'Full Prepaid' },
+    { value: CommissionType.PARTIAL_PREPAID, label: 'Partial Prepaid' },
+    { value: CommissionType.PAY_AT_DESK, label: 'Pay at Desk' }
+  ];
+
   useEffect(() => { const stored = localStorage.getItem('hogicar_custom_locations'); if (stored) setCustomLocs(JSON.parse(stored)); }, [isOpen]);
-  useEffect(() => { if (isOpen) { setEditedSupplier(supplier || {}); if (supplier?.locationCode && supplier?.location) setSelectedLocation({ label: supplier.location, value: supplier.locationCode }); else setSelectedLocation(null); } }, [supplier, isOpen]);
+  useEffect(() => { 
+    if (isOpen) { 
+        setEditedSupplier(supplier || {}); 
+        if (supplier?.locationCode && supplier?.location) 
+            setSelectedLocation({ label: supplier.location, value: supplier.locationCode }); 
+        else 
+            setSelectedLocation(null); 
+    } 
+  }, [supplier, isOpen]);
+
   const handleChange = (field: any, val: any) => setEditedSupplier(prev => ({ ...prev, [field]: val }));
   const handleLogo = (e: any) => { if (e.target.files?.[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('logo', reader.result); reader.readAsDataURL(e.target.files[0]); } };
   const handleLocSelect = (loc: any) => { setSelectedLocation(loc); if (loc) { handleChange('locationCode', loc.value); handleChange('location', loc.label); } else { handleChange('locationCode', ''); handleChange('location', ''); } };
   const handleCreateCustom = () => { if (!newLocName) return alert("Enter name"); let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); const newLoc = { label: newLocName, value: code }; const updated = [...customLocs, newLoc]; setCustomLocs(updated); localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); handleLocSelect(newLoc); setNewLocName(''); setNewLocCode(''); };
   const handleSave = () => { 
-    if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and email required"); 
+    if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and contact email required"); 
     if (!selectedLocation) return alert("Select location"); 
     if (!editedSupplier.id) {
         editedSupplier.status = 'active';
@@ -189,19 +251,21 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     }
     onSave(editedSupplier); 
   };
+
   if (!isOpen) return null;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? 'Edit Supplier' : 'Add Supplier'} size="lg">
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
-            <label className="text-sm font-semibold text-gray-700 mb-3">Company Logo</label>
-            <div className="relative group">
+        {/* Header Section */}
+        <div className="flex gap-6 p-6 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100/50">
+          <div className="flex flex-col items-center">
+            <div className="relative group w-28 h-28">
                 {editedSupplier.logo || editedSupplier.logoUrl ? (
-                    <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-24 h-24 rounded-2xl object-cover shadow-md border-2 border-white" />
+                    <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-2xl object-cover shadow-xl border-4 border-white" />
                 ) : (
-                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center border-2 border-white shadow-sm">
-                        <Building className="w-10 h-10 text-gray-300"/>
+                    <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-200 shadow-sm group-hover:border-orange-200 transition-colors">
+                        <Building className="w-10 h-10 text-gray-300 group-hover:text-orange-200"/>
                     </div>
                 )}
                 <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer">
@@ -209,61 +273,81 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                     <input type="file" className="hidden" accept="image/*" onChange={handleLogo}/>
                 </label>
             </div>
-            <p className="text-[10px] text-gray-400 mt-2 text-center">Click to upload (JPG, PNG)</p>
+            <p className="text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wider">Company Logo</p>
           </div>
-          <div className="md:col-span-2 space-y-4">
-            <InputField label="Company Name" placeholder="e.g. HogiCar Global" value={editedSupplier.name || ''} onChange={e => handleChange('name', e.target.value)} />
-            <InputField label="Login Email" placeholder="partner@hogicar.com" value={editedSupplier.contactEmail || ''} onChange={e => handleChange('contactEmail', e.target.value)} />
-            <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={e => handleChange('phone', e.target.value)} />
+          <div className="flex-grow space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InputField label="Company Name" placeholder="e.g. HogiCar Global" value={editedSupplier.name || ''} onChange={e => handleChange('name', e.target.value)} />
+                <InputField label="Reservation Email" placeholder="bookings@partner.com" value={editedSupplier.contactEmail || ''} onChange={e => handleChange('contactEmail', e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InputField label="Login/Admin Email" placeholder="admin@partner.com" value={editedSupplier.email || editedSupplier.contactEmail || ''} onChange={e => handleChange('email', e.target.value)} />
+                <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={e => handleChange('phone', e.target.value)} />
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Primary Location</label>
-                <LocationPicker value={selectedLocation?.value || ''} onChange={handleLocSelect} />
-            </div>
-            <div className="flex items-end gap-2">
-                <div className="flex-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Quick Add Location</label>
-                    <div className="flex gap-2">
-                        <input placeholder="Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm" />
-                        <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-20 px-3 py-2 border border-gray-200 rounded-xl text-sm" />
+        {/* Location & Operations */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4 text-orange-600" />
+                    <h3 className="text-sm font-bold text-gray-700">Service Coverage</h3>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Primary Hub</label>
+                        <LocationPicker value={selectedLocation?.value || ''} onChange={handleLocSelect} />
+                    </div>
+                    <div className="pt-4 border-t border-gray-50">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quick Add New Location</label>
+                        <div className="flex gap-2">
+                            <input placeholder="City Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
+                            <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-16 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
+                            <button onClick={handleCreateCustom} className="p-2 bg-gray-800 text-white rounded-xl hover:bg-gray-700"><Plus className="w-4 h-4" /></button>
+                        </div>
                     </div>
                 </div>
-                <button onClick={handleCreateCustom} className="p-2.5 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-colors">
-                    <Plus className="w-4 h-4" />
-                </button>
+            </div>
+
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <Briefcase className="w-4 h-4 text-orange-600" />
+                    <h3 className="text-sm font-bold text-gray-700">Business Model</h3>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={COMMISSION_TYPE_OPTIONS} />
+                    <InputField label="Commission Value" type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={e => handleChange('commissionValue', parseFloat(e.target.value))} />
+                    <SelectField label="Booking Policy" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={BOOKING_MODE_OPTIONS} />
+                </div>
             </div>
         </div>
 
-        <div className="bg-gray-50 rounded-2xl p-4 space-y-4">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Business Settings</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={Object.values(CommissionType).map(v => ({ value: v, label: v }))} />
-                <InputField label="Commission Value" type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={e => handleChange('commissionValue', parseFloat(e.target.value))} />
-                <SelectField label="Booking Mode" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={Object.values(BookingMode).map(v => ({ value: v, label: v }))} />
+        {/* Security & Badges */}
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+                <Lock className="w-4 h-4 text-gray-500" />
+                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Access & Credentials</h3>
             </div>
-        </div>
-
-        <div className="bg-orange-50/50 rounded-2xl p-4 space-y-4 border border-orange-100">
-            <h3 className="text-xs font-bold text-orange-600 uppercase tracking-wider">Credentials & Access</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Login Password" type="password" placeholder={editedSupplier.id ? "Leave blank to keep current" : "Set password"} value={editedSupplier.password || ''} onChange={e => handleChange('password', e.target.value)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField label="Set Password" type="password" placeholder={editedSupplier.id ? "Leave blank to keep current" : "Set login password"} value={editedSupplier.password || ''} onChange={e => handleChange('password', e.target.value)} />
                 <div className="flex flex-col justify-end">
-                    <label className="flex items-center p-3 bg-white rounded-xl border border-orange-100 cursor-pointer hover:bg-orange-50 transition-colors">
-                        <input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500 mr-3" />
-                        <span className="text-sm font-medium text-gray-700">Enable Social Proof Badge</span>
+                    <label className="flex items-center p-4 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition-all">
+                        <input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 mr-3" />
+                        <div>
+                            <span className="text-sm font-bold text-gray-700 block">Trust Badge</span>
+                            <span className="text-[10px] text-gray-400">Display "Top Rated" badge on listings</span>
+                        </div>
                     </label>
                 </div>
             </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-            <button onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancel</button>
-            <button onClick={handleSave} className="px-8 py-2.5 bg-orange-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-orange-600/20 hover:bg-orange-700 hover:shadow-orange-600/30 transition-all flex items-center gap-2">
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+            <button onClick={onClose} className="px-6 py-3 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors">Discard Changes</button>
+            <button onClick={handleSave} className="px-10 py-3 bg-gray-900 text-white text-sm font-bold rounded-xl shadow-xl hover:bg-black transition-all flex items-center gap-2">
                 <Save className="w-4 h-4" />
-                {supplier?.id ? 'Update Supplier' : 'Create Supplier'}
+                {supplier?.id ? 'Update Partner' : 'Register Partner'}
             </button>
         </div>
       </div>
@@ -507,78 +591,173 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 
 // ==================== Suppliers Content ====================
 const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg p-6">
-    <div className="flex justify-between mb-4"><SectionHeader title="Suppliers" icon={Building} /><div className="flex gap-2"><button onClick={onRefresh} className="bg-gray-100 px-3 py-1 rounded text-sm">Refresh</button><button onClick={onAddSupplier} className="bg-orange-600 text-white px-3 py-1 rounded text-sm">Add Supplier</button></div></div>
-    <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Supplier</th><th>Status</th><th>Connection</th><th>Fleet</th><th>Bookings</th><th className="text-right">Actions</th></tr></thead><tbody>{suppliers.map((s: any) => (<tr key={s.id} className="hover:bg-orange-50"><td className="p-2 flex items-center gap-2"><img src={s.logo} className="w-6 h-6 rounded-full"/><div><div className="font-bold">{s.name}</div><div className="text-xs text-gray-500">{s.location}</div></div></td><td className="p-2"><Badge status={s.status || 'active'}/></td><td className="p-2"><span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td><td className="p-2">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td><td className="p-2">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td><td className="p-2 text-right"><div className="flex justify-end gap-1"><button onClick={() => onManageApi(s)} className="p-1 bg-gray-100 rounded"><Rss className="w-4 h-4"/></button><button onClick={() => onEdit(s)} className="p-1 bg-gray-100 rounded"><Edit className="w-4 h-4"/></button><button onClick={() => onDelete(s.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></div></td></tr>))}</tbody></table></div>
+  <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+    <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
+        <div>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Supply Partners</h2>
+            <p className="text-sm text-gray-500 font-medium">Manage your global car rental provider network</p>
+        </div>
+        <div className="flex gap-3">
+            <button onClick={onRefresh} className="p-2.5 bg-white border border-gray-200 rounded-2xl text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
+                <RefreshCw className="w-5 h-5" />
+            </button>
+            <button onClick={onAddSupplier} className="bg-gray-900 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-xl hover:bg-black transition-all flex items-center gap-2">
+                <PlusCircle className="w-5 h-5" />
+                Add New Partner
+            </button>
+        </div>
+    </div>
+    <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+            <thead>
+                <tr className="bg-gray-50/50">
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Provider Details</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Operational Status</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Connectivity</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Stats (Fleet/Book)</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+                {suppliers.map((s: any) => (
+                    <tr key={s.id} className="hover:bg-orange-50/30 transition-colors group">
+                        <td className="px-8 py-5">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-orange-200 transition-colors">
+                                    <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'}/>
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{s.name}</div>
+                                    <div className="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5">
+                                        <MapPin className="w-3 h-3" /> {s.location}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td className="px-8 py-5">
+                            <Badge status={s.status || (s.active ? 'active' : 'inactive')}/>
+                        </td>
+                        <td className="px-8 py-5">
+                            <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${s.connectionType === 'api' ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'}`} />
+                                <span className="text-xs font-bold text-gray-600 uppercase tracking-tighter">
+                                    {s.connectionType === 'api' ? 'Real-time API' : 'Manual Entry'}
+                                </span>
+                            </div>
+                        </td>
+                        <td className="px-8 py-5">
+                            <div className="flex items-center gap-4">
+                                <div className="text-center">
+                                    <div className="text-sm font-black text-gray-900">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase">Fleet</div>
+                                </div>
+                                <div className="w-px h-8 bg-gray-100" />
+                                <div className="text-center">
+                                    <div className="text-sm font-black text-gray-900">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase">Bookings</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                            <div className="flex justify-end gap-2">
+                                <button onClick={() => onManageApi(s)} className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-100 hover:bg-blue-50 shadow-sm transition-all" title="API Settings">
+                                    <Rss className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => onEdit(s)} className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-orange-600 hover:border-orange-100 hover:bg-orange-50 shadow-sm transition-all" title="Edit Profile">
+                                    <Edit className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => onDelete(s.id)} className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-red-600 hover:border-red-100 hover:bg-red-50 shadow-sm transition-all" title="Terminate Partner">
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
   </div>
 );
 
 // ==================== Dashboard ====================
 const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
-  <div className="space-y-6">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} title="Gross Revenue" value={`$${(stats.totalRevenue / 1000).toFixed(1)}k`} change="+15%" />
-        <StatCard icon={Calendar} title="Total Bookings" value={stats.totalBookings} color="blue" />
-        <StatCard icon={Building} title="Partners" value={`${stats.activeSuppliers} / ${stats.totalSuppliers}`} color="green" />
-        <StatCard icon={AlertCircle} title="Tasks" value={pendingCount} color="purple" />
+  <div className="space-y-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard icon={DollarSign} title="Revenue" value={`$${(stats.totalRevenue / 1000).toFixed(1)}k`} change="+12.5%" />
+        <StatCard icon={Calendar} title="Reservations" value={stats.totalBookings} color="blue" change="+5.2%" />
+        <StatCard icon={Building} title="Network Scale" value={`${stats.activeSuppliers}`} color="green" />
+        <StatCard icon={Zap} title="Pending Actions" value={pendingCount} color="purple" />
     </div>
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-orange-600" />
-                    Revenue Analytics
-                </h3>
-                <select className="text-xs border rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-orange-500">
-                    <option>Last 6 Months</option>
-                    <option>Last Year</option>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h3 className="font-black text-gray-900 text-lg flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-orange-600" />
+                        Financial Overview
+                    </h3>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Real-time revenue stream</p>
+                </div>
+                <select className="text-xs font-bold border border-gray-100 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50/50">
+                    <option>Last 30 Days</option>
+                    <option>Quarterly</option>
                 </select>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={ADMIN_STATS}>
-                    <defs>
-                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#f97316" stopOpacity={0.1}/>
-                            <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
-                    <Tooltip 
-                        contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
-                    />
-                    <Area type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
-                </AreaChart>
-            </ResponsiveContainer>
+            <div className="h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={ADMIN_STATS}>
+                        <defs>
+                            <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.15}/>
+                                <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 'bold'}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 'bold'}} dx={-10} />
+                        <Tooltip 
+                            contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px'}}
+                            itemStyle={{fontWeight: 'bold', fontSize: '12px'}}
+                        />
+                        <Area type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
         </div>
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <History className="w-5 h-5 text-blue-600" />
-                Recent Bookings
-            </h3>
-            <div className="space-y-4">
+
+        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 flex flex-col">
+            <div className="flex items-center justify-between mb-8">
+                <h3 className="font-black text-gray-900 text-lg flex items-center gap-2">
+                    <History className="w-5 h-5 text-blue-600" />
+                    Latest Activity
+                </h3>
+                <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-1 rounded-lg uppercase">Live</span>
+            </div>
+            <div className="space-y-6 flex-1">
                 {bookings.slice(0, 5).map((b: any) => (
-                    <div key={b.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                    <div key={b.id} className="flex items-center justify-between group cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <div className="w-11 h-11 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
                                 {b.firstName?.[0]}{b.lastName?.[0]}
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-gray-800">{b.firstName} {b.lastName}</div>
-                                <div className="text-[10px] text-gray-400 font-mono">{b.bookingRef}</div>
+                                <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{b.firstName} {b.lastName}</div>
+                                <div className="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">{b.bookingRef} • {b.supplierName}</div>
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-xs font-bold text-gray-700">${b.finalPrice}</div>
-                            <div className={`text-[10px] font-bold ${b.status === 'confirmed' ? 'text-green-500' : 'text-orange-500'}`}>
-                                {b.status?.toUpperCase()}
+                            <div className="text-sm font-black text-gray-900">${b.finalPrice}</div>
+                            <div className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
+                                {b.status}
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-            <button className="w-full mt-4 py-2 text-xs font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">View All Bookings</button>
+            <button className="w-full mt-8 py-3.5 text-xs font-black text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-2xl border border-dashed border-gray-200 transition-all uppercase tracking-widest">
+                Explore All Transactions
+            </button>
         </div>
     </div>
   </div>
@@ -772,7 +951,8 @@ export const AdminDashboard: React.FC = () => {
     try {
       const payload = {
         name: updatedSupplier.name,
-        email: updatedSupplier.contactEmail, // Use contactEmail as the primary email for login
+        email: updatedSupplier.email || updatedSupplier.contactEmail, // Login email
+        contactEmail: updatedSupplier.contactEmail, // Reservation email
         phone: updatedSupplier.phone || "",
         logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
         location: updatedSupplier.location || "",
@@ -782,7 +962,6 @@ export const AdminDashboard: React.FC = () => {
         active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
         password: updatedSupplier.password || undefined,
         enableSocialProof: updatedSupplier.enableSocialProof || false,
-        // Optional fields
         address: updatedSupplier.address || "",
         termsAndConditions: updatedSupplier.termsAndConditions || "",
         includesCDW: updatedSupplier.includesCDW ?? true,
