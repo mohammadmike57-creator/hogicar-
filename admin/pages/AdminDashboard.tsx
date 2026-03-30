@@ -568,12 +568,76 @@ const PromotionsContent = () => {
   );
 };
 
+// Helper to format enum to label
+const formatEnum = (val: string) => {
+  if (!val) return '';
+  return val.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+};
+
 // ==================== Car Library ====================
 const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <div className="flex justify-between"><SectionHeader title="Car Library" icon={Car} /><button onClick={() => onEdit(null)} className="bg-orange-600 text-white px-3 py-1 rounded text-sm">Add Model</button></div>
-      <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Image</th><th>Make/Model</th><th>Year</th><th>Category</th><th>Type</th><th></th></tr></thead><tbody>{library.map((m: any) => (<tr key={m.id} className="hover:bg-orange-50"><td className="p-2"><img src={m.image} className="w-12 h-8 object-cover rounded"/></td><td className="p-2 font-bold">{m.make} {m.model}</td><td className="p-2">{m.year}</td><td className="p-2">{m.category}</td><td className="p-2">{m.type}</td><td className="p-2 text-right"><button onClick={() => onEdit(m)} className="bg-gray-100 p-1 rounded mr-1"><Edit className="w-4 h-4"/></button><button onClick={() => onDelete(m.id)} className="bg-red-100 p-1 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></td></tr>))}</tbody></table></div>
+    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+      <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
+        <div>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Global Car Library</h2>
+            <p className="text-sm text-gray-500 font-medium">Define models available for all supply partners</p>
+        </div>
+        <button onClick={() => onEdit(null)} className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center gap-2">
+            <PlusCircle className="w-5 h-5" />
+            Add New Model
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-50/50">
+              <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Visual</th>
+              <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle Details</th>
+              <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Year</th>
+              <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</th>
+              <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Body Type</th>
+              <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {library.map((m: any) => (
+              <tr key={m.id} className="hover:bg-orange-50/30 transition-colors group">
+                <td className="px-8 py-4">
+                  <div className="w-20 h-12 rounded-xl bg-white border border-gray-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-orange-200 transition-colors">
+                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" />
+                  </div>
+                </td>
+                <td className="px-8 py-4">
+                  <div className="font-bold text-gray-900">{m.make}</div>
+                  <div className="text-xs text-gray-500">{m.model}</div>
+                </td>
+                <td className="px-8 py-4 text-sm font-medium text-gray-600">{m.year}</td>
+                <td className="px-8 py-4">
+                  <span className="px-2 py-1 text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 rounded-lg border border-orange-100/50">
+                    {formatEnum(m.category)}
+                  </span>
+                </td>
+                <td className="px-8 py-4">
+                  <span className="px-2 py-1 text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 rounded-lg border border-blue-100/50">
+                    {formatEnum(m.type)}
+                  </span>
+                </td>
+                <td className="px-8 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => onEdit(m)} className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-orange-600 hover:border-orange-100 hover:bg-orange-50 shadow-sm transition-all">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => onDelete(m.id)} className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-red-600 hover:border-red-100 hover:bg-red-50 shadow-sm transition-all">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
@@ -842,13 +906,101 @@ const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
-  const [model, setModel] = useState<any>(carModel || { make: '', model: '', year: new Date().getFullYear(), category: 'ECONOMY', type: 'SEDAN', image: '', passengers: 4, bags: 2, doors: 4 });
-  useEffect(() => { if (carModel) setModel(carModel); }, [carModel]);
+  const [model, setModel] = useState<any>(carModel || { 
+    make: '', 
+    model: '', 
+    year: new Date().getFullYear(), 
+    category: 'ECONOMY', 
+    type: 'SEDAN', 
+    image: '', 
+    passengers: 5, 
+    bags: 3, 
+    doors: 4 
+  });
+
+  useEffect(() => { 
+    if (carModel) {
+      setModel({
+        ...carModel,
+        image: carModel.image || carModel.imageUrl
+      });
+    } 
+  }, [carModel]);
+
   const handleChange = (field: string, val: any) => setModel({ ...model, [field]: val });
-  const handleImage = (e: any) => { if (e.target.files?.[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('image', reader.result); reader.readAsDataURL(e.target.files[0]); } };
-  const handleSave = () => { if (!model.make || !model.model || !model.image) return alert("Required fields"); onSave(model); };
+
+  const handleImage = (e: any) => { 
+    if (e.target.files?.[0]) { 
+      const reader = new FileReader(); 
+      reader.onloadend = () => handleChange('image', reader.result); 
+      reader.readAsDataURL(e.target.files[0]); 
+    } 
+  };
+
+  const handleSave = () => { 
+    if (!model.make || !model.model || (!model.image && !model.imageUrl)) return alert("Required fields: Make, Model, and Image are required."); 
+    onSave(model); 
+  };
+
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={carModel ? 'Edit Car' : 'Add Car'}><div className="grid grid-cols-2 gap-2"><InputField label="Make" value={model.make} onChange={e => handleChange('make', e.target.value)} /><InputField label="Model" value={model.model} onChange={e => handleChange('model', e.target.value)} /><InputField label="Year" type="number" value={model.year} onChange={e => handleChange('year', parseInt(e.target.value))} /><SelectField label="Category" value={model.category} onChange={e => handleChange('category', e.target.value)} options={Object.values(CarCategory).map(v => ({ value: v, label: v }))} /><SelectField label="Type" value={model.type} onChange={e => handleChange('type', e.target.value)} options={Object.values(VehicleType).map(v => ({ value: v, label: v }))} /><InputField label="Passengers" type="number" value={model.passengers} onChange={e => handleChange('passengers', parseInt(e.target.value))} /><InputField label="Bags" type="number" value={model.bags} onChange={e => handleChange('bags', parseInt(e.target.value))} /><InputField label="Doors" type="number" value={model.doors} onChange={e => handleChange('doors', parseInt(e.target.value))} /></div><div className="mt-2"><label>Image</label><div className="flex gap-2 items-center">{model.image && <img src={model.image} className="w-20 h-12 object-cover rounded"/>}<label className="bg-gray-100 px-3 py-1 rounded cursor-pointer">Upload<input type="file" className="hidden" accept="image/*" onChange={handleImage}/></label></div></div><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={carModel ? 'Edit Car Model' : 'Add New Car Model'}>
+      <div className="grid grid-cols-2 gap-4">
+        <InputField label="Make" placeholder="e.g. Toyota" value={model.make} onChange={(e: any) => handleChange('make', e.target.value)} />
+        <InputField label="Model" placeholder="e.g. Corolla" value={model.model} onChange={(e: any) => handleChange('model', e.target.value)} />
+        <InputField label="Year" type="number" value={model.year} onChange={(e: any) => handleChange('year', parseInt(e.target.value))} />
+        <SelectField 
+          label="Category" 
+          value={model.category} 
+          onChange={(e: any) => handleChange('category', e.target.value)} 
+          options={Object.values(CarCategory).map(v => ({ value: v, label: formatEnum(v) }))} 
+        />
+        <SelectField 
+          label="Body Type" 
+          value={model.type} 
+          onChange={(e: any) => handleChange('type', e.target.value)} 
+          options={Object.values(VehicleType).map(v => ({ value: v, label: formatEnum(v) }))} 
+        />
+        <InputField label="Passengers" type="number" value={model.passengers} onChange={(e: any) => handleChange('passengers', parseInt(e.target.value))} />
+        <InputField label="Bags (Large)" type="number" value={model.bags} onChange={(e: any) => handleChange('bags', parseInt(e.target.value))} />
+        <InputField label="Doors" type="number" value={model.doors} onChange={(e: any) => handleChange('doors', parseInt(e.target.value))} />
+      </div>
+
+      <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (PNG Recommended)</label>
+        <div className="flex gap-4 items-center">
+          <div className="w-32 h-20 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2">
+            {(model.image || model.imageUrl) ? (
+              <img src={model.image || model.imageUrl} className="max-w-full max-h-full object-contain" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-gray-200" />
+            )}
+          </div>
+          <label className="flex-grow flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-4 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer group">
+            <Plus className="w-5 h-5 text-gray-400 group-hover:text-orange-500 mb-1" />
+            <span className="text-xs font-bold text-gray-500 group-hover:text-orange-600">Click to Upload Image</span>
+            <input type="file" className="hidden" accept="image/*" onChange={handleImage}/>
+          </label>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
+        <button 
+          onClick={onClose}
+          className="px-6 py-2.5 rounded-2xl font-bold text-sm text-gray-500 hover:bg-gray-50 transition-all"
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={handleSave} 
+          className="bg-orange-600 text-white px-8 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-orange-200 hover:bg-orange-700 transition-all"
+        >
+          {carModel ? 'Save Changes' : 'Create Model'}
+        </button>
+      </div>
+    </Modal>
+  );
 };
 const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => null;
 const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => null;

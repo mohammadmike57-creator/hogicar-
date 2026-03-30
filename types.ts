@@ -9,36 +9,41 @@
 
 
 export enum CarCategory {
-  ECONOMY = 'Economy',
-  COMPACT = 'Compact',
+  MINI = 'MINI',
+  ECONOMY = 'ECONOMY',
+  COMPACT = 'COMPACT',
+  INTERMEDIATE = 'INTERMEDIATE',
+  STANDARD = 'STANDARD',
+  FULLSIZE = 'FULLSIZE',
+  PREMIUM = 'PREMIUM',
+  LUXURY = 'LUXURY',
   SUV = 'SUV',
-  LUXURY = 'Luxury',
-  VAN = 'Van',
-  MINI = 'Mini',
-  MIDSIZE = 'Midsize',
-  FULLSIZE = 'Full-size',
-  PEOPLE_CARRIER = 'People Carrier'
+  VAN = 'VAN',
+  PEOPLE_CARRIER = 'PEOPLE_CARRIER'
 }
 
 export enum CarType {
-  SEDAN = 'Sedan',
-  HATCHBACK = 'Hatchback',
+  SEDAN = 'SEDAN',
+  HATCHBACK = 'HATCHBACK',
   SUV = 'SUV',
-  CONVERTIBLE = 'Convertible',
-  VAN = 'Van',
-  COUPE = 'Coupe',
-  MINIVAN = 'Minivan',
-  WAGON = 'Wagon'
+  CONVERTIBLE = 'CONVERTIBLE',
+  VAN = 'VAN',
+  COUPE = 'COUPE',
+  MINIVAN = 'MINIVAN',
+  WAGON = 'WAGON',
+  PICKUP = 'PICKUP'
 }
 
 export enum Transmission {
-  MANUAL = 'Manual',
-  AUTOMATIC = 'Automatic'
+  MANUAL = 'MANUAL',
+  AUTOMATIC = 'AUTOMATIC'
 }
 
 export enum FuelPolicy {
-  FULL_TO_FULL = 'Full to Full',
-  SAME_TO_SAME = 'Same to Same'
+  FULL_TO_FULL = 'FULL_TO_FULL',
+  SAME_TO_SAME = 'SAME_TO_SAME',
+  PRE_PURCHASE = 'PRE_PURCHASE',
+  OTHER = 'OTHER'
 }
 
 export interface RateByDay {
