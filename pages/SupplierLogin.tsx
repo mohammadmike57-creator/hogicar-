@@ -255,7 +255,7 @@ const SupplierLogin: React.FC = () => {
                                 <LoaderCircle className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    <span className="text-xs uppercase tracking-[0.25em]">Initialize Session</span>
+                                    <span className="text-xs uppercase tracking-[0.25em]">Partner Login</span>
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
                                 </>
                             )}
