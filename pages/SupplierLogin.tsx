@@ -27,11 +27,10 @@ const SupplierLogin: React.FC = () => {
         try {
             const credentials = {
                 email: email.trim(),
-                password: password,
+                password,
                 plainPassword: password,
                 username: email.trim(),
-                plain_password: password,
-                password_confirmation: password
+                plain_password: password
             };
 
             const response = await fetch(`${API_BASE_URL}/api/supplier/login`, {
@@ -40,11 +39,19 @@ const SupplierLogin: React.FC = () => {
                 body: JSON.stringify(credentials)
             });
 
-            const data = await response.json();
-            console.log('Login response:', response.status, data);
+            // Try to get the raw text first, then attempt to parse JSON
+            const rawText = await response.text();
+            console.log('Raw response:', rawText);
+
+            let data;
+            try {
+                data = JSON.parse(rawText);
+            } catch (jsonError) {
+                // If not JSON, use the raw text as the message
+                data = { message: rawText || `Server error (${response.status})` };
+            }
 
             if (!response.ok) {
-                // Display the server's error message if available
                 const msg = data.message || data.error || `Login failed (${response.status})`;
                 throw new Error(msg);
             }
@@ -61,10 +68,8 @@ const SupplierLogin: React.FC = () => {
             navigate('/supplier');
 
         } catch (err: any) {
-            const msg = err.message || 'An unknown login error occurred.';
-            setError(msg);
-            // Also log full error to console
-            console.error('Login error details:', err);
+            console.error('Login error:', err);
+            setError(err.message || 'An unknown login error occurred.');
         } finally {
             setIsLoading(false);
         }
@@ -72,6 +77,7 @@ const SupplierLogin: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-4 relative overflow-hidden">
+            {/* Background animations (unchanged) */}
             <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}

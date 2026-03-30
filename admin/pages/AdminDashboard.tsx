@@ -496,18 +496,14 @@ export const AdminDashboard: React.FC = () => {
     try {
       if (!updatedSupplier.id) {
         const payload = {
-          name: updatedSupplier.name,
           email: updatedSupplier.contactEmail,
-          phone: updatedSupplier.phone || "",
-          logoUrl: updatedSupplier.logo || "",
-          active: true,
+          password: updatedSupplier.password || "defaultPassword123",
+          plainPassword: updatedSupplier.password || "defaultPassword123",
+          name: updatedSupplier.name,
           location: updatedSupplier.location || "",
           locationCode: updatedSupplier.locationCode || "",
-          bookingMode: updatedSupplier.bookingMode || "FREE_SALE",
           commissionPercent: updatedSupplier.commissionValue || 0,
-          password: updatedSupplier.password || "defaultPassword123",
-          password_confirmation: updatedSupplier.password || "defaultPassword123",
-          plainPassword: updatedSupplier.password || "defaultPassword123"
+          active: true
         };
         const token = localStorage.getItem('adminToken');
         if (!token) throw new Error('No token');
