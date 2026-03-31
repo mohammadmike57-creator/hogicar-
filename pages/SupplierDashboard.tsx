@@ -306,7 +306,7 @@ const SupplierDashboard = () => {
                 >
                     {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} />}
                     {activeSection === 'reservations' && <ReservationsSection bookings={bookings} />}
-                    {activeSection === 'fleet' && <FleetSection supplier={supplier} />}
+                    {activeSection === 'fleet' && <FleetSection supplier={supplier} setActiveSection={setActiveSection} />}
                     {activeSection === 'rates' && <RatesSection supplier={supplier} />}
                     {activeSection === 'stopsales' && <StopSalesSection />}
                     {activeSection === 'extras' && <ExtrasSection />}
@@ -538,7 +538,7 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 };
 
 // ==================== Fleet Section ====================
-const FleetSection = ({ supplier }: { supplier: Supplier }) => {
+const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setActiveSection: (s: string) => void }) => {
   const [cars, setCars] = useState<CarType[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCar, setEditingCar] = useState<CarType | null>(null);
@@ -630,7 +630,7 @@ const FleetSection = ({ supplier }: { supplier: Supplier }) => {
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </div>
-                        <button className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors">Manage Rates</button>
+                        <button onClick={() => setActiveSection('rates')} className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors">Manage Rates</button>
                     </div>
                 </div>
             </motion.div>
@@ -763,6 +763,61 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Strategy Overview */}
+            {config && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 bg-orange-50 rounded-2xl">
+                                <Calendar className="w-6 h-6 text-orange-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Active Pricing Seasons</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Defined time periods for dynamic rates</p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {config.periods.map((p, idx) => (
+                                <div key={idx} className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 group hover:border-orange-200 transition-all">
+                                    <p className="text-xs font-black text-gray-900 uppercase tracking-widest mb-2">{p.name}</p>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                        <span>{p.startDate}</span>
+                                        <span className="text-orange-500">→</span>
+                                        <span>{p.endDate}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            {config.periods.length === 0 && (
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest p-4">No seasons defined yet. Click "Edit Structure" to start.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 bg-blue-50 rounded-2xl">
+                                <Clock className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Day Bands</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Global duration brackets</p>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            {config.bands.map((b, idx) => (
+                                <div key={idx} className="flex justify-between items-center p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                    <span className="text-[10px] font-black text-gray-900 uppercase tracking-widest">{b.label || `${b.minDays}-${b.maxDays || '∞'} Days`}</span>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{b.minDays} to {b.maxDays || '∞'} d</span>
+                                </div>
+                            ))}
+                            {config.bands.length === 0 && (
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest p-4">No day bands defined.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <TemplateConfigModal 
                 isOpen={isConfigModalOpen} 
