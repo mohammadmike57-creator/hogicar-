@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Car, Calendar, DollarSign, User, LogOut, 
   Settings, Package, MapPin, Zap, Clock, Shield, Plus, Edit, 
   Trash2, Search, Filter, ChevronRight, History, TrendingUp,
-  Download, Upload, FileText, CheckCircle, XCircle, AlertCircle,
+  Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
   Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -1058,6 +1058,19 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Configure Rate Template" size="lg">
             <div className="space-y-10">
+                {/* Informational Note */}
+                <div className="p-6 bg-orange-50 border border-orange-100 rounded-3xl flex items-start gap-4">
+                    <div className="p-2 bg-white rounded-xl shadow-sm">
+                        <Info className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-orange-900 uppercase tracking-[0.2em]">Strategy Definition</p>
+                        <p className="text-[10px] font-bold text-orange-800 leading-relaxed uppercase tracking-widest opacity-80">
+                            Define your seasons and day bands below. After saving, use the "Download Template" action to fill in prices for each car model.
+                        </p>
+                    </div>
+                </div>
+
                 {/* Global Currency */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
                     <div className="space-y-1.5">
