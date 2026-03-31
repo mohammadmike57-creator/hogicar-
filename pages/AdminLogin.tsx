@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, LoaderCircle, Mail, Activity, Cpu, Globe, Server, AlertCircle, ArrowRight, ShieldCheck, Zap, Database, Terminal, Car } from 'lucide-react';
+import { Shield, Lock, LoaderCircle, Mail, Activity, Cpu, Globe, Server, AlertCircle, ArrowRight, ShieldCheck, Zap, Database, Terminal, Car, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
@@ -10,6 +10,7 @@ const AdminLogin: React.FC = () => {
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
     const [isLoading, setIsLoading] = React.useState(false);
+    const [showPassword, setShowPassword] = React.useState(false);
     const navigate = useNavigate();
 
     // Mouse Tracking for Parallax
@@ -228,7 +229,7 @@ const AdminLogin: React.FC = () => {
                                     <Lock className="w-4.5 h-4.5" />
                                 </div>
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -236,6 +237,13 @@ const AdminLogin: React.FC = () => {
                                     placeholder="••••••••••••"
                                     disabled={isLoading}
                                 />
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-orange-500 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
                             </div>
                         </div>
 

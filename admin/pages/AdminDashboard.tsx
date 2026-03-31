@@ -9,6 +9,7 @@ import {
   Power, Tag, ImageIcon, PlusCircle, LoaderCircle, FileText, Globe, 
   Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
   Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins, MapPin, Lock,
+  Eye, EyeOff,
   Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -230,6 +231,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [newLocName, setNewLocName] = useState('');
   const [newLocCode, setNewLocCode] = useState('');
   const [customLocs, setCustomLocs] = useState<any[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
   
   const BOOKING_MODE_OPTIONS = [
     { value: BookingMode.FREE_SALE, label: 'Free Sale (Instant)' },
@@ -442,7 +444,22 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Access & Credentials</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField label="Set Password" type="password" placeholder={editedSupplier.id ? "Leave blank to keep current" : "Set login password"} value={editedSupplier.password || ''} onChange={e => handleChange('password', e.target.value)} />
+                <div className="relative group/input">
+                    <InputField 
+                        label="Set Password" 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder={editedSupplier.id ? "Leave blank to keep current" : "Set login password"} 
+                        value={editedSupplier.password || ''} 
+                        onChange={(e: any) => handleChange('password', e.target.value)} 
+                    />
+                    <button 
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-[32px] text-gray-400 hover:text-orange-500 transition-colors"
+                    >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                </div>
                 <div className="flex flex-col justify-end">
                     <label className="flex items-center p-4 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-orange-300 hover:bg-orange-50/30 transition-all">
                         <input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 mr-3" />
@@ -469,7 +486,22 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
 
 // ==================== Supplier Requests ====================
 const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
-  const handleApprove = (app: any) => { const newSup: any = { name: app.companyName, contactEmail: app.email, location: app.primaryLocation, connectionType: app.integrationType === 'api' ? 'api' : 'manual', status: 'active', commissionType: CommissionType.PARTIAL_PREPAID, commissionValue: 0.15, bookingMode: BookingMode.FREE_SALE, username: app.companyName.toLowerCase().replace(/\s/g, ''), password: Math.random().toString(36).slice(-8) }; onApprove(newSup, app); };
+  const handleApprove = (app: any) => { 
+    const locationCode = app.primaryLocation.replace(/[^A-Z0-9]/g, '').substring(0,3).toUpperCase();
+    const newSup: any = { 
+        name: app.companyName, 
+        contactEmail: app.email, 
+        email: app.email, // Use request email as login email by default
+        locations: [{ displayName: app.primaryLocation, locationCode: locationCode || 'LOC' }],
+        connectionType: app.integrationType === 'api' ? 'api' : 'manual', 
+        status: 'active', 
+        commissionType: CommissionType.PARTIAL_PREPAID, 
+        commissionValue: 0.15, 
+        bookingMode: BookingMode.FREE_SALE, 
+        password: app.companyName.toLowerCase().replace(/\s/g, '') + '123!' 
+    }; 
+    onApprove(newSup, app); 
+  };
   if (!apps.length) return <div className="bg-white rounded-2xl shadow-lg p-6 text-center text-gray-400">No pending requests</div>;
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Building, Car, LoaderCircle, Mail, Lock, ChevronRight, ShieldCheck, Globe, Zap, AlertCircle, TrendingUp, Sparkles, ArrowRight } from 'lucide-react';
+import { Building, Car, LoaderCircle, Mail, Lock, ChevronRight, ShieldCheck, Globe, Zap, AlertCircle, TrendingUp, Sparkles, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
@@ -11,6 +11,7 @@ const SupplierLogin: React.FC = () => {
     const [error, setError] = React.useState('');
     const [isLoading, setIsLoading] = React.useState(false);
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = React.useState(false);
     const [searchParams] = useSearchParams();
 
     // Mouse Tracking for Parallax
@@ -193,18 +194,18 @@ const SupplierLogin: React.FC = () => {
 
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Partner Email</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Partner Identity</label>
                             <div className="relative group/input">
                                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
                                     <Mail className="w-4.5 h-4.5" />
                                 </div>
                                 <input
-                                    type="email"
+                                    type="text"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
-                                    placeholder="node.admin@hogicar.com"
+                                    placeholder="email@company.com"
                                     disabled={isLoading}
                                 />
                             </div>
@@ -220,7 +221,7 @@ const SupplierLogin: React.FC = () => {
                                     <Lock className="w-4.5 h-4.5" />
                                 </div>
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -228,6 +229,13 @@ const SupplierLogin: React.FC = () => {
                                     placeholder="••••••••"
                                     disabled={isLoading}
                                 />
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-orange-500 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
                             </div>
                         </div>
 
