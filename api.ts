@@ -212,6 +212,7 @@ export const supplierApi = {
   getTemplateConfig: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template-config`),
   saveTemplateConfig: (config: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/rates/template-config`, config),
   downloadTemplate: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template`, { responseType: 'blob' }),
+  downloadBookingReport: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/report`, { responseType: 'blob' }),
   importRates: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);

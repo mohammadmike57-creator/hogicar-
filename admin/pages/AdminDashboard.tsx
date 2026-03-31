@@ -1480,7 +1480,7 @@ export const AdminDashboard: React.FC = () => {
         </button>
       </div>
 
-      <div className="max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-10 py-8 flex gap-8">
+      <div className="max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-10 py-8 flex gap-0 md:gap-8">
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
         
         <main className="flex-grow min-w-0">

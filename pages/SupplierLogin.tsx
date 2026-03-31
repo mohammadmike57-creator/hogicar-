@@ -71,7 +71,7 @@ const SupplierLogin: React.FC = () => {
     return (
         <div 
             onMouseMove={handleMouseMove}
-            className="h-screen bg-slate-50 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
+            className="min-h-screen bg-slate-50 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
         >
             {/* --- SOPHISTICATED ENTERPRISE BACKGROUND --- */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -143,7 +143,7 @@ const SupplierLogin: React.FC = () => {
                         </p>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             { icon: TrendingUp, title: "Yield Engine", desc: "AI-driven pricing." },
                             { icon: Globe, title: "Global Hub", desc: "Direct OTA sync." },

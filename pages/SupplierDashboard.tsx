@@ -167,6 +167,29 @@ const SupplierDashboard = () => {
     fetchData();
   }, [navigate]);
 
+  // Close sidebar on mobile when section changes
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
+  }, [activeSection]);
+
+  const handleGenerateReport = async () => {
+    try {
+      const response = await supplierApi.downloadBookingReport();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `booking_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Report generation failed:', err);
+      alert('Failed to generate report');
+    }
+  };
+
   if (isLoading) return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="w-16 h-16 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin mb-4" />
@@ -177,12 +200,29 @@ const SupplierDashboard = () => {
   if (!supplier) return null;
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] flex font-sans text-slate-900">
+    <div className="min-h-screen bg-[#f8f9fc] flex font-sans text-slate-900 overflow-x-hidden">
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <motion.aside 
         initial={false}
-        animate={{ width: isSidebarOpen ? 280 : 0, opacity: isSidebarOpen ? 1 : 0 }}
-        className="fixed inset-y-0 left-0 bg-white border-r border-slate-100 z-50 flex flex-col overflow-hidden shadow-[20px_0_50px_rgba(0,0,0,0.02)]"
+        animate={{ 
+          x: isSidebarOpen ? 0 : (window.innerWidth < 1024 ? -280 : 0),
+          width: isSidebarOpen ? 280 : (window.innerWidth < 1024 ? 280 : 0),
+          opacity: isSidebarOpen ? 1 : (window.innerWidth < 1024 ? 1 : 0)
+        }}
+        className={`fixed inset-y-0 left-0 bg-white border-r border-slate-100 z-50 flex flex-col overflow-hidden shadow-[20px_0_50px_rgba(0,0,0,0.02)] transition-all duration-300 ${!isSidebarOpen && 'lg:pointer-events-none'}`}
       >
         <div className="p-8 mb-4">
             <div className="flex items-center gap-3.5 group cursor-pointer">
@@ -255,23 +295,23 @@ const SupplierDashboard = () => {
       </motion.aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-500 ${isSidebarOpen ? 'ml-[280px]' : 'ml-0'}`}>
+      <main className={`flex-1 transition-all duration-500 w-full min-w-0 ${isSidebarOpen ? 'lg:ml-[280px]' : 'ml-0'}`}>
         {/* Top Header */}
-        <header className="sticky top-0 bg-white/80 backdrop-blur-xl z-40 border-b border-slate-100 px-8 py-5 flex justify-between items-center shadow-sm">
-            <div className="flex items-center gap-5">
+        <header className="sticky top-0 bg-white/80 backdrop-blur-xl z-40 border-b border-slate-100 px-4 lg:px-8 py-5 flex justify-between items-center shadow-sm">
+            <div className="flex items-center gap-3 lg:gap-5">
                 <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100">
-                    <Menu className="w-4 h-4 text-slate-600" />
+                    {isSidebarOpen && window.innerWidth < 1024 ? <X className="w-4 h-4 text-slate-600" /> : <Menu className="w-4 h-4 text-slate-600" />}
                 </button>
                 <div className="h-6 w-px bg-slate-100" />
-                <div className="flex items-center gap-3.5 group cursor-pointer">
+                <div className="flex items-center gap-2 lg:gap-3.5 group cursor-pointer">
                     <motion.img 
                         whileHover={{ scale: 1.05 }}
                         src={supplier.logoUrl || 'https://placehold.co/40x40/orange/white?text=S'} 
-                        className="w-10 h-10 rounded-xl object-cover border border-orange-500/10 shadow-lg" 
+                        className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl object-cover border border-orange-500/10 shadow-lg" 
                         alt={supplier.name} 
                     />
-                    <div>
-                        <h2 className="text-base font-black text-slate-900 tracking-tight leading-none mb-1">{supplier.name}</h2>
+                    <div className="max-w-[120px] lg:max-w-none truncate">
+                        <h2 className="text-sm lg:text-base font-black text-slate-900 tracking-tight leading-none mb-1 truncate">{supplier.name}</h2>
                         <div className="flex items-center gap-1.5">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">{supplier.locationCode || 'Operational'}</span>
                         </div>
@@ -295,7 +335,7 @@ const SupplierDashboard = () => {
         </header>
 
         {/* Content Area */}
-        <div className="p-10 max-w-[1400px] mx-auto min-h-[calc(100vh-100px)]">
+        <div className="p-4 lg:p-10 max-w-[1400px] mx-auto min-h-[calc(100vh-100px)]">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeSection}
@@ -304,7 +344,7 @@ const SupplierDashboard = () => {
                     exit={{ opacity: 0, y: -30, scale: 0.98 }}
                     transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 >
-                    {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} />}
+                    {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} onGenerateReport={handleGenerateReport} />}
                     {activeSection === 'reservations' && <ReservationsSection bookings={bookings} />}
                     {activeSection === 'fleet' && <FleetSection supplier={supplier} setActiveSection={setActiveSection} />}
                     {activeSection === 'rates' && <RatesSection supplier={supplier} />}
@@ -327,16 +367,21 @@ const SupplierDashboard = () => {
 };
 
 // ==================== Dashboard Overview ====================
-const DashboardOverview = ({ stats, bookings, supplier }: any) => (
+const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport }: any) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
-    <div className="flex justify-between items-end">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
         <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tighter">Welcome Back, {supplier.name.split(' ')[0]}</h1>
-            <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">Here's the pulse of your rental operations</p>
+            <h1 className="text-2xl lg:text-3xl font-black text-gray-900 tracking-tighter">Welcome Back, {supplier.name.split(' ')[0]}</h1>
+            <p className="text-xs lg:text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">Here's the pulse of your rental operations</p>
         </div>
-        <div className="flex gap-2">
-            <button className="px-5 py-2.5 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Last 7 Days</button>
-            <button className="px-5 py-2.5 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:scale-105 transition-all">Generate Report</button>
+        <div className="flex gap-2 w-full md:w-auto">
+            <button className="flex-1 md:flex-none px-5 py-2.5 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Last 7 Days</button>
+            <button 
+                onClick={onGenerateReport}
+                className="flex-1 md:flex-none px-5 py-2.5 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+            >
+                Generate Report
+            </button>
         </div>
     </div>
 

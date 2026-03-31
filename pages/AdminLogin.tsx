@@ -63,7 +63,7 @@ const AdminLogin: React.FC = () => {
     return (
         <div 
             onMouseMove={handleMouseMove}
-            className="h-screen bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
+            className="min-h-screen bg-gray-50 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
         >
             {/* --- ADMINISTRATIVE CORE BACKGROUND --- */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -141,7 +141,7 @@ const AdminLogin: React.FC = () => {
                         </p>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             { icon: Activity, title: "Global Intel", desc: "Live transaction mesh." },
                             { icon: ShieldCheck, title: "Protocol 4.0", desc: "Military-grade auth." },
