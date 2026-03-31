@@ -287,8 +287,10 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     if (selectedLocations.length === 0) return alert("Select at least one location"); 
     
     // Ensure booking mode and commission type are set if not present
+    const finalEmail = editedSupplier.email || editedSupplier.contactEmail;
     const finalSupplier = {
         ...editedSupplier,
+        email: finalEmail,
         locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
         bookingMode: editedSupplier.bookingMode || BookingMode.FREE_SALE,
         commissionType: editedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
@@ -337,11 +339,29 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 <InputField label="Reservation Email (For Requests)" placeholder="bookings@partner.com" value={editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('contactEmail', e.target.value)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Login Email (Supplier Dashboard)" placeholder="admin@partner.com" value={editedSupplier.email || editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('email', e.target.value)} />
+                <InputField label="Login Identity (Username/Email)" placeholder="admin@partner.com" value={editedSupplier.email || editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('email', e.target.value)} />
                 <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={(e: any) => handleChange('phone', e.target.value)} />
             </div>
           </div>
         </div>
+
+        {/* Credentials Summary Box for New Partners */}
+        {!supplier?.id && (
+            <div className="mx-6 p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-4">
+                <div className="p-2 bg-white rounded-xl shadow-sm">
+                    <ShieldCheck className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                    <h4 className="text-[11px] font-black text-blue-900 uppercase tracking-wider">Login Identity Verified</h4>
+                    <p className="text-[13px] text-blue-700 font-bold mt-1">
+                        <span className="opacity-60 font-medium">Username:</span> {editedSupplier.email || editedSupplier.contactEmail || '(Enter email above)'}
+                    </p>
+                    <p className="text-[13px] text-blue-700 font-bold">
+                        <span className="opacity-60 font-medium">Initial Password:</span> {editedSupplier.password || (editedSupplier.name ? editedSupplier.name.toLowerCase().replace(/\s/g, '') + '123!' : 'changeMe123!')}
+                    </p>
+                </div>
+            </div>
+        )}
 
         {/* Location & Operations */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1318,7 +1338,12 @@ export const AdminDashboard: React.FC = () => {
     } catch (err: any) { alert(`Delete failed: ${err.message}`); }
   };
 
-  const handleApproveSupplier = (id: string) => { const s = suppliers.find(s => s.id === id); if (s) { s.status = 'active'; setSuppliers([...suppliers]); } };
+  const handleApproveSupplier = async (id: string) => { 
+    const s = suppliers.find(s => s.id === id); 
+    if (s) { 
+        await handleSaveSupplier({ ...s, status: 'active' });
+    } 
+  };
   const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
   const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
