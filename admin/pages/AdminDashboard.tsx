@@ -232,6 +232,23 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [newLocCode, setNewLocCode] = useState('');
   const [customLocs, setCustomLocs] = useState<any[]>([]);
   const [showPassword, setShowPassword] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  
+  const handleGenerateCredentials = async () => {
+    if (!editedSupplier.name) return alert("Please enter company name first");
+    setIsGenerating(true);
+    try {
+      const resp = await adminFetch('/api/admin/suppliers/generate-credentials', {
+        method: 'POST',
+        body: JSON.stringify({ name: editedSupplier.name, email: editedSupplier.contactEmail })
+      });
+      setEditedSupplier(prev => ({ ...prev, email: resp.username, password: resp.password }));
+    } catch (e: any) {
+      alert("Failed to generate credentials: " + e.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   const BOOKING_MODE_OPTIONS = [
     { value: BookingMode.FREE_SALE, label: 'Free Sale (Instant)' },
@@ -351,8 +368,18 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 <div className="p-2 bg-white rounded-xl shadow-sm">
                     <ShieldCheck className="w-5 h-5 text-blue-600" />
                 </div>
-                <div>
-                    <h4 className="text-[11px] font-black text-blue-900 uppercase tracking-wider">Login Identity Verified</h4>
+                <div className="flex-grow">
+                    <div className="flex justify-between items-center">
+                        <h4 className="text-[11px] font-black text-blue-900 uppercase tracking-wider">Login Identity Verified</h4>
+                        <button 
+                            onClick={handleGenerateCredentials}
+                            disabled={isGenerating}
+                            className="text-[10px] font-black bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-all flex items-center gap-2 shadow-sm active:scale-95"
+                        >
+                            <RefreshCw className={`w-3 h-3 ${isGenerating ? 'animate-spin' : ''}`} />
+                            {isGenerating ? 'Generating...' : 'Generate Secure Credentials'}
+                        </button>
+                    </div>
                     <p className="text-[13px] text-blue-700 font-bold mt-1">
                         <span className="opacity-60 font-medium">Username:</span> {editedSupplier.email || editedSupplier.contactEmail || '(Enter email above)'}
                     </p>
