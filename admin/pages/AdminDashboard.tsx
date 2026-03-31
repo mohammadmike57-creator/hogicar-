@@ -845,6 +845,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                                 </div>
                                 <div>
                                     <div className="text-[13px] font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-tight">{s.name}</div>
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{s.email || s.contactEmail}</div>
                                     <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
                                         <MapPin className="w-2.5 h-2.5" /> 
                                         {s.locations?.length > 0 
