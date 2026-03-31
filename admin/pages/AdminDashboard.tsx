@@ -1361,6 +1361,7 @@ export const AdminDashboard: React.FC = () => {
         phone: updatedSupplier.phone || "",
         logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
         locations: updatedSupplier.locations || [],
+        commissionType: updatedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
         commissionPercent: updatedSupplier.commissionValue || 0,
         bookingMode: updatedSupplier.bookingMode || BookingMode.FREE_SALE,
         active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
