@@ -908,6 +908,24 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     }
   }, [isOpen, car, supplier]);
 
+  const handleModelSelect = (modelId: string) => {
+    const selectedModel = carModels.find(m => m.id.toString() === modelId);
+    if (selectedModel) {
+        setFormData((prev: any) => ({
+            ...prev,
+            name: `${selectedModel.make} ${selectedModel.model}`,
+            make: selectedModel.make,
+            model: selectedModel.model,
+            year: selectedModel.year || prev.year,
+            category: selectedModel.category || prev.category,
+            passengers: selectedModel.passengers || prev.passengers,
+            bags: selectedModel.bags || prev.bags,
+            doors: selectedModel.doors || prev.doors,
+            imageUrl: selectedModel.imageUrl || selectedModel.image || prev.imageUrl,
+        }));
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsSaving(true);
@@ -924,6 +942,29 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={car ? 'Edit Vehicle' : 'Add New Vehicle'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-8">
+            {!car && (
+                <div className="bg-orange-50/50 p-6 rounded-3xl border border-orange-100/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-orange-100 rounded-xl">
+                            <Car className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider">Choose from Car Library</h3>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Quickly pre-fill specs from our master catalog</p>
+                        </div>
+                    </div>
+                    <select 
+                        onChange={(e) => handleModelSelect(e.target.value)}
+                        className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                    >
+                        <option value="">Select a vehicle template...</option>
+                        {carModels.map((m: any) => (
+                            <option key={m.id} value={m.id}>{m.make} {m.model} ({m.year})</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-2">

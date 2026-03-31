@@ -409,13 +409,14 @@ export interface HomepageContent {
 }
 
 export interface CarModel {
-  id: string;
+  id: string | number;
   make: string;
   model: string;
   year: number;
   category: CarCategory;
   type: CarType;
-  image: string;
+  image?: string;
+  imageUrl?: string;
   passengers: number;
   bags: number;
   doors: number;
