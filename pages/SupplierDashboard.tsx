@@ -707,6 +707,14 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
                         Get the latest spreadsheet with your fleet pre-populated. Fill in the daily rates for each period and re-upload.
                     </p>
+                    {config && config.periods.length === 0 && (
+                        <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3 text-left">
+                            <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                            <p className="text-[10px] font-bold text-blue-900 leading-normal uppercase tracking-tight">
+                                Note: You haven't defined any seasons yet. We'll provide a default structure which you can customize later.
+                            </p>
+                        </div>
+                    )}
                     <button onClick={handleDownload} className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-3">
                         <Download className="w-4 h-4" /> Download XLSX
                     </button>
