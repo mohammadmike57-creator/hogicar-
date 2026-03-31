@@ -110,7 +110,7 @@ const InputField = ({ label, icon: Icon, ...props }: any) => (
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
         <div className="relative group">
             {Icon && <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 group-focus-within:text-orange-500 transition-colors" />}
-            <input {...props} className={`w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 ${Icon ? 'pl-11' : 'px-4'} pr-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-300`} />
+            <input {...props} className={`w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 ${Icon ? 'pl-11' : 'px-4'} pr-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-300 ${props.readOnly ? 'opacity-70 bg-gray-100/50 cursor-not-allowed' : ''}`} />
         </div>
     </div>
 );
@@ -971,14 +971,14 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <Briefcase className="w-4 h-4 text-orange-600" />
                         <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Primary Specs</h3>
                     </div>
-                    <InputField label="Display Name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required />
+                    <InputField label="Display Name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required readOnly />
                     <div className="grid grid-cols-2 gap-4">
-                        <InputField label="Make" value={formData.make} onChange={(e:any) => handleChange('make', e.target.value)} required />
-                        <InputField label="Model" value={formData.model} onChange={(e:any) => handleChange('model', e.target.value)} required />
+                        <InputField label="Make" value={formData.make} onChange={(e:any) => handleChange('make', e.target.value)} required readOnly />
+                        <InputField label="Model" value={formData.model} onChange={(e:any) => handleChange('model', e.target.value)} required readOnly />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <InputField label="SIPP Code" value={formData.sippCode} onChange={(e:any) => handleChange('sippCode', e.target.value)} required />
-                        <InputField label="Year" type="number" value={formData.year} onChange={(e:any) => handleChange('year', parseInt(e.target.value))} required />
+                        <InputField label="Year" type="number" value={formData.year} onChange={(e:any) => handleChange('year', parseInt(e.target.value))} required readOnly />
                     </div>
                 </div>
 
@@ -1003,8 +1003,8 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                             </select>
                         </div>
                     </div>
-                    <InputField label="Category" value={formData.category} onChange={(e:any) => handleChange('category', e.target.value)} />
-                    <InputField label="Image URL" value={formData.imageUrl} onChange={(e:any) => handleChange('imageUrl', e.target.value)} placeholder="https://..." />
+                    <InputField label="Category" value={formData.category} onChange={(e:any) => handleChange('category', e.target.value)} readOnly />
+                    <InputField label="Image URL" value={formData.imageUrl} onChange={(e:any) => handleChange('imageUrl', e.target.value)} placeholder="https://..." readOnly />
                 </div>
             </div>
 
@@ -1013,8 +1013,9 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                         <User className="w-3 h-3" /> Capacity
                     </h4>
-                    <InputField label="Passengers" type="number" value={formData.passengers} onChange={(e:any) => handleChange('passengers', parseInt(e.target.value))} />
-                    <InputField label="Large Bags" type="number" value={formData.bags} onChange={(e:any) => handleChange('bags', parseInt(e.target.value))} />
+                    <InputField label="Passengers" type="number" value={formData.passengers} onChange={(e:any) => handleChange('passengers', parseInt(e.target.value))} readOnly />
+                    <InputField label="Large Bags" type="number" value={formData.bags} onChange={(e:any) => handleChange('bags', parseInt(e.target.value))} readOnly />
+                    <InputField label="Doors" type="number" value={formData.doors} onChange={(e:any) => handleChange('doors', parseInt(e.target.value))} readOnly />
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 space-y-3">
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
