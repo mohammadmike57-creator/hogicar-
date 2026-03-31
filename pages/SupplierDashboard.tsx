@@ -5,7 +5,7 @@ import {
   Settings, Package, MapPin, Zap, Clock, Shield, Plus, Edit, 
   Trash2, Search, Filter, ChevronRight, History, TrendingUp,
   Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
-  Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock
+  Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, isAfter, isBefore, addDays, subDays } from 'date-fns';
@@ -837,7 +837,30 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
 
             {/* Strategy Overview */}
             {config && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="space-y-8">
+                    {selectedLocation !== 'global' && !config.locationCode && (
+                        <div className="p-6 bg-orange-50 border border-orange-100 rounded-[2rem] flex items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white rounded-2xl shadow-sm">
+                                    <Globe className="w-6 h-6 text-orange-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-gray-900 uppercase tracking-widest">Using Global Strategy</p>
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+                                        This location doesn't have a custom configuration yet.
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setIsConfigModalOpen(true)}
+                                className="px-6 py-3 bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
+                            >
+                                Customize for this location
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="p-3 bg-orange-50 rounded-2xl">
@@ -911,6 +934,7 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                             )}
                         </div>
                     </div>
+                </div>
                 </div>
             )}
 
