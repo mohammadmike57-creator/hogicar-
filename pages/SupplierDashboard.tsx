@@ -139,7 +139,7 @@ const SupplierDashboard = () => {
       confirmedBookings,
       totalRevenue,
       pendingCount,
-      activeCars: cars.filter(c => c.isAvailable || (c as any).available).length,
+      activeCars: cars.filter(c => c.isAvailable || c.available).length,
       totalCars: cars.length
     };
   }, [bookings, cars]);
@@ -628,12 +628,12 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
             >
                 <div className="relative h-48 bg-gray-50 flex items-center justify-center p-8 overflow-hidden">
                     <img 
-                        src={car.image || (car as any).imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
+                        src={car.imageUrl || car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
                         className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
                         alt={car.name} 
                     />
                     <div className="absolute top-4 left-4">
-                        <Badge variant={(car.isAvailable || (car as any).available) ? 'success' : 'error'}>{(car.isAvailable || (car as any).available) ? 'Available' : 'Maintenance'}</Badge>
+                        <Badge variant={(car.isAvailable || car.available) ? 'success' : 'error'}>{(car.isAvailable || car.available) ? 'Available' : 'Maintenance'}</Badge>
                     </div>
                 </div>
                 <div className="p-8">
@@ -913,7 +913,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     if (selectedModel) {
         setFormData((prev: any) => ({
             ...prev,
-            name: `${selectedModel.make} ${selectedModel.model}`,
+            name: `${selectedModel.make} ${selectedModel.model} or Similar`,
             make: selectedModel.make,
             model: selectedModel.model,
             year: selectedModel.year || prev.year,
@@ -971,14 +971,14 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <Briefcase className="w-4 h-4 text-orange-600" />
                         <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Primary Specs</h3>
                     </div>
-                    <InputField label="Display Name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required readOnly />
+                    <InputField label="Display Name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required readOnly={!!formData.carModelId} />
                     <div className="grid grid-cols-2 gap-4">
-                        <InputField label="Make" value={formData.make} onChange={(e:any) => handleChange('make', e.target.value)} required readOnly />
-                        <InputField label="Model" value={formData.model} onChange={(e:any) => handleChange('model', e.target.value)} required readOnly />
+                        <InputField label="Make" value={formData.make} onChange={(e:any) => handleChange('make', e.target.value)} required readOnly={!!formData.carModelId} />
+                        <InputField label="Model" value={formData.model} onChange={(e:any) => handleChange('model', e.target.value)} required readOnly={!!formData.carModelId} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <InputField label="SIPP Code" value={formData.sippCode} onChange={(e:any) => handleChange('sippCode', e.target.value)} required />
-                        <InputField label="Year" type="number" value={formData.year} onChange={(e:any) => handleChange('year', parseInt(e.target.value))} required readOnly />
+                        <InputField label="Year" type="number" value={formData.year} onChange={(e:any) => handleChange('year', parseInt(e.target.value))} required readOnly={!!formData.carModelId} />
                     </div>
                 </div>
 
@@ -1003,8 +1003,8 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                             </select>
                         </div>
                     </div>
-                    <InputField label="Category" value={formData.category} onChange={(e:any) => handleChange('category', e.target.value)} readOnly />
-                    <InputField label="Image URL" value={formData.imageUrl} onChange={(e:any) => handleChange('imageUrl', e.target.value)} placeholder="https://..." readOnly />
+                    <InputField label="Category" value={formData.category} onChange={(e:any) => handleChange('category', e.target.value)} readOnly={!!formData.carModelId} />
+                    <InputField label="Image URL" value={formData.imageUrl} onChange={(e:any) => handleChange('imageUrl', e.target.value)} placeholder="https://..." readOnly={!!formData.carModelId} />
                 </div>
             </div>
 
@@ -1013,9 +1013,9 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                         <User className="w-3 h-3" /> Capacity
                     </h4>
-                    <InputField label="Passengers" type="number" value={formData.passengers} onChange={(e:any) => handleChange('passengers', parseInt(e.target.value))} readOnly />
-                    <InputField label="Large Bags" type="number" value={formData.bags} onChange={(e:any) => handleChange('bags', parseInt(e.target.value))} readOnly />
-                    <InputField label="Doors" type="number" value={formData.doors} onChange={(e:any) => handleChange('doors', parseInt(e.target.value))} readOnly />
+                    <InputField label="Passengers" type="number" value={formData.passengers} onChange={(e:any) => handleChange('passengers', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
+                    <InputField label="Large Bags" type="number" value={formData.bags} onChange={(e:any) => handleChange('bags', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
+                    <InputField label="Doors" type="number" value={formData.doors} onChange={(e:any) => handleChange('doors', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 space-y-3">
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">

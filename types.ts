@@ -172,11 +172,13 @@ export interface Car {
   doors: number;
   airCon: boolean;
   image: string;
+  imageUrl?: string;
   galleryImages?: string[];
   supplier: Supplier;
   features: string[];
   fuelPolicy: FuelPolicy;
   isAvailable: boolean;
+  available?: boolean;
   location: string;
   locationId?: string; // Link to specific Location record
   

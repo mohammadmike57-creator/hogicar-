@@ -1119,7 +1119,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
     year: new Date().getFullYear(), 
     category: 'ECONOMY', 
     type: 'SEDAN', 
-    image: '', 
+    imageUrl: '', 
     passengers: 5, 
     bags: 3, 
     doors: 4 
@@ -1129,23 +1129,15 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
     if (carModel) {
       setModel({
         ...carModel,
-        image: carModel.image || carModel.imageUrl
+        imageUrl: carModel.imageUrl || carModel.image
       });
     } 
   }, [carModel]);
 
   const handleChange = (field: string, val: any) => setModel({ ...model, [field]: val });
 
-  const handleImage = (e: any) => { 
-    if (e.target.files?.[0]) { 
-      const reader = new FileReader(); 
-      reader.onloadend = () => handleChange('image', reader.result); 
-      reader.readAsDataURL(e.target.files[0]); 
-    } 
-  };
-
   const handleSave = () => { 
-    if (!model.make || !model.model || (!model.image && !model.imageUrl)) return alert("Required fields: Make, Model, and Image are required."); 
+    if (!model.make || !model.model || !model.imageUrl) return alert("Required fields: Make, Model, and Image URL are required."); 
     onSave(model); 
   };
 
@@ -1175,20 +1167,23 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
       </div>
 
       <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (PNG Recommended)</label>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image URL)</label>
         <div className="flex gap-4 items-center">
           <div className="w-32 h-20 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2">
-            {(model.image || model.imageUrl) ? (
-              <img src={model.image || model.imageUrl} className="max-w-full max-h-full object-contain" />
+            {model.imageUrl ? (
+              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" />
             ) : (
               <ImageIcon className="w-8 h-8 text-gray-200" />
             )}
           </div>
-          <label className="flex-grow flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-4 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer group">
-            <Plus className="w-5 h-5 text-gray-400 group-hover:text-orange-500 mb-1" />
-            <span className="text-xs font-bold text-gray-500 group-hover:text-orange-600">Click to Upload Image</span>
-            <input type="file" className="hidden" accept="image/*" onChange={handleImage}/>
-          </label>
+          <div className="flex-grow">
+            <InputField 
+                label="Direct Image URL" 
+                placeholder="https://..." 
+                value={model.imageUrl} 
+                onChange={(e: any) => handleChange('imageUrl', e.target.value)} 
+            />
+          </div>
         </div>
       </div>
 
