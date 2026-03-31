@@ -1142,7 +1142,10 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
     const [localConfig, setLocalConfig] = useState<TemplateConfig>({
         currency: 'USD',
         bands: [],
-        periods: []
+        periods: [],
+        minBookingLeadTime: 0,
+        gracePeriodHours: 0,
+        oneWayFee: 0
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -1241,6 +1244,37 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
                         <p className="text-[10px] font-bold text-blue-800 leading-relaxed uppercase tracking-wider">
                             Global currency for all rates in the generated XLSX template.
                         </p>
+                    </div>
+                </div>
+
+                {/* Booking Conditions */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3">
+                        <Settings className="w-5 h-5 text-orange-600" />
+                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Booking Conditions</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <InputField 
+                            label="Min Lead Time (Hrs)" 
+                            type="number" 
+                            icon={Clock}
+                            value={localConfig.minBookingLeadTime || ''} 
+                            onChange={(e: any) => setLocalConfig({...localConfig, minBookingLeadTime: parseInt(e.target.value) || 0})} 
+                        />
+                        <InputField 
+                            label="Grace Period (Hrs)" 
+                            type="number" 
+                            icon={RefreshCw}
+                            value={localConfig.gracePeriodHours || ''} 
+                            onChange={(e: any) => setLocalConfig({...localConfig, gracePeriodHours: parseInt(e.target.value) || 0})} 
+                        />
+                        <InputField 
+                            label={`One Way Fee (${localConfig.currency})`} 
+                            type="number" 
+                            icon={DollarSign}
+                            value={localConfig.oneWayFee || ''} 
+                            onChange={(e: any) => setLocalConfig({...localConfig, oneWayFee: parseFloat(e.target.value) || 0})} 
+                        />
                     </div>
                 </div>
 

@@ -480,6 +480,9 @@ export interface TemplateConfig {
   currency: string;
   bands: BandConfig[]; // Global bands
   periods: PeriodConfig[];
+  oneWayFee?: number;
+  gracePeriodHours?: number;
+  minBookingLeadTime?: number;
 }
 
 export interface CarRateBand {
