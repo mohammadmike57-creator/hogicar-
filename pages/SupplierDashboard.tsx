@@ -654,6 +654,7 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
 
     const fetchConfig = async () => {
         setIsLoading(true);
@@ -754,11 +755,21 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                         <h3 className="text-2xl font-black tracking-tighter mb-2">Configure Rate Template</h3>
                         <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Define seasons, periods, and day bands</p>
                     </div>
-                    <button className="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
+                    <button 
+                        onClick={() => setIsConfigModalOpen(true)}
+                        className="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
+                    >
                         Edit Structure
                     </button>
                 </div>
             </div>
+
+            <TemplateConfigModal 
+                isOpen={isConfigModalOpen} 
+                onClose={() => setIsConfigModalOpen(false)} 
+                config={config} 
+                onSave={fetchConfig} 
+            />
         </motion.div>
     );
 };
@@ -975,5 +986,162 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
         </div>
     </motion.div>
 );
+
+// ==================== TemplateConfigModal Component ====================
+const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
+    const [localConfig, setLocalConfig] = useState<TemplateConfig>({
+        currency: 'USD',
+        bands: [],
+        periods: []
+    });
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && config) {
+            setLocalConfig(config);
+        }
+    }, [isOpen, config]);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await supplierApi.saveTemplateConfig(localConfig);
+            onSave();
+            onClose();
+        } catch (e) {
+            alert("Failed to save template configuration");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const addBand = () => {
+        const newBand = { minDays: 1, maxDays: 3, perMonth: false, label: '' };
+        setLocalConfig({ ...localConfig, bands: [...localConfig.bands, newBand] });
+    };
+
+    const removeBand = (index: number) => {
+        const newBands = [...localConfig.bands];
+        newBands.splice(index, 1);
+        setLocalConfig({ ...localConfig, bands: newBands });
+    };
+
+    const updateBand = (index: number, field: string, value: any) => {
+        const newBands = [...localConfig.bands];
+        newBands[index] = { ...newBands[index], [field]: value };
+        setLocalConfig({ ...localConfig, bands: newBands });
+    };
+
+    const addPeriod = () => {
+        const newPeriod = { 
+            name: 'New Season', 
+            startDate: format(new Date(), 'yyyy-MM-dd'), 
+            endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd'), 
+            usePreviousBands: true, 
+            bands: [] 
+        };
+        setLocalConfig({ ...localConfig, periods: [...localConfig.periods, newPeriod] });
+    };
+
+    const removePeriod = (index: number) => {
+        const newPeriods = [...localConfig.periods];
+        newPeriods.splice(index, 1);
+        setLocalConfig({ ...localConfig, periods: newPeriods });
+    };
+
+    const updatePeriod = (index: number, field: string, value: any) => {
+        const newPeriods = [...localConfig.periods];
+        newPeriods[index] = { ...newPeriods[index], [field]: value };
+        setLocalConfig({ ...localConfig, periods: newPeriods });
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title="Configure Rate Template" size="lg">
+            <div className="space-y-10">
+                {/* Global Currency */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Template Currency</label>
+                        <select 
+                            value={localConfig.currency} 
+                            onChange={e => setLocalConfig({...localConfig, currency: e.target.value})}
+                            className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                        >
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JOD">JOD - Jordanian Dinar</option>
+                        </select>
+                    </div>
+                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start gap-3">
+                        <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5" />
+                        <p className="text-[10px] font-bold text-blue-800 leading-relaxed uppercase tracking-wider">
+                            Global currency for all rates in the generated XLSX template.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Day Bands */}
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <Clock className="w-5 h-5 text-orange-600" />
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Global Day Bands</h3>
+                        </div>
+                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Band</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {localConfig.bands.map((band, idx) => (
+                            <div key={idx} className="bg-gray-50/50 p-6 rounded-3xl border border-gray-100 relative group">
+                                <button onClick={() => removeBand(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <InputField label="Min Days" type="number" value={band.minDays} onChange={(e:any) => updateBand(idx, 'minDays', parseInt(e.target.value))} />
+                                    <InputField label="Max Days" type="number" value={band.maxDays || ''} onChange={(e:any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
+                                </div>
+                                <div className="mt-4">
+                                    <InputField label="Band Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Seasons / Periods */}
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <Calendar className="w-5 h-5 text-orange-600" />
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Pricing Seasons</h3>
+                        </div>
+                        <button onClick={addPeriod} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Season</button>
+                    </div>
+                    <div className="space-y-4">
+                        {localConfig.periods.map((period, idx) => (
+                            <div key={idx} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative group hover:border-orange-200 transition-all">
+                                <button onClick={() => removePeriod(idx)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <InputField label="Season Name" value={period.name} onChange={(e:any) => updatePeriod(idx, 'name', e.target.value)} />
+                                    <InputField label="Start Date" type="date" value={period.startDate} onChange={(e:any) => updatePeriod(idx, 'startDate', e.target.value)} />
+                                    <InputField label="End Date" type="date" value={period.endDate} onChange={(e:any) => updatePeriod(idx, 'endDate', e.target.value)} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex gap-4 pt-6 border-t border-gray-50">
+                    <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition-all">Cancel</button>
+                    <button onClick={handleSave} disabled={isSaving} className="flex-[2] py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 hover:scale-[1.02] transition-all disabled:opacity-50">
+                        {isSaving ? 'Saving Configuration...' : 'Save Rate Structure'}
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    );
+};
 
 export default SupplierDashboard;

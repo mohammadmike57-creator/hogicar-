@@ -210,7 +210,7 @@ export const supplierApi = {
     supplierAxios.post(`${API_BASE_URL}/api/bookings/${id}/supplier-confirm`, { supplierConfirmationNumber: confirmationNumber }),
   
   getTemplateConfig: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template-config`),
-  saveTemplateConfig: (config: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/rates/template-config`, config),
+  saveTemplateConfig: (config: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/rates/template-config`, config),
   downloadTemplate: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template`, { responseType: 'blob' }),
   importRates: (file: File) => {
     const formData = new FormData();
