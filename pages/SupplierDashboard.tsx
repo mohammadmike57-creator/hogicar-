@@ -866,10 +866,17 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                             <div className="p-3 bg-orange-50 rounded-2xl">
                                 <Calendar className="w-6 h-6 text-orange-600" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                                 <h3 className="text-xl font-black text-gray-900 tracking-tight">Active Pricing Seasons</h3>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Defined time periods for dynamic rates</p>
                             </div>
+                            <button 
+                                onClick={() => setIsConfigModalOpen(true)}
+                                className="p-2 hover:bg-orange-50 rounded-xl text-orange-600 transition-all"
+                                title="Edit Strategy"
+                            >
+                                <Edit className="w-5 h-5" />
+                            </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {config.periods.map((p, idx) => (
@@ -893,10 +900,17 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                             <div className="p-3 bg-blue-50 rounded-2xl">
                                 <Clock className="w-6 h-6 text-blue-600" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                                 <h3 className="text-xl font-black text-gray-900 tracking-tight">Operational Rules</h3>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Booking & Duration Constraints</p>
                             </div>
+                            <button 
+                                onClick={() => setIsConfigModalOpen(true)}
+                                className="p-2 hover:bg-blue-50 rounded-xl text-blue-600 transition-all"
+                                title="Edit Constraints"
+                            >
+                                <Edit className="w-5 h-5" />
+                            </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mb-6">
@@ -919,6 +933,10 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                             <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Max Lead Time</p>
                                 <p className="text-[10px] font-black text-gray-900">{config.maxBookingLeadTimeDays || 365} Days</p>
+                            </div>
+                            <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">One Way Fee</p>
+                                <p className="text-[10px] font-black text-gray-900">{config.oneWayFee || 0} {config.currency}</p>
                             </div>
                         </div>
 
