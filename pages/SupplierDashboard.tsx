@@ -687,7 +687,7 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
         onClose={() => setIsModalOpen(false)} 
         car={editingCar} 
         supplier={supplier} 
-        onSave={fetchCars} 
+        onSave={() => { fetchCars(); setActiveSection('fleet'); }} 
       />
     </motion.div>
   );
@@ -914,9 +914,11 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
     deposit: 0, excess: 0, unlimitedMileage: true, available: true,
     locationCode: supplier?.locationCode || '',
+    locationName: '',
   });
   const [carModels, setCarModels] = useState<CarModel[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCustomLocation, setIsCustomLocation] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -927,7 +929,9 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
         passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
         deposit: 0, excess: 0, unlimitedMileage: true, available: true,
         locationCode: supplier?.locationCode || '',
+        locationName: '',
       });
+      setIsCustomLocation(false);
       supplierApi.getCarModels().then(res => setCarModels(res.data)).catch(console.error);
     }
   }, [isOpen, car, supplier]);
@@ -956,7 +960,8 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     try {
       if (car?.id) await supplierApi.updateCar(car.id, formData);
       else await supplierApi.createCar(formData);
-      onSave(); onClose();
+      onSave(); 
+      onClose();
     } catch (e) { alert("Failed to save car"); }
     finally { setIsSaving(false); }
   };
@@ -1058,6 +1063,61 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-orange-600 transition-colors">Unlimited Mileage</span>
                     </label>
                 </div>
+            </div>
+
+            <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-slate-200 rounded-xl">
+                            <MapPin className="w-5 h-5 text-slate-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider">Availability & Location</h3>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Where this vehicle can be picked up</p>
+                        </div>
+                    </div>
+                    <button 
+                        type="button"
+                        onClick={() => setIsCustomLocation(!isCustomLocation)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCustomLocation ? 'bg-orange-600 text-white' : 'bg-white text-slate-400 border border-slate-200'}`}
+                    >
+                        {isCustomLocation ? 'Using Custom Location' : '+ Create New Location'}
+                    </button>
+                </div>
+
+                {isCustomLocation ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+                        <InputField 
+                            label="New Location Code (e.g. DXB, LHR)" 
+                            value={formData.locationCode} 
+                            onChange={(e:any) => handleChange('locationCode', e.target.value.toUpperCase())} 
+                            placeholder="IATA Code"
+                            required
+                        />
+                        <InputField 
+                            label="Location Display Name" 
+                            value={formData.locationName} 
+                            onChange={(e:any) => handleChange('locationName', e.target.value)} 
+                            placeholder="e.g. Dubai Intl Airport"
+                            required
+                        />
+                    </div>
+                ) : (
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Existing Location</label>
+                        <select 
+                            value={formData.locationCode} 
+                            onChange={e => handleChange('locationCode', e.target.value)} 
+                            className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                            required
+                        >
+                            <option value="">Choose a location...</option>
+                            {supplier?.locations?.map((loc: any) => (
+                                <option key={loc.id} value={loc.locationCode}>{loc.displayName} ({loc.locationCode})</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
             </div>
 
             <div className="flex gap-4 pt-6">
