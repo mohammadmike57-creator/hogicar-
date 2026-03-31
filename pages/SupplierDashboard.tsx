@@ -853,10 +853,34 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                                 <Clock className="w-6 h-6 text-blue-600" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Day Bands</h3>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Global duration brackets</p>
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Operational Rules</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Booking & Duration Constraints</p>
                             </div>
                         </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Min Duration</p>
+                                <p className="text-[10px] font-black text-gray-900">{config.minRentalDays || 1} Days</p>
+                            </div>
+                            <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Max Duration</p>
+                                <p className="text-[10px] font-black text-gray-900">{config.maxRentalDays || 30} Days</p>
+                            </div>
+                            <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Min Lead Time</p>
+                                <p className="text-[10px] font-black text-gray-900">{config.minBookingLeadTime || 0} Hrs</p>
+                            </div>
+                            <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Grace Period</p>
+                                <p className="text-[10px] font-black text-gray-900">{config.gracePeriodHours || 0} Hrs</p>
+                            </div>
+                            <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Max Lead Time</p>
+                                <p className="text-[10px] font-black text-gray-900">{config.maxBookingLeadTimeDays || 365} Days</p>
+                            </div>
+                        </div>
+
                         <div className="space-y-3">
                             {config.bands.map((b, idx) => (
                                 <div key={idx} className="flex justify-between items-center p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
@@ -1145,7 +1169,10 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
         periods: [],
         minBookingLeadTime: 0,
         gracePeriodHours: 0,
-        oneWayFee: 0
+        oneWayFee: 0,
+        minRentalDays: 1,
+        maxRentalDays: 30,
+        maxBookingLeadTimeDays: 365
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -1274,6 +1301,27 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
                             icon={DollarSign}
                             value={localConfig.oneWayFee || ''} 
                             onChange={(e: any) => setLocalConfig({...localConfig, oneWayFee: parseFloat(e.target.value) || 0})} 
+                        />
+                        <InputField 
+                            label="Min. Duration (Days)" 
+                            type="number" 
+                            icon={Calendar}
+                            value={localConfig.minRentalDays || ''} 
+                            onChange={(e: any) => setLocalConfig({...localConfig, minRentalDays: parseInt(e.target.value) || 0})} 
+                        />
+                        <InputField 
+                            label="Max. Duration (Days)" 
+                            type="number" 
+                            icon={Calendar}
+                            value={localConfig.maxRentalDays || ''} 
+                            onChange={(e: any) => setLocalConfig({...localConfig, maxRentalDays: parseInt(e.target.value) || 0})} 
+                        />
+                        <InputField 
+                            label="Max. Lead Time (Days)" 
+                            type="number" 
+                            icon={Zap}
+                            value={localConfig.maxBookingLeadTimeDays || ''} 
+                            onChange={(e: any) => setLocalConfig({...localConfig, maxBookingLeadTimeDays: parseInt(e.target.value) || 0})} 
                         />
                     </div>
                 </div>

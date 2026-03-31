@@ -483,6 +483,9 @@ export interface TemplateConfig {
   oneWayFee?: number;
   gracePeriodHours?: number;
   minBookingLeadTime?: number;
+  minRentalDays?: number;
+  maxRentalDays?: number;
+  maxBookingLeadTimeDays?: number;
 }
 
 export interface CarRateBand {
