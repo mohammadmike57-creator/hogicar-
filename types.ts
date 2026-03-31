@@ -478,6 +478,7 @@ export interface PeriodConfig {
 
 export interface TemplateConfig {
   currency: string;
+  locationCode?: string;
   bands: BandConfig[]; // Global bands
   periods: PeriodConfig[];
   oneWayFee?: number;

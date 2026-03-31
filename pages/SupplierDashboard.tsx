@@ -700,25 +700,29 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState<string>('global');
 
     const fetchConfig = async () => {
         setIsLoading(true);
         try {
-            const res = await supplierApi.getTemplateConfig();
+            const locCode = selectedLocation === 'global' ? undefined : selectedLocation;
+            const res = await supplierApi.getTemplateConfig(locCode);
             setConfig(res.data);
         } catch (e) { console.error(e); }
         finally { setIsLoading(false); }
     };
 
-    useEffect(() => { fetchConfig(); }, []);
+    useEffect(() => { fetchConfig(); }, [selectedLocation]);
 
     const handleDownload = async () => {
         try {
-            const res = await supplierApi.downloadTemplate();
+            const locCode = selectedLocation === 'global' ? undefined : selectedLocation;
+            const res = await supplierApi.downloadTemplate(locCode);
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `HogiCar_Rates_${supplier.name.replace(/\s/g, '_')}.xlsx`);
+            const filenameSuffix = selectedLocation === 'global' ? 'Global' : selectedLocation;
+            link.setAttribute('download', `HogiCar_Rates_${supplier.name.replace(/\s/g, '_')}_${filenameSuffix}.xlsx`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -738,8 +742,22 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
 
     return (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <SectionHeader title="Rates Management" icon={DollarSign} subtitle="Dynamic pricing and bulk imports" />
+                
+                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
+                    <MapPin className="w-4 h-4 text-gray-400 ml-2" />
+                    <select 
+                        value={selectedLocation} 
+                        onChange={(e) => setSelectedLocation(e.target.value)}
+                        className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-gray-900 outline-none pr-8 cursor-pointer"
+                    >
+                        <option value="global">Global Strategy</option>
+                        {supplier.locations?.map((loc) => (
+                            <option key={loc.value} value={loc.value}>{loc.label || loc.value}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -901,6 +919,7 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                 onClose={() => setIsConfigModalOpen(false)} 
                 config={config} 
                 onSave={fetchConfig} 
+                locationCode={selectedLocation}
             />
         </motion.div>
     );
@@ -1222,7 +1241,7 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
 );
 
 // ==================== TemplateConfigModal Component ====================
-const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
+const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode }: any) => {
     const [localConfig, setLocalConfig] = useState<TemplateConfig>({
         currency: 'USD',
         bands: [],
@@ -1232,15 +1251,34 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave }: any) => {
         oneWayFee: 0,
         minRentalDays: 1,
         maxRentalDays: 30,
-        maxBookingLeadTimeDays: 365
+        maxBookingLeadTimeDays: 365,
+        locationCode: locationCode === 'global' ? undefined : locationCode
     });
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        if (isOpen && config) {
-            setLocalConfig(config);
+        if (isOpen) {
+            if (config) {
+                setLocalConfig({
+                    ...config,
+                    locationCode: locationCode === 'global' ? undefined : locationCode
+                });
+            } else {
+                setLocalConfig({
+                    currency: 'USD',
+                    bands: [],
+                    periods: [],
+                    minBookingLeadTime: 0,
+                    gracePeriodHours: 0,
+                    oneWayFee: 0,
+                    minRentalDays: 1,
+                    maxRentalDays: 30,
+                    maxBookingLeadTimeDays: 365,
+                    locationCode: locationCode === 'global' ? undefined : locationCode
+                });
+            }
         }
-    }, [isOpen, config]);
+    }, [isOpen, config, locationCode]);
 
     const handleSave = async () => {
         setIsSaving(true);
