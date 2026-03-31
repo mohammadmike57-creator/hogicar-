@@ -1167,20 +1167,59 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
       </div>
 
       <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image URL)</label>
-        <div className="flex gap-4 items-center">
-          <div className="w-32 h-20 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2">
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image)</label>
+        <div className="flex gap-4 items-start">
+          <div className="w-32 h-20 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
-              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" />
+              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" />
             ) : (
               <ImageIcon className="w-8 h-8 text-gray-200" />
             )}
           </div>
-          <div className="flex-grow">
+          <div className="flex-grow space-y-4">
+            <div className="space-y-1.5">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload Photo</label>
+                <div className="flex gap-2">
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        id="car-model-image-upload"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                    handleChange('imageUrl', reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        }}
+                        className="hidden"
+                    />
+                    <label 
+                        htmlFor="car-model-image-upload"
+                        className="flex-grow flex items-center justify-center gap-2 px-4 py-2 bg-white text-orange-600 rounded-xl border border-orange-100 font-bold text-xs cursor-pointer hover:bg-orange-50 transition-colors shadow-sm"
+                    >
+                        <PlusCircle className="w-4 h-4" />
+                        Choose File
+                    </label>
+                    {model.imageUrl && (
+                        <button 
+                            type="button" 
+                            onClick={() => handleChange('imageUrl', '')}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-xl border border-red-100 transition-all bg-white shadow-sm"
+                            title="Clear image"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+            </div>
+            
             <InputField 
-                label="Direct Image URL" 
+                label="Or Direct Image URL" 
                 placeholder="https://..." 
-                value={model.imageUrl} 
+                value={model.imageUrl?.startsWith('data:') ? 'Local Image (Base64)' : model.imageUrl || ''} 
                 onChange={(e: any) => handleChange('imageUrl', e.target.value)} 
             />
           </div>
@@ -1390,7 +1429,7 @@ export const AdminDashboard: React.FC = () => {
             year: model.year,
             category: model.category,
             type: model.type,
-            imageUrl: model.image || model.imageUrl,
+            imageUrl: model.imageUrl || model.image, // Prefer updated imageUrl
             passengers: model.passengers,
             bags: model.bags,
             doors: model.doors
