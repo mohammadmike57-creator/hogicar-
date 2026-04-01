@@ -496,7 +496,13 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
           <div className="flex flex-col items-center">
             <div className="relative group w-28 h-28">
                 {editedSupplier.logo || editedSupplier.logoUrl ? (
-                    <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-2xl object-cover shadow-xl border-4 border-white" />
+                    <img 
+                        src={editedSupplier.logo || editedSupplier.logoUrl} 
+                        className="w-full h-full rounded-2xl object-cover shadow-xl border-4 border-white" 
+                        alt="Logo"
+                        width={200}
+                        height={200}
+                    />
                 ) : (
                     <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-200 shadow-sm group-hover:border-orange-200 transition-colors">
                         <Building className="w-10 h-10 text-gray-300 group-hover:text-orange-200"/>
@@ -960,7 +966,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
               <tr key={m.id} className="hover:bg-orange-50/30 transition-colors group">
                 <td className="px-8 py-4">
                   <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-orange-200 transition-colors">
-                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" />
+                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width={400} height={250} />
                   </div>
                 </td>
                 <td className="px-8 py-4">
@@ -1032,7 +1038,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-orange-200 transition-colors">
-                                    <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'}/>
+                                    <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width={40} height={40}/>
                                 </div>
                                 <div>
                                     <div className="text-[13px] font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-tight">{s.name}</div>
@@ -1201,7 +1207,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
             <tr key={c.id} className="hover:bg-orange-50/30 transition-colors">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" />
+                    <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width={48} height={32} />
                     <div>
                         <div className="text-sm font-bold text-gray-800">{c.displayName}</div>
                         <div className="text-[10px] text-gray-400 uppercase tracking-tighter">{c.make} {c.model}</div>
@@ -1323,7 +1329,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
         <div className="flex gap-4 items-start">
           <div className="w-32 h-20 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
-              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" />
+              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width={400} height={250} />
             ) : (
               <ImageIcon className="w-8 h-8 text-gray-200" />
             )}

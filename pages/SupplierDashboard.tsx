@@ -630,7 +630,9 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
                     <img 
                         src={car.imageUrl || car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
                         className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
-                        alt={car.name} 
+                        alt={car.name}
+                        width={400}
+                        height={250}
                     />
                     <div className="absolute top-4 left-4">
                         <Badge variant={(car.isAvailable || car.available) ? 'success' : 'error'}>{(car.isAvailable || car.available) ? 'Available' : 'Maintenance'}</Badge>
@@ -1258,7 +1260,7 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
                 <div className="flex items-center gap-4 mb-4">
-                    <img src={supplier.logoUrl} className="w-20 h-20 rounded-[2rem] object-cover border-2 border-orange-500 shadow-lg" alt="Logo" />
+                    <img src={supplier.logoUrl} className="w-20 h-20 rounded-[2rem] object-cover border-2 border-orange-500 shadow-lg" alt="Logo" width={80} height={80} />
                     <div>
                         <h3 className="text-xl font-black text-gray-900 tracking-tight">{supplier.name}</h3>
                         <Badge variant="success">Verified Supplier</Badge>
