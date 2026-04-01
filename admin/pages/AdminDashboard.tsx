@@ -38,7 +38,7 @@ import {
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
-                'homepage' | 'sitesettings' | 'promotions';
+                'homepage' | 'sitesettings' | 'promotions' | 'globallocations';
 
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
@@ -94,6 +94,130 @@ const SelectField = ({ label, options, error, ...props }: any) => (
 const TextAreaField = ({ label, ...props }: any) => (
   <div className="space-y-1"><label className="block text-xs font-medium text-gray-600">{label}</label><textarea {...props} className="w-full px-3 py-2 border border-gray-200 rounded-xl" /></div>
 );
+
+const GlobalLocationsContent = () => {
+  const [locations, setLocations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState('');
+  const [form, setForm] = useState<any>({ iataCode: '', name: '', municipality: '', countryCode: '' });
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await adminFetch('/api/admin/locations');
+      setLocations(res);
+    } catch (e: any) {
+      console.error(e);
+      alert('Failed to load locations: ' + e.message);
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = filter.toLowerCase().trim();
+    if (!q) return locations;
+    return locations.filter((l: any) =>
+      (l.iataCode && l.iataCode.toLowerCase().includes(q)) ||
+      (l.name && l.name.toLowerCase().includes(q)) ||
+      (l.municipality && l.municipality.toLowerCase().includes(q))
+    );
+  }, [locations, filter]);
+
+  const resetForm = () => { setForm({ iataCode: '', name: '', municipality: '', countryCode: '' }); setEditingId(null); };
+
+  const handleSave = async () => {
+    if (!form.iataCode || !form.name) { alert('IATA code and Name are required'); return; }
+    setSaving(true);
+    try {
+      if (editingId) {
+        await adminFetch(`/api/admin/locations/${editingId}`, { method: 'PUT', body: JSON.stringify(form) });
+      } else {
+        await adminFetch('/api/admin/locations', { method: 'POST', body: JSON.stringify(form) });
+      }
+      await load();
+      resetForm();
+    } catch (e: any) {
+      alert('Save failed: ' + e.message);
+    } finally { setSaving(false); }
+  };
+
+  const handleEdit = (loc: any) => { setEditingId(loc.id); setForm({ iataCode: loc.iataCode, name: loc.name, municipality: loc.municipality, countryCode: loc.countryCode }); };
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this location?')) return;
+    try {
+      await adminFetch(`/api/admin/locations/${id}`, { method: 'DELETE' });
+      await load();
+    } catch (e: any) { alert('Delete failed: ' + e.message); }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100">
+      <SectionHeader title="Global Locations" subtitle="Manage searchable locations (airports & cities)" icon={Globe} action={null} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by code, city or name..." className="w-full pl-9 pr-3 py-2 border rounded-xl" />
+            </div>
+            <button onClick={load} className="px-3 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </button>
+          </div>
+
+          <div className="overflow-auto rounded-2xl border">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="text-left p-3 font-bold">Code</th>
+                  <th className="text-left p-3 font-bold">Name</th>
+                  <th className="text-left p-3 font-bold">City</th>
+                  <th className="text-left p-3 font-bold">Country</th>
+                  <th className="text-right p-3 font-bold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((l: any) => (
+                  <tr key={l.id} className="border-t">
+                    <td className="p-3 font-mono text-xs">{l.iataCode}</td>
+                    <td className="p-3">{l.name}</td>
+                    <td className="p-3">{l.municipality}</td>
+                    <td className="p-3">{l.countryCode}</td>
+                    <td className="p-3 text-right">
+                      <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-lg bg-orange-50 text-orange-700 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
+                      <button onClick={() => handleDelete(l.id)} className="px-3 py-1.5 text-xs rounded-lg bg-red-50 text-red-700 font-bold"><Trash2 className="w-3 h-3 inline mr-1"/> Delete</button>
+                    </td>
+                  </tr>
+                ))}
+                {!filtered.length && (
+                  <tr><td className="p-6 text-center text-gray-400" colSpan={5}>No locations</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-slate-50/50 rounded-2xl p-4 border">
+          <h3 className="font-black mb-3 text-slate-900">{editingId ? 'Edit Location' : 'Add New Location'}</h3>
+          <div className="space-y-3">
+            <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} />
+            <InputField label="Name" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
+            <InputField label="City" value={form.municipality} onChange={(e: any) => setForm({ ...form, municipality: e.target.value })} />
+            <InputField label="Country Code" value={form.countryCode} onChange={(e: any) => setForm({ ...form, countryCode: e.target.value })} />
+            <div className="flex gap-2 pt-2">
+              <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-2 rounded-xl bg-orange-600 text-white font-bold text-sm disabled:opacity-50"><Save className="w-4 h-4 inline mr-1" /> Save</button>
+              <button onClick={resetForm} className="px-4 py-2 rounded-xl bg-white border font-bold text-sm">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Badge = ({ status }: { status: string }) => {
   const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-orange-100 text-orange-700', approved: 'bg-blue-100 text-blue-700', rejected: 'bg-red-100 text-red-700' };
@@ -182,6 +306,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <NavItem section="seo" label="SEO" icon={Globe} />
           <NavItem section="homepage" label="Assets" icon={ImageIcon} />
           <NavItem section="sitesettings" label="Config" icon={Settings} />
+          <NavItem section="globallocations" label="Global Locations" icon={Globe} />
         </nav>
 
         <div className="mt-8 pt-6 border-t border-gray-50">
@@ -1490,6 +1615,7 @@ export const AdminDashboard: React.FC = () => {
       case 'homepage': return <HomepageContentSection content={homepageContent} categoryImages={categoryImages} onSave={handleSaveHomepage} />;
       case 'sitesettings': return <SiteSettingsContent />;
       case 'promotions': return <PromotionsContent />;
+      case 'globallocations': return <GlobalLocationsContent />;
       default: return null;
     }
   };
