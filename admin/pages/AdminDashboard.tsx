@@ -36,6 +36,43 @@ import {
   RateTier, FeatureItem, StepItem, FaqItem
 } from '../../types';
 
+// ==================== Helper Functions ====================
+const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/png'));
+        } else {
+          reject(new Error("Could not get canvas context"));
+        }
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+};
+
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations';
@@ -440,7 +477,19 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   }, [supplier, isOpen]);
 
   const handleChange = (field: any, val: any) => setEditedSupplier(prev => ({ ...prev, [field]: val }));
-  const handleLogo = (e: any) => { if (e.target.files?.[0]) { const reader = new FileReader(); reader.onloadend = () => handleChange('logo', reader.result); reader.readAsDataURL(e.target.files[0]); } };
+  const handleLogo = async (e: any) => { 
+    if (e.target.files?.[0]) { 
+        try {
+            const resized = await resizeImage(e.target.files[0], 800, 400);
+            handleChange('logo', resized);
+        } catch (err) {
+            console.error("Failed to resize logo", err);
+            const reader = new FileReader(); 
+            reader.onloadend = () => handleChange('logo', reader.result); 
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    } 
+  };
   
   const handleLocSelect = (loc: any) => { 
     if (loc && !selectedLocations.find(l => l.value === loc.value)) {
@@ -501,13 +550,13 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
         {/* Header Section */}
         <div className="flex gap-6 p-6 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100/50">
           <div className="flex flex-col items-center">
-            <div className="relative group w-28 h-28">
+            <div className="relative group w-48 h-32">
                 {editedSupplier.logo || editedSupplier.logoUrl ? (
                     <img 
                         src={editedSupplier.logo || editedSupplier.logoUrl} 
                         className="w-full h-full rounded-2xl object-contain bg-white shadow-xl border-4 border-white" 
                         alt="Logo"
-                        width={200}
+                        width={400}
                         height={200}
                     />
                 ) : (
@@ -521,7 +570,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 </label>
             </div>
             <p className="text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wider">Company Logo</p>
-            <p className="text-[8px] text-gray-400 text-center leading-tight mt-1 max-w-[100px]">Rec: 400x200px<br/>Transparent PNG</p>
+            <p className="text-[8px] text-gray-400 text-center leading-tight mt-1 max-w-[100px]">Auto-resized<br/>to high quality</p>
           </div>
           <div className="flex-grow space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1347,7 +1396,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
       <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image)</label>
         <div className="flex gap-4 items-start">
-          <div className="w-32 h-20 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
+          <div className="w-40 h-28 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
               <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width={400} height={250} />
             ) : (
@@ -1362,14 +1411,20 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                         type="file" 
                         accept="image/*" 
                         id="car-model-image-upload"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    handleChange('imageUrl', reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
+                                try {
+                                    const resized = await resizeImage(file, 1200, 800);
+                                    handleChange('imageUrl', resized);
+                                } catch (err) {
+                                    console.error("Failed to resize car image", err);
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        handleChange('imageUrl', reader.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
                             }
                         }}
                         className="hidden"

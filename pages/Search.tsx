@@ -730,7 +730,7 @@ export const Search: React.FC = () => {
                                   <label key={name} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-blue-600" />
                                       {supplierLogos.get(name) && (
-                                          <img src={supplierLogos.get(name)} alt={name} className="w-5 h-4 ml-2 object-contain" />
+                                         <img src={supplierLogos.get(name)} alt={name} className="w-8 h-6 ml-2 object-contain" />
                                       )}
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{name}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.supplier.get(name) || 0})</span>

@@ -133,7 +133,7 @@ const Home: React.FC = () => {
                 key={s.id || s.name} 
                 src={s.logo || s.logoUrl} 
                 alt={s.name} 
-                className="h-8 md:h-14 w-auto max-w-[120px] md:max-w-[180px] object-contain grayscale hover:grayscale-0 transition-all duration-500 transform hover:scale-110" 
+                className="h-10 md:h-20 w-auto max-w-[150px] md:max-w-[220px] object-contain grayscale hover:grayscale-0 transition-all duration-500 transform hover:scale-110" 
               />
             ))}
           </div>

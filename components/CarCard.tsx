@@ -345,7 +345,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   {/* Bottom Section for Supplier Info */}
                   <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                       <div className="flex items-center gap-5">
-                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 md:h-16 w-auto max-w-[120px] md:max-w-[160px] object-contain" />
+                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 md:h-20 w-auto max-w-[140px] md:max-w-[180px] object-contain" />
                           <div className="border-l border-slate-200 pl-5 group">
                               <div className="flex items-center gap-1 relative">
                                   <div className="bg-blue-600 text-white text-[10px] font-bold w-6 h-5 flex items-center justify-center rounded">
