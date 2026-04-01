@@ -505,7 +505,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 {editedSupplier.logo || editedSupplier.logoUrl ? (
                     <img 
                         src={editedSupplier.logo || editedSupplier.logoUrl} 
-                        className="w-full h-full rounded-2xl object-cover shadow-xl border-4 border-white" 
+                        className="w-full h-full rounded-2xl object-contain bg-white shadow-xl border-4 border-white" 
                         alt="Logo"
                         width={200}
                         height={200}
@@ -521,6 +521,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 </label>
             </div>
             <p className="text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wider">Company Logo</p>
+            <p className="text-[8px] text-gray-400 text-center leading-tight mt-1 max-w-[100px]">Rec: 400x200px<br/>Transparent PNG</p>
           </div>
           <div className="flex-grow space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

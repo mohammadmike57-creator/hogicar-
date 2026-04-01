@@ -175,6 +175,16 @@ export const createBooking = async (bookingData: any): Promise<Booking & { clien
   return response.data;
 };
 
+export const fetchPublicSuppliers = async (): Promise<any[]> => {
+  try {
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/suppliers`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching public suppliers:', error);
+    return [];
+  }
+};
+
 // ---------- Backward‑compatible api object ----------
 export const api = {
   fetchLocations,
@@ -186,6 +196,7 @@ export const api = {
   confirmModification,
   submitReview,
   createBooking,
+  fetchPublicSuppliers,
 };
 
 // ---------- Supplier API ----------

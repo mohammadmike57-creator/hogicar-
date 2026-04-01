@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin } from 'lucide-react';
-import { SUPPLIERS, MOCK_HOMEPAGE_CONTENT } from '../services/mockData';
+import { SUPPLIERS as MOCK_SUPPLIERS, MOCK_HOMEPAGE_CONTENT } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
-import { fetchLocations } from '../api';
+import { fetchLocations, fetchPublicSuppliers } from '../api';
 import { LocationSuggestion } from '../api';
 
 const Home: React.FC = () => {
@@ -18,6 +18,7 @@ const Home: React.FC = () => {
   const [dropoffCode, setDropoffCode] = React.useState<string>('');
   const [pickupName, setPickupName] = React.useState<string>('');
   const [dropoffName, setDropoffName] = React.useState<string>('');
+  const [suppliers, setSuppliers] = React.useState<any[]>([]);
   
   React.useEffect(() => {
     const loadLocations = async () => {
@@ -33,7 +34,22 @@ const Home: React.FC = () => {
          console.error("Failed to load locations on homepage:", error);
       }
     };
+    
+    const loadSuppliers = async () => {
+        try {
+            const realSuppliers = await fetchPublicSuppliers();
+            if (realSuppliers && realSuppliers.length > 0) {
+                setSuppliers(realSuppliers);
+            } else {
+                setSuppliers(MOCK_SUPPLIERS);
+            }
+        } catch (error) {
+            setSuppliers(MOCK_SUPPLIERS);
+        }
+    };
+
     loadLocations();
+    loadSuppliers();
   }, []);
 
   const handleSearch = (params: any) => {
@@ -110,10 +126,15 @@ const Home: React.FC = () => {
       {/* TRUSTED PARTNERS – static grid (no marquee) */}
       <section className="py-8 bg-white">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-4">Trusted by the world's leading car rental suppliers</h2>
-          <div className="flex flex-wrap justify-center items-center gap-8 opacity-80">
-            {SUPPLIERS.map(s => (
-              <img key={s.id} src={s.logo} alt={s.name} className="h-10 md:h-14 object-contain grayscale hover:grayscale-0 transition-all duration-500" />
+          <h2 className="text-2xl font-bold mb-6 text-slate-800 tracking-tight">Trusted by Leading Partners</h2>
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-80">
+            {suppliers.map(s => (
+              <img 
+                key={s.id || s.name} 
+                src={s.logo || s.logoUrl} 
+                alt={s.name} 
+                className="h-8 md:h-14 w-auto max-w-[120px] md:max-w-[180px] object-contain grayscale hover:grayscale-0 transition-all duration-500 transform hover:scale-110" 
+              />
             ))}
           </div>
         </div>
