@@ -30,7 +30,7 @@ import {
   addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
 } from '../../services/mockData';
 import { 
-  Supplier, CommissionType, BookingMode, ApiConnection, ApiPartner, 
+  Supplier, CommissionType, BookingMode, PickupType, ApiConnection, ApiPartner, 
   PageContent, SEOConfig, HomepageContent, CarModel, CarCategory, 
   CarType as VehicleType, Affiliate, SupplierApplication, Car as CarType, 
   RateTier, FeatureItem, StepItem, FaqItem
