@@ -318,7 +318,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
         locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
         bookingMode: editedSupplier.bookingMode || BookingMode.FREE_SALE,
         commissionType: editedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
-        commissionValue: editedSupplier.commissionValue || 0.15,
+        commissionPercent: editedSupplier.commissionPercent || 0.15,
         includesCDW: editedSupplier.includesCDW ?? true,
         includesTP: editedSupplier.includesTP ?? true,
         gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
@@ -417,7 +417,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                     <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={COMMISSION_TYPE_OPTIONS} />
-                    <InputField label="Commission Value" type="number" step="0.01" value={editedSupplier.commissionValue || 0} onChange={e => handleChange('commissionValue', parseFloat(e.target.value))} />
+                    <InputField label="Commission Value (%)" type="number" step="0.01" value={editedSupplier.commissionPercent || 0} onChange={e => handleChange('commissionPercent', parseFloat(e.target.value))} />
                     <SelectField label="Booking Policy" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={BOOKING_MODE_OPTIONS} />
                     <SelectField label="Connection Type" value={editedSupplier.connectionType || 'manual'} onChange={e => handleChange('connectionType', e.target.value)} options={[{value:'manual', label:'Manual Entry'}, {value:'api', label:'Real-time API'}]} />
                 </div>
@@ -1362,7 +1362,7 @@ export const AdminDashboard: React.FC = () => {
         logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
         locations: updatedSupplier.locations || [],
         commissionType: updatedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
-        commissionPercent: updatedSupplier.commissionValue || 0,
+        commissionPercent: updatedSupplier.commissionPercent || 0,
         bookingMode: updatedSupplier.bookingMode || BookingMode.FREE_SALE,
         active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
         password: updatedSupplier.password || undefined,

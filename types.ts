@@ -102,7 +102,7 @@ export interface Supplier {
   rating: number;
   logo: string;
   commissionType: CommissionType;
-  commissionValue: number; // Percentage (e.g., 0.15 for 15%) or Fixed Amount
+  commissionPercent: number; // Percentage (e.g., 25.00 for 25%)
   bookingMode: BookingMode;
   status: 'active' | 'pending' | 'rejected';
   
