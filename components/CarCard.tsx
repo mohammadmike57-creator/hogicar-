@@ -114,7 +114,7 @@ const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier, onCl
                 {/* Header */}
                 <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
                     <div className="flex items-center gap-4">
-                        <img src={supplier.logo} alt={supplier.name} className="h-10 object-contain" />
+                        <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" />
                         <div>
                            <h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3>
                            <p className="text-xs text-slate-500">Provided by {supplier.name}</p>
@@ -345,7 +345,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   {/* Bottom Section for Supplier Info */}
                   <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                       <div className="flex items-center gap-5">
-                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 md:h-20 w-auto max-w-[140px] md:max-w-[180px] object-contain" />
+                          <img src={car.supplier.logo || (car.supplier as any).logoUrl} alt={car.supplier.name} className="h-20 md:h-24 w-auto max-w-[160px] md:max-w-[200px] object-contain" />
                           <div className="border-l border-slate-200 pl-5 group">
                               <div className="flex items-center gap-1 relative">
                                   <div className="bg-blue-600 text-white text-[10px] font-bold w-6 h-5 flex items-center justify-center rounded">

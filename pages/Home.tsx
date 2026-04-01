@@ -123,17 +123,19 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* TRUSTED PARTNERS – static grid (no marquee) */}
-      <section className="py-8 bg-white">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-6 text-slate-800 tracking-tight">Trusted by Leading Partners</h2>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-80">
-            {suppliers.map(s => (
+      {/* TRUSTED PARTNERS – marquee version */}
+      <section className="py-12 bg-white overflow-hidden border-y border-slate-50">
+        <div className="max-w-7xl mx-auto px-4 text-center mb-8">
+          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Trusted by Leading Partners</h2>
+        </div>
+        <div className="relative flex items-center">
+          <div className="animate-marquee flex gap-12 md:gap-24 items-center px-4">
+            {[...suppliers, ...suppliers, ...suppliers].map((s, idx) => (
               <img 
-                key={s.id || s.name} 
+                key={`${s.id || s.name}-${idx}`} 
                 src={s.logo || s.logoUrl} 
                 alt={s.name} 
-                className="h-10 md:h-20 w-auto max-w-[150px] md:max-w-[220px] object-contain grayscale hover:grayscale-0 transition-all duration-500 transform hover:scale-110" 
+                className="h-14 md:h-24 w-auto max-w-[180px] md:max-w-[260px] object-contain transition-transform duration-500 transform hover:scale-110" 
               />
             ))}
           </div>
