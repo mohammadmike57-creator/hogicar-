@@ -5,7 +5,7 @@ import { SUPPLIERS as MOCK_SUPPLIERS, MOCK_HOMEPAGE_CONTENT, GLOBAL_TRUSTED_BRAN
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
-import { fetchLocations, fetchPublicSuppliers } from '../api';
+import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos } from '../api';
 import { LocationSuggestion } from '../api';
 
 const Home: React.FC = () => {
@@ -37,23 +37,46 @@ const Home: React.FC = () => {
     
     const loadSuppliers = async () => {
         try {
-            const realSuppliers = await fetchPublicSuppliers();
-            // Start with global brands for credibility
-            let allSuppliers = [...GLOBAL_TRUSTED_BRANDS];
+            const [realSuppliers, homepageLogos] = await Promise.all([
+                fetchPublicSuppliers(),
+                fetchHomepageLogos()
+            ]);
             
+            let allLogos: any[] = [];
+            
+            // 1. Add admin-managed homepage logos first
+            if (homepageLogos && homepageLogos.length > 0) {
+                allLogos = homepageLogos.map(l => ({
+                    name: l.name,
+                    logo: l.logoUrl
+                }));
+            }
+            
+            // 2. Add active suppliers (with real logos)
             if (realSuppliers && realSuppliers.length > 0) {
-                // Merge real suppliers, avoid duplicates by name
                 realSuppliers.forEach(rs => {
-                    if (!allSuppliers.some(gs => gs.name.toLowerCase() === rs.name.toLowerCase())) {
-                        allSuppliers.push({
+                    const logo = rs.logoUrl || rs.logo;
+                    if (logo && !allLogos.some(l => l.name.toLowerCase() === rs.name.toLowerCase())) {
+                        allLogos.push({
                             name: rs.name,
-                            logo: rs.logoUrl || rs.logo
+                            logo: logo
                         });
                     }
                 });
             }
-            setSuppliers(allSuppliers);
+
+            // 3. Fallback to global brands only if we have very few logos
+            if (allLogos.length < 5) {
+                GLOBAL_TRUSTED_BRANDS.forEach(gb => {
+                    if (!allLogos.some(l => l.name.toLowerCase() === gb.name.toLowerCase())) {
+                        allLogos.push(gb);
+                    }
+                });
+            }
+            
+            setSuppliers(allLogos);
         } catch (error) {
+            console.error('Error loading home suppliers:', error);
             setSuppliers(GLOBAL_TRUSTED_BRANDS);
         }
     };

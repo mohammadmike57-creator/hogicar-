@@ -194,6 +194,16 @@ export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]
   }
 };
 
+export const fetchHomepageLogos = async (): Promise<any[]> => {
+  try {
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/homepage-logos`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching homepage logos:', error);
+    return [];
+  }
+};
+
 // ---------- Backward‑compatible api object ----------
 export const api = {
   fetchLocations,
@@ -206,6 +216,7 @@ export const api = {
   submitReview,
   createBooking,
   fetchPublicSuppliers,
+  fetchHomepageLogos,
 };
 
 // ---------- Supplier API ----------
@@ -260,4 +271,9 @@ export const adminApi = {
   createCarModel: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/car-models`, payload),
   updateCarModel: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/car-models/${id}`, payload),
   deleteCarModel: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/car-models/${id}`),
+  
+  getHomepageLogos: () => adminAxios.get(`${API_BASE_URL}/api/admin/homepage-logos`),
+  createHomepageLogo: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/homepage-logos`, payload),
+  updateHomepageLogo: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/homepage-logos/${id}`, payload),
+  deleteHomepageLogo: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/homepage-logos/${id}`),
 };

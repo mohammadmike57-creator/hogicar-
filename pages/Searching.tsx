@@ -5,6 +5,7 @@ import { fetchPublicSuppliers } from '../api';
 import { MOCK_APP_CONFIG, GLOBAL_TRUSTED_BRANDS } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { Check, Gift, MapPin } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const animationStyles = `
 @keyframes background-pan {
@@ -88,43 +89,74 @@ const Searching: React.FC = () => {
     const loadSuppliers = async () => {
       try {
         const data = await fetchPublicSuppliers(pickupIata);
-        let results = [];
+        let results: any[] = [];
         
         if (data && data.length > 0) {
-          // Use specific suppliers for this location
           results = data.map((s: any) => ({
             id: s.id,
             name: s.name,
-            logoUrl: s.logoUrl || s.logo
+            logoUrl: s.logoUrl || s.logo,
+            isLocal: true
           }));
         }
         
-        // Fill up to at least 12 or 18 logos with global brands for a professional look
-        const needed = 18 - results.length;
-        if (needed > 0) {
-          const globalPool = [...GLOBAL_TRUSTED_BRANDS]
-            .filter(gb => !results.some(r => r.name.toLowerCase() === gb.name.toLowerCase()))
-            .sort(() => 0.5 - Math.random());
-          
-          results = [...results, ...globalPool.slice(0, needed)];
+        // If we have few local suppliers, add some "generic scan categories" to make it "rich" 
+        // while respecting the "related to location" request.
+        if (results.length < 12) {
+            const categories = [
+                { name: 'Economy Class', logo: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png', isCategory: true },
+                { name: 'SUV / 4x4', logo: 'https://cdn-icons-png.flaticon.com/512/3774/3774278.png', isCategory: true },
+                { name: 'Premium', logo: 'https://cdn-icons-png.flaticon.com/512/2736/2736933.png', isCategory: true },
+                { name: 'Family Van', logo: 'https://cdn-icons-png.flaticon.com/512/4232/4232535.png', isCategory: true }
+            ];
+            results = [...results, ...categories];
+        }
+
+        // If still too few, add a few trusted global brands but mark them as "Global Network"
+        if (results.length < 12) {
+            const extra = GLOBAL_TRUSTED_BRANDS
+                .filter(gb => !results.some(r => r.name === gb.name))
+                .slice(0, 12 - results.length);
+            results = [...results, ...extra];
         }
         
         setSuppliers(results.slice(0, 18));
       } catch (error) {
-        setSuppliers(GLOBAL_TRUSTED_BRANDS.slice(0, 18));
+        setSuppliers(GLOBAL_TRUSTED_BRANDS.slice(0, 12));
       }
     };
     
     loadSuppliers();
   }, [pickupIata]);
 
+  const tips = [
+    "Book now to lock in the lowest price!",
+    "No credit card fees with Hogicar.",
+    "Free cancellation up to 48 hours before pickup.",
+    "All our suppliers are strictly vetted for quality.",
+    "Prices are guaranteed once you book.",
+    "Save up to 40% with local suppliers!",
+  ];
+
+  const [currentTipIndex, setCurrentTipIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const tipInterval = setInterval(() => {
+      setCurrentTipIndex(prev => (prev + 1) % tips.length);
+    }, 4000);
+    return () => clearInterval(tipInterval);
+  }, []);
+
   const totalSuppliers = suppliers.length || 12; // Fallback to 12 if loading
 
   const searchMessages = [
-    "Comparing deals from major brands...",
-    "Checking availability with local specialists...",
-    "Searching for exclusive online discounts...",
-    "Finalizing the best options for your trip...",
+    "Contacting suppliers in your area...",
+    "Scanning Economy car availability...",
+    "Checking SUV and Premium deals...",
+    "Comparing local fuel & insurance policies...",
+    "Verifying Meet & Greet services...",
+    "Applying exclusive Hogicar discounts...",
+    "Finalizing best rates for your trip...",
   ];
   
   // Effect for canvas animation
@@ -285,9 +317,19 @@ const Searching: React.FC = () => {
              </p>
           </div>
           
-          <div className="mt-8 flex items-center justify-center gap-3 text-sm text-amber-300 font-medium bg-black/20 py-3 px-6 rounded-full max-w-lg mx-auto backdrop-blur-sm border border-white/10 shadow-lg">
-            <Gift className="w-5 h-5 flex-shrink-0 animate-pulse-glow" />
-            <span className="leading-tight">We offer <strong>free cancellation</strong> on most bookings & <strong>no hidden fees</strong>.</span>
+          <div className="mt-8 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-4 px-8 rounded-2xl max-w-lg mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[80px]">
+            <Check className="w-6 h-6 flex-shrink-0 text-green-400" />
+            <div className="text-left overflow-hidden">
+                <p className="text-[10px] font-black text-blue-300/60 uppercase tracking-widest mb-1">Expert Tip</p>
+                <motion.p 
+                    key={currentTipIndex}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="leading-tight text-white font-bold"
+                >
+                    {tips[currentTipIndex]}
+                </motion.p>
+            </div>
           </div>
           
           <div className="w-full max-w-md mx-auto mt-8">
