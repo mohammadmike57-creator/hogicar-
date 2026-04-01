@@ -1773,7 +1773,7 @@ const HomepageLogosContent = () => {
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight text-left">Homepage Branding</h2>
                         <p className="text-sm text-gray-500 font-medium text-left">Control global brands and trusted partners displayed on the landing page</p>
                     </div>
-                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, active: true })} 
+                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, scale: 100, active: true })} 
                         className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center gap-2">
                         <PlusCircle className="w-5 h-5" />
                         Add New Brand
@@ -1874,17 +1874,19 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <InputField label="Display Order" type="number" value={formData.displayOrder} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })} />
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Status</label>
-                        <select 
-                            className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
-                            value={formData.active ? 'true' : 'false'}
-                            onChange={(e) => setFormData({ ...formData, active: e.target.value === 'true' })}
-                        >
-                            <option value="true">Active (Visible)</option>
-                            <option value="false">Inactive (Hidden)</option>
-                        </select>
-                    </div>
+                    <InputField label="Scale (%)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} placeholder="100 is original size" />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Status</label>
+                    <select 
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                        value={formData.active ? 'true' : 'false'}
+                        onChange={(e) => setFormData({ ...formData, active: e.target.value === 'true' })}
+                    >
+                        <option value="true">Active (Visible)</option>
+                        <option value="false">Inactive (Hidden)</option>
+                    </select>
                 </div>
 
                 <div className="flex gap-4 pt-4">

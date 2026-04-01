@@ -96,6 +96,7 @@ const Searching: React.FC = () => {
             id: s.id,
             name: s.name,
             logoUrl: s.logoUrl || s.logo,
+            scale: s.scale,
             isLocal: true
           }));
         }
@@ -373,8 +374,11 @@ const Searching: React.FC = () => {
                   <img
                     src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
-                    className="max-h-12 w-full object-contain transition-all duration-700"
-                    style={{ opacity: isChecked ? 1 : 0.4 }}
+                    className="w-full object-contain transition-all duration-700"
+                    style={{ 
+                        opacity: isChecked ? 1 : 0.4,
+                        maxHeight: `${((supplier.scale || 100) / 100) * 48}px`
+                    }}
                   />
                   {isChecking && (
                     <div

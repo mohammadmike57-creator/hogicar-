@@ -48,7 +48,8 @@ const Home: React.FC = () => {
             if (homepageLogos && homepageLogos.length > 0) {
                 allLogos = homepageLogos.map(l => ({
                     name: l.name,
-                    logo: l.logoUrl
+                    logo: l.logoUrl,
+                    scale: l.scale
                 }));
             }
             
@@ -157,18 +158,22 @@ const Home: React.FC = () => {
       </section>
 
       {/* TRUSTED PARTNERS – marquee version */}
-      <section className="py-12 bg-white overflow-hidden border-y border-slate-50">
+      <section className="py-10 bg-white overflow-hidden border-y border-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 text-center mb-8">
-          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Trusted by Leading Partners</h2>
+          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] mb-2">Trusted by Leading Partners</h2>
+          <div className="h-0.5 w-12 bg-blue-600/20 mx-auto rounded-full"></div>
         </div>
         <div className="relative flex items-center">
-          <div className="animate-marquee flex gap-12 md:gap-24 items-center px-4">
+          <div className="animate-marquee flex gap-16 md:gap-28 items-center px-4">
             {[...suppliers, ...suppliers].map((s, idx) => (
               <img 
                 key={`${s.id || s.name}-${idx}`} 
                 src={s.logo || s.logoUrl} 
                 alt={s.name} 
-                className="h-24 md:h-40 w-auto max-w-[280px] md:max-w-[400px] object-contain transition-transform duration-500 transform hover:scale-110" 
+                className="h-10 md:h-14 w-auto max-w-[180px] object-contain brightness-95 hover:brightness-110 logo-scaled-hover" 
+                style={{ 
+                    '--logo-scale': (s.scale || 100) / 100 
+                } as any}
               />
             ))}
           </div>

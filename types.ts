@@ -419,6 +419,15 @@ export interface HomepageContent {
   };
 }
 
+export interface HomepageLogo {
+  id: number;
+  name: string;
+  logoUrl: string;
+  displayOrder: number;
+  active: boolean;
+  scale?: number;
+}
+
 export interface CarModel {
   id: string | number;
   make: string;
