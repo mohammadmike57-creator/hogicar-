@@ -39,7 +39,9 @@ const Home: React.FC = () => {
         try {
             const realSuppliers = await fetchPublicSuppliers();
             if (realSuppliers && realSuppliers.length > 0) {
-                setSuppliers(realSuppliers);
+                // Deduplicate by name to prevent multiple logos for the same supplier
+                const uniqueSuppliers = Array.from(new Map(realSuppliers.map(s => [s.name, s])).values());
+                setSuppliers(uniqueSuppliers);
             } else {
                 setSuppliers(MOCK_SUPPLIERS);
             }
@@ -130,12 +132,12 @@ const Home: React.FC = () => {
         </div>
         <div className="relative flex items-center">
           <div className="animate-marquee flex gap-12 md:gap-24 items-center px-4">
-            {[...suppliers, ...suppliers, ...suppliers].map((s, idx) => (
+            {[...suppliers, ...suppliers].map((s, idx) => (
               <img 
                 key={`${s.id || s.name}-${idx}`} 
                 src={s.logo || s.logoUrl} 
                 alt={s.name} 
-                className="h-14 md:h-24 w-auto max-w-[180px] md:max-w-[260px] object-contain transition-transform duration-500 transform hover:scale-110" 
+                className="h-20 md:h-32 w-auto max-w-[240px] md:max-w-[360px] object-contain transition-transform duration-500 transform hover:scale-110" 
               />
             ))}
           </div>

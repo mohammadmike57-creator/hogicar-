@@ -181,7 +181,7 @@ export const Search: React.FC = () => {
   const [selectedFuelPolicies, setSelectedFuelPolicies] = React.useState<string[]>([]);
   const [passengerCapacity, setPassengerCapacity] = React.useState<number>(0);
   const [sortBy, setSortBy] = React.useState('Recommended');
-  const [openFilters, setOpenFilters] = React.useState<string[]>(['Price', 'Category', 'Passengers', 'LocationType']);
+  const [openFilters, setOpenFilters] = React.useState<string[]>(['Price', 'Category', 'Passengers', 'LocationType', 'Supplier']);
   const [showMobileFilters, setShowMobileFilters] = React.useState(false);
   
   const [selectedPaymentTypes, setSelectedPaymentTypes] = React.useState<string[]>([]);
@@ -721,11 +721,14 @@ export const Search: React.FC = () => {
                   {/* Supplier Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Car Rental Company</span>
+                          <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Suppliers in {pickupIata || location}</span>
                           {openFilters.includes('Supplier') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Supplier') && (
                           <div className="mt-3 space-y-2">
+                              {allSuppliers.length === 0 && (
+                                  <p className="text-[10px] text-slate-400 italic">No suppliers found for this search.</p>
+                              )}
                               {allSuppliers.map((name) => (
                                   <label key={name} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-blue-600" />

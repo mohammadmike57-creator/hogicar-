@@ -77,7 +77,7 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
   try {
     const response = await publicAxios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
     // Map the backend response to { value, label, type } format
-    return response.data.map((loc: any) => {
+    const results = response.data.map((loc: any) => {
       // Determine type based on backend type or airport name
       const backendType = loc.type || loc.airportType;
       const isAirport = (backendType && backendType.toLowerCase().includes('airport')) || 
@@ -103,6 +103,9 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
         type: isAirport ? 'airport' : 'city',
       };
     });
+
+    // Deduplicate by label to prevent identical suggestions
+    return Array.from(new Map(results.map((item: any) => [item.label, item])).values());
   } catch (error) {
     console.error('Error fetching locations:', error);
     return [];
@@ -112,7 +115,7 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
 export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
   try {
     const response = await publicAxios.get(`${API_BASE_URL}/api/public/locations`);
-    return response.data.map((loc: any) => {
+    const results = response.data.map((loc: any) => {
       const nameLower = (loc.name || '').toLowerCase();
       const isAirport = nameLower.includes('airport') || nameLower.includes('heliport') || nameLower.includes('airstrip');
       
@@ -134,6 +137,9 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
         type: isAirport ? 'airport' : 'city',
       };
     });
+
+    // Deduplicate by label
+    return Array.from(new Map(results.map((item: any) => [item.label, item])).values());
   } catch (error) {
     console.error('Error fetching all locations:', error);
     return [];

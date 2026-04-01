@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SUPPLIERS, MOCK_APP_CONFIG } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
-import { Check, Gift } from 'lucide-react';
+import { Check, Gift, MapPin } from 'lucide-react';
 
 const animationStyles = `
 @keyframes background-pan {
@@ -75,6 +75,8 @@ const animationStyles = `
 const Searching: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const pickupIata = searchParams.get('pickup') || '';
+  const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
   const duration = MOCK_APP_CONFIG.searchingScreenDuration;
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
@@ -222,11 +224,28 @@ const Searching: React.FC = () => {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-20" />
         
         <div className="relative z-10 w-full max-w-4xl text-center">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-lg relative overflow-hidden">
-            <span className="shimmer-text">Searching the globe for your perfect car</span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight drop-shadow-lg relative overflow-hidden mb-2">
+            <span className="shimmer-text opacity-70">SEARCHING THE GLOBE FOR YOUR PERFECT CAR IN</span>
           </h1>
-          <div className="h-8 mt-4">
-             <p className="text-lg text-blue-200 transition-all duration-500" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-8">
+             <div className="flex flex-col items-center">
+                <div className="bg-white/10 p-3 sm:p-4 rounded-3xl backdrop-blur-md border border-white/20 shadow-2xl animate-pulse flex items-center justify-center">
+                    <MapPin className="w-8 h-8 sm:w-12 sm:h-12 text-amber-400" strokeWidth={2.5}/>
+                </div>
+                {pickupIata && (
+                    <div className="mt-2 bg-amber-400 text-slate-900 px-3 py-1 rounded-lg font-black text-xs sm:text-sm tracking-widest shadow-lg">
+                        {pickupIata.toUpperCase()}
+                    </div>
+                )}
+             </div>
+             <div className="text-4xl sm:text-7xl font-black text-white tracking-tighter drop-shadow-[0_5px_15px_rgba(0,0,0,0.4)] uppercase text-center">
+                {pickupName}
+             </div>
+          </div>
+
+          <div className="h-10 mt-2">
+             <p className="text-xl sm:text-2xl font-bold text-blue-100 transition-all duration-500 bg-white/5 inline-block px-6 py-2 rounded-2xl backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
                 {searchMessages[currentMessageIndex]}
              </p>
           </div>
