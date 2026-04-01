@@ -72,6 +72,12 @@ export enum BookingMode {
   ON_REQUEST = 'ON_REQUEST' // Supplier must confirm
 }
 
+export enum PickupType {
+  IN_TERMINAL = 'IN_TERMINAL',
+  MEET_AND_GREET = 'MEET_AND_GREET',
+  SHUTTLE_BUS = 'SHUTTLE_BUS'
+}
+
 export interface ApiConnection {
   endpointUrl: string;
   accountId: string;
@@ -134,6 +140,7 @@ export interface Supplier {
   enableSocialProof?: boolean;
   gracePeriod?: number;
   leadTime?: number;
+  pickupType?: PickupType;
 }
 
 export interface Extra {
@@ -218,6 +225,7 @@ export interface ApiSearchResult {
   fuelPolicy?: FuelPolicy;
   unlimitedMileage?: boolean;
   locationDetail?: string;
+  pickupType?: string;
   sippCode?: string;
   description?: string;
   commissionAmount?: number;
@@ -237,6 +245,7 @@ export interface ApiSearchResult {
     terms: string;
     gracePeriodDays: number;
     rating?: number;
+    pickupType?: string;
   } | null;
 }
 

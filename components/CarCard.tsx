@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
@@ -362,7 +362,32 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       </div>
                       
                       {(() => {
-                          const detail = car.locationDetail.toLowerCase();
+                          const pickupType = car.supplier?.pickupType;
+                          if (pickupType === 'IN_TERMINAL') {
+                              return (
+                                  <span className="flex items-center gap-1.5 bg-green-50 text-green-700 font-bold px-2 py-1 rounded-full text-[10px]">
+                                      <Plane className="w-3 h-3" />
+                                      In Terminal
+                                  </span>
+                              );
+                          } else if (pickupType === 'MEET_AND_GREET') {
+                              return (
+                                  <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 font-bold px-2 py-1 rounded-full text-[10px]">
+                                      <Handshake className="w-3 h-3" />
+                                      Meet & Greet
+                                  </span>
+                              );
+                          } else if (pickupType === 'SHUTTLE_BUS') {
+                              return (
+                                  <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 font-bold px-2 py-1 rounded-full text-[10px]">
+                                      <Bus className="w-3 h-3" />
+                                      Shuttle Bus
+                                  </span>
+                              );
+                          }
+
+                          // Fallback to legacy locationDetail logic
+                          const detail = (car.locationDetail || '').toLowerCase();
                           if (detail.includes('in terminal')) {
                               return (
                                   <span className="flex items-center gap-1.5 bg-green-50 text-green-700 font-bold px-2 py-1 rounded-full text-[10px]">
@@ -371,9 +396,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                   </span>
                               );
                           }
-                          if (detail.includes('meet & greet')) {
+                          if (detail.includes('meet')) {
                               return (
-                                  <span className="flex items-center gap-1.5 bg-purple-50 text-purple-700 font-bold px-2 py-1 rounded-full text-[10px]">
+                                  <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 font-bold px-2 py-1 rounded-full text-[10px]">
                                       <Handshake className="w-3 h-3" />
                                       Meet & Greet
                                   </span>
@@ -382,16 +407,16 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           if (detail.includes('shuttle')) {
                               return (
                                   <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Truck className="w-3 h-3" />
+                                      <Bus className="w-3 h-3" />
                                       Shuttle Bus
                                   </span>
                               );
                           }
-                          return (
+                          return car.locationDetail ? (
                               <span className="flex items-center gap-1.5 bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-full text-[10px]">
                                  {car.locationDetail}
                               </span>
-                          );
+                          ) : null;
                       })()}
 
                   </div>

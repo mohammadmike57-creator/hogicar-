@@ -23,7 +23,11 @@ export const getAllLocations = async (searchTerm?: string): Promise<LocationSugg
 
   const all = [...customLocations];
   for (const loc of apiLocations) {
-    if (!all.some(existing => existing.value === loc.value)) {
+    const isDuplicate = all.some(existing => 
+      existing.value === loc.value || 
+      (existing.label.toLowerCase().trim() === loc.label.toLowerCase().trim())
+    );
+    if (!isDuplicate) {
       all.push(loc);
     }
   }

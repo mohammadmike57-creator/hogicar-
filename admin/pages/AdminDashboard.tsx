@@ -420,6 +420,12 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     { value: CommissionType.PAY_AT_DESK, label: 'Pay at Desk' }
   ];
 
+  const PICKUP_TYPE_OPTIONS = [
+    { value: PickupType.IN_TERMINAL, label: 'In Terminal' },
+    { value: PickupType.MEET_AND_GREET, label: 'Meet & Greet' },
+    { value: PickupType.SHUTTLE_BUS, label: 'Shuttle Bus' }
+  ];
+
   useEffect(() => { const stored = localStorage.getItem('hogicar_custom_locations'); if (stored) setCustomLocs(JSON.parse(stored)); }, [isOpen]);
   useEffect(() => { 
     if (isOpen) { 
@@ -471,6 +477,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
         bookingMode: editedSupplier.bookingMode || BookingMode.FREE_SALE,
         commissionType: editedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
         commissionPercent: editedSupplier.commissionPercent || 0.15,
+        pickupType: editedSupplier.pickupType || PickupType.IN_TERMINAL,
         includesCDW: editedSupplier.includesCDW ?? true,
         includesTP: editedSupplier.includesTP ?? true,
         gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
@@ -522,12 +529,15 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={(e: any) => handleChange('phone', e.target.value)} />
-                <div className="flex flex-col justify-end">
-                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mb-2">Partner Status</p>
-                    <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${editedSupplier.id ? 'bg-green-500' : 'bg-blue-500'} animate-pulse`} />
-                        <span className="text-xs font-bold text-gray-700 capitalize">{editedSupplier.id ? 'Active Partner' : 'New Registration'}</span>
-                    </div>
+                <div className="flex flex-col">
+                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mb-2">Pickup Type</p>
+                    <select 
+                        className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all appearance-none cursor-pointer"
+                        value={editedSupplier.pickupType || PickupType.IN_TERMINAL}
+                        onChange={(e) => handleChange('pickupType', e.target.value)}
+                    >
+                        {PICKUP_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    </select>
                 </div>
             </div>
           </div>

@@ -43,6 +43,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         includesTP: mockSupplier?.includesTP ?? true,
         oneWayFee: mockSupplier?.oneWayFee,
         enableSocialProof: mockSupplier?.enableSocialProof ?? false,
+        pickupType: apiCar.supplier?.pickupType as any || apiCar.pickupType as any || PickupType.IN_TERMINAL
     };
     
     const apiRateTier: RateTier = {
@@ -292,11 +293,19 @@ export const Search: React.FC = () => {
         counts.fuelPolicy.set(car.fuelPolicy, (counts.fuelPolicy.get(car.fuelPolicy) || 0) + 1);
         counts.paymentType.set(car.supplier.commissionType, (counts.paymentType.get(car.supplier.commissionType) || 0) + 1);
         
-        allLocationTypes.forEach(locType => {
-            if (car.locationDetail.toLowerCase().includes(locType.toLowerCase())) {
-                counts.locationType.set(locType, (counts.locationType.get(locType) || 0) + 1);
-            }
-        });
+        const pt = car.supplier?.pickupType;
+        let matched = false;
+        if (pt === 'IN_TERMINAL') { counts.locationType.set('In Terminal', (counts.locationType.get('In Terminal') || 0) + 1); matched = true; }
+        else if (pt === 'MEET_AND_GREET') { counts.locationType.set('Meet & Greet', (counts.locationType.get('Meet & Greet') || 0) + 1); matched = true; }
+        else if (pt === 'SHUTTLE_BUS') { counts.locationType.set('Shuttle Bus', (counts.locationType.get('Shuttle Bus') || 0) + 1); matched = true; }
+        
+        if (!matched) {
+            allLocationTypes.forEach(locType => {
+                if (car.locationDetail.toLowerCase().includes(locType.toLowerCase())) {
+                    counts.locationType.set(locType, (counts.locationType.get(locType) || 0) + 1);
+                }
+            });
+        }
     });
     return counts;
   }, [baseFilteredCars]);
@@ -314,7 +323,17 @@ export const Search: React.FC = () => {
       if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
       if (selectedPaymentTypes.length > 0 && !selectedPaymentTypes.includes(car.supplier.commissionType)) return false;
       if (maxDeposit > 0 && car.deposit > maxDeposit) return false;
-      if (selectedLocationTypes.length > 0 && !selectedLocationTypes.some(locType => car.locationDetail.toLowerCase().includes(locType.toLowerCase()))) return false;
+      if (selectedLocationTypes.length > 0) {
+          const pt = car.supplier?.pickupType;
+          let carMatch = false;
+          if (pt === 'IN_TERMINAL' && selectedLocationTypes.includes('In Terminal')) carMatch = true;
+          else if (pt === 'MEET_AND_GREET' && selectedLocationTypes.includes('Meet & Greet')) carMatch = true;
+          else if (pt === 'SHUTTLE_BUS' && selectedLocationTypes.includes('Shuttle Bus')) carMatch = true;
+          else {
+              carMatch = selectedLocationTypes.some(locType => car.locationDetail.toLowerCase().includes(locType.toLowerCase()));
+          }
+          if (!carMatch) return false;
+      }
       
       // Removed strict availability check to ensure cars show up even if isAvailable is undefined/false in mock
       // if (!car.isAvailable) return false; 
