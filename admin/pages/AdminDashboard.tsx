@@ -103,10 +103,11 @@ const GlobalLocationsContent = () => {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const load = async () => {
+  const load = async (keyword = '') => {
     setLoading(true);
     try {
-      const res = await adminFetch('/api/admin/locations');
+      const url = `/api/admin/locations${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`;
+      const res = await adminFetch(url);
       setLocations(res);
     } catch (e: any) {
       console.error(e);
@@ -114,7 +115,12 @@ const GlobalLocationsContent = () => {
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      load(filter);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filter]);
 
   const filtered = useMemo(() => {
     const q = filter.toLowerCase().trim();
@@ -164,8 +170,8 @@ const GlobalLocationsContent = () => {
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by code, city or name..." className="w-full pl-9 pr-3 py-2 border rounded-xl" />
             </div>
-            <button onClick={load} className="px-3 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
-              <RefreshCw className="w-4 h-4" /> Refresh
+            <button onClick={() => load(filter)} className="px-3 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
             </button>
           </div>
 
