@@ -1375,9 +1375,52 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode }: 
         setLocalConfig({ ...localConfig, periods: newPeriods });
     };
 
+    const handleInherit = async (sourceLoc: string) => {
+        if (!confirm(`This will overwrite your current settings for this location with the ones from ${sourceLoc}. Continue?`)) return;
+        try {
+            const locCode = sourceLoc === 'global' ? undefined : sourceLoc;
+            const res = await supplierApi.getTemplateConfig(locCode);
+            if (res.data) {
+                setLocalConfig({
+                    ...res.data,
+                    locationCode: locationCode === 'global' ? undefined : locationCode,
+                    id: localConfig.id // Preserve local ID if it exists
+                });
+            }
+        } catch (e) {
+            alert("Failed to fetch source strategy");
+        }
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Configure Rate Template" size="lg">
             <div className="space-y-10">
+                {/* Strategy Inheritance / Cloning */}
+                <div className="p-6 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/10 rounded-2xl border border-white/10">
+                            <RefreshCw className="w-6 h-6 text-orange-400" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Clone Strategy</p>
+                            <p className="text-xs font-bold mt-1 text-white">Import settings from another location</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/5 p-1 rounded-2xl border border-white/10">
+                        <select 
+                            onChange={(e) => handleInherit(e.target.value)}
+                            defaultValue=""
+                            className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-white outline-none px-4 py-2 cursor-pointer"
+                        >
+                            <option value="" disabled className="text-slate-900">Choose Source...</option>
+                            {locationCode !== 'global' && <option value="global" className="text-slate-900">Global Strategy</option>}
+                            {supplier.locations?.filter(l => l.value !== locationCode).map(l => (
+                                <option key={l.value} value={l.value} className="text-slate-900">{l.label || l.value}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
                 {/* Informational Note */}
                 <div className="p-6 bg-orange-50 border border-orange-100 rounded-3xl flex items-start gap-4">
                     <div className="p-2 bg-white rounded-xl shadow-sm">

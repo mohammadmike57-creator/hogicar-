@@ -99,7 +99,7 @@ const GlobalLocationsContent = () => {
   const [locations, setLocations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
-  const [form, setForm] = useState<any>({ iataCode: '', name: '', municipality: '', countryCode: '' });
+  const [form, setForm] = useState<any>({ iataCode: '', name: '', municipality: '', countryCode: '', type: 'city' });
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -126,10 +126,10 @@ const GlobalLocationsContent = () => {
     );
   }, [locations, filter]);
 
-  const resetForm = () => { setForm({ iataCode: '', name: '', municipality: '', countryCode: '' }); setEditingId(null); };
+  const resetForm = () => { setForm({ iataCode: '', name: '', municipality: '', countryCode: '', type: 'city' }); setEditingId(null); };
 
   const handleSave = async () => {
-    if (!form.iataCode || !form.name) { alert('IATA code and Name are required'); return; }
+    if ((!form.iataCode && form.type === 'Airport') || !form.name) { alert('IATA code (for Airport) and Name are required'); return; }
     setSaving(true);
     try {
       if (editingId) {
@@ -144,7 +144,7 @@ const GlobalLocationsContent = () => {
     } finally { setSaving(false); }
   };
 
-  const handleEdit = (loc: any) => { setEditingId(loc.id); setForm({ iataCode: loc.iataCode, name: loc.name, municipality: loc.municipality, countryCode: loc.countryCode }); };
+  const handleEdit = (loc: any) => { setEditingId(loc.id); setForm({ iataCode: loc.iataCode, name: loc.name, municipality: loc.municipality, countryCode: loc.countryCode, type: loc.type || 'city' }); };
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this location?')) return;
     try {
@@ -176,6 +176,7 @@ const GlobalLocationsContent = () => {
                   <th className="text-left p-3 font-bold">Code</th>
                   <th className="text-left p-3 font-bold">Name</th>
                   <th className="text-left p-3 font-bold">City</th>
+                  <th className="text-left p-3 font-bold">Type</th>
                   <th className="text-left p-3 font-bold">Country</th>
                   <th className="text-right p-3 font-bold">Actions</th>
                 </tr>
@@ -183,9 +184,10 @@ const GlobalLocationsContent = () => {
               <tbody>
                 {filtered.map((l: any) => (
                   <tr key={l.id} className="border-t">
-                    <td className="p-3 font-mono text-xs">{l.iataCode}</td>
+                    <td className="p-3 font-mono text-xs">{l.iataCode || '-'}</td>
                     <td className="p-3">{l.name}</td>
                     <td className="p-3">{l.municipality}</td>
+                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === 'Airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'}`}>{l.type || 'City'}</span></td>
                     <td className="p-3">{l.countryCode}</td>
                     <td className="p-3 text-right">
                       <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-lg bg-orange-50 text-orange-700 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
@@ -194,7 +196,7 @@ const GlobalLocationsContent = () => {
                   </tr>
                 ))}
                 {!filtered.length && (
-                  <tr><td className="p-6 text-center text-gray-400" colSpan={5}>No locations</td></tr>
+                  <tr><td className="p-6 text-center text-gray-400" colSpan={6}>No locations</td></tr>
                 )}
               </tbody>
             </table>
@@ -204,8 +206,9 @@ const GlobalLocationsContent = () => {
         <div className="bg-slate-50/50 rounded-2xl p-4 border">
           <h3 className="font-black mb-3 text-slate-900">{editingId ? 'Edit Location' : 'Add New Location'}</h3>
           <div className="space-y-3">
-            <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} />
-            <InputField label="Name" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
+            <SelectField label="Type" value={form.type} onChange={(e: any) => setForm({ ...form, type: e.target.value })} options={[{value: 'Airport', label: 'Airport'}, {value: 'city', label: 'Down Town / City'}]} />
+            <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} placeholder={form.type === 'Airport' ? "e.g. AMM" : "Optional (e.g. AMMAN_DT)"} />
+            <InputField label="Name" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Queen Alia Airport or Amman Down Town" />
             <InputField label="City" value={form.municipality} onChange={(e: any) => setForm({ ...form, municipality: e.target.value })} />
             <InputField label="Country Code" value={form.countryCode} onChange={(e: any) => setForm({ ...form, countryCode: e.target.value })} />
             <div className="flex gap-2 pt-2">
@@ -344,7 +347,25 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
   return (
     <div className="relative">
       <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" /><input type="text" value={query || selectedLabel} onChange={(e) => { setQuery(e.target.value); setSelectedLabel(''); onChange(null); }} placeholder={placeholder} className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl" /></div>
-      {isOpen && <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">{loading ? <div className="p-3 text-center"><Loader className="w-4 h-4 animate-spin inline" /> Loading...</div> : suggestions.map(loc => <button key={loc.value} onClick={() => handleSelect(loc)} className="w-full text-left px-4 py-2 hover:bg-orange-50"><span className="font-medium">{loc.label}</span><span className="text-gray-400 ml-2">({loc.value})</span></button>)}</div>}
+      {isOpen && (
+        <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+          {loading ? (
+            <div className="p-3 text-center"><RefreshCw className="w-4 h-4 animate-spin inline" /> Loading...</div>
+          ) : (
+            suggestions.map(loc => (
+              <button key={loc.value} onClick={() => handleSelect(loc)} className="w-full text-left px-4 py-3 hover:bg-orange-50 border-b last:border-0 transition-colors flex items-center gap-3">
+                <div className={`p-1.5 rounded-lg ${loc.type === 'airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'}`}>
+                    {loc.type === 'airport' ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+                </div>
+                <div>
+                    <span className="font-bold text-slate-900 block text-xs">{loc.label}</span>
+                    <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">{loc.iataCode || 'CITY LOCATION'}</span>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };

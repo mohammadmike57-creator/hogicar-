@@ -78,20 +78,23 @@ export const fetchLocations = async (query: string): Promise<LocationSuggestion[
     const response = await publicAxios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
     // Map the backend response to { value, label, type } format
     return response.data.map((loc: any) => {
-      // Determine type based on airport name
-      const nameLower = (loc.name || '').toLowerCase();
-      const isAirport = nameLower.includes('airport') || nameLower.includes('heliport') || nameLower.includes('airstrip');
+      // Determine type based on backend type or airport name
+      const backendType = loc.type || loc.airportType;
+      const isAirport = (backendType && backendType.toLowerCase().includes('airport')) || 
+                        (loc.name || '').toLowerCase().includes('airport');
       
       let label = loc.name;
       if (loc.municipality) {
         label += `, ${loc.municipality}`;
       }
-      label += ` (${loc.iataCode})`;
+      if (loc.iataCode) {
+        label += ` (${loc.iataCode})`;
+      }
       if (loc.isoCountry) {
         label += `, ${loc.isoCountry}`;
       }
       return {
-        value: loc.iataCode,
+        value: loc.iataCode || `LOC:${loc.id}`,
         label: label,
         iataCode: loc.iataCode,
         name: loc.name,
