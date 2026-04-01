@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers } from '../api';
-import { MOCK_APP_CONFIG } from '../services/mockData';
+import { MOCK_APP_CONFIG, GLOBAL_TRUSTED_BRANDS } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { Check, Gift, MapPin } from 'lucide-react';
 
@@ -85,12 +85,38 @@ const Searching: React.FC = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(() => {
-    fetchPublicSuppliers().then(data => {
-      // Deduplicate by name and shuffle or just take first 18
-      const unique = Array.from(new Map(data.map((s: any) => [s.name, s])).values());
-      setSuppliers(unique.slice(0, 18));
-    });
-  }, []);
+    const loadSuppliers = async () => {
+      try {
+        const data = await fetchPublicSuppliers(pickupIata);
+        let results = [];
+        
+        if (data && data.length > 0) {
+          // Use specific suppliers for this location
+          results = data.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            logoUrl: s.logoUrl || s.logo
+          }));
+        }
+        
+        // Fill up to at least 12 or 18 logos with global brands for a professional look
+        const needed = 18 - results.length;
+        if (needed > 0) {
+          const globalPool = [...GLOBAL_TRUSTED_BRANDS]
+            .filter(gb => !results.some(r => r.name.toLowerCase() === gb.name.toLowerCase()))
+            .sort(() => 0.5 - Math.random());
+          
+          results = [...results, ...globalPool.slice(0, needed)];
+        }
+        
+        setSuppliers(results.slice(0, 18));
+      } catch (error) {
+        setSuppliers(GLOBAL_TRUSTED_BRANDS.slice(0, 18));
+      }
+    };
+    
+    loadSuppliers();
+  }, [pickupIata]);
 
   const totalSuppliers = suppliers.length || 12; // Fallback to 12 if loading
 
@@ -305,7 +331,7 @@ const Searching: React.FC = () => {
                   <img
                     src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
-                    className="max-h-8 w-full object-contain transition-all duration-700"
+                    className="max-h-12 w-full object-contain transition-all duration-700"
                     style={{ opacity: isChecked ? 1 : 0.4 }}
                   />
                   {isChecking && (

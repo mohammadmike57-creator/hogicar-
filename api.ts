@@ -181,9 +181,12 @@ export const createBooking = async (bookingData: any): Promise<Booking & { clien
   return response.data;
 };
 
-export const fetchPublicSuppliers = async (): Promise<any[]> => {
+export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]> => {
   try {
-    const response = await publicAxios.get(`${API_BASE_URL}/api/public/suppliers`);
+    const url = locationCode 
+      ? `${API_BASE_URL}/api/public/suppliers?locationCode=${encodeURIComponent(locationCode)}`
+      : `${API_BASE_URL}/api/public/suppliers`;
+    const response = await publicAxios.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching public suppliers:', error);

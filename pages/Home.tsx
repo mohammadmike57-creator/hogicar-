@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin } from 'lucide-react';
-import { SUPPLIERS as MOCK_SUPPLIERS, MOCK_HOMEPAGE_CONTENT } from '../services/mockData';
+import { SUPPLIERS as MOCK_SUPPLIERS, MOCK_HOMEPAGE_CONTENT, GLOBAL_TRUSTED_BRANDS } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
@@ -38,15 +38,23 @@ const Home: React.FC = () => {
     const loadSuppliers = async () => {
         try {
             const realSuppliers = await fetchPublicSuppliers();
+            // Start with global brands for credibility
+            let allSuppliers = [...GLOBAL_TRUSTED_BRANDS];
+            
             if (realSuppliers && realSuppliers.length > 0) {
-                // Deduplicate by name to prevent multiple logos for the same supplier
-                const uniqueSuppliers = Array.from(new Map(realSuppliers.map(s => [s.name, s])).values());
-                setSuppliers(uniqueSuppliers);
-            } else {
-                setSuppliers(MOCK_SUPPLIERS);
+                // Merge real suppliers, avoid duplicates by name
+                realSuppliers.forEach(rs => {
+                    if (!allSuppliers.some(gs => gs.name.toLowerCase() === rs.name.toLowerCase())) {
+                        allSuppliers.push({
+                            name: rs.name,
+                            logo: rs.logoUrl || rs.logo
+                        });
+                    }
+                });
             }
+            setSuppliers(allSuppliers);
         } catch (error) {
-            setSuppliers(MOCK_SUPPLIERS);
+            setSuppliers(GLOBAL_TRUSTED_BRANDS);
         }
     };
 
@@ -137,7 +145,7 @@ const Home: React.FC = () => {
                 key={`${s.id || s.name}-${idx}`} 
                 src={s.logo || s.logoUrl} 
                 alt={s.name} 
-                className="h-20 md:h-32 w-auto max-w-[240px] md:max-w-[360px] object-contain transition-transform duration-500 transform hover:scale-110" 
+                className="h-24 md:h-40 w-auto max-w-[280px] md:max-w-[400px] object-contain transition-transform duration-500 transform hover:scale-110" 
               />
             ))}
           </div>
