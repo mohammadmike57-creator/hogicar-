@@ -1800,7 +1800,7 @@ const HomepageLogosContent = () => {
                                     <td className="px-8 py-4">
                                         <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-orange-200 transition-colors">
                                             {l.logoUrl ? (
-                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" />
+                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width={100} height={50} />
                                             ) : (
                                                 <ImageIcon className="w-4 h-4 text-slate-300" />
                                             )}
@@ -1867,7 +1867,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                     </div>
                     {formData.logoUrl && (
                         <div className="mt-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50 flex items-center justify-center">
-                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" />
+                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width={200} height={100} />
                         </div>
                     )}
                 </div>
