@@ -587,6 +587,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                     <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={COMMISSION_TYPE_OPTIONS} />
                     <InputField label="Commission Value (%)" type="number" step="0.01" value={editedSupplier.commissionPercent || 0} onChange={e => handleChange('commissionPercent', parseFloat(e.target.value))} />
                     <SelectField label="Booking Policy" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={BOOKING_MODE_OPTIONS} />
+                    <SelectField label="Pickup Type" value={editedSupplier.pickupType || PickupType.IN_TERMINAL} onChange={e => handleChange('pickupType', e.target.value)} options={PICKUP_TYPE_OPTIONS} />
                     <SelectField label="Connection Type" value={editedSupplier.connectionType || 'manual'} onChange={e => handleChange('connectionType', e.target.value)} options={[{value:'manual', label:'Manual Entry'}, {value:'api', label:'Real-time API'}]} />
                 </div>
             </div>
@@ -600,6 +601,14 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                 </h4>
                 <InputField label="Grace Period (Hrs)" type="number" value={editedSupplier.gracePeriodHours || 0} onChange={e => handleChange('gracePeriodHours', parseInt(e.target.value))} />
                 <InputField label="Min. Lead Time (Hrs)" type="number" value={editedSupplier.minBookingLeadTime || 0} onChange={e => handleChange('minBookingLeadTime', parseInt(e.target.value))} />
+                <InputField label="Max. Lead Time (Days)" type="number" value={editedSupplier.maxBookingLeadTimeDays || 0} onChange={e => handleChange('maxBookingLeadTimeDays', parseInt(e.target.value))} />
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Calendar className="w-3 h-3 text-purple-500" /> Rental Duration
+                </h4>
+                <InputField label="Min. Rental Days" type="number" value={editedSupplier.minRentalDays || 0} onChange={e => handleChange('minRentalDays', parseInt(e.target.value))} />
+                <InputField label="Max. Rental Days" type="number" value={editedSupplier.maxRentalDays || 0} onChange={e => handleChange('maxRentalDays', parseInt(e.target.value))} />
             </div>
             <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
                 <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
@@ -1543,7 +1552,11 @@ export const AdminDashboard: React.FC = () => {
         gracePeriodHours: updatedSupplier.gracePeriodHours || 0,
         minBookingLeadTime: updatedSupplier.minBookingLeadTime || 0,
         connectionType: updatedSupplier.connectionType || 'manual',
-        rating: updatedSupplier.rating || 5.0
+        rating: updatedSupplier.rating || 5.0,
+        pickupType: updatedSupplier.pickupType,
+        minRentalDays: updatedSupplier.minRentalDays,
+        maxRentalDays: updatedSupplier.maxRentalDays,
+        maxBookingLeadTimeDays: updatedSupplier.maxBookingLeadTimeDays
       };
 
       if (!updatedSupplier.id) {
