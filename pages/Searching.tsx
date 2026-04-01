@@ -1,7 +1,8 @@
 
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { SUPPLIERS, MOCK_APP_CONFIG } from '../services/mockData';
+import { fetchPublicSuppliers } from '../api';
+import { MOCK_APP_CONFIG } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { Check, Gift, MapPin } from 'lucide-react';
 
@@ -80,10 +81,18 @@ const Searching: React.FC = () => {
   const duration = MOCK_APP_CONFIG.searchingScreenDuration;
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
+  const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
-  const displayedSuppliers = SUPPLIERS.slice(0, 18);
-  const totalSuppliers = displayedSuppliers.length;
+  React.useEffect(() => {
+    fetchPublicSuppliers().then(data => {
+      // Deduplicate by name and shuffle or just take first 18
+      const unique = Array.from(new Map(data.map((s: any) => [s.name, s])).values());
+      setSuppliers(unique.slice(0, 18));
+    });
+  }, []);
+
+  const totalSuppliers = suppliers.length || 12; // Fallback to 12 if loading
 
   const searchMessages = [
     "Comparing deals from major brands...",
@@ -224,24 +233,24 @@ const Searching: React.FC = () => {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-20" />
         
         <div className="relative z-10 w-full max-w-4xl text-center">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight drop-shadow-lg relative overflow-hidden mb-2">
-            <span className="shimmer-text opacity-70">SEARCHING THE GLOBE FOR YOUR PERFECT CAR IN</span>
-          </h1>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-8">
-             <div className="flex flex-col items-center">
-                <div className="bg-white/10 p-3 sm:p-4 rounded-3xl backdrop-blur-md border border-white/20 shadow-2xl animate-pulse flex items-center justify-center">
-                    <MapPin className="w-8 h-8 sm:w-12 sm:h-12 text-amber-400" strokeWidth={2.5}/>
-                </div>
+          <div className="mb-6 animate-fade-in">
+            <h1 className="text-sm sm:text-base font-bold tracking-[0.3em] text-blue-300 uppercase mb-3">
+              Searching for the best deals in
+            </h1>
+            
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl">
+                <MapPin className="w-5 h-5 text-amber-400" />
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
+                  {pickupName}
+                </span>
                 {pickupIata && (
-                    <div className="mt-2 bg-amber-400 text-slate-900 px-3 py-1 rounded-lg font-black text-xs sm:text-sm tracking-widest shadow-lg">
-                        {pickupIata.toUpperCase()}
-                    </div>
+                  <span className="bg-amber-400 text-slate-900 px-2 py-0.5 rounded text-[10px] font-bold tracking-tighter">
+                    {pickupIata.toUpperCase()}
+                  </span>
                 )}
-             </div>
-             <div className="text-4xl sm:text-7xl font-black text-white tracking-tighter drop-shadow-[0_5px_15px_rgba(0,0,0,0.4)] uppercase text-center">
-                {pickupName}
-             </div>
+              </div>
+            </div>
           </div>
 
           <div className="h-10 mt-2">
@@ -269,35 +278,35 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <p className="mt-4 text-sm font-bold text-blue-300">
-            {suppliersScanned} / {totalSuppliers} Suppliers Checked
+          <p className="mt-4 text-xs font-bold text-blue-300/60 tracking-widest uppercase">
+            {suppliersScanned} / {totalSuppliers} Suppliers Scanned
           </p>
 
-          <div className="mt-8 grid grid-cols-4 sm:grid-cols-6 gap-4 sm:gap-6">
-            {displayedSuppliers.map((supplier, index) => {
+          <div className="mt-8 grid grid-cols-4 sm:grid-cols-6 gap-3 sm:gap-4 max-w-2xl mx-auto">
+            {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;
 
               return (
                 <div
-                  key={supplier.id}
-                  className="relative flex items-center justify-center aspect-square p-3 rounded-2xl transition-all duration-500"
+                  key={supplier.id || index}
+                  className="relative flex items-center justify-center aspect-[3/2] p-2 rounded-xl transition-all duration-500"
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(4px)',
+                    backdropFilter: 'blur(8px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                    filter: isChecked ? 'none' : 'grayscale(100%)',
-                    opacity: 0, // Start hidden for animation
-                    transform: isChecked ? 'scale(1)' : 'scale(0.95)',
+                    filter: isChecked ? 'none' : 'grayscale(100%) brightness(0.7)',
+                    opacity: 0,
+                    transform: isChecked ? 'scale(1)' : 'scale(0.9)',
                     animation: `pop-in-box 0.5s ease-out forwards`,
                     animationDelay: `${index * 50}ms`
                   }}
                 >
                   <img
-                    src={supplier.logo}
+                    src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
-                    className="max-h-12 w-full object-contain transition-all duration-500"
-                     style={{ opacity: isChecked ? 1 : 0.8 }}
+                    className="max-h-8 w-full object-contain transition-all duration-700"
+                    style={{ opacity: isChecked ? 1 : 0.4 }}
                   />
                   {isChecking && (
                     <div
