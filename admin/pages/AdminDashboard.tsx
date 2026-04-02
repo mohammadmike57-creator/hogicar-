@@ -378,8 +378,13 @@ const LocationPicker = ({ value, onChange, placeholder = "Search location..." }:
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState('');
+  const [selectedLabel, setSelectedLabel] = useState(value || '');
   const timer = useRef<any>();
+
+  useEffect(() => {
+    if (value) setSelectedLabel(value);
+  }, [value]);
+
   useEffect(() => {
     if (query.length < 2) { setSuggestions([]); setIsOpen(false); return; }
     setLoading(true);
@@ -1988,7 +1993,11 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
 
                 <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Location Context (IATA Code)</label>
-                    <InputField value={formData.locationCode} onChange={(e: any) => setFormData({ ...formData, locationCode: e.target.value.toUpperCase() })} placeholder="e.g., AMM, DXB (Leave blank for all locations)" />
+                    <LocationPicker 
+                        value={formData.locationCode} 
+                        onChange={(loc: any) => setFormData({ ...formData, locationCode: loc ? (loc.iataCode || loc.value) : '' })} 
+                        placeholder="Search location (Leave blank for global)" 
+                    />
                     <p className="text-[10px] text-gray-400 font-medium">This logo will appear in the searching scanning screen for this specific location.</p>
                 </div>
 
