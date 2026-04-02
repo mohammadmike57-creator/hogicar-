@@ -108,45 +108,91 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO – clean version (no absolute/blur) */}
-      <section className="bg-[#003580] py-10 text-white">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <div className="bg-white/10 inline-block px-4 py-1 rounded-full text-sm mb-4">
-            <Star className="w-4 h-4 inline text-yellow-400 fill-current" /> Rated 4.9/5 by 10,000+ customers
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-            Search, Compare & Save on <span className="text-[#FF9F1C]">Car Rentals</span>
-          </h1>
-          <p className="text-blue-100 mb-6">Compare prices from 900+ car rental suppliers worldwide.</p>
-          <SearchWidget 
-            onSearch={handleSearch} 
-            showTitle={false} 
-            initialValues={{
-              pickup: pickupCode,
-              pickupName: pickupName,
-              dropoff: dropoffCode,
-              dropoffName: dropoffName
-            }}
+      {/* HERO – professional version */}
+      <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=2070" 
+            alt="Modern car on scenic road" 
+            className="w-full h-full object-cover"
           />
-          <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-full">
-              <CheckCircle className="w-4 h-4 text-green-400" /> Free Cancellation
+          {/* Multi-layered overlay for depth and readability */}
+          <div className="absolute inset-0 bg-slate-900/60 lg:bg-slate-900/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+        </div>
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+          <div className="max-w-4xl flex flex-col items-center lg:items-start text-center lg:text-left">
+            {/* Professional Trust Badge */}
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-white mb-8 border border-white/20 shadow-xl shadow-black/20">
+              <div className="flex -space-x-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                ))}
+              </div>
+              <span className="uppercase tracking-[0.1em] text-[10px] sm:text-xs">TRUSTED BY 10,000+ CUSTOMERS WORLDWIDE</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-full">
-              <Shield className="w-4 h-4 text-blue-300" /> No Hidden Fees
+
+            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-white mb-8 leading-[1.05] tracking-tight drop-shadow-2xl">
+              Search, Compare & <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-400">Save on Rentals</span>
+            </h1>
+            
+            <p className="text-lg lg:text-2xl text-slate-100 mb-12 max-w-2xl leading-relaxed font-medium drop-shadow-md">
+              Compare thousands of deals from <span className="text-white font-extrabold underline decoration-blue-500/50 underline-offset-4">900+ trusted suppliers</span> in over 60,000 locations worldwide.
+            </p>
+
+            {/* Container for Widget - adds extra separation on desktop */}
+            <div className="w-full lg:max-w-4xl relative">
+              {/* Subtle glow effect behind the widget */}
+              <div className="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full opacity-30 pointer-events-none"></div>
+              
+              <div className="relative z-10">
+                <SearchWidget 
+                  onSearch={handleSearch} 
+                  showTitle={false} 
+                  initialValues={{
+                    pickup: pickupCode,
+                    pickupName: pickupName,
+                    dropoff: dropoffCode,
+                    dropoffName: dropoffName
+                  }}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-full">
-              <Award className="w-4 h-4 text-orange-400" /> 24/7 Support
+
+            {/* Quick Benefits - Professional Layout */}
+            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-x-8 gap-y-4 mt-12 text-sm font-semibold text-white/90">
+              <div className="flex items-center gap-3 group cursor-default">
+                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:border-green-400/50 transition-colors">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <span>Free Cancellation</span>
+              </div>
+              <div className="flex items-center gap-3 group cursor-default">
+                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:border-blue-400/50 transition-colors">
+                  <Shield className="w-5 h-5 text-blue-300" />
+                </div>
+                <span>No Hidden Fees</span>
+              </div>
+              <div className="flex items-center gap-3 group cursor-default">
+                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:border-orange-400/50 transition-colors">
+                  <Award className="w-5 h-5 text-orange-400" />
+                </div>
+                <span>24/7 Global Support</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* TRUSTED PARTNERS – marquee version */}
-      <section className="py-10 bg-white overflow-hidden border-y border-slate-50/50">
-        <div className="max-w-7xl mx-auto px-4 text-center mb-8">
-          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] mb-2">Trusted by Leading Partners</h2>
-          <div className="h-0.5 w-12 bg-blue-600/20 mx-auto rounded-full"></div>
+      <section className="py-12 bg-white overflow-hidden border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 text-center mb-10">
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] mb-4 text-slate-400/80">Partnered with the World's Best</div>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
         </div>
         <div className="relative flex items-center">
           <div className="animate-marquee flex items-center px-4">
