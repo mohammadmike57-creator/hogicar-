@@ -1863,7 +1863,8 @@ const SearchingLogosContent = () => {
         if (!confirm('Are you sure you want to remove this searching logo?')) return;
         try {
             await adminFetch(`/api/admin/searching-logos/${id}`, { method: 'DELETE' });
-            fetchLogos();
+            await fetchLogos();
+            alert('Branding logo removed successfully!');
         } catch (e: any) {
             alert(`Delete failed: ${e.message}`);
         }
@@ -1879,8 +1880,9 @@ const SearchingLogosContent = () => {
                 body: JSON.stringify(logo)
             });
             console.log("Saved searching logo result:", saved);
-            fetchLogos();
+            await fetchLogos();
             setEditingLogo(null);
+            alert('Branding logo saved successfully!');
         } catch (e: any) {
             alert(`Save failed: ${e.message}`);
         }

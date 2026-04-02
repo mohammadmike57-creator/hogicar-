@@ -100,15 +100,17 @@ const Searching: React.FC = () => {
         
         // 1. Add admin-managed searching logos for this location (or global ones)
         if (searchingLogos && searchingLogos.length > 0) {
-            results = searchingLogos.map(l => ({
-                id: l.id,
-                name: l.name,
-                logoUrl: l.logoUrl,
-                scale: l.scale,
-                mobileScale: l.mobileScale,
-                spacing: l.spacing,
-                isLocal: true
-            }));
+            searchingLogos.forEach(l => {
+                results.push({
+                    id: l.id,
+                    name: l.name,
+                    logoUrl: l.logoUrl,
+                    scale: l.scale || 100,
+                    mobileScale: l.mobileScale || 100,
+                    spacing: l.spacing || 24,
+                    isLocal: true
+                });
+            });
         }
         
         // 2. Add real suppliers for this location
@@ -121,6 +123,7 @@ const Searching: React.FC = () => {
                 logoUrl: s.logoUrl || s.logo,
                 scale: s.logoScale || 100,
                 mobileScale: s.logoScaleMobile || 100,
+                spacing: 24,
                 isLocal: false
               });
             }
@@ -381,7 +384,7 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-4 max-w-2xl mx-auto">
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 max-w-4xl mx-auto">
             {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;
@@ -389,26 +392,26 @@ const Searching: React.FC = () => {
               return (
                 <div
                   key={supplier.isLocal ? `local-${supplier.id}` : `real-${supplier.id}`}
-                  className="relative flex items-center justify-center aspect-[3/2] p-2 rounded-xl transition-all duration-500"
+                  className="relative flex items-center justify-center aspect-[4/3] rounded-2xl transition-all duration-700 shadow-sm hover:shadow-xl group"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    filter: isChecked ? 'none' : 'grayscale(100%) brightness(0.7)',
+                    backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(12px)',
+                    border: isChecked ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
+                    padding: `${(supplier.spacing || 24) / 2}px`,
+                    filter: isChecked ? 'none' : 'grayscale(100%) brightness(0.6) blur(1px)',
                     opacity: 0,
-                    transform: isChecked ? 'scale(1)' : 'scale(0.9)',
-                    animation: `pop-in-box 0.5s ease-out forwards`,
-                    animationDelay: `${index * 50}ms`
+                    transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(10px)',
+                    animation: `pop-in-box 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+                    animationDelay: `${index * 80}ms`
                   }}
                 >
                   <img
                     src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
-                    className="w-full object-contain transition-all duration-700 logo-scaled-hover"
-                    width={100}
-                    height={48}
+                    className="w-full h-full object-contain transition-all duration-1000 logo-scaled-hover"
                     style={{ 
-                        opacity: isChecked ? 1 : 0.4,
+                        opacity: isChecked ? 1 : 0.3,
+                        filter: isChecked ? 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' : 'none',
                         '--logo-scale': (supplier.scale || 100) / 100,
                         '--logo-scale-mobile': (supplier.mobileScale || 100) / 100
                     } as any}
