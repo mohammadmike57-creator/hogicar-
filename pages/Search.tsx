@@ -478,7 +478,7 @@ export const Search: React.FC = () => {
                                   ${isActive
                                       ? 'border-blue-600 shadow-lg shadow-blue-500/30'
                                       : 'border-slate-200 group-hover:border-blue-400 group-hover:shadow-md group-hover:-translate-y-1'}`}>
-                                  <img src={MOCK_CATEGORY_IMAGES[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                                  <img src={MOCK_CATEGORY_IMAGES[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
                               <div className="text-center">
                                   <span className={`text-[9px] sm:text-[11px] md:text-[11px] font-bold whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-600' : 'text-slate-600 group-hover:text-slate-900'}`}>
@@ -733,7 +733,7 @@ export const Search: React.FC = () => {
                                   <label key={name} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-blue-600" />
                                       {supplierLogos.get(name) && (
-                                         <img src={supplierLogos.get(name)} alt={name} className="w-10 h-8 ml-2 object-contain" />
+                                         <img src={supplierLogos.get(name)} alt={name} className="w-10 h-8 ml-2 object-contain" width={40} height={32} />
                                      )}
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{name}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.supplier.get(name) || 0})</span>

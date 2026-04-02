@@ -394,6 +394,8 @@ const Searching: React.FC = () => {
                     src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
                     className="w-full object-contain transition-all duration-700"
+                    width={100}
+                    height={48}
                     style={{ 
                         opacity: isChecked ? 1 : 0.4,
                         maxHeight: `${((supplier.scale || 100) / 100) * 48}px`

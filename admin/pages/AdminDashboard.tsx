@@ -15,7 +15,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
-import { fetchLocations, LocationSuggestion } from '../../api';
+import { adminApi, fetchLocations, LocationSuggestion } from '../../api';
 import { adminFetch, getAdminToken } from '../../lib/adminApi';
 import { API_BASE_URL } from '../../lib/config';
 import { 
