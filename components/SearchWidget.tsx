@@ -521,7 +521,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <div className="bg-white/95 backdrop-blur-md p-2 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] relative z-10 border border-white/40 max-w-7xl mx-auto">
                 <form onSubmit={handleSearch} className="flex flex-row items-center gap-2">
                     {/* Locations Group */}
-                    <div className="flex-[3] flex flex-row items-center gap-2">
+                    <div className={`${differentDropoff ? 'flex-[6]' : 'flex-[4]'} flex flex-row items-center gap-2 transition-all duration-500`}>
                         <div className={`relative h-16 bg-slate-50/50 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 group shadow-sm`}>
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
                                 {getLocationIcon(pickupSelection?.type || '', 'w-6 h-6 group-focus-within:text-blue-500')}
@@ -569,7 +569,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
 
                     {/* Pickup Date/Time */}
-                    <div className="flex-[3] flex flex-row items-center gap-1 bg-slate-50/30 p-1 rounded-2xl border border-slate-200/30">
+                    <div className="flex-[2.5] flex flex-row items-center gap-1 bg-slate-50/30 p-1 rounded-2xl border border-slate-200/30">
                         <DesktopDateField
                             label="Pick-up Date"
                             value={pickupDate}
@@ -585,7 +585,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
                     
                     {/* Dropoff Date/Time */}
-                    <div className="flex-[3] flex flex-row items-center gap-1 bg-slate-50/30 p-1 rounded-2xl border border-slate-200/30">
+                    <div className="flex-[2.5] flex flex-row items-center gap-1 bg-slate-50/30 p-1 rounded-2xl border border-slate-200/30">
                         <DesktopDateField
                             label="Drop-off Date"
                             value={dropoffDate}
