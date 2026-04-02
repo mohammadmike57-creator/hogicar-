@@ -384,7 +384,7 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 max-w-4xl mx-auto">
+          <div className="mt-12 grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4 max-w-5xl mx-auto px-4">
             {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;
@@ -392,28 +392,26 @@ const Searching: React.FC = () => {
               return (
                 <div
                   key={supplier.isLocal ? `local-${supplier.id}` : `real-${supplier.id}`}
-                  className="relative flex items-center justify-center aspect-[4/3] rounded-2xl transition-all duration-700 shadow-sm hover:shadow-xl group"
+                  className="relative flex items-center justify-center aspect-square rounded-2xl transition-all duration-700 shadow-sm hover:shadow-xl group overflow-hidden"
                   style={{
-                    backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
                     backdropFilter: 'blur(12px)',
-                    border: isChecked ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
-                    padding: `${(supplier.spacing || 24) / 2}px`,
-                    filter: isChecked ? 'none' : 'grayscale(100%) brightness(0.6) blur(1px)',
-                    opacity: 0,
-                    transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(10px)',
+                    border: isChecked ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    padding: `${(supplier.spacing || 24) / 3}px`,
+                    opacity: 1,
+                    transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(5px)',
                     animation: `pop-in-box 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                    animationDelay: `${index * 80}ms`
+                    animationDelay: `${index * 50}ms`
                   }}
                 >
                   <img
                     src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
-                    className="w-full h-full object-contain transition-all duration-1000 logo-scaled-hover"
+                    className="w-full h-full object-contain transition-all duration-1000"
                     style={{ 
-                        opacity: isChecked ? 1 : 0.3,
-                        filter: isChecked ? 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' : 'none',
-                        '--logo-scale': (supplier.scale || 100) / 100,
-                        '--logo-scale-mobile': (supplier.mobileScale || 100) / 100
+                        opacity: isChecked ? 1 : 0.45,
+                        filter: isChecked ? 'grayscale(0%) brightness(1)' : 'grayscale(100%) brightness(0.8) blur(0.5px)',
+                        transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
                     } as any}
                   />
                   {isChecking && (
