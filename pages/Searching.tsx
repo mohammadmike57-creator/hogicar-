@@ -87,10 +87,14 @@ const Searching: React.FC = () => {
   React.useEffect(() => {
     const loadSuppliers = async () => {
       try {
+        console.log("Searching: Loading suppliers and logos for location:", pickupIata);
         const [realData, searchingLogos] = await Promise.all([
             fetchPublicSuppliers(pickupIata),
             fetchSearchingLogos(pickupIata)
         ]);
+        
+        console.log("Searching: Real suppliers found:", realData?.length);
+        console.log("Searching: Searching logos found:", searchingLogos?.length);
         
         let results: any[] = [];
         
@@ -123,10 +127,11 @@ const Searching: React.FC = () => {
           });
         }
         
-        // Finalize supplier list - NO MOCK DATA as requested
-        setSuppliers(results.slice(0, 20));
+        console.log("Searching: Total logos to display:", results.length);
+        // Finalize supplier list - show up to 30
+        setSuppliers(results.slice(0, 30));
       } catch (error) {
-        console.error("Failed to load search branding", error);
+        console.error("Searching: Failed to load search branding", error);
         setSuppliers([]);
       }
     };
@@ -383,7 +388,7 @@ const Searching: React.FC = () => {
 
               return (
                 <div
-                  key={supplier.id || index}
+                  key={supplier.isLocal ? `local-${supplier.id}` : `real-${supplier.id}`}
                   className="relative flex items-center justify-center aspect-[3/2] p-2 rounded-xl transition-all duration-500"
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',

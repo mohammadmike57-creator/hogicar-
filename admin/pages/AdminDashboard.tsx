@@ -75,7 +75,7 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<s
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
-                'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 'homepagelogos';
+                'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 'homepagelogos' | 'searchinglogos';
 
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
@@ -1848,6 +1848,7 @@ const SearchingLogosContent = () => {
         setLoading(true);
         try {
             const data = await adminFetch('/api/admin/searching-logos');
+            console.log("Fetched searching logos:", data);
             setLogos(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error('Failed to fetch searching logos', e);
@@ -1870,12 +1871,14 @@ const SearchingLogosContent = () => {
 
     const handleSave = async (logo: any) => {
         try {
+            console.log("Saving searching logo:", logo);
             const method = logo.id ? 'PUT' : 'POST';
             const url = logo.id ? `/api/admin/searching-logos/${logo.id}` : '/api/admin/searching-logos';
-            await adminFetch(url, {
+            const saved = await adminFetch(url, {
                 method,
                 body: JSON.stringify(logo)
             });
+            console.log("Saved searching logo result:", saved);
             fetchLogos();
             setEditingLogo(null);
         } catch (e: any) {
