@@ -965,14 +965,95 @@ const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
 
 // ==================== Site Settings ====================
 const SiteSettingsContent = () => {
-  const [duration, setDuration] = useState(MOCK_APP_CONFIG.searchingScreenDuration / 1000);
+  const [duration, setDuration] = useState(5);
+  const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
-  const handleSave = () => { updateAppConfig({ searchingScreenDuration: duration * 1000 }); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+
+  useEffect(() => {
+    adminFetch('/api/admin/settings')
+      .then(res => res.json())
+      .then(data => {
+        setDuration(data.searchingScreenDuration / 1000);
+        setHeroImageUrl(data.heroImageUrl || '');
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch settings:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleSave = () => {
+    adminFetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        searchingScreenDuration: duration * 1000,
+        heroImageUrl: heroImageUrl
+      })
+    })
+    .then(() => {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    })
+    .catch(err => alert('Failed to save settings: ' + err.message));
+  };
+
+  if (loading) return <div className="p-8 text-center text-slate-500 font-black uppercase tracking-widest text-xs">Loading Settings...</div>;
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <SectionHeader title="Site Settings" icon={Settings} />
-      <div><label className="block text-sm font-bold">Searching Screen Duration (seconds)</label><input type="number" value={duration} onChange={e => setDuration(Number(e.target.value))} className="border rounded p-2 w-32" /></div>
-      <button onClick={handleSave} className="mt-3 bg-orange-600 text-white px-4 py-2 rounded">Save</button>{saved && <span className="ml-2 text-green-600">Saved!</span>}
+    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+      <div className="p-8 border-b border-gray-50 bg-gray-50/30">
+        <SectionHeader title="Site Configuration" icon={Settings} subtitle="Global behavior and design settings" />
+      </div>
+      <div className="p-8 space-y-6">
+        <div>
+          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Searching Screen Duration (seconds)</label>
+          <input 
+            type="number" 
+            value={duration} 
+            onChange={e => setDuration(Number(e.target.value))} 
+            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none" 
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Homepage Hero Background Image URL</label>
+          <input 
+            type="text" 
+            value={heroImageUrl} 
+            onChange={e => setHeroImageUrl(e.target.value)} 
+            placeholder="https://example.com/image.jpg"
+            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none font-mono" 
+          />
+          <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
+        </div>
+        
+        {heroImageUrl && (
+          <div className="mt-4">
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Preview</label>
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-slate-100 bg-slate-50">
+              <img src={heroImageUrl} alt="Hero Preview" className="w-full h-full object-cover" />
+            </div>
+          </div>
+        )}
+
+        <div className="pt-4 flex items-center gap-4">
+          <button 
+            onClick={handleSave} 
+            className="bg-orange-600 text-white px-8 py-3 rounded-2xl font-black text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            Save Configuration
+          </button>
+          {saved && (
+            <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-green-600 font-black text-xs uppercase tracking-widest flex items-center gap-1">
+              <CheckCircle className="w-4 h-4" />
+              Settings Saved Successfully
+            </motion.span>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

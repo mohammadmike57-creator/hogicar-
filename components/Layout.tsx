@@ -156,7 +156,7 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-[#004099] border-b border-[#003580] shadow-md w-full">
+      <header className={`sticky top-0 z-50 border-b w-full transition-all duration-300 ${isHomePage ? 'bg-[#004099]/80 backdrop-blur-md border-[#003580]/50 shadow-lg' : 'bg-[#004099] border-[#003580] shadow-md'}`}>
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center max-w-[150px] overflow-hidden">
