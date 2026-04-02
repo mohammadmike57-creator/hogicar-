@@ -183,15 +183,16 @@ export const Search: React.FC = () => {
   const [sortBy, setSortBy] = React.useState('Recommended');
   const [openFilters, setOpenFilters] = React.useState<string[]>(['Price', 'Category', 'Passengers', 'LocationType', 'Supplier']);
   const [showMobileFilters, setShowMobileFilters] = React.useState(false);
+  const [showMobileSort, setShowMobileSort] = React.useState(false);
   
   const [selectedPaymentTypes, setSelectedPaymentTypes] = React.useState<string[]>([]);
   const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
 
-  // Effect to lock scroll when mobile filters are open
+  // Effect to lock scroll when mobile filters or sort are open
   React.useEffect(() => {
-    if (showMobileFilters) {
+    if (showMobileFilters || showMobileSort) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -199,7 +200,7 @@ export const Search: React.FC = () => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showMobileFilters]);
+  }, [showMobileFilters, showMobileSort]);
 
   const handleResetFilters = () => {
     setPriceRange(300);
@@ -524,7 +525,10 @@ export const Search: React.FC = () => {
         {/* Mobile Filter & Sort Controls */}
         <div className="md:hidden mb-0 bg-white p-3 border-b border-slate-100 sticky top-[100px] z-20 flex gap-3 shadow-sm">
             <button 
-                onClick={() => setShowMobileFilters(true)}
+                onClick={() => {
+                    setShowMobileSort(false);
+                    setShowMobileFilters(true);
+                }}
                 className="w-1/2 flex items-center justify-center gap-2 bg-slate-900 text-white p-3 rounded-xl font-bold text-xs shadow-lg shadow-slate-200 active:scale-[0.98] transition-all"
             >
                 <Filter className="w-4 h-4 text-blue-400" />
@@ -535,18 +539,20 @@ export const Search: React.FC = () => {
                     </span>
                 )}
             </button>
-            <div className="relative w-1/2">
-                <select 
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full h-full appearance-none bg-white border border-slate-200 pl-4 pr-10 py-3 rounded-xl font-bold text-slate-700 shadow-sm text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
-                >
-                    <option>Recommended</option>
-                    <option>Price: Low to High</option>
-                    <option>Price: High to Low</option>
-                </select>
-                <ArrowUpDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <button 
+                onClick={() => {
+                    setShowMobileFilters(false);
+                    setShowMobileSort(true);
+                }}
+                className="w-1/2 flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 p-3 rounded-xl font-bold text-xs shadow-sm active:scale-[0.98] transition-all"
+            >
+                {sortBy === 'Recommended' ? (
+                    <Gem className="w-4 h-4 text-blue-600" />
+                ) : (
+                    <ArrowUpDown className="w-4 h-4 text-blue-600" />
+                )}
+                <span>{sortBy}</span>
+            </button>
         </div>
 
 
@@ -802,6 +808,68 @@ export const Search: React.FC = () => {
                   >
                     Show {sortedAndFilteredCars.length} results
                   </button>
+              </div>
+            </aside>
+          </div>
+
+          {/* Mobile Sorting Pop-up */}
+          <div className={`
+            fixed inset-0 z-[110] md:hidden
+            ${showMobileSort ? 'flex' : 'hidden'} 
+            w-full flex-col
+          `}>
+            {/* Mobile Backdrop */}
+            <div 
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300"
+              onClick={() => setShowMobileSort(false)}
+            />
+
+            <aside className={`
+              relative bg-white w-full mt-auto rounded-t-[32px] shadow-2xl flex flex-col
+              overflow-hidden transition-transform duration-500 ease-out
+              ${showMobileSort ? 'translate-y-0' : 'translate-y-full'}
+            `}>
+              <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
+                  <ArrowUpDown className="w-4 h-4 text-blue-600" /> Sort By
+                </h3>
+                <button 
+                  onClick={() => setShowMobileSort(false)}
+                  className="p-2 bg-slate-100 rounded-full text-slate-500 active:scale-90 transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-4 space-y-3 pb-12">
+                {[
+                  { label: 'Recommended', icon: <Gem className="w-4 h-4" /> },
+                  { label: 'Price: Low to High', icon: <ArrowUpDown className="w-4 h-4 rotate-180" /> },
+                  { label: 'Price: High to Low', icon: <ArrowUpDown className="w-4 h-4" /> }
+                ].map((option) => (
+                  <button
+                    key={option.label}
+                    onClick={() => {
+                      setSortBy(option.label);
+                      setShowMobileSort(false);
+                    }}
+                    className={`w-full flex items-center justify-between p-5 rounded-2xl transition-all ${
+                      sortBy === option.label 
+                        ? 'bg-blue-600 border-2 border-blue-600 text-white shadow-lg shadow-blue-200' 
+                        : 'bg-slate-50 border-2 border-transparent text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${sortBy === option.label ? 'bg-white/20' : 'bg-white shadow-sm'}`}>
+                            {React.cloneElement(option.icon as React.ReactElement, { 
+                                className: `w-4 h-4 ${sortBy === option.label ? 'text-white' : 'text-blue-600'}` 
+                            })}
+                        </div>
+                        <span className="font-bold text-sm">{option.label}</span>
+                    </div>
+                    {sortBy === option.label && <div className="bg-white rounded-full p-1"><Check className="w-3 h-3 text-blue-600" /></div>}
+                  </button>
+                ))}
               </div>
             </aside>
           </div>
