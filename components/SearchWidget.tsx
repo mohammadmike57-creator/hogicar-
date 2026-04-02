@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ArrowLeft, History } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ArrowLeft, History, ChevronDown } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 import SearchOverlay from './SearchOverlay';
 
