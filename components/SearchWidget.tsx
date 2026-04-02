@@ -328,26 +328,32 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string }) => (
-        <div className="relative flex-1">
-            <label className="absolute top-1 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
+        <div className="relative flex-1 group">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+                <Calendar className="w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
+            <label className="absolute top-1.5 left-10 text-[10px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
             <input
                 type="date"
                 value={value}
                 onChange={onChange}
                 min={min}
-                className="w-full h-14 pt-5 pb-1 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer"
+                className="w-full h-14 pt-5 pb-1 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer transition-all"
                 style={{ colorScheme: 'light' }}
             />
         </div>
     );
 
     const DesktopTimeField = ({ label, value, onChange, options }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[] }) => (
-        <div className="relative flex-1">
-            <label className="absolute top-1 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
+        <div className="relative flex-1 group">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+                <Clock className="w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
+            <label className="absolute top-1.5 left-10 text-[10px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
             <select
                 value={value}
                 onChange={onChange}
-                className="w-full h-14 pt-5 pb-1 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer appearance-none"
+                className="w-full h-14 pt-5 pb-1 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer appearance-none transition-all"
             >
                 {options.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -508,18 +514,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- DESKTOP WIDGET (fixed date pickers) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="bg-white p-2 rounded-2xl shadow-2xl relative z-10 border border-slate-200/60">
-                <form onSubmit={handleSearch} className="flex flex-col gap-2">
-                    <div className="flex flex-row items-center gap-2 w-full">
-                        <div className={`relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full`}>
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
+            <div className="bg-white/95 backdrop-blur-sm p-4 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] relative z-10 border border-white/20">
+                <form onSubmit={handleSearch} className="flex flex-col gap-3">
+                    <div className="flex flex-row items-center gap-3 w-full">
+                        <div className={`relative h-16 bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full group`}>
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
+                                {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5 group-focus-within:text-blue-500')}
                             </div>
-                            <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pick-up</div>
+                            <div className="absolute top-2 left-11 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Pick-up Location</div>
                             <input 
                                 type="text" 
                                 placeholder="City, airport, or station" 
-                                className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent" 
+                                className="block w-full h-full pl-11 pr-4 pt-5 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent" 
                                 value={pickupQuery} 
                                 onChange={handleLocationChange} 
                                 onFocus={handleFocus} 
@@ -527,29 +533,29 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 required 
                             />
                             {isSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-2 w-[550px] left-1/2 -translate-x-1/2 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-3 w-[600px] left-0 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto py-2">
                                     {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                                 </div>
                             )}
                         </div>
 
                         {differentDropoff && (
-                            <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}
+                            <div className="relative h-16 bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
+                                    {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5 group-focus-within:text-blue-500')}
                                 </div>
-                                <div className="absolute top-1.5 left-11 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Drop-off</div>
+                                <div className="absolute top-2 left-11 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Drop-off Location</div>
                                 <input
                                     type="text"
                                     placeholder="Enter drop-off city"
-                                    className="block w-full h-full pl-11 pr-4 pt-4 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent"
+                                    className="block w-full h-full pl-11 pr-4 pt-5 pb-1 border-none focus:ring-0 focus:outline-none text-base font-bold placeholder-slate-400 text-slate-900 bg-transparent"
                                     value={dropoffQuery}
                                     onChange={handleDropoffLocationChange}
                                     onFocus={handleDropoffFocus}
                                     autoComplete="off"
                                 />
                                 {isDropoffSuggestionsOpen && (
-                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-2 w-[550px] left-1/2 -translate-x-1/2 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-3 w-[600px] right-0 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto py-2">
                                         {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                     </div>
                                 )}
@@ -557,32 +563,39 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
                     </div>
 
-                    <div className="flex flex-row items-center gap-2 w-full">
-                        <DesktopDateField
-                            label="Pick-up Date"
-                            value={pickupDate}
-                            onChange={(e) => setPickupDate(e.target.value)}
-                            min={today.toISOString().split('T')[0]}
-                        />
-                        <DesktopTimeField
-                            label="Pick-up Time"
-                            value={pickupTime}
-                            onChange={(e) => setPickupTime(e.target.value)}
-                            options={timeOptions}
-                        />
-                        <DesktopDateField
-                            label="Drop-off Date"
-                            value={dropoffDate}
-                            onChange={(e) => setDropoffDate(e.target.value)}
-                            min={pickupDate}
-                        />
-                        <DesktopTimeField
-                            label="Drop-off Time"
-                            value={dropoffTime}
-                            onChange={(e) => setDropoffTime(e.target.value)}
-                            options={timeOptions}
-                        />
-                        <button type="submit" className="h-14 px-8 bg-[#16a34a] hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center text-lg whitespace-nowrap">
+                    <div className="flex flex-row items-center gap-3 w-full">
+                        <div className="flex-[2] flex flex-row items-center gap-2">
+                            <DesktopDateField
+                                label="Pick-up Date"
+                                value={pickupDate}
+                                onChange={(e) => setPickupDate(e.target.value)}
+                                min={today.toISOString().split('T')[0]}
+                            />
+                            <DesktopTimeField
+                                label="Time"
+                                value={pickupTime}
+                                onChange={(e) => setPickupTime(e.target.value)}
+                                options={timeOptions}
+                            />
+                        </div>
+                        
+                        <div className="flex-[2] flex flex-row items-center gap-2">
+                            <DesktopDateField
+                                label="Drop-off Date"
+                                value={dropoffDate}
+                                onChange={(e) => setDropoffDate(e.target.value)}
+                                min={pickupDate}
+                            />
+                            <DesktopTimeField
+                                label="Time"
+                                value={dropoffTime}
+                                onChange={(e) => setDropoffTime(e.target.value)}
+                                options={timeOptions}
+                            />
+                        </div>
+
+                        <button type="submit" className="h-14 px-10 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-black rounded-2xl shadow-[0_10px_20px_rgba(22,163,74,0.3)] transition-all hover:shadow-[0_15px_30px_rgba(22,163,74,0.4)] active:scale-[0.98] flex items-center justify-center text-xl tracking-tight group">
+                            <SearchIcon className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                             Search
                         </button>
                     </div>

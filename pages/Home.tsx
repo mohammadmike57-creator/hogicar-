@@ -109,7 +109,7 @@ const Home: React.FC = () => {
       />
       
       {/* HERO – professional version */}
-      <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center overflow-hidden">
+      <section className="relative min-h-[600px] lg:min-h-[600px] flex items-center overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -123,7 +123,7 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-16">
           <div className="max-w-4xl flex flex-col items-center lg:items-start text-center lg:text-left">
             {/* Professional Trust Badge */}
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-white mb-8 border border-white/20 shadow-xl shadow-black/20">
@@ -135,12 +135,12 @@ const Home: React.FC = () => {
               <span className="uppercase tracking-[0.1em] text-[10px] sm:text-xs">TRUSTED BY 10,000+ CUSTOMERS WORLDWIDE</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-white mb-8 leading-[1.05] tracking-tight drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-6xl lg:text-6xl font-black text-white mb-4 leading-[1.05] tracking-tight drop-shadow-2xl">
               Search, Compare & <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-400">Save on Rentals</span>
             </h1>
             
-            <p className="text-lg lg:text-2xl text-slate-100 mb-12 max-w-2xl leading-relaxed font-medium drop-shadow-md">
+            <p className="text-lg lg:text-xl text-slate-100 mb-8 max-w-2xl leading-relaxed font-medium drop-shadow-md">
               Compare thousands of deals from <span className="text-white font-extrabold underline decoration-blue-500/50 underline-offset-4">900+ trusted suppliers</span> in over 60,000 locations worldwide.
             </p>
 
