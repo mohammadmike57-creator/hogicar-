@@ -115,17 +115,18 @@ const Searching: React.FC = () => {
                 id: s.id,
                 name: s.name,
                 logoUrl: s.logoUrl || s.logo,
-                scale: s.scale,
-                isLocal: true
+                scale: s.logoScale || 100,
+                mobileScale: s.logoScaleMobile || 100,
+                isLocal: false
               });
             }
           });
         }
         
-        // Finalize supplier list without mock fallbacks
-        setSuppliers(results.slice(0, 18));
+        // Finalize supplier list - NO MOCK DATA as requested
+        setSuppliers(results.slice(0, 20));
       } catch (error) {
-        // In case of error, do not show mock data; keep UI minimal
+        console.error("Failed to load search branding", error);
         setSuppliers([]);
       }
     };
@@ -140,6 +141,9 @@ const Searching: React.FC = () => {
     "All our suppliers are strictly vetted for quality.",
     "Prices are guaranteed once you book.",
     "Save up to 40% with local suppliers!",
+    "Instant confirmation for most car types.",
+    "24/7 Premium support for all bookings.",
+    "Transparent pricing - no hidden surprises.",
   ];
 
   const [currentTipIndex, setCurrentTipIndex] = React.useState(0);
@@ -151,16 +155,19 @@ const Searching: React.FC = () => {
     return () => clearInterval(tipInterval);
   }, []);
 
-  const totalSuppliers = suppliers.length || 12; // Fallback to 12 if loading
+  const totalSuppliers = suppliers.length; // Target scan count
 
   const searchMessages = [
-    "Contacting suppliers in your area...",
-    "Scanning Economy car availability...",
-    "Checking SUV and Premium deals...",
-    "Comparing local fuel & insurance policies...",
-    "Verifying Meet & Greet services...",
-    "Applying exclusive Hogicar discounts...",
-    "Finalizing best rates for your trip...",
+    "Initializing secure connection to Global Distribution Systems...",
+    "Scanning 450+ data points in your area...",
+    "Verifying Economy and Compact car availability...",
+    "Analyzing local fuel, insurance, and mileage policies...",
+    "Checking SUV, Luxury and Premium deals...",
+    "Verifying Meet & Greet and Terminal services...",
+    "Retrieving exclusive Hogicar member discounts...",
+    "Calculating regional taxes and mandatory fees...",
+    "Optimizing results for the best price-to-quality ratio...",
+    "Finalizing live rates for your specific dates...",
   ];
   
   // Effect for canvas animation
@@ -300,18 +307,20 @@ const Searching: React.FC = () => {
               Searching for the best deals in
             </h1>
             
-            <div className="flex flex-col items-center justify-center gap-2">
-              <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl">
-                <MapPin className="w-5 h-5 text-amber-400" />
-                <span className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
+            <div className="flex flex-col items-center justify-center gap-2 relative">
+              <div className="flex items-center gap-3 bg-white/10 px-8 py-4 rounded-3xl backdrop-blur-xl border border-white/20 shadow-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent animate-pulse" />
+                <MapPin className="w-6 h-6 text-amber-400 relative z-10" />
+                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase relative z-10 drop-shadow-md">
                   {pickupName}
                 </span>
                 {pickupIata && (
-                  <span className="bg-amber-400 text-slate-900 px-2 py-0.5 rounded text-[10px] font-bold tracking-tighter">
+                  <span className="bg-amber-400 text-slate-900 px-3 py-1 rounded-lg text-xs font-black tracking-tighter relative z-10 shadow-lg">
                     {pickupIata.toUpperCase()}
                   </span>
                 )}
               </div>
+              <div className="absolute -inset-1 bg-blue-400/20 blur-xl rounded-full animate-pulse -z-10" />
             </div>
           </div>
 
@@ -350,9 +359,22 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <p className="mt-4 text-xs font-bold text-blue-300/60 tracking-widest uppercase">
-            {suppliersScanned} / {totalSuppliers} Suppliers Scanned
-          </p>
+          <div className="mt-8 flex items-center justify-center gap-8 bg-white/5 py-4 px-10 rounded-3xl backdrop-blur-sm border border-white/5 shadow-2xl">
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Security</span>
+              <span className="text-xs font-black text-green-400 tracking-tighter uppercase">Verified</span>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Scanning</span>
+              <span className="text-xs font-black text-white tracking-tighter uppercase">{Math.floor(progress * 100)}%</span>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Results</span>
+              <span className="text-xs font-black text-amber-400 tracking-tighter uppercase">{suppliersScanned} Found</span>
+            </div>
+          </div>
 
           <div className="mt-8 grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-4 max-w-2xl mx-auto">
             {suppliers.map((supplier, index) => {

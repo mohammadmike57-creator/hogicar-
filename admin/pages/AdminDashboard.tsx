@@ -540,6 +540,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
         gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
         minBookingLeadTime: editedSupplier.minBookingLeadTime ?? 0,
         logoScale: editedSupplier.logoScale ?? 100,
+        logoScaleMobile: editedSupplier.logoScaleMobile ?? 100,
         oneWayFee: editedSupplier.oneWayFee ?? 0,
         connectionType: editedSupplier.connectionType || 'manual'
     };
@@ -1623,7 +1624,9 @@ export const AdminDashboard: React.FC = () => {
         pickupType: updatedSupplier.pickupType,
         minRentalDays: updatedSupplier.minRentalDays,
         maxRentalDays: updatedSupplier.maxRentalDays,
-        maxBookingLeadTimeDays: updatedSupplier.maxBookingLeadTimeDays
+        maxBookingLeadTimeDays: updatedSupplier.maxBookingLeadTimeDays,
+        logoScale: updatedSupplier.logoScale || 100,
+        logoScaleMobile: updatedSupplier.logoScaleMobile || 100
       };
 
       if (!updatedSupplier.id) {
