@@ -7,7 +7,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
@@ -188,6 +188,31 @@ export const Search: React.FC = () => {
   const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
+
+  // Effect to lock scroll when mobile filters are open
+  React.useEffect(() => {
+    if (showMobileFilters) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileFilters]);
+
+  const handleResetFilters = () => {
+    setPriceRange(300);
+    setSelectedCategories([]);
+    setSelectedSuppliers([]);
+    setSelectedTransmissions([]);
+    setSelectedFuelPolicies([]);
+    setPassengerCapacity(0);
+    setSelectedPaymentTypes([]);
+    setMaxDeposit(0);
+    setSelectedLocationTypes([]);
+    setSpecialOffersOnly(false);
+  };
 
   const handleSearch = (params: any) => {
     const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
@@ -373,7 +398,7 @@ export const Search: React.FC = () => {
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
       <div className="bg-white shadow-sm border-b border-slate-200 sticky top-16 z-30">
-        <div className="max-w-6xl mx-auto px-2 py-1 sm:py-2 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-2 py-1 sm:py-2 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="flex justify-between items-center cursor-pointer group bg-white hover:bg-slate-50 transition-colors duration-200 p-0.5 sm:p-1 rounded-lg border border-transparent hover:border-blue-300"
@@ -436,7 +461,7 @@ export const Search: React.FC = () => {
 
        {/* Category Image Filter */}
       <div className="bg-white border-b border-slate-200 py-2 sm:py-3">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center mb-2 sm:mb-3">
                 <h2 className="text-[11px] sm:text-sm font-bold text-slate-800">Filter by Category</h2>
                 <div className="hidden sm:flex items-center gap-2">
@@ -494,61 +519,85 @@ export const Search: React.FC = () => {
       </div>
 
       {/* Main Results Container - px-0 on mobile for edge-to-edge */}
-      <div className="max-w-6xl mx-auto px-0 md:px-6 lg:px-8 pt-0 md:pt-6">
+      <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 pt-0 md:pt-6">
         
         {/* Mobile Filter & Sort Controls */}
-        <div className="md:hidden mb-0 bg-slate-50 p-2 border-b border-slate-200 sticky top-[100px] z-20 flex gap-2">
+        <div className="md:hidden mb-0 bg-white p-3 border-b border-slate-100 sticky top-[100px] z-20 flex gap-3 shadow-sm">
             <button 
-                onClick={() => setShowMobileFilters(!showMobileFilters)}
-                className="w-1/2 flex items-center justify-center gap-1.5 bg-white border border-slate-200 p-2 rounded-md font-medium text-slate-700 shadow-sm text-xs active:bg-slate-50"
+                onClick={() => setShowMobileFilters(true)}
+                className="w-1/2 flex items-center justify-center gap-2 bg-slate-900 text-white p-3 rounded-xl font-bold text-xs shadow-lg shadow-slate-200 active:scale-[0.98] transition-all"
             >
-                <Filter className="w-3.5 h-3.5" />
+                <Filter className="w-4 h-4 text-blue-400" />
                 <span>Filters</span>
+                { (selectedCategories.length + selectedSuppliers.length + selectedTransmissions.length + selectedFuelPolicies.length + (passengerCapacity > 0 ? 1 : 0)) > 0 && (
+                    <span className="bg-blue-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
+                        {(selectedCategories.length + selectedSuppliers.length + selectedTransmissions.length + selectedFuelPolicies.length + (passengerCapacity > 0 ? 1 : 0))}
+                    </span>
+                )}
             </button>
             <div className="relative w-1/2">
                 <select 
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full h-full appearance-none bg-white border border-slate-200 p-2 rounded-md font-medium text-slate-700 shadow-sm text-xs active:bg-slate-50 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none pl-2.5"
+                    className="w-full h-full appearance-none bg-white border border-slate-200 pl-4 pr-10 py-3 rounded-xl font-bold text-slate-700 shadow-sm text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
                 >
                     <option>Recommended</option>
                     <option>Price: Low to High</option>
                     <option>Price: High to Low</option>
                 </select>
-                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ArrowUpDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
         </div>
 
 
         <div className="flex flex-col md:flex-row gap-8 items-start">
           
-          {/* Filters Sidebar */}
-          <aside className={`w-full md:w-64 lg:w-72 flex-shrink-0 ${showMobileFilters ? 'block' : 'hidden'} md:block pt-4 md:pt-0`}>
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 sticky top-36">
-              <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50/50 rounded-t-lg">
-                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm">
-                  <SlidersHorizontal className="w-4 h-4" /> Filters
-                </h3>
-                <button 
-                  onClick={() => {
-                    setPriceRange(300);
-                    setSelectedCategories([]);
-                    setSelectedSuppliers([]);
-                    setSelectedTransmissions([]);
-                    setSelectedFuelPolicies([]);
-                    setPassengerCapacity(0);
-                    setSelectedPaymentTypes([]);
-                    setMaxDeposit(0);
-                    setSelectedLocationTypes([]);
-                    setSpecialOffersOnly(false);
-                  }}
-                  className="text-[10px] text-blue-600 font-semibold hover:underline uppercase tracking-wide"
-                >
-                  Clear All
-                </button>
+          {/* Filters Sidebar / Mobile Pop-up */}
+          <div className={`
+            fixed inset-0 z-[100] md:relative md:inset-auto md:z-0
+            ${showMobileFilters ? 'flex' : 'hidden md:block'} 
+            w-full md:w-64 lg:w-72 flex-shrink-0
+          `}>
+            {/* Mobile Backdrop */}
+            <div 
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
+              onClick={() => setShowMobileFilters(false)}
+            />
+
+            <aside className={`
+              relative bg-white w-full h-[90vh] mt-auto rounded-t-[32px] shadow-2xl flex flex-col
+              md:h-auto md:mt-0 md:rounded-lg md:shadow-sm md:border md:border-slate-200 md:sticky md:top-36
+              overflow-hidden transition-transform duration-500 ease-out
+              ${showMobileFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
+            `}>
+              <div className="flex items-center justify-between p-5 border-b border-slate-100 md:bg-slate-50/50 md:rounded-t-lg">
+                <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
+                      <SlidersHorizontal className="w-4 h-4 text-blue-600" /> Filters
+                    </h3>
+                    {showMobileFilters && (
+                        <span className="md:hidden bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                            {sortedAndFilteredCars.length} results
+                        </span>
+                    )}
+                </div>
+                <div className="flex items-center gap-4">
+                    <button 
+                      onClick={handleResetFilters}
+                      className="text-[10px] text-blue-600 font-bold hover:underline uppercase tracking-widest"
+                    >
+                      Reset
+                    </button>
+                    <button 
+                      onClick={() => setShowMobileFilters(false)}
+                      className="md:hidden p-2 bg-slate-100 rounded-full text-slate-500 active:scale-90 transition-all"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                </div>
               </div>
 
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 overflow-y-auto flex-1 custom-scrollbar pb-24 md:pb-0">
                   {/* Special Offers Filter */}
                   <div className="p-4">
                       <label className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
@@ -744,8 +793,18 @@ export const Search: React.FC = () => {
                   </div>
 
               </div>
-            </div>
-          </aside>
+
+              {/* Mobile Footer */}
+              <div className="p-4 border-t border-slate-100 md:hidden bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] absolute bottom-0 left-0 right-0 z-10">
+                  <button 
+                    onClick={() => setShowMobileFilters(false)}
+                    className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-blue-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    Show {sortedAndFilteredCars.length} results
+                  </button>
+              </div>
+            </aside>
+          </div>
           
           {/* Results List */}
           <main className="flex-grow w-full">
