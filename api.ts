@@ -187,7 +187,7 @@ export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]
       ? `${API_BASE_URL}/api/public/suppliers?locationCode=${encodeURIComponent(locationCode)}`
       : `${API_BASE_URL}/api/public/suppliers`;
     const response = await publicAxios.get(url);
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('Error fetching public suppliers:', error);
     return [];
@@ -197,7 +197,7 @@ export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]
 export const fetchHomepageLogos = async (): Promise<any[]> => {
   try {
     const response = await publicAxios.get(`${API_BASE_URL}/api/public/homepage-logos`);
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('Error fetching homepage logos:', error);
     return [];
@@ -210,7 +210,7 @@ export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]>
       ? `${API_BASE_URL}/api/public/searching-logos?locationCode=${encodeURIComponent(locationCode)}`
       : `${API_BASE_URL}/api/public/searching-logos`;
     const response = await publicAxios.get(url);
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('Error fetching searching logos:', error);
     return [];

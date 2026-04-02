@@ -475,7 +475,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     if (isOpen) { 
         setEditedSupplier(supplier || {}); 
         if (supplier?.locations && supplier.locations.length > 0) 
-            setSelectedLocations(supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode }))); 
+            setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode })) : []);
         else if (supplier?.location && supplier?.locationCode)
             setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
         else 
@@ -597,8 +597,8 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                         {PICKUP_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                 </div>
-                <InputField label="Logo Scale (Desktop %)" type="number" value={editedSupplier.logoScale || 100} onChange={(e: any) => handleChange('logoScale', parseInt(e.target.value))} />
-                <InputField label="Logo Scale (Mobile %)" type="number" value={editedSupplier.logoScaleMobile || 100} onChange={(e: any) => handleChange('logoScaleMobile', parseInt(e.target.value))} />
+                <InputField label="Logo Scale (Desktop %)" type="number" value={editedSupplier.logoScale ?? 100} onChange={(e: any) => handleChange('logoScale', parseInt(e.target.value) || 0)} />
+                <InputField label="Logo Scale (Mobile %)" type="number" value={editedSupplier.logoScaleMobile ?? 100} onChange={(e: any) => handleChange('logoScaleMobile', parseInt(e.target.value) || 0)} />
             </div>
           </div>
         </div>
@@ -1124,7 +1124,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{s.email || s.contactEmail}</div>
                                     <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
                                         <MapPin className="w-2.5 h-2.5" /> 
-                                        {s.locations?.length > 0 
+                                        {Array.isArray(s.locations) && s.locations.length > 0 
                                             ? s.locations.slice(0, 2).map((l:any) => l.displayName || l.locationCode).join(', ') + (s.locations.length > 2 ? '...' : '')
                                             : (s.location || 'Global')}
                                     </div>
@@ -1930,7 +1930,7 @@ const SearchingLogosContent = () => {
                                     <td className="px-8 py-4"><span className="text-sm font-black text-slate-900">{l.name}</span></td>
                                     <td className="px-8 py-4">
                                         <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                            {l.locationCodes && l.locationCodes.length > 0 ? (
+                                            {Array.isArray(l.locationCodes) && l.locationCodes.length > 0 ? (
                                                 l.locationCodes.map((code: string) => (
                                                     <span key={code} className="text-[9px] font-mono font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">
                                                         {code}
@@ -2008,7 +2008,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                         onChange={(loc: any) => {
                             if (!loc) return;
                             const code = loc.iataCode || loc.value;
-                            const currentCodes = formData.locationCodes || [];
+                            const currentCodes = Array.isArray(formData.locationCodes) ? formData.locationCodes : [];
                             if (!currentCodes.includes(code)) {
                                 setFormData({ ...formData, locationCodes: [...currentCodes, code] });
                             }
@@ -2016,10 +2016,10 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                         placeholder="Search to add location..." 
                     />
                     <div className="flex flex-wrap gap-1.5 mt-2 min-h-[32px] items-center">
-                        {(!formData.locationCodes || formData.locationCodes.length === 0) && (
+                        {(!Array.isArray(formData.locationCodes) || formData.locationCodes.length === 0) && (
                             <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-slate-100">Global (All Locations)</span>
                         )}
-                        {formData.locationCodes?.map((code: string) => (
+                        {Array.isArray(formData.locationCodes) && formData.locationCodes.map((code: string) => (
                             <span key={code} className="bg-blue-50 text-blue-700 pl-3 pr-2 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 border border-blue-100 group">
                                 {code}
                                 <button 
@@ -2035,12 +2035,13 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Display Order" type="number" value={formData.displayOrder} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })} />
-                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} />
+                    <InputField label="Display Order" type="number" value={formData.displayOrder ?? 0} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })} />
+                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale ?? 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) || 0 })} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale || 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) })} />
+                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale ?? 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) || 0 })} />
+                    <InputField label="Spacing (px)" type="number" value={formData.spacing ?? 24} onChange={(e: any) => setFormData({ ...formData, spacing: parseInt(e.target.value) || 0 })} />
                 </div>
 
                 <div className="space-y-2">
@@ -2112,13 +2113,13 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Display Order" type="number" value={formData.displayOrder} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })} />
-                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} />
+                    <InputField label="Display Order" type="number" value={formData.displayOrder ?? 0} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })} />
+                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale ?? 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) || 0 })} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale || 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) })} />
-                    <InputField label="Spacing (px)" type="number" value={formData.spacing || 24} onChange={(e: any) => setFormData({ ...formData, spacing: parseInt(e.target.value) })} />
+                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale ?? 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) || 0 })} />
+                    <InputField label="Spacing (px)" type="number" value={formData.spacing ?? 24} onChange={(e: any) => setFormData({ ...formData, spacing: parseInt(e.target.value) || 0 })} />
                 </div>
 
                 <div className="space-y-2">
