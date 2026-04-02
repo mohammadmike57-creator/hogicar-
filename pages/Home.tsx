@@ -122,41 +122,42 @@ const Home: React.FC = () => {
       />
       
       {/* HERO – professional version */}
-      <section className="relative min-h-[500px] lg:min-h-[550px] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center justify-center overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
             src={heroImageUrl} 
             alt="Hero background" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover scale-105"
           />
-          {/* Multi-layered overlay for depth and readability */}
-          <div className="absolute inset-0 bg-slate-900/50"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent"></div>
+          {/* Enhanced multi-layered overlay for ultimate professional look */}
+          <div className="absolute inset-0 bg-slate-950/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/30 via-transparent to-slate-950/30"></div>
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex flex-col items-center text-center">
-            {/* Professional Trust Badge - Centered */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-white mb-6 border border-white/20 shadow-xl shadow-black/20">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 lg:pt-44 lg:pb-24 flex flex-col items-center text-center">
+            {/* Professional Trust Badge - Enhanced */}
+            <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-xl px-5 py-2 rounded-full text-xs font-bold text-white mb-8 border border-white/20 shadow-2xl transition-all hover:bg-white/15 cursor-default group">
               <div className="flex -space-x-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current group-hover:scale-110 transition-transform duration-300" />
                 ))}
               </div>
-              <span className="uppercase tracking-[0.1em] text-[10px] sm:text-xs">TRUSTED BY 10,000+ CUSTOMERS WORLDWIDE</span>
+              <span className="uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black">TRUSTED BY 10,000+ CUSTOMERS</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black text-white mb-3 leading-[1.05] tracking-tight drop-shadow-2xl">
-              Compare & <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Save on Rentals</span>
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.05] tracking-tight drop-shadow-2xl">
+              Compare & <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-cyan-400 to-emerald-400">Save on Rentals</span>
             </h1>
             
-            <p className="text-sm sm:text-base lg:text-lg text-slate-100 mb-8 max-w-2xl leading-relaxed font-medium drop-shadow-md opacity-95">
-              Compare deals from <span className="text-white font-extrabold underline decoration-blue-500/50 underline-offset-4">900+ suppliers</span> in over 60,000 locations worldwide.
+            <p className="text-base sm:text-lg lg:text-xl text-slate-100/90 mb-12 max-w-3xl leading-relaxed font-medium drop-shadow-lg">
+              Compare premium deals from <span className="text-white font-black border-b-2 border-blue-500/50 pb-0.5">900+ trusted suppliers</span> in over 60,000 locations worldwide.
             </p>
 
-            {/* Container for Widget - Centered */}
-            <div className="w-full max-w-4xl relative">
-              <div className="absolute -inset-4 bg-blue-500/10 blur-3xl rounded-full opacity-30 pointer-events-none"></div>
+            {/* Container for Widget - Centered with Glow */}
+            <div className="w-full max-w-5xl relative">
+              <div className="absolute -inset-10 bg-blue-500/20 blur-[100px] rounded-full opacity-40 pointer-events-none animate-pulse"></div>
               <div className="relative z-10">
                 <SearchWidget 
                   onSearch={handleSearch} 
@@ -171,25 +172,34 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Benefits - Centered */}
-            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 mt-10 text-[10px] sm:text-xs font-black text-white/90 uppercase tracking-widest">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
+            {/* Quick Benefits - Modernized */}
+            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4 mt-16">
+              <div className="flex items-center gap-3 group">
+                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
                 </div>
-                <span>Free Cancellation</span>
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Flexibility</p>
+                  <p className="text-xs font-bold text-white">Free Cancellation</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
-                  <Shield className="w-4 h-4 text-blue-300" />
+              <div className="flex items-center gap-3 group">
+                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
+                  <Shield className="w-5 h-5 text-blue-400" />
                 </div>
-                <span>No Hidden Fees</span>
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Trust</p>
+                  <p className="text-xs font-bold text-white">No Hidden Fees</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
-                  <Award className="w-4 h-4 text-orange-400" />
+              <div className="flex items-center gap-3 group">
+                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
+                  <Award className="w-5 h-5 text-orange-400" />
                 </div>
-                <span>24/7 Global Support</span>
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Service</p>
+                  <p className="text-xs font-bold text-white">24/7 Support</p>
+                </div>
               </div>
             </div>
         </div>

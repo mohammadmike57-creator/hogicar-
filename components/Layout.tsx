@@ -139,11 +139,20 @@ const FullFooter = () => (
 const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false);
   const { selectedCurrency, setSelectedCurrency, currencies } = useCurrency();
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
   const isSearchingPage = location.pathname === '/searching';
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   React.useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -156,10 +165,14 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
       {/* HEADER */}
-      <header className={`sticky top-0 z-50 border-b w-full transition-all duration-300 ${isHomePage ? 'bg-[#004099]/80 backdrop-blur-md border-[#003580]/50 shadow-lg' : 'bg-[#004099] border-[#003580] shadow-md'}`}>
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+      <header className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
+        isHomePage 
+          ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
+          : 'bg-[#003580] shadow-md py-2 border-b border-[#002a66]'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[150px] overflow-hidden">
+          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 
