@@ -15,7 +15,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
-import { adminApi, fetchLocations, LocationSuggestion } from '../../api';
+import { fetchLocations, LocationSuggestion } from '../../api';
 import { adminFetch, getAdminToken } from '../../lib/adminApi';
 import { API_BASE_URL } from '../../lib/config';
 import { 
@@ -1783,7 +1783,7 @@ const HomepageLogosContent = () => {
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight text-left">Homepage Branding</h2>
                         <p className="text-sm text-gray-500 font-medium text-left">Control global brands and trusted partners displayed on the landing page</p>
                     </div>
-                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, scale: 100, active: true })} 
+                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, scale: 100, mobileScale: 100, spacing: 24, active: true })} 
                         className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center gap-2">
                         <PlusCircle className="w-5 h-5" />
                         Add New Brand
@@ -1844,8 +1844,8 @@ const SearchingLogosContent = () => {
     const fetchLogos = async () => {
         setLoading(true);
         try {
-            const data = await adminApi.getSearchingLogos();
-            setLogos(Array.isArray(data.data) ? data.data : []);
+            const data = await adminFetch('/api/admin/searching-logos');
+            setLogos(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error('Failed to fetch searching logos', e);
         } finally {
@@ -1858,7 +1858,7 @@ const SearchingLogosContent = () => {
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to remove this searching logo?')) return;
         try {
-            await adminApi.deleteSearchingLogo(id);
+            await adminFetch(`/api/admin/searching-logos/${id}`, { method: 'DELETE' });
             fetchLogos();
         } catch (e: any) {
             alert(`Delete failed: ${e.message}`);
@@ -1867,11 +1867,12 @@ const SearchingLogosContent = () => {
 
     const handleSave = async (logo: any) => {
         try {
-            if (logo.id) {
-                await adminApi.updateSearchingLogo(logo.id, logo);
-            } else {
-                await adminApi.createSearchingLogo(logo);
-            }
+            const method = logo.id ? 'PUT' : 'POST';
+            const url = logo.id ? `/api/admin/searching-logos/${logo.id}` : '/api/admin/searching-logos';
+            await adminFetch(url, {
+                method,
+                body: JSON.stringify(logo)
+            });
             fetchLogos();
             setEditingLogo(null);
         } catch (e: any) {
@@ -1894,7 +1895,7 @@ const SearchingLogosContent = () => {
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight text-left">Searching Page Branding</h2>
                         <p className="text-sm text-gray-500 font-medium text-left">Manage logos displayed during the scanning animation for specific locations</p>
                     </div>
-                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', locationCodes: [], displayOrder: logos.length + 1, scale: 100, active: true })} 
+                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', locationCodes: [], displayOrder: logos.length + 1, scale: 100, mobileScale: 100, spacing: 24, active: true })} 
                         className="bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2">
                         <PlusCircle className="w-5 h-5" />
                         Add New Searching Logo
