@@ -147,13 +147,13 @@ const Home: React.FC = () => {
           <div className="h-0.5 w-12 bg-blue-600/20 mx-auto rounded-full"></div>
         </div>
         <div className="relative flex items-center">
-          <div className="animate-marquee flex gap-16 md:gap-28 items-center px-4">
+          <div className="animate-marquee flex gap-8 md:gap-12 items-center px-4">
             {[...suppliers, ...suppliers].map((s, idx) => (
               <img 
                 key={`${s.id || s.name}-${idx}`} 
                 src={s.logo || s.logoUrl} 
                 alt={s.name} 
-                className="h-10 md:h-14 w-auto max-w-[180px] object-contain brightness-95 hover:brightness-110 logo-scaled-hover" 
+                className="h-12 md:h-16 w-auto max-w-[200px] object-contain brightness-95 hover:brightness-110 logo-scaled-hover" 
                 width={180}
                 height={56}
                 style={{ 

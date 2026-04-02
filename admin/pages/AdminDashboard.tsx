@@ -538,6 +538,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
         includesTP: editedSupplier.includesTP ?? true,
         gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
         minBookingLeadTime: editedSupplier.minBookingLeadTime ?? 0,
+        logoScale: editedSupplier.logoScale ?? 100,
         oneWayFee: editedSupplier.oneWayFee ?? 0,
         connectionType: editedSupplier.connectionType || 'manual'
     };
@@ -596,6 +597,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                         {PICKUP_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                 </div>
+                <InputField label="Logo Scale (%)" type="number" value={editedSupplier.logoScale || 100} onChange={(e: any) => handleChange('logoScale', parseInt(e.target.value))} />
             </div>
           </div>
         </div>

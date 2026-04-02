@@ -370,7 +370,7 @@ const Searching: React.FC = () => {
             {suppliersScanned} / {totalSuppliers} Suppliers Scanned
           </p>
 
-          <div className="mt-8 grid grid-cols-4 sm:grid-cols-6 gap-3 sm:gap-4 max-w-2xl mx-auto">
+          <div className="mt-8 grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-4 max-w-2xl mx-auto">
             {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;
@@ -398,7 +398,7 @@ const Searching: React.FC = () => {
                     height={48}
                     style={{ 
                         opacity: isChecked ? 1 : 0.4,
-                        maxHeight: `${((supplier.scale || 100) / 100) * 48}px`
+                        maxHeight: `${((supplier.scale || 100) / 100) * 64}px`
                     }}
                   />
                   {isChecking && (

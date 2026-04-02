@@ -141,6 +141,7 @@ export interface Supplier {
   gracePeriod?: number;
   leadTime?: number;
   pickupType?: PickupType;
+  logoScale?: number;
 }
 
 export interface Extra {
