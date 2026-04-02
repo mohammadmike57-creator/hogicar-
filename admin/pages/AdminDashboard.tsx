@@ -1852,8 +1852,9 @@ const SearchingLogosContent = () => {
             const logosArray = Array.isArray(data) ? data : [];
             console.log("Setting searching logos state. Count:", logosArray.length);
             setLogos(logosArray);
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to fetch searching logos', e);
+            alert(`Failed to load branding logos: ${e.message}`);
         } finally {
             setLoading(false);
         }
@@ -1873,20 +1874,27 @@ const SearchingLogosContent = () => {
     };
 
     const handleSave = async (logo: any) => {
+        setLoading(true);
         try {
-            console.log("Saving searching logo:", logo);
-            const method = logo.id ? 'PUT' : 'POST';
-            const url = logo.id ? `/api/admin/searching-logos/${logo.id}` : '/api/admin/searching-logos';
+            console.log("Saving searching logo. Payload:", logo);
+            const isNew = !logo.id;
+            const method = isNew ? 'POST' : 'PUT';
+            const url = isNew ? '/api/admin/searching-logos' : `/api/admin/searching-logos/${logo.id}`;
+            
             const saved = await adminFetch(url, {
                 method,
                 body: JSON.stringify(logo)
             });
             console.log("Saved searching logo result:", saved);
+            
             await fetchLogos();
             setEditingLogo(null);
-            alert('Branding logo saved successfully!');
+            alert(isNew ? 'New branding logo added successfully!' : 'Branding logo updated successfully!');
         } catch (e: any) {
+            console.error('Save operation failed:', e);
             alert(`Save failed: ${e.message}`);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -1897,6 +1905,7 @@ const SearchingLogosContent = () => {
                 onClose={() => setEditingLogo(null)} 
                 onSave={handleSave} 
                 logo={editingLogo} 
+                loading={loading}
             />
             
             <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
@@ -1976,7 +1985,7 @@ const SearchingLogosContent = () => {
     );
 };
 
-const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
+const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any) => {
     const [formData, setFormData] = useState<any>(logo || {});
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -2074,8 +2083,28 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                    <button onClick={onClose} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => { if (!formData.name || !formData.name.trim() || !formData.logoUrl || !formData.logoUrl.trim()) { alert('Please provide both Name and Logo URL'); return; } onSave({ ...formData, displayOrder: Number.isFinite(formData.displayOrder) ? formData.displayOrder : 0, scale: Number.isFinite(formData.scale) ? formData.scale : 100, mobileScale: Number.isFinite(formData.mobileScale) ? formData.mobileScale : 100, spacing: Number.isFinite(formData.spacing) ? formData.spacing : 24, locationCodes: Array.isArray(formData.locationCodes) ? formData.locationCodes : [] }); }} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-600 shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">Save Changes</button>
+                    <button onClick={onClose} type="button" className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
+                    <button 
+                        onClick={() => { 
+                            if (!formData.name?.trim()) { alert('Please provide a name/brand'); return; }
+                            if (!formData.logoUrl?.trim()) { alert('Please provide a logo URL or upload an image'); return; }
+                            
+                            const payload = {
+                                ...formData,
+                                displayOrder: Number(formData.displayOrder) || 0,
+                                scale: Number(formData.scale) || 100,
+                                mobileScale: Number(formData.mobileScale) || 100,
+                                spacing: Number(formData.spacing) || 24,
+                                locationCodes: Array.isArray(formData.locationCodes) ? formData.locationCodes : []
+                            };
+                            onSave(payload); 
+                        }} 
+                        type="button"
+                        disabled={loading}
+                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white transition-all ${loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 shadow-lg shadow-blue-200 hover:bg-blue-700'}`}
+                    >
+                        {loading ? 'Processing...' : (logo?.id ? 'Update Branding' : 'Add Branding')}
+                    </button>
                 </div>
             </div>
         </Modal>

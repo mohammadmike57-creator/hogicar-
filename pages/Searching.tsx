@@ -131,8 +131,8 @@ const Searching: React.FC = () => {
         }
         
         console.log("Searching: Total logos to display:", results.length);
-        // Finalize supplier list - show up to 30
-        setSuppliers(results.slice(0, 30));
+        // Finalize supplier list - show up to 60
+        setSuppliers(results.slice(0, 60));
       } catch (error) {
         console.error("Searching: Failed to load search branding", error);
         setSuppliers([]);
@@ -309,7 +309,7 @@ const Searching: React.FC = () => {
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-20" />
         
-        <div className="relative z-10 w-full max-w-4xl text-center">
+        <div className="relative z-10 w-full max-w-6xl text-center">
           <div className="mb-6 animate-fade-in">
             <h1 className="text-sm sm:text-base font-bold tracking-[0.3em] text-blue-300 uppercase mb-3">
               Searching for the best deals in
@@ -384,7 +384,7 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-12 grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4 max-w-5xl mx-auto px-4">
+          <div className="mt-12 grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 sm:gap-3 max-w-6xl mx-auto px-4">
             {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;
@@ -394,14 +394,14 @@ const Searching: React.FC = () => {
                   key={supplier.isLocal ? `local-${supplier.id}` : `real-${supplier.id}`}
                   className="relative flex items-center justify-center aspect-square rounded-2xl transition-all duration-700 shadow-sm hover:shadow-xl group overflow-hidden"
                   style={{
-                    backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
-                    backdropFilter: 'blur(12px)',
-                    border: isChecked ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
-                    padding: `${(supplier.spacing || 24) / 3}px`,
+                    backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.45)',
+                    backdropFilter: 'blur(8px)',
+                    border: isChecked ? '1px solid rgba(255, 255, 255, 0.6)' : '1px solid rgba(255, 255, 255, 0.2)',
+                    padding: `${(supplier.spacing || 24) / 4}px`,
                     opacity: 1,
-                    transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(5px)',
+                    transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(5px)',
                     animation: `pop-in-box 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                    animationDelay: `${index * 50}ms`
+                    animationDelay: `${index * 40}ms`
                   }}
                 >
                   <img
@@ -409,20 +409,20 @@ const Searching: React.FC = () => {
                     alt={supplier.name}
                     className="w-full h-full object-contain transition-all duration-1000"
                     style={{ 
-                        opacity: isChecked ? 1 : 0.45,
-                        filter: isChecked ? 'grayscale(0%) brightness(1)' : 'grayscale(100%) brightness(0.8) blur(0.5px)',
+                        opacity: isChecked ? 1 : 0.6,
+                        filter: isChecked ? 'grayscale(0%) brightness(1)' : 'grayscale(100%) brightness(0.9) blur(0.3px)',
                         transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
                     } as any}
                   />
                   {isChecking && (
                     <div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-2xl"
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-2xl"
                       style={{ animation: `shimmer 1s infinite` }}
                     />
                   )}
                   {isChecked && (
                     <div
-                      className="absolute top-1 right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#0c152b]"
+                      className="absolute top-1 right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white"
                       style={{ animation: 'pop-in-check 0.4s ease-out forwards' }}
                     >
                       <Check className="w-3 h-3 text-white" strokeWidth={3}/>
