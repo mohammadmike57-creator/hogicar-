@@ -131,8 +131,8 @@ const Searching: React.FC = () => {
         }
         
         console.log("Searching: Total logos to display:", results.length);
-        // Finalize supplier list - show up to 60
-        setSuppliers(results.slice(0, 60));
+        // Finalize supplier list - show up to 100
+        setSuppliers(results.slice(0, 100));
       } catch (error) {
         console.error("Searching: Failed to load search branding", error);
         setSuppliers([]);
@@ -309,36 +309,36 @@ const Searching: React.FC = () => {
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-20" />
         
-        <div className="relative z-10 w-full max-w-6xl text-center">
-          <div className="mb-6 animate-fade-in">
-            <h1 className="text-sm sm:text-base font-bold tracking-[0.3em] text-blue-300 uppercase mb-3">
+        <div className="relative z-10 w-full max-w-7xl text-center">
+          <div className="mb-4 animate-fade-in">
+            <h1 className="text-[10px] sm:text-xs font-bold tracking-[0.4em] text-blue-300/80 uppercase mb-2">
               Searching for the best deals in
             </h1>
             
-            <div className="flex flex-col items-center justify-center gap-2 relative">
-              <div className="flex items-center gap-3 bg-white/10 px-8 py-4 rounded-3xl backdrop-blur-xl border border-white/20 shadow-2xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent animate-pulse" />
-                <MapPin className="w-6 h-6 text-amber-400 relative z-10" />
-                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase relative z-10 drop-shadow-md">
+            <div className="flex flex-col items-center justify-center gap-1.5 relative">
+              <div className="flex items-center gap-2.5 bg-white/5 px-6 py-2 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse" />
+                <MapPin className="w-4 h-4 text-amber-400 relative z-10" />
+                <span className="text-xl sm:text-2xl font-bold text-white tracking-tight uppercase relative z-10 drop-shadow-sm">
                   {pickupName}
                 </span>
                 {pickupIata && (
-                  <span className="bg-amber-400 text-slate-900 px-3 py-1 rounded-lg text-xs font-black tracking-tighter relative z-10 shadow-lg">
+                  <span className="bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-lg text-[10px] font-black tracking-tighter relative z-10 shadow-md">
                     {pickupIata.toUpperCase()}
                   </span>
                 )}
               </div>
-              <div className="absolute -inset-1 bg-blue-400/20 blur-xl rounded-full animate-pulse -z-10" />
+              <div className="absolute -inset-1 bg-blue-400/10 blur-xl rounded-full animate-pulse -z-10" />
             </div>
           </div>
 
-          <div className="h-10 mt-2">
-             <p className="text-xl sm:text-2xl font-bold text-blue-100 transition-all duration-500 bg-white/5 inline-block px-6 py-2 rounded-2xl backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
+          <div className="h-10 mt-1">
+             <p className="text-lg sm:text-xl font-bold text-blue-100/90 transition-all duration-500 bg-white/5 inline-block px-5 py-1.5 rounded-xl backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
                 {searchMessages[currentMessageIndex]}
              </p>
           </div>
           
-          <div className="mt-8 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-4 px-8 rounded-2xl max-w-lg mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[80px]">
+          <div className="mt-6 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-3 px-6 rounded-xl max-w-lg mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[70px]">
             <Check className="w-6 h-6 flex-shrink-0 text-green-400" />
             <div className="text-left overflow-hidden">
                 <p className="text-[10px] font-black text-blue-300/60 uppercase tracking-widest mb-1">Expert Tip</p>
@@ -353,8 +353,8 @@ const Searching: React.FC = () => {
             </div>
           </div>
           
-          <div className="w-full max-w-md mx-auto mt-8">
-            <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden border border-white/20 shadow-inner">
+          <div className="w-full max-w-md mx-auto mt-6">
+            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden border border-white/20 shadow-inner">
               <div
                 className="bg-green-400 h-full rounded-full relative"
                 style={{ width: `${progress * 100}%` }}
@@ -367,7 +367,7 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-8 bg-white/5 py-4 px-10 rounded-3xl backdrop-blur-sm border border-white/5 shadow-2xl">
+          <div className="mt-6 flex items-center justify-center gap-6 bg-white/5 py-3 px-8 rounded-2xl backdrop-blur-sm border border-white/5 shadow-2xl">
             <div className="flex flex-col items-center">
               <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Security</span>
               <span className="text-xs font-black text-green-400 tracking-tighter uppercase">Verified</span>
@@ -384,7 +384,7 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-12 grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 sm:gap-3 max-w-6xl mx-auto px-4">
+          <div className="mt-10 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 gap-1.5 sm:gap-2 max-w-7xl mx-auto px-2">
             {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;
