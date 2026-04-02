@@ -2060,7 +2060,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
 
                 <div className="flex gap-4 pt-4">
                     <button onClick={onClose} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onSave(formData)} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-600 shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">Save Changes</button>
+                    <button onClick={() => { if (!formData.name || !formData.name.trim() || !formData.logoUrl || !formData.logoUrl.trim()) { alert('Please provide both Name and Logo URL'); return; } onSave({ ...formData, displayOrder: Number.isFinite(formData.displayOrder) ? formData.displayOrder : 0, scale: Number.isFinite(formData.scale) ? formData.scale : 100, mobileScale: Number.isFinite(formData.mobileScale) ? formData.mobileScale : 100, spacing: Number.isFinite(formData.spacing) ? formData.spacing : 24, locationCodes: Array.isArray(formData.locationCodes) ? formData.locationCodes : [] }); }} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-600 shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">Save Changes</button>
                 </div>
             </div>
         </Modal>

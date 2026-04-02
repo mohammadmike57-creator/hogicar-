@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos } from '../api';
-import { MOCK_APP_CONFIG, GLOBAL_TRUSTED_BRANDS } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { Check, Gift, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -79,7 +78,7 @@ const Searching: React.FC = () => {
   const [searchParams] = useSearchParams();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
-  const duration = MOCK_APP_CONFIG.searchingScreenDuration;
+  const duration = 6000; // ms
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
@@ -123,28 +122,11 @@ const Searching: React.FC = () => {
           });
         }
         
-        // If we have few suppliers, add categories for "richness"
-        if (results.length < 8) {
-            const categories = [
-                { name: 'Economy Class', logo: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png', isCategory: true },
-                { name: 'SUV / 4x4', logo: 'https://cdn-icons-png.flaticon.com/512/3774/3774278.png', isCategory: true },
-                { name: 'Premium', logo: 'https://cdn-icons-png.flaticon.com/512/2736/2736933.png', isCategory: true },
-                { name: 'Family Van', logo: 'https://cdn-icons-png.flaticon.com/512/4232/4232535.png', isCategory: true }
-            ];
-            results = [...results, ...categories];
-        }
-
-        // If still too few, fallback to global trusted brands
-        if (results.length < 12) {
-            const extra = GLOBAL_TRUSTED_BRANDS
-                .filter(gb => !results.some(r => r.name.toLowerCase() === gb.name.toLowerCase()))
-                .slice(0, 12 - results.length);
-            results = [...results, ...extra];
-        }
-        
+        // Finalize supplier list without mock fallbacks
         setSuppliers(results.slice(0, 18));
       } catch (error) {
-        setSuppliers(GLOBAL_TRUSTED_BRANDS.slice(0, 12));
+        // In case of error, do not show mock data; keep UI minimal
+        setSuppliers([]);
       }
     };
     
