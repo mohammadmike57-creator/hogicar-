@@ -204,6 +204,19 @@ export const fetchHomepageLogos = async (): Promise<any[]> => {
   }
 };
 
+export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]> => {
+  try {
+    const url = locationCode 
+      ? `${API_BASE_URL}/api/public/searching-logos?locationCode=${encodeURIComponent(locationCode)}`
+      : `${API_BASE_URL}/api/public/searching-logos`;
+    const response = await publicAxios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching searching logos:', error);
+    return [];
+  }
+};
+
 // ---------- Backward‑compatible api object ----------
 export const api = {
   fetchLocations,
@@ -217,6 +230,7 @@ export const api = {
   createBooking,
   fetchPublicSuppliers,
   fetchHomepageLogos,
+  fetchSearchingLogos,
 };
 
 // ---------- Supplier API ----------
@@ -276,4 +290,9 @@ export const adminApi = {
   createHomepageLogo: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/homepage-logos`, payload),
   updateHomepageLogo: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/homepage-logos/${id}`, payload),
   deleteHomepageLogo: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/homepage-logos/${id}`),
+
+  getSearchingLogos: () => adminAxios.get(`${API_BASE_URL}/api/admin/searching-logos`),
+  createSearchingLogo: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/searching-logos`, payload),
+  updateSearchingLogo: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/searching-logos/${id}`, payload),
+  deleteSearchingLogo: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/searching-logos/${id}`),
 };

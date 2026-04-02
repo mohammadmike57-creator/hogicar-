@@ -53,26 +53,9 @@ const Home: React.FC = () => {
                 }));
             }
             
-            // 2. Add active suppliers (with real logos)
-            if (realSuppliers && realSuppliers.length > 0) {
-                realSuppliers.forEach(rs => {
-                    const logo = rs.logoUrl || rs.logo;
-                    if (logo && !allLogos.some(l => l.name.toLowerCase() === rs.name.toLowerCase())) {
-                        allLogos.push({
-                            name: rs.name,
-                            logo: logo
-                        });
-                    }
-                });
-            }
-
-            // 3. Fallback to global brands only if we have very few logos
-            if (allLogos.length < 5) {
-                GLOBAL_TRUSTED_BRANDS.forEach(gb => {
-                    if (!allLogos.some(l => l.name.toLowerCase() === gb.name.toLowerCase())) {
-                        allLogos.push(gb);
-                    }
-                });
+            // Fallback to global brands ONLY if no logos are configured at all
+            if (allLogos.length === 0) {
+                allLogos = GLOBAL_TRUSTED_BRANDS;
             }
             
             setSuppliers(allLogos);

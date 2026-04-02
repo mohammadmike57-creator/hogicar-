@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchPublicSuppliers } from '../api';
+import { fetchPublicSuppliers, fetchSearchingLogos } from '../api';
 import { MOCK_APP_CONFIG, GLOBAL_TRUSTED_BRANDS } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { Check, Gift, MapPin } from 'lucide-react';
@@ -88,22 +88,41 @@ const Searching: React.FC = () => {
   React.useEffect(() => {
     const loadSuppliers = async () => {
       try {
-        const data = await fetchPublicSuppliers(pickupIata);
+        const [realData, searchingLogos] = await Promise.all([
+            fetchPublicSuppliers(pickupIata),
+            fetchSearchingLogos(pickupIata)
+        ]);
+        
         let results: any[] = [];
         
-        if (data && data.length > 0) {
-          results = data.map((s: any) => ({
-            id: s.id,
-            name: s.name,
-            logoUrl: s.logoUrl || s.logo,
-            scale: s.scale,
-            isLocal: true
-          }));
+        // 1. Add admin-managed searching logos for this location (or global ones)
+        if (searchingLogos && searchingLogos.length > 0) {
+            results = searchingLogos.map(l => ({
+                id: l.id,
+                name: l.name,
+                logoUrl: l.logoUrl,
+                scale: l.scale,
+                isLocal: true
+            }));
         }
         
-        // If we have few local suppliers, add some "generic scan categories" to make it "rich" 
-        // while respecting the "related to location" request.
-        if (results.length < 12) {
+        // 2. Add real suppliers for this location
+        if (realData && realData.length > 0) {
+          realData.forEach((s: any) => {
+            if (!results.some(r => r.name.toLowerCase() === s.name.toLowerCase())) {
+              results.push({
+                id: s.id,
+                name: s.name,
+                logoUrl: s.logoUrl || s.logo,
+                scale: s.scale,
+                isLocal: true
+              });
+            }
+          });
+        }
+        
+        // If we have few suppliers, add categories for "richness"
+        if (results.length < 8) {
             const categories = [
                 { name: 'Economy Class', logo: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png', isCategory: true },
                 { name: 'SUV / 4x4', logo: 'https://cdn-icons-png.flaticon.com/512/3774/3774278.png', isCategory: true },
@@ -113,10 +132,10 @@ const Searching: React.FC = () => {
             results = [...results, ...categories];
         }
 
-        // If still too few, add a few trusted global brands but mark them as "Global Network"
+        // If still too few, fallback to global trusted brands
         if (results.length < 12) {
             const extra = GLOBAL_TRUSTED_BRANDS
-                .filter(gb => !results.some(r => r.name === gb.name))
+                .filter(gb => !results.some(r => r.name.toLowerCase() === gb.name.toLowerCase()))
                 .slice(0, 12 - results.length);
             results = [...results, ...extra];
         }
