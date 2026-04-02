@@ -529,12 +529,12 @@ export const Search: React.FC = () => {
                     setShowMobileSort(false);
                     setShowMobileFilters(true);
                 }}
-                className="w-1/2 flex items-center justify-center gap-2 bg-slate-900 text-white p-3 rounded-xl font-bold text-xs shadow-lg shadow-slate-200 active:scale-[0.98] transition-all"
+                className="w-1/2 flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 p-3 rounded-xl font-bold text-xs shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50"
             >
-                <Filter className="w-4 h-4 text-blue-400" />
+                <SlidersHorizontal className="w-4 h-4 text-blue-600" />
                 <span>Filters</span>
                 { (selectedCategories.length + selectedSuppliers.length + selectedTransmissions.length + selectedFuelPolicies.length + (passengerCapacity > 0 ? 1 : 0)) > 0 && (
-                    <span className="bg-blue-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
+                    <span className="bg-blue-600 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
                         {(selectedCategories.length + selectedSuppliers.length + selectedTransmissions.length + selectedFuelPolicies.length + (passengerCapacity > 0 ? 1 : 0))}
                     </span>
                 )}
@@ -544,7 +544,7 @@ export const Search: React.FC = () => {
                     setShowMobileFilters(false);
                     setShowMobileSort(true);
                 }}
-                className="w-1/2 flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 p-3 rounded-xl font-bold text-xs shadow-sm active:scale-[0.98] transition-all"
+                className="w-1/2 flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 p-3 rounded-xl font-bold text-xs shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50"
             >
                 {sortBy === 'Recommended' ? (
                     <Gem className="w-4 h-4 text-blue-600" />

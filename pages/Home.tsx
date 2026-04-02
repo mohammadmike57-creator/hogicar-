@@ -122,7 +122,7 @@ const Home: React.FC = () => {
       />
       
       {/* HERO – professional version */}
-      <section className="relative min-h-[500px] lg:min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[450px] lg:min-h-[520px] flex items-center justify-center overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -136,7 +136,7 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/30 via-transparent to-slate-950/30"></div>
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 lg:pt-32 lg:pb-16 flex flex-col items-center text-center">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10 lg:pt-24 lg:pb-12 flex flex-col items-center text-center">
             {/* Professional Trust Badge - Enhanced */}
             <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-xl px-5 py-2 rounded-full text-xs font-bold text-white mb-6 border border-white/20 shadow-2xl transition-all hover:bg-white/15 cursor-default group">
               <div className="flex -space-x-1">
@@ -151,7 +151,7 @@ const Home: React.FC = () => {
               Compare & <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-cyan-400 to-emerald-400">Save on Rentals</span>
             </h1>
             
-            <p className="text-sm sm:text-base lg:text-lg text-slate-100/90 mb-8 max-w-2xl leading-relaxed font-medium drop-shadow-lg">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-100/90 mb-6 max-w-2xl leading-relaxed font-medium drop-shadow-lg">
               Compare premium deals from <span className="text-white font-black border-b-2 border-blue-500/50 pb-0.5">900+ trusted suppliers</span> in over 60,000 locations worldwide.
             </p>
 
@@ -173,7 +173,7 @@ const Home: React.FC = () => {
             </div>
 
             {/* Quick Benefits - Modernized */}
-            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4 mt-12">
+            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4 mt-8">
               <div className="flex items-center gap-3 group">
                 <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
                   <CheckCircle className="w-5 h-5 text-green-400" />
