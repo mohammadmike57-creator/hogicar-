@@ -338,7 +338,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 value={value}
                 onChange={onChange}
                 min={min}
-                className="w-full h-14 pt-5 pb-1 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer transition-all"
+                className="w-full h-12 pt-4 pb-1 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer transition-all"
                 style={{ colorScheme: 'light' }}
             />
         </div>
@@ -353,7 +353,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <select
                 value={value}
                 onChange={onChange}
-                className="w-full h-14 pt-5 pb-1 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer appearance-none transition-all"
+                className="w-full h-12 pt-4 pb-1 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none text-base font-bold text-slate-900 cursor-pointer appearance-none transition-all"
             >
                 {options.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -518,7 +518,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <div className="bg-white/95 backdrop-blur-sm p-4 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] relative z-10 border border-white/20">
                 <form onSubmit={handleSearch} className="flex flex-col gap-3">
                     <div className="flex flex-row items-center gap-3 w-full">
-                        <div className={`relative h-14 bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full group`}>
+                        <div className={`relative h-12 bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full group`}>
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
                                 {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5 group-focus-within:text-blue-500')}
                             </div>
@@ -541,7 +541,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
 
                         {differentDropoff && (
-                            <div className="relative h-14 bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full group">
+                            <div className="relative h-12 bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-all border border-slate-200/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
                                     {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5 group-focus-within:text-blue-500')}
                                 </div>
@@ -595,7 +595,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             />
                         </div>
 
-                        <button type="submit" className="h-14 px-10 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-black rounded-2xl shadow-xl shadow-green-200/50 transition-all active:scale-[0.98] flex items-center justify-center text-lg tracking-tight group">
+                        <button type="submit" className="h-12 px-10 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-black rounded-2xl shadow-xl shadow-green-200/50 transition-all active:scale-[0.98] flex items-center justify-center text-lg tracking-tight group">
                             <SearchIcon className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                             Search Deals
                         </button>
