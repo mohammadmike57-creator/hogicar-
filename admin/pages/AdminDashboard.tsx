@@ -1847,7 +1847,7 @@ const SearchingLogosContent = () => {
     const fetchLogos = async () => {
         setLoading(true);
         try {
-            const data = await adminFetch('/api/admin/searching-logos');
+            const data = await adminFetch(`/api/admin/searching-logos?t=${Date.now()}`);
             console.log("Fetched searching logos raw data:", data);
             const logosArray = Array.isArray(data) ? data : [];
             console.log("Setting searching logos state. Count:", logosArray.length);
