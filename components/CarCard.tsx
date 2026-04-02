@@ -348,8 +348,11 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           <img 
                               src={car.supplier.logo || (car.supplier as any).logoUrl} 
                               alt={car.supplier.name} 
-                              className="h-20 md:h-24 w-auto max-w-[160px] md:max-w-[200px] object-contain transition-transform duration-300" 
-                              style={{ transform: `scale(${(car.supplier as any).logoScale / 100 || 1})` }}
+                              className="h-20 md:h-24 w-auto max-w-[160px] md:max-w-[200px] object-contain transition-transform duration-300 logo-scaled-hover" 
+                              style={{ 
+                                '--logo-scale': (car.supplier.logoScale || 100) / 100,
+                                '--logo-scale-mobile': (car.supplier.logoScaleMobile || 100) / 100
+                              } as any}
                               width={200} 
                               height={96} 
                           />

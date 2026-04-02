@@ -393,13 +393,14 @@ const Searching: React.FC = () => {
                   <img
                     src={supplier.logoUrl || supplier.logo}
                     alt={supplier.name}
-                    className="w-full object-contain transition-all duration-700"
+                    className="w-full object-contain transition-all duration-700 logo-scaled-hover"
                     width={100}
                     height={48}
                     style={{ 
                         opacity: isChecked ? 1 : 0.4,
-                        maxHeight: `${((supplier.scale || 100) / 100) * 64}px`
-                    }}
+                        '--logo-scale': (supplier.scale || 100) / 100,
+                        '--logo-scale-mobile': (supplier.mobileScale || 100) / 100
+                    } as any}
                   />
                   {isChecking && (
                     <div

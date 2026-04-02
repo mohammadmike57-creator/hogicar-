@@ -597,7 +597,8 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
                         {PICKUP_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                 </div>
-                <InputField label="Logo Scale (%)" type="number" value={editedSupplier.logoScale || 100} onChange={(e: any) => handleChange('logoScale', parseInt(e.target.value))} />
+                <InputField label="Logo Scale (Desktop %)" type="number" value={editedSupplier.logoScale || 100} onChange={(e: any) => handleChange('logoScale', parseInt(e.target.value))} />
+                <InputField label="Logo Scale (Mobile %)" type="number" value={editedSupplier.logoScaleMobile || 100} onChange={(e: any) => handleChange('logoScaleMobile', parseInt(e.target.value))} />
             </div>
           </div>
         </div>
@@ -2035,7 +2036,11 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <InputField label="Display Order" type="number" value={formData.displayOrder} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })} />
-                    <InputField label="Scale (%)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} placeholder="100 is original size" />
+                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale || 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) })} />
                 </div>
 
                 <div className="space-y-2">
@@ -2108,7 +2113,12 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <InputField label="Display Order" type="number" value={formData.displayOrder} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })} />
-                    <InputField label="Scale (%)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} placeholder="100 is original size" />
+                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale || 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) })} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale || 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) })} />
+                    <InputField label="Spacing (px)" type="number" value={formData.spacing || 24} onChange={(e: any) => setFormData({ ...formData, spacing: parseInt(e.target.value) })} />
                 </div>
 
                 <div className="space-y-2">

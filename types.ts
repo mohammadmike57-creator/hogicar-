@@ -142,6 +142,7 @@ export interface Supplier {
   leadTime?: number;
   pickupType?: PickupType;
   logoScale?: number;
+  logoScaleMobile?: number;
 }
 
 export interface Extra {
@@ -427,6 +428,19 @@ export interface HomepageLogo {
   displayOrder: number;
   active: boolean;
   scale?: number;
+  mobileScale?: number;
+  spacing?: number;
+}
+
+export interface SearchingLogo {
+  id: number;
+  name: string;
+  logoUrl: string;
+  displayOrder: number;
+  active: boolean;
+  scale?: number;
+  mobileScale?: number;
+  locationCodes: string[];
 }
 
 export interface CarModel {
