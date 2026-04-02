@@ -145,7 +145,7 @@ const GlobalLocationsContent = () => {
     try {
       const url = `/api/admin/locations${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`;
       const res = await adminFetch(url);
-      setLocations(res);
+      setLocations(Array.isArray(res) ? res : []);
     } catch (e: any) {
       console.error(e);
       alert('Failed to load locations: ' + e.message);
@@ -160,6 +160,7 @@ const GlobalLocationsContent = () => {
   }, [filter]);
 
   const filtered = useMemo(() => {
+    if (!Array.isArray(locations)) return [];
     const q = filter.toLowerCase().trim();
     if (!q) return locations;
     return locations.filter((l: any) =>
@@ -859,7 +860,7 @@ const BookingsContent = ({ bookings, onRefresh }: any) => (
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
-          {bookings.map((b: any) => (
+          {Array.isArray(bookings) && bookings.map((b: any) => (
             <tr key={b.id} className="hover:bg-orange-50/30 transition-colors group">
               <td className="px-6 py-4">
                 <span className="font-mono text-[11px] font-black text-orange-600 bg-orange-50/50 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
@@ -1041,7 +1042,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {library.map((m: any) => (
+            {Array.isArray(library) && library.map((m: any) => (
               <tr key={m.id} className="hover:bg-orange-50/30 transition-colors group">
                 <td className="px-8 py-4">
                   <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-orange-200 transition-colors">
@@ -1282,7 +1283,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
-          {cars.map((c: any) => (
+          {Array.isArray(cars) && cars.map((c: any) => (
             <tr key={c.id} className="hover:bg-orange-50/30 transition-colors">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
@@ -1732,7 +1733,7 @@ const HomepageLogosContent = () => {
         setLoading(true);
         try {
             const data = await adminFetch('/api/admin/homepage-logos');
-            setLogos(data);
+            setLogos(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error('Failed to fetch logos', e);
         } finally {
@@ -1844,7 +1845,7 @@ const SearchingLogosContent = () => {
         setLoading(true);
         try {
             const data = await adminApi.getSearchingLogos();
-            setLogos(data.data);
+            setLogos(Array.isArray(data.data) ? data.data : []);
         } catch (e) {
             console.error('Failed to fetch searching logos', e);
         } finally {

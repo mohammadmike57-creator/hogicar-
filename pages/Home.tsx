@@ -49,7 +49,9 @@ const Home: React.FC = () => {
                 allLogos = homepageLogos.map(l => ({
                     name: l.name,
                     logo: l.logoUrl,
-                    scale: l.scale
+                    scale: l.scale,
+                    mobileScale: l.mobileScale,
+                    spacing: l.spacing
                 }));
             }
             

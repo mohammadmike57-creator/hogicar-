@@ -102,6 +102,8 @@ const Searching: React.FC = () => {
                 name: l.name,
                 logoUrl: l.logoUrl,
                 scale: l.scale,
+                mobileScale: l.mobileScale,
+                spacing: l.spacing,
                 isLocal: true
             }));
         }
