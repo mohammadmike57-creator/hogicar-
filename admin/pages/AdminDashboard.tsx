@@ -1890,7 +1890,7 @@ const SearchingLogosContent = () => {
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight text-left">Searching Page Branding</h2>
                         <p className="text-sm text-gray-500 font-medium text-left">Manage logos displayed during the scanning animation for specific locations</p>
                     </div>
-                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', locationCode: '', displayOrder: logos.length + 1, scale: 100, active: true })} 
+                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', locationCodes: [], displayOrder: logos.length + 1, scale: 100, active: true })} 
                         className="bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2">
                         <PlusCircle className="w-5 h-5" />
                         Add New Searching Logo
@@ -1926,9 +1926,17 @@ const SearchingLogosContent = () => {
                                     </td>
                                     <td className="px-8 py-4"><span className="text-sm font-black text-slate-900">{l.name}</span></td>
                                     <td className="px-8 py-4">
-                                        <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-tighter">
-                                            {l.locationCode || 'GLOBAL'}
-                                        </span>
+                                        <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                            {l.locationCodes && l.locationCodes.length > 0 ? (
+                                                l.locationCodes.map((code: string) => (
+                                                    <span key={code} className="text-[9px] font-mono font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">
+                                                        {code}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-xs font-mono font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md uppercase tracking-tighter">GLOBAL</span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-8 py-4"><span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{l.displayOrder}</span></td>
                                     <td className="px-8 py-4"><Badge status={l.active ? 'active' : 'inactive'} /></td>
@@ -1992,13 +2000,35 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Location Context (IATA Code)</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Target Locations (IATA/City)</label>
                     <LocationPicker 
-                        value={formData.locationCode} 
-                        onChange={(loc: any) => setFormData({ ...formData, locationCode: loc ? (loc.iataCode || loc.value) : '' })} 
-                        placeholder="Search location (Leave blank for global)" 
+                        onChange={(loc: any) => {
+                            if (!loc) return;
+                            const code = loc.iataCode || loc.value;
+                            const currentCodes = formData.locationCodes || [];
+                            if (!currentCodes.includes(code)) {
+                                setFormData({ ...formData, locationCodes: [...currentCodes, code] });
+                            }
+                        }} 
+                        placeholder="Search to add location..." 
                     />
-                    <p className="text-[10px] text-gray-400 font-medium">This logo will appear in the searching scanning screen for this specific location.</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2 min-h-[32px] items-center">
+                        {(!formData.locationCodes || formData.locationCodes.length === 0) && (
+                            <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-slate-100">Global (All Locations)</span>
+                        )}
+                        {formData.locationCodes?.map((code: string) => (
+                            <span key={code} className="bg-blue-50 text-blue-700 pl-3 pr-2 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 border border-blue-100 group">
+                                {code}
+                                <button 
+                                    onClick={() => setFormData({ ...formData, locationCodes: formData.locationCodes.filter((c: string) => c !== code) })} 
+                                    className="p-1 rounded-lg hover:bg-blue-200/50 text-blue-400 hover:text-blue-800 transition-all"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                    <p className="text-[10px] text-gray-400 font-medium">Add multiple locations. If empty, this logo will appear everywhere as a global partner.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
