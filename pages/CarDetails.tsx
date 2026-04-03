@@ -365,50 +365,8 @@ const CarDetails: React.FC = () => {
 
              {/* Mobile CTA to scroll down */}
             <div className="block lg:hidden">
-                <a 
-                    href="#protection-section"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById('protection-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm"
-                >
-                    Add Extra and Protection <ArrowRight className="w-4 h-4 ml-2"/>
-                </a>
             </div>
             
-             {/* Rental Protection */}
-            <div id="protection-section" className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 scroll-mt-24">
-               <h2 className="text-lg font-semibold text-slate-800 mb-4">Rental Protection</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div onClick={() => setInsuranceOption('basic')} className={`p-5 border-2 rounded-lg cursor-pointer transition-all duration-300 ${insuranceOption === 'basic' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
-                     <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-slate-800 text-sm">Basic Coverage</h3>
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${insuranceOption === 'basic' ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
-                             {insuranceOption === 'basic' && <Check className="w-3 h-3 text-white"/>}
-                        </div>
-                     </div>
-                     <p className="text-xs text-slate-500 mt-2">Included. Covers theft and collision damage with an excess of {getCurrencySymbol()}{convertPrice(car.excess).toFixed(0)}.</p>
-                  </div>
-                   <div onClick={() => setInsuranceOption('full')} className={`p-5 border-2 rounded-lg cursor-pointer transition-all duration-300 ${insuranceOption === 'full' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
-                     <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-green-500" /> Full Protection</h3>
-                         <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${insuranceOption === 'full' ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
-                             {insuranceOption === 'full' && <Check className="w-3 h-3 text-white"/>}
-                        </div>
-                     </div>
-                     <p className="text-xs text-slate-500 mt-2">Peace of mind. Your excess is reduced to {getCurrencySymbol()}0, plus coverage for tyres and windows.</p>
-                     <p className="text-xs font-bold text-blue-600 mt-2">+ {getCurrencySymbol()}{convertPrice(12).toFixed(2)} / day</p>
-                     
-                     {insuranceOption === 'full' && (
-                        <div className="mt-3 pt-3 border-t border-blue-200 text-xs text-slate-600 space-y-1 animate-fadeIn">
-                           <p className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-green-500"/> Reduces your excess to {getCurrencySymbol()}0</p>
-                           <p className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-green-500"/> Covers windows, mirrors, wheels & tyres</p>
-                        </div>
-                     )}
-                  </div>
-               </div>
-            </div>
 
             {/* Optional Extras */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">

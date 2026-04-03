@@ -709,17 +709,18 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         startDate: format(new Date(), 'yyyy-MM-dd'),
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
     });
-    const [deposit, setDeposit] = useState<number | ''>('');
-    const [excess, setExcess] = useState<number | ''>('');
-    const [fullProtectionRate, setFullProtectionRate] = useState<number | ''>('');
-    const [fullProtectionExcess, setFullProtectionExcess] = useState<number | ''>('');
-    const [bandRates, setBandRates] = useState<{[key: number]: {
-        dailyRate: number | '',
-        deposit: number | '',
-        excess: number | '',
-        fullProtectionDailyRate: number | '',
-        fullProtectionExcess: number | ''
-    }}>({});
+    
+    // Initial bands from config, but user can add more
+    const [manualBands, setManualBands] = useState<any[]>([]);
+    
+    useEffect(() => {
+        const periodBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
+        setManualBands(periodBands.map(b => ({
+            minDays: b.minDays,
+            maxDays: b.maxDays,
+            dailyRate: ''
+        })));
+    }, [selectedPeriodIdx, isCustomPeriod, config]);
     
     // Batch of seasons to apply
     const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
@@ -750,27 +751,16 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             periodName: period.name,
             startDate: period.startDate,
             endDate: period.endDate,
-            deposit: deposit === '' ? null : deposit,
-            excess: excess === '' ? null : excess,
-            fullProtectionDailyRate: fullProtectionRate === '' ? null : fullProtectionRate,
-            fullProtectionExcess: fullProtectionExcess === '' ? null : fullProtectionExcess,
-            rates: (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands)?.map((b, idx) => ({
+            rates: manualBands.map(b => ({
                 minDays: b.minDays,
                 maxDays: b.maxDays,
-                dailyRate: bandRates[idx]?.dailyRate || 0,
-                deposit: bandRates[idx]?.deposit === '' ? null : bandRates[idx]?.deposit,
-                excess: bandRates[idx]?.excess === '' ? null : bandRates[idx]?.excess,
-                fullProtectionDailyRate: bandRates[idx]?.fullProtectionDailyRate === '' ? null : bandRates[idx]?.fullProtectionDailyRate,
-                fullProtectionExcess: bandRates[idx]?.fullProtectionExcess === '' ? null : bandRates[idx]?.fullProtectionExcess
-            })) || []
+                dailyRate: b.dailyRate || 0
+            }))
         };
 
         setBatchSeasons(prev => [...prev, newSeason]);
-        setDeposit('');
-        setExcess('');
-        setFullProtectionRate('');
-        setFullProtectionExcess('');
-        setBandRates({});
+        // Reset rates but keep bands for convenience?
+        setManualBands(prev => prev.map(b => ({ ...b, dailyRate: '' })));
     };
 
     const removeSeasonFromBatch = (idx: number) => {
@@ -943,74 +933,6 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                     </div>
                 </div>
 
-                {/* Bond & Liability Configuration */}
-                <div className="lg:col-span-4 space-y-3">
-                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                        <Shield className="w-3 h-3 text-orange-600" /> 4. Bond & Protection
-                    </label>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                        {/* Deposit */}
-                        <div className="space-y-1">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Security Bond</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-orange-600">{config.currency}</span>
-                                <input 
-                                    type="number" 
-                                    placeholder="0.00"
-                                    value={deposit}
-                                    onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 shadow-sm transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Excess */}
-                        <div className="space-y-1">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Excess Liability</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-orange-600">{config.currency}</span>
-                                <input 
-                                    type="number" 
-                                    placeholder="0.00"
-                                    value={excess}
-                                    onChange={e => setExcess(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 shadow-sm transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Full Protection Rate */}
-                        <div className="space-y-1">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Prot. Rate</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600">{config.currency}</span>
-                                <input 
-                                    type="number" 
-                                    placeholder="0.00"
-                                    value={fullProtectionRate}
-                                    onChange={e => setFullProtectionRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Full Protection Excess */}
-                        <div className="space-y-1">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Prot. Excess</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600">{config.currency}</span>
-                                <input 
-                                    type="number" 
-                                    placeholder="0.00"
-                                    value={fullProtectionExcess}
-                                    onChange={e => setFullProtectionExcess(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {activePeriod && (
@@ -1020,7 +942,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                             <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
                                 <DollarSign className="w-4 h-4 text-orange-600" />
                             </div>
-                            5. Set Rates & Finalize Season
+                            4. Set Bond Rates & Finalize Season
                         </h4>
                         <div className="flex items-center gap-3">
                             <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-blue-600 uppercase tracking-widest shadow-sm">
@@ -1033,67 +955,71 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
-                        {activeBands.map((band, idx) => (
-                            <div key={idx} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] mb-3 block group-hover:text-orange-500 transition-colors">
-                                    {band.label || `${band.minDays}${band.maxDays ? `-${band.maxDays}` : '+'} Days`}
-                                </label>
+                        {manualBands.map((band, idx) => (
+                            <div key={idx} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group relative">
+                                <button 
+                                    onClick={() => setManualBands(manualBands.filter((_, i) => i !== idx))}
+                                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-50 text-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-red-100 shadow-sm hover:bg-red-500 hover:text-white"
+                                >
+                                    <Trash2 className="w-3 h-3" />
+                                </button>
+                                
+                                <div className="flex items-center gap-2 mb-3">
+                                    <input 
+                                        type="number"
+                                        value={band.minDays}
+                                        onChange={e => {
+                                            const nb = [...manualBands];
+                                            nb[idx].minDays = parseInt(e.target.value) || 1;
+                                            setManualBands(nb);
+                                        }}
+                                        className="w-10 bg-gray-50 border-none rounded-lg py-1 px-1 text-[10px] font-black text-center text-gray-600 outline-none focus:ring-1 focus:ring-orange-500/20"
+                                    />
+                                    <span className="text-gray-300">-</span>
+                                    <input 
+                                        type="number"
+                                        value={band.maxDays || ''}
+                                        onChange={e => {
+                                            const nb = [...manualBands];
+                                            nb[idx].maxDays = e.target.value === '' ? null : parseInt(e.target.value);
+                                            setManualBands(nb);
+                                        }}
+                                        placeholder="+"
+                                        className="w-10 bg-gray-50 border-none rounded-lg py-1 px-1 text-[10px] font-black text-center text-gray-600 outline-none focus:ring-1 focus:ring-orange-500/20"
+                                    />
+                                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Days Bond</span>
+                                </div>
+
                                 <div className="space-y-2">
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
                                         <input 
                                             type="number" 
-                                            value={bandRates[idx]?.dailyRate || ''}
-                                            onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], dailyRate: parseFloat(e.target.value) || '' }})}
+                                            value={band.dailyRate}
+                                            onChange={e => {
+                                                const nb = [...manualBands];
+                                                nb[idx].dailyRate = e.target.value === '' ? '' : parseFloat(e.target.value);
+                                                setManualBands(nb);
+                                            }}
                                             className="w-full bg-gray-50/50 border border-transparent group-hover:bg-white group-hover:border-gray-100 rounded-xl py-2 pl-10 pr-4 text-xs font-black text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
-                                            placeholder="Daily Rate"
+                                            placeholder="Daily Price"
                                         />
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-1.5 pt-1 border-t border-gray-50 mt-1">
-                                        <div className="relative">
-                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-gray-400 uppercase tracking-tighter">Bond: {config.currency}</span>
-                                            <input 
-                                                type="number" 
-                                                value={bandRates[idx]?.deposit || ''}
-                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], deposit: parseFloat(e.target.value) || '' }})}
-                                                className="w-full bg-gray-50/30 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-orange-500/10 transition-all"
-                                                placeholder="0.00"
-                                            />
-                                        </div>
-                                        <div className="relative">
-                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-gray-400 uppercase tracking-tighter">Exc: {config.currency}</span>
-                                            <input 
-                                                type="number" 
-                                                value={bandRates[idx]?.excess || ''}
-                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], excess: parseFloat(e.target.value) || '' }})}
-                                                className="w-full bg-gray-50/30 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-orange-500/10 transition-all"
-                                                placeholder="0.00"
-                                            />
-                                        </div>
-                                        <div className="relative">
-                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-blue-400 uppercase tracking-tighter">Prot: {config.currency}</span>
-                                            <input 
-                                                type="number" 
-                                                value={bandRates[idx]?.fullProtectionDailyRate || ''}
-                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], fullProtectionDailyRate: parseFloat(e.target.value) || '' }})}
-                                                className="w-full bg-blue-50/20 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-blue-500/10 transition-all"
-                                                placeholder="0.00"
-                                            />
-                                        </div>
-                                        <div className="relative">
-                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-blue-400 uppercase tracking-tighter">P.Exc: {config.currency}</span>
-                                            <input 
-                                                type="number" 
-                                                value={bandRates[idx]?.fullProtectionExcess || ''}
-                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], fullProtectionExcess: parseFloat(e.target.value) || '' }})}
-                                                className="w-full bg-blue-50/20 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-blue-500/10 transition-all"
-                                                placeholder="0.00"
-                                            />
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
+                        
+                        <button 
+                            onClick={() => {
+                                const lastBand = manualBands[manualBands.length - 1];
+                                const nextMin = lastBand ? (lastBand.maxDays || lastBand.minDays) + 1 : 1;
+                                setManualBands([...manualBands, { minDays: nextMin, maxDays: null, dailyRate: '' }]);
+                            }}
+                            className="bg-white p-5 rounded-3xl border border-dashed border-gray-200 shadow-sm hover:border-orange-300 transition-all group flex flex-col items-center justify-center gap-2 min-h-[100px]"
+                        >
+                            <Plus className="w-5 h-5 text-gray-300 group-hover:text-orange-500 transition-colors" />
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-orange-500 transition-colors">Add Bond</span>
+                        </button>
                     </div>
 
                     <button 
@@ -1140,43 +1066,18 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                             <p className="text-sm font-black text-gray-900">{format(parseISO(season.startDate), 'MMM d, yyyy')} — {format(parseISO(season.endDate), 'MMM d, yyyy')}</p>
                                         </div>
                                         <div className="h-8 w-px bg-gray-100 hidden md:block" />
-                                        <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-                                            <div>
-                                                <p className="text-[8px] font-black text-blue-600 uppercase tracking-widest">
-                                                    Bond: {season.deposit != null ? `${config.currency}${season.deposit}` : 'Default'}
-                                                    {season.rates.some((r: any) => r.deposit != null) && <span className="ml-1 text-blue-400 opacity-70">(+Bands)</span>}
-                                                </p>
-                                                <p className="text-[8px] font-black text-orange-600 uppercase tracking-widest">
-                                                    Excess: {season.excess != null ? `${config.currency}${season.excess}` : 'Default'}
-                                                    {season.rates.some((r: any) => r.excess != null) && <span className="ml-1 text-orange-400 opacity-70">(+Bands)</span>}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">
-                                                    Prot: {season.fullProtectionDailyRate != null ? `${config.currency}${season.fullProtectionDailyRate}/d` : 'Default'}
-                                                    {season.rates.some((r: any) => r.fullProtectionDailyRate != null) && <span className="ml-1 text-green-400 opacity-70">(+Bands)</span>}
-                                                </p>
-                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">
-                                                    P.Exc: {season.fullProtectionExcess != null ? `${config.currency}${season.fullProtectionExcess}` : 'Default'}
-                                                    {season.rates.some((r: any) => r.fullProtectionExcess != null) && <span className="ml-1 text-green-400 opacity-70">(+Bands)</span>}
-                                                </p>
+                                        <div className="grid grid-cols-1 gap-x-6 gap-y-1">
+                                            <div className="flex flex-wrap gap-2">
+                                                {season.rates.map((r: any, i: number) => (
+                                                    <div key={i} className="px-2 py-1 rounded-lg bg-gray-50 border border-gray-100 text-[8px] font-black text-gray-500 uppercase tracking-tighter">
+                                                        {r.minDays}-{r.maxDays || '+'} Days: <span className="text-orange-600">{config.currency}{r.dailyRate}</span>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-4 self-end md:self-auto">
-                                        <div className="flex -space-x-2">
-                                            {season.rates.slice(0, 3).map((r: any, i: number) => (
-                                                <div key={i} className="w-8 h-8 rounded-full bg-gray-50 border-2 border-white flex items-center justify-center text-[8px] font-black text-gray-400">
-                                                    {r.dailyRate}
-                                                </div>
-                                            ))}
-                                            {season.rates.length > 3 && (
-                                                <div className="w-8 h-8 rounded-full bg-orange-50 border-2 border-white flex items-center justify-center text-[8px] font-black text-orange-600">
-                                                    +{season.rates.length - 3}
-                                                </div>
-                                            )}
-                                        </div>
                                         <button 
                                             onClick={() => removeSeasonFromBatch(idx)}
                                             className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
@@ -1508,8 +1409,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     name: '', make: '', model: '', year: new Date().getFullYear(),
     sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
     passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
-    deposit: 0, excess: 0, 
-    fullProtectionDailyRate: 0, fullProtectionExcess: 0,
+    deposit: 0, 
     unlimitedMileage: true, available: true,
     locationCode: supplier?.locationCode || '',
     locationName: '',
@@ -1525,8 +1425,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
         name: '', make: '', model: '', year: new Date().getFullYear(),
         sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
         passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
-        deposit: 0, excess: 0, 
-        fullProtectionDailyRate: 0, fullProtectionExcess: 0,
+        deposit: 0, 
         unlimitedMileage: true, available: true,
         locationCode: supplier?.locationCode || '',
         locationName: '',
@@ -1651,9 +1550,6 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <DollarSign className="w-3 h-3" /> Financials
                     </h4>
                     <InputField label="Security Deposit" type="number" value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
-                    <InputField label="Max Excess" type="number" value={formData.excess} onChange={(e:any) => handleChange('excess', parseFloat(e.target.value))} />
-                    <InputField label="Full Prot. Rate" type="number" value={formData.fullProtectionDailyRate} onChange={(e:any) => handleChange('fullProtectionDailyRate', parseFloat(e.target.value))} />
-                    <InputField label="Full Prot. Excess" type="number" value={formData.fullProtectionExcess} onChange={(e:any) => handleChange('fullProtectionExcess', parseFloat(e.target.value))} />
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 flex flex-col justify-center gap-4">
                     <label className="flex items-center gap-3 cursor-pointer group">

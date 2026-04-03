@@ -200,42 +200,6 @@ const BookingPage: React.FC = () => {
                </div>
             </div>
 
-            {/* Insurance Options */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-               <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><Shield className="w-5 h-5 text-blue-600"/> Rental Protection</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div onClick={() => setInsuranceOption('basic')} className={`p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${insuranceOption === 'basic' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
-                     <div className="flex justify-between items-center mb-2">
-                         <h3 className="font-bold text-slate-800 text-sm">Basic Coverage</h3>
-                         <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${insuranceOption === 'basic' ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
-                              {insuranceOption === 'basic' && <Check className="w-3 h-3 text-white"/>}
-                         </div>
-                     </div>
-                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Included. Covers theft and collision damage with an excess of {getCurrencySymbol()}{convertPrice(car.excess).toFixed(0)}.</p>
-                     <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mt-4 block">Included in price</span>
-                  </div>
-                   <div onClick={() => setInsuranceOption('full')} className={`p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ${insuranceOption === 'full' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
-                     <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[#16a34a]" /> Full Protection</h3>
-                        </div>
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${insuranceOption === 'full' ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
-                              {insuranceOption === 'full' && <Check className="w-3 h-3 text-white"/>}
-                         </div>
-                     </div>
-                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Peace of mind. Your excess is reduced to {getCurrencySymbol()}0, plus coverage for tyres and windows.</p>
-                     <span className="text-sm font-extrabold text-blue-600 mt-3 block">+ {getCurrencySymbol()}{convertPrice(12).toFixed(2)} / day</span>
-                     
-                     {insuranceOption === 'full' && (
-                        <div className="mt-4 pt-4 border-t border-blue-100 text-xs text-slate-600 space-y-2 animate-fadeIn">
-                           <p className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-[#16a34a]"/> Reduces your excess to {getCurrencySymbol()}0</p>
-                           <p className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-[#16a34a]"/> Covers windows, mirrors, wheels & tyres</p>
-                           <p className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-[#16a34a]"/> Covers undercarriage & roof</p>
-                        </div>
-                     )}
-                  </div>
-               </div>
-            </div>
 
             {/* Payment Details */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
