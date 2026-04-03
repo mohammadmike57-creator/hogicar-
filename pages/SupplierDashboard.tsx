@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Car, Calendar, DollarSign, User, LogOut, 
-  Settings, Package, MapPin, Zap, Clock, Shield, Plus, Edit, 
+  Settings, Settings2, Target, Package, MapPin, Zap, Clock, Shield, Plus, Edit, 
   Trash2, Search, Filter, ChevronRight, History, TrendingUp,
   Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
   Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe
@@ -738,81 +738,122 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
     const period = config.periods[selectedPeriodIdx];
 
     return (
-        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 mt-12">
-            <div className="flex items-center gap-4 mb-8">
-                <div className="p-3 bg-orange-50 rounded-2xl border border-orange-100">
-                    <Zap className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                    <h3 className="text-xl font-black text-gray-900 tracking-tight">Direct Pricing Management</h3>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Manual Bulk Updates by Category or SIPP</p>
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl shadow-gray-200/60 border border-gray-50 mt-12 overflow-hidden relative"
+        >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-50/30 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+            
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 relative z-10">
+                <div className="flex items-center gap-5">
+                    <div className="p-4 bg-orange-600 rounded-3xl shadow-lg shadow-orange-200 ring-8 ring-orange-50">
+                        <Zap className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-black text-gray-900 tracking-tight">Direct Pricing Management</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Manual Bulk Updates by Category or SIPP</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Target Type</label>
-                    <select 
-                        value={targetType} 
-                        onChange={e => setTargetType(e.target.value as any)}
-                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
-                    >
-                        <option value="category">By Category (e.g. Economy)</option>
-                        <option value="sipp">By SIPP Code (e.g. EDMR)</option>
-                    </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 relative z-10">
+                <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                        <Settings2 className="w-3 h-3" /> Target Type
+                    </label>
+                    <div className="flex p-1 bg-gray-50 rounded-2xl border border-gray-100">
+                        <button 
+                            onClick={() => setTargetType('category')}
+                            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'category' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            Category
+                        </button>
+                        <button 
+                            onClick={() => setTargetType('sipp')}
+                            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'sipp' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            SIPP Code
+                        </button>
+                    </div>
                 </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Target Value</label>
+
+                <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                        <Target className="w-3 h-3" /> {targetType === 'category' ? 'Category Name' : 'SIPP Code'}
+                    </label>
                     <input 
                         type="text" 
-                        placeholder={targetType === 'category' ? 'Economy' : 'EDMR'}
+                        placeholder={targetType === 'category' ? 'e.g. Economy' : 'e.g. EDMR'}
                         value={targetValue}
                         onChange={e => setTargetValue(e.target.value)}
-                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all placeholder:text-gray-300"
                     />
                 </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Period</label>
+
+                <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                        <Calendar className="w-3 h-3" /> Season / Period
+                    </label>
                     <select 
                         value={selectedPeriodIdx} 
                         onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
-                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all cursor-pointer appearance-none"
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.25rem center', backgroundSize: '1rem' }}
                     >
                         {config.periods.map((p, idx) => (
-                            <option key={idx} value={idx}>{p.name} ({p.startDate} - {p.endDate})</option>
+                            <option key={idx} value={idx}>{p.name}</option>
                         ))}
                     </select>
                 </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Bond / Deposit</label>
-                    <input 
-                        type="number" 
-                        placeholder="0.00"
-                        value={deposit}
-                        onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
-                    />
+
+                <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                        <Shield className="w-3 h-3" /> Security Bond
+                    </label>
+                    <div className="relative group">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
+                        <input 
+                            type="number" 
+                            placeholder="0.00"
+                            value={deposit}
+                            onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 pl-12 pr-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all placeholder:text-gray-300"
+                        />
+                    </div>
                 </div>
             </div>
 
             {period && (
-                <div className="bg-gray-50/50 p-8 rounded-3xl border border-gray-100 mb-8">
-                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <DollarSign className="w-3 h-3" /> Daily Rates for {period.name} bands
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div className="bg-gray-50/30 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 mb-12 relative z-10">
+                    <div className="flex items-center justify-between mb-8">
+                        <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em] flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
+                                <DollarSign className="w-4 h-4 text-orange-600" />
+                            </div>
+                            Pricing Bands for {period.name}
+                        </h4>
+                        <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest shadow-sm">
+                            {format(parseISO(period.startDate), 'MMM d')} - {format(parseISO(period.endDate), 'MMM d, yyyy')}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                         {period.bands.map((band, idx) => (
-                            <div key={idx} className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 truncate">
+                            <div key={idx} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] mb-3 block group-hover:text-orange-500 transition-colors">
                                     {band.label || `${band.minDays}${band.maxDays ? `-${band.maxDays}` : '+'} Days`}
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">{config.currency}</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
                                     <input 
                                         type="number" 
                                         value={bandRates[idx] || ''}
                                         onChange={e => setBandRates({...bandRates, [idx]: parseFloat(e.target.value) || 0})}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                                        className="w-full bg-gray-50/50 border border-transparent group-hover:bg-white group-hover:border-gray-100 rounded-xl py-2.5 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -825,11 +866,21 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
             <button 
                 onClick={handleApply}
                 disabled={isSaving || !targetValue}
-                className="w-full py-5 bg-gray-900 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 hover:scale-[1.01] transition-all disabled:opacity-50"
+                className="w-full py-6 bg-gray-900 text-white rounded-[2.5rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-gray-200 hover:bg-orange-600 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-gray-900 flex items-center justify-center gap-3 relative z-10"
             >
-                {isSaving ? 'Updating Rates...' : 'Apply Rates to Matching Vehicles'}
+                {isSaving ? (
+                    <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Processing Updates...
+                    </>
+                ) : (
+                    <>
+                        <CheckCircle className="w-4 h-4" />
+                        Apply Rates to Matching Vehicles
+                    </>
+                )}
             </button>
-        </div>
+        </motion.div>
     );
 }
 
