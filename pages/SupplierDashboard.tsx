@@ -17,7 +17,7 @@ import {
 import { supplierApi, getPublicLocations, API_BASE_URL } from '../api';
 import { 
   Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 
-  BookingMode, TemplateConfig, Extra, RateTier, CarModel
+  BookingMode, TemplateConfig, Extra, RateTier, CarModel, RateHistoryEntry
 } from '../types';
 import Logo from '../components/Logo';
 
@@ -1500,6 +1500,8 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                 </div>
             )}
 
+            <RateHistorySection />
+
             <TemplateConfigModal 
                 isOpen={isConfigModalOpen} 
                 onClose={() => setIsConfigModalOpen(false)} 
@@ -1830,6 +1832,95 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
 );
 
 // ==================== TemplateConfigModal Component ====================
+// ==================== Rate History Section ====================
+const RateHistorySection = () => {
+    const [history, setHistory] = useState<RateHistoryEntry[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchHistory = async () => {
+        setIsLoading(true);
+        try {
+            const res = await supplierApi.getRateHistory();
+            setHistory(res.data);
+        } catch (e) { console.error(e); }
+        finally { setIsLoading(false); }
+    };
+
+    useEffect(() => { fetchHistory(); }, []);
+
+    const getStatusVariant = (status: string) => {
+        switch (status) {
+            case 'ACTIVE': return 'success';
+            case 'EXPIRED': return 'error';
+            case 'FUTURE': return 'info';
+            default: return 'default';
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center p-20">
+                <RefreshCw className="w-8 h-8 text-orange-600 animate-spin" />
+            </div>
+        );
+    }
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+            <div className="flex items-center justify-between mb-8">
+                <SectionHeader title="Rate Publication History" icon={History} subtitle="Chronological log of pricing updates" />
+                <button 
+                    onClick={fetchHistory}
+                    className="p-3 bg-gray-50 hover:bg-orange-50 text-gray-400 hover:text-orange-600 rounded-2xl transition-all"
+                >
+                    <RefreshCw className="w-5 h-5" />
+                </button>
+            </div>
+
+            <div className="space-y-6">
+                {history.map((entry) => (
+                    <div key={entry.id} className="p-8 bg-gray-50/50 rounded-[2.5rem] border border-gray-100 hover:border-orange-200 transition-all group">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <h4 className="text-lg font-black text-gray-900 tracking-tight">{entry.periodName || 'Custom Season'}</h4>
+                                    <Badge variant={getStatusVariant(entry.status)}>{entry.status}</Badge>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="w-3.5 h-3.5 text-orange-500" />
+                                        <span>{entry.startDate} → {entry.endDate}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Target className="w-3.5 h-3.5 text-blue-500" />
+                                        <span>{entry.targetType}: {entry.targetValues.join(', ')}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                {entry.rates.map((rate, rIdx) => (
+                                    <div key={rIdx} className="px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col items-center">
+                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-tight">{rate.minDays}-{rate.maxDays || '∞'} d</span>
+                                        <span className="text-[10px] font-black text-orange-600">{rate.dailyRate} {entry.currency}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {history.length === 0 && (
+                    <div className="text-center py-20 bg-gray-50/30 rounded-[3rem] border border-dashed border-gray-200">
+                        <History className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No publication history found</p>
+                    </div>
+                )}
+            </div>
+        </motion.div>
+    );
+};
+
 const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, supplier }: any) => {
     const [localConfig, setLocalConfig] = useState<TemplateConfig>({
         currency: 'USD',

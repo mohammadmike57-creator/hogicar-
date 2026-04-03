@@ -526,6 +526,22 @@ export interface TemplateConfig {
   maxBookingLeadTimeDays?: number;
 }
 
+export interface RateHistoryEntry {
+  id: number;
+  periodName?: string;
+  startDate?: string;
+  endDate?: string;
+  targetType: 'CATEGORY' | 'SIPP';
+  targetValues: string[];
+  rates: {
+    minDays: number;
+    maxDays?: number;
+    dailyRate: number;
+  }[];
+  status: 'ACTIVE' | 'EXPIRED' | 'FUTURE';
+  currency: string;
+}
+
 export interface CarRateBand {
   id: number;
   minDays: number;
