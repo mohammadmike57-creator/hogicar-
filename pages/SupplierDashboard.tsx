@@ -710,6 +710,9 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
     });
     const [deposit, setDeposit] = useState<number | ''>('');
+    const [excess, setExcess] = useState<number | ''>('');
+    const [fullProtectionRate, setFullProtectionRate] = useState<number | ''>('');
+    const [fullProtectionExcess, setFullProtectionExcess] = useState<number | ''>('');
     const [bandRates, setBandRates] = useState<{[key: number]: number}>({});
     
     // Batch of seasons to apply
@@ -742,6 +745,9 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             startDate: period.startDate,
             endDate: period.endDate,
             deposit: deposit === '' ? null : deposit,
+            excess: excess === '' ? null : excess,
+            fullProtectionDailyRate: fullProtectionRate === '' ? null : fullProtectionRate,
+            fullProtectionExcess: fullProtectionExcess === '' ? null : fullProtectionExcess,
             rates: (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands)?.map((b, idx) => ({
                 minDays: b.minDays,
                 maxDays: b.maxDays,
@@ -751,6 +757,9 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
 
         setBatchSeasons(prev => [...prev, newSeason]);
         setDeposit('');
+        setExcess('');
+        setFullProtectionRate('');
+        setFullProtectionExcess('');
     };
 
     const removeSeasonFromBatch = (idx: number) => {
@@ -923,26 +932,73 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                     </div>
                 </div>
 
-                {/* Bond / Deposit (Security Bond) */}
-                <div className="lg:col-span-4 space-y-2">
+                {/* Bond & Liability Configuration */}
+                <div className="lg:col-span-4 space-y-3">
                     <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                        <Shield className="w-3 h-3 text-orange-600" /> 4. Set Security Deposit (Bond)
+                        <Shield className="w-3 h-3 text-orange-600" /> 4. Bond & Protection
                     </label>
-                    <div className="relative group">
-                        <div className="absolute left-0 top-0 bottom-0 w-12 bg-orange-50 rounded-l-2xl border-r border-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">
-                            {config.currency}
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                        {/* Deposit */}
+                        <div className="space-y-1">
+                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Security Bond</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-orange-600">{config.currency}</span>
+                                <input 
+                                    type="number" 
+                                    placeholder="0.00"
+                                    value={deposit}
+                                    onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 shadow-sm transition-all"
+                                />
+                            </div>
                         </div>
-                        <input 
-                            type="number" 
-                            placeholder="New Deposit amount for this season..."
-                            value={deposit}
-                            onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                            className="w-full bg-white border border-gray-100 rounded-2xl py-3.5 pl-16 pr-5 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all placeholder:text-gray-300 shadow-sm"
-                        />
+
+                        {/* Excess */}
+                        <div className="space-y-1">
+                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Excess Liability</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-orange-600">{config.currency}</span>
+                                <input 
+                                    type="number" 
+                                    placeholder="0.00"
+                                    value={excess}
+                                    onChange={e => setExcess(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 shadow-sm transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Full Protection Rate */}
+                        <div className="space-y-1">
+                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Prot. Rate</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600">{config.currency}</span>
+                                <input 
+                                    type="number" 
+                                    placeholder="0.00"
+                                    value={fullProtectionRate}
+                                    onChange={e => setFullProtectionRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Full Protection Excess */}
+                        <div className="space-y-1">
+                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Prot. Excess</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600">{config.currency}</span>
+                                <input 
+                                    type="number" 
+                                    placeholder="0.00"
+                                    value={fullProtectionExcess}
+                                    onChange={e => setFullProtectionExcess(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                    className="w-full bg-white border border-gray-100 rounded-xl py-2 pl-8 pr-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all"
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-[9px] font-bold text-orange-600/60 uppercase tracking-widest mt-2 px-1">
-                        Required: This will be the bond for this specific season.
-                    </p>
                 </div>
             </div>
 
@@ -1029,9 +1085,15 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                             <p className="text-sm font-black text-gray-900">{format(parseISO(season.startDate), 'MMM d, yyyy')} — {format(parseISO(season.endDate), 'MMM d, yyyy')}</p>
                                         </div>
                                         <div className="h-8 w-px bg-gray-100 hidden md:block" />
-                                        <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bond / Deposit</p>
-                                            <p className="text-sm font-black text-blue-600">{season.deposit ? `${config.currency} ${season.deposit}` : 'Keep Existing'}</p>
+                                        <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                                            <div>
+                                                <p className="text-[8px] font-black text-blue-600 uppercase tracking-widest">Bond: {season.deposit != null ? `${config.currency}${season.deposit}` : 'Keep'}</p>
+                                                <p className="text-[8px] font-black text-orange-600 uppercase tracking-widest">Excess: {season.excess != null ? `${config.currency}${season.excess}` : 'Keep'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">Prot: {season.fullProtectionDailyRate != null ? `${config.currency}${season.fullProtectionDailyRate}/d` : 'Keep'}</p>
+                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">P.Exc: {season.fullProtectionExcess != null ? `${config.currency}${season.fullProtectionExcess}` : 'Keep'}</p>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1379,7 +1441,9 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     name: '', make: '', model: '', year: new Date().getFullYear(),
     sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
     passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
-    deposit: 0, excess: 0, unlimitedMileage: true, available: true,
+    deposit: 0, excess: 0, 
+    fullProtectionDailyRate: 0, fullProtectionExcess: 0,
+    unlimitedMileage: true, available: true,
     locationCode: supplier?.locationCode || '',
     locationName: '',
   });
@@ -1394,7 +1458,9 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
         name: '', make: '', model: '', year: new Date().getFullYear(),
         sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
         passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
-        deposit: 0, excess: 0, unlimitedMileage: true, available: true,
+        deposit: 0, excess: 0, 
+        fullProtectionDailyRate: 0, fullProtectionExcess: 0,
+        unlimitedMileage: true, available: true,
         locationCode: supplier?.locationCode || '',
         locationName: '',
       });
@@ -1519,6 +1585,8 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                     </h4>
                     <InputField label="Security Deposit" type="number" value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
                     <InputField label="Max Excess" type="number" value={formData.excess} onChange={(e:any) => handleChange('excess', parseFloat(e.target.value))} />
+                    <InputField label="Full Prot. Rate" type="number" value={formData.fullProtectionDailyRate} onChange={(e:any) => handleChange('fullProtectionDailyRate', parseFloat(e.target.value))} />
+                    <InputField label="Full Prot. Excess" type="number" value={formData.fullProtectionExcess} onChange={(e:any) => handleChange('fullProtectionExcess', parseFloat(e.target.value))} />
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 flex flex-col justify-center gap-4">
                     <label className="flex items-center gap-3 cursor-pointer group">
