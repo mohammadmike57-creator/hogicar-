@@ -188,7 +188,14 @@ const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier, onCl
                                 <CreditCardIcon className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0"/>
                                 <div>
                                     <strong className="block text-slate-800">Credit Card</strong>
-                                    <p className="text-xs text-slate-500">Must be in the main driver's name, with sufficient funds for the security deposit.</p>
+                                    <p className="text-xs text-slate-500">
+                                      Must be in the main driver's name, with sufficient funds for the security deposit
+                                      {car.deposit > 0 && (
+                                        <strong className="text-blue-600 ml-1">
+                                          ({getCurrencySymbol(car.currency || 'USD')} {convertPrice(car.deposit)})
+                                        </strong>
+                                      )}
+                                    </p>
                                 </div>
                             </li>
                         </ul>

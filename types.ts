@@ -232,6 +232,7 @@ export interface ApiSearchResult {
   description?: string;
   commissionAmount?: number;
   commissionPercent?: number;
+  deposit?: number;
   
   // Fields for normalization
   supplierId?: number | null;

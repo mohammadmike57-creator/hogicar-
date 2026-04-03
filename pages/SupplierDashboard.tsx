@@ -5,7 +5,8 @@ import {
   Settings, Settings2, Target, Package, MapPin, Zap, Clock, Shield, Plus, Edit, 
   Trash2, Search, Filter, ChevronRight, History, TrendingUp,
   Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
-  Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe
+  Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe,
+  Layers
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, isAfter, isBefore, addDays, subDays } from 'date-fns';
@@ -699,6 +700,8 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
 const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void }) => {
     const [targetType, setTargetType] = useState<'category' | 'sipp'>('category');
     const [targetValues, setTargetValues] = useState<string[]>([]);
+    
+    // Season being currently defined
     const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
     const [isCustomPeriod, setIsCustomPeriod] = useState(false);
     const [customPeriod, setCustomPeriod] = useState({
@@ -708,6 +711,9 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
     });
     const [deposit, setDeposit] = useState<number | ''>('');
     const [bandRates, setBandRates] = useState<{[key: number]: number}>({});
+    
+    // Batch of seasons to apply
+    const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
     // Get unique categories and SIPPs from the fleet
@@ -720,33 +726,53 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         return Array.from(set).sort();
     }, [cars, targetType]);
 
+    const addSeasonToBatch = () => {
+        const period = isCustomPeriod ? customPeriod : config.periods[selectedPeriodIdx];
+        if (!period) return;
+
+        const newSeason = {
+            periodName: period.name,
+            startDate: period.startDate,
+            endDate: period.endDate,
+            deposit: deposit === '' ? null : deposit,
+            rates: (isCustomPeriod ? config.periods[0]?.bands : config.periods[selectedPeriodIdx]?.bands)?.map((b, idx) => ({
+                minDays: b.minDays,
+                maxDays: b.maxDays,
+                dailyRate: bandRates[idx] || 0
+            })) || []
+        };
+
+        setBatchSeasons(prev => [...prev, newSeason]);
+        // Don't reset everything, user might want to add another season with similar rates
+        setDeposit('');
+    };
+
+    const removeSeasonFromBatch = (idx: number) => {
+        setBatchSeasons(prev => prev.filter((_, i) => i !== idx));
+    };
+
     const handleApply = async () => {
         if (targetValues.length === 0) {
             alert(`Please select at least one ${targetType === 'category' ? 'Category' : 'SIPP Code'}`);
             return;
         }
 
-        const period = isCustomPeriod ? customPeriod : config.periods[selectedPeriodIdx];
-        if (!period) return;
+        if (batchSeasons.length === 0) {
+            alert("Please add at least one season to the batch.");
+            return;
+        }
 
         setIsSaving(true);
         try {
             const payload = {
                 targetType,
                 targetValues,
-                periodName: period.name,
-                startDate: period.startDate,
-                endDate: period.endDate,
                 currency: config.currency,
-                deposit: deposit === '' ? null : deposit,
-                rates: (isCustomPeriod ? config.periods[0]?.bands : config.periods[selectedPeriodIdx]?.bands)?.map((b, idx) => ({
-                    minDays: b.minDays,
-                    maxDays: b.maxDays,
-                    dailyRate: bandRates[idx] || 0
-                })) || []
+                seasons: batchSeasons
             };
             await supplierApi.bulkUpdateRates(payload);
-            alert("Rates updated successfully for all matching cars!");
+            alert(`Rates updated successfully for ${batchSeasons.length} seasons across all matching cars!`);
+            setBatchSeasons([]);
             onUpdate();
         } catch (e) {
             alert("Failed to update rates manually.");
@@ -912,7 +938,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             </div>
 
             {activePeriod && (
-                <div className="bg-gray-50/30 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 mb-12 relative z-10">
+                <div className="bg-gray-50/30 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 mb-8 relative z-10">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                         <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em] flex items-center gap-3">
                             <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
@@ -930,7 +956,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
                         {activeBands.map((band, idx) => (
                             <div key={idx} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] mb-3 block group-hover:text-orange-500 transition-colors">
@@ -949,14 +975,89 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                             </div>
                         ))}
                     </div>
+
+                    <button 
+                        onClick={addSeasonToBatch}
+                        className="w-full py-4 bg-orange-50 text-orange-600 rounded-2xl border border-orange-100 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 hover:text-white transition-all flex items-center justify-center gap-3 group"
+                    >
+                        <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                        Add this Season to Batch List
+                    </button>
+                </div>
+            )}
+
+            {/* Batch List Section */}
+            {batchSeasons.length > 0 && (
+                <div className="mb-12 relative z-10">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center text-white">
+                            <Layers className="w-4 h-4" />
+                        </div>
+                        <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em]">Defined Seasons for Batch Update ({batchSeasons.length})</h4>
+                    </div>
+
+                    <div className="space-y-4">
+                        <AnimatePresence>
+                            {batchSeasons.map((season, idx) => (
+                                <motion.div 
+                                    key={idx}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:shadow-md transition-all"
+                                >
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors">
+                                            <Calendar className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{season.periodName}</p>
+                                                <div className="px-2 py-0.5 rounded-full bg-blue-50 text-[8px] font-black text-blue-600 uppercase tracking-tighter border border-blue-100">
+                                                    {season.targetValues.length} {season.targetType === 'category' ? 'Cats' : 'SIPPs'}
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-black text-gray-900">{format(parseISO(season.startDate), 'MMM d, yyyy')} — {format(parseISO(season.endDate), 'MMM d, yyyy')}</p>
+                                        </div>
+                                        <div className="h-8 w-px bg-gray-100 hidden md:block" />
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bond / Deposit</p>
+                                            <p className="text-sm font-black text-blue-600">{season.deposit ? `${config.currency} ${season.deposit}` : 'Keep Existing'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 self-end md:self-auto">
+                                        <div className="flex -space-x-2">
+                                            {season.rates.slice(0, 3).map((r: any, i: number) => (
+                                                <div key={i} className="w-8 h-8 rounded-full bg-gray-50 border-2 border-white flex items-center justify-center text-[8px] font-black text-gray-400">
+                                                    {r.dailyRate}
+                                                </div>
+                                            ))}
+                                            {season.rates.length > 3 && (
+                                                <div className="w-8 h-8 rounded-full bg-orange-50 border-2 border-white flex items-center justify-center text-[8px] font-black text-orange-600">
+                                                    +{season.rates.length - 3}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button 
+                                            onClick={() => removeSeasonFromBatch(idx)}
+                                            className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
                 </div>
             )}
 
             <button 
                 onClick={handleApply}
-                disabled={isSaving || targetValues.length === 0}
+                disabled={isSaving || targetValues.length === 0 || batchSeasons.length === 0}
                 className={`w-full py-5 rounded-[2rem] text-xs font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center justify-center gap-4 ${
-                    targetValues.length > 0 
+                    targetValues.length > 0 && batchSeasons.length > 0
                     ? 'bg-gray-900 text-white shadow-gray-200 hover:bg-orange-600 hover:scale-[1.01] active:scale-95' 
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
@@ -964,12 +1065,12 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                 {isSaving ? (
                     <>
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        Processing Updates...
+                        Applying Batch Updates...
                     </>
                 ) : (
                     <>
                         <CheckCircle className="w-4 h-4" />
-                        Apply Manual Update to {targetValues.length} {targetType === 'category' ? 'Categories' : 'SIPPs'}
+                        Apply All {batchSeasons.length} Seasons to {targetValues.length} {targetType === 'category' ? 'Categories' : 'SIPPs'}
                     </>
                 )}
             </button>
