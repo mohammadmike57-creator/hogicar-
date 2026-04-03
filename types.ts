@@ -24,15 +24,18 @@ export enum CarCategory {
 }
 
 export enum CarType {
+  CAR = 'CAR',
   SEDAN = 'SEDAN',
   HATCHBACK = 'HATCHBACK',
   SUV = 'SUV',
   CONVERTIBLE = 'CONVERTIBLE',
   VAN = 'VAN',
+  VAN_9_SEATER = 'VAN_9_SEATER',
   COUPE = 'COUPE',
   MINIVAN = 'MINIVAN',
   WAGON = 'WAGON',
-  PICKUP = 'PICKUP'
+  PICKUP = 'PICKUP',
+  LUXURY = 'LUXURY'
 }
 
 export enum Transmission {

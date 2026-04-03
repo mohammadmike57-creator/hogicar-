@@ -1433,7 +1433,7 @@ const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
-  const [model, setModel] = useState<any>(carModel || { 
+  const [model, setModel] = useState<any>({ 
     make: '', 
     model: '', 
     year: new Date().getFullYear(), 
@@ -1449,10 +1449,22 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
     if (carModel) {
       setModel({
         ...carModel,
-        imageUrl: carModel.imageUrl || carModel.image
+        imageUrl: carModel.imageUrl || carModel.image || ''
       });
-    } 
-  }, [carModel]);
+    } else {
+      setModel({
+        make: '', 
+        model: '', 
+        year: new Date().getFullYear(), 
+        category: 'ECONOMY', 
+        type: 'SEDAN', 
+        imageUrl: '', 
+        passengers: 5, 
+        bags: 3, 
+        doors: 4
+      });
+    }
+  }, [carModel, isOpen]);
 
   const handleChange = (field: string, val: any) => setModel({ ...model, [field]: val });
 
@@ -1545,9 +1557,9 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
             <InputField 
                 label="Or Direct Image URL" 
                 placeholder="https://..." 
-                value={model.imageUrl?.startsWith('data:') ? 'Local Image (Base64)' : model.imageUrl || ''} 
+                value={model.imageUrl || ''} 
                 onChange={(e: any) => handleChange('imageUrl', e.target.value)} 
-                readOnly={model.imageUrl?.startsWith('data:')}
+                helperText={model.imageUrl?.startsWith('data:') ? 'Currently using a locally uploaded image' : 'Enter a direct link to an image'}
             />
           </div>
         </div>
