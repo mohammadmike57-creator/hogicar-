@@ -1547,6 +1547,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                 placeholder="https://..." 
                 value={model.imageUrl?.startsWith('data:') ? 'Local Image (Base64)' : model.imageUrl || ''} 
                 onChange={(e: any) => handleChange('imageUrl', e.target.value)} 
+                readOnly={model.imageUrl?.startsWith('data:')}
             />
           </div>
         </div>

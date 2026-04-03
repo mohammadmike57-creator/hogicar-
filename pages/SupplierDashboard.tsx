@@ -1719,6 +1719,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                             required
                         >
                             <option value="">Choose a location...</option>
+                            <option value="ALL">All Locations (Apply to all your active locations)</option>
                             {supplier?.locations?.map((loc: any) => (
                                 <option key={loc.id} value={loc.locationCode}>{loc.displayName} ({loc.locationCode})</option>
                             ))}
