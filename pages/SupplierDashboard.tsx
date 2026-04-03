@@ -347,7 +347,7 @@ const SupplierDashboard = () => {
                     {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} onGenerateReport={handleGenerateReport} />}
                     {activeSection === 'reservations' && <ReservationsSection bookings={bookings} />}
                     {activeSection === 'fleet' && <FleetSection supplier={supplier} setActiveSection={setActiveSection} />}
-                    {activeSection === 'rates' && <RatesSection supplier={supplier} />}
+                    {activeSection === 'rates' && <RatesSection supplier={supplier} cars={cars} />}
                     {activeSection === 'stopsales' && <StopSalesSection />}
                     {activeSection === 'extras' && <ExtrasSection />}
                     {activeSection === 'locations' && <LocationsSection />}
@@ -696,34 +696,54 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
 };
 
 // ==================== Manual Pricing Section ====================
-const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, onUpdate: () => void }) => {
+const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void }) => {
     const [targetType, setTargetType] = useState<'category' | 'sipp'>('category');
-    const [targetValue, setTargetValue] = useState('');
+    const [targetValues, setTargetValues] = useState<string[]>([]);
     const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
+    const [isCustomPeriod, setIsCustomPeriod] = useState(false);
+    const [customPeriod, setCustomPeriod] = useState({
+        name: 'Manual Update',
+        startDate: format(new Date(), 'yyyy-MM-dd'),
+        endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
+    });
     const [deposit, setDeposit] = useState<number | ''>('');
     const [bandRates, setBandRates] = useState<{[key: number]: number}>({});
     const [isSaving, setIsSaving] = useState(false);
 
+    // Get unique categories and SIPPs from the fleet
+    const uniqueTargets = useMemo(() => {
+        const set = new Set<string>();
+        cars.forEach(car => {
+            const val = targetType === 'category' ? car.category : car.sippCode;
+            if (val) set.add(val);
+        });
+        return Array.from(set).sort();
+    }, [cars, targetType]);
+
     const handleApply = async () => {
-        if (!targetValue) { alert("Please specify Category or SIPP"); return; }
-        const period = config.periods[selectedPeriodIdx];
+        if (targetValues.length === 0) {
+            alert(`Please select at least one ${targetType === 'category' ? 'Category' : 'SIPP Code'}`);
+            return;
+        }
+
+        const period = isCustomPeriod ? customPeriod : config.periods[selectedPeriodIdx];
         if (!period) return;
 
         setIsSaving(true);
         try {
             const payload = {
                 targetType,
-                targetValue,
+                targetValues,
                 periodName: period.name,
                 startDate: period.startDate,
                 endDate: period.endDate,
                 currency: config.currency,
                 deposit: deposit === '' ? null : deposit,
-                rates: period.bands.map((b, idx) => ({
+                rates: (isCustomPeriod ? config.periods[0]?.bands : config.periods[selectedPeriodIdx]?.bands)?.map((b, idx) => ({
                     minDays: b.minDays,
                     maxDays: b.maxDays,
                     dailyRate: bandRates[idx] || 0
-                }))
+                })) || []
             };
             await supplierApi.bulkUpdateRates(payload);
             alert("Rates updated successfully for all matching cars!");
@@ -735,7 +755,14 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
         }
     };
 
-    const period = config.periods[selectedPeriodIdx];
+    const toggleTargetValue = (val: string) => {
+        setTargetValues(prev => 
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
+        );
+    };
+
+    const activePeriod = isCustomPeriod ? customPeriod : config.periods[selectedPeriodIdx];
+    const activeBands = (isCustomPeriod ? config.periods[0]?.bands : config.periods[selectedPeriodIdx]?.bands) || [];
 
     return (
         <motion.div 
@@ -754,95 +781,157 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
                         <h3 className="text-2xl font-black text-gray-900 tracking-tight">Direct Pricing Management</h3>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Manual Bulk Updates by Category or SIPP</p>
+                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Manual Bulk Updates & Deposit Configuration</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 relative z-10">
-                <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                        <Settings2 className="w-3 h-3" /> Target Type
-                    </label>
-                    <div className="flex p-1 bg-gray-50 rounded-2xl border border-gray-100">
-                        <button 
-                            onClick={() => setTargetType('category')}
-                            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'category' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
-                        >
-                            Category
-                        </button>
-                        <button 
-                            onClick={() => setTargetType('sipp')}
-                            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'sipp' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
-                        >
-                            SIPP Code
-                        </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12 relative z-10">
+                {/* Target Type & Selection */}
+                <div className="lg:col-span-3 space-y-4">
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                            <Settings2 className="w-3 h-3" /> 1. Select Target Type
+                        </label>
+                        <div className="flex p-1 bg-gray-50 rounded-2xl border border-gray-100">
+                            <button 
+                                onClick={() => { setTargetType('category'); setTargetValues([]); }}
+                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'category' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Categories
+                            </button>
+                            <button 
+                                onClick={() => { setTargetType('sipp'); setTargetValues([]); }}
+                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'sipp' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                SIPP Codes
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                            <Target className="w-3 h-3" /> 2. Select {targetType === 'category' ? 'Categories' : 'SIPP Codes'}
+                        </label>
+                        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 max-h-[160px] overflow-y-auto space-y-2">
+                            {uniqueTargets.map(val => (
+                                <label key={val} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-gray-50 cursor-pointer hover:border-orange-200 transition-all group">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={targetValues.includes(val)}
+                                        onChange={() => toggleTargetValue(val)}
+                                        className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                    />
+                                    <span className="text-xs font-bold text-gray-700 uppercase tracking-tight group-hover:text-orange-600">{val}</span>
+                                </label>
+                            ))}
+                            {uniqueTargets.length === 0 && (
+                                <p className="text-[10px] font-bold text-gray-400 uppercase text-center py-4">No {targetType}s found</p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                        <Target className="w-3 h-3" /> {targetType === 'category' ? 'Category Name' : 'SIPP Code'}
-                    </label>
-                    <input 
-                        type="text" 
-                        placeholder={targetType === 'category' ? 'e.g. Economy' : 'e.g. EDMR'}
-                        value={targetValue}
-                        onChange={e => setTargetValue(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all placeholder:text-gray-300"
-                    />
+                {/* Period Selection */}
+                <div className="lg:col-span-5 space-y-4">
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                            <Calendar className="w-3 h-3" /> 3. Define Time Period
+                        </label>
+                        <div className="flex p-1 bg-gray-50 rounded-2xl border border-gray-100 mb-2">
+                            <button 
+                                onClick={() => setIsCustomPeriod(false)}
+                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Use Existing Season
+                            </button>
+                            <button 
+                                onClick={() => setIsCustomPeriod(true)}
+                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Custom Range
+                            </button>
+                        </div>
+                        
+                        {!isCustomPeriod ? (
+                            <select 
+                                value={selectedPeriodIdx} 
+                                onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
+                                className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all cursor-pointer appearance-none"
+                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.25rem center', backgroundSize: '1rem' }}
+                            >
+                                {config.periods.map((p, idx) => (
+                                    <option key={idx} value={idx}>{p.name} ({p.startDate} - {p.endDate})</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                <div className="space-y-1.5">
+                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Start Date</label>
+                                    <input 
+                                        type="date" 
+                                        value={customPeriod.startDate}
+                                        onChange={e => setCustomPeriod({...customPeriod, startDate: e.target.value})}
+                                        className="w-full bg-white border border-gray-100 rounded-xl py-2 px-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">End Date</label>
+                                    <input 
+                                        type="date" 
+                                        value={customPeriod.endDate}
+                                        onChange={e => setCustomPeriod({...customPeriod, endDate: e.target.value})}
+                                        className="w-full bg-white border border-gray-100 rounded-xl py-2 px-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <div className="space-y-2">
+                {/* Bond / Deposit */}
+                <div className="lg:col-span-4 space-y-2">
                     <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                        <Calendar className="w-3 h-3" /> Season / Period
-                    </label>
-                    <select 
-                        value={selectedPeriodIdx} 
-                        onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
-                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all cursor-pointer appearance-none"
-                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.25rem center', backgroundSize: '1rem' }}
-                    >
-                        {config.periods.map((p, idx) => (
-                            <option key={idx} value={idx}>{p.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                        <Shield className="w-3 h-3" /> Security Bond
+                        <Shield className="w-3 h-3" /> 4. Update Security Bond
                     </label>
                     <div className="relative group">
                         <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
                         <input 
                             type="number" 
-                            placeholder="0.00"
+                            placeholder="Optional: New Deposit Amount"
                             value={deposit}
                             onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
                             className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 pl-12 pr-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all placeholder:text-gray-300"
                         />
                     </div>
+                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2 px-1">
+                        Leave empty to keep existing deposits for selected vehicles.
+                    </p>
                 </div>
             </div>
 
-            {period && (
+            {activePeriod && (
                 <div className="bg-gray-50/30 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 mb-12 relative z-10">
-                    <div className="flex items-center justify-between mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                         <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em] flex items-center gap-3">
                             <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
                                 <DollarSign className="w-4 h-4 text-orange-600" />
                             </div>
-                            Pricing Bands for {period.name}
+                            5. Set Daily Rates
                         </h4>
-                        <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest shadow-sm">
-                            {format(parseISO(period.startDate), 'MMM d')} - {format(parseISO(period.endDate), 'MMM d, yyyy')}
-                        </span>
+                        <div className="flex items-center gap-3">
+                            <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-blue-600 uppercase tracking-widest shadow-sm">
+                                {isCustomPeriod ? 'Custom Period' : activePeriod.name}
+                            </span>
+                            <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest shadow-sm">
+                                {format(parseISO(activePeriod.startDate), 'MMM d')} - {format(parseISO(activePeriod.endDate), 'MMM d, yyyy')}
+                            </span>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {period.bands.map((band, idx) => (
+                        {activeBands.map((band, idx) => (
                             <div key={idx} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] mb-3 block group-hover:text-orange-500 transition-colors">
                                     {band.label || `${band.minDays}${band.maxDays ? `-${band.maxDays}` : '+'} Days`}
@@ -865,8 +954,12 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
 
             <button 
                 onClick={handleApply}
-                disabled={isSaving || !targetValue}
-                className="w-full py-6 bg-gray-900 text-white rounded-[2.5rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-gray-200 hover:bg-orange-600 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-gray-900 flex items-center justify-center gap-3 relative z-10"
+                disabled={isSaving || targetValues.length === 0}
+                className={`w-full py-5 rounded-[2rem] text-xs font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center justify-center gap-4 ${
+                    targetValues.length > 0 
+                    ? 'bg-gray-900 text-white shadow-gray-200 hover:bg-orange-600 hover:scale-[1.01] active:scale-95' 
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
             >
                 {isSaving ? (
                     <>
@@ -876,7 +969,7 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
                 ) : (
                     <>
                         <CheckCircle className="w-4 h-4" />
-                        Apply Rates to Matching Vehicles
+                        Apply Manual Update to {targetValues.length} {targetType === 'category' ? 'Categories' : 'SIPPs'}
                     </>
                 )}
             </button>
@@ -885,7 +978,7 @@ const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, on
 }
 
 // ==================== Rates Section ====================
-const RatesSection = ({ supplier }: { supplier: Supplier }) => {
+const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] }) => {
     const [config, setConfig] = useState<TemplateConfig | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -1013,6 +1106,7 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
             {config && (
                 <ManualPricingSection 
                     config={config} 
+                    cars={cars}
                     onUpdate={() => {
                         fetchConfig();
                     }} 

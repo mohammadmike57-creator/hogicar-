@@ -280,7 +280,7 @@ export const Search: React.FC = () => {
     }
     
     return logos;
-  }, [apiCars, locationSuppliers]);
+  }, [apiCars, allLocationSuppliers]);
 
   const allSuppliers = React.useMemo(() => {
     return Array.from(supplierLogos.keys()).sort();
