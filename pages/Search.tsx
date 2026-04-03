@@ -4,6 +4,7 @@
 
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { fetchPublicSuppliers } from '../api';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
@@ -189,6 +190,22 @@ export const Search: React.FC = () => {
   const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
+  const [locationSuppliers, setLocationSuppliers] = React.useState<any[]>([]);
+
+  // Effect to fetch all suppliers for the location
+  React.useEffect(() => {
+    const loadLocationSuppliers = async () => {
+      if (pickupIata) {
+        try {
+          const suppliers = await fetchPublicSuppliers(pickupIata);
+          setLocationSuppliers(suppliers);
+        } catch (err) {
+          console.error("Failed to fetch location suppliers:", err);
+        }
+      }
+    };
+    loadLocationSuppliers();
+  }, [pickupIata]);
 
   // Effect to lock scroll when mobile filters or sort are open
   React.useEffect(() => {
@@ -244,15 +261,26 @@ export const Search: React.FC = () => {
 
   const allCategories = Object.values(CarCategory);
   const supplierLogos = React.useMemo(() => {
-    if (!apiCars) return new Map<string, string>();
     const logos = new Map<string, string>();
-    apiCars.forEach(c => {
-        if (!logos.has(c.supplier.name)) {
-            logos.set(c.supplier.name, c.supplier.logo || '');
-        }
+    
+    // 1. Add logos from all location suppliers first
+    locationSuppliers.forEach(s => {
+      if (s.name && !logos.has(s.name)) {
+        logos.set(s.name, s.logoUrl || '');
+      }
     });
+
+    // 2. Add/Override logos from apiCars (just in case they are different or extra)
+    if (apiCars) {
+      apiCars.forEach(c => {
+        if (c.supplier?.name && !logos.has(c.supplier.name)) {
+          logos.set(c.supplier.name, c.supplier.logo || '');
+        }
+      });
+    }
+    
     return logos;
-  }, [apiCars]);
+  }, [apiCars, locationSuppliers]);
 
   const allSuppliers = React.useMemo(() => {
     return Array.from(supplierLogos.keys()).sort();
