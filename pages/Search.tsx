@@ -24,7 +24,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     // FIX: Added nullish coalescing `(apiCar.supplier?.name ?? "")` to prevent crash on `.toLowerCase()`.
     const mockSupplier = SUPPLIERS.find(s => s.name.toLowerCase() === (apiCar.supplier?.name ?? "").toLowerCase());
 
-    const supplier: Supplier = {
+    const mappedSupplier: Supplier = {
         id: mockSupplier?.id || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
         name: apiCar.supplier?.name ?? 'Unknown Supplier',
         rating: apiCar.supplier?.rating || 4.5,
@@ -84,7 +84,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         doors: apiCar.doors || 4,
         airCon: apiCar.airCon || false,
         image: apiCar.image || '',
-        supplier: supplier,
+        supplier: mappedSupplier,
         features: [],
         fuelPolicy: apiCar.fuelPolicy as FuelPolicy || FuelPolicy.FULL_TO_FULL,
         isAvailable: apiCar.available !== false,
@@ -190,15 +190,15 @@ export const Search: React.FC = () => {
   const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
-  const [locationSuppliers, setLocationSuppliers] = React.useState<any[]>([]);
+  const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
 
   // Effect to fetch all suppliers for the location
   React.useEffect(() => {
     const loadLocationSuppliers = async () => {
       if (pickupIata) {
         try {
-          const suppliers = await fetchPublicSuppliers(pickupIata);
-          setLocationSuppliers(suppliers);
+          const results = await fetchPublicSuppliers(pickupIata);
+          setAllLocationSuppliers(results);
         } catch (err) {
           console.error("Failed to fetch location suppliers:", err);
         }
@@ -264,7 +264,7 @@ export const Search: React.FC = () => {
     const logos = new Map<string, string>();
     
     // 1. Add logos from all location suppliers first
-    locationSuppliers.forEach(s => {
+    allLocationSuppliers.forEach(s => {
       if (s.name && !logos.has(s.name)) {
         logos.set(s.name, s.logoUrl || '');
       }

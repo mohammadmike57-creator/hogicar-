@@ -695,6 +695,144 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
   );
 };
 
+// ==================== Manual Pricing Section ====================
+const ManualPricingSection = ({ config, onUpdate }: { config: TemplateConfig, onUpdate: () => void }) => {
+    const [targetType, setTargetType] = useState<'category' | 'sipp'>('category');
+    const [targetValue, setTargetValue] = useState('');
+    const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
+    const [deposit, setDeposit] = useState<number | ''>('');
+    const [bandRates, setBandRates] = useState<{[key: number]: number}>({});
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleApply = async () => {
+        if (!targetValue) { alert("Please specify Category or SIPP"); return; }
+        const period = config.periods[selectedPeriodIdx];
+        if (!period) return;
+
+        setIsSaving(true);
+        try {
+            const payload = {
+                targetType,
+                targetValue,
+                periodName: period.name,
+                startDate: period.startDate,
+                endDate: period.endDate,
+                currency: config.currency,
+                deposit: deposit === '' ? null : deposit,
+                rates: period.bands.map((b, idx) => ({
+                    minDays: b.minDays,
+                    maxDays: b.maxDays,
+                    dailyRate: bandRates[idx] || 0
+                }))
+            };
+            await supplierApi.bulkUpdateRates(payload);
+            alert("Rates updated successfully for all matching cars!");
+            onUpdate();
+        } catch (e) {
+            alert("Failed to update rates manually.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const period = config.periods[selectedPeriodIdx];
+
+    return (
+        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 mt-12">
+            <div className="flex items-center gap-4 mb-8">
+                <div className="p-3 bg-orange-50 rounded-2xl border border-orange-100">
+                    <Zap className="w-6 h-6 text-orange-600" />
+                </div>
+                <div>
+                    <h3 className="text-xl font-black text-gray-900 tracking-tight">Direct Pricing Management</h3>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Manual Bulk Updates by Category or SIPP</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Target Type</label>
+                    <select 
+                        value={targetType} 
+                        onChange={e => setTargetType(e.target.value as any)}
+                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                    >
+                        <option value="category">By Category (e.g. Economy)</option>
+                        <option value="sipp">By SIPP Code (e.g. EDMR)</option>
+                    </select>
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Target Value</label>
+                    <input 
+                        type="text" 
+                        placeholder={targetType === 'category' ? 'Economy' : 'EDMR'}
+                        value={targetValue}
+                        onChange={e => setTargetValue(e.target.value)}
+                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Period</label>
+                    <select 
+                        value={selectedPeriodIdx} 
+                        onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
+                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                    >
+                        {config.periods.map((p, idx) => (
+                            <option key={idx} value={idx}>{p.name} ({p.startDate} - {p.endDate})</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Bond / Deposit</label>
+                    <input 
+                        type="number" 
+                        placeholder="0.00"
+                        value={deposit}
+                        onChange={e => setDeposit(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                        className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                    />
+                </div>
+            </div>
+
+            {period && (
+                <div className="bg-gray-50/50 p-8 rounded-3xl border border-gray-100 mb-8">
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <DollarSign className="w-3 h-3" /> Daily Rates for {period.name} bands
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                        {period.bands.map((band, idx) => (
+                            <div key={idx} className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 truncate">
+                                    {band.label || `${band.minDays}${band.maxDays ? `-${band.maxDays}` : '+'} Days`}
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">{config.currency}</span>
+                                    <input 
+                                        type="number" 
+                                        value={bandRates[idx] || ''}
+                                        onChange={e => setBandRates({...bandRates, [idx]: parseFloat(e.target.value) || 0})}
+                                        className="w-full bg-white border border-gray-100 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <button 
+                onClick={handleApply}
+                disabled={isSaving || !targetValue}
+                className="w-full py-5 bg-gray-900 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 hover:scale-[1.01] transition-all disabled:opacity-50"
+            >
+                {isSaving ? 'Updating Rates...' : 'Apply Rates to Matching Vehicles'}
+            </button>
+        </div>
+    );
+}
+
 // ==================== Rates Section ====================
 const RatesSection = ({ supplier }: { supplier: Supplier }) => {
     const [config, setConfig] = useState<TemplateConfig | null>(null);
@@ -819,6 +957,16 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Manual Pricing Update Section */}
+            {config && (
+                <ManualPricingSection 
+                    config={config} 
+                    onUpdate={() => {
+                        fetchConfig();
+                    }} 
+                />
+            )}
 
             {/* Template Preview */}
             <div className="bg-gray-900 rounded-[3rem] p-10 text-white relative overflow-hidden">
@@ -964,6 +1112,7 @@ const RatesSection = ({ supplier }: { supplier: Supplier }) => {
                 config={config} 
                 onSave={fetchConfig} 
                 locationCode={selectedLocation}
+                supplier={supplier}
             />
         </motion.div>
     );
@@ -1285,7 +1434,7 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
 );
 
 // ==================== TemplateConfigModal Component ====================
-const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode }: any) => {
+const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, supplier }: any) => {
     const [localConfig, setLocalConfig] = useState<TemplateConfig>({
         currency: 'USD',
         bands: [],
@@ -1416,8 +1565,8 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode }: 
                         >
                             <option value="" disabled className="text-slate-900">Choose Source...</option>
                             {locationCode !== 'global' && <option value="global" className="text-slate-900">Global Strategy</option>}
-                            {supplier.locations?.filter(l => l.value !== locationCode).map(l => (
-                                <option key={l.value} value={l.value} className="text-slate-900">{l.label || l.value}</option>
+                            {supplier?.locations?.filter((l: any) => l.locationCode !== locationCode).map((l: any) => (
+                                <option key={l.locationCode} value={l.locationCode} className="text-slate-900">{l.displayName || l.locationCode}</option>
                             ))}
                         </select>
                     </div>

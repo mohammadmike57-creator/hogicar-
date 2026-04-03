@@ -280,6 +280,7 @@ export const supplierApi = {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
+  bulkUpdateRates: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/rates/bulk`, payload),
   post: (url: string, payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier${url}`, payload),
 };
 
