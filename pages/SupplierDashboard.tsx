@@ -713,7 +713,13 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
     const [excess, setExcess] = useState<number | ''>('');
     const [fullProtectionRate, setFullProtectionRate] = useState<number | ''>('');
     const [fullProtectionExcess, setFullProtectionExcess] = useState<number | ''>('');
-    const [bandRates, setBandRates] = useState<{[key: number]: number}>({});
+    const [bandRates, setBandRates] = useState<{[key: number]: {
+        dailyRate: number | '',
+        deposit: number | '',
+        excess: number | '',
+        fullProtectionDailyRate: number | '',
+        fullProtectionExcess: number | ''
+    }}>({});
     
     // Batch of seasons to apply
     const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
@@ -751,7 +757,11 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             rates: (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands)?.map((b, idx) => ({
                 minDays: b.minDays,
                 maxDays: b.maxDays,
-                dailyRate: bandRates[idx] || 0
+                dailyRate: bandRates[idx]?.dailyRate || 0,
+                deposit: bandRates[idx]?.deposit === '' ? null : bandRates[idx]?.deposit,
+                excess: bandRates[idx]?.excess === '' ? null : bandRates[idx]?.excess,
+                fullProtectionDailyRate: bandRates[idx]?.fullProtectionDailyRate === '' ? null : bandRates[idx]?.fullProtectionDailyRate,
+                fullProtectionExcess: bandRates[idx]?.fullProtectionExcess === '' ? null : bandRates[idx]?.fullProtectionExcess
             })) || []
         };
 
@@ -760,6 +770,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         setExcess('');
         setFullProtectionRate('');
         setFullProtectionExcess('');
+        setBandRates({});
     };
 
     const removeSeasonFromBatch = (idx: number) => {
@@ -1027,15 +1038,59 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] mb-3 block group-hover:text-orange-500 transition-colors">
                                     {band.label || `${band.minDays}${band.maxDays ? `-${band.maxDays}` : '+'} Days`}
                                 </label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
-                                    <input 
-                                        type="number" 
-                                        value={bandRates[idx] || ''}
-                                        onChange={e => setBandRates({...bandRates, [idx]: parseFloat(e.target.value) || 0})}
-                                        className="w-full bg-gray-50/50 border border-transparent group-hover:bg-white group-hover:border-gray-100 rounded-xl py-2.5 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
-                                        placeholder="0.00"
-                                    />
+                                <div className="space-y-2">
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
+                                        <input 
+                                            type="number" 
+                                            value={bandRates[idx]?.dailyRate || ''}
+                                            onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], dailyRate: parseFloat(e.target.value) || '' }})}
+                                            className="w-full bg-gray-50/50 border border-transparent group-hover:bg-white group-hover:border-gray-100 rounded-xl py-2 pl-10 pr-4 text-xs font-black text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
+                                            placeholder="Daily Rate"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-1.5 pt-1 border-t border-gray-50 mt-1">
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-gray-400 uppercase tracking-tighter">Bond: {config.currency}</span>
+                                            <input 
+                                                type="number" 
+                                                value={bandRates[idx]?.deposit || ''}
+                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], deposit: parseFloat(e.target.value) || '' }})}
+                                                className="w-full bg-gray-50/30 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-orange-500/10 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-gray-400 uppercase tracking-tighter">Exc: {config.currency}</span>
+                                            <input 
+                                                type="number" 
+                                                value={bandRates[idx]?.excess || ''}
+                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], excess: parseFloat(e.target.value) || '' }})}
+                                                className="w-full bg-gray-50/30 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-orange-500/10 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-blue-400 uppercase tracking-tighter">Prot: {config.currency}</span>
+                                            <input 
+                                                type="number" 
+                                                value={bandRates[idx]?.fullProtectionDailyRate || ''}
+                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], fullProtectionDailyRate: parseFloat(e.target.value) || '' }})}
+                                                className="w-full bg-blue-50/20 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-blue-500/10 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[7px] font-black text-blue-400 uppercase tracking-tighter">P.Exc: {config.currency}</span>
+                                            <input 
+                                                type="number" 
+                                                value={bandRates[idx]?.fullProtectionExcess || ''}
+                                                onChange={e => setBandRates({...bandRates, [idx]: { ...bandRates[idx], fullProtectionExcess: parseFloat(e.target.value) || '' }})}
+                                                className="w-full bg-blue-50/20 border border-transparent rounded-lg py-1.5 pl-14 pr-2 text-[9px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-blue-500/10 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -1087,12 +1142,24 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                         <div className="h-8 w-px bg-gray-100 hidden md:block" />
                                         <div className="grid grid-cols-2 gap-x-6 gap-y-1">
                                             <div>
-                                                <p className="text-[8px] font-black text-blue-600 uppercase tracking-widest">Bond: {season.deposit != null ? `${config.currency}${season.deposit}` : 'Keep'}</p>
-                                                <p className="text-[8px] font-black text-orange-600 uppercase tracking-widest">Excess: {season.excess != null ? `${config.currency}${season.excess}` : 'Keep'}</p>
+                                                <p className="text-[8px] font-black text-blue-600 uppercase tracking-widest">
+                                                    Bond: {season.deposit != null ? `${config.currency}${season.deposit}` : 'Default'}
+                                                    {season.rates.some((r: any) => r.deposit != null) && <span className="ml-1 text-blue-400 opacity-70">(+Bands)</span>}
+                                                </p>
+                                                <p className="text-[8px] font-black text-orange-600 uppercase tracking-widest">
+                                                    Excess: {season.excess != null ? `${config.currency}${season.excess}` : 'Default'}
+                                                    {season.rates.some((r: any) => r.excess != null) && <span className="ml-1 text-orange-400 opacity-70">(+Bands)</span>}
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">Prot: {season.fullProtectionDailyRate != null ? `${config.currency}${season.fullProtectionDailyRate}/d` : 'Keep'}</p>
-                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">P.Exc: {season.fullProtectionExcess != null ? `${config.currency}${season.fullProtectionExcess}` : 'Keep'}</p>
+                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">
+                                                    Prot: {season.fullProtectionDailyRate != null ? `${config.currency}${season.fullProtectionDailyRate}/d` : 'Default'}
+                                                    {season.rates.some((r: any) => r.fullProtectionDailyRate != null) && <span className="ml-1 text-green-400 opacity-70">(+Bands)</span>}
+                                                </p>
+                                                <p className="text-[8px] font-black text-green-600 uppercase tracking-widest">
+                                                    P.Exc: {season.fullProtectionExcess != null ? `${config.currency}${season.fullProtectionExcess}` : 'Default'}
+                                                    {season.rates.some((r: any) => r.fullProtectionExcess != null) && <span className="ml-1 text-green-400 opacity-70">(+Bands)</span>}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
