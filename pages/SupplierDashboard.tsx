@@ -6,7 +6,7 @@ import {
   Trash2, Search, Filter, ChevronRight, History, TrendingUp,
   Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
   Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe,
-  Layers
+  Layers, Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, isAfter, isBefore, addDays, subDays } from 'date-fns';
@@ -807,207 +807,276 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         >
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-50/30 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 relative z-10">
-                <div className="flex items-center gap-5">
-                    <div className="p-4 bg-orange-600 rounded-3xl shadow-lg shadow-orange-200 ring-8 ring-orange-50">
-                        <Zap className="w-7 h-7 text-white" />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 relative z-10">
+                <div className="flex items-center gap-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-[2rem] shadow-xl shadow-orange-200 ring-8 ring-orange-50 flex items-center justify-center">
+                        <Zap className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-black text-gray-900 tracking-tight">Direct Pricing Management</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Manual Bulk Updates & Deposit Configuration</p>
+                        <h3 className="text-3xl font-black text-gray-900 tracking-tight">Dynamic Rate Intelligence</h3>
+                        <div className="flex items-center gap-3 mt-1.5">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 rounded-full border border-orange-100">
+                                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                                <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">Live Pricing System</span>
+                            </div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Manual Bulk Updates & Seasonal Bond Configuration</p>
                         </div>
+                    </div>
+                </div>
+                
+                <div className="hidden xl:flex items-center gap-8 bg-gray-50/50 px-8 py-4 rounded-[2rem] border border-gray-100">
+                    <div className="flex flex-col items-center">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Active Fleet</span>
+                        <span className="text-lg font-black text-gray-900">{cars.length}</span>
+                    </div>
+                    <div className="w-px h-8 bg-gray-200" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Seasons</span>
+                        <span className="text-lg font-black text-gray-900">{config.periods?.length || 0}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12 relative z-10">
                 {/* Target Type & Selection */}
-                <div className="lg:col-span-3 space-y-4">
-                    <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                            <Settings2 className="w-3 h-3" /> 1. Select Target Type
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="space-y-3">
+                        <label className="flex items-center gap-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
+                            <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center">
+                                <Settings2 className="w-3.5 h-3.5 text-orange-600" />
+                            </div>
+                            1. Select Target Type
                         </label>
-                        <div className="flex p-1 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="flex p-1.5 bg-gray-100/50 rounded-2xl border border-gray-100">
                             <button 
                                 onClick={() => { setTargetType('category'); setTargetValues([]); }}
-                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'category' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'category' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 Categories
                             </button>
                             <button 
                                 onClick={() => { setTargetType('sipp'); setTargetValues([]); }}
-                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'sipp' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'sipp' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 SIPP Codes
                             </button>
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="flex items-center justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                            <span className="flex items-center gap-2"><Target className="w-3 h-3" /> 2. Select {targetType === 'category' ? 'Categories' : 'SIPP Codes'}</span>
+                    <div className="space-y-3">
+                        <label className="flex items-center justify-between text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
+                            <span className="flex items-center gap-3">
+                                <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center">
+                                    <Target className="w-3.5 h-3.5 text-orange-600" />
+                                </div>
+                                2. Select {targetType === 'category' ? 'Categories' : 'SIPP Codes'}
+                            </span>
                             {uniqueTargets.length > 0 && (
                                 <button 
                                     onClick={() => setTargetValues(targetValues.length === uniqueTargets.length ? [] : [...uniqueTargets])}
-                                    className="text-orange-600 hover:text-orange-700 transition-colors"
+                                    className="text-[9px] font-black text-orange-600 hover:text-orange-700 transition-colors uppercase tracking-widest"
                                 >
                                     {targetValues.length === uniqueTargets.length ? 'Clear All' : 'Select All'}
                                 </button>
                             )}
                         </label>
-                        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 max-h-[160px] overflow-y-auto space-y-2">
+                        <div className="bg-white border border-gray-100 rounded-[2rem] p-5 max-h-[220px] overflow-y-auto space-y-2 shadow-sm">
                             {uniqueTargets.map(val => (
-                                <label key={val} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-gray-50 cursor-pointer hover:border-orange-200 transition-all group">
+                                <label key={val} className={`flex items-center gap-3 p-3 rounded-xl border transition-all group cursor-pointer ${targetValues.includes(val) ? 'bg-orange-50/50 border-orange-200 ring-1 ring-orange-100' : 'bg-gray-50/30 border-gray-50 hover:border-gray-200'}`}>
+                                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${targetValues.includes(val) ? 'bg-orange-600 border-orange-600' : 'bg-white border-gray-200'}`}>
+                                        {targetValues.includes(val) && <Check className="w-3 h-3 text-white" />}
+                                    </div>
                                     <input 
                                         type="checkbox" 
                                         checked={targetValues.includes(val)}
                                         onChange={() => toggleTargetValue(val)}
-                                        className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                        className="hidden"
                                     />
-                                    <span className="text-xs font-bold text-gray-700 uppercase tracking-tight group-hover:text-orange-600">{val}</span>
+                                    <span className={`text-[11px] font-black uppercase tracking-tight ${targetValues.includes(val) ? 'text-orange-900' : 'text-gray-600'}`}>{val}</span>
                                 </label>
                             ))}
                             {uniqueTargets.length === 0 && (
-                                <p className="text-[10px] font-bold text-gray-400 uppercase text-center py-4">No {targetType}s found</p>
+                                <div className="flex flex-col items-center justify-center py-8 opacity-40">
+                                    <Target className="w-8 h-8 mb-2" />
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase text-center tracking-widest">No {targetType}s found</p>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
 
                 {/* Period Selection */}
-                <div className="lg:col-span-5 space-y-4">
-                    <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                            <Calendar className="w-3 h-3" /> 3. Define Time Period
+                <div className="lg:col-span-8 space-y-6">
+                    <div className="space-y-3">
+                        <label className="flex items-center gap-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
+                            <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                            </div>
+                            3. Define Time Period
                         </label>
-                        <div className="flex p-1 bg-gray-50 rounded-2xl border border-gray-100 mb-2">
+                        <div className="flex p-1.5 bg-gray-100/50 rounded-2xl border border-gray-100 mb-2 max-w-md">
                             <button 
                                 onClick={() => setIsCustomPeriod(false)}
-                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 Use Existing Season
                             </button>
                             <button 
                                 onClick={() => setIsCustomPeriod(true)}
-                                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 Custom Range
                             </button>
                         </div>
                         
                         {!isCustomPeriod ? (
-                            <select 
-                                value={selectedPeriodIdx} 
-                                onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
-                                className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all cursor-pointer appearance-none"
-                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.25rem center', backgroundSize: '1rem' }}
-                            >
-                                {config.periods?.map((p, idx) => (
-                                    <option key={idx} value={idx}>{p.name} ({p.startDate} - {p.endDate})</option>
-                                ))}
-                            </select>
+                            <div className="relative group max-w-2xl">
+                                <select 
+                                    value={selectedPeriodIdx} 
+                                    onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
+                                    className="w-full bg-white border border-gray-100 rounded-[2rem] py-5 px-8 text-sm font-bold text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/30 transition-all cursor-pointer appearance-none shadow-sm"
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 2rem center', backgroundSize: '1.25rem' }}
+                                >
+                                    {config.periods?.map((p, idx) => (
+                                        <option key={idx} value={idx}>{p.name} ({p.startDate} - {p.endDate})</option>
+                                    ))}
+                                </select>
+                            </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                                <div className="space-y-1.5">
+                            <div className="grid grid-cols-2 gap-6 bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm max-w-2xl">
+                                <div className="space-y-2">
                                     <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Start Date</label>
-                                    <input 
-                                        type="date" 
-                                        value={customPeriod.startDate}
-                                        onChange={e => setCustomPeriod({...customPeriod, startDate: e.target.value})}
-                                        className="w-full bg-white border border-gray-100 rounded-xl py-2 px-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
-                                    />
+                                    <div className="relative">
+                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+                                        <input 
+                                            type="date" 
+                                            value={customPeriod.startDate}
+                                            onChange={e => setCustomPeriod({...customPeriod, startDate: e.target.value})}
+                                            className="w-full bg-gray-50/50 border border-gray-100 rounded-xl py-3 pl-11 pr-4 text-[11px] font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-1.5">
+                                <div className="space-y-2">
                                     <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">End Date</label>
-                                    <input 
-                                        type="date" 
-                                        value={customPeriod.endDate}
-                                        onChange={e => setCustomPeriod({...customPeriod, endDate: e.target.value})}
-                                        className="w-full bg-white border border-gray-100 rounded-xl py-2 px-3 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
-                                    />
+                                    <div className="relative">
+                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+                                        <input 
+                                            type="date" 
+                                            value={customPeriod.endDate}
+                                            onChange={e => setCustomPeriod({...customPeriod, endDate: e.target.value})}
+                                            className="w-full bg-gray-50/50 border border-gray-100 rounded-xl py-3 pl-11 pr-4 text-[11px] font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
-
             </div>
 
             {activePeriod && (
-                <div className="bg-gray-50/30 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 mb-8 relative z-10">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                        <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em] flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                                <DollarSign className="w-4 h-4 text-orange-600" />
+                <div className="bg-gray-100/30 p-8 md:p-12 rounded-[3.5rem] border border-gray-100 mb-12 relative z-10 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-orange-500" />
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+                        <h4 className="text-[12px] font-black text-gray-900 uppercase tracking-[0.3em] flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-2xl bg-white shadow-md border border-gray-50 flex items-center justify-center">
+                                <DollarSign className="w-5 h-5 text-orange-600" />
                             </div>
-                            4. Set Bond Rates & Finalize Season
+                            4. Set Pricing Bonds & Rates
                         </h4>
-                        <div className="flex items-center gap-3">
-                            <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-blue-600 uppercase tracking-widest shadow-sm">
-                                {isCustomPeriod ? 'Custom Period' : activePeriod.name}
-                            </span>
-                            <span className="px-4 py-1.5 bg-white rounded-full border border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest shadow-sm">
-                                {format(parseISO(activePeriod.startDate), 'MMM d')} - {format(parseISO(activePeriod.endDate), 'MMM d, yyyy')}
-                            </span>
+                        <div className="flex items-center gap-4">
+                            <div className="flex flex-col items-end">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Season</span>
+                                <span className="text-[11px] font-black text-blue-600 uppercase tracking-tighter">
+                                    {isCustomPeriod ? 'Custom Selection' : activePeriod.name}
+                                </span>
+                            </div>
+                            <div className="h-10 w-px bg-gray-200" />
+                            <div className="flex flex-col items-start">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date Range</span>
+                                <span className="text-[11px] font-black text-gray-900 uppercase tracking-tighter">
+                                    {format(parseISO(activePeriod.startDate), 'MMM d')} - {format(parseISO(activePeriod.endDate), 'MMM d, yyyy')}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
-                        {manualBands.map((band, idx) => (
-                            <div key={idx} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-100 transition-all group relative">
-                                <button 
-                                    onClick={() => setManualBands(manualBands.filter((_, i) => i !== idx))}
-                                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-50 text-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-red-100 shadow-sm hover:bg-red-500 hover:text-white"
-                                >
-                                    <Trash2 className="w-3 h-3" />
-                                </button>
-                                
-                                <div className="flex items-center gap-2 mb-3">
-                                    <input 
-                                        type="number"
-                                        value={band.minDays}
-                                        onChange={e => {
-                                            const nb = [...manualBands];
-                                            nb[idx].minDays = parseInt(e.target.value) || 1;
-                                            setManualBands(nb);
-                                        }}
-                                        className="w-10 bg-gray-50 border-none rounded-lg py-1 px-1 text-[10px] font-black text-center text-gray-600 outline-none focus:ring-1 focus:ring-orange-500/20"
-                                    />
-                                    <span className="text-gray-300">-</span>
-                                    <input 
-                                        type="number"
-                                        value={band.maxDays || ''}
-                                        onChange={e => {
-                                            const nb = [...manualBands];
-                                            nb[idx].maxDays = e.target.value === '' ? null : parseInt(e.target.value);
-                                            setManualBands(nb);
-                                        }}
-                                        placeholder="+"
-                                        className="w-10 bg-gray-50 border-none rounded-lg py-1 px-1 text-[10px] font-black text-center text-gray-600 outline-none focus:ring-1 focus:ring-orange-500/20"
-                                    />
-                                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Days Bond</span>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs group-focus-within:text-orange-600 transition-colors">{config.currency}</span>
-                                        <input 
-                                            type="number" 
-                                            value={band.dailyRate}
-                                            onChange={e => {
-                                                const nb = [...manualBands];
-                                                nb[idx].dailyRate = e.target.value === '' ? '' : parseFloat(e.target.value);
-                                                setManualBands(nb);
-                                            }}
-                                            className="w-full bg-gray-50/50 border border-transparent group-hover:bg-white group-hover:border-gray-100 rounded-xl py-2 pl-10 pr-4 text-xs font-black text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
-                                            placeholder="Daily Price"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden mb-10">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/80">
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Bond Duration (Days)</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
+                                        <th className="px-8 py-5 text-right border-b border-gray-100"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {manualBands.map((band, idx) => (
+                                        <tr key={idx} className="group hover:bg-orange-50/20 transition-all">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="relative">
+                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Min</span>
+                                                        <input 
+                                                            type="number"
+                                                            value={band.minDays}
+                                                            onChange={e => {
+                                                                const nb = [...manualBands];
+                                                                nb[idx].minDays = parseInt(e.target.value) || 1;
+                                                                setManualBands(nb);
+                                                            }}
+                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
+                                                        />
+                                                    </div>
+                                                    <div className="w-4 h-0.5 bg-gray-200" />
+                                                    <div className="relative">
+                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Max</span>
+                                                        <input 
+                                                            type="number"
+                                                            value={band.maxDays || ''}
+                                                            onChange={e => {
+                                                                const nb = [...manualBands];
+                                                                nb[idx].maxDays = e.target.value === '' ? null : parseInt(e.target.value);
+                                                                setManualBands(nb);
+                                                            }}
+                                                            placeholder="+"
+                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
+                                                        />
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Days Bond</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="relative max-w-[180px] group/input">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-orange-600">{config.currency}</span>
+                                                    <input 
+                                                        type="number" 
+                                                        value={band.dailyRate}
+                                                        onChange={e => {
+                                                            const nb = [...manualBands];
+                                                            nb[idx].dailyRate = e.target.value === '' ? '' : parseFloat(e.target.value);
+                                                            setManualBands(nb);
+                                                        }}
+                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all shadow-inner"
+                                                        placeholder="0.00"
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <button 
+                                                    onClick={() => setManualBands(manualBands.filter((_, i) => i !== idx))}
+                                                    className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <button 
                             onClick={() => {
@@ -1015,19 +1084,21 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                 const nextMin = lastBand ? (lastBand.maxDays || lastBand.minDays) + 1 : 1;
                                 setManualBands([...manualBands, { minDays: nextMin, maxDays: null, dailyRate: '' }]);
                             }}
-                            className="bg-white p-5 rounded-3xl border border-dashed border-gray-200 shadow-sm hover:border-orange-300 transition-all group flex flex-col items-center justify-center gap-2 min-h-[100px]"
+                            className="w-full py-5 border-t border-gray-50 bg-gray-50/30 hover:bg-white text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group"
                         >
-                            <Plus className="w-5 h-5 text-gray-300 group-hover:text-orange-500 transition-colors" />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-orange-500 transition-colors">Add Bond</span>
+                            <div className="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Plus className="w-4 h-4" />
+                            </div>
+                            Create New Pricing Bond
                         </button>
                     </div>
 
                     <button 
                         onClick={addSeasonToBatch}
-                        className="w-full py-4 bg-orange-50 text-orange-600 rounded-2xl border border-orange-100 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 hover:text-white transition-all flex items-center justify-center gap-3 group"
+                        className="w-full py-5 bg-orange-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-orange-200 hover:bg-gray-900 hover:shadow-gray-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4"
                     >
-                        <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
-                        Add this Season to Batch List
+                        <Zap className="w-5 h-5 animate-pulse" />
+                        Finalize & Add to Batch Update List
                     </button>
                 </div>
             )}
@@ -1035,14 +1106,25 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             {/* Batch List Section */}
             {batchSeasons.length > 0 && (
                 <div className="mb-12 relative z-10">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center text-white">
-                            <Layers className="w-4 h-4" />
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white shadow-lg shadow-gray-200">
+                                <Layers className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h4 className="text-lg font-black text-gray-900 tracking-tight">Defined Batch Actions</h4>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{batchSeasons.length} pricing updates pending application</p>
+                            </div>
                         </div>
-                        <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em]">Defined Batch Actions ({batchSeasons.length})</h4>
+                        <button 
+                            onClick={() => setBatchSeasons([])}
+                            className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-600 transition-colors px-4 py-2 rounded-xl hover:bg-red-50"
+                        >
+                            Clear All
+                        </button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <AnimatePresence>
                             {batchSeasons.map((season, idx) => (
                                 <motion.div 
@@ -1050,39 +1132,66 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
-                                    className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:shadow-md transition-all"
+                                    className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-xl shadow-gray-200/30 flex flex-col lg:flex-row lg:items-center justify-between gap-8 group hover:shadow-2xl hover:border-orange-100 transition-all relative overflow-hidden"
                                 >
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors">
-                                            <Calendar className="w-6 h-6" />
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    
+                                    <div className="flex flex-col md:flex-row items-start md:items-center gap-8 flex-1">
+                                        <div className="w-16 h-16 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-orange-600 group-hover:text-white transition-all shadow-inner group-hover:shadow-orange-200 group-hover:scale-110">
+                                            <Calendar className="w-8 h-8" />
                                         </div>
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{season.periodName}</p>
-                                                <div className="px-2 py-0.5 rounded-full bg-blue-50 text-[8px] font-black text-blue-600 uppercase tracking-tighter border border-blue-100">
-                                                    {season.targetValues.length} {season.targetType === 'category' ? 'Cats' : 'SIPPs'}
-                                                </div>
+                                        
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className="px-3 py-1 rounded-full bg-blue-50 text-[9px] font-black text-blue-600 uppercase tracking-widest border border-blue-100">
+                                                    {season.periodName}
+                                                </span>
+                                                <span className="px-3 py-1 rounded-full bg-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">
+                                                    {season.targetValues.length} {season.targetType === 'category' ? 'Categories' : 'SIPP Codes'}
+                                                </span>
                                             </div>
-                                            <p className="text-sm font-black text-gray-900">{format(parseISO(season.startDate), 'MMM d, yyyy')} — {format(parseISO(season.endDate), 'MMM d, yyyy')}</p>
+                                            <p className="text-lg font-black text-gray-900 tracking-tight">
+                                                {format(parseISO(season.startDate), 'MMM d, yyyy')} <span className="text-gray-300 mx-2">—</span> {format(parseISO(season.endDate), 'MMM d, yyyy')}
+                                            </p>
+                                            <div className="flex flex-wrap gap-2 pt-1">
+                                                {season.targetValues.slice(0, 5).map(v => (
+                                                    <span key={v} className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{v}</span>
+                                                ))}
+                                                {season.targetValues.length > 5 && (
+                                                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-tight">+{season.targetValues.length - 5} more</span>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="h-8 w-px bg-gray-100 hidden md:block" />
-                                        <div className="grid grid-cols-1 gap-x-6 gap-y-1">
-                                            <div className="flex flex-wrap gap-2">
+                                        
+                                        <div className="h-16 w-px bg-gray-100 hidden lg:block mx-4" />
+                                        
+                                        <div className="flex-1">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Configured Pricing Bonds</p>
+                                            <div className="flex flex-wrap gap-3">
                                                 {season.rates.map((r: any, i: number) => (
-                                                    <div key={i} className="px-2 py-1 rounded-lg bg-gray-50 border border-gray-100 text-[8px] font-black text-gray-500 uppercase tracking-tighter">
-                                                        {r.minDays}-{r.maxDays || '+'} Days: <span className="text-orange-600">{config.currency}{r.dailyRate}</span>
+                                                    <div key={i} className="flex items-center gap-3 bg-gray-50/50 px-4 py-2.5 rounded-2xl border border-gray-100 group-hover:bg-white group-hover:border-orange-50 transition-colors">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Bond</span>
+                                                            <span className="text-[10px] font-black text-gray-900">{r.minDays}-{r.maxDays || '+'}d</span>
+                                                        </div>
+                                                        <div className="w-px h-6 bg-gray-200" />
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[8px] font-black text-orange-400 uppercase tracking-tighter">Rate</span>
+                                                            <span className="text-[11px] font-black text-orange-600">{config.currency}{r.dailyRate}</span>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4 self-end md:self-auto">
+                                    <div className="flex items-center gap-4 self-end lg:self-auto ml-8">
                                         <button 
                                             onClick={() => removeSeasonFromBatch(idx)}
-                                            className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                            className="w-12 h-12 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                                            title="Remove from batch"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </motion.div>
