@@ -1716,7 +1716,15 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Existing Location</label>
                         <select 
                             value={formData.locationCode} 
-                            onChange={e => handleChange('locationCode', e.target.value)} 
+                            onChange={e => {
+                                const code = e.target.value;
+                                const loc = supplier?.locations?.find((l:any) => l.locationCode === code);
+                                setFormData((prev:any) => ({
+                                    ...prev,
+                                    locationCode: code,
+                                    locationName: loc ? loc.displayName : (code === 'ALL' ? 'All Locations' : code)
+                                }));
+                            }} 
                             className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
                             required
                         >
