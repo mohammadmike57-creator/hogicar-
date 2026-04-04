@@ -175,7 +175,7 @@ export const Search: React.FC = () => {
   const endDateTimeDisplay = formatDateTime(endD, endTimeParam || '10:00');
 
   // Filter States
-  const [priceRange, setPriceRange] = React.useState(300);
+  const [priceRange, setPriceRange] = React.useState(5000);
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
   const [selectedSuppliers, setSelectedSuppliers] = React.useState<string[]>([]);
   const [selectedTransmissions, setSelectedTransmissions] = React.useState<string[]>([]);
@@ -220,7 +220,7 @@ export const Search: React.FC = () => {
   }, [showMobileFilters, showMobileSort]);
 
   const handleResetFilters = () => {
-    setPriceRange(300);
+    setPriceRange(5000);
     setSelectedCategories([]);
     setSelectedSuppliers([]);
     setSelectedTransmissions([]);
