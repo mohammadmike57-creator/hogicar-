@@ -308,4 +308,5 @@ export const adminApi = {
   createSearchingLogo: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/searching-logos`, payload),
   updateSearchingLogo: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/searching-logos/${id}`, payload),
   deleteSearchingLogo: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/searching-logos/${id}`),
+  fixData: () => adminAxios.post(`${API_BASE_URL}/api/admin/suppliers/fix-data`),
 };

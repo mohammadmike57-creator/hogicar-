@@ -1470,6 +1470,9 @@ export const updateHomepageContent = (newContent: HomepageContent) => {
 };
 
 export const calculatePrice = (car: Car, days: number, startDate: string): { dailyRate: number; total: number; netTotal: number; promotionLabel?: string, tierName?: string } => {
+    if (!car || !car.rateTiers) {
+        return { dailyRate: (car as any).price || 0, total: ((car as any).price || 0) * days, netTotal: ((car as any).price || 0) * days };
+    }
     // Find applicable rate tier
     const startParts = startDate.split('-').map(Number);
     const start = new Date(startParts[0], startParts[1] - 1, startParts[2]);

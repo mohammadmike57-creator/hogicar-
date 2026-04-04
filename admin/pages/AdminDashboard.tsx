@@ -1166,7 +1166,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete }: any) => (
+const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData }: any) => (
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
     <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div>
@@ -1174,6 +1174,9 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
             <p className="text-sm text-gray-500 font-medium">Manage your global car rental provider network</p>
         </div>
         <div className="flex gap-3">
+            <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-orange-50 border border-orange-200 rounded-2xl text-orange-600 hover:bg-orange-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
+                <ShieldCheck className="w-5 h-5" /> Fix
+            </button>
             <button onClick={onRefresh} className="p-2.5 bg-white border border-gray-200 rounded-2xl text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
                 <RefreshCw className="w-5 h-5" />
             </button>
@@ -1228,7 +1231,7 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                                 <div className="text-center">
-                                    <div className="text-xs font-black text-slate-900">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</div>
+                                    <div className="text-xs font-black text-slate-900">{(s as any).carCount ?? 0}</div>
                                     <div className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Fleet</div>
                                 </div>
                                 <div className="w-px h-6 bg-slate-100" />
@@ -1625,7 +1628,8 @@ export const AdminDashboard: React.FC = () => {
         ...s,
         contactEmail: s.contactEmail,
         logo: s.logoUrl,
-        commissionValue: s.commissionPercent
+        commissionValue: s.commissionPercent,
+        carCount: s.carCount || 0
       }));
       setSuppliers(normalized);
     } catch (e) { 
@@ -1671,6 +1675,18 @@ export const AdminDashboard: React.FC = () => {
         console.error('Failed to fetch car library', e);
         setCarLibrary([]);
     } finally { setLoadingCarLibrary(false); }
+  };
+
+  const handleFixData = async () => {
+    if (!window.confirm("This will repair data by activating suppliers and locations with cars. Proceed?")) return;
+    try {
+      await adminApi.fixData();
+      alert("Data repaired successfully.");
+      fetchSuppliers();
+      fetchFleet();
+    } catch (e) {
+      alert("Failed to repair data.");
+    }
   };
 
   useEffect(() => { 
@@ -2288,7 +2304,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
-      case 'suppliers': return <SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={fetchBookings} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={fetchFleet} />;

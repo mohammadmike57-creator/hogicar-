@@ -877,8 +877,8 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
                                 </td>
                                 <td className="py-3 px-4"><Badge status={s.status || 'pending'} /></td>
                                 <td className="py-3 px-4"><span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${s.connectionType === 'api' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>{s.connectionType === 'api' ? <Rss className="w-3 h-3" /> : <Edit className="w-3 h-3" />}{s.connectionType === 'api' ? 'API' : 'Manual'}</span></td>
-                                <td className="py-3 px-4 text-xs text-gray-500">{MOCK_CARS.filter(c => c.supplier.id === s.id).length}</td>
-                                <td className="py-3 px-4 text-xs text-gray-500">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</td>
+                                <td className="py-3 px-4 text-xs text-gray-500">{(s as any).carCount ?? 0}</td>
+                                <td className="py-3 px-4 text-xs text-gray-500">-</td>
                                 <td className="py-3 px-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
                                         {s.status === 'pending' && <button onClick={() => onApprove(s.id)} className="bg-green-100 text-green-700 hover:bg-green-200 p-2 rounded-md" title="Approve"><CheckCircle className="w-4 h-4" /></button>}
@@ -959,26 +959,26 @@ const BookingsContent = () => (
     </div>
 );
 
-const FleetContent = () => {
+const FleetContent = ({ cars, suppliers, onAddPromotion }: { cars: CarType[], suppliers: Supplier[], onAddPromotion: (car: CarType, tier: RateTier) => void }) => {
     const [filterSupplier, setFilterSupplier] = useState('');
     const [filterLocation, setFilterLocation] = useState('');
 
-    const uniqueSuppliers = SUPPLIERS;
+    const uniqueSuppliers = suppliers;
     const locationsForSupplier = useMemo(() => {
         if (!filterSupplier) {
-            return Array.from(new Set(MOCK_CARS.map(c => c.location))).sort();
+            return Array.from(new Set(cars.map(c => c.location))).sort();
         }
-        const supplierCars = MOCK_CARS.filter(c => c.supplier.id === filterSupplier);
+        const supplierCars = cars.filter(c => c.supplier.id === filterSupplier);
         return Array.from(new Set(supplierCars.map(c => c.location))).sort();
-    }, [filterSupplier]);
+    }, [filterSupplier, cars]);
 
     const filteredFleet = useMemo(() => {
-        return MOCK_CARS.filter(car => {
+        return cars.filter(car => {
             const matchesSupplier = !filterSupplier || car.supplier.id === filterSupplier;
             const matchesLocation = !filterLocation || car.location === filterLocation;
             return matchesSupplier && matchesLocation;
         });
-    }, [filterSupplier, filterLocation]);
+    }, [filterSupplier, filterLocation, cars]);
 
     const handleSupplierChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setFilterSupplier(e.target.value);
@@ -1606,21 +1606,23 @@ export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   // Data states
-  const [suppliers, setSuppliers] = useState(SUPPLIERS);
-  const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [supplierApps, setSupplierApps] = useState<SupplierApplication[]>([]);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<SupplierApplication | null>(null);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
-  const [apiPartners, setApiPartners] = useState(MOCK_API_PARTNERS);
+  const [apiPartners, setApiPartners] = useState<ApiPartner[]>([]);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);
   const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
   const [editingSeoConfig, setEditingSeoConfig] = useState<SEOConfig | null>(null);
-  const [carLibrary, setCarLibrary] = useState(MOCK_CAR_LIBRARY);
+  const [carLibrary, setCarLibrary] = useState<CarModel[]>([]);
+  const [fleetCars, setFleetCars] = useState<CarType[]>([]);
   const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
   const [editingCarModel, setEditingCarModel] = useState<CarModel | null>(null);
-  const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
+  const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [managingPromosForCar, setManagingPromosForCar] = useState<CarType | null>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
@@ -1644,8 +1646,46 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Load locations when component mounts
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [suppliersRes, modelsRes, fleetRes] = await Promise.all([
+        adminApi.getSuppliers(),
+        adminApi.getCarModels(),
+        adminApi.getCars()
+      ]);
+      
+      const mappedSuppliers: Supplier[] = suppliersRes.data.map((s: any) => ({
+        ...s,
+        id: s.id.toString(),
+        logo: s.logoUrl || '',
+        commissionValue: s.commissionPercent || 0,
+        status: s.active ? 'active' : 'pending',
+        contactEmail: s.contactEmail || s.email,
+        locations: s.locations || []
+      }));
+      
+      setSuppliers(mappedSuppliers);
+      setCarLibrary(modelsRes.data.map((m: any) => ({ ...m, id: m.id.toString(), image: m.imageUrl || '' })));
+      setFleetCars(fleetRes.data.map((c: any) => ({ 
+        ...c, 
+        id: c.id.toString(), 
+        image: c.imageUrl || '',
+        supplier: { ...c.supplier, id: c.supplier?.id?.toString() || '' }
+      })));
+      
+      setSupplierApps(MOCK_SUPPLIER_APPLICATIONS);
+      setApiPartners(MOCK_API_PARTNERS);
+      setAffiliates(MOCK_AFFILIATES);
+    } catch (error) {
+      console.error("Failed to load admin data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    loadData();
     loadLocations();
   }, []);
 
@@ -1665,34 +1705,57 @@ export const AdminDashboard: React.FC = () => {
   const pendingCount = supplierApps.length;
 
   useEffect(() => {
-    setSuppliers(SUPPLIERS);
+    // Other mocks that don't have backend yet
     setSupplierApps(MOCK_SUPPLIER_APPLICATIONS);
     setApiPartners(MOCK_API_PARTNERS);
-    setCarLibrary(MOCK_CAR_LIBRARY);
     setAffiliates(MOCK_AFFILIATES);
   }, []);
 
   const handleSaveSupplier = async (updatedSupplier: Supplier) => {
     try {
-        if (!updatedSupplier.id) {
-            const payload = {
-                name: updatedSupplier.name,
-                email: updatedSupplier.contactEmail,
-                phone: updatedSupplier.phone || '',
-                logoUrl: updatedSupplier.logo || '',
-                active: true,
-                location: updatedSupplier.location || '',
-                locationCode: updatedSupplier.locationCode || '',
-                bookingMode: updatedSupplier.bookingMode || 'FREE_SALE',
-                commissionPercent: updatedSupplier.commissionValue || 0,
-                password: updatedSupplier.password || 'defaultPassword123'
-            };
-            await adminApi.createSupplier(payload);
+        const payload = {
+            name: updatedSupplier.name,
+            email: updatedSupplier.contactEmail || updatedSupplier.username + "@hogicar.com", // Fallback if missing
+            phone: updatedSupplier.phone || '',
+            logoUrl: updatedSupplier.logo || '',
+            active: updatedSupplier.status === 'active',
+            locations: updatedSupplier.locations && updatedSupplier.locations.length > 0 
+                ? updatedSupplier.locations.map(loc => ({
+                    locationCode: typeof loc === 'string' ? loc : loc.locationCode,
+                    displayName: typeof loc === 'string' ? loc : loc.displayName
+                }))
+                : (updatedSupplier.locationCode ? [{ locationCode: updatedSupplier.locationCode, displayName: updatedSupplier.location || updatedSupplier.locationCode }] : []),
+            bookingMode: updatedSupplier.bookingMode || 'FREE_SALE',
+            commissionPercent: updatedSupplier.commissionValue || 0,
+            password: updatedSupplier.password || undefined,
+            address: updatedSupplier.address,
+            termsAndConditions: updatedSupplier.termsAndConditions,
+            includesCDW: updatedSupplier.includesCDW,
+            includesTP: updatedSupplier.includesTP,
+            oneWayFee: updatedSupplier.oneWayFee,
+            gracePeriodHours: updatedSupplier.gracePeriodHours,
+            minBookingLeadTime: updatedSupplier.minBookingLeadTime,
+            connectionType: updatedSupplier.connectionType,
+            enableSocialProof: updatedSupplier.enableSocialProof,
+            rating: updatedSupplier.rating,
+            minRentalDays: updatedSupplier.minRentalDays,
+            maxRentalDays: updatedSupplier.maxRentalDays,
+            maxBookingLeadTimeDays: updatedSupplier.maxBookingLeadTimeDays,
+            pickupType: updatedSupplier.pickupType,
+            logoScale: updatedSupplier.logoScale,
+            logoScaleMobile: updatedSupplier.logoScaleMobile
+        };
+
+        if (!updatedSupplier.id || updatedSupplier.id.startsWith('s')) {
+            // New supplier or from mock
+            await adminApi.createSupplier({ ...payload, password: updatedSupplier.password || 'defaultPassword123' });
             alert("Supplier created successfully.");
         } else {
-            addMockSupplier(updatedSupplier);
+            // Existing supplier in DB
+            await adminApi.updateSupplier(parseInt(updatedSupplier.id), payload);
+            alert("Supplier updated successfully.");
         }
-        setSuppliers([...SUPPLIERS]);
+        loadData(); // Re-fetch all data
         setEditingSupplier(null);
         if (approvingApplication) {
             removeSupplierApplication(approvingApplication.id);
@@ -1705,11 +1768,10 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleApproveSupplier = (id: string) => {
-    const supplier = SUPPLIERS.find(s => s.id === id);
+  const handleApproveSupplier = async (id: string) => {
+    const supplier = suppliers.find(s => s.id === id);
     if (supplier) {
-        supplier.status = 'active';
-        setSuppliers([...SUPPLIERS]);
+        await handleSaveSupplier({ ...supplier, status: 'active' });
     }
   };
   
@@ -1730,18 +1792,41 @@ export const AdminDashboard: React.FC = () => {
       setApiPartners([...MOCK_API_PARTNERS]);
   };
 
-  const handleSaveCarModel = (model: CarModel) => {
-    saveCarModel(model);
-    setCarLibrary([...MOCK_CAR_LIBRARY]);
-    setIsCarModelModalOpen(false);
-    setEditingCarModel(null);
+  const handleSaveCarModel = async (model: CarModel) => {
+    try {
+        const payload = {
+            make: model.make,
+            model: model.model,
+            year: model.year,
+            category: model.category,
+            imageUrl: model.image
+        };
+
+        if (!model.id || model.id.startsWith('cm')) {
+            await adminApi.createCarModel(payload);
+        } else {
+            await adminApi.updateCarModel(parseInt(model.id), payload);
+        }
+        loadData();
+        setIsCarModelModalOpen(false);
+        setEditingCarModel(null);
+    } catch (error) {
+        console.error("Failed to save car model:", error);
+        alert("Failed to save car model. See console for details.");
+    }
   };
 
-  const handleDeleteCarModel = (id: string) => {
-      if (window.confirm("Are you sure you want to delete this car model from the library?")) {
-          deleteCarModel(id);
-          setCarLibrary([...MOCK_CAR_LIBRARY]);
-      }
+  const handleDeleteCarModel = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this car model from the library?")) {
+        try {
+            if (!id.startsWith('cm')) {
+                await adminApi.deleteCarModel(parseInt(id));
+            }
+            loadData();
+        } catch (error) {
+            console.error("Failed to delete car model:", error);
+        }
+    }
   };
 
   const handleUpdateAffiliateStatus = (id: string, status: Affiliate['status']) => {
@@ -1826,7 +1911,7 @@ export const AdminDashboard: React.FC = () => {
       case 'bookings':
         return <BookingsContent />;
       case 'fleet':
-        return <FleetContent />;
+        return <FleetContent cars={fleetCars} suppliers={suppliers} onAddPromotion={(car, tier) => handleSavePromotion(car.id, tier)} />;
       case 'carlibrary':
         return <CarLibraryContent library={carLibrary} onEdit={(model: CarModel | null) => { setEditingCarModel(model); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
       case 'apipartners':
