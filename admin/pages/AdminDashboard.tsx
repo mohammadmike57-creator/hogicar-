@@ -374,43 +374,57 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
 };
 
 // ==================== Location Picker ====================
-const LocationPicker = ({ value, onChange, placeholder = "Search location..." }: any) => {
-  const [query, setQuery] = useState('');
+const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) => {
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState(value || '');
   const timer = useRef<any>();
-
-  useEffect(() => {
-    if (value) setSelectedLabel(value);
-  }, [value]);
 
   useEffect(() => {
     if (query.length < 2) { setSuggestions([]); setIsOpen(false); return; }
     setLoading(true);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
-      try { const res = await fetchLocations(query); setSuggestions(res); setIsOpen(res.length > 0); } catch(e) {} finally { setLoading(false); }
+      try { const res = await fetchLocations(query); setSuggestions(res); setIsOpen(res.length > 0); } catch(e) { console.error(e); } finally { setLoading(false); }
     }, 300);
   }, [query]);
-  const handleSelect = (loc: LocationSuggestion) => { setSelectedLabel(loc.label); setQuery(loc.label); onChange(loc); setIsOpen(false); };
+
+  const handleSelect = (loc: LocationSuggestion) => {
+    setQuery("");
+    setIsOpen(false);
+    if (onSelect) onSelect(loc);
+  };
+
   return (
     <div className="relative">
-      <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" /><input type="text" value={query || selectedLabel} onChange={(e) => { setQuery(e.target.value); setSelectedLabel(''); onChange(null); }} placeholder={placeholder} className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl" /></div>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={placeholder}
+          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+        />
+      </div>
       {isOpen && (
         <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
           {loading ? (
             <div className="p-3 text-center"><RefreshCw className="w-4 h-4 animate-spin inline" /> Loading...</div>
           ) : (
             suggestions.map(loc => (
-              <button key={loc.value} onClick={() => handleSelect(loc)} className="w-full text-left px-4 py-3 hover:bg-orange-50 border-b last:border-0 transition-colors flex items-center gap-3">
-                <div className={`p-1.5 rounded-lg ${loc.type === 'airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'}`}>
-                    {loc.type === 'airport' ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+              <button
+                key={loc.value}
+                onClick={() => handleSelect(loc)}
+                className="w-full text-left px-4 py-3 hover:bg-orange-50 border-b last:border-0 transition-colors flex items-center gap-3"
+              >
+                <div className={`p-1.5 rounded-lg ${loc.type === "airport" ? "bg-blue-50 text-blue-600" : "bg-slate-50 text-slate-600"}`}>
+                  {loc.type === "airport" ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
                 </div>
                 <div>
-                    <span className="font-bold text-slate-900 block text-xs">{loc.label}</span>
-                    <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">{loc.iataCode || 'CITY LOCATION'}</span>
+                  <span className="font-bold text-slate-900 block text-xs">{loc.label}</span>
+                  <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">{loc.iataCode || "CITY"}</span>
                 </div>
               </button>
             ))
