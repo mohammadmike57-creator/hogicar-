@@ -22,26 +22,26 @@ export const supplierApi = {
   getMe: () => api.get('/api/supplier/me'),
 
   // Cars
-  getCars: () => api.get('/api/supplier/cars').then(res => res.data),
-  createCar: (data: any) => api.post('/api/supplier/cars', data).then(res => res.data),
-  updateCar: (id: number, data: any) => api.put(`/api/supplier/cars/${id}`, data).then(res => res.data),
-  deleteCar: (id: number) => api.delete(`/api/supplier/cars/${id}`),
+  getCars: () => api.get('/api/supplier/dashboard/cars').then(res => res.data),
+  createCar: (data: any) => api.post('/api/supplier/dashboard/cars', data).then(res => res.data),
+  updateCar: (id: number, data: any) => api.put(`/api/supplier/dashboard/cars/${id}`, data).then(res => res.data),
+  deleteCar: (id: number) => api.delete(`/api/supplier/dashboard/cars/${id}`),
 
   // Rate Templates
-  getRateTemplates: () => api.get('/api/supplier/rate-templates').then(res => res.data),
-  createRateTemplate: (data: any) => api.post('/api/supplier/rate-templates', data).then(res => res.data),
-  updateRateTemplate: (id: number, data: any) => api.put(`/api/supplier/rate-templates/${id}`, data).then(res => res.data),
-  deleteRateTemplate: (id: number) => api.delete(`/api/supplier/rate-templates/${id}`),
+  getRateTemplates: () => api.get('/api/supplier/dashboard/templates').then(res => res.data),
+  createRateTemplate: (data: any) => api.post('/api/supplier/dashboard/templates', data).then(res => res.data),
+  updateRateTemplate: (id: number, data: any) => api.put(`/api/supplier/dashboard/templates/${id}`, data).then(res => res.data),
+  deleteRateTemplate: (id: number) => api.delete(`/api/supplier/dashboard/templates/${id}`),
 
   // Seasons
-  createSeason: (data: any) => api.post('/api/supplier/seasons', data).then(res => res.data),
-  updateSeason: (id: number, data: any) => api.put(`/api/supplier/seasons/${id}`, data).then(res => res.data),
-  deleteSeason: (id: number) => api.delete(`/api/supplier/seasons/${id}`),
+  createSeason: (data: any) => api.post('/api/supplier/dashboard/seasons', data).then(res => res.data),
+  updateSeason: (id: number, data: any) => api.put(`/api/supplier/dashboard/seasons/${id}`, data).then(res => res.data),
+  deleteSeason: (id: number) => api.delete(`/api/supplier/dashboard/seasons/${id}`),
 
   // Rate Tiers
-  createRateTier: (data: any) => api.post('/api/supplier/rate-tiers', data).then(res => res.data),
-  updateRateTier: (id: number, data: any) => api.put(`/api/supplier/rate-tiers/${id}`, data).then(res => res.data),
-  deleteRateTier: (id: number) => api.delete(`/api/supplier/rate-tiers/${id}`),
+  createRateTier: (data: any) => api.post('/api/supplier/dashboard/rates', data).then(res => res.data),
+  updateRateTier: (id: number, data: any) => api.put(`/api/supplier/dashboard/rates/${id}`, data).then(res => res.data),
+  deleteRateTier: (id: number) => api.delete(`/api/supplier/dashboard/rates/${id}`),
 
   // Bookings
   getBookings: () => api.get('/api/supplier/bookings').then(res => res.data),

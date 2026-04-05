@@ -104,7 +104,8 @@ const DetailedRatingsTooltip: React.FC<{ ratings: CarRatings }> = ({ ratings }) 
 
 
 // --- RENTAL CONDITIONS MODAL ---
-const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier, onClose: () => void }) => {
+const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, supplier: Supplier, onClose: () => void }) => {
+    const { convertPrice, getCurrencySymbol } = useCurrency();
     const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
     const gracePeriodInfo = supplier.gracePeriodDays ? `${supplier.gracePeriodDays} day(s)` : `${supplier.gracePeriodHours} hour(s)`;
 
@@ -295,7 +296,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
   return (
     <>
-      {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
+      {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
       <div className="bg-white md:rounded-xl md:shadow-sm hover:shadow-lg border-b md:border border-slate-200 transition-all duration-300 py-3 md:p-4 w-full md:mb-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 md:px-0">
               

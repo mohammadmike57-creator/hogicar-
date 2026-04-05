@@ -254,10 +254,10 @@ export const supplierApi = {
   rejectBooking: (token: string, reason: string) =>
     supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${token}&reason=${encodeURIComponent(reason)}`),
 
-  getCars: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/cars`),
-  createCar: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/cars`, payload),
-  updateCar: (id: number, payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/cars/${id}`, payload),
-  deleteCar: (id: number) => supplierAxios.delete(`${API_BASE_URL}/api/supplier/cars/${id}`),
+  getCars: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/cars`),
+  createCar: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/cars`, payload),
+  updateCar: (id: number, payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/dashboard/cars/${id}`, payload),
+  deleteCar: (id: number) => supplierAxios.delete(`${API_BASE_URL}/api/supplier/dashboard/cars/${id}`),
   getCarModels: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/car-models`),
   
   getMe: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/me`),
