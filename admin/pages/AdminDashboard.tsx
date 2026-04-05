@@ -240,7 +240,7 @@ const GlobalLocationsContent = () => {
                   </tr>
                 ))}
                 {!filtered.length && (
-                  <tr><td className="p-6 text-center text-gray-400" colSpan={6}>No locations</td></tr>
+                  <tr><td className="p-6 text-center text-gray-400" colSpan={6}>No locations</span></td></tr>
                 )}
               </tbody>
             </table>
@@ -373,9 +373,9 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
   );
 };
 
-// ==================== Location Picker ====================
+// ==================== Location Picker (working, searchable) ====================
 const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -387,17 +387,15 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
       try {
-        console.log("Searching for:", query);
         const res = await fetchLocations(query);
-        console.log("Results:", res);
         setSuggestions(res);
         setIsOpen(res.length > 0);
-      } catch(e) { console.error("Location fetch error:", e); } finally { setLoading(false); }
+      } catch(e) { console.error(e); } finally { setLoading(false); }
     }, 300);
   }, [query]);
 
   const handleSelect = (loc: LocationSuggestion) => {
-    setQuery("");
+    setQuery('');
     setIsOpen(false);
     if (onSelect) onSelect(loc);
   };
@@ -418,8 +416,6 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
         <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
           {loading ? (
             <div className="p-3 text-center"><RefreshCw className="w-4 h-4 animate-spin inline" /> Loading...</div>
-          ) : suggestions.length === 0 ? (
-            <div className="p-3 text-center text-gray-500">No locations found. Try a different spelling.</div>
           ) : (
             suggestions.map(loc => (
               <button
@@ -427,12 +423,12 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
                 onClick={() => handleSelect(loc)}
                 className="w-full text-left px-4 py-3 hover:bg-orange-50 border-b last:border-0 transition-colors flex items-center gap-3"
               >
-                <div className={`p-1.5 rounded-lg ${loc.type === "airport" ? "bg-blue-50 text-blue-600" : "bg-slate-50 text-slate-600"}`}>
-                  {loc.type === "airport" ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+                <div className={`p-1.5 rounded-lg ${loc.type === 'airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'}`}>
+                  {loc.type === 'airport' ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block text-xs">{loc.label}</span>
-                  <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">{loc.iataCode || "CITY"}</span>
+                  <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">{loc.iataCode || 'CITY'}</span>
                 </div>
               </button>
             ))
@@ -443,7 +439,7 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
   );
 };
 
-// ==================== Edit Supplier Modal ====================
+// ==================== Edit Supplier Modal (with location picker) ====================
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
@@ -452,78 +448,55 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
   const [customLocs, setCustomLocs] = useState<any[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  
+
   const handleGenerateCredentials = async () => {
     if (!editedSupplier.name) return alert("Please enter company name first");
-    if (editedSupplier.id && !window.confirm("This will overwrite the current login credentials. Continue?")) return;
-    
+    if (editedSupplier.id && !window.confirm("This will overwrite credentials. Continue?")) return;
     setIsGenerating(true);
     try {
-      const resp = await adminFetch('/api/admin/suppliers/generate-credentials', {
-        method: 'POST',
+      const resp = await adminFetch("/api/admin/suppliers/generate-credentials", {
+        method: "POST",
         body: JSON.stringify({ name: editedSupplier.name, email: editedSupplier.contactEmail })
       });
-      setEditedSupplier(prev => ({ 
-        ...prev, 
-        email: resp.username, 
-        password: resp.password 
-      }));
-      setShowPassword(true); // Automatically show the generated password
-    } catch (e: any) {
-      alert("Failed to generate credentials: " + e.message);
-    } finally {
-      setIsGenerating(false);
-    }
+      setEditedSupplier(prev => ({ ...prev, email: resp.username, password: resp.password }));
+      setShowPassword(true);
+    } catch (e: any) { alert("Failed to generate: " + e.message); }
+    finally { setIsGenerating(false); }
   };
-  
-  const BOOKING_MODE_OPTIONS = [
-    { value: BookingMode.FREE_SALE, label: 'Free Sale (Instant)' },
-    { value: BookingMode.ON_REQUEST, label: 'On Request (Manual)' }
-  ];
 
-  const COMMISSION_TYPE_OPTIONS = [
-    { value: CommissionType.FULL_PREPAID, label: 'Full Prepaid' },
-    { value: CommissionType.PARTIAL_PREPAID, label: 'Partial Prepaid' },
-    { value: CommissionType.PAY_AT_DESK, label: 'Pay at Desk' }
-  ];
+  useEffect(() => {
+    const stored = localStorage.getItem("hogicar_custom_locations");
+    if (stored) setCustomLocs(JSON.parse(stored));
+  }, [isOpen]);
 
-  const PICKUP_TYPE_OPTIONS = [
-    { value: PickupType.IN_TERMINAL, label: 'In Terminal' },
-    { value: PickupType.MEET_AND_GREET, label: 'Meet & Greet' },
-    { value: PickupType.SHUTTLE_BUS, label: 'Shuttle Bus' }
-  ];
-
-  useEffect(() => { const stored = localStorage.getItem('hogicar_custom_locations'); if (stored) setCustomLocs(JSON.parse(stored)); }, [isOpen]);
-  useEffect(() => { 
-    if (isOpen) { 
-        setEditedSupplier(supplier || {}); 
-        if (supplier?.locations && supplier.locations.length > 0) 
-            setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode })) : []);
-        else if (supplier?.location && supplier?.locationCode)
-            setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
-        else 
-            setSelectedLocations([]); 
-    } 
+  useEffect(() => {
+    if (isOpen) {
+      setEditedSupplier(supplier || {});
+      if (supplier?.locations && supplier.locations.length > 0)
+        setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode })) : []);
+      else if (supplier?.location && supplier?.locationCode)
+        setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
+      else setSelectedLocations([]);
+    }
   }, [supplier, isOpen]);
 
   const handleChange = (field: any, val: any) => setEditedSupplier(prev => ({ ...prev, [field]: val }));
-  const handleLogo = async (e: any) => { 
-    if (e.target.files?.[0]) { 
-        try {
-            const resized = await resizeImage(e.target.files[0], 800, 400);
-            handleChange('logo', resized);
-        } catch (err) {
-            console.error("Failed to resize logo", err);
-            const reader = new FileReader(); 
-            reader.onloadend = () => handleChange('logo', reader.result); 
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    } 
+  const handleLogo = async (e: any) => {
+    if (e.target.files?.[0]) {
+      try {
+        const resized = await resizeImage(e.target.files[0], 800, 400);
+        handleChange("logo", resized);
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onloadend = () => handleChange("logo", reader.result);
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    }
   };
-  
-  const handleLocSelect = (loc: any) => { 
+
+  const handleLocSelect = (loc: any) => {
     if (loc && !selectedLocations.find(l => l.value === loc.value)) {
-        setSelectedLocations(prev => [...prev, loc]);
+      setSelectedLocations(prev => [...prev, loc]);
     }
   };
 
@@ -531,273 +504,170 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
     setSelectedLocations(prev => prev.filter(l => l.value !== code));
   };
 
-  const handleCreateCustom = () => { 
-    if (!newLocName) return alert("Enter name"); 
-    let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, '').substring(0,6).toUpperCase(); 
-    const newLoc = { label: newLocName, value: code }; 
-    const updated = [...customLocs, newLoc]; 
-    setCustomLocs(updated); 
-    localStorage.setItem('hogicar_custom_locations', JSON.stringify(updated)); 
-    handleLocSelect(newLoc); 
-    setNewLocName(''); 
-    setNewLocCode(''); 
+  const handleCreateCustom = () => {
+    if (!newLocName) return alert("Enter location name");
+    let code = newLocCode.trim().toUpperCase() || newLocName.replace(/[^a-zA-Z0-9]/g, "").substring(0,6).toUpperCase();
+    const newLoc = { label: newLocName, value: code };
+    const updated = [...customLocs, newLoc];
+    setCustomLocs(updated);
+    localStorage.setItem("hogicar_custom_locations", JSON.stringify(updated));
+    handleLocSelect(newLoc);
+    setNewLocName("");
+    setNewLocCode("");
   };
 
-  const handleSave = () => { 
-    if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and contact email required"); 
-    if (selectedLocations.length === 0) return alert("Select at least one location"); 
-    
-    // Ensure booking mode and commission type are set if not present
-    const finalEmail = editedSupplier.email || editedSupplier.contactEmail;
+  const handleSave = () => {
+    if (!editedSupplier.name || !editedSupplier.contactEmail) return alert("Name and contact email required");
+    if (selectedLocations.length === 0) return alert("Select at least one location");
     const finalSupplier = {
-        ...editedSupplier,
-        email: finalEmail,
-        locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
-        bookingMode: editedSupplier.bookingMode || BookingMode.FREE_SALE,
-        commissionType: editedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
-        commissionPercent: editedSupplier.commissionPercent || 0.15,
-        pickupType: editedSupplier.pickupType || PickupType.IN_TERMINAL,
-        includesCDW: editedSupplier.includesCDW ?? true,
-        includesTP: editedSupplier.includesTP ?? true,
-        gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
-        minBookingLeadTime: editedSupplier.minBookingLeadTime ?? 0,
-        logoScale: editedSupplier.logoScale ?? 100,
-        logoScaleMobile: editedSupplier.logoScaleMobile ?? 100,
-        oneWayFee: editedSupplier.oneWayFee ?? 0,
-        connectionType: editedSupplier.connectionType || 'manual'
+      ...editedSupplier,
+      email: editedSupplier.email || editedSupplier.contactEmail,
+      locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
+      bookingMode: editedSupplier.bookingMode || "FREE_SALE",
+      commissionType: editedSupplier.commissionType || "PARTIAL_PREPAID",
+      commissionPercent: editedSupplier.commissionPercent || 0.15,
+      pickupType: editedSupplier.pickupType || "IN_TERMINAL",
+      includesCDW: editedSupplier.includesCDW ?? true,
+      includesTP: editedSupplier.includesTP ?? true,
+      gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
+      minBookingLeadTime: editedSupplier.minBookingLeadTime ?? 0,
+      logoScale: editedSupplier.logoScale ?? 100,
+      logoScaleMobile: editedSupplier.logoScaleMobile ?? 100,
+      oneWayFee: editedSupplier.oneWayFee ?? 0,
+      connectionType: editedSupplier.connectionType || "manual"
     };
-
-    if (!finalSupplier.id) {
-        finalSupplier.status = 'active';
-        if (!finalSupplier.password) finalSupplier.password = 'changeMe123!';
-    }
-    onSave(finalSupplier); 
+    if (!finalSupplier.id) finalSupplier.status = "active";
+    if (!finalSupplier.password) finalSupplier.password = "changeMe123!";
+    onSave(finalSupplier);
   };
 
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? 'Edit Supplier' : 'Add Supplier'} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? "Edit Supplier" : "Add Supplier"} size="lg">
       <div className="space-y-6">
-        {/* Header Section */}
+        {/* Logo section */}
         <div className="flex gap-6 p-6 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100/50">
           <div className="flex flex-col items-center">
             <div className="relative group w-48 h-32">
-                {editedSupplier.logo || editedSupplier.logoUrl ? (
-                    <img 
-                        src={editedSupplier.logo || editedSupplier.logoUrl} 
-                        className="w-full h-full rounded-2xl object-contain bg-white shadow-xl border-4 border-white" 
-                        alt="Logo"
-                        width={400}
-                        height={200}
-                    />
-                ) : (
-                    <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-200 shadow-sm group-hover:border-orange-200 transition-colors">
-                        <Building className="w-10 h-10 text-gray-300 group-hover:text-orange-200"/>
-                    </div>
-                )}
-                <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer">
-                    <ImageIcon className="w-6 h-6 text-white" />
-                    <input type="file" className="hidden" accept="image/*" onChange={handleLogo}/>
-                </label>
+              {editedSupplier.logo || editedSupplier.logoUrl ? (
+                <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-2xl object-contain bg-white shadow-xl border-4 border-white" alt="Logo" />
+              ) : (
+                <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-200">
+                  <Building className="w-10 h-10 text-gray-300" />
+                </div>
+              )}
+              <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer">
+                <ImageIcon className="w-6 h-6 text-white" />
+                <input type="file" className="hidden" accept="image/*" onChange={handleLogo} />
+              </label>
             </div>
-            <p className="text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wider">Company Logo</p>
-            <p className="text-[8px] text-gray-400 text-center leading-tight mt-1 max-w-[100px]">Auto-resized<br/>to high quality</p>
+            <p className="text-[10px] text-gray-400 mt-2">Logo (auto-resized)</p>
           </div>
           <div className="flex-grow space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Company Name" placeholder="e.g. HogiCar Global" value={editedSupplier.name || ''} onChange={(e: any) => handleChange('name', e.target.value)} />
-                <InputField label="Reservation Email (For Requests)" placeholder="bookings@partner.com" value={editedSupplier.contactEmail || ''} onChange={(e: any) => handleChange('contactEmail', e.target.value)} />
+              <InputField label="Company Name" value={editedSupplier.name || ""} onChange={e => handleChange("name", e.target.value)} />
+              <InputField label="Reservation Email" value={editedSupplier.contactEmail || ""} onChange={e => handleChange("contactEmail", e.target.value)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Contact Phone" placeholder="+1 (555) 000-0000" value={editedSupplier.phone || ''} onChange={(e: any) => handleChange('phone', e.target.value)} />
-                <div className="flex flex-col">
-                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mb-2">Pickup Type</p>
-                    <select 
-                        className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all appearance-none cursor-pointer"
-                        value={editedSupplier.pickupType || PickupType.IN_TERMINAL}
-                        onChange={(e) => handleChange('pickupType', e.target.value)}
-                    >
-                        {PICKUP_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                </div>
-                <InputField label="Logo Scale (Desktop %)" type="number" value={editedSupplier.logoScale ?? 100} onChange={(e: any) => handleChange('logoScale', parseInt(e.target.value) || 0)} />
-                <InputField label="Logo Scale (Mobile %)" type="number" value={editedSupplier.logoScaleMobile ?? 100} onChange={(e: any) => handleChange('logoScaleMobile', parseInt(e.target.value) || 0)} />
+              <InputField label="Phone" value={editedSupplier.phone || ""} onChange={e => handleChange("phone", e.target.value)} />
+              <SelectField label="Pickup Type" value={editedSupplier.pickupType || "IN_TERMINAL"} onChange={e => handleChange("pickupType", e.target.value)} options={[
+                { value: "IN_TERMINAL", label: "In Terminal" },
+                { value: "MEET_AND_GREET", label: "Meet & Greet" },
+                { value: "SHUTTLE_BUS", label: "Shuttle Bus" }
+              ]} />
             </div>
           </div>
         </div>
 
-        {/* Location & Operations */}
+        {/* Locations */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-600" /><h3 className="text-sm font-bold">Service Locations</h3></div>
+          <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+            <div>
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Add New Location</label>
+              <LocationPicker onSelect={handleLocSelect} />
+            </div>
+            {selectedLocations.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selectedLocations.map(loc => (
+                  <div key={loc.value} className="flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1.5 rounded-xl">
+                    <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
+                    <button onClick={() => removeLocation(loc.value)}><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="border-t pt-4">
+              <label className="text-[10px] font-bold text-gray-400 uppercase block text-center">Or create custom location</label>
+              <div className="flex gap-2 mt-2">
+                <input placeholder="City Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border rounded-xl text-sm" />
+                <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-16 px-3 py-2 border rounded-xl text-sm" />
+                <button onClick={handleCreateCustom} className="p-2 bg-gray-800 text-white rounded-xl hover:bg-gray-700"><Plus className="w-4 h-4" /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Commission & Business Model */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4 text-orange-600" />
-                    <h3 className="text-sm font-bold text-gray-700">Service Locations</h3>
-                </div>
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                    <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Add New Location</label>
-                        <LocationPicker value="" onChange={handleLocSelect} />
-                    </div>
-                    
-                    {selectedLocations.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-2">
-                            {selectedLocations.map(loc => (
-                                <div key={loc.value} className="flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1.5 rounded-xl border border-orange-100 group">
-                                    <span className="text-xs font-bold">{loc.label} <span className="text-orange-400">({loc.value})</span></span>
-                                    <button onClick={() => removeLocation(loc.value)} className="hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="pt-4 border-t border-gray-50">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block text-center">Or Create Custom Location</label>
-                        <div className="flex gap-2">
-                            <input placeholder="City Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
-                            <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-16 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
-                            <button onClick={handleCreateCustom} className="p-2 bg-gray-800 text-white rounded-xl hover:bg-gray-700"><Plus className="w-4 h-4" /></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                    <Briefcase className="w-4 h-4 text-orange-600" />
-                    <h3 className="text-sm font-bold text-gray-700">Business Model</h3>
-                </div>
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                    <SelectField label="Commission Type" value={editedSupplier.commissionType || ''} onChange={e => handleChange('commissionType', e.target.value)} options={COMMISSION_TYPE_OPTIONS} />
-                    <InputField label="Commission Value (%)" type="number" step="0.01" value={editedSupplier.commissionPercent || 0} onChange={e => handleChange('commissionPercent', parseFloat(e.target.value))} />
-                    <SelectField label="Booking Policy" value={editedSupplier.bookingMode || ''} onChange={e => handleChange('bookingMode', e.target.value)} options={BOOKING_MODE_OPTIONS} />
-                    <SelectField label="Pickup Type" value={editedSupplier.pickupType || PickupType.IN_TERMINAL} onChange={e => handleChange('pickupType', e.target.value)} options={PICKUP_TYPE_OPTIONS} />
-                    <SelectField label="Connection Type" value={editedSupplier.connectionType || 'manual'} onChange={e => handleChange('connectionType', e.target.value)} options={[{value:'manual', label:'Manual Entry'}, {value:'api', label:'Real-time API'}]} />
-                </div>
-            </div>
+          <div className="bg-white p-4 rounded-2xl border border-gray-100">
+            <h4 className="text-xs font-bold mb-2">Commission</h4>
+            <SelectField label="Type" value={editedSupplier.commissionType || "PARTIAL_PREPAID"} onChange={e => handleChange("commissionType", e.target.value)} options={[
+              { value: "FULL_PREPAID", label: "Full Prepaid" },
+              { value: "PARTIAL_PREPAID", label: "Partial Prepaid" },
+              { value: "PAY_AT_DESK", label: "Pay at Desk" }
+            ]} />
+            <InputField label="Commission %" type="number" step="0.01" value={editedSupplier.commissionPercent || 0} onChange={e => handleChange("commissionPercent", parseFloat(e.target.value))} />
+          </div>
+          <div className="bg-white p-4 rounded-2xl border border-gray-100">
+            <h4 className="text-xs font-bold mb-2">Booking Policy</h4>
+            <SelectField label="Mode" value={editedSupplier.bookingMode || "FREE_SALE"} onChange={e => handleChange("bookingMode", e.target.value)} options={[
+              { value: "FREE_SALE", label: "Free Sale (Instant)" },
+              { value: "ON_REQUEST", label: "On Request (Manual)" }
+            ]} />
+            <SelectField label="Connection" value={editedSupplier.connectionType || "manual"} onChange={e => handleChange("connectionType", e.target.value)} options={[
+              { value: "manual", label: "Manual Entry" },
+              { value: "api", label: "Real-time API" }
+            ]} />
+          </div>
         </div>
 
         {/* Operational Constraints */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-orange-500" /> Time Constraints
-                </h4>
-                <InputField label="Grace Period (Hrs)" type="number" value={editedSupplier.gracePeriodHours || 0} onChange={e => handleChange('gracePeriodHours', parseInt(e.target.value))} />
-                <InputField label="Min. Lead Time (Hrs)" type="number" value={editedSupplier.minBookingLeadTime || 0} onChange={e => handleChange('minBookingLeadTime', parseInt(e.target.value))} />
-                <InputField label="Max. Lead Time (Days)" type="number" value={editedSupplier.maxBookingLeadTimeDays || 0} onChange={e => handleChange('maxBookingLeadTimeDays', parseInt(e.target.value))} />
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <Calendar className="w-3 h-3 text-purple-500" /> Rental Duration
-                </h4>
-                <InputField label="Min. Rental Days" type="number" value={editedSupplier.minRentalDays || 0} onChange={e => handleChange('minRentalDays', parseInt(e.target.value))} />
-                <InputField label="Max. Rental Days" type="number" value={editedSupplier.maxRentalDays || 0} onChange={e => handleChange('maxRentalDays', parseInt(e.target.value))} />
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <DollarSign className="w-3 h-3 text-green-500" /> Financials
-                </h4>
-                <InputField label="One-Way Fee" type="number" value={editedSupplier.oneWayFee || 0} onChange={e => handleChange('oneWayFee', parseFloat(e.target.value))} />
-                <InputField label="Initial Rating" type="number" step="0.1" min="1" max="5" value={editedSupplier.rating || 5.0} onChange={e => handleChange('rating', parseFloat(e.target.value))} />
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <Shield className="w-3 h-3 text-blue-500" /> Inclusions
-                </h4>
-                <div className="space-y-2 mt-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={editedSupplier.includesCDW ?? true} onChange={e => handleChange('includesCDW', e.target.checked)} className="rounded text-orange-600 focus:ring-orange-500" />
-                        <span className="text-xs font-bold text-gray-600">CDW Included</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={editedSupplier.includesTP ?? true} onChange={e => handleChange('includesTP', e.target.checked)} className="rounded text-orange-600 focus:ring-orange-500" />
-                        <span className="text-xs font-bold text-gray-600">Theft Protection Included</span>
-                    </label>
-                </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-3 rounded-xl border">
+            <label className="text-[10px] font-bold text-gray-400">Grace Period (hrs)</label>
+            <input type="number" value={editedSupplier.gracePeriodHours ?? 0} onChange={e => handleChange("gracePeriodHours", parseInt(e.target.value))} className="w-full border rounded-lg p-2 mt-1" />
+          </div>
+          <div className="bg-white p-3 rounded-xl border">
+            <label className="text-[10px] font-bold text-gray-400">Min Lead Time (hrs)</label>
+            <input type="number" value={editedSupplier.minBookingLeadTime ?? 0} onChange={e => handleChange("minBookingLeadTime", parseInt(e.target.value))} className="w-full border rounded-lg p-2 mt-1" />
+          </div>
+          <div className="bg-white p-3 rounded-xl border">
+            <label className="text-[10px] font-bold text-gray-400">Max Lead Time (days)</label>
+            <input type="number" value={editedSupplier.maxBookingLeadTimeDays ?? 0} onChange={e => handleChange("maxBookingLeadTimeDays", parseInt(e.target.value))} className="w-full border rounded-lg p-2 mt-1" />
+          </div>
         </div>
 
-        {/* Detailed Info */}
-        <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-                <FileText className="w-4 h-4 text-orange-600" />
-                <h3 className="text-sm font-bold text-gray-700">Detailed Information</h3>
+        {/* Security */}
+        <div className="bg-white rounded-2xl p-6 border">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2"><Lock className="w-5 h-5 text-gray-600" /><span className="font-bold">Access Credentials</span></div>
+            <button onClick={handleGenerateCredentials} disabled={isGenerating} className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg">Auto-generate</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InputField label="Login Email" value={editedSupplier.email || editedSupplier.contactEmail || ""} onChange={e => handleChange("email", e.target.value)} />
+            <div className="relative">
+              <InputField label="Password" type={showPassword ? "text" : "password"} value={editedSupplier.password || ""} onChange={e => handleChange("password", e.target.value)} />
+              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[34px] text-gray-400"><EyeOff className="w-4 h-4" /></button>
             </div>
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                <InputField label="Office Address" placeholder="123 Airport Road, Terminal 1..." value={editedSupplier.address || ''} onChange={e => handleChange('address', e.target.value)} />
-                <TextAreaField label="Terms & Conditions Summary" rows={3} placeholder="Key rental terms for the customer..." value={editedSupplier.termsAndConditions || ''} onChange={e => handleChange('termsAndConditions', e.target.value)} />
-            </div>
+          </div>
+          <label className="flex items-center gap-2 mt-4"><input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange("enableSocialProof", e.target.checked)} /> Enable Social Proof</label>
         </div>
 
-        {/* Security & Access */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-xl">
-                        <Lock className="w-5 h-5 text-gray-600" />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Access & Security</h3>
-                        <p className="text-[10px] text-gray-400 font-medium">Manage partner login identities and security protocols</p>
-                    </div>
-                </div>
-                <button 
-                    onClick={handleGenerateCredentials}
-                    disabled={isGenerating}
-                    className="text-[10px] font-black bg-gray-900 text-white px-4 py-2 rounded-xl hover:bg-orange-600 disabled:bg-gray-300 transition-all flex items-center gap-2 shadow-lg active:scale-95"
-                >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
-                    {isGenerating ? 'Generating...' : 'Auto-Generate Credentials'}
-                </button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <InputField 
-                    label="Login Identity (Username/Email)" 
-                    placeholder="admin@partner.com" 
-                    value={editedSupplier.email || editedSupplier.contactEmail || ''} 
-                    onChange={(e: any) => handleChange('email', e.target.value)} 
-                />
-                
-                <div className="relative group/input">
-                    <InputField 
-                        label="Account Password" 
-                        type={showPassword ? "text" : "password"} 
-                        placeholder={editedSupplier.id ? "••••••••" : "Set secure password"} 
-                        value={editedSupplier.password || ''} 
-                        onChange={(e: any) => handleChange('password', e.target.value)} 
-                    />
-                    <button 
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-[34px] text-gray-400 hover:text-orange-600 transition-colors"
-                    >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                </div>
-            </div>
-            
-            <div className="mt-4 flex justify-between items-center">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange('enableSocialProof', e.target.checked)} className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
-                    <span className="text-[11px] font-bold text-gray-600 group-hover:text-gray-900">Enable Partner Trust Badge</span>
-                </label>
-                {editedSupplier.password && (
-                    <div className="flex items-center gap-1.5 text-[10px] text-green-600 font-black uppercase tracking-wider">
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        Credentials Ready
-                    </div>
-                )}
-            </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
-            <button onClick={onClose} className="px-6 py-3 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors">Discard Changes</button>
-            <button onClick={handleSave} className="px-10 py-3 bg-gray-900 text-white text-sm font-bold rounded-xl shadow-xl hover:bg-black transition-all flex items-center gap-2">
-                <Save className="w-4 h-4" />
-                {supplier?.id ? 'Update Partner' : 'Register Partner'}
-            </button>
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-6 py-2 text-sm font-bold text-gray-500">Cancel</button>
+          <button onClick={handleSave} className="px-8 py-2 bg-orange-600 text-white rounded-xl font-bold">Save Supplier</button>
         </div>
       </div>
     </Modal>
@@ -1610,254 +1480,6 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
 const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => null;
 const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => null;
 
-// ==================== Main AdminDashboard ====================
-export const AdminDashboard: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<Section>('dashboard');
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [loadingSuppliers, setLoadingSuppliers] = useState(true);
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [loadingBookings, setLoadingBookings] = useState(false);
-  const [fleet, setFleet] = useState<any[]>([]);
-  const [loadingFleet, setLoadingFleet] = useState(false);
-  const [carLibrary, setCarLibrary] = useState<any[]>([]);
-  const [loadingCarLibrary, setLoadingCarLibrary] = useState(false);
-  const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
-  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-  const [approvingApplication, setApprovingApplication] = useState<any>(null);
-  const [isApiModalOpen, setIsApiModalOpen] = useState(false);
-  const [apiPartners, setApiPartners] = useState(MOCK_API_PARTNERS);
-  const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
-  const [editingPage, setEditingPage] = useState<any>(null);
-  const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
-  const [editingSeoConfig, setEditingSeoConfig] = useState<any>(null);
-  const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
-  const [editingCarModel, setEditingCarModel] = useState<any>(null);
-  const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
-  const [editingAffiliate, setEditingAffiliate] = useState<any>(null);
-  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
-  const [managingPromosForCar, setManagingPromosForCar] = useState<any>(null);
-  const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
-  const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
-
-  const fetchSuppliers = async () => {
-    setLoadingSuppliers(true);
-    try {
-      const res = await adminFetch('/api/admin/suppliers');
-      const normalized = (Array.isArray(res) ? res : []).map((s: any) => ({
-        ...s,
-        contactEmail: s.contactEmail,
-        logo: s.logoUrl,
-        commissionValue: s.commissionPercent,
-        carCount: s.carCount || 0
-      }));
-      setSuppliers(normalized);
-    } catch (e) { 
-      console.error('Failed to fetch suppliers', e);
-      setSuppliers([]); 
-    } finally { setLoadingSuppliers(false); }
-  };
-
-  const fetchBookings = async (supplierId?: string | null) => {
-    setLoadingBookings(true);
-    try {
-        const url = supplierId ? `/api/bookings?supplierId=${supplierId}` : '/api/bookings';
-        const res = await adminFetch(url);
-        setBookings(Array.isArray(res) ? res : []);
-    } catch (e) {
-        console.error('Failed to fetch bookings', e);
-        setBookings([]);
-    } finally { setLoadingBookings(false); }
-  };
-
-  const fetchFleet = async (supplierId?: string | null) => {
-    setLoadingFleet(true);
-    try {
-        const url = supplierId ? `/api/admin/fleet/cars?supplierId=${supplierId}` : '/api/admin/fleet/cars';
-        const res = await adminFetch(url);
-        setFleet(Array.isArray(res) ? res : []);
-    } catch (e) {
-        console.error('Failed to fetch fleet', e);
-        setFleet([]);
-    } finally { setLoadingFleet(false); }
-  };
-
-  const fetchCarLibrary = async () => {
-    setLoadingCarLibrary(true);
-    try {
-        const res = await adminFetch('/api/admin/car-models');
-        const normalized = Array.isArray(res) ? res.map(m => ({
-            ...m,
-            image: m.imageUrl // Map backend 'imageUrl' to frontend 'image'
-        })) : [];
-        setCarLibrary(normalized);
-    } catch (e) {
-        console.error('Failed to fetch car library', e);
-        setCarLibrary([]);
-    } finally { setLoadingCarLibrary(false); }
-  };
-
-  const handleFixData = async () => {
-    if (!window.confirm("This will repair data by activating suppliers and locations with cars. Proceed?")) return;
-    try {
-      await adminApi.fixData();
-      alert("Data repaired successfully.");
-      fetchSuppliers();
-      fetchFleet();
-    } catch (e) {
-      alert("Failed to repair data.");
-    }
-  };
-
-  useEffect(() => { 
-    fetchSuppliers(); 
-    fetchCarLibrary();
-  }, []);
-
-  useEffect(() => {
-    fetchBookings(selectedSupplierId);
-    fetchFleet(selectedSupplierId);
-  }, [selectedSupplierId]);
-
-  const stats = { 
-    totalSuppliers: suppliers.length, 
-    activeSuppliers: suppliers.filter(s => s.status === 'active' || (s as any).active).length, 
-    totalBookings: bookings.length, 
-    totalRevenue: bookings.reduce((acc, b) => acc + (b.finalPrice || 0), 0) || 1200000 
-  };
-  const pendingCount = supplierApps.length;
-
-  const handleSaveSupplier = async (updatedSupplier: any) => {
-    try {
-      const payload = {
-        name: updatedSupplier.name,
-        email: updatedSupplier.email || updatedSupplier.contactEmail, // Login email
-        contactEmail: updatedSupplier.contactEmail, // Reservation email
-        phone: updatedSupplier.phone || "",
-        logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
-        locations: updatedSupplier.locations || [],
-        commissionType: updatedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
-        commissionPercent: updatedSupplier.commissionPercent || 0,
-        bookingMode: updatedSupplier.bookingMode || BookingMode.FREE_SALE,
-        active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
-        password: updatedSupplier.password || undefined,
-        enableSocialProof: updatedSupplier.enableSocialProof || false,
-        address: updatedSupplier.address || "",
-        termsAndConditions: updatedSupplier.termsAndConditions || "",
-        includesCDW: updatedSupplier.includesCDW ?? true,
-        includesTP: updatedSupplier.includesTP ?? true,
-        oneWayFee: updatedSupplier.oneWayFee || 0,
-        gracePeriodHours: updatedSupplier.gracePeriodHours || 0,
-        minBookingLeadTime: updatedSupplier.minBookingLeadTime || 0,
-        connectionType: updatedSupplier.connectionType || 'manual',
-        rating: updatedSupplier.rating || 5.0,
-        pickupType: updatedSupplier.pickupType,
-        minRentalDays: updatedSupplier.minRentalDays,
-        maxRentalDays: updatedSupplier.maxRentalDays,
-        maxBookingLeadTimeDays: updatedSupplier.maxBookingLeadTimeDays,
-        logoScale: updatedSupplier.logoScale || 100,
-        logoScaleMobile: updatedSupplier.logoScaleMobile || 100
-      };
-
-      if (!updatedSupplier.id) {
-        await adminFetch('/api/admin/suppliers', {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        alert("Supplier created successfully");
-      } else {
-        await adminFetch(`/api/admin/suppliers/${updatedSupplier.id}`, {
-          method: 'PUT',
-          body: JSON.stringify(payload)
-        });
-        alert("Supplier updated successfully");
-      }
-      
-      await fetchSuppliers();
-      setEditingSupplier(null);
-      if (approvingApplication) { 
-        removeSupplierApplication(approvingApplication.id); 
-        setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); 
-        setApprovingApplication(null); 
-      }
-    } catch (err: any) { 
-        alert(`Action failed: ${err.message}`); 
-    }
-  };
-
-  const handleDeleteSupplier = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this supplier? This action cannot be undone.')) return;
-    try {
-      await adminFetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
-      alert('Supplier deleted successfully');
-      await fetchSuppliers();
-    } catch (err: any) { alert(`Delete failed: ${err.message}`); }
-  };
-
-  const handleApproveSupplier = async (id: string) => { 
-    const s = suppliers.find(s => s.id === id); 
-    if (s) { 
-        await handleSaveSupplier({ ...s, status: 'active' });
-    } 
-  };
-  const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
-  const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
-  const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
-  const handleSaveCarModel = async (model: any) => {
-    try {
-        const payload = {
-            make: model.make,
-            model: model.model,
-            year: model.year,
-            category: model.category,
-            type: model.type,
-            imageUrl: model.imageUrl || model.image, // Prefer updated imageUrl
-            passengers: model.passengers,
-            bags: model.bags,
-            doors: model.doors
-        };
-
-        if (!model.id) {
-            await adminFetch('/api/admin/car-models', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-        } else {
-            await adminFetch(`/api/admin/car-models/${model.id}`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-        }
-        await fetchCarLibrary();
-        setIsCarModelModalOpen(false);
-        setEditingCarModel(null);
-    } catch (e: any) {
-        alert(`Failed to save car model: ${e.message}`);
-    }
-  };
-
-  const handleDeleteCarModel = async (id: string) => { 
-    if (!confirm('Are you sure you want to delete this car model?')) return;
-    try {
-        await adminFetch(`/api/admin/car-models/${id}`, { method: 'DELETE' });
-        await fetchCarLibrary();
-    } catch (e: any) {
-        alert(`Delete failed: ${e.message}`);
-    }
-  };
-  const handleUpdateAffiliateStatus = (id: string, status: any) => { updateAffiliateStatus(id, status); setAffiliates([...MOCK_AFFILIATES]); };
-  const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
-  const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
-  const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
-  const handleRejectApplication = (id: string) => { if (confirm('Reject?')) { removeSupplierApplication(id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); } };
-  const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
-  const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
-  const handleNewSeo = () => { setEditingSeoConfig({}); setIsSeoEditorOpen(true); };
-  const handleEditSeo = (config: any) => { setEditingSeoConfig(config); setIsSeoEditorOpen(true); };
-  const handleSaveHomepage = (content: any, images: any) => { updateHomepageContent(content); updateCategoryImages(images); setHomepageContent(content); setCategoryImages(images); };
-
 // ==================== Homepage Logos ====================
 const HomepageLogosContent = () => {
     const [logos, setLogos] = useState<any[]>([]);
@@ -2322,6 +1944,254 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
         </Modal>
     );
 };
+
+// ==================== Main AdminDashboard ====================
+export const AdminDashboard: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<Section>('dashboard');
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(true);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [fleet, setFleet] = useState<any[]>([]);
+  const [loadingFleet, setLoadingFleet] = useState(false);
+  const [carLibrary, setCarLibrary] = useState<any[]>([]);
+  const [loadingCarLibrary, setLoadingCarLibrary] = useState(false);
+  const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [approvingApplication, setApprovingApplication] = useState<any>(null);
+  const [isApiModalOpen, setIsApiModalOpen] = useState(false);
+  const [apiPartners, setApiPartners] = useState(MOCK_API_PARTNERS);
+  const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
+  const [editingPage, setEditingPage] = useState<any>(null);
+  const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
+  const [editingSeoConfig, setEditingSeoConfig] = useState<any>(null);
+  const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
+  const [editingCarModel, setEditingCarModel] = useState<any>(null);
+  const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
+  const [editingAffiliate, setEditingAffiliate] = useState<any>(null);
+  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
+  const [managingPromosForCar, setManagingPromosForCar] = useState<any>(null);
+  const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
+  const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
+
+  const fetchSuppliers = async () => {
+    setLoadingSuppliers(true);
+    try {
+      const res = await adminFetch('/api/admin/suppliers');
+      const normalized = (Array.isArray(res) ? res : []).map((s: any) => ({
+        ...s,
+        contactEmail: s.contactEmail,
+        logo: s.logoUrl,
+        commissionValue: s.commissionPercent,
+        carCount: s.carCount || 0
+      }));
+      setSuppliers(normalized);
+    } catch (e) { 
+      console.error('Failed to fetch suppliers', e);
+      setSuppliers([]); 
+    } finally { setLoadingSuppliers(false); }
+  };
+
+  const fetchBookings = async (supplierId?: string | null) => {
+    setLoadingBookings(true);
+    try {
+        const url = supplierId ? `/api/bookings?supplierId=${supplierId}` : '/api/bookings';
+        const res = await adminFetch(url);
+        setBookings(Array.isArray(res) ? res : []);
+    } catch (e) {
+        console.error('Failed to fetch bookings', e);
+        setBookings([]);
+    } finally { setLoadingBookings(false); }
+  };
+
+  const fetchFleet = async (supplierId?: string | null) => {
+    setLoadingFleet(true);
+    try {
+        const url = supplierId ? `/api/admin/fleet/cars?supplierId=${supplierId}` : '/api/admin/fleet/cars';
+        const res = await adminFetch(url);
+        setFleet(Array.isArray(res) ? res : []);
+    } catch (e) {
+        console.error('Failed to fetch fleet', e);
+        setFleet([]);
+    } finally { setLoadingFleet(false); }
+  };
+
+  const fetchCarLibrary = async () => {
+    setLoadingCarLibrary(true);
+    try {
+        const res = await adminFetch('/api/admin/car-models');
+        const normalized = Array.isArray(res) ? res.map(m => ({
+            ...m,
+            image: m.imageUrl // Map backend 'imageUrl' to frontend 'image'
+        })) : [];
+        setCarLibrary(normalized);
+    } catch (e) {
+        console.error('Failed to fetch car library', e);
+        setCarLibrary([]);
+    } finally { setLoadingCarLibrary(false); }
+  };
+
+  const handleFixData = async () => {
+    if (!window.confirm("This will repair data by activating suppliers and locations with cars. Proceed?")) return;
+    try {
+      await adminApi.fixData();
+      alert("Data repaired successfully.");
+      fetchSuppliers();
+      fetchFleet();
+    } catch (e) {
+      alert("Failed to repair data.");
+    }
+  };
+
+  useEffect(() => { 
+    fetchSuppliers(); 
+    fetchCarLibrary();
+  }, []);
+
+  useEffect(() => {
+    fetchBookings(selectedSupplierId);
+    fetchFleet(selectedSupplierId);
+  }, [selectedSupplierId]);
+
+  const stats = { 
+    totalSuppliers: suppliers.length, 
+    activeSuppliers: suppliers.filter(s => s.status === 'active' || (s as any).active).length, 
+    totalBookings: bookings.length, 
+    totalRevenue: bookings.reduce((acc, b) => acc + (b.finalPrice || 0), 0) || 1200000 
+  };
+  const pendingCount = supplierApps.length;
+
+  const handleSaveSupplier = async (updatedSupplier: any) => {
+    try {
+      const payload = {
+        name: updatedSupplier.name,
+        email: updatedSupplier.email || updatedSupplier.contactEmail, // Login email
+        contactEmail: updatedSupplier.contactEmail, // Reservation email
+        phone: updatedSupplier.phone || "",
+        logoUrl: updatedSupplier.logo || updatedSupplier.logoUrl || "",
+        locations: updatedSupplier.locations || [],
+        commissionType: updatedSupplier.commissionType || CommissionType.PARTIAL_PREPAID,
+        commissionPercent: updatedSupplier.commissionPercent || 0,
+        bookingMode: updatedSupplier.bookingMode || BookingMode.FREE_SALE,
+        active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
+        password: updatedSupplier.password || undefined,
+        enableSocialProof: updatedSupplier.enableSocialProof || false,
+        address: updatedSupplier.address || "",
+        termsAndConditions: updatedSupplier.termsAndConditions || "",
+        includesCDW: updatedSupplier.includesCDW ?? true,
+        includesTP: updatedSupplier.includesTP ?? true,
+        oneWayFee: updatedSupplier.oneWayFee || 0,
+        gracePeriodHours: updatedSupplier.gracePeriodHours || 0,
+        minBookingLeadTime: updatedSupplier.minBookingLeadTime || 0,
+        connectionType: updatedSupplier.connectionType || 'manual',
+        rating: updatedSupplier.rating || 5.0,
+        pickupType: updatedSupplier.pickupType,
+        minRentalDays: updatedSupplier.minRentalDays,
+        maxRentalDays: updatedSupplier.maxRentalDays,
+        maxBookingLeadTimeDays: updatedSupplier.maxBookingLeadTimeDays,
+        logoScale: updatedSupplier.logoScale || 100,
+        logoScaleMobile: updatedSupplier.logoScaleMobile || 100
+      };
+
+      if (!updatedSupplier.id) {
+        await adminFetch('/api/admin/suppliers', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        alert("Supplier created successfully");
+      } else {
+        await adminFetch(`/api/admin/suppliers/${updatedSupplier.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+        alert("Supplier updated successfully");
+      }
+      
+      await fetchSuppliers();
+      setEditingSupplier(null);
+      if (approvingApplication) { 
+        removeSupplierApplication(approvingApplication.id); 
+        setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); 
+        setApprovingApplication(null); 
+      }
+    } catch (err: any) { 
+        alert(`Action failed: ${err.message}`); 
+    }
+  };
+
+  const handleDeleteSupplier = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this supplier? This action cannot be undone.')) return;
+    try {
+      await adminFetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
+      alert('Supplier deleted successfully');
+      await fetchSuppliers();
+    } catch (err: any) { alert(`Delete failed: ${err.message}`); }
+  };
+
+  const handleApproveSupplier = async (id: string) => { 
+    const s = suppliers.find(s => s.id === id); 
+    if (s) { 
+        await handleSaveSupplier({ ...s, status: 'active' });
+    } 
+  };
+  const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
+  const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
+  const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
+  const handleSaveCarModel = async (model: any) => {
+    try {
+        const payload = {
+            make: model.make,
+            model: model.model,
+            year: model.year,
+            category: model.category,
+            type: model.type,
+            imageUrl: model.imageUrl || model.image, // Prefer updated imageUrl
+            passengers: model.passengers,
+            bags: model.bags,
+            doors: model.doors
+        };
+
+        if (!model.id) {
+            await adminFetch('/api/admin/car-models', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+        } else {
+            await adminFetch(`/api/admin/car-models/${model.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+        }
+        await fetchCarLibrary();
+        setIsCarModelModalOpen(false);
+        setEditingCarModel(null);
+    } catch (e: any) {
+        alert(`Failed to save car model: ${e.message}`);
+    }
+  };
+
+  const handleDeleteCarModel = async (id: string) => { 
+    if (!confirm('Are you sure you want to delete this car model?')) return;
+    try {
+        await adminFetch(`/api/admin/car-models/${id}`, { method: 'DELETE' });
+        await fetchCarLibrary();
+    } catch (e: any) {
+        alert(`Delete failed: ${e.message}`);
+    }
+  };
+  const handleUpdateAffiliateStatus = (id: string, status: any) => { updateAffiliateStatus(id, status); setAffiliates([...MOCK_AFFILIATES]); };
+  const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
+  const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
+  const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
+  const handleRejectApplication = (id: string) => { if (confirm('Reject?')) { removeSupplierApplication(id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); } };
+  const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
+  const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
+  const handleNewSeo = () => { setEditingSeoConfig({}); setIsSeoEditorOpen(true); };
+  const handleEditSeo = (config: any) => { setEditingSeoConfig(config); setIsSeoEditorOpen(true); };
+  const handleSaveHomepage = (content: any, images: any) => { updateHomepageContent(content); updateCategoryImages(images); setHomepageContent(content); setCategoryImages(images); };
 
   const renderContent = () => {
     switch (activeSection) {
