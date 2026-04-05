@@ -1860,7 +1860,7 @@ const RateHistorySection = () => {
         switch (status) {
             case 'ACTIVE': return 'success';
             case 'EXPIRED': return 'error';
-            case 'FUTURE': return 'info';
+            case 'ACTIVE': return 'info';
             default: return 'default';
         }
     };
