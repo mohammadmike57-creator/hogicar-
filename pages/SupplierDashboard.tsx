@@ -1568,16 +1568,18 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      if (car?.id) await supplierApi.updateCar(car.id, formData);
-
+      if (car?.id) {
+        await supplierApi.updateCar(car.id, formData);
       } else {
         await supplierApi.createCar({ ...formData, price: formData.price || 0 });
       }
-
-      onSave(); 
+      onSave();
       onClose();
-    } catch (e) { alert("Failed to save car"); }
-    finally { setIsSaving(false); }
+    } catch (e) {
+      alert("Failed to save car");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleChange = (field: string, val: any) => setFormData((prev: any) => ({ ...prev, [field]: val }));
