@@ -135,27 +135,25 @@ const TextAreaField = ({ label, ...props }: any) => (
 const GlobalLocationsContent = () => {
   const [locations, setLocations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState('');
-  const [form, setForm] = useState<any>({ iataCode: '', name: '', municipality: '', countryCode: '', type: 'city' });
+  const [filter, setFilter] = useState("");
+  const [form, setForm] = useState<any>({ iataCode: "", name: "", municipality: "", countryCode: "", type: "city" });
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const load = async (keyword = '') => {
+  const load = async (keyword = "") => {
     setLoading(true);
     try {
-      const url = `/api/admin/locations${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`;
+      const url = `/api/admin/locations${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""}`;
       const res = await adminFetch(url);
       setLocations(Array.isArray(res) ? res : []);
     } catch (e: any) {
       console.error(e);
-      alert('Failed to load locations: ' + e.message);
+      alert("Failed to load locations: " + e.message);
     } finally { setLoading(false); }
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      load(filter);
-    }, 500);
+    const timer = setTimeout(() => load(filter), 500);
     return () => clearTimeout(timer);
   }, [filter]);
 
@@ -170,37 +168,35 @@ const GlobalLocationsContent = () => {
     );
   }, [locations, filter]);
 
-  const resetForm = () => { setForm({ iataCode: '', name: '', municipality: '', countryCode: '', type: 'city' }); setEditingId(null); };
+  const resetForm = () => { setForm({ iataCode: "", name: "", municipality: "", countryCode: "", type: "city" }); setEditingId(null); };
 
   const handleSave = async () => {
-    if ((!form.iataCode && form.type === 'Airport') || !form.name) { alert('IATA code (for Airport) and Name are required'); return; }
+    if ((!form.iataCode && form.type === "Airport") || !form.name) { alert("IATA code (for Airport) and Name are required"); return; }
     setSaving(true);
     try {
       if (editingId) {
-        await adminFetch(`/api/admin/locations/${editingId}`, { method: 'PUT', body: JSON.stringify(form) });
+        await adminFetch(`/api/admin/locations/${editingId}`, { method: "PUT", body: JSON.stringify(form) });
       } else {
-        await adminFetch('/api/admin/locations', { method: 'POST', body: JSON.stringify(form) });
+        await adminFetch("/api/admin/locations", { method: "POST", body: JSON.stringify(form) });
       }
       await load();
       resetForm();
-    } catch (e: any) {
-      alert('Save failed: ' + e.message);
-    } finally { setSaving(false); }
+    } catch (e: any) { alert("Save failed: " + e.message); }
+    finally { setSaving(false); }
   };
 
-  const handleEdit = (loc: any) => { setEditingId(loc.id); setForm({ iataCode: loc.iataCode, name: loc.name, municipality: loc.municipality, countryCode: loc.countryCode, type: loc.type || 'city' }); };
+  const handleEdit = (loc: any) => { setEditingId(loc.id); setForm({ iataCode: loc.iataCode, name: loc.name, municipality: loc.municipality, countryCode: loc.countryCode, type: loc.type || "city" }); };
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this location?')) return;
+    if (!confirm("Delete this location?")) return;
     try {
-      await adminFetch(`/api/admin/locations/${id}`, { method: 'DELETE' });
+      await adminFetch(`/api/admin/locations/${id}`, { method: "DELETE" });
       await load();
-    } catch (e: any) { alert('Delete failed: ' + e.message); }
+    } catch (e: any) { alert("Delete failed: " + e.message); }
   };
 
   return (
     <div className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100">
       <SectionHeader title="Global Locations" subtitle="Manage searchable locations (airports & cities)" icon={Globe} action={null} />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-3 mb-4">
@@ -209,10 +205,9 @@ const GlobalLocationsContent = () => {
               <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by code, city or name..." className="w-full pl-9 pr-3 py-2 border rounded-xl" />
             </div>
             <button onClick={() => load(filter)} className="px-3 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh
             </button>
           </div>
-
           <div className="overflow-auto rounded-2xl border">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50">
@@ -228,10 +223,10 @@ const GlobalLocationsContent = () => {
               <tbody>
                 {filtered.map((l: any) => (
                   <tr key={l.id} className="border-t">
-                    <td className="p-3 font-mono text-xs">{l.iataCode || '-'}</td>
+                    <td className="p-3 font-mono text-xs">{l.iataCode || "-"}</td>
                     <td className="p-3">{l.name}</td>
                     <td className="p-3">{l.municipality}</td>
-                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === 'Airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'}`}>{l.type || 'City'}</span></td>
+                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === "Airport" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-600"}`}>{l.type || "City"}</span></td>
                     <td className="p-3">{l.countryCode}</td>
                     <td className="p-3 text-right">
                       <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-lg bg-orange-50 text-orange-700 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
@@ -240,18 +235,19 @@ const GlobalLocationsContent = () => {
                   </tr>
                 ))}
                 {!filtered.length && (
-                  <tr><td className="p-6 text-center text-gray-400" colSpan={6}>No locations</span></td></tr>
+                  <tr>
+                    <td colSpan="6" className="p-6 text-center text-gray-400">No locations</td>
+                  </tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
-
         <div className="bg-slate-50/50 rounded-2xl p-4 border">
-          <h3 className="font-black mb-3 text-slate-900">{editingId ? 'Edit Location' : 'Add New Location'}</h3>
+          <h3 className="font-black mb-3 text-slate-900">{editingId ? "Edit Location" : "Add New Location"}</h3>
           <div className="space-y-3">
-            <SelectField label="Type" value={form.type} onChange={(e: any) => setForm({ ...form, type: e.target.value })} options={[{value: 'Airport', label: 'Airport'}, {value: 'city', label: 'Down Town / City'}]} />
-            <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} placeholder={form.type === 'Airport' ? "e.g. AMM" : "Optional (e.g. AMMAN_DT)"} />
+            <SelectField label="Type" value={form.type} onChange={(e: any) => setForm({ ...form, type: e.target.value })} options={[{value: "Airport", label: "Airport"}, {value: "city", label: "Down Town / City"}]} />
+            <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} placeholder={form.type === "Airport" ? "e.g. AMM" : "Optional (e.g. AMMAN_DT)"} />
             <InputField label="Name" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Queen Alia Airport or Amman Down Town" />
             <InputField label="City" value={form.municipality} onChange={(e: any) => setForm({ ...form, municipality: e.target.value })} />
             <InputField label="Country Code" value={form.countryCode} onChange={(e: any) => setForm({ ...form, countryCode: e.target.value })} />
