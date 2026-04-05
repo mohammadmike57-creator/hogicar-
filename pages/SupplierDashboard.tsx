@@ -718,7 +718,8 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         setManualBands(periodBands.map(b => ({
             minDays: b.minDays,
             maxDays: b.maxDays,
-            dailyRate: ''
+            dailyRate: '',
+            deposit: ''
         })));
     }, [selectedPeriodIdx, isCustomPeriod, config]);
     
@@ -754,13 +755,14 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             rates: manualBands.map(b => ({
                 minDays: b.minDays,
                 maxDays: b.maxDays,
-                dailyRate: b.dailyRate || 0
+                dailyRate: parseFloat(b.dailyRate as string) || 0,
+                deposit: parseFloat(b.deposit as string) || 0
             }))
         };
 
         setBatchSeasons(prev => [...prev, newSeason]);
         // Reset rates but keep bands for convenience?
-        setManualBands(prev => prev.map(b => ({ ...b, dailyRate: '' })));
+        setManualBands(prev => prev.map(b => ({ ...b, dailyRate: '', deposit: '' })));
     };
 
     const removeSeasonFromBatch = (idx: number) => {
@@ -1009,6 +1011,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                     <tr className="bg-gray-50/80">
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Bond Duration (Days)</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Security Bond (Deposit)</th>
                                         <th className="px-8 py-5 text-right border-b border-gray-100"></th>
                                     </tr>
                                 </thead>
@@ -1064,6 +1067,22 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                                     />
                                                 </div>
                                             </td>
+                                            <td className="px-8 py-6">
+                                                <div className="relative max-w-[180px] group/input">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-blue-600">{config.currency}</span>
+                                                    <input 
+                                                        type="number" 
+                                                        value={band.deposit || ''}
+                                                        onChange={e => {
+                                                            const nb = [...manualBands];
+                                                            nb[idx].deposit = e.target.value === '' ? '' : parseFloat(e.target.value);
+                                                            setManualBands(nb);
+                                                        }}
+                                                        className="w-full bg-blue-50/30 border border-blue-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all shadow-inner"
+                                                        placeholder="Security Bond"
+                                                    />
+                                                </div>
+                                            </td>
                                             <td className="px-8 py-6 text-right">
                                                 <button 
                                                     onClick={() => setManualBands(manualBands.filter((_, i) => i !== idx))}
@@ -1082,7 +1101,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                             onClick={() => {
                                 const lastBand = manualBands[manualBands.length - 1];
                                 const nextMin = lastBand ? (lastBand.maxDays || lastBand.minDays) + 1 : 1;
-                                setManualBands([...manualBands, { minDays: nextMin, maxDays: null, dailyRate: '' }]);
+                                setManualBands([...manualBands, { minDays: nextMin, maxDays: null, dailyRate: '', deposit: '' }]);
                             }}
                             className="w-full py-5 border-t border-gray-50 bg-gray-50/30 hover:bg-white text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group"
                         >
@@ -1179,6 +1198,15 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                                             <span className="text-[8px] font-black text-orange-400 uppercase tracking-tighter">Rate</span>
                                                             <span className="text-[11px] font-black text-orange-600">{config.currency}{r.dailyRate}</span>
                                                         </div>
+                                                        {r.deposit > 0 && (
+                                                            <>
+                                                                <div className="w-px h-6 bg-gray-200" />
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[8px] font-black text-blue-400 uppercase tracking-tighter">Bond</span>
+                                                                    <span className="text-[11px] font-black text-blue-600">{config.currency}{r.deposit}</span>
+                                                                </div>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
@@ -2055,14 +2083,14 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     </div>
                 </div>
 
-                {/* Day Bands */}
+                {/* Pricing Bonds */}
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <Clock className="w-5 h-5 text-orange-600" />
-                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Global Day Bands</h3>
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Global Pricing Bonds</h3>
                         </div>
-                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Band</button>
+                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Bond</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {localConfig.bands?.map((band, idx) => (
@@ -2075,7 +2103,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                                     <InputField label="Max Days" type="number" value={band.maxDays || ''} onChange={(e:any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
                                 </div>
                                 <div className="mt-4">
-                                    <InputField label="Band Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
+                                    <InputField label="Bond Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
                                 </div>
                             </div>
                         ))}

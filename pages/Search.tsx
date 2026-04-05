@@ -656,7 +656,7 @@ export const Search: React.FC = () => {
                               <input 
                                   type="range" 
                                   min="0" 
-                                  max="300" 
+                                  max="5000" 
                                   value={priceRange} 
                                   onChange={(e) => setPriceRange(Number(e.target.value))}
                                   className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"

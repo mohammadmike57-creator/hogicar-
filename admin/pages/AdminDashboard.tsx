@@ -525,11 +525,14 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
       pickupType: editedSupplier.pickupType || "IN_TERMINAL",
       includesCDW: editedSupplier.includesCDW ?? true,
       includesTP: editedSupplier.includesTP ?? true,
-      gracePeriodHours: editedSupplier.gracePeriodHours ?? 0,
-      minBookingLeadTime: editedSupplier.minBookingLeadTime ?? 0,
-      logoScale: editedSupplier.logoScale ?? 100,
-      logoScaleMobile: editedSupplier.logoScaleMobile ?? 100,
-      oneWayFee: editedSupplier.oneWayFee ?? 0,
+      gracePeriodHours: editedSupplier.gracePeriodHours || 0,
+      minBookingLeadTime: editedSupplier.minBookingLeadTime || 0,
+      minRentalDays: editedSupplier.minRentalDays || 1,
+      maxRentalDays: editedSupplier.maxRentalDays || 30,
+      maxBookingLeadTimeDays: editedSupplier.maxBookingLeadTimeDays || 365,
+      logoScale: editedSupplier.logoScale || 100,
+      logoScaleMobile: editedSupplier.logoScaleMobile || 100,
+      oneWayFee: editedSupplier.oneWayFee || 0,
       connectionType: editedSupplier.connectionType || "manual"
     };
     if (!finalSupplier.id) finalSupplier.status = "active";
@@ -629,19 +632,26 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
           </div>
         </div>
 
-        {/* Operational Constraints */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-white p-3 rounded-xl border">
+            <label className="text-[10px] font-bold text-gray-400">Min Duration (days)</label>
+            <input type="number" value={editedSupplier.minRentalDays ?? 1} onChange={e => handleChange("minRentalDays", parseInt(e.target.value) || 1)} className="w-full border rounded-lg p-2 mt-1" />
+          </div>
+          <div className="bg-white p-3 rounded-xl border">
+            <label className="text-[10px] font-bold text-gray-400">Max Duration (days)</label>
+            <input type="number" value={editedSupplier.maxRentalDays ?? 30} onChange={e => handleChange("maxRentalDays", parseInt(e.target.value) || 30)} className="w-full border rounded-lg p-2 mt-1" />
+          </div>
           <div className="bg-white p-3 rounded-xl border">
             <label className="text-[10px] font-bold text-gray-400">Grace Period (hrs)</label>
-            <input type="number" value={editedSupplier.gracePeriodHours ?? 0} onChange={e => handleChange("gracePeriodHours", parseInt(e.target.value))} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.gracePeriodHours ?? 0} onChange={e => handleChange("gracePeriodHours", parseInt(e.target.value) || 0)} className="w-full border rounded-lg p-2 mt-1" />
           </div>
           <div className="bg-white p-3 rounded-xl border">
             <label className="text-[10px] font-bold text-gray-400">Min Lead Time (hrs)</label>
-            <input type="number" value={editedSupplier.minBookingLeadTime ?? 0} onChange={e => handleChange("minBookingLeadTime", parseInt(e.target.value))} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.minBookingLeadTime ?? 0} onChange={e => handleChange("minBookingLeadTime", parseInt(e.target.value) || 0)} className="w-full border rounded-lg p-2 mt-1" />
           </div>
           <div className="bg-white p-3 rounded-xl border">
             <label className="text-[10px] font-bold text-gray-400">Max Lead Time (days)</label>
-            <input type="number" value={editedSupplier.maxBookingLeadTimeDays ?? 0} onChange={e => handleChange("maxBookingLeadTimeDays", parseInt(e.target.value))} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.maxBookingLeadTimeDays ?? 365} onChange={e => handleChange("maxBookingLeadTimeDays", parseInt(e.target.value) || 365)} className="w-full border rounded-lg p-2 mt-1" />
           </div>
         </div>
 
