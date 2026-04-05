@@ -1531,7 +1531,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 
   useEffect(() => {
     if (isOpen) {
-      if (car) setFormData({ ...car, available: car.isAvailable ?? car.available });
+      if (car) setFormData({ ...car, price: car.price || 0, available: car.isAvailable ?? car.available });
       else setFormData({
         name: '', make: '', model: '', year: new Date().getFullYear(),
         sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
@@ -1569,6 +1569,8 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     setIsSaving(true);
     try {
       if (car?.id) await supplierApi.updateCar(car.id, formData);
+      const payload = { ...formData, price: formData.price || 0 };
+
       else await supplierApi.createCar(formData);
       onSave(); 
       onClose();
@@ -1672,6 +1674,14 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-orange-600 transition-colors">Unlimited Mileage</span>
                     </label>
                 </div>
+            </div>
+
+            <div className="bg-gray-50/50 p-6 rounded-3xl border border-gray-100 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-4 h-4 text-orange-600" />
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Base Price (Required)</h3>
+                </div>
+                <InputField label="Daily Rate" type="number" step="0.01" value={formData.price || ""} onChange={(e) => handleChange("price", parseFloat(e.target.value))} placeholder="e.g. 49.99" required />
             </div>
 
             <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-6">
