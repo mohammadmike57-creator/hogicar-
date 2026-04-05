@@ -1531,7 +1531,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 
   useEffect(() => {
     if (isOpen) {
-      if (car) setFormData({ ...car, price: car.price || 0, available: car.isAvailable ?? car.available });
+      if (car) setFormData({ ...car, available: car.isAvailable ?? car.available });
       else setFormData({
         name: '', make: '', model: '', year: new Date().getFullYear(),
         sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
@@ -1568,18 +1568,12 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      if (car?.id) {
-        await supplierApi.updateCar(car.id, formData);
-      } else {
-        await supplierApi.createCar(formData);
-      }
-      onSave();
+      if (car?.id) await supplierApi.updateCar(car.id, formData);
+      else await supplierApi.createCar(formData);
+      onSave(); 
       onClose();
-    } catch (e) {
-      alert("Failed to save car");
-    } finally {
-      setIsSaving(false);
-    }
+    } catch (e) { alert("Failed to save car"); }
+    finally { setIsSaving(false); }
   };
 
   const handleChange = (field: string, val: any) => setFormData((prev: any) => ({ ...prev, [field]: val }));
@@ -1678,12 +1672,6 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                         <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-orange-600 transition-colors">Unlimited Mileage</span>
                     </label>
                 </div>
-            </div>
-
-                <InputField label="Daily Rate" type="number" step="0.01" value={formData.price || ""} onChange={(e) => handleChange("price", parseFloat(e.target.value))} placeholder="e.g. 49.99" required />
-            </div>
-
-                <InputField label="Daily Rate" type="number" step="0.01" value={formData.price || ""} onChange={(e) => handleChange("price", parseFloat(e.target.value))} placeholder="e.g. 49.99" required />
             </div>
 
             <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-6">
