@@ -386,7 +386,13 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
     setLoading(true);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
-      try { const res = await fetchLocations(query); setSuggestions(res); setIsOpen(res.length > 0); } catch(e) { console.error(e); } finally { setLoading(false); }
+      try {
+        console.log("Searching for:", query);
+        const res = await fetchLocations(query);
+        console.log("Results:", res);
+        setSuggestions(res);
+        setIsOpen(res.length > 0);
+      } catch(e) { console.error("Location fetch error:", e); } finally { setLoading(false); }
     }, 300);
   }, [query]);
 
@@ -412,6 +418,8 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
         <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
           {loading ? (
             <div className="p-3 text-center"><RefreshCw className="w-4 h-4 animate-spin inline" /> Loading...</div>
+          ) : suggestions.length === 0 ? (
+            <div className="p-3 text-center text-gray-500">No locations found. Try a different spelling.</div>
           ) : (
             suggestions.map(loc => (
               <button
