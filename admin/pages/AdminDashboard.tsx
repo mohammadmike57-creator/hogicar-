@@ -2033,7 +2033,7 @@ export const AdminDashboard: React.FC = () => {
   const handleFixData = async () => {
     if (!window.confirm("This will repair data by activating suppliers and locations with cars. Proceed?")) return;
     try {
-      await adminApi.fixData();
+      await adminFetch('/api/admin/suppliers/fix-data', { method: 'POST' });
       alert("Data repaired successfully.");
       fetchSuppliers();
       fetchFleet();
