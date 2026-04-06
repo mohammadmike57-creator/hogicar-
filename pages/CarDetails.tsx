@@ -324,47 +324,47 @@ const CarDetails: React.FC = () => {
     <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
     {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-    <div className="bg-slate-50 min-h-screen py-5 font-sans pb-28 lg:pb-6">
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-slate-50 min-h-screen py-5 font-sans pb-28 lg:pb-6 overflow-x-hidden">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 transform scale-[0.97] lg:scale-[0.98] origin-top transition-transform duration-500">
         
         <BookingStepper currentStep={3} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-8">
             
             {/* Title, Image & Specs Section */}
-            <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden group">
                 <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/2 bg-slate-50 p-8 flex items-center justify-center relative">
+                    <div className="md:w-1/2 bg-slate-50/50 p-10 flex items-center justify-center relative overflow-hidden">
                          {/* Subtle background pattern */}
-                         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+                         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
                          <div className="relative z-10 w-full">
-                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain drop-shadow-2xl transform hover:scale-110 transition-transform duration-700 ease-out" />
+                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-1000 ease-out" />
                          </div>
-                         <div className="absolute top-6 left-6 flex flex-col gap-2">
-                             <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg shadow-lg uppercase tracking-widest">{car.category}</span>
+                         <div className="absolute top-8 left-8 flex flex-col gap-2.5">
+                             <span className="bg-slate-900 text-white text-[9px] font-black px-3.5 py-1.5 rounded-full shadow-lg uppercase tracking-[0.2em]">{car.category}</span>
                              {car.tags && car.tags[0] && (
-                                <span className="bg-white text-slate-900 text-[10px] font-black px-3 py-1.5 rounded-lg shadow-md border border-slate-100 uppercase tracking-widest">{car.tags[0]}</span>
+                                <span className="bg-white text-slate-900 text-[9px] font-black px-3.5 py-1.5 rounded-full shadow-md border border-slate-100 uppercase tracking-[0.2em]">{car.tags[0]}</span>
                              )}
                          </div>
                     </div>
-                    <div className="md:w-1/2 p-10 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-4">
-                           <div className="bg-green-500/10 text-green-600 text-[10px] font-black px-2.5 py-1 rounded-md flex items-center gap-1 border border-green-500/20 uppercase tracking-wider"><Sparkles className="w-3.5 h-3.5"/> Recommended</div>
-                           <div className="bg-blue-500/10 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-md flex items-center gap-1 border border-blue-500/20 uppercase tracking-wider"><CheckCircle className="w-3.5 h-3.5"/> Verified</div>
+                    <div className="md:w-1/2 p-12 flex flex-col justify-center bg-white">
+                        <div className="flex items-center gap-3 mb-6">
+                           <div className="bg-emerald-50 text-emerald-600 text-[9px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-500/10 uppercase tracking-widest"><Sparkles className="w-3.5 h-3.5"/> Recommended</div>
+                           <div className="bg-blue-50 text-blue-600 text-[9px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-blue-500/10 uppercase tracking-widest"><CheckCircle className="w-3.5 h-3.5"/> Verified</div>
                         </div>
-                        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
-                        <p className="text-base text-slate-400 mt-4 flex items-center gap-2 font-bold italic">
+                        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">{car.displayName || `${car.make} ${car.model}`}</h1>
+                        <p className="text-sm text-slate-400 mt-5 flex items-center gap-2 font-bold italic">
                             or similar {car.type}
                             <InfoTooltip text="You are booking a car from a specific category. The model shown is an example, but you will receive a similar vehicle with the same main features (size, transmission, etc.)." />
                         </p>
                         
-                        <div className="mt-10 grid grid-cols-2 gap-y-5 gap-x-8">
+                        <div className="mt-12 grid grid-cols-2 gap-y-6 gap-x-10">
                             {carSpecs.slice(0, 4).map(spec => (
-                                <div key={spec.label} className="flex items-center gap-4 text-slate-700 group">
-                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm"><spec.icon className="w-5 h-5" /></div>
-                                    <span className="text-sm font-bold text-slate-800">{spec.label}</span>
+                                <div key={spec.label} className="flex items-center gap-4 text-slate-700 group/spec">
+                                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-slate-400 group-hover/spec:bg-blue-600 group-hover/spec:text-white group-hover/spec:border-blue-600 transition-all duration-300 shadow-sm"><spec.icon className="w-4 h-4" /></div>
+                                    <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{spec.label}</span>
                                 </div>
                             ))}
                         </div>
@@ -373,27 +373,27 @@ const CarDetails: React.FC = () => {
             </div>
 
             {/* Pick-up & Supplier Info */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-10">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                    <div className="relative">
-                       <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-600"/> Pick-up Details</h3>
-                       <p className="text-lg font-bold text-slate-900">{car.location}</p>
-                       <div className="inline-flex items-center gap-2 mt-3 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium border border-blue-100">
+                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6 flex items-center gap-2.5"><MapPin className="w-4 h-4 text-blue-600"/> Pick-up Details</h3>
+                       <p className="text-xl font-black text-slate-900 tracking-tight">{car.location}</p>
+                       <div className="inline-flex items-center gap-2.5 mt-4 bg-blue-50/50 text-blue-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-blue-100">
                            <Navigation className="w-4 h-4" />
                            {car.locationDetail}
                        </div>
                    </div>
-                   <div className="md:border-l md:border-slate-100 md:pl-8">
-                       <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Rental Provider</h3>
-                        <div className="flex items-center gap-5">
-                            <div className="bg-white border border-slate-100 p-2 rounded-xl shadow-sm">
-                                <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 w-24 object-contain" />
+                   <div className="md:border-l md:border-slate-100 md:pl-10">
+                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6">Rental Provider</h3>
+                        <div className="flex items-center gap-6">
+                            <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                                <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-24 object-contain" />
                             </div>
                             <div>
-                                <p className="font-extrabold text-slate-900 text-lg">{car.supplier.name}</p>
-                                <div className="flex items-center gap-2 mt-1.5">
-                                    <div className="bg-[#16a34a] text-white font-bold w-10 h-7 flex items-center justify-center rounded-md text-sm shadow-sm">{car.supplier.rating}</div>
-                                    <p className="text-sm font-bold text-slate-700">Excellent</p>
+                                <p className="font-black text-slate-900 text-xl tracking-tight">{car.supplier.name}</p>
+                                <div className="flex items-center gap-2.5 mt-2">
+                                    <div className="bg-emerald-500 text-white font-black px-2.5 py-1 rounded-lg text-xs shadow-md shadow-emerald-500/20">{car.supplier.rating}</div>
+                                    <p className="text-xs font-black text-slate-700 uppercase tracking-widest">Excellent</p>
                                 </div>
                             </div>
                         </div>
@@ -407,26 +407,30 @@ const CarDetails: React.FC = () => {
             
 
             {/* Optional Extras */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                <h2 className="text-lg font-semibold text-slate-800 mb-4">Optional Extras</h2>
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-10">
+                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-8 flex items-center gap-2.5"><PlusCircle className="w-4 h-4 text-emerald-600"/> Available Extras</h2>
                 {(!car.extras || car.extras.length === 0) ? (
-                    <p className="text-sm text-slate-500 italic">No optional extras are available for this vehicle.</p>
+                    <div className="bg-slate-50/50 rounded-2xl p-8 border border-dashed border-slate-200 text-center">
+                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">No optional extras are available for this vehicle.</p>
+                    </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {car.extras.map(extra => {
                             const isSelected = selectedExtraIds.includes(extra.id);
                             const Icon = extraIconMap[extra.name] || extraIconMap['default'];
                             return (
-                                <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`relative overflow-hidden rounded-xl border-2 p-4 transition-all duration-300 cursor-pointer ${isSelected ? 'bg-green-50 border-green-400' : 'bg-white border-slate-200 hover:border-slate-400'}`}>
-                                    {extra.promotionLabel && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">{extra.promotionLabel}</div>}
-                                    <div className="flex gap-4">
-                                        <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${isSelected ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-500'}`}><Icon className="w-5 h-5" /></div>
-                                        <div className="flex-grow"><h4 className="font-bold text-slate-800 text-sm">{extra.name}</h4></div>
-                                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-1 border-2 ${isSelected ? 'bg-green-500 border-green-500' : 'border-slate-300'}`}>{isSelected && <Check className="w-4 h-4 text-white" />}</div>
+                                <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`relative overflow-hidden rounded-[1.5rem] border-2 p-6 transition-all duration-500 cursor-pointer group/extra ${isSelected ? 'bg-emerald-50/50 border-emerald-500 shadow-xl shadow-emerald-500/10' : 'bg-white border-slate-100 hover:border-slate-300 hover:shadow-lg'}`}>
+                                    {extra.promotionLabel && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest">{extra.promotionLabel}</div>}
+                                    <div className="flex gap-5">
+                                        <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-400 group-hover/extra:bg-slate-100'}`}><Icon className="w-5 h-5" /></div>
+                                        <div className="flex-grow pt-1.5"><h4 className="font-black text-slate-900 text-[11px] uppercase tracking-widest">{extra.name}</h4></div>
+                                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-1.5 border-2 transition-all ${isSelected ? 'bg-emerald-500 border-emerald-500 scale-110' : 'border-slate-200 bg-white'}`}>{isSelected && <Check className="w-3.5 h-3.5 text-white" />}</div>
                                     </div>
-                                    <div className="text-right mt-3 pt-3 border-t border-slate-100">
-                                        <span className="text-sm font-extrabold text-slate-800">+{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</span>
-                                        <span className="text-xs text-slate-500"> / {extra.type === 'per_day' ? 'day' : 'rental'}</span>
+                                    <div className="mt-6 pt-5 border-t border-slate-100/50 flex items-center justify-between">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{extra.type === 'per_day' ? 'daily rate' : 'flat fee'}</span>
+                                        <div className="text-right">
+                                            <span className="text-base font-black text-slate-900">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -436,41 +440,41 @@ const CarDetails: React.FC = () => {
             </div>
             
             {/* Promo Code - Mobile Only */}
-            <div className="lg:hidden bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+            <div className="lg:hidden bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-6 overflow-hidden">
               {isPromoOpen ? (
                 // Expanded View
                 <div className="animate-fadeIn">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-sm font-bold text-slate-800">Enter Promo Code</h3>
-                    <button onClick={() => setIsPromoOpen(false)} className="text-slate-400 hover:text-slate-600">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">PROMO CODE</h3>
+                    <button onClick={() => setIsPromoOpen(false)} className="text-slate-300 hover:text-slate-600">
                       <X className="w-5 h-5" />
                     </button>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <div className="relative flex-grow">
-                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Enter Code"
+                        placeholder="ENTER CODE"
                         value={promoCodeInput}
                         onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
-                        className="w-full border-slate-300 rounded-md py-2 pl-9 pr-4 text-base shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border-slate-100 bg-slate-50/50 rounded-xl py-4 pl-11 pr-4 text-[11px] font-black tracking-widest focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={handleApplyPromo}
-                      className="bg-slate-800 text-white font-bold px-4 rounded-md text-sm hover:bg-slate-700 transition-colors"
+                      className="bg-slate-900 text-white font-black px-6 rounded-xl text-[10px] uppercase tracking-widest"
                     >
                       Apply
                     </button>
                   </div>
-                  {promoError && <p className="text-red-600 text-xs mt-2 font-medium">{promoError}</p>}
-                  {appliedPromo && !promoError && <p className="text-green-600 text-xs mt-2 font-bold flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Code "{appliedPromo.code}" applied successfully!</p>}
+                  {promoError && <p className="text-red-500 text-[9px] mt-3 font-black uppercase tracking-widest ml-1">{promoError}</p>}
+                  {appliedPromo && !promoError && <p className="text-emerald-600 text-[9px] mt-3 font-black uppercase tracking-widest flex items-center gap-1.5 ml-1"><CheckCircle className="w-4 h-4" /> Code applied successfully!</p>}
                 </div>
               ) : (
                 // Collapsed View
-                <button onClick={() => setIsPromoOpen(true)} className="w-full flex items-center justify-center gap-2 text-blue-600 font-bold text-sm py-3 px-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50 transition-all">
+                <button onClick={() => setIsPromoOpen(true)} className="w-full flex items-center justify-center gap-3 text-blue-600 font-black text-[10px] py-4 px-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all uppercase tracking-[0.2em]">
                   <Tag className="w-5 h-5" />
                   <span>Have a promo code?</span>
                 </button>
@@ -478,28 +482,28 @@ const CarDetails: React.FC = () => {
             </div>
 
              {/* Important Information */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                <h2 className="text-lg font-semibold text-slate-800 mb-4">Important Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-6">
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-10">
+                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-10 flex items-center gap-2.5"><ShieldAlert className="w-4 h-4 text-orange-500"/> Essential Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div>
-                        <h3 className="font-bold text-slate-800 mb-2 text-sm">Included in the price</h3>
-                        <ul className="space-y-1.5 text-slate-600">
-                            <li className="flex items-center gap-2 text-xs"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0"/>Free Cancellation up to 48 hours</li>
-                            {car.supplier.includesCDW && <li className="flex items-center gap-2 text-xs"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0"/>Collision Damage Waiver</li>}
-                            {car.supplier.includesTP && <li className="flex items-center gap-2 text-xs"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0"/>Theft Protection</li>}
+                        <h3 className="text-[9px] font-black text-slate-900 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">Included <Check className="w-3 h-3 text-emerald-500"/></h3>
+                        <ul className="space-y-4">
+                            <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><CheckCircle className="w-4 h-4 text-emerald-500 transition-transform group-hover:scale-110"/> Free Cancellation <span className="text-[8px] text-slate-300 ml-1">up to 48h before</span></li>
+                            {car.supplier.includesCDW && <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><CheckCircle className="w-4 h-4 text-emerald-500 transition-transform group-hover:scale-110"/> Collision Damage Waiver</li>}
+                            {car.supplier.includesTP && <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><CheckCircle className="w-4 h-4 text-emerald-500 transition-transform group-hover:scale-110"/> Theft Protection</li>}
                         </ul>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-slate-800 mb-2 text-sm">Not Included</h3>
-                        <ul className="space-y-1.5 text-slate-600">
-                            <li className="flex items-center gap-2 text-xs"><XCircle className="w-4 h-4 text-red-500 flex-shrink-0"/> Fuel - {car.fuelPolicy}</li>
-                            <li className="flex items-center gap-2 text-xs"><XCircle className="w-4 h-4 text-red-500 flex-shrink-0"/> Young driver fees (if applicable)</li>
+                    <div className="md:border-l md:border-slate-50 md:pl-12">
+                        <h3 className="text-[9px] font-black text-slate-900 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">Not Included <X className="w-3 h-3 text-red-500"/></h3>
+                        <ul className="space-y-4">
+                            <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><XCircle className="w-4 h-4 text-red-400 transition-transform group-hover:scale-110"/> Fuel: {car.fuelPolicy}</li>
+                            <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><XCircle className="w-4 h-4 text-red-400 transition-transform group-hover:scale-110"/> Potential Driver Surcharge</li>
                         </ul>
                     </div>
                 </div>
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                    <button onClick={() => setIsConditionsModalOpen(true)} className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
-                        View full rental conditions <ArrowRight className="w-4 h-4"/>
+                <div className="mt-12 pt-8 border-t border-slate-50 text-center">
+                    <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] font-black text-blue-600 hover:text-blue-800 transition-all uppercase tracking-[0.25em] flex items-center justify-center gap-3 mx-auto group">
+                        Full Rental Conditions <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"/>
                     </button>
                 </div>
             </div>
@@ -507,57 +511,57 @@ const CarDetails: React.FC = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 hidden lg:block">
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-5 sticky top-24">
-               <div className="mb-6 p-4 rounded-xl border border-blue-100 bg-blue-50 flex items-center justify-between">
-                   <p className="text-sm font-bold text-blue-800 flex items-center gap-2"><Clock className="w-4 h-4"/>Price secured for:</p>
-                   <p className="text-xl font-mono font-extrabold text-blue-800 tracking-tight">{formatTime(timeLeft)}</p>
+            <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200 border border-slate-200 p-8 sticky top-24 transform lg:scale-[0.95] origin-top transition-all hover:scale-100 duration-500">
+               <div className="mb-8 p-6 rounded-2xl border border-blue-100 bg-blue-50/50 flex items-center justify-between">
+                   <p className="text-[11px] font-black text-blue-800 flex items-center gap-2.5 uppercase tracking-widest"><Clock className="w-4 h-4"/>Price secured</p>
+                   <p className="text-2xl font-mono font-black text-blue-800 tracking-tight">{formatTime(timeLeft)}</p>
                </div>
                
-               <h3 className="text-lg font-extrabold text-slate-900 mb-5">Price Summary</h3>
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                  {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Extras</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-[#16a34a] font-bold"><span>Discount ({appliedPromo?.code})</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Price Summary</h3>
+                <div className="space-y-4 mb-8">
+                  <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest"><span>Car Hire ({days} days)</span><span className="text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest"><span>Full Protection</span><span className="text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                  {priceDetails.extrasCost > 0 && <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest"><span>Extras</span><span className="text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
+                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-xs font-black text-emerald-600 uppercase tracking-widest"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-slate-100">
+                <div className="mt-8 pt-8 border-t border-slate-100">
                     <div className="flex gap-2">
                         <div className="relative flex-grow">
-                            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input 
                                 type="text" 
-                                placeholder="Promo Code" 
+                                placeholder="PROMO CODE" 
                                 value={promoCodeInput}
                                 onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
-                                className="w-full border-slate-300 rounded-lg py-2.5 pl-9 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full border-slate-200 bg-slate-50/50 rounded-xl py-3.5 pl-11 pr-4 text-[10px] font-black tracking-widest focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                             />
                         </div>
                         <button 
                         type="button" 
                         onClick={handleApplyPromo}
-                        className="bg-slate-900 text-white font-bold px-5 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+                        className="bg-slate-900 text-white font-black px-6 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95"
                         >
                         Apply
                         </button>
                     </div>
-                    {promoError && <p className="text-red-500 text-xs mt-2 font-medium">{promoError}</p>}
-                    {appliedPromo && <p className="text-[#16a34a] text-xs mt-2 font-bold flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> Applied: {appliedPromo.code}!</p>}
+                    {promoError && <p className="text-red-500 text-[9px] mt-2 font-black uppercase tracking-widest ml-1">{promoError}</p>}
+                    {appliedPromo && <p className="text-emerald-600 text-[9px] mt-2 font-black uppercase tracking-widest flex items-center gap-1.5 ml-1"><CheckCircle className="w-3.5 h-3.5"/> Applied: {appliedPromo.code}!</p>}
                 </div>
                
-               <div className="border-t-2 border-dashed border-slate-200 pt-6 my-6">
-                  <div className="flex justify-between items-end"><span className="font-extrabold text-slate-900 text-lg">Total</span><span className="font-extrabold text-slate-900 text-3xl tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
+               <div className="border-t-2 border-dashed border-slate-200 pt-8 my-8">
+                  <div className="flex justify-between items-end"><span className="font-black text-slate-400 text-[10px] uppercase tracking-[0.25em] pb-1.5">Total</span><span className="font-black text-slate-900 text-4xl tracking-tighter">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
                </div>
-               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm space-y-3 mb-6">
-                   <div className="flex justify-between font-extrabold text-blue-700"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
-                   <div className="flex justify-between font-medium text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
+               <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-100 space-y-4 mb-8">
+                   <div className="flex justify-between font-black text-blue-700 text-[10px] uppercase tracking-widest"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
+                   <div className="flex justify-between font-black text-slate-400 text-[10px] uppercase tracking-widest"><span>Pay at desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                </div>
 
-               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} onClick={handleContinueToBook} className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center justify-center text-base">
-                  Continue to Book <ArrowRight className="w-5 h-5 ml-2"/>
+               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} onClick={handleContinueToBook} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 px-4 rounded-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-[0.98] flex items-center justify-center text-xs uppercase tracking-[0.2em]">
+                  Continue to Book <ArrowRight className="w-5 h-5 ml-3"/>
                </Link>
                
-               <p className="text-center text-xs font-bold text-slate-500 mt-4 flex items-center justify-center gap-1.5"><ShieldCheck className="w-4 h-4 text-green-500"/> Secure booking</p>
+               <p className="text-center text-[9px] font-black text-slate-400 mt-6 flex items-center justify-center gap-2 uppercase tracking-[0.15em]"><ShieldCheck className="w-4 h-4 text-emerald-500"/> 100% Secure Booking</p>
             </div>
           </div>
         </div>
