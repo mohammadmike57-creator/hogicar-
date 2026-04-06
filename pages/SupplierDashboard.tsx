@@ -697,7 +697,7 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
 };
 
 // ==================== Manual Pricing Section ====================
-const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void, onBack: () => void }) => {
+const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void, onBack: () => void, activeLocation: string }) => {
     const [selectedCarIds, setSelectedCarIds] = useState<number[]>([]);
 
     const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
@@ -711,15 +711,17 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
     const [manualBands, setManualBands] = useState<any[]>([]);
     const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [activationNotice, setActivationNotice] = useState<any | null>(null);
 
     useEffect(() => {
         const periodBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
-        setManualBands(periodBands.map(b => ({
+        const initializedBands = periodBands.map(b => ({
             minDays: b.minDays,
             maxDays: b.maxDays,
             dailyRate: '',
             deposit: ''
-        })));
+        }));
+        setManualBands(initializedBands.length > 0 ? initializedBands : [{ minDays: 1, maxDays: null, dailyRate: '', deposit: '' }]);
     }, [selectedPeriodIdx, isCustomPeriod, config]);
 
     const selectedCars = useMemo(
@@ -753,6 +755,14 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
             alert('Selected cars must have SIPP codes before manual rate updates.');
             return;
         }
+        if (manualBands.length === 0) {
+            alert('Please add at least one bond row.');
+            return;
+        }
+        if (manualBands.some(b => !String(b.dailyRate || '').trim() || Number(b.dailyRate) <= 0)) {
+            alert('Please enter a valid daily rate for each bond.');
+            return;
+        }
 
         const newSeason = {
             targetType: 'sipp',
@@ -764,8 +774,8 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
             rates: manualBands.map(b => ({
                 minDays: b.minDays,
                 maxDays: b.maxDays,
-                dailyRate: parseFloat(b.dailyRate as string) || 0,
-                deposit: parseFloat(b.deposit as string) || 0
+                dailyRate: Number(b.dailyRate) || 0,
+                deposit: Number(b.deposit) || 0
             }))
         };
 
@@ -797,6 +807,13 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
                 }))
             };
             await supplierApi.bulkUpdateRates(payload);
+            setActivationNotice({
+                location: activeLocation === 'global' ? 'Global Strategy' : activeLocation,
+                cars: selectedCars.length,
+                sippCodes: selectedSippCodes.length,
+                seasons: batchSeasons.length,
+                updatedAt: new Date()
+            });
             alert(`Batch update successful! ${batchSeasons.length} actions applied.`);
             setBatchSeasons([]);
             onUpdate();
@@ -805,6 +822,15 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleMoneyInput = (idx: number, field: 'dailyRate' | 'deposit', value: string) => {
+        // Keep typing smooth for decimal values while still restricting to money-like input.
+        const normalized = value.replace(',', '.');
+        if (!/^\d*\.?\d{0,2}$/.test(normalized) && normalized !== '') return;
+        const next = [...manualBands];
+        next[idx][field] = normalized;
+        setManualBands(next);
     };
 
     const activePeriod = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
@@ -1080,12 +1106,11 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
                                                 <div className="relative max-w-[180px] group/input">
                                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-orange-600">{config.currency}</span>
                                                     <input 
-                                                        type="number" 
+                                                        type="text"
+                                                        inputMode="decimal"
                                                         value={band.dailyRate}
                                                         onChange={e => {
-                                                            const nb = [...manualBands];
-                                                            nb[idx].dailyRate = e.target.value === '' ? '' : parseFloat(e.target.value);
-                                                            setManualBands(nb);
+                                                            handleMoneyInput(idx, 'dailyRate', e.target.value);
                                                         }}
                                                         className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all shadow-inner"
                                                         placeholder="0.00"
@@ -1096,12 +1121,11 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
                                                 <div className="relative max-w-[180px] group/input">
                                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-blue-600">{config.currency}</span>
                                                     <input 
-                                                        type="number" 
+                                                        type="text"
+                                                        inputMode="decimal"
                                                         value={band.deposit || ''}
                                                         onChange={e => {
-                                                            const nb = [...manualBands];
-                                                            nb[idx].deposit = e.target.value === '' ? '' : parseFloat(e.target.value);
-                                                            setManualBands(nb);
+                                                            handleMoneyInput(idx, 'deposit', e.target.value);
                                                         }}
                                                         className="w-full bg-blue-50/30 border border-blue-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all shadow-inner"
                                                         placeholder="Security Bond"
@@ -1144,6 +1168,40 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
                         <Zap className="w-5 h-5 animate-pulse" />
                         Finalize & Add to Batch Update List
                     </button>
+                </div>
+            )}
+
+            {activationNotice && (
+                <div className="mb-8 rounded-[2rem] border border-green-100 bg-green-50/70 p-6 relative z-10">
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-green-600 text-white flex items-center justify-center shadow-lg shadow-green-200">
+                            <CheckCircle className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-black text-green-900 uppercase tracking-wider">Rates Activated Successfully</p>
+                            <p className="text-[11px] font-bold text-green-800 uppercase tracking-widest mt-1">
+                                Cars and pricing are active for search results.
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
+                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Location</p>
+                                    <p className="text-xs font-black text-green-900">{activationNotice.location}</p>
+                                </div>
+                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
+                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Cars</p>
+                                    <p className="text-xs font-black text-green-900">{activationNotice.cars}</p>
+                                </div>
+                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
+                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">SIPP Codes</p>
+                                    <p className="text-xs font-black text-green-900">{activationNotice.sippCodes}</p>
+                                </div>
+                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
+                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Updated</p>
+                                    <p className="text-xs font-black text-green-900">{format(activationNotice.updatedAt, 'MMM d, HH:mm')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -1471,6 +1529,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             fetchConfig();
                         }} 
                         onBack={() => setIsManualPricingActive(false)}
+                        activeLocation={selectedLocation}
                     />
                 )
             )}
