@@ -6,7 +6,7 @@ import {
   Trash2, Search, Filter, ChevronRight, History, TrendingUp,
   Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
   Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe,
-  Layers, Check
+  Layers, Check, ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, isAfter, isBefore, addDays, subDays } from 'date-fns';
@@ -697,11 +697,9 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
 };
 
 // ==================== Manual Pricing Section ====================
-const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void }) => {
-    const [targetType, setTargetType] = useState<'category' | 'sipp'>('category');
-    const [targetValues, setTargetValues] = useState<string[]>([]);
-    
-    // Season being currently defined
+const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void, onBack: () => void }) => {
+    const [selectedCarIds, setSelectedCarIds] = useState<number[]>([]);
+
     const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
     const [isCustomPeriod, setIsCustomPeriod] = useState(false);
     const [customPeriod, setCustomPeriod] = useState({
@@ -709,10 +707,11 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         startDate: format(new Date(), 'yyyy-MM-dd'),
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
     });
-    
-    // Initial bands from config, but user can add more
+
     const [manualBands, setManualBands] = useState<any[]>([]);
-    
+    const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
+
     useEffect(() => {
         const periodBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
         setManualBands(periodBands.map(b => ({
@@ -722,33 +721,43 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
             deposit: ''
         })));
     }, [selectedPeriodIdx, isCustomPeriod, config]);
-    
-    // Batch of seasons to apply
-    const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
-    const [isSaving, setIsSaving] = useState(false);
 
-    // Get unique categories and SIPPs from the fleet
-    const uniqueTargets = useMemo(() => {
+    const selectedCars = useMemo(
+        () => cars.filter(car => selectedCarIds.includes(Number(car.id))),
+        [cars, selectedCarIds]
+    );
+
+    const selectedSippCodes = useMemo(() => {
         const set = new Set<string>();
-        cars.forEach(car => {
-            const val = targetType === 'category' ? car.category : car.sippCode;
-            if (val) set.add(val);
+        selectedCars.forEach(car => {
+            if (car.sippCode) set.add(car.sippCode);
         });
-        return Array.from(set).sort();
-    }, [cars, targetType]);
+        return Array.from(set);
+    }, [selectedCars]);
+
+    const toggleCar = (id: number) => {
+        setSelectedCarIds(prev =>
+            prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
+        );
+    };
 
     const addSeasonToBatch = () => {
         const period = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
         if (!period) return;
 
-        if (targetValues.length === 0) {
-            alert(`Please select at least one ${targetType === 'category' ? 'Category' : 'SIPP Code'}`);
+        if (selectedCars.length === 0) {
+            alert('Please select at least one car.');
+            return;
+        }
+        if (selectedSippCodes.length === 0) {
+            alert('Selected cars must have SIPP codes before manual rate updates.');
             return;
         }
 
         const newSeason = {
-            targetType,
-            targetValues: [...targetValues],
+            targetType: 'sipp',
+            targetValues: [...selectedSippCodes],
+            selectedCarNames: selectedCars.map(car => car.name || `${car.make} ${car.model}`.trim()),
             periodName: period.name,
             startDate: period.startDate,
             endDate: period.endDate,
@@ -761,7 +770,6 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         };
 
         setBatchSeasons(prev => [...prev, newSeason]);
-        // Reset rates but keep bands for convenience?
         setManualBands(prev => prev.map(b => ({ ...b, dailyRate: '', deposit: '' })));
     };
 
@@ -771,7 +779,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
 
     const handleApply = async () => {
         if (batchSeasons.length === 0) {
-            alert("Please add at least one season to the batch.");
+            alert('Please add at least one season to the batch.');
             return;
         }
 
@@ -779,27 +787,27 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
         try {
             const payload = {
                 currency: config.currency,
-                seasons: batchSeasons
+                seasons: batchSeasons.map(season => ({
+                    targetType: season.targetType,
+                    targetValues: season.targetValues,
+                    periodName: season.periodName,
+                    startDate: season.startDate,
+                    endDate: season.endDate,
+                    rates: season.rates
+                }))
             };
             await supplierApi.bulkUpdateRates(payload);
             alert(`Batch update successful! ${batchSeasons.length} actions applied.`);
             setBatchSeasons([]);
             onUpdate();
         } catch (e) {
-            alert("Failed to update rates manually.");
+            alert('Failed to update rates manually.');
         } finally {
             setIsSaving(false);
         }
     };
 
-    const toggleTargetValue = (val: string) => {
-        setTargetValues(prev => 
-            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
-        );
-    };
-
     const activePeriod = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
-    const activeBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
 
     return (
         <motion.div 
@@ -815,95 +823,95 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                         <Zap className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h3 className="text-3xl font-black text-gray-900 tracking-tight">Dynamic Rate Intelligence</h3>
+                        <h3 className="text-3xl font-black text-gray-900 tracking-tight">Change Rates Manually</h3>
                         <div className="flex items-center gap-3 mt-1.5">
                             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 rounded-full border border-orange-100">
                                 <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                                <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">Live Pricing System</span>
+                                <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">Manual Pricing Workspace</span>
                             </div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Manual Bulk Updates & Seasonal Bond Configuration</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Choose cars, set period, define bonds, apply prices</p>
                         </div>
                     </div>
                 </div>
                 
-                <div className="hidden xl:flex items-center gap-8 bg-gray-50/50 px-8 py-4 rounded-[2rem] border border-gray-100">
-                    <div className="flex flex-col items-center">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onBack}
+                        className="px-5 py-3 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-900 hover:border-gray-200 transition-all flex items-center gap-2"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Back to Pricing Modes
+                    </button>
+                    <div className="hidden xl:flex items-center gap-8 bg-gray-50/50 px-8 py-4 rounded-[2rem] border border-gray-100">
+                        <div className="flex flex-col items-center">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Selected Cars</span>
+                            <span className="text-lg font-black text-gray-900">{selectedCars.length}</span>
+                        </div>
+                        <div className="w-px h-8 bg-gray-200" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">SIPP Keys</span>
+                            <span className="text-lg font-black text-gray-900">{selectedSippCodes.length}</span>
+                        </div>
+                        <div className="w-px h-8 bg-gray-200" />
+                        <div className="flex flex-col items-center">
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Active Fleet</span>
                         <span className="text-lg font-black text-gray-900">{cars.length}</span>
                     </div>
-                    <div className="w-px h-8 bg-gray-200" />
-                    <div className="flex flex-col items-center">
-                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Seasons</span>
-                        <span className="text-lg font-black text-gray-900">{config.periods?.length || 0}</span>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12 relative z-10">
-                {/* Target Type & Selection */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="space-y-3">
-                        <label className="flex items-center gap-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
-                            <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center">
-                                <Settings2 className="w-3.5 h-3.5 text-orange-600" />
-                            </div>
-                            1. Select Target Type
-                        </label>
-                        <div className="flex p-1.5 bg-gray-100/50 rounded-2xl border border-gray-100">
-                            <button 
-                                onClick={() => { setTargetType('category'); setTargetValues([]); }}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'category' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Categories
-                            </button>
-                            <button 
-                                onClick={() => { setTargetType('sipp'); setTargetValues([]); }}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'sipp' ? 'bg-white text-orange-600 shadow-sm border border-orange-100' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                SIPP Codes
-                            </button>
-                        </div>
-                    </div>
-
                     <div className="space-y-3">
                         <label className="flex items-center justify-between text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
                             <span className="flex items-center gap-3">
-                                <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center">
-                                    <Target className="w-3.5 h-3.5 text-orange-600" />
-                                </div>
-                                2. Select {targetType === 'category' ? 'Categories' : 'SIPP Codes'}
+                            <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center">
+                                    <Car className="w-3.5 h-3.5 text-orange-600" />
+                            </div>
+                                1. Choose Cars
                             </span>
-                            {uniqueTargets.length > 0 && (
+                            {cars.length > 0 && (
                                 <button 
-                                    onClick={() => setTargetValues(targetValues.length === uniqueTargets.length ? [] : [...uniqueTargets])}
+                                    onClick={() => setSelectedCarIds(selectedCarIds.length === cars.length ? [] : cars.map(car => Number(car.id)))}
                                     className="text-[9px] font-black text-orange-600 hover:text-orange-700 transition-colors uppercase tracking-widest"
                                 >
-                                    {targetValues.length === uniqueTargets.length ? 'Clear All' : 'Select All'}
+                                    {selectedCarIds.length === cars.length ? 'Clear All' : 'Select All'}
                                 </button>
                             )}
                         </label>
-                        <div className="bg-white border border-gray-100 rounded-[2rem] p-5 max-h-[220px] overflow-y-auto space-y-2 shadow-sm">
-                            {uniqueTargets.map(val => (
-                                <label key={val} className={`flex items-center gap-3 p-3 rounded-xl border transition-all group cursor-pointer ${targetValues.includes(val) ? 'bg-orange-50/50 border-orange-200 ring-1 ring-orange-100' : 'bg-gray-50/30 border-gray-50 hover:border-gray-200'}`}>
-                                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${targetValues.includes(val) ? 'bg-orange-600 border-orange-600' : 'bg-white border-gray-200'}`}>
-                                        {targetValues.includes(val) && <Check className="w-3 h-3 text-white" />}
+                        <div className="bg-white border border-gray-100 rounded-[2rem] p-4 max-h-[340px] overflow-y-auto space-y-2 shadow-sm">
+                            {cars.map(car => (
+                                <label key={car.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all group cursor-pointer ${selectedCarIds.includes(Number(car.id)) ? 'bg-orange-50/60 border-orange-200 ring-1 ring-orange-100' : 'bg-gray-50/30 border-gray-50 hover:border-gray-200'}`}>
+                                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${selectedCarIds.includes(Number(car.id)) ? 'bg-orange-600 border-orange-600' : 'bg-white border-gray-200'}`}>
+                                        {selectedCarIds.includes(Number(car.id)) && <Check className="w-3 h-3 text-white" />}
                                     </div>
                                     <input 
                                         type="checkbox" 
-                                        checked={targetValues.includes(val)}
-                                        onChange={() => toggleTargetValue(val)}
+                                        checked={selectedCarIds.includes(Number(car.id))}
+                                        onChange={() => toggleCar(Number(car.id))}
                                         className="hidden"
                                     />
-                                    <span className={`text-[11px] font-black uppercase tracking-tight ${targetValues.includes(val) ? 'text-orange-900' : 'text-gray-600'}`}>{val}</span>
+                                    <div className="min-w-0">
+                                        <p className={`text-[11px] font-black uppercase tracking-tight truncate ${selectedCarIds.includes(Number(car.id)) ? 'text-orange-900' : 'text-gray-700'}`}>
+                                            {car.name || `${car.make} ${car.model}`.trim()}
+                                        </p>
+                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
+                                            {car.sippCode || 'No SIPP'} • {car.category || 'Uncategorized'}
+                                        </p>
+                                    </div>
                                 </label>
                             ))}
-                            {uniqueTargets.length === 0 && (
+                            {cars.length === 0 && (
                                 <div className="flex flex-col items-center justify-center py-8 opacity-40">
-                                    <Target className="w-8 h-8 mb-2" />
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase text-center tracking-widest">No {targetType}s found</p>
+                                    <Car className="w-8 h-8 mb-2" />
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase text-center tracking-widest">No cars found</p>
                                 </div>
                             )}
                         </div>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                            Pricing updates apply using the selected cars&apos; SIPP codes.
+                        </p>
                     </div>
                 </div>
 
@@ -914,7 +922,7 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                             <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
                                 <Calendar className="w-3.5 h-3.5 text-blue-600" />
                             </div>
-                            3. Define Time Period
+                            2. Create Time Period
                         </label>
                         <div className="flex p-1.5 bg-gray-100/50 rounded-2xl border border-gray-100 mb-2 max-w-md">
                             <button 
@@ -981,11 +989,11 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-orange-500" />
                     
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-                        <h4 className="text-[12px] font-black text-gray-900 uppercase tracking-[0.3em] flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-2xl bg-white shadow-md border border-gray-50 flex items-center justify-center">
-                                <DollarSign className="w-5 h-5 text-orange-600" />
-                            </div>
-                            4. Set Pricing Bonds & Rates
+                            <h4 className="text-[12px] font-black text-gray-900 uppercase tracking-[0.3em] flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-2xl bg-white shadow-md border border-gray-50 flex items-center justify-center">
+                                    <DollarSign className="w-5 h-5 text-orange-600" />
+                                </div>
+                            3. Create Bond Prices
                         </h4>
                         <div className="flex items-center gap-4">
                             <div className="flex flex-col items-end">
@@ -1166,18 +1174,18 @@ const ManualPricingSection = ({ config, cars, onUpdate }: { config: TemplateConf
                                                     {season.periodName}
                                                 </span>
                                                 <span className="px-3 py-1 rounded-full bg-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">
-                                                    {season.targetValues.length} {season.targetType === 'category' ? 'Categories' : 'SIPP Codes'}
+                                                    {season.selectedCarNames.length} Cars
                                                 </span>
                                             </div>
                                             <p className="text-lg font-black text-gray-900 tracking-tight">
                                                 {format(parseISO(season.startDate), 'MMM d, yyyy')} <span className="text-gray-300 mx-2">—</span> {format(parseISO(season.endDate), 'MMM d, yyyy')}
                                             </p>
                                             <div className="flex flex-wrap gap-2 pt-1">
-                                                {season.targetValues.slice(0, 5).map(v => (
+                                                {season.selectedCarNames.slice(0, 4).map((v: string) => (
                                                     <span key={v} className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{v}</span>
                                                 ))}
-                                                {season.targetValues.length > 5 && (
-                                                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-tight">+{season.targetValues.length - 5} more</span>
+                                                {season.selectedCarNames.length > 4 && (
+                                                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-tight">+{season.selectedCarNames.length - 4} more</span>
                                                 )}
                                             </div>
                                         </div>
@@ -1262,6 +1270,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
     const [isSaving, setIsSaving] = useState(false);
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<string>('global');
+    const [isManualPricingActive, setIsManualPricingActive] = useState(false);
 
     const fetchConfig = async () => {
         setIsLoading(true);
@@ -1321,94 +1330,130 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Export Section */}
-                <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center">
-                    <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mb-6 border border-blue-100/50">
-                        <Download className="w-10 h-10" />
-                    </div>
-                    <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Download Rates Template</h3>
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
-                        Get the latest spreadsheet with your fleet pre-populated. Fill in the daily rates for each period and re-upload.
-                    </p>
-                    {config && config.periods?.length === 0 && (
-                        <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3 text-left">
-                            <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                            <p className="text-[10px] font-bold text-blue-900 leading-normal uppercase tracking-tight">
-                                Note: You haven't defined any seasons yet. We'll provide a default structure which you can customize later.
-                            </p>
-                        </div>
-                    )}
-                    <button onClick={handleDownload} className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-3">
-                        <Download className="w-4 h-4" /> Download XLSX
+            <div className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-full md:w-fit">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <button
+                        onClick={() => setIsManualPricingActive(false)}
+                        className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                            !isManualPricingActive
+                                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200'
+                                : 'bg-gray-50 text-gray-500 hover:text-gray-900'
+                        }`}
+                    >
+                        Spreadsheet & Template Mode
+                    </button>
+                    <button
+                        onClick={() => setIsManualPricingActive(true)}
+                        className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
+                            isManualPricingActive
+                                ? 'bg-orange-600 text-white shadow-lg shadow-orange-200'
+                                : 'bg-orange-50 text-orange-600 hover:bg-orange-100'
+                        }`}
+                    >
+                        <Settings2 className="w-4 h-4" />
+                        Change Rates Manually
                     </button>
                 </div>
+            </div>
 
-                {/* Import Section */}
-                <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center">
-                    <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center text-green-600 mb-6 border border-green-100/50">
-                        <Upload className="w-10 h-10" />
-                    </div>
-                    <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Bulk Rate Import</h3>
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
-                        Upload your completed XLSX template. This will update all pricing bands across your fleet instantly.
-                    </p>
-                    <div className="w-full space-y-4">
-                        <div className="relative group">
-                            <input 
-                                type="file" 
-                                accept=".xlsx"
-                                onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                            />
-                            <div className={`w-full py-4 border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 transition-all ${uploadFile ? 'border-green-500 bg-green-50/50' : 'border-gray-100 bg-gray-50/30 group-hover:border-orange-500'}`}>
-                                <FileText className={`w-5 h-5 ${uploadFile ? 'text-green-600' : 'text-gray-300'}`} />
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${uploadFile ? 'text-green-900' : 'text-gray-400'}`}>
-                                    {uploadFile ? uploadFile.name : 'Choose XLSX File'}
-                                </span>
+            {!isManualPricingActive ? (
+                <>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Export Section */}
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center">
+                            <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mb-6 border border-blue-100/50">
+                                <Download className="w-10 h-10" />
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Download Rates Template</h3>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
+                                Get the latest spreadsheet with your fleet pre-populated.
+                            </p>
+                            <button onClick={handleDownload} className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-3">
+                                <Download className="w-4 h-4" /> Download XLSX
+                            </button>
+                        </div>
+
+                        {/* Import Section */}
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center">
+                            <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center text-green-600 mb-6 border border-green-100/50">
+                                <Upload className="w-10 h-10" />
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Bulk Rate Import</h3>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
+                                Upload your completed XLSX template to update pricing instantly.
+                            </p>
+                            <div className="w-full space-y-4">
+                                <div className="relative group">
+                                    <input 
+                                        type="file" 
+                                        accept=".xlsx"
+                                        onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                    />
+                                    <div className={`w-full py-4 border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 transition-all ${uploadFile ? 'border-green-500 bg-green-50/50' : 'border-gray-100 bg-gray-50/30 group-hover:border-orange-500'}`}>
+                                        <FileText className={`w-5 h-5 ${uploadFile ? 'text-green-600' : 'text-gray-300'}`} />
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${uploadFile ? 'text-green-900' : 'text-gray-400'}`}>
+                                            {uploadFile ? uploadFile.name : 'Choose XLSX File'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={handleImport}
+                                    disabled={!uploadFile || isSaving}
+                                    className="w-full py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 disabled:opacity-50 hover:scale-[1.02] transition-all"
+                                >
+                                    {isSaving ? 'Processing...' : 'Sync Rates Now'}
+                                </button>
                             </div>
                         </div>
-                        <button 
-                            onClick={handleImport}
-                            disabled={!uploadFile || isSaving}
-                            className="w-full py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 disabled:opacity-50 hover:scale-[1.02] transition-all"
-                        >
-                            {isSaving ? 'Processing...' : 'Sync Rates Now'}
-                        </button>
-                    </div>
-                </div>
-            </div>
 
-            {/* Manual Pricing Update Section */}
-            {config && (
-                <ManualPricingSection 
-                    config={config} 
-                    cars={cars}
-                    onUpdate={() => {
-                        fetchConfig();
-                    }} 
-                />
+                        {/* Manual Pricing Trigger Card */}
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group cursor-pointer hover:border-orange-500 transition-all" onClick={() => setIsManualPricingActive(true)}>
+                            <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center text-orange-600 mb-6 border border-orange-100/50 group-hover:scale-110 transition-transform">
+                                <Zap className="w-10 h-10" />
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Manual Rate Change</h3>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
+                                Open the manual section to choose cars, create period, and define bond prices.
+                            </p>
+                            <button className="w-full py-4 bg-orange-50 text-orange-600 border border-orange-100 rounded-2xl text-xs font-black uppercase tracking-[0.2em] group-hover:bg-orange-600 group-hover:text-white transition-all flex items-center justify-center gap-3">
+                                <Settings2 className="w-4 h-4" /> Start Manual Update
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Template Preview */}
+                    <div className="bg-gray-900 rounded-[3rem] p-10 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full" />
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                            <div className="text-center md:text-left">
+                                <h3 className="text-2xl font-black tracking-tighter mb-2">Configure Rate Template</h3>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Define seasons, periods, and day bands</p>
+                            </div>
+                            <button 
+                                onClick={() => setIsConfigModalOpen(true)}
+                                className="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
+                            >
+                                Edit Structure
+                            </button>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                config && (
+                    <ManualPricingSection 
+                        config={config} 
+                        cars={cars}
+                        onUpdate={() => {
+                            fetchConfig();
+                        }} 
+                        onBack={() => setIsManualPricingActive(false)}
+                    />
+                )
             )}
 
-            {/* Template Preview */}
-            <div className="bg-gray-900 rounded-[3rem] p-10 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full" />
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="text-center md:text-left">
-                        <h3 className="text-2xl font-black tracking-tighter mb-2">Configure Rate Template</h3>
-                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Define seasons, periods, and day bands</p>
-                    </div>
-                    <button 
-                        onClick={() => setIsConfigModalOpen(true)}
-                        className="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
-                    >
-                        Edit Structure
-                    </button>
-                </div>
-            </div>
-
             {/* Strategy Overview */}
-            {config && (
+            {config && !isManualPricingActive && (
                 <div className="space-y-8">
                     {selectedLocation !== 'global' && !config.locationCode && (
                         <div className="p-6 bg-orange-50 border border-orange-100 rounded-[2rem] flex items-center justify-between gap-6">
