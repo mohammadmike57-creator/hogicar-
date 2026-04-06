@@ -2,7 +2,6 @@
 
 import { ApiSearchResult, CarCategory } from '../types';
 import { LocationSuggestion } from '../api';
-import { MOCK_APP_CONFIG } from '../services/mockData';
 import { appState } from '../appState';
 import { API_BASE_URL } from '../api';
 
@@ -60,15 +59,16 @@ export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[
             normalizedCar.brand = car.brand ?? "";
             normalizedCar.model = car.model ?? "";
 
-            // NEW: Commission Calculation
-            const net = normalizedCar.netPrice;
-            const commissionPercent = MOCK_APP_CONFIG.commissionPercent ?? 0;
-            const commissionAmount = +(net * commissionPercent / 100).toFixed(2);
-            const finalPrice = +(net + commissionAmount).toFixed(2);
-            
-            normalizedCar.finalPrice = finalPrice;
-            normalizedCar.commissionAmount = commissionAmount;
-            normalizedCar.commissionPercent = commissionPercent;
+            // Preserve backend pricing exactly as returned by /api/cars.
+            if (normalizedCar.finalPrice === undefined || normalizedCar.finalPrice === null) {
+                normalizedCar.finalPrice = normalizedCar.netPrice ?? 0;
+            }
+            if (normalizedCar.commissionAmount === undefined || normalizedCar.commissionAmount === null) {
+                normalizedCar.commissionAmount = 0;
+            }
+            if (normalizedCar.commissionPercent === undefined || normalizedCar.commissionPercent === null) {
+                normalizedCar.commissionPercent = 0;
+            }
 
             return normalizedCar;
         });

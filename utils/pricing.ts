@@ -7,10 +7,6 @@ export interface SearchState {
   dropoffDate?: string;  // "YYYY-MM-DD"
 }
 
-// If your backend netPrice is already TOTAL for the whole rental,
-// set this to false (no multiplying by days).
-const NET_PRICE_IS_DAILY = true;
-
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 export function rentalDays(pickupDate?: string, dropoffDate?: string): number {
@@ -33,11 +29,13 @@ export function calcPricing(
     const days = rentalDays(search.pickupDate, search.dropoffDate);
     const fullProtectionDailyCost = 12;
 
-    const dailyNetPrice = car.netPrice || 0;
+    const baseNetInput = car.netPrice || 0;
     const dailyCommissionPercent = car.commissionPercent || 0;
+    // API/manual search results already provide total price for requested period.
+    const netPriceIsTotal = car.hasFinalPriceFromApi === true || car.supplierId != null;
     
     // Calculate base totals for the entire rental duration
-    const baseNetTotal = NET_PRICE_IS_DAILY ? dailyNetPrice * days : dailyNetPrice;
+    const baseNetTotal = netPriceIsTotal ? baseNetInput : baseNetInput * days;
     const netTotal = round2(baseNetTotal);
     
     const commissionAmount = round2((netTotal * dailyCommissionPercent) / 100);
