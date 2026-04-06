@@ -861,6 +861,23 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack }: { config: Temp
                 </div>
             </div>
 
+            <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+                {[
+                    { step: 'Step 1', title: 'Choose Cars', hint: 'Select supplier fleet vehicles' },
+                    { step: 'Step 2', title: 'Create Period', hint: 'Season or custom date range' },
+                    { step: 'Step 3', title: 'Set Bond Prices', hint: 'Daily rate and security bond' },
+                ].map((item, idx) => (
+                    <div
+                        key={item.title}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-4 shadow-sm"
+                    >
+                        <p className="text-[9px] font-black text-orange-600 uppercase tracking-[0.2em]">{item.step}</p>
+                        <p className="text-sm font-black text-gray-900 mt-1">{item.title}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{item.hint}</p>
+                    </div>
+                ))}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12 relative z-10">
                 <div className="lg:col-span-4 space-y-6">
                     <div className="space-y-3">
@@ -1330,7 +1347,13 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                 </div>
             </div>
 
-            <div className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-full md:w-fit">
+            <div className="bg-white p-3 rounded-3xl border border-gray-100 shadow-sm w-full">
+                <div className="flex items-center gap-2 mb-3 px-2">
+                    <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center">
+                        <Layers className="w-4 h-4" />
+                    </div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Pricing Workflow Mode</p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <button
                         onClick={() => setIsManualPricingActive(false)}

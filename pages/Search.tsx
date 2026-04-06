@@ -426,11 +426,11 @@ export const Search: React.FC = () => {
     />
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-white shadow-sm border-b border-slate-200 sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-2 py-1 sm:py-2 sm:px-6 lg:px-8">
+      <div className="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-16 z-30">
+        <div className="max-w-7xl mx-auto px-2 py-2 sm:py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="flex justify-between items-center cursor-pointer group bg-white hover:bg-slate-50 transition-colors duration-200 p-0.5 sm:p-1 rounded-lg border border-transparent hover:border-blue-300"
+              className="flex justify-between items-center cursor-pointer group bg-gradient-to-r from-white to-slate-50 hover:from-white hover:to-blue-50 transition-colors duration-200 p-1.5 sm:p-2 rounded-2xl border border-slate-200 hover:border-blue-300 shadow-sm"
             >
               <div className="flex-grow grid grid-cols-2 gap-x-1 sm:gap-x-4 items-center">
                 {/* Location */}
@@ -462,6 +462,25 @@ export const Search: React.FC = () => {
                       <Edit className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">Modify</span>
                   </div>
+              </div>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pickup</p>
+                <p className="text-xs font-black text-slate-800 truncate">{pickupIata || '-'}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dropoff</p>
+                <p className="text-xs font-black text-slate-800 truncate">{dropoffIata || pickupIata || '-'}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rental Duration</p>
+                <p className="text-xs font-black text-slate-800">{days} day{days > 1 ? 's' : ''}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Suppliers</p>
+                <p className="text-xs font-black text-slate-800">{allSuppliers.length}</p>
               </div>
             </div>
 
@@ -937,7 +956,8 @@ export const Search: React.FC = () => {
                          <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
                             <CarIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                             <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
-                            <p className="text-sm text-slate-500 mt-2">Try adjusting your filters or search criteria.</p>
+                            <p className="text-sm text-slate-500 mt-2">Try adjusting your filters, or use dates where supplier rates are available.</p>
+                            <p className="text-xs text-slate-400 mt-2">Location: {pickupIata || 'N/A'} • {startDate} to {endDate}</p>
                         </div>
                     )}
                 </div>

@@ -4,7 +4,7 @@ import { ApiSearchResult, CarCategory } from '../types';
 import { LocationSuggestion } from '../api';
 import { MOCK_APP_CONFIG } from '../services/mockData';
 import { appState } from '../appState';
-import { API_BASE_URL } from '../lib/config';
+import { API_BASE_URL } from '../api';
 
 const API_URL = API_BASE_URL;
 
