@@ -182,7 +182,7 @@ const CarDetails: React.FC = () => {
         return { car: null, cars: [] };
     }
     
-    const foundCar = allCars.find((c: Car) => c.id === id);
+    const foundCar = allCars.find((c: Car) => String(c.id) === String(id));
     return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
