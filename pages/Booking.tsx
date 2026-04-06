@@ -27,13 +27,19 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
   </div>
 );
 
-const BookingPageContent: React.FC = () => {
+type BookingPageContentProps = {
+  stripeEnabled: boolean;
+  stripeInstance: ReturnType<typeof useStripe>;
+  elementsInstance: ReturnType<typeof useElements>;
+};
+
+const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeInstance, elementsInstance }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const stripe = useStripe();
-  const elements = useElements();
+  const stripe = stripeInstance;
+  const elements = elementsInstance;
   
   // Get car object from persisted search results
   const { car, cars } = React.useMemo(() => {
@@ -120,7 +126,7 @@ const BookingPageContent: React.FC = () => {
       alert("Pickup/Dropoff location code is missing. Please start your search again.");
       return;
     }
-    if (priceDetails.payNow > 0 && !stripePromise) {
+    if (priceDetails.payNow > 0 && !stripeEnabled) {
       alert('Stripe is not configured. Please contact support.');
       return;
     }
@@ -167,7 +173,7 @@ const BookingPageContent: React.FC = () => {
         const booking = await api.createBooking(payload);
 
         if (priceDetails.payNow > 0) {
-          if (!stripePromise || !stripe || !elements) {
+          if (!stripeEnabled || !stripe || !elements) {
             throw new Error('Stripe payment is not configured. Please contact support.');
           }
           if (!booking.clientSecret) {
@@ -269,7 +275,7 @@ const BookingPageContent: React.FC = () => {
                   <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value)} required={priceDetails.payNow > 0} /></div>
                   <div>
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Card Details</label>
-                    {stripePromise ? (
+                    {stripeEnabled ? (
                       <div className="rounded border border-gray-300 px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                         <CardElement options={{ hidePostalCode: true }} />
                       </div>
@@ -356,13 +362,19 @@ const BookingPageContent: React.FC = () => {
 
 const BookingPage: React.FC = () => {
   if (!stripePromise) {
-    return <BookingPageContent />;
+    return <BookingPageContent stripeEnabled={false} stripeInstance={null} elementsInstance={null} />;
   }
   return (
     <Elements stripe={stripePromise}>
-      <BookingPageContent />
+      <BookingPageWithStripe />
     </Elements>
   );
+};
+
+const BookingPageWithStripe: React.FC = () => {
+  const stripe = useStripe();
+  const elements = useElements();
+  return <BookingPageContent stripeEnabled={true} stripeInstance={stripe} elementsInstance={elements} />;
 };
 
 export default BookingPage;
