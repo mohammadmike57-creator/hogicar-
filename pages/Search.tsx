@@ -1,7 +1,3 @@
-
-
-
-
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchPublicSuppliers } from '../api';
@@ -148,7 +144,7 @@ export const Search: React.FC = () => {
         setError(null);
         try {
             const data = await loadCars({
-                locationsOptions: [], // Assuming options are handled inside loadCars or not strictly needed here if codes passed
+                locationsOptions: [],
                 pickupCode: pickupIata,
                 dropoffCode: dropoffIata || pickupIata,
                 pickupDate: startDate,
@@ -348,9 +344,6 @@ export const Search: React.FC = () => {
     };
 
     baseFilteredCars.forEach(car => {
-        // Skip basic filtering for counts to show all available options
-        // ... (simplified for brevity, keeping existing logic structure)
-        
         counts.category.set(car.category, (counts.category.get(car.category) || 0) + 1);
         counts.supplier.set(car.supplier.name, (counts.supplier.get(car.supplier.name) || 0) + 1);
         counts.transmission.set(car.transmission, (counts.transmission.get(car.transmission) || 0) + 1);
@@ -398,9 +391,6 @@ export const Search: React.FC = () => {
           }
           if (!carMatch) return false;
       }
-      
-      // Removed strict availability check to ensure cars show up even if isAvailable is undefined/false in mock
-      // if (!car.isAvailable) return false; 
       
       return true;
     });
@@ -942,18 +932,20 @@ export const Search: React.FC = () => {
                 <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
                     Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
                 </p>
-                <div>
+                {/* Results container with vertical spacing and green border around each card */}
+                <div className="space-y-4">
                     {sortedAndFilteredCars.map(car => (
-                        <CarCard 
-                            key={car.id}
-                            car={car}
-                            cars={sortedAndFilteredCars}
-                            days={days}
-                            startDate={startDate}
-                            endDate={endDate}
-                            pickupCode={pickupIata}
-                            dropoffCode={dropoffIata || pickupIata}
-                        />
+                        <div key={car.id} className="border-2 border-green-500 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+                            <CarCard 
+                                car={car}
+                                cars={sortedAndFilteredCars}
+                                days={days}
+                                startDate={startDate}
+                                endDate={endDate}
+                                pickupCode={pickupIata}
+                                dropoffCode={dropoffIata || pickupIata}
+                            />
+                        </div>
                     ))}
                     {sortedAndFilteredCars.length === 0 && (
                          <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
