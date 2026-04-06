@@ -6,13 +6,14 @@ import {
   ShieldAlert, Calendar, Tag, Car as CarIcon, Snowflake, XCircle, FileText, Clock,
   Navigation, Baby, PlusCircle, Star, Sparkles, MapPin, CheckCircle, GaugeCircle, Hash, X,
   ArrowRight, Shield, Wifi, Wind, Thermometer, Smartphone, Battery, Coffee, Gift, Award,
-  Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake
+  Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { calcPricing, rentalDays } from '../utils/pricing';
+import { supplierApi } from '../lib/api';
 
 // ==================== Helper Components ====================
 
@@ -59,37 +60,35 @@ const AutomaticIcon = () => (
   </svg>
 );
 
-// Payment Icons
-const VisaIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 24" width="38" height="24" className="rounded shadow-sm bg-white"><rect width="38" height="24" rx="3" fill="white"/><path d="M16.66 16.24H14.1l1.62-10.2h2.56l-1.62 10.2zm10.95-9.96c-.97-.27-2.54-.52-4.05-.52-4.45 0-7.58 2.37-7.6 5.77-.02 2.5 2.24 3.9 3.95 4.74 1.75.86 2.34 1.42 2.34 2.2-.02 1.18-1.42 1.74-2.73 1.74-1.54 0-2.37-.23-3.63-.8l-.52-.24-.73 4.54c.94.43 2.68.8 4.48.82 4.7 0 7.78-2.3 7.8-5.9.02-1.97-1.17-3.46-3.77-4.7-1.58-.8-2.54-1.33-2.54-2.15.02-1.06 1.18-1.64 2.62-1.64 1.2-.02 2.1.25 2.84.57l.34.16.73-4.54zm8.08 9.96h-2.22c-.67 0-1.18-.2-1.46-.87l-4.15-9.32h2.7l.53 1.5h3.3l.3-1.5h2.34l-1.35 10.2zm-2.72-2.75l-1.28-3.5-1.03 3.5h2.3zm-22.25-7.2l-2.4 8.54-.6-3.1c-.2-.8-.78-1.3-1.66-1.56L1.5 8.9v1.24c.7.16 1.5.44 1.96.78.3.22.44.5.53.9l1.77 8.46h2.7l4.06-10.2H8.72z" fill="#1A1F71"/></svg>
-);
+// Payment Icons (same as your existing)
+const VisaIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 24" width="38" height="24" className="rounded shadow-sm bg-white"><rect width="38" height="24" rx="3" fill="white"/><path d="M16.66 16.24H14.1l1.62-10.2h2.56l-1.62 10.2zm10.95-9.96c-.97-.27-2.54-.52-4.05-.52-4.45 0-7.58 2.37-7.6 5.77-.02 2.5 2.24 3.9 3.95 4.74 1.75.86 2.34 1.42 2.34 2.2-.02 1.18-1.42 1.74-2.73 1.74-1.54 0-2.37-.23-3.63-.8l-.52-.24-.73 4.54c.94.43 2.68.8 4.48.82 4.7 0 7.78-2.3 7.8-5.9.02-1.97-1.17-3.46-3.77-4.7-1.58-.8-2.54-1.33-2.54-2.15.02-1.06 1.18-1.64 2.62-1.64 1.2-.02 2.1.25 2.84.57l.34.16.73-4.54zm8.08 9.96h-2.22c-.67 0-1.18-.2-1.46-.87l-4.15-9.32h2.7l.53 1.5h3.3l.3-1.5h2.34l-1.35 10.2zm-2.72-2.75l-1.28-3.5-1.03 3.5h2.3zm-22.25-7.2l-2.4 8.54-.6-3.1c-.2-.8-.78-1.3-1.66-1.56L1.5 8.9v1.24c.7.16 1.5.44 1.96.78.3.22.44.5.53.9l1.77 8.46h2.7l4.06-10.2H8.72z" fill="#1A1F71"/></svg> );
+const MastercardIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="white" rx="3"/><circle cx="13" cy="12" r="7" fill="#EA001B"/><circle cx="25" cy="12" r="7" fill="#F79E1B"/><path d="M20.5 12a7.002 7.002 0 01-7.5-6.96A7.002 7.002 0 0013 19a7.002 7.002 0 007.5-6.96A7.002 7.002 0 0120.5 12z" fill="#FF5F00"/></svg> );
+const AmexIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="#006FCF" rx="3"/><rect x="4" y="4" width="30" height="16" rx="1" fill="none" stroke="white" strokeWidth="1.5"/><text x="19" y="15.5" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fontWeight="bold" fill="white">AMEX</text></svg> );
 
-const MastercardIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="white" rx="3"/><circle cx="13" cy="12" r="7" fill="#EA001B"/><circle cx="25" cy="12" r="7" fill="#F79E1B"/><path d="M20.5 12a7.002 7.002 0 01-7.5-6.96A7.002 7.002 0 0013 19a7.002 7.002 0 007.5-6.96A7.002 7.002 0 0120.5 12z" fill="#FF5F00"/></svg>
-);
-
-const AmexIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="#006FCF" rx="3"/><rect x="4" y="4" width="30" height="16" rx="1" fill="none" stroke="white" strokeWidth="1.5"/><text x="19" y="15.5" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fontWeight="bold" fill="white">AMEX</text></svg>
-);
-
-// Rental Conditions Modal
+// Rental Conditions Modal (keep from your original)
 const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier; onClose: () => void }) => {
+  const { convertPrice, getCurrencySymbol } = useCurrency();
+  const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
+  const gracePeriodInfo = supplier.gracePeriodDays ? `${supplier.gracePeriodDays} day(s)` : `${supplier.gracePeriodHours} hour(s)`;
+
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-5 border-b">
-          <div className="flex items-center gap-3">
-            <img src={supplier.logo} alt={supplier.name} className="h-10 object-contain" />
-            <div><h3 className="font-bold text-lg">Rental Conditions</h3><p className="text-xs text-slate-500">Provided by {supplier.name}</p></div>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col font-sans">
+        <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+          <div className="flex items-center gap-4">
+            <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" width={120} height={56} />
+            <div><h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3><p className="text-xs text-slate-500">Provided by {supplier.name}</p></div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500"><X className="w-5 h-5"/></button>
         </div>
-        <div className="p-6 space-y-6 overflow-y-auto">
-          <div><h4 className="font-bold mb-3 flex items-center gap-2"><FileText className="w-4 h-4" /> Rental Policy & Terms</h4><div className="text-sm text-slate-600 bg-slate-50 p-4 rounded-lg h-48 overflow-y-auto">{supplier.termsAndConditions || "No specific terms provided."}</div></div>
-          <div><h4 className="font-bold mb-3 flex items-center gap-2"><Users className="w-4 h-4" /> Required at Pick-up</h4><ul className="space-y-3"><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><Shield className="w-5 h-5 text-slate-400"/><div><strong>Valid Driving License</strong><p className="text-xs">Held for min 1 year. International permit may be required.</p></div></li><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><CreditCardIcon className="w-5 h-5 text-slate-400"/><div><strong>Credit Card</strong><p className="text-xs">In main driver's name with sufficient funds for deposit.</p></div></li></ul></div>
-          <div><h4 className="font-bold mb-3 flex items-center gap-2"><CreditCardIcon className="w-4 h-4" /> Accepted Cards</h4><div className="flex gap-2"><VisaIcon/><MastercardIcon/><AmexIcon/></div></div>
+        <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
+          <div><h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Building className="w-4 h-4 text-slate-500"/> Supplier Details</h4><div className="space-y-3 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">{supplier.address && (<div className="flex gap-3"><MapPin className="w-4 h-4"/><p className="text-xs">{supplier.address}</p></div>)}</div></div>
+          {supplier.workingHours && workingHours.length > 0 && (<div><h4 className="font-bold mb-3 flex items-center gap-2"><Clock className="w-4 h-4"/> Opening Hours</h4><div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-4 rounded-lg">{workingHours.map(([day, hours]) => (<div key={day} className="flex justify-between"><span className="capitalize">{day}</span><span className="font-semibold">{hours}</span></div>))}</div></div>)}
+          <div><h4 className="font-bold mb-3 flex items-center gap-2"><FileText className="w-4 h-4"/> Rental Policy & Terms</h4><div className="text-xs whitespace-pre-line border bg-slate-50/50 p-4 rounded-lg h-48 overflow-y-auto">{supplier.termsAndConditions || "No specific terms provided."}<br/><br/><strong>Grace Period:</strong> {gracePeriodInfo}</div></div>
+          <div><h4 className="font-bold mb-3 flex items-center gap-2"><Users className="w-4 h-4"/> Required at Pick-up</h4><ul className="space-y-3"><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><Shield className="w-5 h-5"/><div><strong>Valid Driving License</strong><p className="text-xs">Held for min 1 year.</p></div></li><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><CreditCardIcon className="w-5 h-5"/><div><strong>Credit Card</strong><p className="text-xs">In main driver's name for deposit.</p></div></li></ul></div>
+          <div><h4 className="font-bold mb-3 flex items-center gap-2"><CreditCardIcon className="w-4 h-4"/> Accepted Cards</h4><div className="flex gap-2"><VisaIcon/><MastercardIcon/><AmexIcon/></div></div>
         </div>
-        <div className="p-4 border-t bg-slate-50 flex justify-end rounded-b-2xl"><button onClick={onClose} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Close</button></div>
+        <div className="p-4 border-t bg-slate-50 flex justify-end rounded-b-xl"><button onClick={onClose} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Close</button></div>
       </div>
     </div>
   );
@@ -104,20 +103,79 @@ const CarDetails: React.FC = () => {
   const navigate = useNavigate();
   const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
 
-  // Get car from persisted state
-  const { car, cars } = React.useMemo(() => {
-    const carsFromState = location.state?.cars;
-    const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
-    const selectedCarRaw = sessionStorage.getItem('hogicar_selectedCar');
-    let selectedCarFromStorage: Car | null = null;
-    try { selectedCarFromStorage = selectedCarRaw ? JSON.parse(selectedCarRaw) : null; } catch { /* ignore */ }
-    const allCars = carsFromState || carsFromStorage;
-    if (!allCars || !Array.isArray(allCars)) {
-      if (selectedCarFromStorage && (!id || String(selectedCarFromStorage.id) === String(id))) return { car: selectedCarFromStorage, cars: [selectedCarFromStorage] };
-      return { car: null, cars: [] };
-    }
-    const foundCar = id ? allCars.find((c: Car) => String(c.id) === String(id)) : selectedCarFromStorage;
-    return { car: foundCar || null, cars: allCars };
+  const [car, setCar] = React.useState<Car | null>(null);
+  const [cars, setCars] = React.useState<Car[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  // Extract search params
+  const startDate = searchParams.get('startDate') || new Date().toISOString().split('T')[0];
+  const endDate = searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const pickupCode = searchParams.get('pickup');
+  const dropoffCode = searchParams.get('dropoff');
+  const days = rentalDays(startDate, endDate);
+
+  // Try to get car from sessionStorage and location state
+  React.useEffect(() => {
+    const loadCar = async () => {
+      setLoading(true);
+      setError(null);
+
+      // 1. Try to get from sessionStorage (most reliable)
+      const storedCarRaw = sessionStorage.getItem('hogicar_selectedCar');
+      const storedCarsRaw = sessionStorage.getItem('hogicar_cars');
+      let foundCar: Car | null = null;
+      let foundCars: Car[] = [];
+
+      if (storedCarRaw) {
+        try {
+          const parsed = JSON.parse(storedCarRaw);
+          if (parsed && (!id || String(parsed.id) === String(id))) {
+            foundCar = parsed;
+          }
+        } catch (e) { console.warn('Failed to parse stored car', e); }
+      }
+      if (storedCarsRaw) {
+        try {
+          const parsed = JSON.parse(storedCarsRaw);
+          if (Array.isArray(parsed)) foundCars = parsed;
+        } catch (e) { console.warn('Failed to parse stored cars', e); }
+      }
+
+      // 2. If not found, try location.state
+      if (!foundCar && location.state && location.state.cars) {
+        const stateCars = location.state.cars;
+        if (Array.isArray(stateCars)) {
+          foundCars = stateCars;
+          foundCar = stateCars.find((c: Car) => String(c.id) === String(id)) || null;
+        }
+      }
+
+      // 3. If still not found, try to fetch from API (fallback)
+      if (!foundCar && id) {
+        try {
+          // Attempt to fetch car details from backend (if your API has such endpoint)
+          // Replace with your actual endpoint
+          // const response = await supplierApi.getCarById(id);
+          // foundCar = response.data;
+          // For now, we'll try to find in MOCK_CARS
+          const mockCar = MOCK_CARS.find(c => String(c.id) === String(id));
+          if (mockCar) foundCar = mockCar as any;
+        } catch (err) {
+          console.error('API fetch failed', err);
+        }
+      }
+
+      if (foundCar) {
+        setCar(foundCar);
+        setCars(foundCars.length ? foundCars : [foundCar]);
+      } else {
+        setError('Car not found. Please go back to search results.');
+      }
+      setLoading(false);
+    };
+
+    loadCar();
   }, [id, location.state]);
 
   const [selectedExtraIds, setSelectedExtraIds] = React.useState<string[]>([]);
@@ -138,12 +196,6 @@ const CarDetails: React.FC = () => {
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
-  const startDate = searchParams.get('startDate') || new Date().toISOString().split('T')[0];
-  const endDate = searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
-  const pickupCode = searchParams.get('pickup');
-  const dropoffCode = searchParams.get('dropoff');
-  const days = rentalDays(startDate, endDate);
-
   const priceDetails = React.useMemo(() => {
     if (!car) return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
@@ -158,17 +210,32 @@ const CarDetails: React.FC = () => {
   };
 
   const handleContinue = () => {
-    sessionStorage.setItem('hogicar_selectedCarId', String(car!.id));
-    sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
-    sessionStorage.setItem('hogicar_cars', JSON.stringify(cars && cars.length ? cars : [car]));
+    if (car) {
+      sessionStorage.setItem('hogicar_selectedCarId', String(car.id));
+      sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
+      sessionStorage.setItem('hogicar_cars', JSON.stringify(cars));
+    }
   };
 
   const bookingParams = new URLSearchParams({ startDate, endDate, ...(pickupCode && { pickup: pickupCode }), ...(dropoffCode && { dropoff: dropoffCode }), ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), ...(appliedPromo && { promo: appliedPromo.code }) }).toString();
 
-  if (!car) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto" /><p className="mt-4 text-slate-600">Loading car details...</p></div>
+      </div>
+    );
+  }
+
+  if (error || !car) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 text-center max-w-md"><h1 className="text-2xl font-bold">Car Not Found</h1><p className="text-slate-500 mt-2">Please go back to search results.</p><button onClick={() => navigate(-1)} className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg">Back to Search</button></div>
+        <div className="bg-white rounded-2xl p-8 text-center max-w-md shadow-lg">
+          <CarIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-slate-800">Car Not Found</h1>
+          <p className="text-slate-500 mt-2">{error || 'Please go back to search results.'}</p>
+          <button onClick={() => navigate(-1)} className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700">Back to Search</button>
+        </div>
       </div>
     );
   }
@@ -176,6 +243,8 @@ const CarDetails: React.FC = () => {
   const carSpecs = [
     { icon: Users, label: `${car.passengers} Seats` }, { icon: CarDoorIcon, label: `${car.doors} Doors` }, { icon: Briefcase, label: `${car.bags} Bags` }, { icon: AutomaticIcon, label: car.transmission }, { icon: Snowflake, label: 'Air Conditioning' }, { icon: GaugeCircle, label: car.unlimitedMileage ? 'Unlimited Mileage' : 'Limited Mileage' }, { icon: Fuel, label: car.fuelPolicy }, { icon: Hash, label: car.sippCode }
   ];
+
+  const getRatingText = (rating: number) => rating >= 4.8 ? 'Exceptional' : rating >= 4.5 ? 'Very Good' : rating >= 4.0 ? 'Good' : rating >= 3.0 ? 'Average' : 'Fair';
 
   return (
     <>
@@ -261,17 +330,19 @@ const CarDetails: React.FC = () => {
               </div>
 
               {/* Similar Cars (placeholder) */}
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold mb-4">You might also like</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {cars && cars.filter((c: Car) => c.id !== car.id).slice(0, 2).map((similar: Car) => (
-                    <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-3 p-3 border rounded-xl hover:shadow transition">
-                      <img src={similar.image} alt={similar.displayName} className="w-20 h-20 object-cover rounded" />
-                      <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600">{getCurrencySymbol()}{convertPrice(calculatePriceFromCar(similar, days, startDate))}/day</div></div>
-                    </Link>
-                  ))}
+              {cars && cars.length > 1 && (
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 className="text-xl font-bold mb-4">You might also like</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {cars.filter(c => c.id !== car.id).slice(0, 2).map(similar => (
+                      <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-3 p-3 border rounded-xl hover:shadow transition">
+                        <img src={similar.image} alt={similar.displayName} className="w-20 h-20 object-cover rounded" />
+                        <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)} total</div></div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Right Column - Booking Sidebar */}
@@ -307,21 +378,5 @@ const CarDetails: React.FC = () => {
     </>
   );
 };
-
-// Helper to get rating text
-function getRatingText(rating: number): string {
-  if (rating >= 4.8) return 'Exceptional';
-  if (rating >= 4.5) return 'Very Good';
-  if (rating >= 4.0) return 'Good';
-  if (rating >= 3.0) return 'Average';
-  return 'Fair';
-}
-
-// Helper to calculate price for similar car (simplified)
-function calculatePriceFromCar(car: Car, days: number, startDate: string): number {
-  // Use first rate tier or default
-  const tier = car.rateTiers?.[0]?.rates?.[0];
-  return tier ? tier.dailyRate : 49.99;
-}
 
 export default CarDetails;
