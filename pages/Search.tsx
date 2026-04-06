@@ -475,8 +475,8 @@ export const Search: React.FC = () => {
       </div>
       
 
-       {/* Category Image Filter */}
-      <div className="bg-white border-b border-slate-200 py-4 sm:py-6">
+      {/* Category Image Filter - HIDDEN ON MOBILE, visible on md screens and up */}
+      <div className="hidden md:block bg-white border-b border-slate-200 py-4 sm:py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
                 <div>
