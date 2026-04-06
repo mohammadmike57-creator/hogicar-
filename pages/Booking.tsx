@@ -45,13 +45,33 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const { car, cars } = React.useMemo(() => {
     const carsFromState = location.state?.cars;
     const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
+    const selectedCarId = sessionStorage.getItem('hogicar_selectedCarId');
+    const selectedCarRaw = sessionStorage.getItem('hogicar_selectedCar');
+    let selectedCarFromStorage: Car | null = null;
+    if (selectedCarRaw) {
+      try {
+        selectedCarFromStorage = JSON.parse(selectedCarRaw);
+      } catch {
+        selectedCarFromStorage = null;
+      }
+    }
     const allCars = carsFromState || carsFromStorage;
 
-    if (!allCars || !Array.isArray(allCars) || !id) {
-        return { car: null, cars: [] };
+    if (!allCars || !Array.isArray(allCars)) {
+      const routeId = id || selectedCarId;
+      if (selectedCarFromStorage && (!routeId || String(selectedCarFromStorage.id) === String(routeId))) {
+        return { car: selectedCarFromStorage, cars: selectedCarFromStorage ? [selectedCarFromStorage] : [] };
+      }
+      return { car: null, cars: [] };
     }
     
-    const foundCar = allCars.find((c: Car) => String(c.id) === String(id));
+    const routeId = id || selectedCarId;
+    const foundCarInList = routeId
+      ? allCars.find((c: Car) => String(c.id) === String(routeId))
+      : null;
+    const foundCar = foundCarInList
+      || (selectedCarFromStorage && routeId && String(selectedCarFromStorage.id) === String(routeId) ? selectedCarFromStorage : null)
+      || selectedCarFromStorage;
     return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
@@ -227,8 +247,22 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   };
   
   if (!car) {
-    React.useEffect(() => { navigate('/'); }, [navigate]);
-    return null;
+    return (
+      <div className="bg-slate-50 min-h-screen py-12">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-sm">
+            <h1 className="text-2xl font-black text-slate-900">Booking Details Not Available</h1>
+            <p className="text-sm text-slate-600 mt-3">We could not find this selected vehicle in your session. Please return to results and try again.</p>
+            <button
+              onClick={() => navigate(-1)}
+              className="mt-6 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors"
+            >
+              Back to Car Details
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -238,19 +272,19 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-slate-50 min-h-screen py-8">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-slate-50 min-h-screen py-6">
+      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         <BookingStepper currentStep={4} />
 
-        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex items-center gap-5">
                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                    <img src={car.image} alt={car.model} className="w-32 h-auto object-contain drop-shadow-md" />
                </div>
                <div>
-                  <h1 className="text-2xl font-extrabold text-slate-900">{car.displayName || `${car.make} ${car.model}`}</h1>
+                  <h1 className="text-xl font-extrabold text-slate-900">{car.displayName || `${car.make} ${car.model}`}</h1>
                   <p className="text-sm font-medium text-slate-500 mt-1">{car.category} &bull; {car.transmission}</p>
                   <div className="flex items-center gap-2 mt-3">
                       <img src={car.supplier.logo} alt={car.supplier.name} className="h-6 object-contain" />
@@ -260,9 +294,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             </div>
             
             {/* Driver Details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-               <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><User className="w-5 h-5 text-blue-600"/> Driver Details</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+               <h2 className="text-lg font-extrabold text-slate-900 mb-5 flex items-center gap-2"><User className="w-5 h-5 text-blue-600"/> Driver Details</h2>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required /></div>
                   <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required /></div>
                   <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Email Address</label><FormInput icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required /></div>
@@ -273,8 +307,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
 
             {/* Payment Details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-               <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5 text-blue-600"/> Payment Details</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+               <h2 className="text-lg font-extrabold text-slate-900 mb-5 flex items-center gap-2"><CreditCard className="w-5 h-5 text-blue-600"/> Payment Details</h2>
                <div className="space-y-5">
                   <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value)} required={priceDetails.payNow > 0} /></div>
                   <div>

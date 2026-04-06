@@ -268,6 +268,12 @@ const CarDetails: React.FC = () => {
       prev.includes(extraId) ? prev.filter(id => id !== extraId) : [...prev, extraId]
     );
   };
+
+  const handleContinueToBook = () => {
+    sessionStorage.setItem('hogicar_selectedCarId', String(car.id));
+    sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
+    sessionStorage.setItem('hogicar_cars', JSON.stringify(cars && cars.length ? cars : [car]));
+  };
   
   const bookingSearchParams = new URLSearchParams({ 
       startDate, 
@@ -318,8 +324,8 @@ const CarDetails: React.FC = () => {
     <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
     {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-    <div className="bg-slate-50 min-h-screen py-6 font-sans pb-28 lg:pb-6">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-slate-50 min-h-screen py-5 font-sans pb-28 lg:pb-6">
+      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <BookingStepper currentStep={3} />
 
@@ -500,13 +506,13 @@ const CarDetails: React.FC = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 hidden lg:block">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sticky top-28">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-5 sticky top-24">
                <div className="mb-6 p-4 rounded-xl border border-blue-100 bg-blue-50 flex items-center justify-between">
                    <p className="text-sm font-bold text-blue-800 flex items-center gap-2"><Clock className="w-4 h-4"/>Price secured for:</p>
                    <p className="text-xl font-mono font-extrabold text-blue-800 tracking-tight">{formatTime(timeLeft)}</p>
                </div>
                
-               <h3 className="text-xl font-extrabold text-slate-900 mb-6">Price Summary</h3>
+               <h3 className="text-lg font-extrabold text-slate-900 mb-5">Price Summary</h3>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm text-slate-600"><span>Car Hire ({days} days)</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
                   {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm text-slate-600"><span>Full Protection</span><span className="font-bold text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
@@ -546,7 +552,7 @@ const CarDetails: React.FC = () => {
                    <div className="flex justify-between font-medium text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                </div>
 
-               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center justify-center text-base">
+               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} onClick={handleContinueToBook} className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center justify-center text-base">
                   Continue to Book <ArrowRight className="w-5 h-5 ml-2"/>
                </Link>
                
@@ -563,7 +569,7 @@ const CarDetails: React.FC = () => {
                   <p className="text-xs text-slate-500">Total Price</p>
                   <p className="font-bold text-xl text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
               </div>
-              <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform active:scale-95 text-sm whitespace-nowrap">
+              <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} onClick={handleContinueToBook} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform active:scale-95 text-sm whitespace-nowrap">
                   Continue to Book
               </Link>
           </div>
