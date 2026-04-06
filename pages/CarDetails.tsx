@@ -6,7 +6,8 @@ import {
   ShieldAlert, Calendar, Tag, Car as CarIcon, Snowflake, XCircle, FileText, Clock,
   Navigation, Baby, PlusCircle, Star, Sparkles, MapPin, CheckCircle, GaugeCircle, Hash, X,
   ArrowRight, Shield, Wifi, Wind, Thermometer, Smartphone, Battery, Coffee, Gift, Award,
-  Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2
+  Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2,
+  DollarSign, Zap, ThumbsUp, Globe, Headphones
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
@@ -65,7 +66,7 @@ const VisaIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38
 const MastercardIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="white" rx="3"/><circle cx="13" cy="12" r="7" fill="#EA001B"/><circle cx="25" cy="12" r="7" fill="#F79E1B"/><path d="M20.5 12a7.002 7.002 0 01-7.5-6.96A7.002 7.002 0 0013 19a7.002 7.002 0 007.5-6.96A7.002 7.002 0 0120.5 12z" fill="#FF5F00"/></svg> );
 const AmexIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="#006FCF" rx="3"/><rect x="4" y="4" width="30" height="16" rx="1" fill="none" stroke="white" strokeWidth="1.5"/><text x="19" y="15.5" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fontWeight="bold" fill="white">AMEX</text></svg> );
 
-// Rental Conditions Modal (keep from your original)
+// Rental Conditions Modal (simplified but kept from original)
 const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier; onClose: () => void }) => {
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
@@ -115,13 +116,13 @@ const CarDetails: React.FC = () => {
   const dropoffCode = searchParams.get('dropoff');
   const days = rentalDays(startDate, endDate);
 
-  // Try to get car from sessionStorage and location state
+  // Load car from sessionStorage / state / API
   React.useEffect(() => {
     const loadCar = async () => {
       setLoading(true);
       setError(null);
 
-      // 1. Try to get from sessionStorage (most reliable)
+      // 1. sessionStorage
       const storedCarRaw = sessionStorage.getItem('hogicar_selectedCar');
       const storedCarsRaw = sessionStorage.getItem('hogicar_cars');
       let foundCar: Car | null = null;
@@ -130,20 +131,18 @@ const CarDetails: React.FC = () => {
       if (storedCarRaw) {
         try {
           const parsed = JSON.parse(storedCarRaw);
-          if (parsed && (!id || String(parsed.id) === String(id))) {
-            foundCar = parsed;
-          }
-        } catch (e) { console.warn('Failed to parse stored car', e); }
+          if (parsed && (!id || String(parsed.id) === String(id))) foundCar = parsed;
+        } catch (e) {}
       }
       if (storedCarsRaw) {
         try {
           const parsed = JSON.parse(storedCarsRaw);
           if (Array.isArray(parsed)) foundCars = parsed;
-        } catch (e) { console.warn('Failed to parse stored cars', e); }
+        } catch (e) {}
       }
 
-      // 2. If not found, try location.state
-      if (!foundCar && location.state && location.state.cars) {
+      // 2. location.state
+      if (!foundCar && location.state?.cars) {
         const stateCars = location.state.cars;
         if (Array.isArray(stateCars)) {
           foundCars = stateCars;
@@ -151,19 +150,10 @@ const CarDetails: React.FC = () => {
         }
       }
 
-      // 3. If still not found, try to fetch from API (fallback)
+      // 3. fallback to mock data
       if (!foundCar && id) {
-        try {
-          // Attempt to fetch car details from backend (if your API has such endpoint)
-          // Replace with your actual endpoint
-          // const response = await supplierApi.getCarById(id);
-          // foundCar = response.data;
-          // For now, we'll try to find in MOCK_CARS
-          const mockCar = MOCK_CARS.find(c => String(c.id) === String(id));
-          if (mockCar) foundCar = mockCar as any;
-        } catch (err) {
-          console.error('API fetch failed', err);
-        }
+        const mockCar = MOCK_CARS.find(c => String(c.id) === String(id));
+        if (mockCar) foundCar = mockCar as any;
       }
 
       if (foundCar) {
@@ -174,7 +164,6 @@ const CarDetails: React.FC = () => {
       }
       setLoading(false);
     };
-
     loadCar();
   }, [id, location.state]);
 
@@ -185,7 +174,6 @@ const CarDetails: React.FC = () => {
   const [promoCodeInput, setPromoCodeInput] = React.useState('');
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
   const [promoError, setPromoError] = React.useState('');
-  const [isPromoOpen, setIsPromoOpen] = React.useState(false);
   const [showFullSpecs, setShowFullSpecs] = React.useState(false);
 
   React.useEffect(() => {
@@ -240,10 +228,6 @@ const CarDetails: React.FC = () => {
     );
   }
 
-  const carSpecs = [
-    { icon: Users, label: `${car.passengers} Seats` }, { icon: CarDoorIcon, label: `${car.doors} Doors` }, { icon: Briefcase, label: `${car.bags} Bags` }, { icon: AutomaticIcon, label: car.transmission }, { icon: Snowflake, label: 'Air Conditioning' }, { icon: GaugeCircle, label: car.unlimitedMileage ? 'Unlimited Mileage' : 'Limited Mileage' }, { icon: Fuel, label: car.fuelPolicy }, { icon: Hash, label: car.sippCode }
-  ];
-
   const getRatingText = (rating: number) => rating >= 4.8 ? 'Exceptional' : rating >= 4.5 ? 'Very Good' : rating >= 4.0 ? 'Good' : rating >= 3.0 ? 'Average' : 'Fair';
 
   return (
@@ -259,85 +243,116 @@ const CarDetails: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Hero Section - Image & Title */}
+              {/* Hero Section - smaller image + modern layout */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="relative">
-                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-64 lg:h-96 object-cover" />
-                  <div className="absolute top-4 left-4 flex gap-2"><span className="bg-black/70 text-white text-xs px-3 py-1 rounded-full">{car.category}</span>{car.tags?.[0] && <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">{car.tags[0]}</span>}</div>
+                  {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
+                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-48 lg:h-64 object-cover" />
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    <span className="bg-black/70 text-white text-xs px-3 py-1 rounded-full">{car.category}</span>
+                    {car.tags?.[0] && <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">{car.tags[0]}</span>}
+                  </div>
                   <button className="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-md"><Heart className="w-5 h-5" /></button>
                 </div>
                 <div className="p-6">
-                  <h1 className="text-2xl lg:text-3xl font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
-                  <p className="text-slate-500 text-sm mt-1">or similar · {car.year}</p>
-                  <div className="flex flex-wrap gap-4 mt-4">
-                    <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {car.supplier.rating} · {getRatingText(car.supplier.rating)}</div>
-                    <div className="flex items-center gap-2 text-sm"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
+                  <div className="flex flex-wrap justify-between items-start gap-4">
+                    <div>
+                      <h1 className="text-2xl lg:text-3xl font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
+                      <p className="text-slate-500 text-sm mt-1">or similar · {car.year}</p>
+                      <div className="flex flex-wrap gap-4 mt-4">
+                        <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {car.supplier.rating} · {getRatingText(car.supplier.rating)}</div>
+                        <div className="flex items-center gap-2 text-sm"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 px-4 py-2 rounded-xl flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-blue-600" />
+                      <span className="text-xs font-bold text-blue-700">Available now</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Key Specifications Grid */}
+              {/* Key Specifications Grid - rich icons */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold mb-4">Key Specifications</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {carSpecs.map(spec => (
-                    <div key={spec.label} className="flex flex-col items-center text-center p-3 bg-slate-50 rounded-xl">
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><GaugeCircle className="w-5 h-5 text-blue-600" /> Key Specifications</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                  {[
+                    { icon: Users, label: `${car.passengers} Seats`, desc: 'Comfortable seating' },
+                    { icon: CarDoorIcon, label: `${car.doors} Doors`, desc: 'Easy access' },
+                    { icon: Briefcase, label: `${car.bags} Bags`, desc: 'Luggage capacity' },
+                    { icon: AutomaticIcon, label: car.transmission, desc: 'Smooth driving' },
+                    { icon: Snowflake, label: 'A/C', desc: 'Climate control' },
+                    { icon: GaugeCircle, label: car.unlimitedMileage ? 'Unlimited' : 'Limited', desc: 'Mileage policy' },
+                    { icon: Fuel, label: car.fuelPolicy.split('_').join(' '), desc: 'Fuel policy' },
+                    { icon: Hash, label: car.sippCode, desc: 'Vehicle code' }
+                  ].map(spec => (
+                    <div key={spec.label} className="flex flex-col items-center text-center p-3 bg-slate-50 rounded-xl hover:shadow transition">
                       <spec.icon className="w-6 h-6 text-blue-600 mb-2" />
-                      <span className="text-xs font-medium text-slate-700">{spec.label}</span>
+                      <span className="text-sm font-bold text-slate-800">{spec.label}</span>
+                      <span className="text-xs text-slate-400">{spec.desc}</span>
                     </div>
                   ))}
                 </div>
-                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-4 text-blue-600 text-sm flex items-center gap-1">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
+                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-6 text-blue-600 text-sm flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
                 {showFullSpecs && (
-                  <div className="mt-4 p-4 bg-slate-50 rounded-xl grid grid-cols-2 gap-3 text-sm">
+                  <div className="mt-6 p-5 bg-slate-50 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div><span className="font-semibold">Fuel Policy:</span> {car.fuelPolicy}</div>
                     <div><span className="font-semibold">Transmission:</span> {car.transmission}</div>
                     <div><span className="font-semibold">Mileage:</span> {car.unlimitedMileage ? 'Unlimited' : 'Limited'}</div>
                     <div><span className="font-semibold">Air Conditioning:</span> Yes</div>
                     <div><span className="font-semibold">Doors:</span> {car.doors}</div>
                     <div><span className="font-semibold">SIPP Code:</span> {car.sippCode}</div>
+                    {car.deposit > 0 && <div><span className="font-semibold">Deposit:</span> {getCurrencySymbol()}{convertPrice(car.deposit)}</div>}
                   </div>
                 )}
               </div>
 
-              {/* Extras Section */}
+              {/* Extras Section - modern cards */}
               {car.extras && car.extras.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-green-600" /> Optional Extras</h2>
-                  <div className="space-y-3">
+                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-green-600" /> Optional Extras</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {car.extras.map(extra => (
                       <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-green-500 bg-green-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                        <div className="flex items-center gap-3"><div className="p-2 bg-slate-100 rounded-lg"><PlusCircle className="w-5 h-5 text-slate-600" /></div><div><div className="font-semibold">{extra.name}</div><div className="text-xs text-slate-500">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div></div>
-                        <div className="flex items-center gap-4"><div className="font-bold">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</div>{selectedExtraIds.includes(extra.id) && <Check className="w-5 h-5 text-green-600" />}</div>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-slate-100 rounded-lg"><PlusCircle className="w-5 h-5 text-slate-600" /></div>
+                          <div><div className="font-semibold">{extra.name}</div><div className="text-xs text-slate-500">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="font-bold">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</div>
+                          {selectedExtraIds.includes(extra.id) && <Check className="w-5 h-5 text-green-600" />}
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Supplier Info */}
+              {/* Supplier Info with trust badges */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold mb-4">About the Supplier</h2>
-                <div className="flex items-center gap-4">
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> About the Supplier</h2>
+                <div className="flex flex-wrap items-center gap-6">
                   <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 object-contain" />
-                  <div><div className="font-semibold">{car.supplier.name}</div><div className="text-sm text-slate-500">Car rental provider</div></div>
+                  <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-sm text-slate-500">Car rental provider</div></div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-green-600" /> Verified Partner</div>
-                  <div className="flex items-center gap-2"><Award className="w-4 h-4 text-yellow-500" /> 4.5+ Rating</div>
-                  <button onClick={() => setIsConditionsModalOpen(true)} className="text-blue-600 text-sm underline">View rental conditions →</button>
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-xs font-bold">Verified Partner</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-xs font-bold">Top Rated</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-xs font-bold">24/7 Support</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-xs font-bold">Global Presence</span></div>
                 </div>
+                <button onClick={() => setIsConditionsModalOpen(true)} className="mt-6 text-blue-600 text-sm font-medium underline flex items-center gap-1">View full rental conditions <ArrowRight className="w-4 h-4" /></button>
               </div>
 
-              {/* Similar Cars (placeholder) */}
+              {/* Similar Cars */}
               {cars && cars.length > 1 && (
                 <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <h2 className="text-xl font-bold mb-4">You might also like</h2>
+                  <h2 className="text-xl font-bold mb-6">You might also like</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {cars.filter(c => c.id !== car.id).slice(0, 2).map(similar => (
-                      <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-3 p-3 border rounded-xl hover:shadow transition">
-                        <img src={similar.image} alt={similar.displayName} className="w-20 h-20 object-cover rounded" />
-                        <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)} total</div></div>
+                      <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-4 p-4 border rounded-xl hover:shadow-lg transition">
+                        <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-cover rounded-lg" />
+                        <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)} total</div></div>
                       </Link>
                     ))}
                   </div>
@@ -345,26 +360,33 @@ const CarDetails: React.FC = () => {
               )}
             </div>
 
-            {/* Right Column - Booking Sidebar */}
+            {/* Right Column - Booking Sidebar (professional) */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
                 <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100">
-                  <div className="bg-slate-900 text-white p-4 rounded-xl mb-6 flex justify-between items-center"><div><div className="text-xs uppercase tracking-wide">Price locked for</div><div className="font-mono font-bold text-2xl">{formatTime(timeLeft)}</div></div><Clock className="w-8 h-8 opacity-50" /></div>
+                  {/* Price lock timer */}
+                  <div className="bg-slate-900 text-white p-4 rounded-xl mb-6 flex justify-between items-center">
+                    <div><div className="text-xs uppercase tracking-wide">Price locked for</div><div className="font-mono font-bold text-2xl">{formatTime(timeLeft)}</div></div>
+                    <Clock className="w-8 h-8 opacity-50" />
+                  </div>
+                  {/* Price breakdown */}
                   <div className="space-y-3 mb-6">
-                    <div className="flex justify-between"><span className="text-slate-600">Rental ({days} days)</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                    {priceDetails.extrasCost > 0 && <div className="flex justify-between"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                    {priceDetails.discountAmount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+                    <div className="flex justify-between text-sm"><span className="text-slate-600">Rental ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                    {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
+                    {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
                     <div className="border-t pt-3 mt-3"><div className="flex justify-between font-bold text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-xs text-slate-500 text-right">Including taxes & fees</div></div>
                   </div>
-                  {/* Promo */}
-                  <div className="mb-6"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border rounded-lg px-3 py-2 text-sm" /><button onClick={handleApplyPromo} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Apply</button></div>{promoError && <p className="text-red-500 text-xs mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-600 text-xs mt-1">✓ {appliedPromo.code} applied</p>}</div>
+                  {/* Promo code */}
+                  <div className="mb-6"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" /><button onClick={handleApplyPromo} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition">Apply</button></div>{promoError && <p className="text-red-500 text-xs mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-600 text-xs mt-1">✓ {appliedPromo.code} applied</p>}</div>
                   {/* Insurance selection */}
-                  <div className="mb-6"><label className="flex items-center gap-2 mb-2"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} /> Basic Insurance (included)</label><label className="flex items-center gap-2"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} /> Full Protection (+${convertPrice(15 * days).toFixed(2)})</label></div>
+                  <div className="mb-6"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-blue-600" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-blue-600" /> <span className="text-sm font-medium">Full Protection (+${convertPrice(15 * days).toFixed(2)})</span></label></div>
                   <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3 rounded-xl transition">Continue to Book</Link>
                   <div className="mt-4 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
-                <div className="bg-green-50 rounded-2xl p-4 border border-green-100"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-xs">Up to 48 hours before pickup</div></div></div></div>
+                {/* Trust badge */}
+                <div className="bg-green-50 rounded-2xl p-5 border border-green-100"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-xs">Up to 48 hours before pickup</div></div></div></div>
+                <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 Customer Support</div><div className="text-xs">We're here to help anytime</div></div></div></div>
               </div>
             </div>
           </div>
