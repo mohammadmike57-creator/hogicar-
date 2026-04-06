@@ -13,11 +13,9 @@ import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
-    // FIX: Use `finalPrice` and `netPrice` which now exist on `ApiSearchResult`.
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
     const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
     
-    // FIX: Added nullish coalescing `(apiCar.supplier?.name ?? "")` to prevent crash on `.toLowerCase()`.
     const mockSupplier = SUPPLIERS.find(s => s.name.toLowerCase() === (apiCar.supplier?.name ?? "").toLowerCase());
 
     const mappedSupplier: Supplier = {
@@ -105,7 +103,6 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     };
 };
 
-
 export const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -188,7 +185,6 @@ export const Search: React.FC = () => {
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
   const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
 
-  // Effect to fetch all suppliers for the location
   React.useEffect(() => {
     const loadLocationSuppliers = async () => {
       if (pickupIata) {
@@ -203,7 +199,6 @@ export const Search: React.FC = () => {
     loadLocationSuppliers();
   }, [pickupIata]);
 
-  // Effect to lock scroll when mobile filters or sort are open
   React.useEffect(() => {
     if (showMobileFilters || showMobileSort) {
       document.body.style.overflow = 'hidden';
@@ -248,7 +243,6 @@ export const Search: React.FC = () => {
     navigate(`/searching?${newSearchParams.toString()}`);
   };
 
-
   const toggleFilterSection = (section: string) => {
     setOpenFilters(prev =>
       prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
@@ -258,15 +252,11 @@ export const Search: React.FC = () => {
   const allCategories = Object.values(CarCategory);
   const supplierLogos = React.useMemo(() => {
     const logos = new Map<string, string>();
-    
-    // 1. Add logos from all location suppliers first
     allLocationSuppliers.forEach(s => {
       if (s.name && !logos.has(s.name)) {
         logos.set(s.name, s.logoUrl || '');
       }
     });
-
-    // 2. Add/Override logos from apiCars (just in case they are different or extra)
     if (apiCars) {
       apiCars.forEach(c => {
         if (c.supplier?.name && !logos.has(c.supplier.name)) {
@@ -274,7 +264,6 @@ export const Search: React.FC = () => {
         }
       });
     }
-    
     return logos;
   }, [apiCars, allLocationSuppliers]);
 
@@ -367,8 +356,6 @@ export const Search: React.FC = () => {
     return counts;
   }, [baseFilteredCars]);
 
-
-  // Final Filter & Sort Logic
   const sortedAndFilteredCars = React.useMemo(() => {
     const filtered = baseFilteredCars.filter(car => {
       const basePrice = getCarDailyPrice(car);
@@ -391,7 +378,6 @@ export const Search: React.FC = () => {
           }
           if (!carMatch) return false;
       }
-      
       return true;
     });
 
@@ -400,10 +386,9 @@ export const Search: React.FC = () => {
             return [...filtered].sort((a, b) => getCarDailyPrice(a) - getCarDailyPrice(b));
         case 'Price: High to Low':
             return [...filtered].sort((a, b) => getCarDailyPrice(b) - getCarDailyPrice(a));
-        default: // Recommended
+        default:
             return filtered;
     }
-
   }, [baseFilteredCars, priceRange, selectedCategories, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, sortBy, days, startDate, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly]);
   
   const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.INTERMEDIATE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
@@ -423,7 +408,6 @@ export const Search: React.FC = () => {
               className="flex justify-between items-center cursor-pointer group bg-gradient-to-r from-white to-slate-50 hover:from-white hover:to-blue-50 transition-colors duration-200 p-1.5 sm:p-2 rounded-2xl border border-slate-200 hover:border-blue-300 shadow-sm"
             >
               <div className="flex-grow grid grid-cols-2 gap-x-1 sm:gap-x-4 items-center">
-                {/* Location */}
                 <div className="p-1 sm:p-2 flex items-center gap-1 sm:gap-2">
                   <div className="bg-blue-50 p-1 sm:p-3 rounded-md sm:rounded-lg flex-shrink-0"><MapPin className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600"/></div>
                   <div className="min-w-0">
@@ -431,8 +415,6 @@ export const Search: React.FC = () => {
                     <p className="font-bold text-[10px] sm:text-sm text-slate-800 truncate group-hover:text-blue-700 transition-colors">{location || 'Select Location'}</p>
                   </div>
                 </div>
-
-                {/* Dates & Times */}
                 <div className="p-1 sm:p-2 flex items-center gap-1 sm:gap-2 border-l border-slate-200">
                   <div className="bg-blue-50 p-1 sm:p-3 rounded-md sm:rounded-lg flex-shrink-0"><Calendar className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600"/></div>
                   <div className="min-w-0">
@@ -445,8 +427,6 @@ export const Search: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
-              {/* Modify Button */}
               <div className="ml-1 sm:ml-4 flex-shrink-0">
                   <div className="flex items-center gap-1 text-blue-600 font-bold text-sm py-1 px-2 sm:py-3 sm:px-4 rounded-md sm:rounded-lg bg-blue-100/50 group-hover:bg-blue-100 transition-colors">
                       <Edit className="w-3.5 h-3.5" />
@@ -525,9 +505,7 @@ export const Search: React.FC = () => {
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
-                      // Disable visual disabled state to encourage clicking even if count assumes 0 initially
                       const isDisabled = false; 
-
                       return (
                           <button
                               key={category}
@@ -559,7 +537,6 @@ export const Search: React.FC = () => {
           </div>
       </div>
 
-      {/* Main Results Container - px-0 on mobile for edge-to-edge */}
       <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 pt-0 md:pt-6">
         
         {/* Mobile Filter & Sort Controls */}
@@ -595,7 +572,6 @@ export const Search: React.FC = () => {
             </button>
         </div>
 
-
         <div className="flex flex-col md:flex-row gap-8 items-start">
           
           {/* Filters Sidebar / Mobile Pop-up */}
@@ -604,7 +580,6 @@ export const Search: React.FC = () => {
             ${showMobileFilters ? 'flex' : 'hidden md:block'} 
             w-full md:w-64 lg:w-72 flex-shrink-0
           `}>
-            {/* Mobile Backdrop */}
             <div 
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
               onClick={() => setShowMobileFilters(false)}
@@ -644,7 +619,6 @@ export const Search: React.FC = () => {
               </div>
 
               <div className="divide-y divide-slate-100 overflow-y-auto flex-1 custom-scrollbar pb-24 md:pb-0">
-                  {/* Special Offers Filter */}
                   <div className="p-4">
                       <label className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                           <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
@@ -653,7 +627,6 @@ export const Search: React.FC = () => {
                       </label>
                   </div>
 
-                  {/* Price Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Price')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Price per Day</span>
@@ -677,7 +650,6 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  {/* Category Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Car Category</span>
@@ -701,7 +673,6 @@ export const Search: React.FC = () => {
                       )}
                   </div>
                   
-                  {/* Number of seats Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Passengers')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Number of seats</span>
@@ -718,7 +689,6 @@ export const Search: React.FC = () => {
                       )}
                   </div>
                   
-                  {/* Payment Type Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Payment')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Payment Type</span>
@@ -737,7 +707,6 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  {/* Security Deposit Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Deposit')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Refundable Security Deposit</span>
@@ -755,7 +724,6 @@ export const Search: React.FC = () => {
                       )}
                   </div>
                   
-                  {/* Location Type Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('LocationType')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Location Type</span>
@@ -774,8 +742,7 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  {/* Transmission Filter */}
-                   <div className="p-4">
+                  <div className="p-4">
                       <button onClick={() => toggleFilterSection('Transmission')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Transmission</span>
                           {openFilters.includes('Transmission') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
@@ -793,8 +760,7 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  {/* Fuel Policy Filter */}
-                   <div className="p-4">
+                  <div className="p-4">
                       <button onClick={() => toggleFilterSection('Fuel')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Fuel Policy</span>
                           {openFilters.includes('Fuel') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
@@ -812,8 +778,6 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-
-                  {/* Supplier Filter */}
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Suppliers in {pickupIata || location}</span>
@@ -837,10 +801,8 @@ export const Search: React.FC = () => {
                           </div>
                       )}
                   </div>
-
               </div>
 
-              {/* Mobile Footer */}
               <div className="p-4 border-t border-slate-100 md:hidden bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] absolute bottom-0 left-0 right-0 z-10">
                   <button 
                     onClick={() => setShowMobileFilters(false)}
@@ -858,7 +820,6 @@ export const Search: React.FC = () => {
             ${showMobileSort ? 'flex' : 'hidden'} 
             w-full flex-col
           `}>
-            {/* Mobile Backdrop */}
             <div 
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300"
               onClick={() => setShowMobileSort(false)}
@@ -932,10 +893,13 @@ export const Search: React.FC = () => {
                 <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
                     Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
                 </p>
-                {/* Results container with vertical spacing and green border around each card */}
+                {/* Professional green border - each card wrapped with exact fit */}
                 <div className="space-y-4">
                     {sortedAndFilteredCars.map(car => (
-                        <div key={car.id} className="border-2 border-green-500 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+                        <div 
+                            key={car.id} 
+                            className="border-2 border-green-500 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                        >
                             <CarCard 
                                 car={car}
                                 cars={sortedAndFilteredCars}
