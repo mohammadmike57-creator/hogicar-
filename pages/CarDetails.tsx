@@ -247,7 +247,7 @@ const CarDetails: React.FC = () => {
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="relative">
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
-                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-48 lg:h-64 object-cover" />
+                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-40 lg:h-48 object-contain" />
                   <div className="absolute top-4 left-4 flex gap-2">
                     <span className="bg-black/70 text-white text-xs px-3 py-1 rounded-full">{car.category}</span>
                     {car.tags?.[0] && <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">{car.tags[0]}</span>}
@@ -351,7 +351,7 @@ const CarDetails: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {cars.filter(c => c.id !== car.id).slice(0, 2).map(similar => (
                       <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-4 p-4 border rounded-xl hover:shadow-lg transition">
-                        <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-cover rounded-lg" />
+                        <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain rounded-lg" />
                         <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)} total</div></div>
                       </Link>
                     ))}
