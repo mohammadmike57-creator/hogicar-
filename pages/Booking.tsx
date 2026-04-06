@@ -1,14 +1,19 @@
 
 import * as React from 'react';
-import { useParams, useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { getPromoCode } from '../services/mockData';
-import { ShieldCheck, User, CreditCard, Shield, Info, Calendar, Mail, Phone, Lock, Plus, Check, Plane, TrendingUp, Clock } from 'lucide-react';
-import { Car, Extra, BookingMode, PromoCode } from '../types';
+import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock } from 'lucide-react';
+import { Car, PromoCode } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { api } from '../api';
+
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: string]: any }) => (
   <div className="relative">
@@ -22,11 +27,13 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
   </div>
 );
 
-const BookingPage: React.FC = () => {
+const BookingPageContent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const stripe = useStripe();
+  const elements = useElements();
   
   // Get car object from persisted search results
   const { car, cars } = React.useMemo(() => {
@@ -38,7 +45,7 @@ const BookingPage: React.FC = () => {
         return { car: null, cars: [] };
     }
     
-    const foundCar = allCars.find((c: Car) => c.id === id);
+    const foundCar = allCars.find((c: Car) => String(c.id) === String(id));
     return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
@@ -57,6 +64,8 @@ const BookingPage: React.FC = () => {
   const [timeLeft, setTimeLeft] = React.useState(20 * 60);
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [cardholderName, setCardholderName] = React.useState('');
+  const [paymentError, setPaymentError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (initialPromoCode) {
@@ -86,9 +95,11 @@ const BookingPage: React.FC = () => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const search = JSON.parse(sessionStorage.getItem("hogicar_search") || "{}");
+  const search = JSON.parse(sessionStorage.getItem('hogicar_search') || '{}');
   const startDate = search.pickupDate || new Date().toISOString().split('T')[0];
   const endDate = search.dropoffDate || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const startTime = search.startTime || search.pickupTime || '10:00';
+  const endTime = search.endTime || search.dropoffTime || '10:00';
   const days = rentalDays(startDate, endDate);
   
   const priceDetails = React.useMemo(() => {
@@ -109,19 +120,38 @@ const BookingPage: React.FC = () => {
       alert("Pickup/Dropoff location code is missing. Please start your search again.");
       return;
     }
+    if (priceDetails.payNow > 0 && !stripePromise) {
+      alert('Stripe is not configured. Please contact support.');
+      return;
+    }
+
+    const carId = Number(car.id);
+    const supplierId = Number(car.supplierId ?? car.supplier?.id);
+    if (!Number.isFinite(carId) || carId <= 0) {
+      alert('Invalid car id. Please go back to search and select the car again.');
+      return;
+    }
+    if (!Number.isFinite(supplierId) || supplierId <= 0) {
+      alert('Invalid supplier id. Please go back to search and select the car again.');
+      return;
+    }
 
     setIsSubmitting(true);
+    setPaymentError(null);
     
     const payload = {
-        supplierId: car.supplierId,
-        supplierName: car.supplier.name,
+        carId,
+        supplierId,
+        supplierName: car.supplier?.name || 'Supplier',
         pickupCode: search.pickupCode,
         dropoffCode: search.dropoffCode,
         pickupDate: startDate,
         dropoffDate: endDate,
-        currency: car.currency,
+        startTime,
+        endTime,
+        currency: car.currency || 'USD',
         netPrice: priceDetails.baseNetTotal,
-        commissionPercent: car.commissionPercent,
+        commissionPercent: car.commissionPercent ?? 0,
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -135,6 +165,35 @@ const BookingPage: React.FC = () => {
 
     try {
         const booking = await api.createBooking(payload);
+
+        if (priceDetails.payNow > 0) {
+          if (!stripePromise || !stripe || !elements) {
+            throw new Error('Stripe payment is not configured. Please contact support.');
+          }
+          if (!booking.clientSecret) {
+            throw new Error('Payment session was not created. Please try again.');
+          }
+
+          const cardElement = elements.getElement(CardElement);
+          if (!cardElement) {
+            throw new Error('Payment form is not ready. Please try again.');
+          }
+
+          const paymentResult = await stripe.confirmCardPayment(booking.clientSecret, {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                name: cardholderName || `${firstName} ${lastName}`.trim(),
+                email,
+                phone: phoneNumber,
+              },
+            },
+          });
+
+          if (paymentResult.error) {
+            throw new Error(paymentResult.error.message || 'Payment confirmation failed.');
+          }
+        }
         
         // Set one-time flag for confirmation page
         // Use the bookingRef returned by the API (which might be in the Booking object)
@@ -149,7 +208,9 @@ const BookingPage: React.FC = () => {
         navigate(navUrl);
     } catch (error: any) {
         console.error("Booking submission error:", error);
-        alert(`Booking failed: ${error.message || "An unknown error occurred."}`);
+        const message = error.message || 'An unknown error occurred.';
+        setPaymentError(message);
+        alert(`Booking failed: ${message}`);
     } finally {
         setIsSubmitting(false);
     }
@@ -205,11 +266,33 @@ const BookingPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
                <h2 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5 text-blue-600"/> Payment Details</h2>
                <div className="space-y-5">
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" required /></div>
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Card Number</label><FormInput icon={CreditCard} type="text" placeholder="•••• •••• •••• ••••" required /></div>
+                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value)} required={priceDetails.payNow > 0} /></div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Card Details</label>
+                    {stripePromise ? (
+                      <div className="rounded border border-gray-300 px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                        <CardElement options={{ hidePostalCode: true }} />
+                      </div>
+                    ) : (
+                      <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
+                        Stripe payment is currently unavailable.
+                      </div>
+                    )}
+                  </div>
+                  {paymentError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+                      {paymentError}
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-6">
-                     <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Expiry Date</label><FormInput icon={Calendar} type="text" placeholder="MM / YY" required /></div>
-                     <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">CVC / CVV</label><FormInput icon={Lock} type="text" placeholder="•••" required /></div>
+                     <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                        <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Pickup Time</p>
+                        <p className="text-sm font-bold text-slate-900">{startTime}</p>
+                     </div>
+                     <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                        <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Dropoff Time</p>
+                        <p className="text-sm font-bold text-slate-900">{endTime}</p>
+                     </div>
                   </div>
                </div>
             </div>
@@ -250,7 +333,7 @@ const BookingPage: React.FC = () => {
                    <div className="flex justify-between font-extrabold text-blue-700"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
                    <div className="flex justify-between font-medium text-slate-600"><span>Pay at rental desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                </div>
-                <button 
+                <button
                   type="submit" 
                   disabled={isSubmitting}
                   className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg shadow-green-600/20 transition-all active:scale-95 flex items-center justify-center text-base disabled:opacity-50 disabled:cursor-not-allowed"
@@ -268,6 +351,17 @@ const BookingPage: React.FC = () => {
       </div>
     </div>
     </>
+  );
+};
+
+const BookingPage: React.FC = () => {
+  if (!stripePromise) {
+    return <BookingPageContent />;
+  }
+  return (
+    <Elements stripe={stripePromise}>
+      <BookingPageContent />
+    </Elements>
   );
 };
 
