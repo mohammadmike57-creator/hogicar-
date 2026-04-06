@@ -426,7 +426,7 @@ export const Search: React.FC = () => {
     />
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-16 z-30">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 shadow-lg border-b border-slate-700 sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-2 py-2 sm:py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -466,21 +466,21 @@ export const Search: React.FC = () => {
             </div>
 
             <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div className="rounded-xl border border-slate-600 bg-slate-800/90 px-3 py-2">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pickup</p>
-                <p className="text-xs font-black text-slate-800 truncate">{pickupIata || '-'}</p>
+                <p className="text-xs font-black text-white truncate">{pickupIata || '-'}</p>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div className="rounded-xl border border-slate-600 bg-slate-800/90 px-3 py-2">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dropoff</p>
-                <p className="text-xs font-black text-slate-800 truncate">{dropoffIata || pickupIata || '-'}</p>
+                <p className="text-xs font-black text-white truncate">{dropoffIata || pickupIata || '-'}</p>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div className="rounded-xl border border-slate-600 bg-slate-800/90 px-3 py-2">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rental Duration</p>
-                <p className="text-xs font-black text-slate-800">{days} day{days > 1 ? 's' : ''}</p>
+                <p className="text-xs font-black text-white">{days} day{days > 1 ? 's' : ''}</p>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div className="rounded-xl border border-slate-600 bg-slate-800/90 px-3 py-2">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Suppliers</p>
-                <p className="text-xs font-black text-slate-800">{allSuppliers.length}</p>
+                <p className="text-xs font-black text-white">{allSuppliers.length}</p>
               </div>
             </div>
 
@@ -508,17 +508,20 @@ export const Search: React.FC = () => {
       <BookingStepper currentStep={2} />
 
        {/* Category Image Filter */}
-      <div className="bg-white border-b border-slate-200 py-2 sm:py-3">
+      <div className="bg-white border-b border-slate-200 py-3 sm:py-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center mb-2 sm:mb-3">
-                <h2 className="text-[11px] sm:text-sm font-bold text-slate-800">Filter by Category</h2>
-                <div className="hidden sm:flex items-center gap-2">
-                    <span className="text-xs text-slate-500">Sort by:</span>
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">Filter by Category</h2>
+                  <p className="text-[10px] sm:text-xs font-semibold text-slate-500">Choose a class to quickly refine the results.</p>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5">
+                    <span className="text-xs text-slate-500 font-bold">Sort by:</span>
                     <div className="relative">
                         <select 
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="appearance-none bg-white border border-slate-200 text-sm text-slate-700 font-medium rounded pl-3 pr-8 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer hover:border-slate-300"
+                            className="appearance-none bg-white border border-slate-200 text-sm text-slate-700 font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer hover:border-slate-300"
                         >
                             <option>Recommended</option>
                             <option>Price: Low to High</option>
@@ -528,7 +531,7 @@ export const Search: React.FC = () => {
                     </div>
                 </div>
               </div>
-              <div className="flex overflow-x-auto no-scrollbar md:grid md:grid-cols-6 lg:grid-cols-8 md:gap-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 sm:space-x-3 md:space-x-0">
+              <div className="flex overflow-x-auto no-scrollbar md:grid md:grid-cols-6 lg:grid-cols-8 md:gap-3 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 sm:space-x-3 md:space-x-0">
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
@@ -540,24 +543,24 @@ export const Search: React.FC = () => {
                               key={category}
                               onClick={() => handleCategoryToggle(category)}
                               disabled={isDisabled}
-                              className={`flex-shrink-0 w-16 sm:w-24 md:w-auto flex flex-col items-center gap-0.5 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              className={`flex-shrink-0 w-20 sm:w-24 md:w-auto flex flex-col items-center gap-1 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
                           >
                               {isActive && (
-                                  <div className="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 sm:w-5 sm:h-5 bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white z-10">
+                                  <div className="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 sm:w-5 sm:h-5 bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white z-10 shadow">
                                       <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                   </div>
                               )}
-                              <div className={`w-full aspect-[4/3] rounded-lg flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
+                              <div className={`w-full aspect-[4/3] rounded-xl flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
                                   ${isActive
-                                      ? 'border-blue-600 shadow-lg shadow-blue-500/30'
-                                      : 'border-slate-200 group-hover:border-blue-400 group-hover:shadow-md group-hover:-translate-y-1'}`}>
+                                      ? 'border-blue-600 shadow-lg shadow-blue-500/30 ring-2 ring-blue-100'
+                                      : 'border-slate-200 bg-slate-50 group-hover:border-blue-400 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
                                   <img src={MOCK_CATEGORY_IMAGES[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
-                              <div className="text-center">
-                                  <span className={`text-[9px] sm:text-[11px] md:text-[11px] font-bold whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-600' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                              <div className="text-center leading-tight">
+                                  <span className={`text-[9px] sm:text-[11px] md:text-[11px] font-black whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>
                                       {category}
                                   </span>
-                                  <span className="block text-[8px] text-slate-400">({count} cars)</span>
+                                  <span className={`block text-[8px] ${isActive ? 'text-blue-500' : 'text-slate-400'}`}>({count} cars)</span>
                               </div>
                           </button>
                       )

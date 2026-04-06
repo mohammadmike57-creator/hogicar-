@@ -176,13 +176,17 @@ const CarDetails: React.FC = () => {
   const { car, cars } = React.useMemo(() => {
     const carsFromState = location.state?.cars;
     const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
+    const selectedCarId = sessionStorage.getItem('hogicar_selectedCarId');
     const allCars = carsFromState || carsFromStorage;
 
-    if (!allCars || !Array.isArray(allCars) || !id) {
+    if (!allCars || !Array.isArray(allCars)) {
         return { car: null, cars: [] };
     }
-    
-    const foundCar = allCars.find((c: Car) => String(c.id) === String(id));
+
+    const routeId = id || selectedCarId;
+    const foundCar = routeId
+      ? allCars.find((c: Car) => String(c.id) === String(routeId))
+      : null;
     return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
@@ -258,13 +262,15 @@ const CarDetails: React.FC = () => {
       ...(appliedPromo && { promo: appliedPromo.code })
   }).toString();
 
+  React.useEffect(() => {
+    if (!car) {
+      navigate('/');
+    }
+  }, [car, navigate]);
+
   // Handle case where car is not found (e.g., page refresh with no session data)
   if (!car) {
-    React.useEffect(() => {
-        // Redirect to home if car data is lost
-        navigate('/');
-    }, [navigate]);
-    return null; // or a loading/error component
+    return null;
   }
   
   const carSpecs = [
