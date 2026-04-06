@@ -177,16 +177,32 @@ const CarDetails: React.FC = () => {
     const carsFromState = location.state?.cars;
     const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
     const selectedCarId = sessionStorage.getItem('hogicar_selectedCarId');
+    const selectedCarRaw = sessionStorage.getItem('hogicar_selectedCar');
+    let selectedCarFromStorage: Car | null = null;
+    if (selectedCarRaw) {
+      try {
+        selectedCarFromStorage = JSON.parse(selectedCarRaw);
+      } catch {
+        selectedCarFromStorage = null;
+      }
+    }
     const allCars = carsFromState || carsFromStorage;
 
     if (!allCars || !Array.isArray(allCars)) {
+        const routeId = id || selectedCarId;
+        if (selectedCarFromStorage && (!routeId || String(selectedCarFromStorage.id) === String(routeId))) {
+          return { car: selectedCarFromStorage, cars: selectedCarFromStorage ? [selectedCarFromStorage] : [] };
+        }
         return { car: null, cars: [] };
     }
 
     const routeId = id || selectedCarId;
-    const foundCar = routeId
+    const foundCarInList = routeId
       ? allCars.find((c: Car) => String(c.id) === String(routeId))
       : null;
+    const foundCar = foundCarInList
+      || (selectedCarFromStorage && routeId && String(selectedCarFromStorage.id) === String(routeId) ? selectedCarFromStorage : null)
+      || selectedCarFromStorage;
     return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
@@ -262,15 +278,24 @@ const CarDetails: React.FC = () => {
       ...(appliedPromo && { promo: appliedPromo.code })
   }).toString();
 
-  React.useEffect(() => {
-    if (!car) {
-      navigate('/');
-    }
-  }, [car, navigate]);
-
   // Handle case where car is not found (e.g., page refresh with no session data)
   if (!car) {
-    return null;
+    return (
+      <div className="bg-slate-50 min-h-screen py-12">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-sm">
+            <h1 className="text-2xl font-black text-slate-900">Car Details Not Available</h1>
+            <p className="text-sm text-slate-600 mt-3">We could not find this car in your current search session. Please reopen from search results.</p>
+            <button
+              onClick={() => navigate(-1)}
+              className="mt-6 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors"
+            >
+              Back to Search Results
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
   
   const carSpecs = [

@@ -291,6 +291,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   const handleSelectCar = () => {
     // Persist the car ID and the full results list for the next page
     sessionStorage.setItem('hogicar_selectedCarId', car.id);
+    sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
     sessionStorage.setItem('hogicar_cars', JSON.stringify(cars));
   };
 

@@ -531,7 +531,7 @@ export const Search: React.FC = () => {
                     </div>
                 </div>
               </div>
-              <div className="flex overflow-x-auto no-scrollbar md:grid md:grid-cols-6 lg:grid-cols-8 md:gap-3 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 sm:space-x-3 md:space-x-0">
+              <div className="flex overflow-x-auto no-scrollbar md:grid md:grid-cols-6 lg:grid-cols-8 md:gap-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 sm:space-x-2.5 md:space-x-0">
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
@@ -543,21 +543,21 @@ export const Search: React.FC = () => {
                               key={category}
                               onClick={() => handleCategoryToggle(category)}
                               disabled={isDisabled}
-                              className={`flex-shrink-0 w-20 sm:w-24 md:w-auto flex flex-col items-center gap-1 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              className={`flex-shrink-0 w-16 sm:w-20 md:w-auto flex flex-col items-center gap-0.5 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
                           >
                               {isActive && (
                                   <div className="absolute top-0 right-0 -mt-1 -mr-1 w-4 h-4 sm:w-5 sm:h-5 bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white z-10 shadow">
                                       <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                   </div>
                               )}
-                              <div className={`w-full aspect-[4/3] rounded-xl flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
+                              <div className={`w-full aspect-[4/3] rounded-lg flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
                                   ${isActive
                                       ? 'border-blue-600 shadow-lg shadow-blue-500/30 ring-2 ring-blue-100'
                                       : 'border-slate-200 bg-slate-50 group-hover:border-blue-400 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
                                   <img src={MOCK_CATEGORY_IMAGES[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
                               <div className="text-center leading-tight">
-                                  <span className={`text-[9px] sm:text-[11px] md:text-[11px] font-black whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                  <span className={`text-[8px] sm:text-[10px] md:text-[10px] font-black whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>
                                       {category}
                                   </span>
                                   <span className={`block text-[8px] ${isActive ? 'text-blue-500' : 'text-slate-400'}`}>({count} cars)</span>
