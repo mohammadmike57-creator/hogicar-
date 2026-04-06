@@ -324,47 +324,73 @@ const CarDetails: React.FC = () => {
     <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
     {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-    <div className="bg-slate-50 min-h-screen py-5 font-sans pb-28 lg:pb-6 overflow-x-hidden">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 transform scale-[0.97] lg:scale-[0.98] origin-top transition-transform duration-500">
+    <div className="bg-slate-50 min-h-screen py-6 font-sans pb-32 lg:pb-12 overflow-x-hidden selection:bg-blue-100">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 transform scale-[0.96] lg:scale-[0.97] origin-top transition-all duration-700 ease-in-out">
         
-        <BookingStepper currentStep={3} />
+        <div className="mb-10">
+          <BookingStepper currentStep={3} />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-10">
             
-            {/* Title, Image & Specs Section */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden group">
-                <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/2 bg-slate-50/50 p-10 flex items-center justify-center relative overflow-hidden">
-                         {/* Subtle background pattern */}
-                         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                         <div className="relative z-10 w-full">
-                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-1000 ease-out" />
+            {/* Title, Image & Specs Section - THE HERO */}
+            <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden group relative">
+                <div className="flex flex-col lg:flex-row">
+                    {/* Image Column */}
+                    <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 via-white to-slate-100/50 p-12 flex items-center justify-center relative overflow-hidden min-h-[400px]">
+                         {/* Luxury Pattern Overlay */}
+                         <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+                         <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-100/20 rounded-full blur-3xl transition-all group-hover:bg-blue-200/30"></div>
+                         
+                         <div className="relative z-10 w-full transform hover:scale-105 transition-transform duration-1000 ease-out">
+                             <img 
+                                src={car.image} 
+                                alt={`${car.make} ${car.model}`} 
+                                className="w-full h-auto object-contain drop-shadow-[0_25px_40px_rgba(0,0,0,0.12)] group-hover:drop-shadow-[0_35px_50px_rgba(0,0,0,0.15)] transition-all" 
+                             />
                          </div>
-                         <div className="absolute top-8 left-8 flex flex-col gap-2.5">
-                             <span className="bg-slate-900 text-white text-[9px] font-black px-3.5 py-1.5 rounded-full shadow-lg uppercase tracking-[0.2em]">{car.category}</span>
+                         
+                         {/* Badges Overlay */}
+                         <div className="absolute top-10 left-10 flex flex-col gap-3">
+                             <div className="flex items-center gap-2 bg-slate-900 text-white text-[10px] font-black px-4 py-2 rounded-full shadow-xl uppercase tracking-[0.25em] backdrop-blur-sm border border-white/10">
+                                <CarIcon className="w-3 h-3 text-blue-400" /> {car.category}
+                             </div>
                              {car.tags && car.tags[0] && (
-                                <span className="bg-white text-slate-900 text-[9px] font-black px-3.5 py-1.5 rounded-full shadow-md border border-slate-100 uppercase tracking-[0.2em]">{car.tags[0]}</span>
+                                <div className="bg-white/80 text-slate-900 text-[10px] font-black px-4 py-2 rounded-full shadow-lg border border-slate-100 uppercase tracking-[0.25em] backdrop-blur-md">
+                                   {car.tags[0]}
+                                </div>
                              )}
                          </div>
                     </div>
-                    <div className="md:w-1/2 p-12 flex flex-col justify-center bg-white">
-                        <div className="flex items-center gap-3 mb-6">
-                           <div className="bg-emerald-50 text-emerald-600 text-[9px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-500/10 uppercase tracking-widest"><Sparkles className="w-3.5 h-3.5"/> Recommended</div>
-                           <div className="bg-blue-50 text-blue-600 text-[9px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-blue-500/10 uppercase tracking-widest"><CheckCircle className="w-3.5 h-3.5"/> Verified</div>
+
+                    {/* Content Column */}
+                    <div className="lg:w-1/2 p-12 lg:p-14 flex flex-col justify-center bg-white border-l border-slate-50">
+                        <div className="flex flex-wrap items-center gap-3 mb-8">
+                           <div className="bg-emerald-50 text-emerald-700 text-[9px] font-black px-3.5 py-1.5 rounded-lg flex items-center gap-2 border border-emerald-200/50 uppercase tracking-[0.2em] shadow-sm">
+                               <Sparkles className="w-3.5 h-3.5"/> Recommended
+                           </div>
+                           <div className="bg-blue-50 text-blue-700 text-[9px] font-black px-3.5 py-1.5 rounded-lg flex items-center gap-2 border border-blue-200/50 uppercase tracking-[0.2em] shadow-sm">
+                               <CheckCircle className="w-3.5 h-3.5"/> Verified Stock
+                           </div>
                         </div>
-                        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">{car.displayName || `${car.make} ${car.model}`}</h1>
-                        <p className="text-sm text-slate-400 mt-5 flex items-center gap-2 font-bold italic">
+
+                        <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-[0.95] mb-4">
+                            {car.displayName || `${car.make} ${car.model}`}
+                        </h1>
+                        <p className="text-xs text-slate-400 flex items-center gap-2 font-bold uppercase tracking-[0.15em] opacity-80 mb-12">
                             or similar {car.type}
-                            <InfoTooltip text="You are booking a car from a specific category. The model shown is an example, but you will receive a similar vehicle with the same main features (size, transmission, etc.)." />
+                            <InfoTooltip text="The model shown is an example of the car you will receive, or one of similar quality and size from the same category." />
                         </p>
                         
-                        <div className="mt-12 grid grid-cols-2 gap-y-6 gap-x-10">
+                        <div className="grid grid-cols-2 gap-y-8 gap-x-12">
                             {carSpecs.slice(0, 4).map(spec => (
-                                <div key={spec.label} className="flex items-center gap-4 text-slate-700 group/spec">
-                                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-slate-400 group-hover/spec:bg-blue-600 group-hover/spec:text-white group-hover/spec:border-blue-600 transition-all duration-300 shadow-sm"><spec.icon className="w-4 h-4" /></div>
-                                    <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{spec.label}</span>
+                                <div key={spec.label} className="flex items-center gap-5 group/spec">
+                                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-slate-400 group-hover/spec:bg-slate-900 group-hover/spec:text-white group-hover/spec:border-slate-900 transition-all duration-300 shadow-sm">
+                                        <spec.icon className="w-4.5 h-4.5" />
+                                    </div>
+                                    <span className="text-[11px] font-black text-slate-700 uppercase tracking-[0.2em]">{spec.label}</span>
                                 </div>
                             ))}
                         </div>
@@ -372,65 +398,70 @@ const CarDetails: React.FC = () => {
                 </div>
             </div>
 
-            {/* Pick-up & Supplier Info */}
-            <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-10">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                   <div className="relative">
-                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6 flex items-center gap-2.5"><MapPin className="w-4 h-4 text-blue-600"/> Pick-up Details</h3>
-                       <p className="text-xl font-black text-slate-900 tracking-tight">{car.location}</p>
-                       <div className="inline-flex items-center gap-2.5 mt-4 bg-blue-50/50 text-blue-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-blue-100">
-                           <Navigation className="w-4 h-4" />
-                           {car.locationDetail}
+            {/* Location & Supplier Card */}
+            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-12">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                   <div className="space-y-8">
+                       <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-3"><MapPin className="w-4 h-4 text-blue-600"/> Pick-up Details</h3>
+                       <div>
+                           <p className="text-2xl font-black text-slate-900 tracking-tight mb-4">{car.location}</p>
+                           <div className="inline-flex items-center gap-3 bg-blue-50 text-blue-700 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100/50 shadow-sm">
+                               <Navigation className="w-4 h-4 opacity-70" />
+                               {car.locationDetail}
+                           </div>
                        </div>
                    </div>
-                   <div className="md:border-l md:border-slate-100 md:pl-10">
-                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6">Rental Provider</h3>
-                        <div className="flex items-center gap-6">
-                            <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
-                                <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-24 object-contain" />
+                   <div className="md:border-l md:border-slate-100 md:pl-16 space-y-8">
+                       <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Car Provider</h3>
+                       <div className="flex items-center gap-8">
+                            <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                                <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-28 object-contain" />
                             </div>
                             <div>
-                                <p className="font-black text-slate-900 text-xl tracking-tight">{car.supplier.name}</p>
-                                <div className="flex items-center gap-2.5 mt-2">
-                                    <div className="bg-emerald-500 text-white font-black px-2.5 py-1 rounded-lg text-xs shadow-md shadow-emerald-500/20">{car.supplier.rating}</div>
-                                    <p className="text-xs font-black text-slate-700 uppercase tracking-widest">Excellent</p>
+                                <p className="font-black text-slate-900 text-2xl tracking-tight leading-none mb-3">{car.supplier.name}</p>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-emerald-600 text-white font-black px-3 py-1.5 rounded-lg text-xs shadow-lg shadow-emerald-600/20">{car.supplier.rating}</div>
+                                    <span className="text-[10px] font-black text-slate-800 uppercase tracking-[0.2em]">Exceptional Service</span>
                                 </div>
                             </div>
-                        </div>
+                       </div>
                    </div>
                </div>
             </div>
 
-             {/* Mobile CTA to scroll down */}
-            <div className="block lg:hidden">
-            </div>
-            
-
-            {/* Optional Extras */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-10">
-                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-8 flex items-center gap-2.5"><PlusCircle className="w-4 h-4 text-emerald-600"/> Available Extras</h2>
+            {/* Available Extras Section */}
+            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-12">
+                <div className="flex justify-between items-end mb-12">
+                    <div>
+                        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 flex items-center gap-3"><PlusCircle className="w-4 h-4 text-emerald-600"/> Available Enhancements</h2>
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-60">Customise your rental experience</p>
+                    </div>
+                </div>
                 {(!car.extras || car.extras.length === 0) ? (
-                    <div className="bg-slate-50/50 rounded-2xl p-8 border border-dashed border-slate-200 text-center">
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">No optional extras are available for this vehicle.</p>
+                    <div className="bg-slate-50/50 rounded-3xl p-12 border-2 border-dashed border-slate-100 text-center">
+                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.25em]">No optional extras are available for this specific vehicle.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {car.extras.map(extra => {
                             const isSelected = selectedExtraIds.includes(extra.id);
                             const Icon = extraIconMap[extra.name] || extraIconMap['default'];
                             return (
-                                <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`relative overflow-hidden rounded-[1.5rem] border-2 p-6 transition-all duration-500 cursor-pointer group/extra ${isSelected ? 'bg-emerald-50/50 border-emerald-500 shadow-xl shadow-emerald-500/10' : 'bg-white border-slate-100 hover:border-slate-300 hover:shadow-lg'}`}>
-                                    {extra.promotionLabel && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-black px-3 py-1.5 rounded-bl-xl uppercase tracking-widest">{extra.promotionLabel}</div>}
-                                    <div className="flex gap-5">
-                                        <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-400 group-hover/extra:bg-slate-100'}`}><Icon className="w-5 h-5" /></div>
-                                        <div className="flex-grow pt-1.5"><h4 className="font-black text-slate-900 text-[11px] uppercase tracking-widest">{extra.name}</h4></div>
-                                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-1.5 border-2 transition-all ${isSelected ? 'bg-emerald-500 border-emerald-500 scale-110' : 'border-slate-200 bg-white'}`}>{isSelected && <Check className="w-3.5 h-3.5 text-white" />}</div>
-                                    </div>
-                                    <div className="mt-6 pt-5 border-t border-slate-100/50 flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{extra.type === 'per_day' ? 'daily rate' : 'flat fee'}</span>
-                                        <div className="text-right">
-                                            <span className="text-base font-black text-slate-900">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</span>
+                                <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`relative overflow-hidden rounded-[2rem] border-2 p-8 transition-all duration-500 cursor-pointer group/extra ${isSelected ? 'bg-emerald-50/30 border-emerald-500 shadow-2xl shadow-emerald-500/10' : 'bg-white border-slate-100 hover:border-slate-300 hover:shadow-xl'}`}>
+                                    {extra.promotionLabel && <div className="absolute top-0 right-0 bg-slate-900 text-white text-[8px] font-black px-4 py-2 rounded-bl-2xl uppercase tracking-[0.2em] shadow-lg">{extra.promotionLabel}</div>}
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex gap-6 items-center">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isSelected ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'bg-slate-50 text-slate-400 group-hover/extra:bg-slate-900 group-hover/extra:text-white'}`}><Icon className="w-6 h-6" /></div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-[12px] uppercase tracking-[0.2em] mb-1">{extra.name}</h4>
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{extra.type === 'per_day' ? 'Daily rate' : 'Fixed fee'}</p>
+                                            </div>
                                         </div>
+                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${isSelected ? 'bg-emerald-600 border-emerald-600 scale-110' : 'border-slate-200 bg-white group-hover/extra:border-slate-400'}`}>{isSelected && <Check className="w-4 h-4 text-white" />}</div>
+                                    </div>
+                                    <div className="mt-8 pt-6 border-t border-slate-100/60 flex items-center justify-between">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Price</span>
+                                        <span className="text-xl font-black text-slate-900 tracking-tight">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</span>
                                     </div>
                                 </div>
                             );
@@ -481,29 +512,54 @@ const CarDetails: React.FC = () => {
               )}
             </div>
 
-             {/* Important Information */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-10">
-                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-10 flex items-center gap-2.5"><ShieldAlert className="w-4 h-4 text-orange-500"/> Essential Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div>
-                        <h3 className="text-[9px] font-black text-slate-900 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">Included <Check className="w-3 h-3 text-emerald-500"/></h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><CheckCircle className="w-4 h-4 text-emerald-500 transition-transform group-hover:scale-110"/> Free Cancellation <span className="text-[8px] text-slate-300 ml-1">up to 48h before</span></li>
-                            {car.supplier.includesCDW && <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><CheckCircle className="w-4 h-4 text-emerald-500 transition-transform group-hover:scale-110"/> Collision Damage Waiver</li>}
-                            {car.supplier.includesTP && <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><CheckCircle className="w-4 h-4 text-emerald-500 transition-transform group-hover:scale-110"/> Theft Protection</li>}
-                        </ul>
+             {/* Essential Info Section */}
+            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-12">
+                <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-12 flex items-center gap-3"><ShieldAlert className="w-4 h-4 text-orange-500"/> Essential Rental Terms</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+                    <div className="space-y-10">
+                        <div>
+                            <h3 className="text-[10px] font-black text-slate-900 mb-8 uppercase tracking-[0.25em] flex items-center gap-3">Included in price <div className="h-px flex-grow bg-emerald-100/50"></div></h3>
+                            <ul className="space-y-6">
+                                <li className="flex items-center gap-4 text-[11px] font-black text-slate-600 uppercase tracking-[0.15em] group">
+                                    <div className="w-6 h-6 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100 group-hover:bg-emerald-500 group-hover:text-white transition-all"><Check className="w-3 h-3"/></div>
+                                    Free Cancellation <span className="text-[9px] text-slate-300 font-bold ml-auto opacity-70">Up to 48h</span>
+                                </li>
+                                {car.supplier.includesCDW && (
+                                    <li className="flex items-center gap-4 text-[11px] font-black text-slate-600 uppercase tracking-[0.15em] group">
+                                        <div className="w-6 h-6 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100 group-hover:bg-emerald-500 group-hover:text-white transition-all"><Check className="w-3 h-3"/></div>
+                                        Collision Damage Waiver
+                                    </li>
+                                )}
+                                {car.supplier.includesTP && (
+                                    <li className="flex items-center gap-4 text-[11px] font-black text-slate-600 uppercase tracking-[0.15em] group">
+                                        <div className="w-6 h-6 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100 group-hover:bg-emerald-500 group-hover:text-white transition-all"><Check className="w-3 h-3"/></div>
+                                        Theft Protection
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
                     </div>
-                    <div className="md:border-l md:border-slate-50 md:pl-12">
-                        <h3 className="text-[9px] font-black text-slate-900 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">Not Included <X className="w-3 h-3 text-red-500"/></h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><XCircle className="w-4 h-4 text-red-400 transition-transform group-hover:scale-110"/> Fuel: {car.fuelPolicy}</li>
-                            <li className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest group cursor-default"><XCircle className="w-4 h-4 text-red-400 transition-transform group-hover:scale-110"/> Potential Driver Surcharge</li>
-                        </ul>
+                    <div className="space-y-10">
+                        <div>
+                            <h3 className="text-[10px] font-black text-slate-900 mb-8 uppercase tracking-[0.25em] flex items-center gap-3">Additional Info <div className="h-px flex-grow bg-slate-100/50"></div></h3>
+                            <ul className="space-y-6">
+                                <li className="flex items-center gap-4 text-[11px] font-black text-slate-600 uppercase tracking-[0.15em] group">
+                                    <div className="w-6 h-6 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all"><Info className="w-3 h-3"/></div>
+                                    Fuel Policy: {car.fuelPolicy}
+                                </li>
+                                <li className="flex items-center gap-4 text-[11px] font-black text-slate-600 uppercase tracking-[0.15em] group">
+                                    <div className="w-6 h-6 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all"><Info className="w-3 h-3"/></div>
+                                    Security Deposit Required
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div className="mt-12 pt-8 border-t border-slate-50 text-center">
-                    <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] font-black text-blue-600 hover:text-blue-800 transition-all uppercase tracking-[0.25em] flex items-center justify-center gap-3 mx-auto group">
-                        Full Rental Conditions <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"/>
+                <div className="mt-16 pt-10 border-t border-slate-50 flex justify-center">
+                    <button onClick={() => setIsConditionsModalOpen(true)} className="group relative px-10 py-4 overflow-hidden rounded-xl bg-slate-50 hover:bg-slate-900 transition-all duration-500">
+                        <span className="relative z-10 text-[11px] font-black text-slate-900 group-hover:text-white uppercase tracking-[0.3em] flex items-center gap-4 transition-colors">
+                            Full Rental Conditions <ArrowRight className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-500"/>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -511,57 +567,105 @@ const CarDetails: React.FC = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 hidden lg:block">
-            <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200 border border-slate-200 p-8 sticky top-24 transform lg:scale-[0.95] origin-top transition-all hover:scale-100 duration-500">
-               <div className="mb-8 p-6 rounded-2xl border border-blue-100 bg-blue-50/50 flex items-center justify-between">
-                   <p className="text-[11px] font-black text-blue-800 flex items-center gap-2.5 uppercase tracking-widest"><Clock className="w-4 h-4"/>Price secured</p>
-                   <p className="text-2xl font-mono font-black text-blue-800 tracking-tight">{formatTime(timeLeft)}</p>
-               </div>
-               
-               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Price Summary</h3>
-                <div className="space-y-4 mb-8">
-                  <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest"><span>Car Hire ({days} days)</span><span className="text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                  {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest"><span>Full Protection</span><span className="text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                  {priceDetails.extrasCost > 0 && <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest"><span>Extras</span><span className="text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                  {priceDetails.discountAmount > 0 && <div className="flex justify-between text-xs font-black text-emerald-600 uppercase tracking-widest"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
-                </div>
-
-                <div className="mt-8 pt-8 border-t border-slate-100">
-                    <div className="flex gap-2">
-                        <div className="relative flex-grow">
-                            <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input 
-                                type="text" 
-                                placeholder="PROMO CODE" 
-                                value={promoCodeInput}
-                                onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
-                                className="w-full border-slate-200 bg-slate-50/50 rounded-xl py-3.5 pl-11 pr-4 text-[10px] font-black tracking-widest focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                            />
-                        </div>
-                        <button 
-                        type="button" 
-                        onClick={handleApplyPromo}
-                        className="bg-slate-900 text-white font-black px-6 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95"
-                        >
-                        Apply
-                        </button>
+            <div className="sticky top-10 space-y-8">
+              {/* Main Booking Sidebar */}
+              <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] border border-slate-100 p-10 transform lg:scale-[0.96] origin-top transition-all hover:scale-100 duration-700">
+                 {/* Timer Header */}
+                 <div className="mb-10 p-6 rounded-3xl bg-slate-900 text-white flex items-center justify-between shadow-2xl shadow-slate-900/20 relative overflow-hidden group/timer">
+                    <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
+                    <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-1">Time Secured</p>
+                        <p className="text-[11px] font-black text-blue-400 uppercase tracking-[0.15em] flex items-center gap-2"><Clock className="w-3.5 h-3.5"/> Best Price Lock</p>
                     </div>
-                    {promoError && <p className="text-red-500 text-[9px] mt-2 font-black uppercase tracking-widest ml-1">{promoError}</p>}
-                    {appliedPromo && <p className="text-emerald-600 text-[9px] mt-2 font-black uppercase tracking-widest flex items-center gap-1.5 ml-1"><CheckCircle className="w-3.5 h-3.5"/> Applied: {appliedPromo.code}!</p>}
-                </div>
-               
-               <div className="border-t-2 border-dashed border-slate-200 pt-8 my-8">
-                  <div className="flex justify-between items-end"><span className="font-black text-slate-400 text-[10px] uppercase tracking-[0.25em] pb-1.5">Total</span><span className="font-black text-slate-900 text-4xl tracking-tighter">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
-               </div>
-               <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-100 space-y-4 mb-8">
-                   <div className="flex justify-between font-black text-blue-700 text-[10px] uppercase tracking-widest"><span>Pay now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
-                   <div className="flex justify-between font-black text-slate-400 text-[10px] uppercase tracking-widest"><span>Pay at desk</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
-               </div>
+                    <p className="text-3xl font-mono font-black text-white tracking-tighter drop-shadow-lg">{formatTime(timeLeft)}</p>
+                 </div>
+                 
+                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">Order Summary <div className="h-px flex-grow bg-slate-50"></div></h3>
+                  <div className="space-y-6 mb-10">
+                    <div className="flex justify-between text-[11px] font-black text-slate-500 uppercase tracking-widest group">
+                        <span>Vehicle Rental <span className="text-[9px] text-slate-300 ml-1">({days}d)</span></span>
+                        <span className="text-slate-900 group-hover:text-blue-600 transition-colors">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span>
+                    </div>
+                    {priceDetails.insuranceCost > 0 && (
+                        <div className="flex justify-between text-[11px] font-black text-slate-500 uppercase tracking-widest group">
+                            <span>Premium Protection</span>
+                            <span className="text-slate-900 group-hover:text-emerald-600 transition-colors">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span>
+                        </div>
+                    )}
+                    {priceDetails.extrasCost > 0 && (
+                        <div className="flex justify-between text-[11px] font-black text-slate-500 uppercase tracking-widest group">
+                            <span>Selected Extras</span>
+                            <span className="text-slate-900 group-hover:text-blue-600 transition-colors">{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span>
+                        </div>
+                    )}
+                    {priceDetails.discountAmount > 0 && (
+                        <div className="flex justify-between text-[11px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50/50 p-2 rounded-lg -mx-2 border border-emerald-100/30">
+                            <span>Special Discount</span>
+                            <span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span>
+                        </div>
+                    )}
+                  </div>
 
-               <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} onClick={handleContinueToBook} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 px-4 rounded-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-[0.98] flex items-center justify-center text-xs uppercase tracking-[0.2em]">
-                  Continue to Book <ArrowRight className="w-5 h-5 ml-3"/>
-               </Link>
-               
-               <p className="text-center text-[9px] font-black text-slate-400 mt-6 flex items-center justify-center gap-2 uppercase tracking-[0.15em]"><ShieldCheck className="w-4 h-4 text-emerald-500"/> 100% Secure Booking</p>
+                  {/* Promo Section */}
+                  <div className="pt-8 mb-10 border-t border-slate-50">
+                      <div className="flex gap-3">
+                          <div className="relative flex-grow">
+                              <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                              <input 
+                                  type="text" 
+                                  placeholder="COUPON CODE" 
+                                  value={promoCodeInput}
+                                  onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
+                                  className="w-full border-slate-100 bg-slate-50 rounded-2xl py-4 pl-12 pr-4 text-[10px] font-black tracking-[0.2em] focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                              />
+                          </div>
+                          <button 
+                            type="button" 
+                            onClick={handleApplyPromo}
+                            className="bg-slate-900 text-white font-black px-6 rounded-2xl text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-slate-900/10"
+                          >
+                            Apply
+                          </button>
+                      </div>
+                      {promoError && <p className="text-red-500 text-[9px] mt-3 font-black uppercase tracking-widest ml-2">{promoError}</p>}
+                      {appliedPromo && <p className="text-emerald-600 text-[9px] mt-3 font-black uppercase tracking-widest flex items-center gap-2 ml-2"><CheckCircle className="w-4 h-4"/> Success: {appliedPromo.code} active</p>}
+                  </div>
+                 
+                 <div className="pt-10 border-t-2 border-dashed border-slate-100 mb-10">
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <span className="font-black text-slate-400 text-[10px] uppercase tracking-[0.3em] block mb-2">Total Amount</span>
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5"/> All inclusive</span>
+                        </div>
+                        <span className="font-black text-slate-900 text-5xl tracking-tighter leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                    </div>
+                 </div>
+
+                 <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100/50 space-y-4 mb-10">
+                     <div className="flex justify-between font-black text-slate-900 text-[10px] uppercase tracking-[0.2em]"><span>Pay online now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
+                     <div className="flex justify-between font-black text-slate-400 text-[10px] uppercase tracking-[0.2em]"><span>Pay at counter</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
+                 </div>
+
+                 <Link to={`/book/${car.id}?${bookingSearchParams}`} state={{ cars: cars }} onClick={handleContinueToBook} className="group relative w-full bg-slate-900 hover:bg-blue-600 text-white font-black py-6 rounded-2xl shadow-2xl shadow-slate-900/20 transition-all duration-500 active:scale-[0.98] flex items-center justify-center text-xs uppercase tracking-[0.3em] overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <span className="relative z-10 flex items-center gap-4">
+                        Continue Booking <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/>
+                    </span>
+                 </Link>
+                 
+                 <p className="text-center text-[9px] font-black text-slate-300 mt-8 flex items-center justify-center gap-3 uppercase tracking-[0.2em]"><ShieldCheck className="w-4 h-4 text-emerald-500"/> Secure Data Encryption</p>
+              </div>
+
+              {/* Trust Badge Card */}
+              <div className="bg-gradient-to-br from-emerald-50 to-white rounded-[2rem] border border-emerald-100 p-8">
+                  <div className="flex items-start gap-4">
+                      <div className="bg-emerald-600 text-white p-2 rounded-xl shadow-lg shadow-emerald-600/20"><Shield className="w-5 h-5"/></div>
+                      <div>
+                          <h4 className="font-black text-slate-900 text-[11px] uppercase tracking-widest mb-2">Money Back Guarantee</h4>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed opacity-70">Cancel up to 48 hours before pick-up for a full refund.</p>
+                      </div>
+                  </div>
+              </div>
             </div>
           </div>
         </div>

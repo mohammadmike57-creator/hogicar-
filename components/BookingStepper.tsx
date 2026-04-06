@@ -14,77 +14,65 @@ const steps = [
 ];
 
 const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
-  const currentStepInfo = steps.find(s => s.step === currentStep);
-
   return (
-    <div className="w-full mb-4 md:mb-6">
-      {/* --- MOBILE STEPPER --- */}
-      <div className="md:hidden bg-white py-1.5 px-4 shadow-sm border-b border-slate-200">
-        <div className="flex justify-between items-center mb-1.5">
-          <div className="flex items-center gap-2">
-            {currentStepInfo && (
-              <>
-                <div className="w-6 h-6 rounded-full flex items-center justify-center bg-blue-600 text-white flex-shrink-0">
-                  <currentStepInfo.icon className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-500">Step {currentStep}</p>
-                  <p className="font-bold text-[11px] text-slate-800">{currentStepInfo.label}</p>
-                </div>
-              </>
-            )}
-          </div>
-          <p className="text-xs font-bold text-slate-500 flex-shrink-0 ml-2">{currentStep} <span className="font-normal">/ {steps.length}</span></p>
-        </div>
-        <div className="w-full bg-slate-200 rounded-full h-0.5 mt-1.5">
-          <div
-            className="bg-blue-600 h-0.5 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
+    <div className="w-full mb-10">
       {/* --- DESKTOP STEPPER --- */}
-      <div className="hidden md:block w-full bg-transparent py-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center">
+      <div className="hidden md:block w-full">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="flex items-center justify-between relative">
+            {/* Background connecting line */}
+            <div className="absolute top-5 left-0 right-0 h-[2px] bg-slate-100 z-0"></div>
+            
             {steps.map((step, index) => {
               const isCompleted = currentStep > step.step;
               const isActive = currentStep === step.step;
               const Icon = step.icon;
 
               return (
-                <React.Fragment key={step.step}>
-                  <div className="flex flex-col items-center text-center">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300
-                        ${isCompleted ? 'bg-green-500 border-green-500 text-white' : ''}
-                        ${isActive ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/50' : ''}
-                        ${!isCompleted && !isActive ? 'bg-white border-slate-300 text-slate-400' : ''}
-                      `}
-                    >
-                      {isCompleted ? <CheckCircle className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
-                    </div>
+                <div key={step.step} className="relative z-10 flex flex-col items-center group">
+                  <div
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center border-2 transition-all duration-700
+                      ${isCompleted ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/20' : ''}
+                      ${isActive ? 'bg-slate-900 border-slate-900 text-white shadow-2xl shadow-slate-900/30 scale-110' : ''}
+                      ${!isCompleted && !isActive ? 'bg-white border-slate-100 text-slate-300' : ''}
+                    `}
+                  >
+                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Icon className={`w-4.5 h-4.5 ${isActive ? 'animate-pulse' : ''}`} />}
+                  </div>
+                  <div className="absolute top-14 w-32 text-center">
                     <p
-                      className={`mt-2 text-[10px] md:text-xs font-bold w-20 md:w-24 transition-colors duration-300
-                        ${isActive ? 'text-blue-600' : ''}
-                        ${isCompleted ? 'text-slate-700' : 'text-slate-400'}
+                      className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-500
+                        ${isActive ? 'text-slate-900 opacity-100' : 'text-slate-400 opacity-60'}
+                        ${isCompleted ? 'text-emerald-600 opacity-100' : ''}
                       `}
                     >
                       {step.label}
                     </p>
                   </div>
-                  {index < steps.length - 1 && (
-                    <div
-                      className={`flex-1 h-1 transition-colors duration-500 -mt-8
-                        ${isCompleted ? 'bg-green-500' : 'bg-slate-200'}
-                      `}
-                    ></div>
-                  )}
-                </React.Fragment>
+                </div>
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* --- MOBILE STEPPER (COMPACT) --- */}
+      <div className="md:hidden">
+        <div className="flex items-center justify-between bg-white/50 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    {steps[currentStep-1]?.icon && React.createElement(steps[currentStep-1].icon, { className: "w-5 h-5" })}
+                </div>
+                <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Step 0{currentStep}</p>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-[0.1em]">{steps[currentStep-1]?.label}</p>
+                </div>
+            </div>
+            <div className="flex gap-1">
+                {steps.map(s => (
+                    <div key={s.step} className={`h-1.5 rounded-full transition-all duration-500 ${s.step === currentStep ? 'w-6 bg-blue-600' : 'w-2 bg-slate-200'}`}></div>
+                ))}
+            </div>
         </div>
       </div>
     </div>
