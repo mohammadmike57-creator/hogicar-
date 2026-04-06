@@ -334,38 +334,39 @@ const CarDetails: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Title, Image & Specs Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
                 <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/2 bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center relative">
+                    <div className="md:w-1/2 bg-slate-50 p-8 flex items-center justify-center relative">
                          {/* Subtle background pattern */}
-                         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                         <div className="relative z-10 w-full max-w-sm">
-                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-500" />
+                         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+                         <div className="relative z-10 w-full">
+                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain drop-shadow-2xl transform hover:scale-110 transition-transform duration-700 ease-out" />
                          </div>
-                         <div className="absolute top-4 left-4">
-                             <span className="bg-white text-blue-700 text-xs font-extrabold px-3 py-1.5 rounded-full shadow-sm border border-slate-100 uppercase tracking-wider">{car.category}</span>
+                         <div className="absolute top-6 left-6 flex flex-col gap-2">
+                             <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg shadow-lg uppercase tracking-widest">{car.category}</span>
+                             {car.tags && car.tags[0] && (
+                                <span className="bg-white text-slate-900 text-[10px] font-black px-3 py-1.5 rounded-lg shadow-md border border-slate-100 uppercase tracking-widest">{car.tags[0]}</span>
+                             )}
                          </div>
                     </div>
-                    <div className="md:w-1/2 p-8 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-2">
-                           <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1"><Sparkles className="w-3 h-3"/> Top Choice</span>
+                    <div className="md:w-1/2 p-10 flex flex-col justify-center">
+                        <div className="flex items-center gap-2 mb-4">
+                           <div className="bg-green-500/10 text-green-600 text-[10px] font-black px-2.5 py-1 rounded-md flex items-center gap-1 border border-green-500/20 uppercase tracking-wider"><Sparkles className="w-3.5 h-3.5"/> Recommended</div>
+                           <div className="bg-blue-500/10 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-md flex items-center gap-1 border border-blue-500/20 uppercase tracking-wider"><CheckCircle className="w-3.5 h-3.5"/> Verified</div>
                         </div>
-                        <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
-                        <p className="text-sm text-slate-500 mt-2 flex items-center gap-1.5 font-medium">
+                        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
+                        <p className="text-base text-slate-400 mt-4 flex items-center gap-2 font-bold italic">
                             or similar {car.type}
                             <InfoTooltip text="You are booking a car from a specific category. The model shown is an example, but you will receive a similar vehicle with the same main features (size, transmission, etc.)." />
                         </p>
                         
-                        <div className="mt-8">
-                             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Vehicle Specifications</h3>
-                             <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                                {carSpecs.map(spec => (
-                                    <div key={spec.label} className="flex items-center gap-3 text-slate-700">
-                                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 text-blue-600"><spec.icon className="w-4 h-4" /></div>
-                                        <span className="text-sm font-semibold">{spec.label}</span>
-                                    </div>
-                                ))}
-                             </div>
+                        <div className="mt-10 grid grid-cols-2 gap-y-5 gap-x-8">
+                            {carSpecs.slice(0, 4).map(spec => (
+                                <div key={spec.label} className="flex items-center gap-4 text-slate-700 group">
+                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm"><spec.icon className="w-5 h-5" /></div>
+                                    <span className="text-sm font-bold text-slate-800">{spec.label}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

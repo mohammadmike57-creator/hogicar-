@@ -279,56 +279,74 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex items-center gap-5">
-               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                   <img src={car.image} alt={car.model} className="w-32 h-auto object-contain drop-shadow-md" />
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center gap-6">
+               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex-shrink-0">
+                   <img src={car.image} alt={car.model} className="w-36 h-auto object-contain drop-shadow-xl" />
                </div>
                <div>
-                  <h1 className="text-xl font-extrabold text-slate-900">{car.displayName || `${car.make} ${car.model}`}</h1>
-                  <p className="text-sm font-medium text-slate-500 mt-1">{car.category} &bull; {car.transmission}</p>
-                  <div className="flex items-center gap-2 mt-3">
-                      <img src={car.supplier.logo} alt={car.supplier.name} className="h-6 object-contain" />
-                      <p className="text-xs font-bold text-slate-600">Provided by {car.supplier.name}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest">{car.category}</span>
+                  </div>
+                  <h1 className="text-2xl font-black text-slate-900 leading-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
+                  <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-wider">{car.transmission} &bull; {car.fuelPolicy}</p>
+                  <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-50">
+                      <img src={car.supplier.logo} alt={car.supplier.name} className="h-8 object-contain" />
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Supplier</p>
+                        <p className="text-xs font-black text-slate-700">{car.supplier.name}</p>
+                      </div>
                   </div>
                </div>
             </div>
             
             {/* Driver Details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-               <h2 className="text-lg font-extrabold text-slate-900 mb-5 flex items-center gap-2"><User className="w-5 h-5 text-blue-600"/> Driver Details</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Email Address</label><FormInput icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required /></div>
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Phone Number</label><FormInput icon={Phone} type="tel" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
-                  <div className="md:col-span-2"><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Flight Number (Optional)</label><FormInput icon={Plane} type="text" placeholder="e.g. AA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value)} /> <p className="text-[10px] text-slate-400 mt-1.5 font-medium">Helps the supplier track delays.</p></div>
+            <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
+               <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3"><User className="w-6 h-6 text-blue-600"/> Driver Details</h2>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required /></div>
+                  <div><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required /></div>
+                  <div><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Address</label><FormInput icon={Mail} type="email" placeholder="you@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required /></div>
+                  <div><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Phone Number</label><FormInput icon={Phone} type="tel" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                  <div className="md:col-span-2"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Flight Number (Optional)</label><FormInput icon={Plane} type="text" placeholder="e.g. AA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value)} /> <p className="text-[10px] text-slate-400 mt-2 font-bold flex items-center gap-1"><Info className="w-3 h-3"/> Helps the supplier track delays for airport pickups.</p></div>
                </div>
             </div>
 
 
             {/* Payment Details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-               <h2 className="text-lg font-extrabold text-slate-900 mb-5 flex items-center gap-2"><CreditCard className="w-5 h-5 text-blue-600"/> Payment Details</h2>
-               <div className="space-y-5">
-                  <div><label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value)} required={priceDetails.payNow > 0} /></div>
+            <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
+               <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3"><CreditCard className="w-6 h-6 text-blue-600"/> Payment Details</h2>
+               <div className="space-y-6">
+                  <div><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Cardholder Name</label><FormInput icon={User} type="text" placeholder="John M Doe" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value)} required={priceDetails.payNow > 0} /></div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Card Details</label>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Card Details</label>
                     {stripeEnabled ? (
-                      <div className="rounded border border-gray-300 px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                        <CardElement options={{ hidePostalCode: true }} />
+                      <div className="rounded-lg border border-slate-200 px-4 py-3.5 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 bg-slate-50/50 transition-all">
+                        <CardElement options={{ 
+                            hidePostalCode: true,
+                            style: {
+                                base: {
+                                    fontSize: '16px',
+                                    color: '#1e293b',
+                                    '::placeholder': {
+                                        color: '#94a3b8',
+                                    },
+                                },
+                            }
+                        }} />
                       </div>
                     ) : stripeConfigLoading ? (
-                      <div className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700">
+                      <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-700 flex items-center gap-3">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                         Loading secure payment form...
                       </div>
                     ) : (
-                      <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
                         Stripe payment is currently unavailable.
                       </div>
                     )}
                   </div>
                   {paymentError && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+                    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
                       {paymentError}
                     </div>
                   )}

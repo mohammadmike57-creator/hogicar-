@@ -401,34 +401,34 @@ export const Search: React.FC = () => {
     />
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 shadow-lg border-b border-slate-700 sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-2 py-2 sm:py-3 sm:px-6 lg:px-8">
+      <div className="bg-slate-900 shadow-xl border-b border-slate-800 sticky top-16 z-30">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="flex justify-between items-center cursor-pointer group bg-gradient-to-r from-white to-slate-50 hover:from-white hover:to-blue-50 transition-colors duration-200 p-1.5 sm:p-2 rounded-2xl border border-slate-200 hover:border-blue-300 shadow-sm"
+              className="flex justify-between items-center cursor-pointer group bg-slate-800 hover:bg-slate-700 transition-all duration-300 p-2 sm:p-3 rounded-2xl border border-slate-700 hover:border-blue-500/50 shadow-inner"
             >
-              <div className="flex-grow grid grid-cols-2 gap-x-1 sm:gap-x-4 items-center">
-                <div className="p-1 sm:p-2 flex items-center gap-1 sm:gap-2">
-                  <div className="bg-blue-50 p-1 sm:p-3 rounded-md sm:rounded-lg flex-shrink-0"><MapPin className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600"/></div>
+              <div className="flex-grow grid grid-cols-2 gap-x-2 sm:gap-x-6 items-center">
+                <div className="flex items-center gap-2 sm:gap-3 px-2">
+                  <div className="bg-blue-500/10 p-2 rounded-xl flex-shrink-0 border border-blue-500/20"><MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400"/></div>
                   <div className="min-w-0">
-                    <p className="text-[9px] sm:text-xs text-slate-500 font-medium">Location</p>
-                    <p className="font-bold text-[10px] sm:text-sm text-slate-800 truncate group-hover:text-blue-700 transition-colors">{location || 'Select Location'}</p>
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Location</p>
+                    <p className="font-bold text-xs sm:text-base text-white truncate group-hover:text-blue-300 transition-colors">{location || 'Select Location'}</p>
                   </div>
                 </div>
-                <div className="p-1 sm:p-2 flex items-center gap-1 sm:gap-2 border-l border-slate-200">
-                  <div className="bg-blue-50 p-1 sm:p-3 rounded-md sm:rounded-lg flex-shrink-0"><Calendar className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600"/></div>
+                <div className="flex items-center gap-2 sm:gap-3 px-2 border-l border-slate-700">
+                  <div className="bg-blue-500/10 p-2 rounded-xl flex-shrink-0 border border-blue-500/20"><Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400"/></div>
                   <div className="min-w-0">
-                    <p className="text-[9px] sm:text-xs text-slate-500 font-medium">Dates & Times</p>
-                    <div className="font-bold text-[9px] sm:text-sm text-slate-800 group-hover:text-blue-700 transition-colors flex items-center flex-wrap gap-x-1">
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Dates & Times</p>
+                    <div className="font-bold text-[10px] sm:text-sm text-white group-hover:text-blue-300 transition-colors flex items-center flex-wrap gap-x-1">
                       <span className="truncate">{startDateTimeDisplay}</span>
-                      <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
+                      <ArrowRight className="w-3 h-3 text-slate-500 flex-shrink-0" />
                       <span className="truncate">{endDateTimeDisplay}</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="ml-1 sm:ml-4 flex-shrink-0">
-                  <div className="flex items-center gap-1 text-blue-600 font-bold text-sm py-1 px-2 sm:py-3 sm:px-4 rounded-md sm:rounded-lg bg-blue-100/50 group-hover:bg-blue-100 transition-colors">
+              <div className="ml-2 sm:ml-4 flex-shrink-0">
+                  <div className="flex items-center gap-1.5 text-white font-bold text-xs sm:text-sm py-2 px-3 sm:py-3 sm:px-5 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20">
                       <Edit className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">Modify</span>
                   </div>
@@ -478,12 +478,12 @@ export const Search: React.FC = () => {
       <BookingStepper currentStep={2} />
 
        {/* Category Image Filter */}
-      <div className="bg-white border-b border-slate-200 py-3 sm:py-4">
+      <div className="bg-white border-b border-slate-200 py-4 sm:py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
                 <div>
-                  <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">Filter by Category</h2>
-                  <p className="text-[10px] sm:text-xs font-semibold text-slate-500">Choose a class to quickly refine the results.</p>
+                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-blue-600"/> Filter by Category</h2>
+                  <p className="text-xs font-bold text-slate-500">Select a vehicle class to quickly narrow down your options.</p>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5">
                     <span className="text-xs text-slate-500 font-bold">Sort by:</span>
@@ -894,22 +894,18 @@ export const Search: React.FC = () => {
                     Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
                 </p>
                 {/* Professional green border - each card wrapped with exact fit */}
-                <div className="space-y-4">
+                <div className="space-y-4 md:space-y-0 px-2 md:px-0">
                     {sortedAndFilteredCars.map(car => (
-                        <div 
+                        <CarCard 
                             key={car.id} 
-                            className="border-2 border-green-500 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
-                        >
-                            <CarCard 
-                                car={car}
-                                cars={sortedAndFilteredCars}
-                                days={days}
-                                startDate={startDate}
-                                endDate={endDate}
-                                pickupCode={pickupIata}
-                                dropoffCode={dropoffIata || pickupIata}
-                            />
-                        </div>
+                            car={car}
+                            cars={sortedAndFilteredCars}
+                            days={days}
+                            startDate={startDate}
+                            endDate={endDate}
+                            pickupCode={pickupIata}
+                            dropoffCode={dropoffIata || pickupIata}
+                        />
                     ))}
                     {sortedAndFilteredCars.length === 0 && (
                          <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">

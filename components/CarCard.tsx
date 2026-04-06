@@ -298,7 +298,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white md:rounded-xl md:shadow-sm hover:shadow-lg border-b md:border border-slate-200 transition-all duration-300 py-3 md:p-4 w-full md:mb-3">
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-green-500 transition-all duration-300 py-2.5 px-3 md:p-4 w-full mb-3 md:mb-4 scale-95 md:scale-100 origin-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 md:px-0">
               
               {/* --- LEFT COLUMN: IMAGE, SPECS, SUPPLIER --- */}
