@@ -13,7 +13,6 @@ import { calcPricing, rentalDays } from '../utils/pricing';
 import { api } from '../api';
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: string]: any }) => (
   <div className="relative">
@@ -29,11 +28,12 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
 
 type BookingPageContentProps = {
   stripeEnabled: boolean;
+  stripeConfigLoading: boolean;
   stripeInstance: ReturnType<typeof useStripe>;
   elementsInstance: ReturnType<typeof useElements>;
 };
 
-const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeInstance, elementsInstance }) => {
+const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -124,6 +124,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
     if (!search.pickupCode || !search.dropoffCode) {
       alert("Pickup/Dropoff location code is missing. Please start your search again.");
+      return;
+    }
+    if (priceDetails.payNow > 0 && stripeConfigLoading) {
+      alert('Stripe is still loading. Please wait a moment and try again.');
       return;
     }
     if (priceDetails.payNow > 0 && !stripeEnabled) {
@@ -279,6 +283,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                       <div className="rounded border border-gray-300 px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                         <CardElement options={{ hidePostalCode: true }} />
                       </div>
+                    ) : stripeConfigLoading ? (
+                      <div className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700">
+                        Loading secure payment form...
+                      </div>
                     ) : (
                       <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
                         Stripe payment is currently unavailable.
@@ -361,20 +369,51 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 };
 
 const BookingPage: React.FC = () => {
-  if (!stripePromise) {
-    return <BookingPageContent stripeEnabled={false} stripeInstance={null} elementsInstance={null} />;
+  const [dynamicStripePromise, setDynamicStripePromise] = React.useState<ReturnType<typeof loadStripe> | null>(
+    stripePublishableKey ? loadStripe(stripePublishableKey) : null
+  );
+  const [stripeConfigLoading, setStripeConfigLoading] = React.useState(!stripePublishableKey);
+
+  React.useEffect(() => {
+    if (stripePublishableKey) {
+      return;
+    }
+    let cancelled = false;
+    const loadStripeConfig = async () => {
+      try {
+        const config = await api.fetchStripeConfig();
+        const key = (config?.publishableKey || '').trim();
+        if (!cancelled && key) {
+          setDynamicStripePromise(loadStripe(key));
+        }
+      } catch (error) {
+        console.error('Failed to fetch Stripe config from backend:', error);
+      } finally {
+        if (!cancelled) {
+          setStripeConfigLoading(false);
+        }
+      }
+    };
+    loadStripeConfig();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!dynamicStripePromise) {
+    return <BookingPageContent stripeEnabled={false} stripeConfigLoading={stripeConfigLoading} stripeInstance={null} elementsInstance={null} />;
   }
   return (
-    <Elements stripe={stripePromise}>
-      <BookingPageWithStripe />
+    <Elements stripe={dynamicStripePromise}>
+      <BookingPageWithStripe stripeConfigLoading={false} />
     </Elements>
   );
 };
 
-const BookingPageWithStripe: React.FC = () => {
+const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean }> = ({ stripeConfigLoading }) => {
   const stripe = useStripe();
   const elements = useElements();
-  return <BookingPageContent stripeEnabled={true} stripeInstance={stripe} elementsInstance={elements} />;
+  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} />;
 };
 
 export default BookingPage;

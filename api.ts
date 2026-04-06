@@ -181,6 +181,11 @@ export const createBooking = async (bookingData: any): Promise<Booking & { clien
   return response.data;
 };
 
+export const fetchStripeConfig = async (): Promise<{ publishableKey: string }> => {
+  const response = await publicAxios.get(`${API_BASE_URL}/api/public/stripe/config`);
+  return response.data || { publishableKey: '' };
+};
+
 export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]> => {
   try {
     const url = locationCode 
@@ -238,6 +243,7 @@ export const api = {
   confirmModification,
   submitReview,
   createBooking,
+  fetchStripeConfig,
   fetchPublicSuppliers,
   fetchHomepageLogos,
   fetchSearchingLogos,
