@@ -300,7 +300,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                   
                   <div className="flex items-center justify-center md:justify-start gap-6 mt-8 pt-8 border-t border-slate-50">
                       <div className="bg-white border border-slate-100 p-3 rounded-xl shadow-sm">
-                        <img src={car.supplier.logo} alt={car.supplier.name} className="h-6 w-20 object-contain" />
+                        <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 w-auto object-contain" />
                       </div>
                       <div>
                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] leading-none mb-2">Service Provider</p>
