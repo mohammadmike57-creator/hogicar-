@@ -808,7 +808,7 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
             };
             await supplierApi.bulkUpdateRates(payload);
             setActivationNotice({
-                location: activeLocation === 'global' ? 'Global Strategy' : activeLocation,
+                location: activeLocation,
                 cars: selectedCars.length,
                 sippCodes: selectedSippCodes.length,
                 seasons: batchSeasons.length,
@@ -1344,13 +1344,35 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-    const [selectedLocation, setSelectedLocation] = useState<string>('global');
+    const [selectedLocation, setSelectedLocation] = useState<string>('');
     const [isManualPricingActive, setIsManualPricingActive] = useState(false);
+
+    const supplierLocationOptions = useMemo(() => (
+        (supplier.locations || [])
+            .map((loc: any) => {
+                const code = String(loc?.value ?? loc?.locationCode ?? '').trim().toUpperCase();
+                const label = String(loc?.label ?? loc?.displayName ?? code).trim();
+                return { code, label };
+            })
+            .filter((loc: any) => loc.code && loc.code !== 'ALL' && loc.code !== 'GLOBAL')
+    ), [supplier.locations]);
+
+    useEffect(() => {
+        if (supplierLocationOptions.length === 0) {
+            if (selectedLocation !== '') setSelectedLocation('');
+            return;
+        }
+
+        const isCurrentValid = supplierLocationOptions.some((loc: any) => loc.code === selectedLocation);
+        if (!isCurrentValid) {
+            setSelectedLocation(supplierLocationOptions[0].code);
+        }
+    }, [supplierLocationOptions, selectedLocation]);
 
     const fetchConfig = async () => {
         setIsLoading(true);
         try {
-            const locCode = selectedLocation === 'global' ? undefined : selectedLocation;
+            const locCode = selectedLocation || undefined;
             const res = await supplierApi.getTemplateConfig(locCode);
             setConfig(res.data);
         } catch (e) { console.error(e); }
@@ -1361,12 +1383,12 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
 
     const handleDownload = async () => {
         try {
-            const locCode = selectedLocation === 'global' ? undefined : selectedLocation;
+            const locCode = selectedLocation || undefined;
             const res = await supplierApi.downloadTemplate(locCode);
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            const filenameSuffix = selectedLocation === 'global' ? 'Global' : selectedLocation;
+            const filenameSuffix = selectedLocation || 'Default';
             link.setAttribute('download', `HogiCar_Rates_${supplier.name.replace(/\s/g, '_')}_${filenameSuffix}.xlsx`);
             document.body.appendChild(link);
             link.click();
@@ -1397,9 +1419,8 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                         onChange={(e) => setSelectedLocation(e.target.value)}
                         className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-gray-900 outline-none pr-8 cursor-pointer"
                     >
-                        <option value="global">Global Strategy</option>
-                        {supplier.locations?.map((loc) => (
-                            <option key={loc.value} value={loc.value}>{loc.label || loc.value}</option>
+                        {supplierLocationOptions.map((loc: any) => (
+                            <option key={loc.code} value={loc.code}>{loc.label}</option>
                         ))}
                     </select>
                 </div>
@@ -1537,7 +1558,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             {/* Strategy Overview */}
             {config && !isManualPricingActive && (
                 <div className="space-y-8">
-                    {selectedLocation !== 'global' && !config.locationCode && (
+                    {selectedLocation && !config.locationCode && (
                         <div className="p-6 bg-orange-50 border border-orange-100 rounded-[2rem] flex items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-white rounded-2xl shadow-sm">
@@ -1995,7 +2016,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
         minRentalDays: 1,
         maxRentalDays: 30,
         maxBookingLeadTimeDays: 365,
-        locationCode: locationCode === 'global' ? undefined : locationCode
+        locationCode: locationCode || undefined
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -2004,7 +2025,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
             if (config) {
                 setLocalConfig({
                     ...config,
-                    locationCode: locationCode === 'global' ? undefined : locationCode
+                    locationCode: locationCode || undefined
                 });
             } else {
                 setLocalConfig({
@@ -2017,7 +2038,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     minRentalDays: 1,
                     maxRentalDays: 30,
                     maxBookingLeadTimeDays: 365,
-                    locationCode: locationCode === 'global' ? undefined : locationCode
+                    locationCode: locationCode || undefined
                 });
             }
         }
@@ -2079,12 +2100,12 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
     const handleInherit = async (sourceLoc: string) => {
         if (!confirm(`This will overwrite your current settings for this location with the ones from ${sourceLoc}. Continue?`)) return;
         try {
-            const locCode = sourceLoc === 'global' ? undefined : sourceLoc;
+            const locCode = sourceLoc || undefined;
             const res = await supplierApi.getTemplateConfig(locCode);
             if (res.data) {
                 setLocalConfig({
                     ...res.data,
-                    locationCode: locationCode === 'global' ? undefined : locationCode,
+                    locationCode: locationCode || undefined,
                     id: localConfig.id // Preserve local ID if it exists
                 });
             }
@@ -2114,10 +2135,14 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                             className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-white outline-none px-4 py-2 cursor-pointer"
                         >
                             <option value="" disabled className="text-slate-900">Choose Source...</option>
-                            {locationCode !== 'global' && <option value="global" className="text-slate-900">Global Strategy</option>}
-                            {supplier?.locations?.filter((l: any) => l.locationCode !== locationCode).map((l: any) => (
-                                <option key={l.locationCode} value={l.locationCode} className="text-slate-900">{l.displayName || l.locationCode}</option>
-                            ))}
+                            {supplier?.locations?.filter((l: any) => {
+                                const code = String(l?.locationCode ?? l?.value ?? '').trim().toUpperCase();
+                                return code && code !== String(locationCode || '').trim().toUpperCase() && code !== 'ALL' && code !== 'GLOBAL';
+                            }).map((l: any) => {
+                                const code = String(l?.locationCode ?? l?.value ?? '').trim().toUpperCase();
+                                const label = l?.displayName || l?.label || code;
+                                return <option key={code} value={code} className="text-slate-900">{label}</option>;
+                            })}
                         </select>
                     </div>
                 </div>
