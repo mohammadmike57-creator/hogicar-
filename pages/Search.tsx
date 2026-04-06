@@ -9,7 +9,6 @@ import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchRe
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
-import BookingStepper from '../components/BookingStepper';
 import SearchWidget from '../components/SearchWidget';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
@@ -475,7 +474,6 @@ export const Search: React.FC = () => {
         </div>
       </div>
       
-      <BookingStepper currentStep={2} />
 
        {/* Category Image Filter */}
       <div className="bg-white border-b border-slate-200 py-4 sm:py-6">
@@ -893,7 +891,6 @@ export const Search: React.FC = () => {
                 <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
                     Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
                 </p>
-                {/* Professional green border - each card wrapped with exact fit */}
                 <div className="space-y-4 md:space-y-0 px-2 md:px-0">
                     {sortedAndFilteredCars.map(car => (
                         <CarCard 
