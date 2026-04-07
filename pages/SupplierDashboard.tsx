@@ -1704,35 +1704,57 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
 
 // ==================== EditCarModal Component ====================
 const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
+  const supplierLocations = useMemo(() => {
+    return (supplier?.locations ?? [])
+      .map((loc: any) => {
+        const locationCode = String(loc?.locationCode ?? loc?.value ?? '').trim().toUpperCase();
+        const displayName = loc?.displayName || loc?.label || loc?.name || locationCode;
+        return { ...loc, locationCode, displayName };
+      })
+      .filter((loc: any) => loc.locationCode && loc.locationCode !== 'ALL' && loc.locationCode !== 'GLOBAL');
+  }, [supplier]);
+
+  const defaultLocationCode = supplierLocations[0]?.locationCode || String(supplier?.locationCode ?? '').trim().toUpperCase();
+
   const [formData, setFormData] = useState<any>({
     name: '', make: '', model: '', year: new Date().getFullYear(),
     sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
     passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
     deposit: 0, 
     unlimitedMileage: true, available: true,
-    locationCode: supplier?.locationCode || '',
+    locationCode: defaultLocationCode,
     locationName: '',
   });
   const [carModels, setCarModels] = useState<CarModel[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isCustomLocation, setIsCustomLocation] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      if (car) setFormData({ ...car, available: car.isAvailable ?? car.available });
-      else setFormData({
-        name: '', make: '', model: '', year: new Date().getFullYear(),
-        sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
-        passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
-        deposit: 0, 
-        unlimitedMileage: true, available: true,
-        locationCode: supplier?.locationCode || '',
-        locationName: '',
-      });
-      setIsCustomLocation(false);
+      if (car) {
+        const incomingCode = String(car?.locationCode ?? '').trim().toUpperCase();
+        const matchedLocation = supplierLocations.find((loc: any) => loc.locationCode === incomingCode);
+        const resolvedLocation = matchedLocation || supplierLocations[0] || null;
+
+        setFormData({
+          ...car,
+          available: car.isAvailable ?? car.available,
+          locationCode: resolvedLocation?.locationCode || '',
+          locationName: resolvedLocation?.displayName || car?.locationName || '',
+        });
+      } else {
+        setFormData({
+          name: '', make: '', model: '', year: new Date().getFullYear(),
+          sippCode: '', category: 'ECONOMY', transmission: 'MANUAL', fuelPolicy: 'FULL_TO_FULL',
+          passengers: 5, bags: 2, doors: 4, airConditioning: true, imageUrl: '',
+          deposit: 0, 
+          unlimitedMileage: true, available: true,
+          locationCode: defaultLocationCode,
+          locationName: supplierLocations.find((loc: any) => loc.locationCode === defaultLocationCode)?.displayName || '',
+        });
+      }
       supplierApi.getCarModels().then(res => setCarModels(res.data)).catch(console.error);
     }
-  }, [isOpen, car, supplier]);
+  }, [isOpen, car, supplier, supplierLocations, defaultLocationCode]);
 
   const handleModelSelect = (modelId: string) => {
     const selectedModel = carModels.find(m => m.id.toString() === modelId);
@@ -1755,9 +1777,25 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsSaving(true);
+
+    const selectedLocation = supplierLocations.find(
+      (loc: any) => loc.locationCode === String(formData.locationCode ?? '').trim().toUpperCase()
+    );
+    if (!selectedLocation) {
+      alert('Please choose one of your active supplier locations before saving the car.');
+      setIsSaving(false);
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      locationCode: selectedLocation.locationCode,
+      locationName: selectedLocation.displayName || selectedLocation.locationCode,
+    };
+
     try {
-      if (car?.id) await supplierApi.updateCar(car.id, formData);
-      else await supplierApi.createCar(formData);
+      if (car?.id) await supplierApi.updateCar(car.id, payload);
+      else await supplierApi.createCar(payload);
       onSave(); 
       onClose();
     } catch (e) { alert("Failed to save car"); }
@@ -1863,7 +1901,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
             </div>
 
             <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-slate-200 rounded-xl">
                             <MapPin className="w-5 h-5 text-slate-600" />
@@ -1873,48 +1911,33 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Where this vehicle can be picked up</p>
                         </div>
                     </div>
-                    <button 
-                        type="button"
-                        onClick={() => setIsCustomLocation(!isCustomLocation)}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCustomLocation ? 'bg-orange-600 text-white' : 'bg-white text-slate-400 border border-slate-200'}`}
-                    >
-                        {isCustomLocation ? 'Using Custom Location' : '+ Create New Location'}
-                    </button>
                 </div>
 
-                {isCustomLocation ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-                        <InputField 
-                            label="New Location Code (e.g. DXB, LHR)" 
-                            value={formData.locationCode} 
-                            onChange={(e:any) => handleChange('locationCode', e.target.value.toUpperCase())} 
-                            placeholder="IATA Code"
-                            required
-                        />
-                        <InputField 
-                            label="Location Display Name" 
-                            value={formData.locationName} 
-                            onChange={(e:any) => handleChange('locationName', e.target.value)} 
-                            placeholder="e.g. Dubai Intl Airport"
-                            required
-                        />
-                    </div>
-                ) : (
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Existing Location</label>
-                        <select 
-                            value={formData.locationCode} 
-                            onChange={e => handleChange('locationCode', e.target.value)} 
-                            className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
-                            required
-                        >
-                            <option value="">Choose a location...</option>
-                            {supplier?.locations?.map((loc: any) => (
-                                <option key={loc.id} value={loc.locationCode}>{loc.displayName} ({loc.locationCode})</option>
-                            ))}
-                        </select>
-                    </div>
-                )}
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Supplier Location</label>
+                    <select 
+                        value={formData.locationCode} 
+                        onChange={e => {
+                          const nextCode = e.target.value;
+                          const nextLocation = supplierLocations.find((loc: any) => loc.locationCode === nextCode);
+                          handleChange('locationCode', nextCode);
+                          handleChange('locationName', nextLocation?.displayName || '');
+                        }} 
+                        className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                        required
+                        disabled={supplierLocations.length === 0}
+                    >
+                        <option value="">Choose one of your active locations...</option>
+                        {supplierLocations.map((loc: any) => (
+                            <option key={loc.id || loc.locationCode} value={loc.locationCode}>{loc.displayName} ({loc.locationCode})</option>
+                        ))}
+                    </select>
+                    {supplierLocations.length === 0 && (
+                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest">
+                            No active supplier locations available. Please request/activate a supplier location first.
+                        </p>
+                    )}
+                </div>
             </div>
 
             <div className="flex gap-4 pt-6">
