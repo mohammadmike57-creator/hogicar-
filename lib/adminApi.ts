@@ -21,11 +21,16 @@ export async function adminFetch(path: string, options: RequestInit = {}, suppre
     const token = getAdminToken();
     const url = `${API_BASE_URL}${path}`;
 
-    const headers = new Headers(options.headers || {});
-    
-    if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+    if (!token) {
+        if (!suppressRedirect) {
+            clearAdminToken();
+            window.location.href = '/admin-login?reason=session_expired';
+        }
+        throw new Error('Admin session expired. Please log in again.');
     }
+
+    const headers = new Headers(options.headers || {});
+    headers.set('Authorization', `Bearer ${token}`);
 
     if (options.body && typeof options.body === 'string' && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
@@ -48,7 +53,7 @@ export async function adminFetch(path: string, options: RequestInit = {}, suppre
     if (response.status === 401 || response.status === 403) {
         if (!suppressRedirect) {
             clearAdminToken();
-            window.location.href = '/#/admin-login?reason=session_expired';
+            window.location.href = '/admin-login?reason=session_expired';
         }
         throw new Error('Unauthorized or Forbidden (token missing/invalid)');
     }

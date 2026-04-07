@@ -26,13 +26,13 @@ import { AdminDashboard } from './admin/pages/AdminDashboard';
 
 // --- SUBDOMAIN REDIRECT LOGIC ---
 const host = window.location.hostname.toLowerCase();
-const hash = window.location.hash;
+const pathname = window.location.pathname;
 const search = window.location.search || "";
 
-if (host.startsWith("admin.") && !hash.startsWith("#/admin")) {
-  window.location.replace(`/#/admin${search}`);
-} else if (host.startsWith("supplier.") && !hash.startsWith("#/supplier")) {
-  window.location.replace(`/#/supplier-login${search}`);
+if (host.startsWith("admin.") && pathname !== "/admin" && pathname !== "/admin-login") {
+  window.location.replace(`/admin${search}`);
+} else if (host.startsWith("supplier.") && pathname !== "/supplier" && pathname !== "/supplier-login") {
+  window.location.replace(`/supplier-login${search}`);
 }
 // --- END SUBDOMAIN REDIRECT ---
 
