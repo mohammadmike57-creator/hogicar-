@@ -59,10 +59,12 @@ export default function Footer() {
               <h4 className="text-white font-semibold mb-3">We Accept</h4>
               <div className="flex flex-wrap gap-2">
                 <div className="bg-white rounded px-2 py-1">
-                  <svg width="40" height="25" viewBox="0 0 40 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="40" height="25" rx="4" fill="#1A1F71"/>
-                    <text x="5" y="17" fontFamily="Arial, sans-serif" fontSize="14" fontWeight="bold" fill="white">VISA</text>
-                  </svg>
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg"
+                    alt="Visa"
+                    className="w-10 h-[25px] object-contain"
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
                 <div className="bg-white rounded px-2 py-1">
                   <svg width="40" height="25" viewBox="0 0 40 25" fill="none" xmlns="http://www.w3.org/2000/svg">

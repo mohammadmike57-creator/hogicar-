@@ -7,7 +7,7 @@ import { Logo } from './Logo';
 const VisaIcon = () => (
   <div className="w-[38px] h-[24px] bg-white rounded-sm shadow-md flex items-center justify-center overflow-hidden px-1">
     <img 
-      src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Former_Visa_%28company%29_logo.svg/1024px-Former_Visa_%28company%29_logo.svg.png" 
+      src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg" 
       alt="Visa" 
       className="w-full h-auto object-contain"
       referrerPolicy="no-referrer"
