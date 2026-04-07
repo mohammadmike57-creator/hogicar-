@@ -1186,7 +1186,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData }: any) => (
+const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData }: any) => (
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
     <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div>
@@ -1206,6 +1206,14 @@ const SuppliersContent = ({ suppliers, onEdit, onApprove, onManageApi, onAddSupp
             </button>
         </div>
     </div>
+    {fetchError && (
+        <div className="mx-8 mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <div className="text-xs font-bold">
+                Supplier data could not be refreshed right now. Showing the last saved list.
+            </div>
+        </div>
+    )}
     <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
             <thead>
@@ -2080,6 +2088,7 @@ export const AdminDashboard: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [supplierFetchError, setSupplierFetchError] = useState<string | null>(null);
   const [loadingSuppliers, setLoadingSuppliers] = useState(true);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -2119,9 +2128,10 @@ export const AdminDashboard: React.FC = () => {
         carCount: s.carCount || 0
       }));
       setSuppliers(normalized);
+      setSupplierFetchError(null);
     } catch (e) { 
       console.error('Failed to fetch suppliers', e);
-      setSuppliers([]); 
+      setSupplierFetchError(e instanceof Error ? e.message : 'Failed to fetch suppliers');
     } finally { setLoadingSuppliers(false); }
   };
 
@@ -2368,7 +2378,7 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
-      case 'suppliers': return <SuppliersContent suppliers={suppliers} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={fetchBookings} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={fetchFleet} />;
