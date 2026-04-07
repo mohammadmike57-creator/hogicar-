@@ -10,6 +10,7 @@ import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
+import { API_BASE_URL } from '../lib/config';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
@@ -183,6 +184,7 @@ export const Search: React.FC = () => {
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
   const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
+  const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
 
   React.useEffect(() => {
     const loadLocationSuppliers = async () => {
@@ -197,6 +199,26 @@ export const Search: React.FC = () => {
     };
     loadLocationSuppliers();
   }, [pickupIata]);
+
+  React.useEffect(() => {
+    const loadCategoryImages = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/homepage/category-images`);
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        if (data && typeof data === 'object') {
+          setCategoryImages({ ...(MOCK_CATEGORY_IMAGES as Record<string, string>), ...data });
+        }
+      } catch (err) {
+        console.error('Failed to load category images:', err);
+      }
+    };
+
+    loadCategoryImages();
+  }, []);
 
   React.useEffect(() => {
     if (showMobileFilters || showMobileSort) {
@@ -520,7 +542,7 @@ export const Search: React.FC = () => {
                                   ${isActive
                                       ? 'border-blue-600 shadow-lg shadow-blue-500/30 ring-2 ring-blue-100'
                                       : 'border-slate-200 bg-slate-50 group-hover:border-blue-400 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
-                                  <img src={MOCK_CATEGORY_IMAGES[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
+                                  <img src={categoryImages[category] || (MOCK_CATEGORY_IMAGES as Record<string, string>)[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
                               <div className="text-center leading-tight">
                                   <span className={`text-[8px] sm:text-[9px] md:text-[9px] font-black whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>

@@ -22,11 +22,11 @@ import {
   ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, 
   MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, 
   MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, 
-  MOCK_HOMEPAGE_CONTENT, updateHomepageContent, MOCK_APP_CONFIG, 
+  MOCK_HOMEPAGE_CONTENT, MOCK_APP_CONFIG, 
   updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, 
   MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, 
   MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, 
-  MOCK_CATEGORY_IMAGES, updateCategoryImages, calculatePrice, 
+  MOCK_CATEGORY_IMAGES, calculatePrice, 
   addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
 } from '../../services/mockData';
 import { 
@@ -834,28 +834,149 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => (
 );
 
 // ==================== Homepage ====================
-const HomepageContentSection = ({ content, categoryImages, onSave }: any) => {
-  const [localContent, setLocalContent] = useState(content);
+const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: any) => {
+  const [localContent, setLocalContent] = useState(content || {});
+  const [localCategoryImages, setLocalCategoryImages] = useState<Record<string, string>>(categoryImages || {});
   const [saved, setSaved] = useState(false);
-  const handleSave = () => { onSave(localContent, categoryImages); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+
+  useEffect(() => {
+    setLocalContent(content || {});
+  }, [content]);
+
+  useEffect(() => {
+    setLocalCategoryImages(categoryImages || {});
+  }, [categoryImages]);
+
+  const formatCategoryLabel = (category: string) =>
+    category
+      .toLowerCase()
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+  const handleSave = async () => {
+    await onSave(localContent, localCategoryImages);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   const handleChange = (path: string, val: string) => {
     const parts = path.split('.');
     setLocalContent((prev: any) => {
-      const newState = JSON.parse(JSON.stringify(prev));
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const newState = JSON.parse(JSON.stringify(base));
       let cur = newState;
-      for (let i = 0; i < parts.length-1; i++) cur = cur[parts[i]];
-      cur[parts[parts.length-1]] = val;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!cur[part] || typeof cur[part] !== 'object') {
+          cur[part] = {};
+        }
+        cur = cur[part];
+      }
+      cur[parts[parts.length - 1]] = val;
       return newState;
     });
   };
+
+  const handleCategoryImageUpload = async (category: string, file?: File) => {
+    if (!file) return;
+    try {
+      const resized = await resizeImage(file, 420, 280);
+      setLocalCategoryImages(prev => ({ ...prev, [category]: resized }));
+    } catch (e) {
+      console.error(`Failed to resize category image for ${category}`, e);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLocalCategoryImages(prev => ({ ...prev, [category]: String(reader.result || '') }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
-      <div className="flex justify-between mb-4"><h2 className="text-xl font-bold">Homepage Editor</h2><button onClick={handleSave} className="bg-orange-600 text-white px-4 py-2 rounded">Save</button>{saved && <span className="text-green-600">Saved!</span>}</div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+        <h2 className="text-xl font-bold text-slate-900">Homepage Editor</h2>
+        <div className="flex items-center gap-3">
+          {saved && <span className="text-green-600 text-sm font-bold">Saved!</span>}
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-orange-600 text-white px-4 py-2 rounded-xl font-bold text-sm disabled:opacity-60"
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+      </div>
+
       <div className="space-y-3">
-        <InputField label="Hero Title" value={localContent.hero.title} onChange={e => handleChange('hero.title', e.target.value)} />
-        <InputField label="Hero Subtitle" value={localContent.hero.subtitle} onChange={e => handleChange('hero.subtitle', e.target.value)} />
-        <InputField label="Hero Background" value={localContent.hero.backgroundImage} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
-        <InputField label="FAQs Title" value={localContent.faqs.title} onChange={e => handleChange('faqs.title', e.target.value)} />
+        <InputField label="Hero Title" value={localContent?.hero?.title || ''} onChange={e => handleChange('hero.title', e.target.value)} />
+        <InputField label="Hero Subtitle" value={localContent?.hero?.subtitle || ''} onChange={e => handleChange('hero.subtitle', e.target.value)} />
+        <InputField label="Hero Background" value={localContent?.hero?.backgroundImage || ''} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
+        <InputField label="FAQs Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-slate-100">
+        <h3 className="text-base font-black text-slate-900 mb-1">Category Filter Images</h3>
+        <p className="text-xs text-slate-500 mb-4">Upload an image per category to display in the category filter section.</p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {Object.values(CarCategory).map((category) => {
+            const imageUrl = localCategoryImages?.[category] || '';
+            const fileInputId = `homepage-category-image-${category}`;
+
+            return (
+              <div key={category} className="border border-slate-200 rounded-2xl p-4 space-y-3 bg-slate-50/40">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-sm font-black text-slate-800">{formatCategoryLabel(category)}</div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{category}</span>
+                </div>
+
+                <div className="h-24 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-[11px] font-bold text-slate-400">No image</div>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    id={fileInputId}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      await handleCategoryImageUpload(category, e.target.files?.[0]);
+                      e.target.value = '';
+                    }}
+                  />
+                  <label
+                    htmlFor={fileInputId}
+                    className="flex-1 text-center bg-white border border-orange-200 text-orange-600 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-orange-50 transition-colors"
+                  >
+                    Upload Image
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setLocalCategoryImages(prev => ({ ...prev, [category]: '' }))}
+                    className="px-3 py-2 rounded-xl border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(e) => setLocalCategoryImages(prev => ({ ...prev, [category]: e.target.value }))}
+                  placeholder="Or paste image URL"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700"
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -870,7 +991,6 @@ const SiteSettingsContent = () => {
 
   useEffect(() => {
     adminFetch('/api/admin/settings')
-      .then(res => res.json())
       .then(data => {
         setDuration(data.searchingScreenDuration / 1000);
         setHeroImageUrl(data.heroImageUrl || '');
@@ -1981,7 +2101,9 @@ export const AdminDashboard: React.FC = () => {
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [managingPromosForCar, setManagingPromosForCar] = useState<any>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
-  const [categoryImages, setCategoryImages] = useState(MOCK_CATEGORY_IMAGES);
+  const [categoryImages, setCategoryImages] = useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
+  const [loadingHomepageEditor, setLoadingHomepageEditor] = useState(false);
+  const [savingHomepageEditor, setSavingHomepageEditor] = useState(false);
 
   const fetchSuppliers = async () => {
     setLoadingSuppliers(true);
@@ -2040,6 +2162,23 @@ export const AdminDashboard: React.FC = () => {
     } finally { setLoadingCarLibrary(false); }
   };
 
+  const fetchHomepageEditor = async () => {
+    setLoadingHomepageEditor(true);
+    try {
+      const [contentRes, imagesRes] = await Promise.all([
+        adminFetch('/api/admin/homepage'),
+        adminFetch('/api/admin/homepage/category-images')
+      ]);
+
+      setHomepageContent(contentRes && typeof contentRes === 'object' ? contentRes : MOCK_HOMEPAGE_CONTENT);
+      setCategoryImages(imagesRes && typeof imagesRes === 'object' ? imagesRes : {});
+    } catch (e) {
+      console.error('Failed to fetch homepage editor data', e);
+    } finally {
+      setLoadingHomepageEditor(false);
+    }
+  };
+
   const handleFixData = async () => {
     if (!window.confirm("This will repair data by activating suppliers and locations with cars. Proceed?")) return;
     try {
@@ -2061,6 +2200,12 @@ export const AdminDashboard: React.FC = () => {
     fetchBookings(selectedSupplierId);
     fetchFleet(selectedSupplierId);
   }, [selectedSupplierId]);
+
+  useEffect(() => {
+    if (activeSection === 'homepage') {
+      fetchHomepageEditor();
+    }
+  }, [activeSection]);
 
   const stats = { 
     totalSuppliers: suppliers.length, 
@@ -2197,7 +2342,26 @@ export const AdminDashboard: React.FC = () => {
   const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
   const handleNewSeo = () => { setEditingSeoConfig({}); setIsSeoEditorOpen(true); };
   const handleEditSeo = (config: any) => { setEditingSeoConfig(config); setIsSeoEditorOpen(true); };
-  const handleSaveHomepage = (content: any, images: any) => { updateHomepageContent(content); updateCategoryImages(images); setHomepageContent(content); setCategoryImages(images); };
+  const handleSaveHomepage = async (content: any, images: Record<string, string>) => {
+    setSavingHomepageEditor(true);
+    try {
+      await adminFetch('/api/admin/homepage', {
+        method: 'PUT',
+        body: JSON.stringify(content)
+      });
+      await adminFetch('/api/admin/homepage/category-images', {
+        method: 'PUT',
+        body: JSON.stringify(images)
+      });
+      setHomepageContent(content);
+      setCategoryImages(images);
+    } catch (e: any) {
+      alert(`Failed to save homepage content: ${e.message}`);
+      throw e;
+    } finally {
+      setSavingHomepageEditor(false);
+    }
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -2211,7 +2375,11 @@ export const AdminDashboard: React.FC = () => {
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
       case 'cms': return <CmsContent pages={MOCK_PAGES} onEditPage={handleEditPage} />;
       case 'seo': return <SeoContent configs={MOCK_SEO_CONFIGS} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} />;
-      case 'homepage': return <HomepageContentSection content={homepageContent} categoryImages={categoryImages} onSave={handleSaveHomepage} />;
+      case 'homepage':
+        if (loadingHomepageEditor) {
+          return <div className="p-8 text-center text-slate-500 font-black uppercase tracking-widest text-xs">Loading Homepage Editor...</div>;
+        }
+        return <HomepageContentSection content={homepageContent} categoryImages={categoryImages} onSave={handleSaveHomepage} isSaving={savingHomepageEditor} />;
       case 'sitesettings': return <SiteSettingsContent />;
       case 'promotions': return <PromotionsContent />;
       case 'globallocations': return <GlobalLocationsContent />;
