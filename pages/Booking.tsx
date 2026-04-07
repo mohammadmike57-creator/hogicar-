@@ -21,7 +21,7 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
     </div>
     <input
       {...props}
-      className="block w-full rounded-xl sm:rounded-2xl border border-slate-200/80 bg-[#fcfdff] pl-11 sm:pl-12 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-[15px] sm:text-base text-slate-900 font-medium py-3.5 sm:py-4 transition-all placeholder:text-slate-400 placeholder:font-medium"
+      className="block w-full rounded-xl sm:rounded-2xl border border-slate-300/75 bg-[#f3f6fb] pl-11 sm:pl-12 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-[15px] sm:text-base text-slate-900 font-medium py-3.5 sm:py-4 transition-all placeholder:text-slate-500 placeholder:font-medium"
     />
   </div>
 );
@@ -248,9 +248,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   
   if (!car) {
     return (
-      <div className="bg-slate-50 min-h-screen py-12">
+      <div className="bg-slate-100 min-h-screen py-12">
         <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-[#fcfdff] border border-slate-200 rounded-2xl p-8 text-center shadow-sm">
+          <div className="bg-[#f2f5fa] border border-slate-300/70 rounded-2xl p-8 text-center shadow-sm">
             <h1 className="text-2xl font-black text-slate-900">Booking Details Not Available</h1>
             <p className="text-sm text-slate-600 mt-3">We could not find this selected vehicle in your session. Please return to results and try again.</p>
             <button
@@ -272,7 +272,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-slate-100/60 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-blue-100">
+    <div className="bg-slate-200/55 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-blue-100">
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-10">
             <BookingStepper currentStep={4} />
@@ -282,9 +282,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-10">
             {/* Vehicle Summary Header */}
-            <div className="bg-[#fcfdff] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-300/35 border border-slate-200/70 p-5 sm:p-8 flex flex-col md:flex-row items-center gap-6 sm:gap-10 relative overflow-hidden group">
-               <div className="absolute inset-0 bg-gradient-to-br from-white/70 to-slate-50/80 pointer-events-none"></div>
-               <div className="bg-white/70 p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-200/60 flex-shrink-0 relative overflow-hidden">
+            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-400/30 border border-slate-300/70 p-5 sm:p-8 flex flex-col md:flex-row items-center gap-6 sm:gap-10 relative overflow-hidden group">
+               <div className="absolute inset-0 bg-gradient-to-br from-slate-100/70 to-slate-200/70 pointer-events-none"></div>
+               <div className="bg-slate-100/80 p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-300/60 flex-shrink-0 relative overflow-hidden">
                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
                    <img src={car.image} alt={car.model} className="w-40 sm:w-48 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-110 transition-transform duration-1000" />
                </div>
@@ -299,7 +299,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                   </p>
                   
                   <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
-                      <div className="bg-[#f7faff] border border-slate-200/70 p-2.5 sm:p-3 rounded-xl shadow-sm">
+                      <div className="bg-[#edf2fa] border border-slate-300/70 p-2.5 sm:p-3 rounded-xl shadow-sm">
                         <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
                       </div>
                       <div>
@@ -311,7 +311,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             </div>
             
             {/* Driver Details */}
-            <div className="bg-[#fcfdff] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-300/30 border border-slate-200/70 p-6 sm:p-12">
+            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-400/25 border border-slate-300/70 p-6 sm:p-12">
                <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-6 sm:mb-8 flex items-center gap-3"><User className="w-5 h-5 text-blue-600"/> Main Driver Information</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-6 sm:gap-y-10">
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
@@ -328,14 +328,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
 
             {/* Payment Details */}
-            <div className="bg-[#fcfdff] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-300/30 border border-slate-200/70 p-6 sm:p-12">
+            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-400/25 border border-slate-300/70 p-6 sm:p-12">
                <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-6 sm:mb-8 flex items-center gap-3"><CreditCard className="w-5 h-5 text-blue-600"/> Secure Payment Details</h2>
                <div className="space-y-6 sm:space-y-10">
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Cardholder Name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
                     <label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Card Information</label>
                     {stripeEnabled ? (
-                      <div className="rounded-xl sm:rounded-2xl border border-slate-200 px-4 sm:px-6 py-4 sm:py-5 shadow-sm focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500 bg-[#fcfdff] transition-all">
+                      <div className="rounded-xl sm:rounded-2xl border border-slate-300 px-4 sm:px-6 py-4 sm:py-5 shadow-sm focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500 bg-[#f2f5fb] transition-all">
                         <CardElement options={{ 
                             hidePostalCode: true,
                             style: {
@@ -375,11 +375,11 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                   )}
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10 pt-2 sm:pt-4">
-                     <div className="rounded-2xl sm:rounded-[1.5rem] border border-slate-200/70 bg-white/70 px-5 sm:px-6 py-4 sm:py-5">
+                     <div className="rounded-2xl sm:rounded-[1.5rem] border border-slate-300/70 bg-slate-100/80 px-5 sm:px-6 py-4 sm:py-5">
                         <p className="text-sm font-semibold text-slate-600 mb-2">Check-in Time</p>
                         <p className="text-lg font-semibold text-slate-900">{startTime}</p>
                      </div>
-                     <div className="rounded-2xl sm:rounded-[1.5rem] border border-slate-200/70 bg-white/70 px-5 sm:px-6 py-4 sm:py-5">
+                     <div className="rounded-2xl sm:rounded-[1.5rem] border border-slate-300/70 bg-slate-100/80 px-5 sm:px-6 py-4 sm:py-5">
                         <p className="text-sm font-semibold text-slate-600 mb-2">Check-out Time</p>
                         <p className="text-lg font-semibold text-slate-900">{endTime}</p>
                      </div>
@@ -391,7 +391,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           {/* Sidebar / Booking Summary */}
           <div className="lg:col-span-1">
              <div className="sticky top-6 sm:top-10 space-y-6 sm:space-y-8">
-                <div className="bg-[#fcfdff] rounded-3xl sm:rounded-[2.5rem] shadow-[0_30px_80px_-26px_rgba(15,23,42,0.28)] border border-slate-200/70 p-6 sm:p-10 transition-all duration-500">
+                <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-[0_30px_80px_-26px_rgba(15,23,42,0.28)] border border-slate-300/70 p-6 sm:p-10 transition-all duration-500">
                   <div className="mb-6 sm:mb-10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 text-white flex items-center justify-between shadow-xl shadow-slate-900/20 relative overflow-hidden group/timer gap-4">
                       <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
                       <div>
@@ -446,7 +446,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                      </div>
                    </div>
 
-                   <div className="bg-[#f8fafc] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/70 space-y-3 sm:space-y-4 mb-6 sm:mb-10">
+                   <div className="bg-[#eef2f8] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-300/70 space-y-3 sm:space-y-4 mb-6 sm:mb-10">
                        <div className="flex justify-between font-semibold text-slate-900 text-sm gap-4"><span>Pay online now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
                        <div className="flex justify-between font-semibold text-slate-600 text-sm gap-4"><span>Pay at counter</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
                    </div>
@@ -471,14 +471,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                    
                    <p className="text-center text-xs font-semibold text-slate-600 mt-6 sm:mt-8 flex items-center justify-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600"/> Bank-level security (AES-256)</p>
                    
-                   <div className="bg-[#f3f8ff] border border-blue-100/60 rounded-xl sm:rounded-2xl p-4 sm:p-5 mt-6 sm:mt-10 flex gap-3 sm:gap-4 items-start">
+                   <div className="bg-[#e8eef8] border border-blue-200/70 rounded-xl sm:rounded-2xl p-4 sm:p-5 mt-6 sm:mt-10 flex gap-3 sm:gap-4 items-start">
                      <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5 opacity-70" />
                      <p className="text-xs text-blue-900 leading-relaxed font-medium opacity-90">By confirming this booking, you agree to our <a href="#" className="underline hover:text-blue-950 transition-colors">Global Terms</a> and <a href="#" className="underline hover:text-blue-950 transition-colors">Privacy Policy</a>.</p>
                    </div>
                 </div>
 
                 {/* Secure Trust Badge */}
-                <div className="bg-[#fcfdff] rounded-2xl sm:rounded-[2rem] border border-slate-200/70 p-5 sm:p-8 shadow-xl shadow-slate-300/30 flex items-center gap-4 sm:gap-6">
+                <div className="bg-[#f3f6fb] rounded-2xl sm:rounded-[2rem] border border-slate-300/70 p-5 sm:p-8 shadow-xl shadow-slate-400/25 flex items-center gap-4 sm:gap-6">
                     <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner"><ShieldCheck className="w-6 h-6"/></div>
                     <div>
                         <h4 className="text-sm font-semibold text-slate-900 mb-1">Instant Confirmation</h4>
