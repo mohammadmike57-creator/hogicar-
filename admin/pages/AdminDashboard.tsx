@@ -39,6 +39,7 @@ import {
 // ==================== Helper Functions ====================
 const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
   return new Promise((resolve, reject) => {
+    const MAX_DATA_URL_LENGTH = 500_000;
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -60,7 +61,12 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<s
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/png'));
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          if (dataUrl.length > MAX_DATA_URL_LENGTH) {
+            reject(new Error('Image is too large after optimization. Please upload a smaller image or use an image URL.'));
+            return;
+          }
+          resolve(dataUrl);
         } else {
           reject(new Error("Could not get canvas context"));
         }
@@ -881,15 +887,11 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
   const handleCategoryImageUpload = async (category: string, file?: File) => {
     if (!file) return;
     try {
-      const resized = await resizeImage(file, 420, 280);
+      const resized = await resizeImage(file, 320, 210);
       setLocalCategoryImages(prev => ({ ...prev, [category]: resized }));
-    } catch (e) {
+    } catch (e: any) {
       console.error(`Failed to resize category image for ${category}`, e);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLocalCategoryImages(prev => ({ ...prev, [category]: String(reader.result || '') }));
-      };
-      reader.readAsDataURL(file);
+      alert(e?.message || 'Failed to process image. Please try a smaller file or paste a direct image URL.');
     }
   };
 
@@ -934,7 +936,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 
                 <div className="h-24 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
                   {imageUrl ? (
-                    <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" />
+                    <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width={320} height={210} loading="lazy" />
                   ) : (
                     <div className="text-[11px] font-bold text-slate-400">No image</div>
                   )}
