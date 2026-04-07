@@ -4,7 +4,7 @@ import { useParams, useNavigate, useSearchParams, useLocation } from 'react-rout
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { getPromoCode } from '../services/mockData';
-import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check } from 'lucide-react';
+import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -127,6 +127,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const startTime = search.startTime || search.pickupTime || '10:00';
   const endTime = search.endTime || search.dropoffTime || '10:00';
   const days = rentalDays(startDate, endDate);
+  const pickupLabel = search.pickupName || search.pickup || search.pickupCode || car?.location || 'Pickup location';
+  const dropoffLabel = search.dropoffName || search.dropoff || search.dropoffCode || pickupLabel;
   
   const priceDetails = React.useMemo(() => {
     if (!car) {
@@ -273,16 +275,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         noIndex={true}
       />
     <div className="bg-slate-200/55 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-blue-100">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="mb-6 sm:mb-10">
             <BookingStepper currentStep={4} />
         </div>
 
-        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-10">
+        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 xl:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6 sm:space-y-10">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-400/30 border border-slate-300/70 p-5 sm:p-8 flex flex-col md:flex-row items-center gap-6 sm:gap-10 relative overflow-hidden group">
+            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-7 flex flex-col md:flex-row items-center gap-6 sm:gap-8 relative overflow-hidden group">
                <div className="absolute inset-0 bg-gradient-to-br from-slate-100/70 to-slate-200/70 pointer-events-none"></div>
                <div className="bg-slate-100/80 p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-300/60 flex-shrink-0 relative overflow-hidden">
                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
@@ -293,7 +295,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                       <span className="bg-slate-900 text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-[0.25em] shadow-lg border border-white/10">{car.category}</span>
                       <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] border border-emerald-100">Ready for Pick-up</span>
                   </div>
-                  <h1 className="text-[1.65rem] sm:text-4xl font-black text-slate-900 leading-[0.95] tracking-tight mb-3 sm:mb-4">{car.displayName || `${car.make} ${car.model}`}</h1>
+                  <h1 className="text-[1.45rem] sm:text-[2.15rem] font-black text-slate-900 leading-tight tracking-tight mb-3 sm:mb-4">{car.displayName || `${car.make} ${car.model}`}</h1>
                   <p className="text-[11px] sm:text-xs font-black text-slate-600 uppercase tracking-[0.16em] sm:tracking-[0.3em] flex items-center justify-center md:justify-start gap-2 sm:gap-3 flex-wrap">
                     {car.transmission} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.fuelPolicy} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location}
                   </p>
@@ -310,8 +312,29 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                </div>
             </div>
             
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+              <div className="bg-[#f3f6fb] rounded-2xl border border-slate-300/70 p-4 sm:p-5">
+                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Pick-up</p>
+                <p className="text-sm sm:text-base font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-blue-600 mt-0.5" /> <span>{pickupLabel}</span></p>
+                <p className="text-sm text-slate-600 mt-2 flex items-center gap-2"><CalendarDays className="w-4 h-4 text-slate-400" /> {startDate} · {startTime}</p>
+              </div>
+              <div className="bg-[#f3f6fb] rounded-2xl border border-slate-300/70 p-4 sm:p-5">
+                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Drop-off</p>
+                <p className="text-sm sm:text-base font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-blue-600 mt-0.5" /> <span>{dropoffLabel}</span></p>
+                <p className="text-sm text-slate-600 mt-2 flex items-center gap-2"><CalendarDays className="w-4 h-4 text-slate-400" /> {endDate} · {endTime}</p>
+              </div>
+              <div className="bg-[#f3f6fb] rounded-2xl border border-slate-300/70 p-4 sm:p-5">
+                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Booking benefits</p>
+                <ul className="space-y-2 text-sm text-slate-700">
+                  <li className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600" /> Confirmed supplier inventory</li>
+                  <li className="flex items-center gap-2"><Shield className="w-4 h-4 text-blue-600" /> PCI-compliant secure checkout</li>
+                  <li className="flex items-center gap-2"><Headphones className="w-4 h-4 text-indigo-600" /> Live support before pick-up</li>
+                </ul>
+              </div>
+            </div>
+
             {/* Driver Details */}
-            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-400/25 border border-slate-300/70 p-6 sm:p-12">
+            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-lg shadow-slate-400/20 border border-slate-300/70 p-6 sm:p-10">
                <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-6 sm:mb-8 flex items-center gap-3"><User className="w-5 h-5 text-blue-600"/> Main Driver Information</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-6 sm:gap-y-10">
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
@@ -328,7 +351,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
 
             {/* Payment Details */}
-            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl shadow-slate-400/25 border border-slate-300/70 p-6 sm:p-12">
+            <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-lg shadow-slate-400/20 border border-slate-300/70 p-6 sm:p-10">
                <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-6 sm:mb-8 flex items-center gap-3"><CreditCard className="w-5 h-5 text-blue-600"/> Secure Payment Details</h2>
                <div className="space-y-6 sm:space-y-10">
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Cardholder Name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
@@ -374,7 +397,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-10 pt-2 sm:pt-4">
+                  <div className="rounded-2xl border border-slate-300/75 bg-[#eef2f8] p-4 sm:p-5 space-y-2">
+                    <p className="text-xs font-bold tracking-[0.16em] text-slate-500 uppercase">Payment Assurance</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-slate-700">
+                      <p className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> TLS encrypted checkout</p>
+                      <p className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-blue-600" /> Instant booking reference</p>
+                      <p className="flex items-center gap-2"><Headphones className="w-4 h-4 text-indigo-600" /> Dedicated support team</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-2 sm:pt-4">
                      <div className="rounded-2xl sm:rounded-[1.5rem] border border-slate-300/70 bg-slate-100/80 px-5 sm:px-6 py-4 sm:py-5">
                         <p className="text-sm font-semibold text-slate-600 mb-2">Check-in Time</p>
                         <p className="text-lg font-semibold text-slate-900">{startTime}</p>
@@ -390,9 +422,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
           {/* Sidebar / Booking Summary */}
           <div className="lg:col-span-1">
-             <div className="sticky top-6 sm:top-10 space-y-6 sm:space-y-8">
-                <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-[0_30px_80px_-26px_rgba(15,23,42,0.28)] border border-slate-300/70 p-6 sm:p-10 transition-all duration-500">
-                  <div className="mb-6 sm:mb-10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 text-white flex items-center justify-between shadow-xl shadow-slate-900/20 relative overflow-hidden group/timer gap-4">
+             <div className="sticky top-6 sm:top-10 space-y-5 sm:space-y-6">
+                <div className="bg-[#f3f6fb] rounded-3xl sm:rounded-[2.5rem] shadow-[0_24px_60px_-30px_rgba(15,23,42,0.38)] border border-slate-300/70 p-6 sm:p-8 transition-all duration-500">
+                  <div className="mb-6 sm:mb-8 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-900 text-white flex items-center justify-between shadow-xl shadow-slate-900/20 relative overflow-hidden group/timer gap-4">
                       <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
                       <div>
                           <p className="text-xs font-black text-slate-200 uppercase tracking-[0.25em] mb-1">Session Expires</p>
@@ -401,8 +433,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                       <p className="text-2xl sm:text-3xl font-mono font-black text-white tracking-tighter drop-shadow-lg">{formatTime(timeLeft)}</p>
                   </div>
 
-                   <h3 className="text-base font-semibold text-slate-800 mb-6 sm:mb-10 flex items-center gap-3">Reservation Details <div className="h-px flex-grow bg-slate-200"></div></h3>
-                   <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-10">
+                   <h3 className="text-base font-semibold text-slate-800 mb-5 sm:mb-6 flex items-center gap-3">Reservation Details <div className="h-px flex-grow bg-slate-200"></div></h3>
+                   <div className="space-y-4 sm:space-y-5 mb-6 sm:mb-7">
                      <div className="flex justify-between text-sm font-semibold text-slate-700 gap-4 group">
                         <span>Vehicle Hire <span className="text-xs text-slate-500 ml-1">({days}d)</span></span>
                         <span className="text-slate-900 group-hover:text-blue-600 transition-colors">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span>
@@ -436,19 +468,28 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                      <div className="flex justify-between text-sm font-semibold text-slate-600 pt-6 border-t border-slate-200"><span>Local Taxes</span><span className="text-emerald-700 flex items-center gap-2"><Check className="w-3.5 h-3.5"/> Included</span></div>
                    </div>
 
-                   <div className="pt-6 sm:pt-10 border-t-2 border-dashed border-slate-200 mb-6 sm:mb-10">
+                   <div className="pt-6 sm:pt-7 border-t-2 border-dashed border-slate-200 mb-6 sm:mb-7">
                      <div className="flex justify-between items-end">
                         <div>
                             <span className="font-semibold text-slate-700 text-xs tracking-[0.12em] block mb-2 uppercase">Final Total</span>
                             <span className="text-xs font-semibold text-blue-700 flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5"/> Protected Rate</span>
                         </div>
-                        <span className="font-black text-slate-900 text-4xl sm:text-5xl tracking-tighter leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                        <span className="font-black text-slate-900 text-3xl sm:text-4xl tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
                      </div>
                    </div>
 
-                   <div className="bg-[#eef2f8] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-300/70 space-y-3 sm:space-y-4 mb-6 sm:mb-10">
+                   <div className="bg-[#eef2f8] p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-300/70 space-y-3 sm:space-y-4 mb-6 sm:mb-7">
                        <div className="flex justify-between font-semibold text-slate-900 text-sm gap-4"><span>Pay online now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
                        <div className="flex justify-between font-semibold text-slate-600 text-sm gap-4"><span>Pay at counter</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
+                   </div>
+
+                   <div className="rounded-2xl border border-slate-300/75 bg-[#eef2f8] p-4 sm:p-5 mb-6 sm:mb-7">
+                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-slate-500 mb-3">What is included</p>
+                     <div className="space-y-2 text-sm text-slate-700">
+                       <p className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Supplier base rental charge</p>
+                       <p className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Local taxes and mandatory fees</p>
+                       <p className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Confirmation and booking support</p>
+                     </div>
                    </div>
 
                    <button
@@ -478,12 +519,17 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                 </div>
 
                 {/* Secure Trust Badge */}
-                <div className="bg-[#f3f6fb] rounded-2xl sm:rounded-[2rem] border border-slate-300/70 p-5 sm:p-8 shadow-xl shadow-slate-400/25 flex items-center gap-4 sm:gap-6">
+                <div className="bg-[#f3f6fb] rounded-2xl sm:rounded-[2rem] border border-slate-300/70 p-5 sm:p-6 shadow-lg shadow-slate-400/20 flex items-center gap-4 sm:gap-5">
                     <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner"><ShieldCheck className="w-6 h-6"/></div>
                     <div>
                         <h4 className="text-sm font-semibold text-slate-900 mb-1">Instant Confirmation</h4>
                         <p className="text-sm text-slate-600 leading-tight">Your car is secured immediately.</p>
                     </div>
+                </div>
+
+                <div className="bg-[#f3f6fb] rounded-2xl sm:rounded-[2rem] border border-slate-300/70 p-5 sm:p-6 shadow-lg shadow-slate-400/20">
+                  <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2"><Headphones className="w-4 h-4 text-blue-600" /> Need help before you confirm?</h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">Our booking specialists can help with payment, documentation, and supplier requirements before pickup time.</p>
                 </div>
              </div>
           </div>
