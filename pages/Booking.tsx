@@ -21,7 +21,7 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
     </div>
     <input
       {...props}
-      className="block w-full rounded-2xl border-slate-100 bg-slate-50/50 pl-12 shadow-sm focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 text-sm text-slate-800 font-black tracking-[0.15em] py-4.5 transition-all placeholder:text-slate-500 placeholder:font-black placeholder:text-xs uppercase"
+      className="block w-full rounded-2xl border border-slate-200 bg-white pl-12 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-base text-slate-900 font-medium py-4 transition-all placeholder:text-slate-400 placeholder:font-medium"
     />
   </div>
 );
@@ -273,7 +273,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         noIndex={true}
       />
     <div className="bg-slate-50 min-h-screen py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-blue-100">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 transform scale-[0.96] lg:scale-[0.97] origin-top transition-all duration-700">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10">
             <BookingStepper currentStep={4} />
         </div>
@@ -312,16 +312,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             
             {/* Driver Details */}
             <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-12">
-               <h2 className="text-sm font-black text-slate-600 uppercase tracking-[0.35em] mb-12 flex items-center gap-4"><User className="w-4 h-4 text-blue-600"/> Main Driver Information</h2>
+               <h2 className="text-lg font-bold text-slate-900 mb-8 flex items-center gap-3"><User className="w-5 h-5 text-blue-600"/> Main Driver Information</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                  <div className="group"><label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                  <div className="group"><label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                  <div className="group"><label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">Email Address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                  <div className="group"><label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">Mobile Number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">First Name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
+                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Last Name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
+                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Email Address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
+                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Mobile Number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
                   <div className="md:col-span-2 group pt-4">
-                    <label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">Flight Number <span className="text-[10px] opacity-70 ml-2">(Optional)</span></label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Flight Number <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
                     <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
-                    <p className="text-xs text-slate-600 mt-4 font-black uppercase tracking-[0.15em] flex items-center gap-2 italic opacity-90"><Info className="w-3.5 h-3.5 text-blue-500"/> Providing your flight number helps the provider wait if your flight is delayed.</p>
+                    <p className="text-sm text-slate-600 mt-4 font-medium flex items-center gap-2"><Info className="w-4 h-4 text-blue-500"/> Providing your flight number helps the provider wait if your flight is delayed.</p>
                   </div>
                </div>
             </div>
@@ -329,46 +329,46 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
             {/* Payment Details */}
             <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-12">
-               <h2 className="text-sm font-black text-slate-600 uppercase tracking-[0.35em] mb-12 flex items-center gap-4"><CreditCard className="w-4 h-4 text-blue-600"/> Secure SSL Payment</h2>
+               <h2 className="text-lg font-bold text-slate-900 mb-8 flex items-center gap-3"><CreditCard className="w-5 h-5 text-blue-600"/> Secure Payment Details</h2>
                <div className="space-y-10">
-                  <div className="group"><label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">Cardholder Name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
+                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Cardholder Name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
-                    <label className="block text-xs font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-1 group-focus-within:text-blue-600 transition-colors">Card Information</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-3 ml-1 group-focus-within:text-blue-600 transition-colors">Card Information</label>
                     {stripeEnabled ? (
-                      <div className="rounded-2xl border border-slate-100 px-6 py-5 shadow-sm focus-within:ring-4 focus-within:ring-blue-500/5 focus-within:border-blue-500 bg-slate-50/50 transition-all">
+                      <div className="rounded-2xl border border-slate-200 px-6 py-5 shadow-sm focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500 bg-white transition-all">
                         <CardElement options={{ 
                             hidePostalCode: true,
                             style: {
                                 base: {
-                                    fontSize: '15px',
+                                    fontSize: '18px',
                                     color: '#0f172a',
-                                    fontWeight: '700',
-                                    fontFamily: 'sans-serif',
-                                    letterSpacing: '0.05em',
+                                    fontWeight: '500',
+                                    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                                    letterSpacing: '0.01em',
                                     '::placeholder': {
-                                        color: '#cbd5e1',
-                                        textTransform: 'uppercase',
-                                        fontSize: '11px',
-                                        letterSpacing: '0.2em',
-                                        fontWeight: '900'
+                                        color: '#94a3b8',
+                                        fontSize: '14px',
+                                        letterSpacing: '0.01em',
+                                        fontWeight: '400'
                                     },
                                 },
                             }
                         }} />
                       </div>
                     ) : stripeConfigLoading ? (
-                      <div className="rounded-2xl border border-blue-50 bg-blue-50/30 px-6 py-5 text-xs font-black uppercase tracking-[0.2em] text-blue-700 flex items-center gap-4 shadow-inner">
+                      <div className="rounded-2xl border border-blue-100 bg-blue-50/40 px-6 py-5 text-sm font-semibold text-blue-800 flex items-center gap-3 shadow-inner">
                         <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                         Establishing Secure Connection...
                       </div>
                     ) : (
-                      <div className="rounded-2xl border border-red-50 bg-red-50/30 px-6 py-5 text-xs font-black uppercase tracking-[0.2em] text-red-700 shadow-inner">
+                      <div className="rounded-2xl border border-red-100 bg-red-50/40 px-6 py-5 text-sm font-semibold text-red-700 shadow-inner">
                         Security gateway is currently unavailable.
                       </div>
                     )}
+                    <p className="mt-3 text-sm text-slate-500">Your card details are encrypted and processed securely by Stripe.</p>
                   </div>
                   {paymentError && (
-                    <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5 text-xs font-black uppercase tracking-[0.2em] text-red-700 flex items-center gap-3">
+                    <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5 text-sm font-semibold text-red-700 flex items-center gap-3">
                       <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                       {paymentError}
                     </div>
@@ -376,12 +376,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                   
                   <div className="grid grid-cols-2 gap-10 pt-4">
                      <div className="rounded-[1.5rem] border border-slate-50 bg-slate-50/30 px-6 py-5">
-                        <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Check-in Time</p>
-                        <p className="text-sm font-black text-slate-800 tracking-widest">{startTime}</p>
+                        <p className="text-sm font-semibold text-slate-500 mb-2">Check-in Time</p>
+                        <p className="text-lg font-semibold text-slate-900">{startTime}</p>
                      </div>
                      <div className="rounded-[1.5rem] border border-slate-50 bg-slate-50/30 px-6 py-5">
-                        <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Check-out Time</p>
-                        <p className="text-sm font-black text-slate-800 tracking-widest">{endTime}</p>
+                        <p className="text-sm font-semibold text-slate-500 mb-2">Check-out Time</p>
+                        <p className="text-lg font-semibold text-slate-900">{endTime}</p>
                      </div>
                   </div>
                </div>
