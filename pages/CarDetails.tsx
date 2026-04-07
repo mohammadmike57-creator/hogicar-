@@ -218,7 +218,7 @@ const CarDetails: React.FC = () => {
   if (error || !car) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 text-center max-w-md shadow-lg">
+        <div className="bg-[#fcfdff] rounded-2xl p-8 text-center max-w-md shadow-lg border border-slate-200/70">
           <CarIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-800">Car Not Found</h1>
           <p className="text-slate-500 mt-2">{error || 'Please go back to search results.'}</p>
@@ -236,7 +236,7 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-slate-50 min-h-screen pb-32 lg:pb-12 text-slate-800">
+      <div className="bg-slate-100/60 min-h-screen pb-32 lg:pb-12 text-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <BookingStepper currentStep={3} />
 
@@ -244,7 +244,7 @@ const CarDetails: React.FC = () => {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* Hero Section - smaller image + modern layout */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-[#fcfdff] rounded-2xl shadow-lg border border-slate-200/70 overflow-hidden">
                 <div className="relative">
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
                   <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-40 lg:h-48 object-contain" />
@@ -273,7 +273,7 @@ const CarDetails: React.FC = () => {
               </div>
 
               {/* Key Specifications Grid - rich icons */}
-              <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="bg-[#fcfdff] rounded-2xl shadow-lg border border-slate-200/70 p-6">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><GaugeCircle className="w-5 h-5 text-blue-600" /> Key Specifications</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
                   {[
@@ -286,7 +286,7 @@ const CarDetails: React.FC = () => {
                     { icon: Fuel, label: car.fuelPolicy.split('_').join(' '), desc: 'Fuel policy' },
                     { icon: Hash, label: car.sippCode, desc: 'Vehicle code' }
                   ].map(spec => (
-                    <div key={spec.label} className="flex flex-col items-center text-center p-3 bg-slate-50 rounded-xl hover:shadow transition">
+                    <div key={spec.label} className="flex flex-col items-center text-center p-3 bg-white/70 border border-slate-200/70 rounded-xl hover:shadow transition">
                       <spec.icon className="w-6 h-6 text-blue-600 mb-2" />
                       <span className="text-sm font-bold text-slate-800">{spec.label}</span>
                       <span className="text-sm text-slate-600">{spec.desc}</span>
@@ -295,7 +295,7 @@ const CarDetails: React.FC = () => {
                 </div>
                 <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-6 text-blue-600 text-sm flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
                 {showFullSpecs && (
-                  <div className="mt-6 p-5 bg-slate-50 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="mt-6 p-5 bg-[#f8fafc] border border-slate-200/70 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div><span className="font-semibold">Fuel Policy:</span> {car.fuelPolicy}</div>
                     <div><span className="font-semibold">Transmission:</span> {car.transmission}</div>
                     <div><span className="font-semibold">Mileage:</span> {car.unlimitedMileage ? 'Unlimited' : 'Limited'}</div>
@@ -309,7 +309,7 @@ const CarDetails: React.FC = () => {
 
               {/* Extras Section - modern cards */}
               {car.extras && car.extras.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-lg p-6">
+                <div className="bg-[#fcfdff] rounded-2xl shadow-lg border border-slate-200/70 p-6">
                   <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-green-600" /> Optional Extras</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {car.extras.map(extra => (
@@ -329,28 +329,28 @@ const CarDetails: React.FC = () => {
               )}
 
               {/* Supplier Info with trust badges */}
-              <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="bg-[#fcfdff] rounded-2xl shadow-lg border border-slate-200/70 p-6">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> About the Supplier</h2>
                 <div className="flex flex-wrap items-center gap-6">
                   <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 object-contain" />
                   <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-base text-slate-700">Car rental provider</div></div>
                 </div>
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
+                  <div className="flex flex-col items-center p-3 bg-white/70 border border-slate-200/70 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
+                  <div className="flex flex-col items-center p-3 bg-white/70 border border-slate-200/70 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
+                  <div className="flex flex-col items-center p-3 bg-white/70 border border-slate-200/70 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
+                  <div className="flex flex-col items-center p-3 bg-white/70 border border-slate-200/70 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
                 </div>
                 <button onClick={() => setIsConditionsModalOpen(true)} className="mt-6 text-blue-600 text-sm font-medium underline flex items-center gap-1">View full rental conditions <ArrowRight className="w-4 h-4" /></button>
               </div>
 
               {/* Similar Cars */}
               {cars && cars.length > 1 && (
-                <div className="bg-white rounded-2xl shadow-lg p-6">
+                <div className="bg-[#fcfdff] rounded-2xl shadow-lg border border-slate-200/70 p-6">
                   <h2 className="text-xl font-bold mb-6">You might also like</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {cars.filter(c => c.id !== car.id).slice(0, 2).map(similar => (
-                      <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-4 p-4 border rounded-xl hover:shadow-lg transition">
+                      <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-4 p-4 border border-slate-200/70 bg-white/70 rounded-xl hover:shadow-lg transition">
                         <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain rounded-lg" />
                         <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)} total</div></div>
                       </Link>
@@ -363,7 +363,7 @@ const CarDetails: React.FC = () => {
             {/* Right Column - Booking Sidebar (professional) */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100">
+                <div className="bg-[#fcfdff] rounded-2xl shadow-xl p-6 border border-slate-200/70">
                   {/* Price lock timer */}
                   <div className="bg-slate-900 text-white p-4 rounded-xl mb-6 flex justify-between items-center">
                     <div><div className="text-sm uppercase tracking-wide text-slate-100">Price locked for</div><div className="font-mono font-bold text-2xl">{formatTime(timeLeft)}</div></div>
@@ -385,15 +385,15 @@ const CarDetails: React.FC = () => {
                   <div className="mt-4 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
-                <div className="bg-green-50 rounded-2xl p-5 border border-green-100"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-sm text-slate-700">Up to 48 hours before pickup</div></div></div></div>
-                <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 Customer Support</div><div className="text-sm text-slate-700">We're here to help anytime</div></div></div></div>
+                <div className="bg-[#f2fbf6] rounded-2xl p-5 border border-green-100"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-sm text-slate-700">Up to 48 hours before pickup</div></div></div></div>
+                <div className="bg-[#f3f8ff] rounded-2xl p-5 border border-blue-100"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 Customer Support</div><div className="text-sm text-slate-700">We're here to help anytime</div></div></div></div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Mobile Floating CTA */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#fcfdff] border-t border-slate-200/80 shadow-lg p-4 z-40">
           <div className="flex justify-between items-center"><div><div className="text-sm text-slate-600">Total price</div><div className="text-xl font-bold">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div></div><Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">Book Now</Link></div>
         </div>
       </div>

@@ -15,13 +15,13 @@ const steps = [
 
 const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
   return (
-    <div className="w-full mb-10">
+    <div className="w-full mb-8 sm:mb-10">
       {/* --- DESKTOP STEPPER --- */}
       <div className="hidden md:block w-full">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-[1040px] mx-auto rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur-sm px-6 py-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.45)]">
           <div className="flex items-center justify-between relative">
             {/* Background connecting line */}
-            <div className="absolute top-5 left-0 right-0 h-[2px] bg-slate-100 z-0"></div>
+            <div className="absolute top-6 left-10 right-10 h-[2px] bg-slate-200 z-0"></div>
             
             {steps.map((step, index) => {
               const isCompleted = currentStep > step.step;
@@ -29,24 +29,22 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
               const Icon = step.icon;
 
               return (
-                <div key={step.step} className="relative z-10 flex flex-col items-center group">
+                <div key={step.step} className="relative z-10 flex flex-col items-center gap-3 text-center">
                   <div
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center border-2 transition-all duration-700
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-500
                       ${isCompleted ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/20' : ''}
-                      ${isActive ? 'bg-slate-900 border-slate-900 text-white shadow-2xl shadow-slate-900/30 scale-110' : ''}
-                      ${!isCompleted && !isActive ? 'bg-white border-slate-100 text-slate-300' : ''}
+                      ${isActive ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30 scale-105' : ''}
+                      ${!isCompleted && !isActive ? 'bg-[#f8fafc] border-slate-200 text-slate-500' : ''}
                     `}
                   >
-                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Icon className={`w-4.5 h-4.5 ${isActive ? 'animate-pulse' : ''}`} />}
+                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-4.5 h-4.5" />}
                   </div>
-                  <div className="absolute top-14 w-32 text-center">
-                    <p
-                      className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-500
-                        ${isActive ? 'text-slate-900 opacity-100' : 'text-slate-400 opacity-60'}
-                        ${isCompleted ? 'text-emerald-600 opacity-100' : ''}
-                      `}
-                    >
+                  <div className="w-36">
+                    <p className={`text-xs font-semibold transition-colors duration-300 ${isActive ? 'text-slate-900' : 'text-slate-500'} ${isCompleted ? 'text-emerald-700' : ''}`}>
                       {step.label}
+                    </p>
+                    <p className={`mt-1 text-[11px] ${isActive ? 'text-blue-700' : 'text-slate-400'} ${isCompleted ? 'text-emerald-600' : ''}`}>
+                      Step {step.step}
                     </p>
                   </div>
                 </div>
@@ -58,21 +56,24 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
 
       {/* --- MOBILE STEPPER (COMPACT) --- */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between bg-white/50 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm">
+        <div className="rounded-2xl border border-slate-200/70 bg-white/80 backdrop-blur-sm px-4 py-4 shadow-[0_10px_28px_-22px_rgba(15,23,42,0.65)]">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/30">
                     {steps[currentStep-1]?.icon && React.createElement(steps[currentStep-1].icon, { className: "w-5 h-5" })}
                 </div>
                 <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Step 0{currentStep}</p>
-                    <p className="text-xs font-black text-slate-900 uppercase tracking-[0.1em]">{steps[currentStep-1]?.label}</p>
+                    <p className="text-[11px] font-semibold text-slate-500 leading-none mb-1">Step {currentStep} of {steps.length}</p>
+                    <p className="text-sm font-semibold text-slate-900 leading-none">{steps[currentStep-1]?.label}</p>
                 </div>
             </div>
-            <div className="flex gap-1">
+            <div className="text-xs font-medium text-slate-500">{Math.round((currentStep / steps.length) * 100)}%</div>
+          </div>
+          <div className="mt-3 flex gap-1.5">
                 {steps.map(s => (
-                    <div key={s.step} className={`h-1.5 rounded-full transition-all duration-500 ${s.step === currentStep ? 'w-6 bg-blue-600' : 'w-2 bg-slate-200'}`}></div>
+                    <div key={s.step} className={`h-1.5 rounded-full transition-all duration-500 ${s.step === currentStep ? 'w-7 bg-blue-600' : s.step < currentStep ? 'w-3 bg-emerald-500' : 'w-3 bg-slate-200'}`}></div>
                 ))}
-            </div>
+          </div>
         </div>
       </div>
     </div>
