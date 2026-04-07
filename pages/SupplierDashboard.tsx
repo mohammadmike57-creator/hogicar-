@@ -19,7 +19,7 @@ import {
   Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 
   BookingMode, TemplateConfig, Extra, RateTier, CarModel
 } from '../types';
-import Logo from '../components/Logo';
+import { Logo } from '../components/Logo';
 
 // ==================== Shared UI Components ====================
 
