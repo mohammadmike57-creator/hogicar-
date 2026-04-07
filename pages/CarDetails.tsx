@@ -78,15 +78,15 @@ const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier; onCl
         <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
           <div className="flex items-center gap-4">
             <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" width={120} height={56} />
-            <div><h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3><p className="text-xs text-slate-500">Provided by {supplier.name}</p></div>
+            <div><h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3><p className="text-sm text-slate-700">Provided by {supplier.name}</p></div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500"><X className="w-5 h-5"/></button>
         </div>
         <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
-          <div><h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Building className="w-4 h-4 text-slate-500"/> Supplier Details</h4><div className="space-y-3 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">{supplier.address && (<div className="flex gap-3"><MapPin className="w-4 h-4"/><p className="text-xs">{supplier.address}</p></div>)}</div></div>
-          {supplier.workingHours && workingHours.length > 0 && (<div><h4 className="font-bold mb-3 flex items-center gap-2"><Clock className="w-4 h-4"/> Opening Hours</h4><div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-4 rounded-lg">{workingHours.map(([day, hours]) => (<div key={day} className="flex justify-between"><span className="capitalize">{day}</span><span className="font-semibold">{hours}</span></div>))}</div></div>)}
-          <div><h4 className="font-bold mb-3 flex items-center gap-2"><FileText className="w-4 h-4"/> Rental Policy & Terms</h4><div className="text-xs whitespace-pre-line border bg-slate-50/50 p-4 rounded-lg h-48 overflow-y-auto">{supplier.termsAndConditions || "No specific terms provided."}<br/><br/><strong>Grace Period:</strong> {gracePeriodInfo}</div></div>
-          <div><h4 className="font-bold mb-3 flex items-center gap-2"><Users className="w-4 h-4"/> Required at Pick-up</h4><ul className="space-y-3"><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><Shield className="w-5 h-5"/><div><strong>Valid Driving License</strong><p className="text-xs">Held for min 1 year.</p></div></li><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><CreditCardIcon className="w-5 h-5"/><div><strong>Credit Card</strong><p className="text-xs">In main driver's name for deposit.</p></div></li></ul></div>
+          <div><h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Building className="w-4 h-4 text-slate-500"/> Supplier Details</h4><div className="space-y-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-100">{supplier.address && (<div className="flex gap-3"><MapPin className="w-4 h-4"/><p className="text-sm text-slate-700">{supplier.address}</p></div>)}</div></div>
+          {supplier.workingHours && workingHours.length > 0 && (<div><h4 className="font-bold mb-3 flex items-center gap-2"><Clock className="w-4 h-4"/> Opening Hours</h4><div className="grid grid-cols-2 gap-2 text-sm text-slate-700 bg-slate-50 p-4 rounded-lg">{workingHours.map(([day, hours]) => (<div key={day} className="flex justify-between"><span className="capitalize">{day}</span><span className="font-semibold">{hours}</span></div>))}</div></div>)}
+          <div><h4 className="font-bold mb-3 flex items-center gap-2"><FileText className="w-4 h-4"/> Rental Policy & Terms</h4><div className="text-sm text-slate-700 whitespace-pre-line border bg-slate-50/50 p-4 rounded-lg h-48 overflow-y-auto">{supplier.termsAndConditions || "No specific terms provided."}<br/><br/><strong>Grace Period:</strong> {gracePeriodInfo}</div></div>
+          <div><h4 className="font-bold mb-3 flex items-center gap-2"><Users className="w-4 h-4"/> Required at Pick-up</h4><ul className="space-y-3"><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><Shield className="w-5 h-5"/><div><strong>Valid Driving License</strong><p className="text-sm text-slate-700">Held for min 1 year.</p></div></li><li className="flex gap-3 p-3 bg-slate-50 rounded-lg"><CreditCardIcon className="w-5 h-5"/><div><strong>Credit Card</strong><p className="text-sm text-slate-700">In main driver's name for deposit.</p></div></li></ul></div>
           <div><h4 className="font-bold mb-3 flex items-center gap-2"><CreditCardIcon className="w-4 h-4"/> Accepted Cards</h4><div className="flex gap-2"><VisaIcon/><MastercardIcon/><AmexIcon/></div></div>
         </div>
         <div className="p-4 border-t bg-slate-50 flex justify-end rounded-b-xl"><button onClick={onClose} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Close</button></div>
@@ -236,7 +236,7 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-slate-50 min-h-screen pb-32 lg:pb-12">
+      <div className="bg-slate-50 min-h-screen pb-32 lg:pb-12 text-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <BookingStepper currentStep={3} />
 
@@ -249,8 +249,8 @@ const CarDetails: React.FC = () => {
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
                   <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-40 lg:h-48 object-contain" />
                   <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="bg-black/70 text-white text-xs px-3 py-1 rounded-full">{car.category}</span>
-                    {car.tags?.[0] && <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">{car.tags[0]}</span>}
+                    <span className="bg-black/70 text-white text-sm px-3 py-1 rounded-full">{car.category}</span>
+                    {car.tags?.[0] && <span className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">{car.tags[0]}</span>}
                   </div>
                   <button className="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-md"><Heart className="w-5 h-5" /></button>
                 </div>
@@ -258,7 +258,7 @@ const CarDetails: React.FC = () => {
                   <div className="flex flex-wrap justify-between items-start gap-4">
                     <div>
                       <h1 className="text-2xl lg:text-3xl font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
-                      <p className="text-slate-500 text-sm mt-1">or similar · {car.year}</p>
+                      <p className="text-slate-700 text-base mt-1">or similar · {car.year}</p>
                       <div className="flex flex-wrap gap-4 mt-4">
                         <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {car.supplier.rating} · {getRatingText(car.supplier.rating)}</div>
                         <div className="flex items-center gap-2 text-sm"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
@@ -266,7 +266,7 @@ const CarDetails: React.FC = () => {
                     </div>
                     <div className="bg-blue-50 px-4 py-2 rounded-xl flex items-center gap-2">
                       <Zap className="w-5 h-5 text-blue-600" />
-                      <span className="text-xs font-bold text-blue-700">Available now</span>
+                      <span className="text-sm font-bold text-blue-800">Available now</span>
                     </div>
                   </div>
                 </div>
@@ -289,7 +289,7 @@ const CarDetails: React.FC = () => {
                     <div key={spec.label} className="flex flex-col items-center text-center p-3 bg-slate-50 rounded-xl hover:shadow transition">
                       <spec.icon className="w-6 h-6 text-blue-600 mb-2" />
                       <span className="text-sm font-bold text-slate-800">{spec.label}</span>
-                      <span className="text-xs text-slate-400">{spec.desc}</span>
+                      <span className="text-sm text-slate-600">{spec.desc}</span>
                     </div>
                   ))}
                 </div>
@@ -316,7 +316,7 @@ const CarDetails: React.FC = () => {
                       <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-green-500 bg-green-50' : 'border-slate-200 hover:border-slate-300'}`}>
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-slate-100 rounded-lg"><PlusCircle className="w-5 h-5 text-slate-600" /></div>
-                          <div><div className="font-semibold">{extra.name}</div><div className="text-xs text-slate-500">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
+                          <div><div className="font-semibold">{extra.name}</div><div className="text-sm text-slate-700">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="font-bold">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</div>
@@ -333,13 +333,13 @@ const CarDetails: React.FC = () => {
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> About the Supplier</h2>
                 <div className="flex flex-wrap items-center gap-6">
                   <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 object-contain" />
-                  <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-sm text-slate-500">Car rental provider</div></div>
+                  <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-base text-slate-700">Car rental provider</div></div>
                 </div>
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-xs font-bold">Verified Partner</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-xs font-bold">Top Rated</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-xs font-bold">24/7 Support</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-xs font-bold">Global Presence</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
                 </div>
                 <button onClick={() => setIsConditionsModalOpen(true)} className="mt-6 text-blue-600 text-sm font-medium underline flex items-center gap-1">View full rental conditions <ArrowRight className="w-4 h-4" /></button>
               </div>
@@ -366,7 +366,7 @@ const CarDetails: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100">
                   {/* Price lock timer */}
                   <div className="bg-slate-900 text-white p-4 rounded-xl mb-6 flex justify-between items-center">
-                    <div><div className="text-xs uppercase tracking-wide">Price locked for</div><div className="font-mono font-bold text-2xl">{formatTime(timeLeft)}</div></div>
+                    <div><div className="text-sm uppercase tracking-wide text-slate-100">Price locked for</div><div className="font-mono font-bold text-2xl">{formatTime(timeLeft)}</div></div>
                     <Clock className="w-8 h-8 opacity-50" />
                   </div>
                   {/* Price breakdown */}
@@ -375,18 +375,18 @@ const CarDetails: React.FC = () => {
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
                     {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
                     {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
-                    <div className="border-t pt-3 mt-3"><div className="flex justify-between font-bold text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-xs text-slate-500 text-right">Including taxes & fees</div></div>
+                    <div className="border-t pt-3 mt-3"><div className="flex justify-between font-bold text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-sm text-slate-600 text-right">Including taxes & fees</div></div>
                   </div>
                   {/* Promo code */}
-                  <div className="mb-6"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" /><button onClick={handleApplyPromo} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition">Apply</button></div>{promoError && <p className="text-red-500 text-xs mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-600 text-xs mt-1">✓ {appliedPromo.code} applied</p>}</div>
+                  <div className="mb-6"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" /><button onClick={handleApplyPromo} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition">Apply</button></div>{promoError && <p className="text-red-600 text-sm mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-sm mt-1">✓ {appliedPromo.code} applied</p>}</div>
                   {/* Insurance selection */}
                   <div className="mb-6"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-blue-600" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-blue-600" /> <span className="text-sm font-medium">Full Protection (+${convertPrice(15 * days).toFixed(2)})</span></label></div>
                   <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3 rounded-xl transition">Continue to Book</Link>
                   <div className="mt-4 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
-                <div className="bg-green-50 rounded-2xl p-5 border border-green-100"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-xs">Up to 48 hours before pickup</div></div></div></div>
-                <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 Customer Support</div><div className="text-xs">We're here to help anytime</div></div></div></div>
+                <div className="bg-green-50 rounded-2xl p-5 border border-green-100"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-sm text-slate-700">Up to 48 hours before pickup</div></div></div></div>
+                <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 Customer Support</div><div className="text-sm text-slate-700">We're here to help anytime</div></div></div></div>
               </div>
             </div>
           </div>
@@ -394,7 +394,7 @@ const CarDetails: React.FC = () => {
 
         {/* Mobile Floating CTA */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40">
-          <div className="flex justify-between items-center"><div><div className="text-xs text-slate-500">Total price</div><div className="text-xl font-bold">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div></div><Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">Book Now</Link></div>
+          <div className="flex justify-between items-center"><div><div className="text-sm text-slate-600">Total price</div><div className="text-xl font-bold">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div></div><Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">Book Now</Link></div>
         </div>
       </div>
     </>
