@@ -32,7 +32,7 @@ const search = window.location.search || "";
 if (host.startsWith("admin.") && !hash.startsWith("#/admin")) {
   window.location.replace(`/#/admin${search}`);
 } else if (host.startsWith("supplier.") && !hash.startsWith("#/supplier")) {
-  window.location.replace(`/#/supplier/login${search}`);
+  window.location.replace(`/#/supplier-login${search}`);
 }
 // --- END SUBDOMAIN REDIRECT ---
 

@@ -154,7 +154,8 @@ const SupplierDashboard = () => {
           supplierApi.getCars(),
           supplierApi.getBookings()
         ]);
-        setSupplier(meRes.data);
+        const supplierPayload = meRes?.data?.data ?? meRes?.data ?? null;
+        setSupplier(supplierPayload && typeof supplierPayload === 'object' ? supplierPayload : null);
         setCars(Array.isArray(carsRes.data) ? carsRes.data : []);
         setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
       } catch (err: any) {
@@ -198,7 +199,20 @@ const SupplierDashboard = () => {
     </div>
   );
 
-  if (!supplier) return null;
+  if (!supplier) return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white border border-gray-100 rounded-3xl shadow-sm p-8 text-center">
+        <h2 className="text-lg font-black text-slate-900 mb-3">Unable to load supplier dashboard</h2>
+        <p className="text-sm text-slate-500 mb-6">{error || 'Please sign in again to continue.'}</p>
+        <button
+          onClick={() => navigate('/supplier-login')}
+          className="w-full py-3 rounded-2xl text-xs font-black uppercase tracking-[0.2em] bg-orange-600 text-white hover:bg-orange-700 transition-colors"
+        >
+          Go to supplier login
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#f8f9fc] flex font-sans text-slate-900 overflow-x-hidden">
