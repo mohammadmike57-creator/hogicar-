@@ -145,6 +145,15 @@ const SupplierDashboard = () => {
     };
   }, [bookings, cars]);
 
+  const refreshCars = async () => {
+    try {
+      const carsRes = await supplierApi.getCars();
+      setCars(Array.isArray(carsRes.data) ? carsRes.data : []);
+    } catch (err) {
+      console.error('Failed to refresh supplier cars:', err);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -361,7 +370,14 @@ const SupplierDashboard = () => {
                 >
                     {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} onGenerateReport={handleGenerateReport} />}
                     {activeSection === 'reservations' && <ReservationsSection bookings={bookings} />}
-                    {activeSection === 'fleet' && <FleetSection supplier={supplier} setActiveSection={setActiveSection} />}
+                    {activeSection === 'fleet' && (
+                        <FleetSection
+                            supplier={supplier}
+                            cars={cars}
+                            onCarsChanged={refreshCars}
+                            setActiveSection={setActiveSection}
+                        />
+                    )}
                     {activeSection === 'rates' && <RatesSection supplier={supplier} cars={cars} />}
                     {activeSection === 'stopsales' && <StopSalesSection />}
                     {activeSection === 'extras' && <ExtrasSection />}
@@ -598,27 +614,25 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 };
 
 // ==================== Fleet Section ====================
-const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setActiveSection: (s: string) => void }) => {
-  const [cars, setCars] = useState<CarType[]>([]);
+const FleetSection = ({
+    supplier,
+    cars,
+    onCarsChanged,
+    setActiveSection,
+}: {
+    supplier: Supplier,
+    cars: CarType[],
+    onCarsChanged: () => Promise<void>,
+    setActiveSection: (s: string) => void,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCar, setEditingCar] = useState<CarType | null>(null);
-
-  const fetchCars = async () => {
-    try {
-      const res = await supplierApi.getCars();
-      setCars(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => { fetchCars(); }, []);
 
   const handleDelete = async (id: any) => {
     if (!window.confirm('Erase this vehicle from fleet?')) return;
     try {
       await supplierApi.deleteCar(id);
-      fetchCars();
+      await onCarsChanged();
     } catch (e) { alert("Failed to delete"); }
   };
 
@@ -704,7 +718,7 @@ const FleetSection = ({ supplier, setActiveSection }: { supplier: Supplier, setA
         onClose={() => setIsModalOpen(false)} 
         car={editingCar} 
         supplier={supplier} 
-        onSave={() => { fetchCars(); setActiveSection('fleet'); }} 
+        onSave={() => { onCarsChanged(); setActiveSection('fleet'); }} 
       />
     </motion.div>
   );
@@ -722,21 +736,48 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
     });
 
-    const [manualBands, setManualBands] = useState<any[]>([]);
+    const [manualBandsByCar, setManualBandsByCar] = useState<Record<number, any[]>>({});
     const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [activationNotice, setActivationNotice] = useState<any | null>(null);
 
-    useEffect(() => {
+    const baseBands = useMemo(() => {
         const periodBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
         const initializedBands = periodBands.map(b => ({
             minDays: b.minDays,
             maxDays: b.maxDays,
-            dailyRate: '',
-            deposit: ''
         }));
-        setManualBands(initializedBands.length > 0 ? initializedBands : [{ minDays: 1, maxDays: null, dailyRate: '', deposit: '' }]);
+        return initializedBands.length > 0 ? initializedBands : [{ minDays: 1, maxDays: null }];
     }, [selectedPeriodIdx, isCustomPeriod, config]);
+
+    useEffect(() => {
+        setManualBandsByCar(prev => {
+            if (selectedCarIds.length === 0) return {};
+
+            const next: Record<number, any[]> = {};
+            selectedCarIds.forEach(carId => {
+                const existing = prev[carId] || [];
+                const hasSameStructure = existing.length === baseBands.length && existing.every((band, idx) => {
+                    const targetBand = baseBands[idx];
+                    return Number(band.minDays) === Number(targetBand.minDays)
+                        && (band.maxDays ?? null) === (targetBand.maxDays ?? null);
+                });
+
+                if (hasSameStructure) {
+                    next[carId] = existing;
+                } else {
+                    next[carId] = baseBands.map(b => ({
+                        minDays: b.minDays,
+                        maxDays: b.maxDays,
+                        dailyRate: '',
+                        deposit: '',
+                    }));
+                }
+            });
+
+            return next;
+        });
+    }, [selectedCarIds, baseBands]);
 
     const selectedCars = useMemo(
         () => cars.filter(car => selectedCarIds.includes(Number(car.id))),
@@ -765,36 +806,47 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
             alert('Please select at least one car.');
             return;
         }
-        if (selectedSippCodes.length === 0) {
-            alert('Selected cars must have SIPP codes before manual rate updates.');
-            return;
-        }
-        if (manualBands.length === 0) {
-            alert('Please add at least one bond row.');
-            return;
-        }
-        if (manualBands.some(b => !String(b.dailyRate || '').trim() || Number(b.dailyRate) <= 0)) {
-            alert('Please enter a valid daily rate for each bond.');
+        const firstInvalidCar = selectedCars.find(car => {
+            const carBands = manualBandsByCar[Number(car.id)] || [];
+            if (carBands.length === 0) return true;
+            return carBands.some(b => !String(b.dailyRate || '').trim() || Number(b.dailyRate) <= 0);
+        });
+
+        if (firstInvalidCar) {
+            const label = firstInvalidCar.name || `${firstInvalidCar.make} ${firstInvalidCar.model}`.trim();
+            alert(`Please enter valid daily rates for each bond on car: ${label}`);
             return;
         }
 
-        const newSeason = {
-            targetType: 'sipp',
-            targetValues: [...selectedSippCodes],
-            selectedCarNames: selectedCars.map(car => car.name || `${car.make} ${car.model}`.trim()),
-            periodName: period.name,
-            startDate: period.startDate,
-            endDate: period.endDate,
-            rates: manualBands.map(b => ({
-                minDays: b.minDays,
-                maxDays: b.maxDays,
-                dailyRate: Number(b.dailyRate) || 0,
-                deposit: Number(b.deposit) || 0
-            }))
-        };
+        const seasonUpdates = selectedCars.map(car => {
+            const carId = Number(car.id);
+            const carBands = manualBandsByCar[carId] || [];
+            return {
+                targetType: 'car',
+                targetValues: [String(carId)],
+                selectedCarNames: [car.name || `${car.make} ${car.model}`.trim()],
+                carId,
+                carSipp: car.sippCode || '',
+                periodName: period.name,
+                startDate: period.startDate,
+                endDate: period.endDate,
+                rates: carBands.map(b => ({
+                    minDays: b.minDays,
+                    maxDays: b.maxDays,
+                    dailyRate: Number(b.dailyRate) || 0,
+                    deposit: Number(b.deposit) || 0
+                }))
+            };
+        });
 
-        setBatchSeasons(prev => [...prev, newSeason]);
-        setManualBands(prev => prev.map(b => ({ ...b, dailyRate: '', deposit: '' })));
+        setBatchSeasons(prev => [...prev, ...seasonUpdates]);
+        setManualBandsByCar(prev => {
+            const next = { ...prev };
+            selectedCarIds.forEach(carId => {
+                next[carId] = (next[carId] || []).map(b => ({ ...b, dailyRate: '', deposit: '' }));
+            });
+            return next;
+        });
     };
 
     const removeSeasonFromBatch = (idx: number) => {
@@ -821,10 +873,22 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                 }))
             };
             await supplierApi.bulkUpdateRates(payload);
+
+            const uniqueCarIds = new Set<number>();
+            const uniqueSippCodes = new Set<string>();
+            batchSeasons.forEach((season: any) => {
+                if (season.carId !== undefined && season.carId !== null) {
+                    uniqueCarIds.add(Number(season.carId));
+                }
+                if (season.carSipp) {
+                    uniqueSippCodes.add(String(season.carSipp));
+                }
+            });
+
             setActivationNotice({
                 location: activeLocation,
-                cars: selectedCars.length,
-                sippCodes: selectedSippCodes.length,
+                cars: uniqueCarIds.size,
+                sippCodes: uniqueSippCodes.size,
                 seasons: batchSeasons.length,
                 updatedAt: new Date()
             });
@@ -838,13 +902,66 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
         }
     };
 
-    const handleMoneyInput = (idx: number, field: 'dailyRate' | 'deposit', value: string) => {
+    const handleMoneyInput = (carId: number, idx: number, field: 'dailyRate' | 'deposit', value: string) => {
         // Keep typing smooth for decimal values while still restricting to money-like input.
         const normalized = value.replace(',', '.');
         if (!/^\d*\.?\d{0,2}$/.test(normalized) && normalized !== '') return;
-        const next = [...manualBands];
-        next[idx][field] = normalized;
-        setManualBands(next);
+
+        setManualBandsByCar(prev => {
+            const next = { ...prev };
+            const bands = [...(next[carId] || [])];
+            if (!bands[idx]) return prev;
+            bands[idx] = {
+                ...bands[idx],
+                [field]: normalized,
+            };
+            next[carId] = bands;
+            return next;
+        });
+    };
+
+    const updateBondRangeForAllSelectedCars = (idx: number, field: 'minDays' | 'maxDays', value: number | null) => {
+        setManualBandsByCar(prev => {
+            const next = { ...prev };
+            selectedCarIds.forEach(carId => {
+                const bands = [...(next[carId] || [])];
+                if (!bands[idx]) return;
+                bands[idx] = {
+                    ...bands[idx],
+                    [field]: value,
+                };
+                next[carId] = bands;
+            });
+            return next;
+        });
+    };
+
+    const addBondRowForAllSelectedCars = () => {
+        if (selectedCarIds.length === 0) return;
+        setManualBandsByCar(prev => {
+            const next = { ...prev };
+            const referenceBands = next[selectedCarIds[0]] || [];
+            const lastBand = referenceBands[referenceBands.length - 1];
+            const nextMin = lastBand ? (Number(lastBand.maxDays) || Number(lastBand.minDays) || 0) + 1 : 1;
+
+            selectedCarIds.forEach(carId => {
+                const bands = [...(next[carId] || [])];
+                bands.push({ minDays: nextMin, maxDays: null, dailyRate: '', deposit: '' });
+                next[carId] = bands;
+            });
+
+            return next;
+        });
+    };
+
+    const removeBondRowForAllSelectedCars = (idx: number) => {
+        setManualBandsByCar(prev => {
+            const next = { ...prev };
+            selectedCarIds.forEach(carId => {
+                next[carId] = (next[carId] || []).filter((_: any, bandIdx: number) => bandIdx !== idx);
+            });
+            return next;
+        });
     };
 
     const activePeriod = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
@@ -1069,119 +1186,140 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden mb-10">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50/80">
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Bond Duration (Days)</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Security Bond (Deposit)</th>
-                                        <th className="px-8 py-5 text-right border-b border-gray-100"></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {manualBands.map((band, idx) => (
-                                        <tr key={idx} className="group hover:bg-orange-50/20 transition-all">
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="relative">
-                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Min</span>
-                                                        <input 
-                                                            type="number"
-                                                            value={band.minDays}
-                                                            onChange={e => {
-                                                                const nb = [...manualBands];
-                                                                nb[idx].minDays = parseInt(e.target.value) || 1;
-                                                                setManualBands(nb);
-                                                            }}
-                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
-                                                        />
-                                                    </div>
-                                                    <div className="w-4 h-0.5 bg-gray-200" />
-                                                    <div className="relative">
-                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Max</span>
-                                                        <input 
-                                                            type="number"
-                                                            value={band.maxDays || ''}
-                                                            onChange={e => {
-                                                                const nb = [...manualBands];
-                                                                nb[idx].maxDays = e.target.value === '' ? null : parseInt(e.target.value);
-                                                                setManualBands(nb);
-                                                            }}
-                                                            placeholder="+"
-                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
-                                                        />
-                                                    </div>
-                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Days Bond</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <div className="relative max-w-[180px] group/input">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-orange-600">{config.currency}</span>
-                                                    <input 
-                                                        type="text"
-                                                        inputMode="decimal"
-                                                        value={band.dailyRate}
-                                                        onChange={e => {
-                                                            handleMoneyInput(idx, 'dailyRate', e.target.value);
-                                                        }}
-                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all shadow-inner"
-                                                        placeholder="0.00"
-                                                    />
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <div className="relative max-w-[180px] group/input">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-blue-600">{config.currency}</span>
-                                                    <input 
-                                                        type="text"
-                                                        inputMode="decimal"
-                                                        value={band.deposit || ''}
-                                                        onChange={e => {
-                                                            handleMoneyInput(idx, 'deposit', e.target.value);
-                                                        }}
-                                                        className="w-full bg-blue-50/30 border border-blue-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all shadow-inner"
-                                                        placeholder="Security Bond"
-                                                    />
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <button 
-                                                    onClick={() => setManualBands(manualBands.filter((_, i) => i !== idx))}
-                                                    className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                    {selectedCars.length === 0 ? (
+                        <div className="rounded-[2rem] border border-dashed border-gray-200 bg-white/80 p-10 text-center text-gray-400 text-xs font-black uppercase tracking-[0.2em]">
+                            Select at least one car to enter bond prices.
                         </div>
-                        
-                        <button 
-                            onClick={() => {
-                                const lastBand = manualBands[manualBands.length - 1];
-                                const nextMin = lastBand ? (lastBand.maxDays || lastBand.minDays) + 1 : 1;
-                                setManualBands([...manualBands, { minDays: nextMin, maxDays: null, dailyRate: '', deposit: '' }]);
-                            }}
-                            className="w-full py-5 border-t border-gray-50 bg-gray-50/30 hover:bg-white text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group"
-                        >
-                            <div className="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Plus className="w-4 h-4" />
-                            </div>
-                            Create New Pricing Bond
-                        </button>
-                    </div>
+                    ) : (
+                        <div className="space-y-8">
+                            {selectedCars.map((car, carIdx) => {
+                                const carId = Number(car.id);
+                                const carBands = manualBandsByCar[carId] || [];
 
-                    <button 
-                        onClick={addSeasonToBatch}
-                        className="w-full py-5 bg-orange-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-orange-200 hover:bg-gray-900 hover:shadow-gray-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4"
-                    >
-                        <Zap className="w-5 h-5 animate-pulse" />
-                        Finalize & Add to Batch Update List
-                    </button>
+                                return (
+                                    <div key={carId} className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+                                        <div className="px-8 py-5 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between gap-4">
+                                            <div>
+                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Car</p>
+                                                <p className="text-sm font-black text-gray-900">
+                                                    {car.name || `${car.make} ${car.model}`.trim()}
+                                                </p>
+                                            </div>
+                                            <span className="px-3 py-1 rounded-full bg-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">
+                                                {car.sippCode || 'NO SIPP'}
+                                            </span>
+                                        </div>
+
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="bg-gray-50/80">
+                                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Bond Duration (Days)</th>
+                                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
+                                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Security Bond (Deposit)</th>
+                                                        <th className="px-8 py-5 text-right border-b border-gray-100"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-50">
+                                                    {carBands.map((band, idx) => (
+                                                        <tr key={idx} className="group hover:bg-orange-50/20 transition-all">
+                                                            <td className="px-8 py-6">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="relative">
+                                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Min</span>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={band.minDays}
+                                                                            onChange={e => updateBondRangeForAllSelectedCars(idx, 'minDays', parseInt(e.target.value, 10) || 1)}
+                                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="w-4 h-0.5 bg-gray-200" />
+                                                                    <div className="relative">
+                                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Max</span>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={band.maxDays || ''}
+                                                                            onChange={e => updateBondRangeForAllSelectedCars(idx, 'maxDays', e.target.value === '' ? null : parseInt(e.target.value, 10))}
+                                                                            placeholder="+"
+                                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
+                                                                        />
+                                                                    </div>
+                                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Days Bond</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <div className="relative max-w-[180px] group/input">
+                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-orange-600">{config.currency}</span>
+                                                                    <input
+                                                                        type="text"
+                                                                        inputMode="decimal"
+                                                                        value={band.dailyRate}
+                                                                        onChange={e => handleMoneyInput(carId, idx, 'dailyRate', e.target.value)}
+                                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all shadow-inner"
+                                                                        placeholder="0.00"
+                                                                    />
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <div className="relative max-w-[180px] group/input">
+                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-blue-600">{config.currency}</span>
+                                                                    <input
+                                                                        type="text"
+                                                                        inputMode="decimal"
+                                                                        value={band.deposit || ''}
+                                                                        onChange={e => handleMoneyInput(carId, idx, 'deposit', e.target.value)}
+                                                                        className="w-full bg-blue-50/30 border border-blue-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all shadow-inner"
+                                                                        placeholder="Security Bond"
+                                                                    />
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6 text-right">
+                                                                {carIdx === 0 ? (
+                                                                    <button
+                                                                        onClick={() => removeBondRowForAllSelectedCars(idx)}
+                                                                        className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                                    >
+                                                                        <Trash2 className="w-5 h-5" />
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Shared</span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {carIdx === 0 ? (
+                                            <button
+                                                onClick={addBondRowForAllSelectedCars}
+                                                className="w-full py-5 border-t border-gray-50 bg-gray-50/30 hover:bg-white text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group"
+                                            >
+                                                <div className="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <Plus className="w-4 h-4" />
+                                                </div>
+                                                Create New Pricing Bond (All Selected Cars)
+                                            </button>
+                                        ) : (
+                                            <div className="px-8 py-4 border-t border-gray-50 text-[9px] font-black text-gray-300 uppercase tracking-widest">
+                                                Bond rows are shared with all selected cars.
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                            <button
+                                onClick={addSeasonToBatch}
+                                className="w-full py-5 bg-orange-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-orange-200 hover:bg-gray-900 hover:shadow-gray-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4"
+                            >
+                                <Zap className="w-5 h-5 animate-pulse" />
+                                Finalize & Add to Batch Update List
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
