@@ -186,6 +186,23 @@ export const Search: React.FC = () => {
   const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
   const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
 
+  const normalizeCategoryImages = (images: unknown): Record<string, string> => {
+    const normalized: Record<string, string> = {};
+    if (!images || typeof images !== 'object') {
+      return normalized;
+    }
+
+    Object.entries(images as Record<string, unknown>).forEach(([key, value]) => {
+      const normalizedKey = key.trim().toUpperCase();
+      const normalizedValue = typeof value === 'string' ? value.trim() : '';
+      if (normalizedKey && normalizedValue) {
+        normalized[normalizedKey] = normalizedValue;
+      }
+    });
+
+    return normalized;
+  };
+
   React.useEffect(() => {
     const loadLocationSuppliers = async () => {
       if (pickupIata) {
@@ -209,8 +226,9 @@ export const Search: React.FC = () => {
         }
 
         const data = await response.json();
-        if (data && typeof data === 'object') {
-          setCategoryImages({ ...(MOCK_CATEGORY_IMAGES as Record<string, string>), ...data });
+        const normalizedImages = normalizeCategoryImages(data);
+        if (Object.keys(normalizedImages).length > 0) {
+          setCategoryImages({ ...(MOCK_CATEGORY_IMAGES as Record<string, string>), ...normalizedImages });
         }
       } catch (err) {
         console.error('Failed to load category images:', err);
@@ -525,7 +543,11 @@ export const Search: React.FC = () => {
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
-                      const isDisabled = false; 
+                      const isDisabled = false;
+                      const categoryImage =
+                        categoryImages[category] ||
+                        categoryImages[category.toUpperCase()] ||
+                        (MOCK_CATEGORY_IMAGES as Record<string, string>)[category];
                       return (
                           <button
                               key={category}
@@ -542,7 +564,7 @@ export const Search: React.FC = () => {
                                   ${isActive
                                       ? 'border-blue-600 shadow-lg shadow-blue-500/30 ring-2 ring-blue-100'
                                       : 'border-slate-200 bg-slate-50 group-hover:border-blue-400 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
-                                  <img src={categoryImages[category] || (MOCK_CATEGORY_IMAGES as Record<string, string>)[category]} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
+                                  <img src={categoryImage} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
                               <div className="text-center leading-tight">
                                   <span className={`text-[8px] sm:text-[9px] md:text-[9px] font-black whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>

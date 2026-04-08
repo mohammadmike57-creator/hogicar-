@@ -5,8 +5,56 @@ import { SUPPLIERS as MOCK_SUPPLIERS, MOCK_HOMEPAGE_CONTENT, GLOBAL_TRUSTED_BRAN
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
-import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings } from '../api';
+import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
 import { LocationSuggestion } from '../api';
+
+const normalizeHomepageContent = (content: any) => {
+  const fallback = MOCK_HOMEPAGE_CONTENT;
+  const safeContent = content && typeof content === 'object' ? content : {};
+  const safePopular = safeContent.popularDestinations && typeof safeContent.popularDestinations === 'object'
+    ? safeContent.popularDestinations
+    : {};
+
+  const destinations = Array.isArray(safePopular.destinations)
+    ? safePopular.destinations
+        .map((destination: any, index: number) => ({
+          id: destination?.id || `d${index + 1}`,
+          name: destination?.name || '',
+          country: destination?.country || '',
+          price: Number(destination?.price) || 0,
+          image: destination?.image || ''
+        }))
+        .filter((destination: any) => destination.name && destination.image)
+    : [];
+
+  return {
+    ...fallback,
+    ...safeContent,
+    hero: {
+      ...fallback.hero,
+      ...(safeContent.hero || {})
+    },
+    howItWorks: {
+      ...fallback.howItWorks,
+      ...(safeContent.howItWorks || {}),
+      steps: Array.isArray(safeContent?.howItWorks?.steps) && safeContent.howItWorks.steps.length > 0
+        ? safeContent.howItWorks.steps
+        : fallback.howItWorks.steps
+    },
+    faqs: {
+      ...fallback.faqs,
+      ...(safeContent.faqs || {}),
+      items: Array.isArray(safeContent?.faqs?.items) && safeContent.faqs.items.length > 0
+        ? safeContent.faqs.items
+        : fallback.faqs.items
+    },
+    popularDestinations: {
+      ...fallback.popularDestinations,
+      ...safePopular,
+      destinations: destinations.length > 0 ? destinations : fallback.popularDestinations.destinations
+    }
+  };
+};
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +67,8 @@ const Home: React.FC = () => {
   const [pickupName, setPickupName] = React.useState<string>('');
   const [dropoffName, setDropoffName] = React.useState<string>('');
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
-  const [heroImageUrl, setHeroImageUrl] = React.useState<string>("https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=2070");
+  const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
+  const [homepageContent, setHomepageContent] = React.useState<any>(MOCK_HOMEPAGE_CONTENT);
   
   React.useEffect(() => {
     const loadSettings = async () => {
@@ -79,9 +128,23 @@ const Home: React.FC = () => {
         }
     };
 
+    const loadHomepageData = async () => {
+      try {
+        const contentData = await fetchHomepageContent();
+        const normalized = normalizeHomepageContent(contentData);
+        setHomepageContent(normalized);
+        if (normalized?.hero?.backgroundImage && !heroImageUrl) {
+          setHeroImageUrl(normalized.hero.backgroundImage);
+        }
+      } catch (error) {
+        console.error('Error loading homepage content:', error);
+      }
+    };
+
     loadSettings();
     loadLocations();
     loadSuppliers();
+    loadHomepageData();
   }, []);
 
   const handleSearch = (params: any) => {
@@ -106,9 +169,10 @@ const Home: React.FC = () => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
   
-  const content = MOCK_HOMEPAGE_CONTENT;
+  const content = homepageContent;
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
+  const heroBackgroundImage = heroImageUrl || content.hero.backgroundImage;
 
   const iconMap: { [key: string]: React.ElementType } = {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
@@ -121,47 +185,60 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO – professional version */}
-      <section className="relative min-h-[450px] lg:min-h-[520px] flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
+      {/* HERO – professional layout */}
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImageUrl} 
-            alt="Hero background" 
-            className="w-full h-full object-cover scale-105"
+          <img
+            src={heroBackgroundImage}
+            alt="Hero background"
+            className="w-full h-full object-cover"
           />
-          {/* Enhanced multi-layered overlay for ultimate professional look */}
-          <div className="absolute inset-0 bg-slate-950/40"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/80"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/30 via-transparent to-slate-950/30"></div>
+          <div className="absolute inset-0 bg-slate-950/55" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/50 to-slate-950/70" />
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10 lg:pt-24 lg:pb-12 flex flex-col items-center text-center">
-            {/* Professional Trust Badge - Enhanced */}
-            <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-xl px-5 py-2 rounded-full text-xs font-bold text-white mb-6 border border-white/20 shadow-2xl transition-all hover:bg-white/15 cursor-default group">
-              <div className="flex -space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current group-hover:scale-110 transition-transform duration-300" />
-                ))}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10 sm:pt-24 sm:pb-14 lg:pt-28 lg:pb-20">
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+            <div className="lg:col-span-5 text-white">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-black tracking-[0.2em] uppercase backdrop-blur-md mb-5">
+                <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                Trusted by 10,000+ travelers
               </div>
-              <span className="uppercase tracking-[0.2em] text-[10px] sm:text-xs font-black">TRUSTED BY 10,000+ CUSTOMERS</span>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.02] font-black tracking-tight drop-shadow-2xl">
+                {content.hero.title || 'Find the right rental, faster'}
+              </h1>
+              <p className="mt-4 text-sm sm:text-base lg:text-lg text-slate-100/95 leading-relaxed max-w-xl font-medium">
+                {content.hero.subtitle || 'Compare transparent offers from trusted suppliers with clear pricing, verified reviews, and flexible booking terms.'}
+              </p>
+
+              <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
+                  <p className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-200">Suppliers</p>
+                  <p className="text-base font-black text-white mt-1">900+</p>
+                </div>
+                <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
+                  <p className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-200">Locations</p>
+                  <p className="text-base font-black text-white mt-1">60,000+</p>
+                </div>
+                <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
+                  <p className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-200">Support</p>
+                  <p className="text-base font-black text-white mt-1">24/7</p>
+                </div>
+              </div>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-4 leading-[1.05] tracking-tight drop-shadow-2xl">
-              Compare & <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-cyan-400 to-emerald-400">Save on Rentals</span>
-            </h1>
-            
-            <p className="text-sm sm:text-base lg:text-lg text-slate-100/90 mb-6 max-w-2xl leading-relaxed font-medium drop-shadow-lg">
-              Compare premium deals from <span className="text-white font-black border-b-2 border-blue-500/50 pb-0.5">900+ trusted suppliers</span> in over 60,000 locations worldwide.
-            </p>
+            <div className="lg:col-span-7">
+              <div className="rounded-3xl border border-white/40 bg-white/95 shadow-2xl shadow-slate-950/30 p-4 sm:p-6 lg:p-7">
+                <div className="mb-4 sm:mb-5">
+                  <p className="text-[11px] uppercase tracking-[0.22em] font-black text-blue-700">Plan your trip</p>
+                  <h2 className="text-slate-900 text-xl sm:text-2xl font-black tracking-tight">Search and compare the best rates</h2>
+                  <p className="text-sm text-slate-600 font-medium mt-1">Pick your route, dates, and preferred options to get instant live offers.</p>
+                </div>
 
-            {/* Container for Widget - Centered with Glow */}
-            <div className="w-full max-w-5xl relative">
-              <div className="absolute -inset-10 bg-blue-500/20 blur-[100px] rounded-full opacity-40 pointer-events-none animate-pulse"></div>
-              <div className="relative z-10">
-                <SearchWidget 
-                  onSearch={handleSearch} 
-                  showTitle={false} 
+                <SearchWidget
+                  onSearch={handleSearch}
+                  showTitle={false}
                   initialValues={{
                     pickup: pickupCode,
                     pickupName: pickupName,
@@ -169,39 +246,24 @@ const Home: React.FC = () => {
                     dropoffName: dropoffName
                   }}
                 />
-              </div>
-            </div>
 
-            {/* Quick Benefits - Modernized */}
-            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4 mt-8">
-              <div className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Flexibility</p>
-                  <p className="text-xs font-bold text-white">Free Cancellation</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
-                  <Shield className="w-5 h-5 text-blue-400" />
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Trust</p>
-                  <p className="text-xs font-bold text-white">No Hidden Fees</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
-                  <Award className="w-5 h-5 text-orange-400" />
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Service</p>
-                  <p className="text-xs font-bold text-white">24/7 Support</p>
+                <div className="mt-4 sm:mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-bold text-slate-700">Free cancellation</span>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-600" />
+                    <span className="text-xs font-bold text-slate-700">Transparent pricing</span>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-600" />
+                    <span className="text-xs font-bold text-slate-700">Trusted suppliers</span>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
       </section>
 

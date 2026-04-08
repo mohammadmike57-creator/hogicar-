@@ -860,6 +860,90 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
 
+  const fallbackDestinations =
+    (MOCK_HOMEPAGE_CONTENT as any)?.popularDestinations?.destinations || [];
+
+  const getDefaultDestination = (index: number) => {
+    const fallback = fallbackDestinations[index] || fallbackDestinations[0] || {};
+    return {
+      id: fallback.id || `d${index + 1}`,
+      name: fallback.name || '',
+      country: fallback.country || '',
+      price: Number(fallback.price) || 0,
+      image: fallback.image || ''
+    };
+  };
+
+  const currentDestinations = Array.isArray(localContent?.popularDestinations?.destinations)
+    ? localContent.popularDestinations.destinations
+    : [];
+
+  const updateDestinationField = (index: number, field: string, value: string | number) => {
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+
+      if (!next.popularDestinations || typeof next.popularDestinations !== 'object') {
+        next.popularDestinations = {};
+      }
+
+      const destinations = Array.isArray(next.popularDestinations.destinations)
+        ? [...next.popularDestinations.destinations]
+        : [];
+
+      while (destinations.length <= index) {
+        destinations.push(getDefaultDestination(destinations.length));
+      }
+
+      const existing = destinations[index] && typeof destinations[index] === 'object'
+        ? destinations[index]
+        : getDefaultDestination(index);
+
+      destinations[index] = {
+        ...existing,
+        id: existing.id || `d${index + 1}`,
+        [field]: field === 'price' ? Number(value) || 0 : value
+      };
+
+      next.popularDestinations.destinations = destinations;
+      return next;
+    });
+  };
+
+  const addDestination = () => {
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+      if (!next.popularDestinations || typeof next.popularDestinations !== 'object') {
+        next.popularDestinations = {};
+      }
+      const destinations = Array.isArray(next.popularDestinations.destinations)
+        ? [...next.popularDestinations.destinations]
+        : [];
+      destinations.push(getDefaultDestination(destinations.length));
+      next.popularDestinations.destinations = destinations;
+      return next;
+    });
+  };
+
+  const removeDestination = (index: number) => {
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+      const destinations = Array.isArray(next?.popularDestinations?.destinations)
+        ? [...next.popularDestinations.destinations]
+        : [];
+
+      destinations.splice(index, 1);
+
+      if (!next.popularDestinations || typeof next.popularDestinations !== 'object') {
+        next.popularDestinations = {};
+      }
+      next.popularDestinations.destinations = destinations;
+      return next;
+    });
+  };
+
   const handleSave = async () => {
     await onSave(localContent, localCategoryImages);
     setSaved(true);
@@ -978,6 +1062,82 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-slate-100">
+        <div className="flex items-center justify-between mb-3 gap-3">
+          <div>
+            <h3 className="text-base font-black text-slate-900">Popular Destinations</h3>
+            <p className="text-xs text-slate-500">Manage destination cards shown on the home page.</p>
+          </div>
+          <button
+            type="button"
+            onClick={addDestination}
+            className="px-3 py-2 rounded-xl bg-orange-600 text-white text-xs font-black hover:bg-orange-700 transition-colors"
+          >
+            Add Destination
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <InputField
+            label="Section Title"
+            value={localContent?.popularDestinations?.title || ''}
+            onChange={e => handleChange('popularDestinations.title', e.target.value)}
+          />
+          <InputField
+            label="Section Subtitle"
+            value={localContent?.popularDestinations?.subtitle || ''}
+            onChange={e => handleChange('popularDestinations.subtitle', e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-3">
+          {currentDestinations.map((destination: any, index: number) => (
+            <div key={destination?.id || `destination-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-black text-slate-800">Destination #{index + 1}</p>
+                <button
+                  type="button"
+                  onClick={() => removeDestination(index)}
+                  className="px-2.5 py-1.5 rounded-lg border border-red-100 text-red-500 text-[11px] font-black hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <InputField
+                  label="Name"
+                  value={destination?.name || ''}
+                  onChange={e => updateDestinationField(index, 'name', e.target.value)}
+                />
+                <InputField
+                  label="Country"
+                  value={destination?.country || ''}
+                  onChange={e => updateDestinationField(index, 'country', e.target.value)}
+                />
+                <InputField
+                  label="Starting Price"
+                  value={destination?.price ?? 0}
+                  onChange={e => updateDestinationField(index, 'price', e.target.value)}
+                  type="number"
+                />
+                <InputField
+                  label="Image URL"
+                  value={destination?.image || ''}
+                  onChange={e => updateDestinationField(index, 'image', e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+
+          {currentDestinations.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs font-bold text-slate-500">
+              No destinations yet. Click <span className="text-slate-700">Add Destination</span> to create one.
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -219,6 +219,16 @@ export const fetchSiteSettings = async (): Promise<any> => {
   }
 };
 
+export const fetchHomepageContent = async (): Promise<any> => {
+  try {
+    const response = await publicAxios.get(`${API_BASE_URL}/api/homepage/content`);
+    return response.data && typeof response.data === 'object' ? response.data : {};
+  } catch (error) {
+    console.error('Error fetching homepage content:', error);
+    return {};
+  }
+};
+
 export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]> => {
   try {
     const url = locationCode 
@@ -246,6 +256,7 @@ export const api = {
   fetchStripeConfig,
   fetchPublicSuppliers,
   fetchHomepageLogos,
+  fetchHomepageContent,
   fetchSearchingLogos,
 };
 
