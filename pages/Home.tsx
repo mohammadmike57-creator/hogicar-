@@ -14,18 +14,36 @@ const normalizeHomepageContent = (content: any) => {
   const safePopular = safeContent.popularDestinations && typeof safeContent.popularDestinations === 'object'
     ? safeContent.popularDestinations
     : {};
+  const fallbackDestinations = Array.isArray(fallback?.popularDestinations?.destinations)
+    ? fallback.popularDestinations.destinations
+    : [];
 
-  const destinations = Array.isArray(safePopular.destinations)
+  const normalizeDestinationImage = (destination: any, index: number) => {
+    const image = typeof destination?.image === 'string' ? destination.image.trim() : '';
+    if (image) return image;
+
+    const legacyImage = typeof destination?.imageUrl === 'string' ? destination.imageUrl.trim() : '';
+    if (legacyImage) return legacyImage;
+
+    const fallbackImage = typeof fallbackDestinations[index]?.image === 'string'
+      ? fallbackDestinations[index].image
+      : '';
+    return fallbackImage;
+  };
+
+  const hasDestinationsArray = Array.isArray(safePopular.destinations);
+
+  const destinations = hasDestinationsArray
     ? safePopular.destinations
         .map((destination: any, index: number) => ({
           id: destination?.id || `d${index + 1}`,
           name: destination?.name || '',
           country: destination?.country || '',
           price: Number(destination?.price) || 0,
-          image: destination?.image || ''
+          image: normalizeDestinationImage(destination, index)
         }))
-        .filter((destination: any) => destination.name && destination.image)
-    : [];
+        .filter((destination: any) => destination.name || destination.country || destination.image || destination.price > 0)
+    : fallbackDestinations;
 
   return {
     ...fallback,
@@ -51,7 +69,7 @@ const normalizeHomepageContent = (content: any) => {
     popularDestinations: {
       ...fallback.popularDestinations,
       ...safePopular,
-      destinations: destinations.length > 0 ? destinations : fallback.popularDestinations.destinations
+      destinations
     }
   };
 };

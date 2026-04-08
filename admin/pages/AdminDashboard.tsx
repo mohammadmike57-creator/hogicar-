@@ -860,6 +860,15 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
 
+  const resolveDestinationImage = (destination: any) => {
+    const image = typeof destination?.image === 'string' ? destination.image.trim() : '';
+    if (image) {
+      return image;
+    }
+
+    return typeof destination?.imageUrl === 'string' ? destination.imageUrl.trim() : '';
+  };
+
   const fallbackDestinations =
     (MOCK_HOMEPAGE_CONTENT as any)?.popularDestinations?.destinations || [];
 
@@ -875,7 +884,16 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
   };
 
   const currentDestinations = Array.isArray(localContent?.popularDestinations?.destinations)
-    ? localContent.popularDestinations.destinations
+    ? localContent.popularDestinations.destinations.map((destination: any, index: number) => {
+        const fallback = getDefaultDestination(index);
+        const safeDestination = destination && typeof destination === 'object' ? destination : {};
+        return {
+          ...fallback,
+          ...safeDestination,
+          id: safeDestination.id || fallback.id,
+          image: resolveDestinationImage(safeDestination)
+        };
+      })
     : [];
 
   const updateDestinationField = (index: number, field: string, value: string | number) => {
@@ -899,11 +917,23 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
         ? destinations[index]
         : getDefaultDestination(index);
 
-      destinations[index] = {
-        ...existing,
-        id: existing.id || `d${index + 1}`,
-        [field]: field === 'price' ? Number(value) || 0 : value
-      };
+      const normalizedValue = field === 'price' ? Number(value) || 0 : value;
+
+      if (field === 'image') {
+        const imageValue = String(normalizedValue || '');
+        destinations[index] = {
+          ...existing,
+          id: existing.id || `d${index + 1}`,
+          image: imageValue,
+          imageUrl: imageValue
+        };
+      } else {
+        destinations[index] = {
+          ...existing,
+          id: existing.id || `d${index + 1}`,
+          [field]: normalizedValue
+        };
+      }
 
       next.popularDestinations.destinations = destinations;
       return next;
@@ -1182,7 +1212,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 
                 <InputField
                   label="Image URL"
-                  value={destination?.image || ''}
+                  value={destination?.image || destination?.imageUrl || ''}
                   onChange={e => updateDestinationField(index, 'image', e.target.value)}
                 />
               </div>
