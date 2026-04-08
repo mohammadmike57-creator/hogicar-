@@ -185,7 +185,7 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO – professional layout */}
+      {/* HERO – professional marketplace layout */}
       <section className="relative overflow-hidden bg-slate-950">
         <div className="absolute inset-0 z-0">
           <img
@@ -193,43 +193,44 @@ const Home: React.FC = () => {
             alt="Hero background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-slate-950/60" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-slate-950/75" />
-          <div className="absolute -top-20 right-[-8rem] h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
-          <div className="absolute -bottom-24 left-[-8rem] h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
+          <div className="absolute inset-0 bg-slate-950/68" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/72 to-slate-900/65" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-900/35" />
+          <div className="absolute -top-20 right-[-9rem] h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-24 left-[-10rem] h-96 w-96 rounded-full bg-indigo-500/15 blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-28 lg:pb-20">
-          <div className="grid lg:grid-cols-12 gap-7 lg:gap-10 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-20 sm:pb-14 lg:pt-24 lg:pb-16">
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-9 items-center">
             <div className="lg:col-span-5 text-white">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-black tracking-[0.2em] uppercase backdrop-blur-md mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-4 py-1.5 text-[11px] font-black tracking-[0.2em] uppercase backdrop-blur-md mb-5">
                 <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                Recommended by frequent travelers
+                Rated excellent by global travellers
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.45rem] leading-[1.02] font-black tracking-tight drop-shadow-2xl">
-                {content.hero.title || 'Book smarter car rentals worldwide'}
+              <h1 className="text-[2.15rem] sm:text-[2.85rem] lg:text-[3.2rem] leading-[1.04] font-black tracking-tight drop-shadow-2xl max-w-xl">
+                {content.hero.title || 'Find the right rental car at the right total price'}
               </h1>
-              <p className="mt-4 text-sm sm:text-base lg:text-lg text-slate-100/95 leading-relaxed max-w-xl font-medium">
-                {content.hero.subtitle || 'Compare transparent offers from trusted suppliers with clear total pricing, flexible terms, and reliable customer support.'}
+              <p className="mt-4 text-sm sm:text-base lg:text-[1.03rem] text-slate-100/95 leading-relaxed max-w-xl font-medium">
+                {content.hero.subtitle || 'Compare verified suppliers, transparent rates, and flexible rental conditions in one professional booking flow.'}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2.5">
-                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">No hidden fees</span>
-                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">Fast booking flow</span>
-                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">Secure payments</span>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">No hidden fees</span>
+                <span className="inline-flex items-center rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">Free cancellation options</span>
+                <span className="inline-flex items-center rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">Secure booking</span>
               </div>
 
-              <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="rounded-lg border border-white/25 bg-white/10 backdrop-blur-md px-4 py-3">
                   <p className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-200">Suppliers</p>
                   <p className="text-base font-black text-white mt-1">900+</p>
                 </div>
-                <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
+                <div className="rounded-lg border border-white/25 bg-white/10 backdrop-blur-md px-4 py-3">
                   <p className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-200">Locations</p>
                   <p className="text-base font-black text-white mt-1">60,000+</p>
                 </div>
-                <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
+                <div className="rounded-lg border border-white/25 bg-white/10 backdrop-blur-md px-4 py-3">
                   <p className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-200">Support</p>
                   <p className="text-base font-black text-white mt-1">24/7</p>
                 </div>
@@ -237,14 +238,14 @@ const Home: React.FC = () => {
             </div>
 
             <div className="lg:col-span-7">
-              <div className="rounded-[30px] border border-white/40 bg-white/92 shadow-[0_34px_80px_rgba(15,23,42,0.38)] p-4 sm:p-6 lg:p-7 backdrop-blur-sm">
-                <div className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+              <div className="rounded-2xl border border-white/50 bg-white/94 shadow-[0_30px_74px_rgba(15,23,42,0.34)] p-4 sm:p-6 lg:p-6 backdrop-blur-sm">
+                <div className="mb-4 sm:mb-5 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] font-black text-blue-700">Plan your trip</p>
-                    <h2 className="text-slate-900 text-xl sm:text-2xl font-black tracking-tight">Search and compare the best rates</h2>
-                    <p className="text-sm text-slate-600 font-medium mt-1">Pick your route and dates to get live offers from trusted providers.</p>
+                    <p className="text-[11px] uppercase tracking-[0.22em] font-black text-blue-700">Plan your rental</p>
+                    <h2 className="text-slate-900 text-xl sm:text-[1.6rem] font-black tracking-tight">Search, compare and book with confidence</h2>
+                    <p className="text-sm text-slate-600 font-medium mt-1">Enter your route and dates to get verified offers from trusted providers.</p>
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/80 px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">
+                  <div className="inline-flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50/80 px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">
                     <Shield className="w-3.5 h-3.5" /> Verified pricing
                   </div>
                 </div>
@@ -261,15 +262,15 @@ const Home: React.FC = () => {
                 />
 
                 <div className="mt-4 sm:mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
+                  <div className="rounded-md bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
                     <span className="text-xs font-bold text-slate-700">Free cancellation</span>
                   </div>
-                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
+                  <div className="rounded-md bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
                     <Shield className="w-4 h-4 text-blue-600" />
                     <span className="text-xs font-bold text-slate-700">Transparent pricing</span>
                   </div>
-                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
+                  <div className="rounded-md bg-slate-50 border border-slate-200 px-3 py-2.5 flex items-center gap-2">
                     <Award className="w-4 h-4 text-amber-600" />
                     <span className="text-xs font-bold text-slate-700">Trusted suppliers</span>
                   </div>
