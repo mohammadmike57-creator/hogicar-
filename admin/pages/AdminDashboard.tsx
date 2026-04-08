@@ -944,6 +944,17 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
     });
   };
 
+  const handleDestinationImageUpload = async (index: number, file?: File) => {
+    if (!file) return;
+
+    try {
+      const base64 = await resizeImage(file, 900, 540);
+      updateDestinationField(index, 'image', base64);
+    } catch (error: any) {
+      alert(`Failed to process destination image: ${error?.message || 'Unknown error'}`);
+    }
+  };
+
   const handleSave = async () => {
     await onSave(localContent, localCategoryImages);
     setSaved(true);
@@ -1124,6 +1135,51 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   onChange={e => updateDestinationField(index, 'price', e.target.value)}
                   type="number"
                 />
+              </div>
+
+              <div className="mt-3 space-y-2">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Destination Image</label>
+                <div className="h-28 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+                  {destination?.image ? (
+                    <img
+                      src={destination.image}
+                      alt={`${destination?.name || 'Destination'} preview`}
+                      className="w-full h-full object-cover"
+                      width={320}
+                      height={180}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="text-[11px] font-bold text-slate-400">No image</div>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    id={`popular-destination-image-${index}`}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      await handleDestinationImageUpload(index, e.target.files?.[0]);
+                      e.target.value = '';
+                    }}
+                  />
+                  <label
+                    htmlFor={`popular-destination-image-${index}`}
+                    className="flex-1 text-center bg-white border border-orange-200 text-orange-600 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-orange-50 transition-colors"
+                  >
+                    Upload Image
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => updateDestinationField(index, 'image', '')}
+                    className="px-3 py-2 rounded-xl border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+
                 <InputField
                   label="Image URL"
                   value={destination?.image || ''}
