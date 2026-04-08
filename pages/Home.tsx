@@ -186,31 +186,39 @@ const Home: React.FC = () => {
       />
       
       {/* HERO – professional layout */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-slate-950">
         <div className="absolute inset-0 z-0">
           <img
             src={heroBackgroundImage}
             alt="Hero background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-slate-950/55" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/50 to-slate-950/70" />
+          <div className="absolute inset-0 bg-slate-950/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-slate-950/75" />
+          <div className="absolute -top-20 right-[-8rem] h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-24 left-[-8rem] h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10 sm:pt-24 sm:pb-14 lg:pt-28 lg:pb-20">
-          <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-28 lg:pb-20">
+          <div className="grid lg:grid-cols-12 gap-7 lg:gap-10 items-center">
             <div className="lg:col-span-5 text-white">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-black tracking-[0.2em] uppercase backdrop-blur-md mb-5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-black tracking-[0.2em] uppercase backdrop-blur-md mb-6">
                 <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                Trusted by 10,000+ travelers
+                Recommended by frequent travelers
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.02] font-black tracking-tight drop-shadow-2xl">
-                {content.hero.title || 'Find the right rental, faster'}
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.45rem] leading-[1.02] font-black tracking-tight drop-shadow-2xl">
+                {content.hero.title || 'Book smarter car rentals worldwide'}
               </h1>
               <p className="mt-4 text-sm sm:text-base lg:text-lg text-slate-100/95 leading-relaxed max-w-xl font-medium">
-                {content.hero.subtitle || 'Compare transparent offers from trusted suppliers with clear pricing, verified reviews, and flexible booking terms.'}
+                {content.hero.subtitle || 'Compare transparent offers from trusted suppliers with clear total pricing, flexible terms, and reliable customer support.'}
               </p>
+
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">No hidden fees</span>
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">Fast booking flow</span>
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.14em] uppercase text-slate-100">Secure payments</span>
+              </div>
 
               <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3">
@@ -229,11 +237,16 @@ const Home: React.FC = () => {
             </div>
 
             <div className="lg:col-span-7">
-              <div className="rounded-3xl border border-white/40 bg-white/95 shadow-2xl shadow-slate-950/30 p-4 sm:p-6 lg:p-7">
-                <div className="mb-4 sm:mb-5">
-                  <p className="text-[11px] uppercase tracking-[0.22em] font-black text-blue-700">Plan your trip</p>
-                  <h2 className="text-slate-900 text-xl sm:text-2xl font-black tracking-tight">Search and compare the best rates</h2>
-                  <p className="text-sm text-slate-600 font-medium mt-1">Pick your route, dates, and preferred options to get instant live offers.</p>
+              <div className="rounded-[30px] border border-white/40 bg-white/92 shadow-[0_34px_80px_rgba(15,23,42,0.38)] p-4 sm:p-6 lg:p-7 backdrop-blur-sm">
+                <div className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] font-black text-blue-700">Plan your trip</p>
+                    <h2 className="text-slate-900 text-xl sm:text-2xl font-black tracking-tight">Search and compare the best rates</h2>
+                    <p className="text-sm text-slate-600 font-medium mt-1">Pick your route and dates to get live offers from trusted providers.</p>
+                  </div>
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/80 px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">
+                    <Shield className="w-3.5 h-3.5" /> Verified pricing
+                  </div>
                 </div>
 
                 <SearchWidget
