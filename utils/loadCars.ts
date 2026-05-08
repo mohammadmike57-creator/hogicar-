@@ -3,7 +3,7 @@
 import { ApiSearchResult, CarCategory } from '../types';
 import { LocationSuggestion } from '../api';
 import { appState } from '../appState';
-import { API_BASE_URL } from '../api';
+import { API_BASE_URL } from '../lib/config';
 
 const API_URL = API_BASE_URL;
 
