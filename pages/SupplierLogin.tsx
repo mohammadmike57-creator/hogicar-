@@ -197,7 +197,7 @@ const SupplierLogin: React.FC = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Partner Identity</label>
                             <div className="relative group/input">
                                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
-                                    <Mail className="w-4.5 h-4.5" />
+                                    <User className="w-4.5 h-4.5" />
                                 </div>
                                 <input
                                     type="text"
@@ -205,7 +205,7 @@ const SupplierLogin: React.FC = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
-                                    placeholder="email@company.com"
+                                    placeholder="Username or Email"
                                     disabled={isLoading}
                                 />
                             </div>

@@ -430,7 +430,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
                 <div className="pt-4 border-t border-gray-100">
                     <h4 className="text-sm font-bold text-gray-700 mb-2">Supplier Portal Credentials</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <InputField label="Username" value={editedSupplier.username || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('username', e.target.value)} />
+                        <InputField label="Username / Login Identity" value={editedSupplier.username || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('username', e.target.value)} />
                         <InputField label="Password" type="password" value={editedSupplier.password || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('password', e.target.value)} />
                     </div>
                 </div>
@@ -1715,7 +1715,8 @@ export const AdminDashboard: React.FC = () => {
     try {
         const payload = {
             name: updatedSupplier.name,
-            email: updatedSupplier.contactEmail || updatedSupplier.username + "@hogicar.com", // Fallback if missing
+            email: updatedSupplier.username || updatedSupplier.contactEmail,
+            contactEmail: updatedSupplier.contactEmail,
             phone: updatedSupplier.phone || '',
             logoUrl: updatedSupplier.logo || '',
             active: updatedSupplier.status === 'active',
