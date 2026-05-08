@@ -746,6 +746,12 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
     const [applyToAllLocations, setApplyToAllLocations] = useState(false);
     const [activationNotice, setActivationNotice] = useState<any | null>(null);
 
+    const currentPeriodKey = useMemo(() => {
+        const p = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
+        return p ? `${p.name}-${p.startDate}-${p.endDate}` : 'none';
+    }, [isCustomPeriod, customPeriod, selectedPeriodIdx, config]);
+    const [lastPeriodKey, setLastPeriodKey] = useState(currentPeriodKey);
+
     const baseBands = useMemo(() => {
         const periodBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
         const initializedBands = periodBands.map(b => ({
@@ -756,21 +762,28 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
     }, [selectedPeriodIdx, isCustomPeriod, config]);
 
     useEffect(() => {
+        if (currentPeriodKey !== lastPeriodKey) {
+            setManualBandsByCar({});
+            setLastPeriodKey(currentPeriodKey);
+        }
+    }, [currentPeriodKey, lastPeriodKey]);
+
+    useEffect(() => {
         setManualBandsByCar(prev => {
             if (selectedCarIds.length === 0) return {};
 
-            const next: Record<number, any[]> = {};
-            selectedCarIds.forEach(carId => {
-                const existing = prev[carId] || [];
-                const hasSameStructure = existing.length === baseBands.length && existing.every((band, idx) => {
-                    const targetBand = baseBands[idx];
-                    return Number(band.minDays) === Number(targetBand.minDays)
-                        && (band.maxDays ?? null) === (targetBand.maxDays ?? null);
-                });
+            const next: Record<number, any[]> = { ...prev };
+            
+            // Cleanup unselected cars
+            Object.keys(next).forEach(id => {
+                if (!selectedCarIds.includes(Number(id))) {
+                    delete next[Number(id)];
+                }
+            });
 
-                if (hasSameStructure) {
-                    next[carId] = existing;
-                } else {
+            // Initialize newly selected cars
+            selectedCarIds.forEach(carId => {
+                if (!next[carId]) {
                     next[carId] = baseBands.map(b => ({
                         minDays: b.minDays,
                         maxDays: b.maxDays,
@@ -915,13 +928,17 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
 
         setManualBandsByCar(prev => {
             const next = { ...prev };
-            const bands = [...(next[carId] || [])];
-            if (!bands[idx]) return prev;
-            bands[idx] = {
-                ...bands[idx],
-                [field]: normalized,
-            };
-            next[carId] = bands;
+            // Synchronize across all selected cars to maintain the "Linked" promise
+            selectedCarIds.forEach(id => {
+                const bands = [...(next[id] || [])];
+                if (bands[idx]) {
+                    bands[idx] = {
+                        ...bands[idx],
+                        [field]: normalized,
+                    };
+                    next[id] = bands;
+                }
+            });
             return next;
         });
     };
@@ -946,6 +963,19 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
         if (selectedCarIds.length === 0) return;
         setManualBandsByCar(prev => {
             const next = { ...prev };
+            
+            // Ensure all selected cars have at least one entry to reference
+            selectedCarIds.forEach(id => {
+                if (!next[id] || next[id].length === 0) {
+                    next[id] = baseBands.map(b => ({
+                        minDays: b.minDays,
+                        maxDays: b.maxDays,
+                        dailyRate: '',
+                        deposit: '',
+                    }));
+                }
+            });
+
             const referenceBands = next[selectedCarIds[0]] || [];
             const lastBand = referenceBands[referenceBands.length - 1];
             const nextMin = lastBand ? (Number(lastBand.maxDays) || Number(lastBand.minDays) || 0) + 1 : 1;
@@ -1247,8 +1277,9 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                                                                         <input
                                                                             type="number"
                                                                             value={band.minDays}
+                                                                            disabled={isSaving}
                                                                             onChange={e => updateBondRangeForAllSelectedCars(idx, 'minDays', parseInt(e.target.value, 10) || 1)}
-                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm"
+                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm disabled:opacity-50"
                                                                         />
                                                                     </div>
                                                                     <div className="w-3 h-0.5 bg-gray-200" />
@@ -1257,39 +1288,42 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                                                                         <input
                                                                             type="number"
                                                                             value={band.maxDays || ''}
+                                                                            disabled={isSaving}
                                                                             onChange={e => updateBondRangeForAllSelectedCars(idx, 'maxDays', e.target.value === '' ? null : parseInt(e.target.value, 10))}
                                                                             placeholder="∞"
-                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm"
+                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm disabled:opacity-50"
                                                                         />
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-10 py-8">
                                                                 <div className="relative max-w-[220px] group/input">
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-orange-600 group-focus-within/input:bg-orange-50 group-focus-within/input:border-orange-100">
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-orange-600 group-focus-within/input:bg-orange-50 group-focus-within/input:border-orange-100 pointer-events-none">
                                                                         {config.currency}
                                                                     </div>
                                                                     <input
                                                                         type="text"
                                                                         inputMode="decimal"
                                                                         value={band.dailyRate}
+                                                                        disabled={isSaving}
                                                                         onChange={e => handleMoneyInput(carId, idx, 'dailyRate', e.target.value)}
-                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200"
+                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50"
                                                                         placeholder="0.00"
                                                                     />
                                                                 </div>
                                                             </td>
                                                             <td className="px-10 py-8">
                                                                 <div className="relative max-w-[220px] group/input">
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-blue-600 group-focus-within/input:bg-blue-50 group-focus-within/input:border-blue-100">
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-blue-600 group-focus-within/input:bg-blue-50 group-focus-within/input:border-blue-100 pointer-events-none">
                                                                         {config.currency}
                                                                     </div>
                                                                     <input
                                                                         type="text"
                                                                         inputMode="decimal"
                                                                         value={band.deposit || ''}
+                                                                        disabled={isSaving}
                                                                         onChange={e => handleMoneyInput(carId, idx, 'deposit', e.target.value)}
-                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200"
+                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50"
                                                                         placeholder="0.00"
                                                                     />
                                                                 </div>
@@ -1319,7 +1353,8 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                                             <div className="p-8 bg-gray-50/50">
                                                 <button
                                                     onClick={addBondRowForAllSelectedCars}
-                                                    className="w-full py-5 bg-white border border-dashed border-gray-200 rounded-2xl text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group hover:border-orange-500 hover:bg-orange-50/30 hover:shadow-lg hover:shadow-orange-100"
+                                                    disabled={isSaving}
+                                                    className={`w-full py-5 bg-white border border-dashed border-gray-200 rounded-2xl text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group hover:border-orange-500 hover:bg-orange-50/30 hover:shadow-lg hover:shadow-orange-100 active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
                                                     <div className="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center group-hover:rotate-90 transition-transform shadow-lg shadow-orange-200">
                                                         <Plus className="w-5 h-5" />
@@ -1341,7 +1376,8 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
 
                             <button
                                 onClick={addSeasonToBatch}
-                                className="w-full py-5 bg-orange-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-orange-200 hover:bg-gray-900 hover:shadow-gray-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4"
+                                disabled={isSaving}
+                                className={`w-full py-5 bg-orange-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-orange-200 hover:bg-gray-900 hover:shadow-gray-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4 active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <Zap className="w-5 h-5 animate-pulse" />
                                 Finalize & Add to Batch Update List
