@@ -107,11 +107,15 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
 };
 
 const InputField = ({ label, icon: Icon, ...props }: any) => (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
         <div className="relative group">
-            {Icon && <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 group-focus-within:text-orange-500 transition-colors" />}
-            <input {...props} className={`w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 ${Icon ? 'pl-11' : 'px-4'} pr-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-300 ${props.readOnly ? 'opacity-70 bg-gray-100/50 cursor-not-allowed' : ''}`} />
+            {Icon && (
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-50 flex items-center justify-center transition-all group-focus-within:border-orange-100 group-focus-within:shadow-orange-100/50">
+                    <Icon className="w-4 h-4 text-gray-400 group-focus-within:text-orange-600 transition-colors" />
+                </div>
+            )}
+            <input {...props} className={`w-full bg-white border border-gray-200 rounded-[1.25rem] py-3.5 ${Icon ? 'pl-14' : 'px-5'} pr-5 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all placeholder:text-gray-200 shadow-sm ${props.readOnly ? 'opacity-70 bg-gray-50 cursor-not-allowed' : 'hover:border-gray-300'}`} />
         </div>
     </div>
 );
@@ -1165,12 +1169,15 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-orange-500" />
                     
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-                            <h4 className="text-[12px] font-black text-gray-900 uppercase tracking-[0.3em] flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-2xl bg-white shadow-md border border-gray-50 flex items-center justify-center">
-                                    <DollarSign className="w-5 h-5 text-orange-600" />
+                            <h4 className="text-[14px] font-black text-gray-900 uppercase tracking-[0.4em] flex items-center gap-5">
+                                <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 shadow-xl border border-white flex items-center justify-center">
+                                    <DollarSign className="w-6 h-6 text-orange-600" />
                                 </div>
-                            3. Create Bond Prices
-                        </h4>
+                                <span className="relative">
+                                    3. Create Bond Prices
+                                    <span className="absolute -bottom-2 left-0 w-1/2 h-0.5 bg-orange-600/30 rounded-full" />
+                                </span>
+                            </h4>
                         <div className="flex items-center gap-4">
                             <div className="flex flex-col items-end">
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Season</span>
@@ -1199,93 +1206,107 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                                 const carBands = manualBandsByCar[carId] || [];
 
                                 return (
-                                    <div key={carId} className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
-                                        <div className="px-8 py-5 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between gap-4">
-                                            <div>
-                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Car</p>
-                                                <p className="text-sm font-black text-gray-900">
-                                                    {car.name || `${car.make} ${car.model}`.trim()}
-                                                </p>
+                                    <div key={carId} className="bg-white rounded-[3rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden transition-all hover:border-orange-100/50">
+                                        <div className="px-10 py-7 border-b border-gray-50 bg-gradient-to-r from-gray-50/80 to-white flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-5">
+                                                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-gray-50 flex items-center justify-center">
+                                                    <Car className="w-6 h-6 text-gray-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Vehicle Identity</p>
+                                                    <p className="text-lg font-black text-gray-900 leading-none mt-1">
+                                                        {car.name || `${car.make} ${car.model}`.trim()}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <span className="px-3 py-1 rounded-full bg-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">
-                                                {car.sippCode || 'NO SIPP'}
-                                            </span>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <span className="px-4 py-1.5 rounded-xl bg-orange-600 text-[10px] font-black text-white uppercase tracking-widest shadow-lg shadow-orange-200">
+                                                    {car.sippCode || 'NO SIPP'}
+                                                </span>
+                                                <span className="text-[9px] font-bold text-gray-300 uppercase tracking-tighter">Category Code</span>
+                                            </div>
                                         </div>
 
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left border-collapse">
                                                 <thead>
-                                                    <tr className="bg-gray-50/80">
-                                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Bond Duration (Days)</th>
-                                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
-                                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Security Bond (Deposit)</th>
-                                                        <th className="px-8 py-5 text-right border-b border-gray-100"></th>
+                                                    <tr className="bg-gray-50/40">
+                                                        <th className="px-10 py-6 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] border-b border-gray-100">Duration Range</th>
+                                                        <th className="px-10 py-6 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
+                                                        <th className="px-10 py-6 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] border-b border-gray-100">Security Deposit</th>
+                                                        <th className="px-10 py-6 text-right border-b border-gray-100"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-50">
                                                     {carBands.map((band, idx) => (
-                                                        <tr key={idx} className="group hover:bg-orange-50/20 transition-all">
-                                                            <td className="px-8 py-6">
+                                                        <tr key={idx} className="group hover:bg-orange-50/10 transition-all">
+                                                            <td className="px-10 py-8">
                                                                 <div className="flex items-center gap-4">
-                                                                    <div className="relative">
-                                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Min</span>
+                                                                    <div className="relative group/field">
+                                                                        <span className="absolute -top-5 left-1 text-[8px] font-black text-gray-300 uppercase group-focus-within/field:text-orange-500 transition-colors">Min Days</span>
                                                                         <input
                                                                             type="number"
                                                                             value={band.minDays}
                                                                             onChange={e => updateBondRangeForAllSelectedCars(idx, 'minDays', parseInt(e.target.value, 10) || 1)}
-                                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
+                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm"
                                                                         />
                                                                     </div>
-                                                                    <div className="w-4 h-0.5 bg-gray-200" />
-                                                                    <div className="relative">
-                                                                        <span className="absolute -top-4 left-1 text-[8px] font-black text-gray-300 uppercase">Max</span>
+                                                                    <div className="w-3 h-0.5 bg-gray-200" />
+                                                                    <div className="relative group/field">
+                                                                        <span className="absolute -top-5 left-1 text-[8px] font-black text-gray-300 uppercase group-focus-within/field:text-orange-500 transition-colors">Max Days</span>
                                                                         <input
                                                                             type="number"
                                                                             value={band.maxDays || ''}
                                                                             onChange={e => updateBondRangeForAllSelectedCars(idx, 'maxDays', e.target.value === '' ? null : parseInt(e.target.value, 10))}
-                                                                            placeholder="+"
-                                                                            className="w-16 bg-gray-50 border border-gray-100 rounded-xl py-2 px-3 text-xs font-black text-center text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all"
+                                                                            placeholder="∞"
+                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm"
                                                                         />
                                                                     </div>
-                                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Days Bond</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-8 py-6">
-                                                                <div className="relative max-w-[180px] group/input">
-                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-orange-600">{config.currency}</span>
+                                                            <td className="px-10 py-8">
+                                                                <div className="relative max-w-[220px] group/input">
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-orange-600 group-focus-within/input:bg-orange-50 group-focus-within/input:border-orange-100">
+                                                                        {config.currency}
+                                                                    </div>
                                                                     <input
                                                                         type="text"
                                                                         inputMode="decimal"
                                                                         value={band.dailyRate}
                                                                         onChange={e => handleMoneyInput(carId, idx, 'dailyRate', e.target.value)}
-                                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all shadow-inner"
+                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200"
                                                                         placeholder="0.00"
                                                                     />
                                                                 </div>
                                                             </td>
-                                                            <td className="px-8 py-6">
-                                                                <div className="relative max-w-[180px] group/input">
-                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-sm transition-colors group-focus-within/input:text-blue-600">{config.currency}</span>
+                                                            <td className="px-10 py-8">
+                                                                <div className="relative max-w-[220px] group/input">
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-blue-600 group-focus-within/input:bg-blue-50 group-focus-within/input:border-blue-100">
+                                                                        {config.currency}
+                                                                    </div>
                                                                     <input
                                                                         type="text"
                                                                         inputMode="decimal"
                                                                         value={band.deposit || ''}
                                                                         onChange={e => handleMoneyInput(carId, idx, 'deposit', e.target.value)}
-                                                                        className="w-full bg-blue-50/30 border border-blue-100 rounded-xl py-3 pl-10 pr-4 text-sm font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all shadow-inner"
-                                                                        placeholder="Security Bond"
+                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200"
+                                                                        placeholder="0.00"
                                                                     />
                                                                 </div>
                                                             </td>
-                                                            <td className="px-8 py-6 text-right">
+                                                            <td className="px-10 py-8 text-right">
                                                                 {carIdx === 0 ? (
                                                                     <button
                                                                         onClick={() => removeBondRowForAllSelectedCars(idx)}
-                                                                        className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                                        className="p-4 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-[1.25rem] transition-all active:scale-95"
                                                                     >
                                                                         <Trash2 className="w-5 h-5" />
                                                                     </button>
                                                                 ) : (
-                                                                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Shared</span>
+                                                                    <div className="flex items-center justify-end gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
+                                                                        <Lock className="w-3 h-3 text-gray-400" />
+                                                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Linked</span>
+                                                                    </div>
                                                                 )}
                                                             </td>
                                                         </tr>
@@ -1295,18 +1316,23 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                                         </div>
 
                                         {carIdx === 0 ? (
-                                            <button
-                                                onClick={addBondRowForAllSelectedCars}
-                                                className="w-full py-5 border-t border-gray-50 bg-gray-50/30 hover:bg-white text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group"
-                                            >
-                                                <div className="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                    <Plus className="w-4 h-4" />
-                                                </div>
-                                                Create New Pricing Bond (All Selected Cars)
-                                            </button>
+                                            <div className="p-8 bg-gray-50/50">
+                                                <button
+                                                    onClick={addBondRowForAllSelectedCars}
+                                                    className="w-full py-5 bg-white border border-dashed border-gray-200 rounded-2xl text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group hover:border-orange-500 hover:bg-orange-50/30 hover:shadow-lg hover:shadow-orange-100"
+                                                >
+                                                    <div className="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center group-hover:rotate-90 transition-transform shadow-lg shadow-orange-200">
+                                                        <Plus className="w-5 h-5" />
+                                                    </div>
+                                                    Create New Pricing Bond (Apply to all selected)
+                                                </button>
+                                            </div>
                                         ) : (
-                                            <div className="px-8 py-4 border-t border-gray-50 text-[9px] font-black text-gray-300 uppercase tracking-widest">
-                                                Bond rows are shared with all selected cars.
+                                            <div className="px-10 py-6 border-t border-gray-50 bg-gray-50/30 flex items-center gap-3">
+                                                <Info className="w-4 h-4 text-gray-400" />
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                    Pricing rows are synchronized across all selected vehicles.
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -2441,7 +2467,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {localConfig.bands?.map((band, idx) => (
-                            <div key={idx} className="bg-gray-50/50 p-6 rounded-3xl border border-gray-100 relative group">
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-orange-200 transition-all">
                                 <button onClick={() => removeBand(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -2468,7 +2494,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     </div>
                     <div className="space-y-4">
                         {localConfig.periods?.map((period, idx) => (
-                            <div key={idx} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative group hover:border-orange-200 transition-all">
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/30 relative group hover:border-orange-200 transition-all">
                                 <button onClick={() => removePeriod(idx)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
