@@ -442,7 +442,7 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
 };
 
 // ==================== Edit Supplier Modal (with location picker) ====================
-const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
+const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
   const [newLocName, setNewLocName] = useState('');
@@ -671,7 +671,23 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave }: any) => {
             <InputField label="Login Email" value={editedSupplier.email || editedSupplier.contactEmail || ""} onChange={e => handleChange("email", e.target.value)} />
             <div className="relative">
               <InputField label="Password" type={showPassword ? "text" : "password"} value={editedSupplier.password || ""} onChange={e => handleChange("password", e.target.value)} />
-              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[34px] text-gray-400"><EyeOff className="w-4 h-4" /></button>
+              <div className="absolute right-3 top-[34px] flex items-center gap-2">
+                <button 
+                  onClick={() => editedSupplier.password && onCopy(editedSupplier.password, "edit-modal", "Password")} 
+                  className="text-gray-400 hover:text-orange-600 transition-colors"
+                  title="Copy Password"
+                  type="button"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  className="text-gray-400 hover:text-slate-900 transition-colors"
+                  type="button"
+                >
+                  {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
           <label className="flex items-center gap-2 mt-4"><input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange("enableSocialProof", e.target.checked)} /> Enable Social Proof</label>
@@ -1432,7 +1448,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData }: any) => {
+const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData, revealedPasswords, onCopy }: any) => {
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredSuppliers = useMemo(() => {
@@ -1530,13 +1546,22 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                         {s.email || s.contactEmail || 'N/A'}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-md bg-orange-50 flex items-center justify-center border border-orange-100">
+                                <div 
+                                    className="flex items-center gap-2 cursor-pointer group/pass"
+                                    onClick={() => s.password && onCopy(s.password, `table-${s.id}`, "Password")}
+                                    title="Click to Reveal & Copy"
+                                >
+                                    <div className="w-5 h-5 rounded-md bg-orange-50 flex items-center justify-center border border-orange-100 group-hover/pass:border-orange-200 transition-colors">
                                         <Key className="w-2.5 h-2.5 text-orange-400" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter" title="Password">
-                                        {s.password || '••••••••'}
+                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-orange-600 transition-colors">
+                                        {revealedPasswords.has(`table-${s.id}`) ? s.password : '••••••••'}
                                     </span>
+                                    {s.password && (
+                                        revealedPasswords.has(`table-${s.id}`) 
+                                            ? <CheckCircle className="w-2.5 h-2.5 text-green-500 opacity-0 group-hover/pass:opacity-100 transition-opacity" />
+                                            : <Copy className="w-2.5 h-2.5 text-slate-300 opacity-0 group-hover/pass:opacity-100 transition-opacity" />
+                                    )}
                                 </div>
                             </div>
                         </td>
@@ -2411,6 +2436,29 @@ export const AdminDashboard: React.FC = () => {
   const [categoryImages, setCategoryImages] = useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
   const [loadingHomepageEditor, setLoadingHomepageEditor] = useState(false);
   const [savingHomepageEditor, setSavingHomepageEditor] = useState(false);
+  const [revealedPasswords, setRevealedPasswords] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleCopy = (text: string, id: string, label: string = "Password") => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    showToast(`${label} copied to clipboard!`);
+    const next = new Set(revealedPasswords);
+    next.add(id);
+    setRevealedPasswords(next);
+  };
+
+  const toggleReveal = (id: string) => {
+    const next = new Set(revealedPasswords);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setRevealedPasswords(next);
+  };
 
   const fetchSuppliers = async () => {
     setLoadingSuppliers(true);
@@ -2674,7 +2722,7 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
-      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={fetchBookings} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={fetchFleet} />;
@@ -2699,13 +2747,27 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col font-sans">
-      <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} />
+      <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
       {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800"
+          >
+            {toast.type === 'success' ? <CheckCircle className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
+            <span className="text-sm font-bold tracking-tight">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="md:hidden bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-2">
             <div className="bg-orange-600 p-1.5 rounded-lg shadow-lg">
@@ -2766,18 +2828,27 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex flex-col pl-1">
                         <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Access Key</span>
                         <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-black font-mono">
-                                {suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password || '••••••••'}
+                            <span 
+                                className="text-[10px] font-black font-mono cursor-pointer hover:text-orange-200 transition-colors"
+                                onClick={() => {
+                                    const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
+                                    if (s?.password) handleCopy(s.password, `header-${s.id}`, "Access Key");
+                                }}
+                                title="Click to Reveal & Copy"
+                            >
+                                {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) 
+                                    ? suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password 
+                                    : '••••••••'}
                             </span>
                             <button 
                                 onClick={() => {
                                     const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
-                                    if (s?.password) navigator.clipboard.writeText(s.password);
+                                    if (s?.password) handleCopy(s.password, `header-${s.id}`, "Access Key");
                                 }}
                                 className="p-1 hover:bg-orange-500 rounded transition-colors"
-                                title="Copy Password"
+                                title="Copy Access Key"
                             >
-                                <Copy className="w-2.5 h-2.5" />
+                                {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) ? <CheckCircle className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
                             </button>
                         </div>
                     </div>
