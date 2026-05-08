@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Building, Car, LoaderCircle, Mail, Lock, ChevronRight, ShieldCheck, Globe, Zap, AlertCircle, TrendingUp, Sparkles, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Building, Car, LoaderCircle, Mail, Lock, ChevronRight, ShieldCheck, Globe, Zap, AlertCircle, TrendingUp, Sparkles, ArrowRight, Eye, EyeOff, User } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
