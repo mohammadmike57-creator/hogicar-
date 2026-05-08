@@ -1432,12 +1432,40 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData }: any) => (
+const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onAddSupplier, onRefresh, onDelete, onFixData }: any) => {
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const filteredSuppliers = useMemo(() => {
+        if (!searchQuery.trim()) return suppliers;
+        const q = searchQuery.toLowerCase().trim();
+        return suppliers.filter((s: any) => 
+            s.name.toLowerCase().includes(q) || 
+            (s.email && s.email.toLowerCase().includes(q)) ||
+            (s.contactEmail && s.contactEmail.toLowerCase().includes(q)) ||
+            (Array.isArray(s.locations) && s.locations.some((l: any) => 
+                (l.locationCode && l.locationCode.toLowerCase().includes(q)) || 
+                (l.displayName && l.displayName.toLowerCase().includes(q))
+            ))
+        );
+    }, [suppliers, searchQuery]);
+
+    return (
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
     <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
-        <div>
+        <div className="flex-1">
             <h2 className="text-2xl font-black text-gray-900 tracking-tight">Supply Partners</h2>
-            <p className="text-sm text-gray-500 font-medium">Manage your global car rental provider network</p>
+            <p className="text-sm text-gray-500 font-medium mb-4">Manage your global car rental provider network</p>
+            
+            <div className="relative max-w-md">
+                <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input 
+                    type="text" 
+                    placeholder="Search by name, email or location..." 
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
         </div>
         <div className="flex gap-3">
             <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-orange-50 border border-orange-200 rounded-2xl text-orange-600 hover:bg-orange-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
@@ -1465,6 +1493,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
             <thead>
                 <tr className="bg-slate-50/50">
                     <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Provider Details</th>
+                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Credentials</th>
                     <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Status</th>
                     <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Connectivity</th>
                     <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
@@ -1472,7 +1501,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                 </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-                {suppliers.map((s: any) => (
+                {filteredSuppliers.map((s: any) => (
                     <tr key={s.id} className="hover:bg-orange-50/30 transition-colors group">
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
@@ -1488,6 +1517,26 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                             ? s.locations.slice(0, 2).map((l:any) => l.displayName || l.locationCode).join(', ') + (s.locations.length > 2 ? '...' : '')
                                             : (s.location || 'Global')}
                                     </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td className="px-8 py-5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 rounded-md bg-slate-50 flex items-center justify-center border border-slate-100">
+                                        <Users className="w-2.5 h-2.5 text-slate-400" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-600 truncate max-w-[150px]" title="Login Username">
+                                        {s.email || s.contactEmail || 'N/A'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 rounded-md bg-orange-50 flex items-center justify-center border border-orange-100">
+                                        <Key className="w-2.5 h-2.5 text-orange-400" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter" title="Password">
+                                        {s.password || '••••••••'}
+                                    </span>
                                 </div>
                             </div>
                         </td>
@@ -1535,6 +1584,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
     </div>
   </div>
 );
+};
 
 // ==================== Dashboard ====================
 const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
@@ -2684,7 +2734,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
             
             <div className="flex flex-wrap items-center gap-4">
-              {['dashboard', 'bookings', 'fleet'].includes(activeSection) && (
+              {['dashboard', 'bookings', 'fleet', 'suppliers'].includes(activeSection) && (
                 <div className="flex items-center gap-3 bg-slate-50/50 p-2 rounded-xl border border-slate-100 hover:border-orange-200 transition-all duration-300">
                   <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-orange-600 border border-slate-50">
                     <Building className="w-4 h-4" />
@@ -2703,6 +2753,35 @@ export const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                 </div>
+              )}
+
+              {selectedSupplierId && (
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 bg-orange-600 px-4 py-2 rounded-xl text-white shadow-lg shadow-orange-200">
+                    <div className="flex flex-col border-r border-orange-500 pr-3">
+                        <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Login Identity</span>
+                        <span className="text-[10px] font-bold truncate max-w-[120px]">
+                            {suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.email || 'N/A'}
+                        </span>
+                    </div>
+                    <div className="flex flex-col pl-1">
+                        <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Access Key</span>
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-black font-mono">
+                                {suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password || '••••••••'}
+                            </span>
+                            <button 
+                                onClick={() => {
+                                    const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
+                                    if (s?.password) navigator.clipboard.writeText(s.password);
+                                }}
+                                className="p-1 hover:bg-orange-500 rounded transition-colors"
+                                title="Copy Password"
+                            >
+                                <Copy className="w-2.5 h-2.5" />
+                            </button>
+                        </div>
+                    </div>
+                </motion.div>
               )}
 
               <div className="flex items-center gap-3.5 pl-5 border-l border-slate-100">
