@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, LoaderCircle, Mail, Activity, Cpu, Globe, Server, AlertCircle, ArrowRight, ShieldCheck, Zap, Database, Terminal, Car, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { setAdminToken } from '../lib/adminApi';
 import { API_BASE_URL } from '../lib/config';
 import { Logo } from '../components/Logo';
 
@@ -47,10 +48,16 @@ const AdminLogin: React.FC = () => {
                 body: JSON.stringify(credentials)
             });
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Access Denied');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.message || `Login failed (Status ${response.status})`);
+            }
 
-            localStorage.setItem('adminToken', data.token);
+            if (!data.token) {
+                throw new Error('No authentication token received from server');
+            }
+
+            setAdminToken(data.token);
             navigate('/admin');
 
         } catch (err: any) {
