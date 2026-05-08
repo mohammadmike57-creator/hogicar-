@@ -673,7 +673,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <InputField label="Password" type={showPassword ? "text" : "password"} value={editedSupplier.password || ""} onChange={e => handleChange("password", e.target.value)} />
               <div className="absolute right-3 top-[34px] flex items-center gap-2">
                 <button 
-                  onClick={() => editedSupplier.password && onCopy(editedSupplier.password, "edit-modal", "Password")} 
+                  onClick={() => onCopy(editedSupplier.password || "", "edit-modal", "Password")} 
                   className="text-gray-400 hover:text-orange-600 transition-colors"
                   title="Copy Password"
                   type="button"
@@ -1548,20 +1548,19 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                 </div>
                                 <div 
                                     className="flex items-center gap-2 cursor-pointer group/pass"
-                                    onClick={() => s.password && onCopy(s.password, `table-${s.id}`, "Password")}
+                                    onClick={() => onCopy(s.password, `table-${s.id}`, "Password")}
                                     title="Click to Reveal & Copy"
                                 >
                                     <div className="w-5 h-5 rounded-md bg-orange-50 flex items-center justify-center border border-orange-100 group-hover/pass:border-orange-200 transition-colors">
                                         <Key className="w-2.5 h-2.5 text-orange-400" />
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-orange-600 transition-colors">
-                                        {revealedPasswords.has(`table-${s.id}`) ? s.password : '••••••••'}
+                                        {revealedPasswords.has(`table-${s.id}`) ? (s.password || 'N/A') : '••••••••'}
                                     </span>
-                                    {s.password && (
-                                        revealedPasswords.has(`table-${s.id}`) 
-                                            ? <CheckCircle className="w-2.5 h-2.5 text-green-500 opacity-0 group-hover/pass:opacity-100 transition-opacity" />
-                                            : <Copy className="w-2.5 h-2.5 text-slate-300 opacity-0 group-hover/pass:opacity-100 transition-opacity" />
-                                    )}
+                                    {revealedPasswords.has(`table-${s.id}`) 
+                                        ? <CheckCircle className="w-2.5 h-2.5 text-green-500" /> 
+                                        : <Copy className="w-2.5 h-2.5 text-slate-300 opacity-0 group-hover/pass:opacity-100 transition-opacity" />
+                                    }
                                 </div>
                             </div>
                         </td>
@@ -2444,13 +2443,42 @@ export const AdminDashboard: React.FC = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleCopy = (text: string, id: string, label: string = "Password") => {
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    showToast(`${label} copied to clipboard!`);
+  const handleCopy = async (text: string, id: string, label: string = "Password") => {
+    // Always toggle reveal state even if there's no text to copy
     const next = new Set(revealedPasswords);
-    next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     setRevealedPasswords(next);
+
+    if (!text) {
+        showToast(`No ${label} available to copy`, 'error');
+        return;
+    }
+
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            showToast(`${label} copied to clipboard!`);
+        } else {
+            // Fallback for older browsers or insecure contexts
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) showToast(`${label} copied to clipboard!`);
+            else throw new Error('execCommand failed');
+        }
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+        // If we can't copy, we still showed the toast if we wanted, but let's be explicit
+        // showToast('Revealed (Copy failed)', 'error');
+    }
   };
 
   const toggleReveal = (id: string) => {
@@ -2827,29 +2855,22 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="flex flex-col pl-1">
                         <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Access Key</span>
-                        <div className="flex items-center gap-1">
-                            <span 
-                                className="text-[10px] font-black font-mono cursor-pointer hover:text-orange-200 transition-colors"
-                                onClick={() => {
-                                    const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
-                                    if (s?.password) handleCopy(s.password, `header-${s.id}`, "Access Key");
-                                }}
-                                title="Click to Reveal & Copy"
-                            >
+                        <div 
+                            className="flex items-center gap-2 cursor-pointer group/pass"
+                            onClick={() => {
+                                const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
+                                handleCopy(s?.password || "", `header-${s?.id}`, "Access Key");
+                            }}
+                            title="Click to Reveal & Copy"
+                        >
+                            <span className="text-[10px] font-bold font-mono min-w-[60px] hover:text-orange-200 transition-colors">
                                 {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) 
-                                    ? suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password 
+                                    ? (suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password || 'N/A') 
                                     : '••••••••'}
                             </span>
-                            <button 
-                                onClick={() => {
-                                    const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
-                                    if (s?.password) handleCopy(s.password, `header-${s.id}`, "Access Key");
-                                }}
-                                className="p-1 hover:bg-orange-500 rounded transition-colors"
-                                title="Copy Access Key"
-                            >
+                            <div className="p-1 hover:bg-orange-500 rounded transition-colors bg-orange-700/50">
                                 {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) ? <CheckCircle className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
