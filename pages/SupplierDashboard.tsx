@@ -739,6 +739,7 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
     const [manualBandsByCar, setManualBandsByCar] = useState<Record<number, any[]>>({});
     const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [applyToAllLocations, setApplyToAllLocations] = useState(false);
     const [activationNotice, setActivationNotice] = useState<any | null>(null);
 
     const baseBands = useMemo(() => {
@@ -863,6 +864,7 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
         try {
             const payload = {
                 currency: config.currency,
+                applyToAllLocations,
                 seasons: batchSeasons.map(season => ({
                     targetType: season.targetType,
                     targetValues: season.targetValues,
@@ -1485,6 +1487,21 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                     </>
                 )}
             </button>
+
+            {batchSeasons.length > 0 && (
+                <div className="flex items-center justify-center gap-2 mt-4">
+                    <input 
+                        type="checkbox" 
+                        id="apply-all-loc-manual"
+                        checked={applyToAllLocations}
+                        onChange={e => setApplyToAllLocations(e.target.checked)}
+                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <label htmlFor="apply-all-loc-manual" className="text-[10px] font-black text-gray-500 uppercase tracking-widest cursor-pointer">
+                        Apply these rates to all locations
+                    </label>
+                </div>
+            )}
         </motion.div>
     );
 }
@@ -2191,7 +2208,8 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
         minRentalDays: 1,
         maxRentalDays: 30,
         maxBookingLeadTimeDays: 365,
-        locationCode: locationCode || undefined
+        locationCode: locationCode || undefined,
+        applyToAllLocations: false
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -2200,7 +2218,8 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
             if (config) {
                 setLocalConfig({
                     ...config,
-                    locationCode: locationCode || undefined
+                    locationCode: locationCode || undefined,
+                    applyToAllLocations: false
                 });
             } else {
                 setLocalConfig({
@@ -2213,7 +2232,8 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     minRentalDays: 1,
                     maxRentalDays: 30,
                     maxBookingLeadTimeDays: 365,
-                    locationCode: locationCode || undefined
+                    locationCode: locationCode || undefined,
+                    applyToAllLocations: false
                 });
             }
         }
@@ -2464,9 +2484,23 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
 
                 <div className="flex gap-4 pt-6 border-t border-gray-50">
                     <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition-all">Cancel</button>
-                    <button onClick={handleSave} disabled={isSaving} className="flex-[2] py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 hover:scale-[1.02] transition-all disabled:opacity-50">
-                        {isSaving ? 'Saving Configuration...' : 'Save Rate Structure'}
-                    </button>
+                    <div className="flex-[2] flex flex-col gap-3">
+                        <button onClick={handleSave} disabled={isSaving} className="w-full py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 hover:scale-[1.02] transition-all disabled:opacity-50">
+                            {isSaving ? 'Saving Configuration...' : 'Save Rate Structure'}
+                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                            <input 
+                                type="checkbox" 
+                                id="apply-all-loc-config"
+                                checked={localConfig.applyToAllLocations}
+                                onChange={e => setLocalConfig({...localConfig, applyToAllLocations: e.target.checked})}
+                                className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                            <label htmlFor="apply-all-loc-config" className="text-[9px] font-black text-gray-500 uppercase tracking-widest cursor-pointer">
+                                Apply to all locations
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </Modal>
