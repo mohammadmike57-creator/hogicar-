@@ -2199,11 +2199,13 @@ const StopSalesSection = () => {
     });
 
     const fetchStopSales = async () => {
+        setIsLoading(true);
         try {
             const res = await supplierApi.getStopSales();
             setStopSales(res.data);
         } catch (err) {
             console.error("Error fetching stop sales:", err);
+            // Optionally set an error state here to show in UI
         } finally {
             setIsLoading(false);
         }
@@ -2220,12 +2222,18 @@ const StopSalesSection = () => {
         }
         setIsSaving(true);
         try {
-            await supplierApi.bulkAddStopSale(formData);
+            const res = await supplierApi.bulkAddStopSale(formData);
+            const count = res.data.affectedCars || 0;
+            
             await fetchStopSales();
             setFormData({ ...formData, startDate: '', endDate: '' });
-        } catch (err) {
+            
+            // Show success toast (using the existing toast system if available, or just alert for now)
+            alert(`Success! Blockout applied to ${count} matching vehicles.`);
+        } catch (err: any) {
             console.error("Error applying stop sale:", err);
-            alert("Failed to apply blockout. Please check if you have cars in this category/location.");
+            const msg = err.response?.data || "Failed to apply blockout. Please check if you have cars in this category/location.";
+            alert(msg);
         } finally {
             setIsSaving(false);
         }
