@@ -544,14 +544,15 @@ export interface RateHistoryEntry {
 }
 
 export interface CarRateBand {
-  id: number;
   minDays: number;
   maxDays: number;
-  dailyRate: number;
+  dailyRate: number | string;
+  deposit: number | string;
 }
 
 export interface CarRateTier {
   id: number;
+  carId: number;
   name: string;
   startDate: string;
   endDate: string;

@@ -768,7 +768,7 @@ const FleetSection = ({
 };
 
 // ==================== Manual Pricing Section ====================
-const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }: { config: TemplateConfig, cars: CarType[], onUpdate: () => void, onBack: () => void, activeLocation: string }) => {
+const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBack, activeLocation }: { config: TemplateConfig, cars: CarType[], existingTiers?: CarRateTier[], onUpdate: () => void, onBack: () => void, activeLocation: string }) => {
     const [selectedCarIds, setSelectedCarIds] = useState<number[]>([]);
 
     const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
@@ -823,12 +823,29 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
             // Initialize newly selected cars
             selectedCarIds.forEach(carId => {
                 if (!next[carId]) {
-                    next[carId] = baseBands.map(b => ({
-                        minDays: b.minDays,
-                        maxDays: b.maxDays,
-                        dailyRate: '',
-                        deposit: '',
-                    }));
+                    // Try to find matching existing tier for this car and period
+                    const currentPeriod = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
+                    const existing = existingTiers?.find(t => 
+                        Number(t.carId) === carId && 
+                        t.startDate === currentPeriod?.startDate && 
+                        t.endDate === currentPeriod?.endDate
+                    );
+
+                    if (existing && existing.bands?.length > 0) {
+                        next[carId] = existing.bands.map(b => ({
+                            minDays: b.minDays,
+                            maxDays: b.maxDays,
+                            dailyRate: b.dailyRate,
+                            deposit: b.deposit,
+                        }));
+                    } else {
+                        next[carId] = baseBands.map(b => ({
+                            minDays: b.minDays,
+                            maxDays: b.maxDays,
+                            dailyRate: '',
+                            deposit: '',
+                        }));
+                    }
                 }
             });
 
@@ -1619,6 +1636,7 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
 // ==================== Rates Section ====================
 const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] }) => {
     const [config, setConfig] = useState<TemplateConfig | null>(null);
+    const [existingTiers, setExistingTiers] = useState<CarRateTier[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -1654,6 +1672,10 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             const locCode = selectedLocation || undefined;
             const res = await supplierApi.getTemplateConfig(locCode);
             setConfig(res.data);
+            
+            // Also fetch all tiers
+            const tiersRes = await supplierApi.getAllRates();
+            setExistingTiers(tiersRes.data);
         } catch (e) { console.error(e); }
         finally { setIsLoading(false); }
     };
@@ -1682,8 +1704,17 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             await supplierApi.importRates(uploadFile);
             alert("Rates imported successfully!");
             setUploadFile(null);
+            fetchConfig();
         } catch (e) { alert("Import failed. Check template format."); }
         finally { setIsSaving(false); }
+    };
+
+    const handleDeleteRate = async (tierId: number) => {
+        if (!confirm("Are you sure you want to delete this pricing period?")) return;
+        try {
+            await supplierApi.deleteRate(tierId);
+            fetchConfig();
+        } catch (e) { alert("Delete failed"); }
     };
 
     return (
@@ -1825,6 +1856,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                     <ManualPricingSection 
                         config={config} 
                         cars={cars}
+                        existingTiers={existingTiers}
                         onUpdate={() => {
                             fetchConfig();
                         }} 
@@ -1952,7 +1984,99 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                         </div>
                     </div>
                 </div>
-                </div>
+
+                {/* Active Pricing Inventory */}
+                {existingTiers.length > 0 && (
+                    <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 bg-green-50 rounded-2xl">
+                                <TrendingUp className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Active Pricing Inventory</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Directly view your current car rates and periods</p>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto -mx-10 px-10">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-gray-50">
+                                        <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Car Model</th>
+                                        <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Period / Season</th>
+                                        <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Dates</th>
+                                        <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Price Summary</th>
+                                        <th className="text-right py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {existingTiers
+                                        .filter(tier => {
+                                            const car = cars.find(c => Number(c.id) === Number(tier.carId));
+                                            return !selectedLocation || car?.locationCode === selectedLocation;
+                                        })
+                                        .map((tier) => {
+                                            const car = cars.find(c => Number(c.id) === Number(tier.carId));
+                                            return (
+                                                <tr key={tier.id} className="group hover:bg-gray-50/50 transition-colors">
+                                                    <td className="py-6">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white text-[10px] font-black">
+                                                                {car?.make?.charAt(0) || 'C'}
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs font-black text-gray-900 uppercase tracking-tight">{car?.make} {car?.model}</p>
+                                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{car?.sippCode || car?.category} • {car?.locationCode}</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6">
+                                                        <Badge variant="purple">{tier.name}</Badge>
+                                                    </td>
+                                                    <td className="py-6">
+                                                        <div className="flex flex-col gap-1">
+                                                            <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest">{tier.startDate}</p>
+                                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">to {tier.endDate}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6">
+                                                        <div className="flex items-center gap-2">
+                                                            {tier.bands.slice(0, 2).map((b, bidx) => (
+                                                                <div key={bidx} className="px-2 py-1 bg-gray-100 rounded-lg text-[9px] font-black text-gray-600">
+                                                                    {b.minDays}-{b.maxDays === 9999 ? '∞' : b.maxDays}d: {b.dailyRate} {tier.currency}
+                                                                </div>
+                                                            ))}
+                                                            {tier.bands.length > 2 && <span className="text-[8px] font-bold text-gray-400">+{tier.bands.length - 2} more</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6 text-right">
+                                                        <div className="flex justify-end gap-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setIsManualPricingActive(true);
+                                                                }}
+                                                                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all flex items-center gap-2"
+                                                            >
+                                                                <Edit className="w-3.5 h-3.5" /> Edit
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleDeleteRate(tier.id)}
+                                                                className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all"
+                                                                title="Delete Rates"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </div>
             )}
 
             <TemplateConfigModal 
