@@ -2187,24 +2187,140 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 };
 
 // ==================== Simple Sub-sections ====================
-const StopSalesSection = () => (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 max-w-2xl">
-        <SectionHeader title="Stop Sales" icon={Clock} subtitle="Block dates for specific categories" />
-        <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-                <InputField label="Start Date" type="date" />
-                <InputField label="End Date" type="date" />
-            </div>
-            <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Car Category</label>
-                <select className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all">
-                    {Object.values(CarCategory).map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-            </div>
-            <button className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 transition-all">Apply Blockout</button>
+const StopSalesSection = () => {
+    const [stopSales, setStopSales] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [formData, setFormData] = useState({
+        startDate: '',
+        endDate: '',
+        category: CarCategory.ECONOMY,
+        locationCode: ''
+    });
+
+    const fetchStopSales = async () => {
+        try {
+            const res = await supplierApi.getStopSales();
+            setStopSales(res.data);
+        } catch (err) {
+            console.error("Error fetching stop sales:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStopSales();
+    }, []);
+
+    const handleApply = async () => {
+        if (!formData.startDate || !formData.endDate || !formData.category) {
+            alert("Please fill all required fields");
+            return;
+        }
+        setIsSaving(true);
+        try {
+            await supplierApi.bulkAddStopSale(formData);
+            await fetchStopSales();
+            setFormData({ ...formData, startDate: '', endDate: '' });
+        } catch (err) {
+            console.error("Error applying stop sale:", err);
+            alert("Failed to apply blockout. Please check if you have cars in this category/location.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm("Remove this stop sale?")) return;
+        try {
+            await supplierApi.deleteStopSale(id);
+            await fetchStopSales();
+        } catch (err) {
+            console.error("Error deleting stop sale:", err);
+        }
+    };
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                <SectionHeader title="Block Out Dates" icon={Clock} subtitle="Prevent bookings for specific categories" />
+                <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
+                        <InputField 
+                            label="Start Date" 
+                            type="date" 
+                            value={formData.startDate} 
+                            onChange={(e: any) => setFormData({ ...formData, startDate: e.target.value })} 
+                        />
+                        <InputField 
+                            label="End Date" 
+                            type="date" 
+                            value={formData.endDate} 
+                            onChange={(e: any) => setFormData({ ...formData, endDate: e.target.value })} 
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Car Category</label>
+                            <select 
+                                value={formData.category}
+                                onChange={(e: any) => setFormData({ ...formData, category: e.target.value })}
+                                className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
+                            >
+                                {Object.values(CarCategory).map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                        </div>
+                        <InputField 
+                            label="Location Code (Optional)" 
+                            placeholder="e.g. DXB" 
+                            value={formData.locationCode}
+                            onChange={(e: any) => setFormData({ ...formData, locationCode: e.target.value.toUpperCase() })}
+                        />
+                    </div>
+                    <button 
+                        onClick={handleApply}
+                        disabled={isSaving}
+                        className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 transition-all disabled:opacity-50"
+                    >
+                        {isSaving ? 'Processing...' : 'Apply Blockout'}
+                    </button>
+                </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                <SectionHeader title="Active Stop Sales" icon={Calendar} subtitle="Currently blocked vehicle ranges" />
+                
+                {isLoading ? (
+                    <div className="py-10 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Loading...</div>
+                ) : stopSales.length === 0 ? (
+                    <div className="py-10 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
+                        <p className="text-gray-400 text-xs font-black uppercase tracking-widest">No active blockouts</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                        {stopSales.map((ss) => (
+                            <div key={ss.id} className="p-5 bg-gray-50 rounded-2xl border border-gray-100 flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all">
+                                <div className="space-y-1">
+                                    <div className="text-[10px] font-black text-orange-600 uppercase tracking-widest">{ss.carInfo}</div>
+                                    <div className="text-sm font-bold text-gray-900">
+                                        {format(parseISO(ss.startDate), 'MMM dd, yyyy')} — {format(parseISO(ss.endDate), 'MMM dd, yyyy')}
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => handleDelete(ss.id)}
+                                    className="p-3 bg-white text-gray-400 rounded-xl hover:text-red-600 shadow-sm opacity-0 group-hover:opacity-100 transition-all"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </motion.div>
         </div>
-    </motion.div>
-);
+    );
+};
 
 const ExtrasSection = () => (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">

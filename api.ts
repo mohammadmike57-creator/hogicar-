@@ -300,6 +300,9 @@ export const supplierApi = {
     });
   },
   bulkUpdateRates: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/rates/bulk`, payload),
+  getStopSales: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/stopsales`),
+  bulkAddStopSale: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/stopsales/bulk`, payload),
+  deleteStopSale: (id: number) => supplierAxios.delete(`${API_BASE_URL}/api/supplier/dashboard/stopsales/${id}`),
   post: (url: string, payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier${url}`, payload),
 };
 
