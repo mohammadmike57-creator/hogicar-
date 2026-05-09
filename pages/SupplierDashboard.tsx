@@ -24,7 +24,7 @@ import { Logo } from '../components/Logo';
 
 // ==================== Shared UI Components ====================
 
-const StatCard = ({ icon: Icon, title, value, change, color = "orange" }: any) => {
+const StatCard = ({ icon: Icon, title, value, change, color = "orange", onClick }: any) => {
   const colors: any = {
     orange: "from-orange-500 to-orange-600 shadow-orange-100/50 text-orange-600 bg-orange-50/50",
     blue: "from-blue-500 to-blue-600 shadow-blue-100/50 text-blue-600 bg-blue-50/50",
@@ -35,7 +35,8 @@ const StatCard = ({ icon: Icon, title, value, change, color = "orange" }: any) =
   return (
     <motion.div 
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/30 border border-slate-50 flex flex-col justify-between group relative overflow-hidden"
+      onClick={onClick}
+      className={`bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/30 border border-slate-50 flex flex-col justify-between group relative overflow-hidden transition-all ${onClick ? 'cursor-pointer hover:border-orange-500/30' : ''}`}
     >
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div className={`p-3.5 rounded-2xl shadow-lg transition-transform group-hover:scale-110 ${colors[color].split(' ').slice(-2).join(' ')}`}>
@@ -138,6 +139,7 @@ const SupplierDashboard = () => {
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [cars, setCars] = useState<CarType[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [stopSales, setStopSales] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -147,16 +149,31 @@ const SupplierDashboard = () => {
     const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
     const totalRevenue = bookings.reduce((sum, b) => sum + (b.netPrice || 0), 0);
     const pendingCount = bookings.filter(b => b.status === 'pending').length;
+    const activeStopSales = stopSales.filter(ss => {
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      return new Date(ss.startDate) <= now && new Date(ss.endDate) >= now;
+    }).length;
     
     return {
       totalBookings,
       confirmedBookings,
       totalRevenue,
       pendingCount,
+      activeStopSales,
       activeCars: cars.filter(c => c.isAvailable || c.available).length,
       totalCars: cars.length
     };
-  }, [bookings, cars]);
+  }, [bookings, cars, stopSales]);
+
+  const refreshStopSales = async () => {
+    try {
+      const res = await supplierApi.getStopSales();
+      setStopSales(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Failed to refresh stop sales:', err);
+    }
+  };
 
   const refreshCars = async () => {
     try {
@@ -171,15 +188,17 @@ const SupplierDashboard = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [meRes, carsRes, bookingsRes] = await Promise.all([
+        const [meRes, carsRes, bookingsRes, stopSalesRes] = await Promise.all([
           supplierApi.getMe(),
           supplierApi.getCars(),
-          supplierApi.getBookings()
+          supplierApi.getBookings(),
+          supplierApi.getStopSales()
         ]);
         const supplierPayload = meRes?.data?.data ?? meRes?.data ?? null;
         setSupplier(supplierPayload && typeof supplierPayload === 'object' ? supplierPayload : null);
         setCars(Array.isArray(carsRes.data) ? carsRes.data : []);
         setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
+        setStopSales(Array.isArray(stopSalesRes.data) ? stopSalesRes.data : []);
       } catch (err: any) {
         console.error('Dashboard fetch error:', err);
         if (err.response?.status === 401) navigate('/supplier-login');
@@ -381,18 +400,19 @@ const SupplierDashboard = () => {
                     exit={{ opacity: 0, y: -30, scale: 0.98 }}
                     transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 >
-                    {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} onGenerateReport={handleGenerateReport} />}
+                    {activeSection === 'dashboard' && <DashboardOverview stats={stats} bookings={bookings} supplier={supplier} onGenerateReport={handleGenerateReport} setActiveSection={setActiveSection} />}
                     {activeSection === 'reservations' && <ReservationsSection bookings={bookings} />}
                     {activeSection === 'fleet' && (
                         <FleetSection
                             supplier={supplier}
                             cars={cars}
+                            stopSales={stopSales}
                             onCarsChanged={refreshCars}
                             setActiveSection={setActiveSection}
                         />
                     )}
                     {activeSection === 'rates' && <RatesSection supplier={supplier} cars={cars} />}
-                    {activeSection === 'stopsales' && <StopSalesSection />}
+                    {activeSection === 'stopsales' && <StopSalesSection stopSales={stopSales} onRefresh={refreshStopSales} />}
                     {activeSection === 'extras' && <ExtrasSection />}
                     {activeSection === 'locations' && <LocationsSection />}
                     {activeSection === 'profile' && <ProfileSection supplier={supplier} />}
@@ -411,7 +431,7 @@ const SupplierDashboard = () => {
 };
 
 // ==================== Dashboard Overview ====================
-const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport }: any) => (
+const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setActiveSection }: any) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
         <div>
@@ -429,11 +449,12 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport }: any)
         </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard icon={DollarSign} title="Est. Revenue" value={`$${(stats.totalRevenue / 1).toFixed(0)}`} change="+12.5%" />
-        <StatCard icon={Calendar} title="Total Bookings" value={stats.totalBookings} color="blue" change="+5.2%" />
-        <StatCard icon={Car} title="Active Fleet" value={`${stats.activeCars}/${stats.totalCars}`} color="green" />
-        <StatCard icon={Zap} title="Pending Actions" value={stats.pendingCount} color="purple" />
+        <StatCard icon={Calendar} title="Total Bookings" value={stats.totalBookings} color="blue" change="+5.2%" onClick={() => setActiveSection('reservations')} />
+        <StatCard icon={Car} title="Active Fleet" value={`${stats.activeCars}/${stats.totalCars}`} color="green" onClick={() => setActiveSection('fleet')} />
+        <StatCard icon={Clock} title="Stop Sales" value={stats.activeStopSales} color="orange" onClick={() => setActiveSection('stopsales')} />
+        <StatCard icon={Zap} title="Pending Actions" value={stats.pendingCount} color="purple" onClick={() => setActiveSection('reservations')} />
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -630,11 +651,13 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 const FleetSection = ({
     supplier,
     cars,
+    stopSales,
     onCarsChanged,
     setActiveSection,
 }: {
     supplier: Supplier,
     cars: CarType[],
+    stopSales: any[],
     onCarsChanged: () => Promise<void>,
     setActiveSection: (s: string) => void,
 }) => {
@@ -676,8 +699,15 @@ const FleetSection = ({
                         width={400}
                         height={250}
                     />
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
                         <Badge variant={(car.isAvailable || car.available) ? 'success' : 'error'}>{(car.isAvailable || car.available) ? 'Available' : 'Maintenance'}</Badge>
+                        {stopSales.some(ss => {
+                            const now = new Date();
+                            now.setHours(0,0,0,0);
+                            return ss.carId === Number(car.id) && new Date(ss.startDate) <= now && new Date(ss.endDate) >= now;
+                        }) && (
+                            <Badge variant="error" className="bg-orange-600 text-white border-none shadow-lg shadow-orange-200">Stop Sale Active</Badge>
+                        )}
                     </div>
                 </div>
                 <div className="p-8">
@@ -2187,9 +2217,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 };
 
 // ==================== Simple Sub-sections ====================
-const StopSalesSection = () => {
-    const [stopSales, setStopSales] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefresh: () => Promise<void> }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [formData, setFormData] = useState({
         startDate: '',
@@ -2197,23 +2225,6 @@ const StopSalesSection = () => {
         category: CarCategory.ECONOMY,
         locationCode: ''
     });
-
-    const fetchStopSales = async () => {
-        setIsLoading(true);
-        try {
-            const res = await supplierApi.getStopSales();
-            setStopSales(res.data);
-        } catch (err) {
-            console.error("Error fetching stop sales:", err);
-            // Optionally set an error state here to show in UI
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStopSales();
-    }, []);
 
     const handleApply = async () => {
         if (!formData.startDate || !formData.endDate || !formData.category) {
@@ -2225,10 +2236,9 @@ const StopSalesSection = () => {
             const res = await supplierApi.bulkAddStopSale(formData);
             const count = res.data.affectedCars || 0;
             
-            await fetchStopSales();
+            await onRefresh();
             setFormData({ ...formData, startDate: '', endDate: '' });
             
-            // Show success toast (using the existing toast system if available, or just alert for now)
             alert(`Success! Blockout applied to ${count} matching vehicles.`);
         } catch (err: any) {
             console.error("Error applying stop sale:", err);
@@ -2243,7 +2253,7 @@ const StopSalesSection = () => {
         if (!confirm("Remove this stop sale?")) return;
         try {
             await supplierApi.deleteStopSale(id);
-            await fetchStopSales();
+            await onRefresh();
         } catch (err) {
             console.error("Error deleting stop sale:", err);
         }
