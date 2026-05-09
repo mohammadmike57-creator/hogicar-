@@ -110,12 +110,15 @@ const InputField = ({ label, icon: Icon, ...props }: any) => (
     <div className="space-y-2">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
         <div className="relative group">
+            <input 
+                {...props} 
+                className={`w-full bg-white border border-gray-200 rounded-[1.25rem] py-3.5 ${Icon ? 'pl-14' : 'px-5'} pr-5 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all placeholder:text-gray-200 shadow-sm relative z-0 ${props.readOnly ? 'opacity-70 bg-gray-50 cursor-not-allowed' : 'hover:border-gray-300'}`} 
+            />
             {Icon && (
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-50 flex items-center justify-center transition-all group-focus-within:border-orange-100 group-focus-within:shadow-orange-100/50">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center pointer-events-none z-10">
                     <Icon className="w-4 h-4 text-gray-400 group-focus-within:text-orange-600 transition-colors" />
                 </div>
             )}
-            <input {...props} className={`w-full bg-white border border-gray-200 rounded-[1.25rem] py-3.5 ${Icon ? 'pl-14' : 'px-5'} pr-5 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all placeholder:text-gray-200 shadow-sm ${props.readOnly ? 'opacity-70 bg-gray-50 cursor-not-allowed' : 'hover:border-gray-300'}`} />
         </div>
     </div>
 );
@@ -1298,34 +1301,34 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
                                                             </td>
                                                             <td className="px-10 py-8">
                                                                 <div className="relative max-w-[220px] group/input">
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-orange-600 group-focus-within/input:bg-orange-50 group-focus-within/input:border-orange-100 pointer-events-none">
-                                                                        {config.currency}
-                                                                    </div>
                                                                     <input
                                                                         type="text"
                                                                         inputMode="decimal"
-                                                                        value={band.dailyRate}
+                                                                        value={band.dailyRate || ''}
                                                                         disabled={isSaving}
                                                                         onChange={e => handleMoneyInput(carId, idx, 'dailyRate', e.target.value)}
-                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50"
+                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50 relative z-0"
                                                                         placeholder="0.00"
                                                                     />
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-orange-600 group-focus-within/input:bg-orange-50 group-focus-within/input:border-orange-100 pointer-events-none z-10">
+                                                                        {config.currency}
+                                                                    </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-10 py-8">
                                                                 <div className="relative max-w-[220px] group/input">
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-blue-600 group-focus-within/input:bg-blue-50 group-focus-within/input:border-blue-100 pointer-events-none">
-                                                                        {config.currency}
-                                                                    </div>
                                                                     <input
                                                                         type="text"
                                                                         inputMode="decimal"
                                                                         value={band.deposit || ''}
                                                                         disabled={isSaving}
                                                                         onChange={e => handleMoneyInput(carId, idx, 'deposit', e.target.value)}
-                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50"
+                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50 relative z-0"
                                                                         placeholder="0.00"
                                                                     />
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-blue-600 group-focus-within/input:bg-blue-50 group-focus-within/input:border-blue-100 pointer-events-none z-10">
+                                                                        {config.currency}
+                                                                    </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-10 py-8 text-right">
