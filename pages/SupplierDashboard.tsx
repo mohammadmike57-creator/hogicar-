@@ -2117,7 +2117,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                         <DollarSign className="w-3 h-3" /> Financials
                     </h4>
-                    <InputField label="Security Deposit" type="number" prefix={config.currency} value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
+                    <InputField label="Security Deposit" type="number" prefix="$" value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 flex flex-col justify-center gap-4">
                     <label className="flex items-center gap-3 cursor-pointer group">
