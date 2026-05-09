@@ -913,13 +913,16 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
             });
 
             setActivationNotice({
-                location: activeLocation,
+                location: applyToAllLocations ? 'ALL LOCATIONS' : activeLocation,
                 cars: uniqueCarIds.size,
                 sippCodes: uniqueSippCodes.size,
                 seasons: batchSeasons.length,
                 updatedAt: new Date()
             });
-            alert(`Batch update successful! ${batchSeasons.length} actions applied.`);
+            const successMsg = applyToAllLocations 
+                ? `Batch update applied successfully to ALL locations! ${batchSeasons.length} seasons synchronized.`
+                : `Batch update successful! ${batchSeasons.length} actions applied to ${activeLocation}.`;
+            alert(successMsg);
             setBatchSeasons([]);
             onUpdate();
         } catch (e) {
