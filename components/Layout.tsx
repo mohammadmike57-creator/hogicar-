@@ -141,6 +141,7 @@ const Layout: React.FC = () => {
   const [isCurrencyOpen, setIsCurrencyOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { selectedCurrency, setSelectedCurrency, currencies } = useCurrency();
+  const currentCurrency = currencies.find(c => c.code === selectedCurrency);
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
@@ -189,7 +190,11 @@ const Layout: React.FC = () => {
                 onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
                 className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
               >
-                <Globe className="h-4 w-4" />
+                {currentCurrency?.flag ? (
+                  <span className="text-base leading-none">{currentCurrency.flag}</span>
+                ) : (
+                  <Globe className="h-4 w-4" />
+                )}
                 <span>{selectedCurrency}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -210,7 +215,10 @@ const Layout: React.FC = () => {
                           className={`block w-full text-left px-4 py-3 text-sm rounded-xl transition-colors ${selectedCurrency === currency.code ? 'text-blue-700 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                         >
                           <div className="flex justify-between items-center">
-                            <span>{currency.code} - {currency.name}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-xl">{currency.flag}</span>
+                                <span>{currency.code} - {currency.name}</span>
+                            </div>
                             {selectedCurrency === currency.code && <Check className="w-4 h-4 text-blue-600" />}
                           </div>
                         </button>
@@ -247,9 +255,14 @@ const Layout: React.FC = () => {
               <div className="px-4">
                 <p className="text-xs font-extrabold text-blue-300 uppercase tracking-widest mb-3">Currency</p>
                 <div className="grid grid-cols-3 gap-2">
-                  {currencies.slice(0,6).map(curr => (
-                    <button key={curr.code} onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} className={`text-sm font-bold p-3 rounded-xl border transition-colors ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}>
-                      {curr.code}
+                  {currencies.map(curr => (
+                    <button 
+                      key={curr.code} 
+                      onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} 
+                      className={`flex flex-col items-center justify-center gap-1 text-[10px] font-black p-3 rounded-xl border transition-all ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}
+                    >
+                      <span className="text-lg">{curr.flag}</span>
+                      <span>{curr.code}</span>
                     </button>
                   ))}
                 </div>

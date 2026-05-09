@@ -15,6 +15,7 @@ import {
   ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie
 } from 'recharts';
 import { supplierApi, getPublicLocations, API_BASE_URL } from '../api';
+import { CURRENCIES } from '../contexts/CurrencyContext';
 import { 
   Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 
   BookingMode, TemplateConfig, Extra, RateTier, CarModel
@@ -2443,10 +2444,11 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                             onChange={e => setLocalConfig({...localConfig, currency: e.target.value})}
                             className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
                         >
-                            <option value="USD">USD - US Dollar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound</option>
-                            <option value="JOD">JOD - Jordanian Dinar</option>
+                            {CURRENCIES.map(curr => (
+                                <option key={curr.code} value={curr.code}>
+                                    {curr.flag} {curr.code} - {curr.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start gap-3">
