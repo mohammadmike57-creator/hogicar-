@@ -106,19 +106,24 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
     );
 };
 
-const InputField = ({ label, icon: Icon, ...props }: any) => (
+const InputField = ({ label, icon: Icon, prefix, ...props }: any) => (
     <div className="space-y-2">
-        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
-        <div className="relative group">
-            <input 
-                {...props} 
-                className={`w-full bg-white border border-gray-200 rounded-[1.25rem] py-3.5 ${Icon ? 'pl-14' : 'px-5'} pr-5 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all placeholder:text-gray-200 shadow-sm relative z-10 cursor-text ${props.readOnly ? 'opacity-70 bg-gray-50 cursor-not-allowed' : 'hover:border-gray-300'}`} 
-            />
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+        <div className={`flex items-center bg-white border-2 border-slate-100 rounded-2xl overflow-hidden focus-within:border-orange-500 focus-within:ring-8 focus-within:ring-orange-500/5 transition-all shadow-sm ${props.readOnly ? 'opacity-70 bg-slate-50' : 'hover:border-slate-200'}`}>
             {Icon && (
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center pointer-events-none z-20">
-                    <Icon className="w-4 h-4 text-gray-400 group-focus-within:text-orange-600 transition-colors" />
+                <div className="px-5 py-4 bg-slate-50 border-r border-slate-100 flex items-center justify-center text-slate-400 transition-colors">
+                    <Icon className="w-4 h-4" />
                 </div>
             )}
+            {prefix && (
+                <div className="px-5 py-4 bg-slate-50 border-r border-slate-100 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                    {prefix}
+                </div>
+            )}
+            <input 
+                {...props} 
+                className="flex-1 py-4 px-6 text-sm font-black text-slate-900 outline-none bg-transparent placeholder:text-slate-200 cursor-text disabled:cursor-not-allowed" 
+            />
         </div>
     </div>
 );
@@ -1198,193 +1203,199 @@ const ManualPricingSection = ({ config, cars, onUpdate, onBack, activeLocation }
             </div>
 
             {activePeriod && (
-                <div className="bg-gray-100/30 p-8 md:p-12 rounded-[3.5rem] border border-gray-100 mb-12 relative z-10 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-orange-500" />
+                <div className="bg-white p-10 md:p-16 rounded-[4rem] border border-slate-200 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] mb-16 relative z-10 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 via-orange-600 to-orange-400" />
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-                            <h4 className="text-[14px] font-black text-gray-900 uppercase tracking-[0.4em] flex items-center gap-5">
-                                <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 shadow-xl border border-white flex items-center justify-center">
-                                    <DollarSign className="w-6 h-6 text-orange-600" />
-                                </div>
-                                <span className="relative">
-                                    3. Create Bond Prices
-                                    <span className="absolute -bottom-2 left-0 w-1/2 h-0.5 bg-orange-600/30 rounded-full" />
-                                </span>
-                            </h4>
-                        <div className="flex items-center gap-4">
-                            <div className="flex flex-col items-end">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Season</span>
-                                <span className="text-[11px] font-black text-blue-600 uppercase tracking-tighter">
-                                    {isCustomPeriod ? 'Custom Selection' : activePeriod.name}
-                                </span>
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 mb-14">
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 rounded-[2rem] bg-orange-600 flex items-center justify-center shadow-2xl shadow-orange-200 ring-8 ring-orange-50">
+                                <DollarSign className="w-8 h-8 text-white" />
                             </div>
-                            <div className="h-10 w-px bg-gray-200" />
-                            <div className="flex flex-col items-start">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date Range</span>
-                                <span className="text-[11px] font-black text-gray-900 uppercase tracking-tighter">
-                                    {format(parseISO(activePeriod.startDate), 'MMM d')} - {format(parseISO(activePeriod.endDate), 'MMM d, yyyy')}
-                                </span>
+                            <div>
+                                <h4 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">3. Pricing Workspace</h4>
+                                <div className="flex items-center gap-3">
+                                    <span className="px-2.5 py-1 rounded-lg bg-orange-50 text-[10px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">Live Rates Edit</span>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Define your rate structure for the selected period</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-4 p-3 bg-slate-50/50 rounded-3xl border border-slate-100">
+                            <div className="px-6 py-2 border-r border-slate-200">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Period</p>
+                                <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight">{isCustomPeriod ? 'Custom Selection' : activePeriod.name}</p>
+                            </div>
+                            <div className="px-6 py-2">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Validity Range</p>
+                                <p className="text-[11px] font-black text-blue-600 uppercase tracking-tight">
+                                    {format(parseISO(activePeriod.startDate), 'MMM d')} — {format(parseISO(activePeriod.endDate), 'MMM d, yyyy')}
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     {selectedCars.length === 0 ? (
-                        <div className="rounded-[2rem] border border-dashed border-gray-200 bg-white/80 p-10 text-center text-gray-400 text-xs font-black uppercase tracking-[0.2em]">
-                            Select at least one car to enter bond prices.
+                        <div className="rounded-[3rem] border-2 border-dashed border-slate-100 bg-slate-50/30 p-20 text-center flex flex-col items-center gap-4 group hover:border-orange-200 transition-colors">
+                            <div className="w-20 h-20 rounded-[2.5rem] bg-white shadow-xl flex items-center justify-center text-slate-300 group-hover:text-orange-400 transition-colors">
+                                <Car className="w-10 h-10" />
+                            </div>
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Select vehicles from step 2 to begin pricing</p>
                         </div>
                     ) : (
-                        <div className="space-y-8">
-                            {selectedCars.map((car, carIdx) => {
-                                const carId = Number(car.id);
-                                const carBands = manualBandsByCar[carId] || [];
-
-                                return (
-                                    <div key={carId} className="bg-white rounded-[3rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden transition-all hover:border-orange-100/50">
-                                        <div className="px-10 py-7 border-b border-gray-50 bg-gradient-to-r from-gray-50/80 to-white flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-5">
-                                                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-gray-50 flex items-center justify-center">
-                                                    <Car className="w-6 h-6 text-gray-400" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Vehicle Identity</p>
-                                                    <p className="text-lg font-black text-gray-900 leading-none mt-1">
-                                                        {car.name || `${car.make} ${car.model}`.trim()}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col items-end gap-1">
-                                                <span className="px-4 py-1.5 rounded-xl bg-orange-600 text-[10px] font-black text-white uppercase tracking-widest shadow-lg shadow-orange-200">
-                                                    {car.sippCode || 'NO SIPP'}
-                                                </span>
-                                                <span className="text-[9px] font-bold text-gray-300 uppercase tracking-tighter">Category Code</span>
-                                            </div>
+                        <div className="space-y-12">
+                            {/* Selected Cars Summary - Professional List */}
+                            <div className="bg-slate-50/50 rounded-[2.5rem] p-8 border border-slate-100">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Users className="w-5 h-5 text-slate-400" />
+                                    <h5 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Applying rates to {selectedCars.length} vehicles:</h5>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    {selectedCars.map(car => (
+                                        <div key={car.id} className="flex items-center gap-3 px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm transition-all hover:border-orange-300 hover:shadow-orange-50 group">
+                                            <Car className="w-4 h-4 text-slate-300 group-hover:text-orange-500 transition-colors" />
+                                            <span className="text-[11px] font-black text-slate-700">{car.name || `${car.make} ${car.model}`}</span>
+                                            <span className="px-2 py-0.5 rounded-md bg-slate-50 text-[9px] font-bold text-slate-400 border border-slate-100">{car.sippCode}</span>
                                         </div>
+                                    ))}
+                                </div>
+                            </div>
 
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-collapse">
-                                                <thead>
-                                                    <tr className="bg-gray-50/40">
-                                                        <th className="px-10 py-6 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] border-b border-gray-100">Duration Range</th>
-                                                        <th className="px-10 py-6 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] border-b border-gray-100">Daily Rate ({config.currency})</th>
-                                                        <th className="px-10 py-6 text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] border-b border-gray-100">Security Deposit</th>
-                                                        <th className="px-10 py-6 text-right border-b border-gray-100"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-50">
-                                                    {carBands.map((band, idx) => (
-                                                        <tr key={idx} className="group hover:bg-orange-50/10 transition-all">
-                                                            <td className="px-10 py-8">
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="relative group/field">
-                                                                        <span className="absolute -top-5 left-1 text-[8px] font-black text-gray-300 uppercase group-focus-within/field:text-orange-500 transition-colors">Min Days</span>
-                                                                        <input
-                                                                            type="number"
-                                                                            value={band.minDays}
-                                                                            disabled={isSaving}
-                                                                            onChange={e => updateBondRangeForAllSelectedCars(idx, 'minDays', parseInt(e.target.value, 10) || 1)}
-                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm disabled:opacity-50"
-                                                                        />
-                                                                    </div>
-                                                                    <div className="w-3 h-0.5 bg-gray-200" />
-                                                                    <div className="relative group/field">
-                                                                        <span className="absolute -top-5 left-1 text-[8px] font-black text-gray-300 uppercase group-focus-within/field:text-orange-500 transition-colors">Max Days</span>
-                                                                        <input
-                                                                            type="number"
-                                                                            value={band.maxDays || ''}
-                                                                            disabled={isSaving}
-                                                                            onChange={e => updateBondRangeForAllSelectedCars(idx, 'maxDays', e.target.value === '' ? null : parseInt(e.target.value, 10))}
-                                                                            placeholder="∞"
-                                                                            className="w-20 bg-white border border-gray-200 rounded-2xl py-3 px-4 text-xs font-black text-center text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm disabled:opacity-50"
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-10 py-8">
-                                                                <div className="relative max-w-[220px] group/input">
-                                                                    <input
-                                                                        type="text"
-                                                                        inputMode="decimal"
-                                                                        value={band.dailyRate || ''}
-                                                                        disabled={isSaving}
-                                                                        onChange={e => handleMoneyInput(carId, idx, 'dailyRate', e.target.value)}
-                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50 relative z-10 cursor-text"
-                                                                        placeholder="0.00"
-                                                                    />
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-orange-600 group-focus-within/input:bg-orange-50 group-focus-within/input:border-orange-100 pointer-events-none z-20">
-                                                                        {config.currency}
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-10 py-8">
-                                                                <div className="relative max-w-[220px] group/input">
-                                                                    <input
-                                                                        type="text"
-                                                                        inputMode="decimal"
-                                                                        value={band.deposit || ''}
-                                                                        disabled={isSaving}
-                                                                        onChange={e => handleMoneyInput(carId, idx, 'deposit', e.target.value)}
-                                                                        className="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-16 pr-6 text-sm font-black text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/50 transition-all shadow-sm hover:border-gray-300 placeholder:text-gray-200 disabled:opacity-50 relative z-10 cursor-text"
-                                                                        placeholder="0.00"
-                                                                    />
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs transition-colors group-focus-within/input:text-blue-600 group-focus-within/input:bg-blue-50 group-focus-within/input:border-blue-100 pointer-events-none z-20">
-                                                                        {config.currency}
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-10 py-8 text-right">
-                                                                {carIdx === 0 ? (
-                                                                    <button
-                                                                        onClick={() => removeBondRowForAllSelectedCars(idx)}
-                                                                        className="p-4 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-[1.25rem] transition-all active:scale-95"
-                                                                    >
-                                                                        <Trash2 className="w-5 h-5" />
-                                                                    </button>
-                                                                ) : (
-                                                                    <div className="flex items-center justify-end gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
-                                                                        <Lock className="w-3 h-3 text-gray-400" />
-                                                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Linked</span>
-                                                                    </div>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                            {/* Unified Pricing Table */}
+                            <div className="bg-white rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden">
+                                <div className="px-12 py-10 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100">
+                                            <Layers className="w-6 h-6" />
                                         </div>
-
-                                        {carIdx === 0 ? (
-                                            <div className="p-8 bg-gray-50/50">
-                                                <button
-                                                    onClick={addBondRowForAllSelectedCars}
-                                                    disabled={isSaving}
-                                                    className={`w-full py-5 bg-white border border-dashed border-gray-200 rounded-2xl text-[11px] font-black text-orange-600 uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 group hover:border-orange-500 hover:bg-orange-50/30 hover:shadow-lg hover:shadow-orange-100 active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                                                >
-                                                    <div className="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center group-hover:rotate-90 transition-transform shadow-lg shadow-orange-200">
-                                                        <Plus className="w-5 h-5" />
-                                                    </div>
-                                                    Create New Pricing Bond (Apply to all selected)
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="px-10 py-6 border-t border-gray-50 bg-gray-50/30 flex items-center gap-3">
-                                                <Info className="w-4 h-4 text-gray-400" />
-                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                                    Pricing rows are synchronized across all selected vehicles.
-                                                </p>
-                                            </div>
-                                        )}
+                                        <div>
+                                            <h6 className="text-base font-black text-slate-900 leading-none">Global Bond Configuration</h6>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Configure prices once, apply to all selected cars automatically</p>
+                                        </div>
                                     </div>
-                                );
-                            })}
+                                    <div className="flex items-center gap-2 px-6 py-2.5 bg-green-50 rounded-2xl border border-green-100">
+                                        <Check className="w-4 h-4 text-green-600" />
+                                        <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Real-time Sync Active</span>
+                                    </div>
+                                </div>
 
-                            <button
-                                onClick={addSeasonToBatch}
-                                disabled={isSaving}
-                                className={`w-full py-5 bg-orange-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-orange-200 hover:bg-gray-900 hover:shadow-gray-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4 active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                <Zap className="w-5 h-5 animate-pulse" />
-                                Finalize & Add to Batch Update List
-                            </button>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-white">
+                                                <th className="px-12 py-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Rental Duration (Days)</th>
+                                                <th className="px-12 py-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Daily Rental Rate</th>
+                                                <th className="px-12 py-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Security Deposit</th>
+                                                <th className="px-12 py-8 text-right"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {(manualBandsByCar[Number(selectedCars[0].id)] || []).map((band: any, idx: number) => (
+                                                <tr key={idx} className="group hover:bg-slate-50/30 transition-all">
+                                                    <td className="px-12 py-10">
+                                                        <div className="flex items-center gap-6">
+                                                            <div className="flex flex-col gap-2">
+                                                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Min Days</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={band.minDays}
+                                                                    disabled={isSaving}
+                                                                    onChange={e => updateBondRangeForAllSelectedCars(idx, 'minDays', parseInt(e.target.value, 10) || 1)}
+                                                                    className="w-24 bg-white border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-black text-center text-slate-900 outline-none focus:border-orange-500 focus:ring-8 focus:ring-orange-500/5 transition-all shadow-sm"
+                                                                />
+                                                            </div>
+                                                            <div className="mt-6 w-4 h-0.5 bg-slate-200 rounded-full" />
+                                                            <div className="flex flex-col gap-2">
+                                                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Max Days</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={band.maxDays || ''}
+                                                                    disabled={isSaving}
+                                                                    onChange={e => updateBondRangeForAllSelectedCars(idx, 'maxDays', e.target.value === '' ? null : parseInt(e.target.value, 10))}
+                                                                    placeholder="∞"
+                                                                    className="w-24 bg-white border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-black text-center text-slate-900 outline-none focus:border-orange-500 focus:ring-8 focus:ring-orange-500/5 transition-all shadow-sm"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-12 py-10">
+                                                        <div className="flex flex-col gap-2">
+                                                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Price per Day</span>
+                                                            <div className="flex items-center max-w-[240px] bg-white border-2 border-slate-100 rounded-2xl overflow-hidden focus-within:border-orange-500 focus-within:ring-8 focus-within:ring-orange-500/5 transition-all shadow-sm">
+                                                                <div className="bg-slate-50 px-5 py-4 text-[11px] font-black text-slate-400 border-r-2 border-slate-50 uppercase tracking-widest">
+                                                                    {config.currency}
+                                                                </div>
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="decimal"
+                                                                    value={band.dailyRate || ''}
+                                                                    disabled={isSaving}
+                                                                    onChange={e => handleMoneyInput(Number(selectedCars[0].id), idx, 'dailyRate', e.target.value)}
+                                                                    className="flex-1 py-4 px-6 text-base font-black text-slate-900 outline-none bg-transparent placeholder:text-slate-200"
+                                                                    placeholder="0.00"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-12 py-10">
+                                                        <div className="flex flex-col gap-2">
+                                                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Total Bond</span>
+                                                            <div className="flex items-center max-w-[240px] bg-white border-2 border-slate-100 rounded-2xl overflow-hidden focus-within:border-blue-500 focus-within:ring-8 focus-within:ring-blue-500/5 transition-all shadow-sm">
+                                                                <div className="bg-slate-50 px-5 py-4 text-[11px] font-black text-slate-400 border-r-2 border-slate-50 uppercase tracking-widest">
+                                                                    {config.currency}
+                                                                </div>
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="decimal"
+                                                                    value={band.deposit || ''}
+                                                                    disabled={isSaving}
+                                                                    onChange={e => handleMoneyInput(Number(selectedCars[0].id), idx, 'deposit', e.target.value)}
+                                                                    className="flex-1 py-4 px-6 text-base font-black text-slate-900 outline-none bg-transparent placeholder:text-slate-200"
+                                                                    placeholder="0.00"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-12 py-10 text-right">
+                                                        <button
+                                                            onClick={() => removeBondRowForAllSelectedCars(idx)}
+                                                            className="w-12 h-12 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                                                        >
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div className="p-10 bg-slate-50/30 border-t border-slate-100">
+                                    <button
+                                        onClick={addBondRowForAllSelectedCars}
+                                        disabled={isSaving}
+                                        className="w-full py-6 bg-white border-2 border-dashed border-slate-200 rounded-3xl text-[11px] font-black text-orange-600 uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 group hover:border-orange-500 hover:bg-orange-50 hover:shadow-2xl hover:shadow-orange-100 active:scale-[0.99] disabled:opacity-50"
+                                    >
+                                        <div className="w-10 h-10 rounded-2xl bg-orange-600 text-white flex items-center justify-center group-hover:rotate-90 transition-transform shadow-xl shadow-orange-200">
+                                            <Plus className="w-6 h-6" />
+                                        </div>
+                                        Add New Pricing Tier
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="pt-8">
+                                <button
+                                    onClick={addSeasonToBatch}
+                                    disabled={isSaving}
+                                    className={`w-full py-7 bg-slate-900 text-white rounded-[2.5rem] text-xs font-black uppercase tracking-[0.4em] shadow-2xl shadow-slate-300 hover:bg-orange-600 hover:shadow-orange-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4 active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <Zap className="w-6 h-6 animate-pulse" />
+                                    Finalize Rates & Add to Batch List
+                                </button>
+                                <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-6">
+                                    Changes will be staged below for your final review before activation.
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -2106,7 +2117,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                         <DollarSign className="w-3 h-3" /> Financials
                     </h4>
-                    <InputField label="Security Deposit" type="number" value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
+                    <InputField label="Security Deposit" type="number" prefix={config.currency} value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 flex flex-col justify-center gap-4">
                     <label className="flex items-center gap-3 cursor-pointer group">
@@ -2465,9 +2476,9 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                             onChange={(e: any) => setLocalConfig({...localConfig, gracePeriodHours: parseInt(e.target.value) || 0})} 
                         />
                         <InputField 
-                            label={`One Way Fee (${localConfig.currency})`} 
+                            label="One Way Fee" 
                             type="number" 
-                            icon={DollarSign}
+                            prefix={localConfig.currency}
                             value={localConfig.oneWayFee || ''} 
                             onChange={(e: any) => setLocalConfig({...localConfig, oneWayFee: parseFloat(e.target.value) || 0})} 
                         />
