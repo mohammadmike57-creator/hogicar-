@@ -2219,6 +2219,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 // ==================== Simple Sub-sections ====================
 const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefresh: () => Promise<void> }) => {
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         startDate: '',
         endDate: '',
@@ -2236,7 +2237,10 @@ const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefres
             const res = await supplierApi.bulkAddStopSale(formData);
             const count = res.data.affectedCars || 0;
             
+            setIsLoading(true);
             await onRefresh();
+            setIsLoading(false);
+            
             setFormData({ ...formData, startDate: '', endDate: '' });
             
             alert(`Success! Blockout applied to ${count} matching vehicles.`);
@@ -2251,11 +2255,14 @@ const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefres
 
     const handleDelete = async (id: number) => {
         if (!confirm("Remove this stop sale?")) return;
+        setIsLoading(true);
         try {
             await supplierApi.deleteStopSale(id);
             await onRefresh();
         } catch (err) {
             console.error("Error deleting stop sale:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
