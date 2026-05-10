@@ -119,11 +119,25 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                 {/* Header */}
                 <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
                     <div className="flex items-center gap-4">
-                        <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" width={120} height={56} />
-                        <div>
-                           <h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3>
-                           <p className="text-xs text-slate-500">Provided by {supplier.name}</p>
-                        </div>
+                        {!car.hogicarChoice ? (
+                            <>
+                                <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" width={120} height={56} />
+                                <div>
+                                   <h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3>
+                                   <p className="text-xs text-slate-500">Provided by {supplier.name}</p>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30">
+                                    <Award className="w-8 h-8 text-amber-400" />
+                                </div>
+                                <div>
+                                   <h3 className="font-bold text-lg text-slate-900 tracking-tight">Rental Conditions</h3>
+                                   <p className="text-xs text-amber-600 font-bold uppercase tracking-wider">Hogicar Exclusive Verified Fleet</p>
+                                </div>
+                            </>
+                        )}
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"><X className="w-5 h-5"/></button>
                 </div>
@@ -314,9 +328,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                              <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-28 group-hover:scale-105 transition-transform duration-300" width={300} height={112} />
                              {car.hogicarChoice && (
                                  <div className="absolute top-0 right-0 z-10">
-                                     <div className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-700 text-white text-[10px] font-black px-3 py-1.5 rounded-bl-2xl flex items-center gap-1.5 shadow-xl shadow-indigo-200/50 border-b border-l border-white/20">
-                                         <Award className="w-3.5 h-3.5 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
-                                         <span className="tracking-wider uppercase">Hogicar Choice</span>
+                                     <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white text-[10px] font-black px-4 py-2 rounded-bl-2xl flex items-center gap-2 shadow-2xl border-b-2 border-l-2 border-amber-500/40 backdrop-blur-sm">
+                                         <Award className="w-4 h-4 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                                         <span className="tracking-widest uppercase bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent font-extrabold">Hogicar Choice</span>
                                      </div>
                                  </div>
                              )}
@@ -365,34 +379,53 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
                   {/* Bottom Section for Supplier Info */}
                   <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center gap-5">
-                          <img 
-                              src={car.supplier.logo || (car.supplier as any).logoUrl} 
-                              alt={car.supplier.name} 
-                              className="h-20 md:h-24 w-auto max-w-[160px] md:max-w-[200px] object-contain transition-transform duration-300 logo-scaled-hover" 
-                              style={{ 
-                                '--logo-scale': (car.supplier.logoScale || 100) / 100,
-                                '--logo-scale-mobile': (car.supplier.logoScaleMobile || 100) / 100
-                              } as any}
-                              width={200} 
-                              height={96} 
-                          />
-                          <div className="border-l border-slate-200 pl-5 group">
-                              <div className="flex items-center gap-1 relative">
-                                  <div className="bg-blue-600 text-white text-[10px] font-bold w-6 h-5 flex items-center justify-center rounded">
-                                      {car.supplier.rating}
+                      {!car.hogicarChoice ? (
+                          <div className="flex items-center gap-5">
+                              <img 
+                                  src={car.supplier.logo || (car.supplier as any).logoUrl} 
+                                  alt={car.supplier.name} 
+                                  className="h-20 md:h-24 w-auto max-w-[160px] md:max-w-[200px] object-contain transition-transform duration-300 logo-scaled-hover" 
+                                  style={{ 
+                                    '--logo-scale': (car.supplier.logoScale || 100) / 100,
+                                    '--logo-scale-mobile': (car.supplier.logoScaleMobile || 100) / 100
+                                  } as any}
+                                  width={200} 
+                                  height={96} 
+                              />
+                              <div className="border-l border-slate-200 pl-5 group">
+                                  <div className="flex items-center gap-1 relative">
+                                      <div className="bg-blue-600 text-white text-[10px] font-bold w-6 h-5 flex items-center justify-center rounded">
+                                          {car.supplier.rating}
+                                      </div>
+                                      <p className="text-xs font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</p>
+                                      {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
                                   </div>
-                                  <p className="text-xs font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</p>
-                                  {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
+                                  <p className="text-[10px] text-slate-500">{Math.round(car.supplier.rating * 250)}+ reviews</p>
+                                   <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-blue-600 hover:underline font-medium mt-1">
+                                      Rental Conditions
+                                  </button>
                               </div>
-                              <p className="text-[10px] text-slate-500">{Math.round(car.supplier.rating * 250)}+ reviews</p>
-                               <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-blue-600 hover:underline font-medium mt-1">
-                                  Rental Conditions
+                          </div>
+                      ) : (
+                          <div className="flex items-center gap-4 py-2 px-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-inner border border-amber-500/20 w-full overflow-hidden relative group/choice">
+                              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent opacity-0 group-hover/choice:opacity-100 transition-opacity duration-700"></div>
+                              <div className="w-10 h-10 rounded-full bg-slate-800 shadow-xl flex items-center justify-center border border-amber-500/30">
+                                  <Award className="w-5 h-5 text-amber-400" />
+                              </div>
+                              <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                      <span className="text-xs font-black text-white tracking-wide uppercase">Hogicar Exclusive</span>
+                                      <div className="bg-amber-400 w-1 h-1 rounded-full animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]"></div>
+                                  </div>
+                                  <p className="text-[9px] text-amber-200/70 uppercase tracking-[0.2em] font-bold mt-0.5">Premium Fleet · Verified Quality</p>
+                              </div>
+                              <button onClick={() => setIsConditionsModalOpen(true)} className="relative z-10 text-[9px] font-black bg-amber-500 text-slate-900 px-3 py-1.5 rounded-lg border border-amber-400 hover:bg-amber-400 transition-all shadow-lg active:scale-95 uppercase tracking-tighter">
+                                  Conditions
                               </button>
                           </div>
-                      </div>
+                      )}
                       
-                      {(() => {
+                      {!car.hogicarChoice && (() => {
                           const pickupType = car.supplier?.pickupType;
                           if (pickupType === 'IN_TERMINAL') {
                               return (

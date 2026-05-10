@@ -86,8 +86,22 @@ const RentalConditionsModal = ({ supplier, onClose }: { supplier: Supplier; onCl
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col font-sans">
         <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
           <div className="flex items-center gap-4">
-            <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" width={120} height={56} />
-            <div><h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3><p className="text-sm text-slate-700">Provided by {supplier.name}</p></div>
+            {(supplier as any).hogicarChoice ? (
+              <>
+                <div className="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30">
+                  <Award className="w-8 h-8 text-amber-400" />
+                </div>
+                <div>
+                   <h3 className="font-bold text-lg text-slate-900 tracking-tight">Rental Conditions</h3>
+                   <p className="text-xs text-amber-600 font-bold uppercase tracking-wider">Hogicar Exclusive Verified Fleet</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <img src={supplier.logo || (supplier as any).logoUrl} alt={supplier.name} className="h-14 object-contain" width={120} height={56} />
+                <div><h3 className="font-bold text-lg text-slate-800">Rental Conditions</h3><p className="text-sm text-slate-700">Provided by {supplier.name}</p></div>
+              </>
+            )}
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500"><X className="w-5 h-5"/></button>
         </div>
@@ -241,7 +255,7 @@ const CarDetails: React.FC = () => {
 
   return (
     <>
-      <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={`Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
+      <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={car.hogicarChoice ? `Book ${car.make} ${car.model} from our exclusive verified fleet. Best price guaranteed.` : `Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
@@ -269,15 +283,15 @@ const CarDetails: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <h1 className="text-xl sm:text-2xl lg:text-[1.8rem] font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
                         {car.hogicarChoice && (
-                          <div className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-700 text-white text-[10px] font-black px-4 py-2 rounded-full flex items-center gap-2 shadow-xl shadow-indigo-100 border border-white/20">
-                              <Award className="w-4 h-4 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
-                              <span className="tracking-wider uppercase">Hogicar Choice</span>
+                          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white text-[10px] font-black px-5 py-2.5 rounded-full flex items-center gap-2.5 shadow-2xl border-b border-l border-amber-500/30">
+                              <Award className="w-4 h-4 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                              <span className="tracking-[0.2em] uppercase bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent font-black">Hogicar Choice</span>
                           </div>
                         )}
                       </div>
                       <p className="text-slate-700 text-base mt-1">or similar · {car.year}</p>
                       <div className="flex flex-wrap gap-4 mt-4">
-                        <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {car.supplier.rating} · {getRatingText(car.supplier.rating)}</div>
+                        <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {!car.hogicarChoice ? <>{car.supplier.rating} · {getRatingText(car.supplier.rating)}</> : <span className="font-bold text-indigo-700">Premium Choice · Top Rated</span>}</div>
                         <div className="flex items-center gap-2 text-sm"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
                       </div>
                     </div>
@@ -378,11 +392,23 @@ const CarDetails: React.FC = () => {
 
               {/* Supplier Info with trust badges */}
               <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> About the Supplier</h2>
-                <div className="flex flex-wrap items-center gap-6">
-                  <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 object-contain" />
-                  <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-base text-slate-700">Car rental provider</div></div>
-                </div>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> {!car.hogicarChoice ? "About the Supplier" : "Hogicar Verification"}</h2>
+                {!car.hogicarChoice ? (
+                  <div className="flex flex-wrap items-center gap-6">
+                    <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 object-contain" />
+                    <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-base text-slate-700">Car rental provider</div></div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-6">
+                    <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center shadow-xl border border-amber-500/20">
+                      <Award className="w-10 h-10 text-amber-400" />
+                    </div>
+                    <div>
+                      <div className="font-black text-xl tracking-tight text-slate-900 uppercase">Hogicar Exclusive Fleet</div>
+                      <div className="text-base text-slate-700 font-medium">Verified professional management</div>
+                    </div>
+                  </div>
+                )}
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
                   <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>

@@ -300,15 +300,27 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     {car.transmission} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.fuelPolicy} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location}
                   </p>
                   
-                  <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
-                      <div className="bg-[#edf2fa] border border-slate-300/70 p-2.5 sm:p-3 rounded-xl shadow-sm">
-                        <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-[0.18em] sm:tracking-[0.2em] leading-none mb-2">Service Provider</p>
-                        <p className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-[0.12em] sm:tracking-[0.15em]">{car.supplier.name}</p>
-                      </div>
-                  </div>
+                  {!car.hogicarChoice ? (
+                    <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
+                        <div className="bg-[#edf2fa] border border-slate-300/70 p-2.5 sm:p-3 rounded-xl shadow-sm">
+                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-[0.18em] sm:tracking-[0.2em] leading-none mb-2">Service Provider</p>
+                          <p className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-[0.12em] sm:tracking-[0.15em]">{car.supplier.name}</p>
+                        </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
+                       <div className="bg-slate-900 border border-amber-500/30 p-3 sm:p-4 rounded-2xl shadow-xl flex items-center justify-center">
+                          <Award className="w-8 h-8 text-amber-400" />
+                       </div>
+                       <div>
+                         <p className="text-[11px] sm:text-xs font-black text-amber-600 uppercase tracking-[0.2em] mb-1">Exclusive Verified Fleet</p>
+                         <p className="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase">Hogicar Choice</p>
+                       </div>
+                    </div>
+                  )}
                </div>
             </div>
             
