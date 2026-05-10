@@ -462,8 +462,8 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
             <div className="flex justify-between items-center mb-8">
                 <SectionHeader title="Performance Analytics" icon={TrendingUp} subtitle="Daily booking trends and volume" />
             </div>
-            <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[350px] w-full min-w-0">
+                <ResponsiveContainer width="100%" height="100%" minHeight={1}>
                     <AreaChart data={[
                         { name: 'Mon', bookings: 4, revenue: 1200 },
                         { name: 'Tue', bookings: 7, revenue: 2100 },

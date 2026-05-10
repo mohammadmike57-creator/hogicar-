@@ -1645,8 +1645,8 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
                     <option>Quarterly</option>
                 </select>
             </div>
-            <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[350px] w-full min-w-0">
+                <ResponsiveContainer width="100%" height="100%" minHeight={1}>
                     <AreaChart data={ADMIN_STATS}>
                         <defs>
                             <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -2988,8 +2988,8 @@ export const AdminDashboard: React.FC = () => {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
       case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
-      case 'bookings': return <BookingsContent bookings={bookings} onRefresh={fetchBookings} />;
-      case 'fleet': return <FleetContent cars={fleet} onRefresh={fetchFleet} />;
+      case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
+      case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
       case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
