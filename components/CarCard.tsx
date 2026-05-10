@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
