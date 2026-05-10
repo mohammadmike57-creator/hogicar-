@@ -275,7 +275,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         noIndex={true}
       />
     <div className="bg-slate-200/55 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-blue-100">
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10">
+      <div className="max-w-[1500px] mx-auto px-2 sm:px-6 lg:px-10">
         <div className="mb-6 sm:mb-10">
             <BookingStepper currentStep={4} />
         </div>

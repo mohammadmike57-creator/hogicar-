@@ -54,20 +54,6 @@ const FullFooter = () => (
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
                 </p>
             </div>
-            <div className="bg-blue-900/50 p-4 rounded-lg border border-blue-700 w-full md:w-auto flex-shrink-0">
-                <p className="font-bold text-sm mb-2 text-blue-100">Rated on Trustpilot</p>
-                <div className="flex items-center gap-2">
-                    <div className="flex bg-white p-1 rounded-sm">
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                    </div>
-                    <p className="font-bold text-lg">Excellent</p>
-                </div>
-                <p className="text-xs text-blue-300 mt-1">Based on <strong>12,000+</strong> reviews</p>
-            </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
@@ -171,7 +157,7 @@ const Layout: React.FC = () => {
           ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
           : 'bg-[#003580] shadow-md py-2 border-b border-[#002a66]'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
           <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500">
             <Logo className="w-full h-auto" variant="light" />

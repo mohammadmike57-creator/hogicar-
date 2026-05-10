@@ -260,7 +260,7 @@ const CarDetails: React.FC = () => {
       {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
       <div className="bg-slate-200/55 min-h-screen pb-32 lg:pb-12 text-slate-800">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
+        <div className="max-w-[1500px] mx-auto px-2 sm:px-6 lg:px-10 py-6">
           <BookingStepper currentStep={3} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 mt-8">

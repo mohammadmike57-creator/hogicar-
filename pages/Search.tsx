@@ -444,7 +444,7 @@ export const Search: React.FC = () => {
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
       <div className="bg-slate-900 shadow-xl border-b border-slate-800 sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="flex justify-between items-center cursor-pointer group bg-slate-800 hover:bg-slate-700 transition-all duration-300 p-2 sm:p-3 rounded-2xl border border-slate-700 hover:border-blue-500/50 shadow-inner"
@@ -520,7 +520,7 @@ export const Search: React.FC = () => {
 
       {/* Category Image Filter - HIDDEN ON MOBILE, visible on md screens and up */}
       <div className="hidden md:block bg-white border-b border-slate-200 py-4 sm:py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-blue-600"/> Filter by Category</h2>
@@ -582,7 +582,7 @@ export const Search: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 pt-0 md:pt-6">
+      <div className="max-w-[1600px] mx-auto px-0 md:px-2 lg:px-8 pt-0 md:pt-6">
         
         {/* Mobile Filter & Sort Controls */}
         <div className="md:hidden mb-0 bg-white p-3 border-b border-slate-100 sticky top-[100px] z-20 flex gap-3 shadow-sm">

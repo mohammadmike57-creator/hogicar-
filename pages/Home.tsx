@@ -209,11 +209,7 @@ const Home: React.FC = () => {
            <div className="absolute top-0 left-0 w-64 h-64 bg-white/20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
         </div>
-        <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <div className="bg-white/10 backdrop-blur-sm inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-6 border border-white/10 shadow-lg">
-            <Star className="w-4 h-4 text-yellow-400 fill-current" /> 
-            <span className="uppercase tracking-widest text-[10px]">Rated 4.9/5 by 10,000+ customers</span>
-          </div>
+        <div className="max-w-7xl mx-auto px-2 text-center relative z-10">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight tracking-tight">
             {content.hero.title || 'Search, Compare & Save on Car Rentals'}
           </h1>
@@ -277,7 +273,7 @@ const Home: React.FC = () => {
 
       {/* WHY BOOK WITH HOGICAR? & STATS */}
       <section className="py-8 lg:py-12 bg-slate-50/70">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-10">
             <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">The Hogicar Advantage</h2>
             <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
@@ -333,7 +329,7 @@ const Home: React.FC = () => {
 
       {/* GET YOUR PERFECT CAR */}
       <section className="py-8 lg:py-12 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">Simple Process</h2>
             <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
@@ -370,7 +366,7 @@ const Home: React.FC = () => {
 
       {/* POPULAR DESTINATIONS */}
       <section className="py-8 lg:py-12 bg-slate-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                <div className="max-w-2xl">
                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold tracking-widest uppercase mb-3">
@@ -415,7 +411,7 @@ const Home: React.FC = () => {
 
       {/* NEWSLETTER CTA */}
       <section className="py-8 lg:py-12 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-slate-900 rounded-3xl overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="p-5 md:p-8">
@@ -452,7 +448,7 @@ const Home: React.FC = () => {
       
       {/* FAQS */}
       <section className="py-8 lg:py-12 bg-slate-50/70">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mx-auto text-center mb-6">
             <h2 className="text-[10px] font-bold tracking-widest text-blue-600 uppercase mb-1.5">Support</h2>
             <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
