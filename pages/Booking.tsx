@@ -312,12 +312,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     </div>
                   ) : (
                     <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
-                       <div className="bg-slate-900 border border-amber-500/30 p-3 sm:p-4 rounded-2xl shadow-xl flex items-center justify-center">
-                          <Award className="w-8 h-8 text-amber-400" />
+                       <div className="bg-[#003580] border-2 border-amber-400 p-3 sm:p-4 rounded-2xl shadow-xl flex items-center justify-center">
+                          <Award className="w-8 h-8 text-amber-400 fill-amber-400/20" />
                        </div>
                        <div>
-                         <p className="text-[11px] sm:text-xs font-black text-amber-600 uppercase tracking-[0.2em] mb-1">Exclusive Verified Fleet</p>
-                         <p className="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase">Hogicar Choice</p>
+                         <p className="text-[11px] sm:text-xs font-black text-amber-600 uppercase tracking-[0.25em] mb-1 italic">Hogicar Choice</p>
+                         <p className="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase">Exclusive Verified Fleet</p>
                        </div>
                     </div>
                   )}

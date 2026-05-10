@@ -166,7 +166,7 @@ const Confirmation: React.FC = () => {
                   <div>
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Service Level</h3>
                     <div className="flex items-center gap-3">
-                       <div className="p-1.5 bg-slate-900 rounded-lg"><Award className="w-5 h-5 text-amber-400" /></div>
+                       <div className="p-1.5 bg-[#003580] rounded-lg border border-amber-400"><Award className="w-5 h-5 text-amber-400 fill-amber-400/20" /></div>
                        <p className="font-bold text-slate-900 tracking-tight uppercase">Hogicar Choice Exclusive</p>
                     </div>
                   </div>
@@ -224,10 +224,10 @@ const Confirmation: React.FC = () => {
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button onClick={() => window.print()} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors">
+              <button onClick={() => window.print()} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#008009] hover:bg-[#006607] text-white font-black py-3.5 px-8 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-95 uppercase tracking-widest text-sm">
                 <Printer className="w-5 h-5"/> Print Voucher
               </button>
-              <Link to="/my-bookings" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3 px-6 rounded-lg shadow-sm transition-colors">
+              <Link to="/my-bookings" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3.5 px-8 rounded-xl shadow-sm transition-colors text-sm uppercase tracking-widest">
                 Manage Booking <ArrowRight className="w-5 h-5"/>
               </Link>
             </div>

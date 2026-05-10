@@ -274,9 +274,9 @@ const CarDetails: React.FC = () => {
                   
                   {car.hogicarChoice && (
                     <div className="absolute top-0 right-0 z-10">
-                        <div className="bg-slate-900 text-white text-[10px] font-black px-4 py-2 rounded-bl-2xl flex items-center gap-2 shadow-2xl border-b border-l border-amber-500/40 backdrop-blur-sm">
-                            <Award className="w-4 h-4 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
-                            <span className="tracking-widest uppercase bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent font-black">Hogicar Choice</span>
+                        <div className="bg-[#003580] text-white text-[10px] font-black px-5 py-2.5 rounded-bl-3xl flex items-center gap-2.5 shadow-2xl border-b-2 border-l-2 border-amber-400 backdrop-blur-md">
+                            <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
+                            <span className="tracking-[0.2em] uppercase italic font-black text-amber-400">Hogicar Choice</span>
                         </div>
                     </div>
                   )}
@@ -459,8 +459,8 @@ const CarDetails: React.FC = () => {
                   {/* Promo code */}
                   <div className="mb-5"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" /><button onClick={handleApplyPromo} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition">Apply</button></div>{promoError && <p className="text-red-600 text-sm mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-sm mt-1">✓ {appliedPromo.code} applied</p>}</div>
                   {/* Insurance selection */}
-                  <div className="mb-5"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-blue-600" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-blue-600" /> <span className="text-sm font-medium">Full Protection (+${convertPrice(15 * days).toFixed(2)})</span></label></div>
-                  <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3 rounded-xl transition">Continue to Book</Link>
+                  <div className="mb-5"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Full Protection (+${convertPrice(15 * days).toFixed(2)})</span></label></div>
+                  <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-[#008009] hover:bg-[#006607] text-white text-center font-bold py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">Continue to Book</Link>
                   <div className="mt-4 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
@@ -481,7 +481,7 @@ const CarDetails: React.FC = () => {
 
         {/* Mobile Floating CTA */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#f3f6fb] border-t border-slate-300/80 shadow-lg p-4 z-40">
-          <div className="flex justify-between items-center"><div><div className="text-sm text-slate-600">Total price</div><div className="text-xl font-bold">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div></div><Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">Book Now</Link></div>
+          <div className="flex justify-between items-center"><div><div className="text-sm text-slate-600">Total price</div><div className="text-xl font-bold">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div></div><Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="bg-[#008009] text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-sm shadow-lg shadow-green-100 transition-all active:scale-95">Book Now</Link></div>
         </div>
       </div>
     </>

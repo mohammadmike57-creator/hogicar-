@@ -316,11 +316,11 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 hover:border-blue-400/50 transition-all duration-300 w-full mb-4 overflow-hidden group/card min-h-[220px] flex flex-col md:flex-row">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-[#008009]/30 hover:border-[#008009] transition-all duration-300 w-full mb-4 overflow-hidden group/card min-h-[220px] flex flex-col md:flex-row">
           <div className="flex-1 grid grid-cols-1 md:grid-cols-3">
               
               {/* --- LEFT COLUMN: IMAGE & INFO --- */}
-              <div className="md:col-span-2 p-4 md:p-6 flex flex-col sm:flex-row gap-6">
+              <div className="md:col-span-2 p-4 md:p-6 flex flex-col sm:flex-row gap-6 relative">
                   {/* Image Container */}
                   <Link 
                     to={`/car/${car.id}?${searchParams}`} 
@@ -332,9 +332,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                      
                      {car.hogicarChoice && (
                          <div className="absolute top-0 right-0 z-10">
-                             <div className="bg-slate-900 text-white text-[9px] font-black px-3 py-1.5 rounded-bl-xl flex items-center gap-1.5 shadow-lg border-b border-l border-amber-500/40">
-                                 <Award className="w-3.5 h-3.5 text-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
-                                 <span className="tracking-tighter uppercase text-amber-400">Choice</span>
+                             <div className="bg-[#003580] text-white text-[10px] font-black px-4 py-2 rounded-bl-2xl flex items-center gap-2 shadow-2xl border-b-2 border-l-2 border-amber-400">
+                                 <Award className="w-4 h-4 text-amber-400 fill-amber-400/20" />
+                                 <span className="tracking-widest uppercase italic">Hogicar Choice</span>
                              </div>
                          </div>
                      )}
@@ -353,13 +353,34 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   {/* Info Section */}
                   <div className="flex-1 flex flex-col">
                       <div className="mb-auto">
-                          <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
-                              <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">{car.displayName}</h3>
-                          </Link>
-                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-1.5">
-                              or similar {car.category}
-                              <Info className="w-3 h-3 text-slate-400" />
-                          </p>
+                          <div className="flex justify-between items-start gap-4">
+                            <div>
+                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
+                                  <h3 className="text-xl font-black text-slate-900 group-hover:text-[#008009] transition-colors leading-tight">{car.displayName}</h3>
+                              </Link>
+                              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                                  or similar {car.category}
+                                  <Info className="w-3 h-3 text-slate-400" />
+                              </p>
+                            </div>
+
+                            {/* Supplier Identity for non-choice cars - moved to left as requested */}
+                            {!car.hogicarChoice && (
+                              <div className="flex flex-col items-end">
+                                <img 
+                                    src={car.supplier.logo || (car.supplier as any).logoUrl} 
+                                    alt={car.supplier.name} 
+                                    className="h-7 w-auto object-contain" 
+                                />
+                                <div className="flex items-center gap-1 mt-1">
+                                    <div className="bg-[#008009] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                        {car.supplier.rating}
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
                           <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 text-[13px]">
                               <div className="flex items-center gap-2.5 text-slate-600"><Users className="w-4 h-4 text-slate-400"/><span>{car.passengers} seats</span></div>
@@ -369,6 +390,15 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               <div className="flex items-center gap-2.5 text-slate-600"><GaugeCircle className="w-4 h-4 text-slate-400"/><span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span></div>
                               <div className="flex items-center gap-2.5 text-slate-600"><Fuel className="w-4 h-4 text-slate-400"/><span>{car.fuelPolicy}</span></div>
                           </div>
+
+                          {/* Price breakdown / Daily rate on the left as requested */}
+                          {!car.hogicarChoice && (
+                            <div className="mt-4 pt-3 border-t border-slate-100">
+                                <p className="text-[13px] font-bold text-[#008009]">
+                                  {getCurrencySymbol()}{convertPrice(totalFinalPrice / days).toFixed(2)} <span className="text-slate-500 font-normal">per day</span>
+                                </p>
+                            </div>
+                          )}
                       </div>
 
                       {/* Social Proof */}
@@ -408,48 +438,32 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         to={`/car/${car.id}?${searchParams}`} 
                         state={{ cars: cars }} 
                         onClick={handleSelectCar} 
-                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] text-center text-sm uppercase tracking-widest"
+                        className="block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3.5 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] text-center text-sm uppercase tracking-widest"
                       >
                           View Deal
                       </Link>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-slate-100">
-                      {!car.hogicarChoice ? (
-                          <div className="flex items-center justify-between gap-2">
-                              <img 
-                                  src={car.supplier.logo || (car.supplier as any).logoUrl} 
-                                  alt={car.supplier.name} 
-                                  className="h-8 md:h-10 w-auto max-w-[100px] object-contain opacity-80 group-hover/card:opacity-100 transition-opacity" 
-                                  style={{ 
-                                    '--logo-scale': (car.supplier.logoScale || 100) / 100,
-                                    '--logo-scale-mobile': (car.supplier.logoScaleMobile || 100) / 100
-                                  } as any}
-                              />
-                              <div className="flex flex-col items-end">
-                                  <div className="flex items-center gap-1.5">
-                                      <div className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
-                                          {car.supplier.rating}
-                                      </div>
-                                      <span className="text-[11px] font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</span>
-                                  </div>
-                                  <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-slate-400 hover:text-blue-600 transition-colors mt-1 font-medium underline underline-offset-2">
-                                     Rental Conditions
-                                  </button>
-                              </div>
-                          </div>
-                      ) : (
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-3">
+                      {car.hogicarChoice ? (
                           <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2">
                                   <div className="p-1 bg-slate-900 rounded-lg shadow-md border border-amber-500/20">
                                       <Award className="w-3.5 h-3.5 text-amber-400" />
                                   </div>
-                                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight">Hogicar Exclusive</span>
+                                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight">Hogicar Exclusive Fleet</span>
                               </div>
                               <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-slate-400 hover:text-amber-600 transition-colors font-medium underline underline-offset-2 text-left">
                                  Rental Conditions
                               </button>
                           </div>
+                      ) : (
+                        <div className="flex justify-between items-center">
+                           <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-slate-400 hover:text-[#008009] transition-colors font-medium underline underline-offset-2 text-left">
+                              Rental Conditions
+                           </button>
+                           <div className="text-[9px] text-slate-400 italic">Official {car.supplier.name} Rates</div>
+                        </div>
                       )}
                   </div>
               </div>
