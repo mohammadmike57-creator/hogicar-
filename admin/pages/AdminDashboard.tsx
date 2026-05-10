@@ -697,7 +697,30 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               </div>
             </div>
           </div>
-          <label className="flex items-center gap-2 mt-4"><input type="checkbox" checked={editedSupplier.enableSocialProof || false} onChange={e => handleChange("enableSocialProof", e.target.checked)} /> Enable Social Proof</label>
+          <div className="flex flex-wrap gap-4 mt-4">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                checked={editedSupplier.enableSocialProof || false} 
+                onChange={e => handleChange("enableSocialProof", e.target.checked)} 
+                className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+              /> 
+              <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Enable Social Proof</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                checked={editedSupplier.hogicarChoice || false} 
+                onChange={e => handleChange("hogicarChoice", e.target.checked)} 
+                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              /> 
+              <span className="text-xs font-bold text-indigo-700 group-hover:text-indigo-900 transition-colors flex items-center gap-1">
+                <Award className="w-3 h-3" />
+                Hogicar Choice
+              </span>
+            </label>
+          </div>
         </div>
 
         <div className="flex justify-end gap-3">
@@ -2850,6 +2873,7 @@ export const AdminDashboard: React.FC = () => {
         active: updatedSupplier.status === 'active' || updatedSupplier.active !== false,
         password: updatedSupplier.password || undefined,
         enableSocialProof: updatedSupplier.enableSocialProof || false,
+        hogicarChoice: updatedSupplier.hogicarChoice || false,
         address: updatedSupplier.address || "",
         termsAndConditions: updatedSupplier.termsAndConditions || "",
         includesCDW: updatedSupplier.includesCDW ?? true,

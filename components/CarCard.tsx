@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
@@ -314,9 +314,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                              <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-28 group-hover:scale-105 transition-transform duration-300" width={300} height={112} />
                              {car.hogicarChoice && (
                                  <div className="absolute top-0 right-0 z-10">
-                                     <div className="bg-indigo-600 text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl flex items-center gap-1 shadow-lg shadow-indigo-200">
-                                         <Award className="w-2.5 h-2.5 text-yellow-400" />
-                                         <span>HOGICAR CHOICE</span>
+                                     <div className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-700 text-white text-[10px] font-black px-3 py-1.5 rounded-bl-2xl flex items-center gap-1.5 shadow-xl shadow-indigo-200/50 border-b border-l border-white/20">
+                                         <Award className="w-3.5 h-3.5 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
+                                         <span className="tracking-wider uppercase">Hogicar Choice</span>
                                      </div>
                                  </div>
                              )}

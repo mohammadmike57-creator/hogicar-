@@ -142,6 +142,7 @@ export interface Supplier {
   username?: string;
   password?: string;
   enableSocialProof?: boolean;
+  hogicarChoice?: boolean;
   gracePeriod?: number;
   leadTime?: number;
   pickupType?: PickupType;
