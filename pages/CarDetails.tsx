@@ -194,7 +194,7 @@ const CarDetails: React.FC = () => {
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
   const priceDetails = React.useMemo(() => {
-    if (!car) return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
+    if (!car) return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, hogicarPromoAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
 
@@ -266,7 +266,15 @@ const CarDetails: React.FC = () => {
                 <div className="p-5 sm:p-6">
                   <div className="flex flex-wrap justify-between items-start gap-4">
                     <div>
-                      <h1 className="text-xl sm:text-2xl lg:text-[1.8rem] font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
+                      <div className="flex items-center gap-3">
+                        <h1 className="text-xl sm:text-2xl lg:text-[1.8rem] font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
+                        {car.hogicarChoice && (
+                          <div className="bg-indigo-600 text-white text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg shadow-indigo-100">
+                              <Award className="w-3 h-3 text-yellow-400" />
+                              <span>HOGICAR CHOICE</span>
+                          </div>
+                        )}
+                      </div>
                       <p className="text-slate-700 text-base mt-1">or similar · {car.year}</p>
                       <div className="flex flex-wrap gap-4 mt-4">
                         <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {car.supplier.rating} · {getRatingText(car.supplier.rating)}</div>
@@ -415,6 +423,7 @@ const CarDetails: React.FC = () => {
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
                     {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
                     {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+                    {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between text-sm text-green-700 font-bold"><span>Secret Deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
                     <div className="border-t pt-3 mt-3"><div className="flex justify-between font-bold text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-sm text-slate-600 text-right">Including taxes & fees</div></div>
                   </div>
                   {/* Promo code */}

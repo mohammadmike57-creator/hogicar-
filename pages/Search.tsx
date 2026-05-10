@@ -100,6 +100,9 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         hasFinalPriceFromApi: hasFinalPrice,
         supplierId: apiCar.supplierId,
         currency: apiCar.currency,
+        hogicarChoice: apiCar.hogicarChoice,
+        promotionAmount: apiCar.promotionAmount,
+        promotionPercent: apiCar.promotionPercent,
     };
 };
 

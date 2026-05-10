@@ -312,6 +312,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           {/* Image */}
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="sm:col-span-1 flex items-center justify-center relative group">
                              <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-28 group-hover:scale-105 transition-transform duration-300" width={300} height={112} />
+                             {car.hogicarChoice && (
+                                 <div className="absolute top-0 right-0 z-10">
+                                     <div className="bg-indigo-600 text-white text-[9px] font-black px-2.5 py-1 rounded-bl-xl flex items-center gap-1 shadow-lg shadow-indigo-200">
+                                         <Award className="w-2.5 h-2.5 text-yellow-400" />
+                                         <span>HOGICAR CHOICE</span>
+                                     </div>
+                                 </div>
+                             )}
                              {promotionLabel ? (
                                  <span className="absolute top-0 left-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-br-lg md:rounded-tl-xl flex items-center gap-1">
                                      <Gift className="w-3 h-3"/> {promotionLabel}
@@ -447,7 +455,13 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
               {/* --- RIGHT COLUMN: PRICE & CTA --- */}
               <div className="md:col-span-1 flex flex-col justify-end md:border-l md:border-slate-100 md:pl-4 pt-4 md:pt-0 border-t border-slate-100">
-                  <div className="text-right flex flex-col items-end">
+                  <div className="text-right flex flex-col items-end gap-2">
+                      {car.hogicarChoice && car.promotionPercent && car.promotionPercent > 0 && (
+                          <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-100">
+                              <Tag className="w-2.5 h-2.5" />
+                              <span className="text-[10px] font-black uppercase">-{car.promotionPercent}% Secret Deal</span>
+                          </div>
+                      )}
                       <div>
                           <p className="font-bold text-slate-900 text-lg">
                               Total: {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}

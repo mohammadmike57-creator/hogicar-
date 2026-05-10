@@ -52,12 +52,19 @@ export function calcPricing(
 
     // Apply promotions
     const discountAmount = appliedPromo ? round2(commissionAmount * appliedPromo.discount) : 0;
+    
+    // Hogicar Choice Promotion (comes from our commission)
+    const hogicarPromoAmount = (car.hogicarChoice && car.promotionPercent) 
+        ? round2((netTotal * car.promotionPercent) / 100) 
+        : 0;
 
     // Calculate final totals
-    const finalTotal = round2(finalPriceBeforeOptions + insuranceCost + extrasCost - discountAmount);
+    // Final total is reduced by both external promo codes and our internal Hogicar Choice selection promo
+    const finalTotal = round2(finalPriceBeforeOptions + insuranceCost + extrasCost - discountAmount - hogicarPromoAmount);
     
-    // The amount paid online is the commission, minus any discount
-    const payNow = round2(commissionAmount - discountAmount);
+    // The amount paid online is the commission, minus any discounts
+    // We cap it at 0 to avoid paying the customer
+    const payNow = Math.max(0, round2(commissionAmount - discountAmount - hogicarPromoAmount));
     
     // The amount paid at the desk is the net price plus any extras and insurance
     const payAtDesk = round2(netTotal + insuranceCost + extrasCost);
@@ -68,6 +75,7 @@ export function calcPricing(
         extrasCost: round2(extrasCost),
         insuranceCost: round2(insuranceCost),
         discountAmount,
+        hogicarPromoAmount,
         finalTotal,
         payNow,
         payAtDesk,

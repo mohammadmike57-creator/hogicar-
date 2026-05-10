@@ -132,7 +132,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   
   const priceDetails = React.useMemo(() => {
     if (!car) {
-        return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
+        return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, hogicarPromoAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
     }
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
@@ -462,6 +462,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                         <div className="flex justify-between text-sm font-semibold text-emerald-700 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100/50 gap-4">
                             <span>Applied Promo <span className="text-xs opacity-70 ml-2">({appliedPromo?.code})</span></span>
                             <span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span>
+                        </div>
+                     )}
+
+                     {priceDetails.hogicarPromoAmount > 0 && (
+                        <div className="flex justify-between text-sm font-semibold text-indigo-700 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100/50 gap-4">
+                            <span>Secret Deal Selection</span>
+                            <span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span>
                         </div>
                      )}
 

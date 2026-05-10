@@ -77,3 +77,23 @@ export async function adminFetch(path: string, options: RequestInit = {}, suppre
         return text;
     }
 }
+
+// Helper methods for Supplier Fleet and Rates
+export async function getSupplierCars(supplierId: number) {
+    return adminFetch(`/api/admin/suppliers/${supplierId}/cars`);
+}
+
+export async function getSupplierRates(supplierId: number, carId: number) {
+    return adminFetch(`/api/admin/suppliers/${supplierId}/cars/${carId}/rates`);
+}
+
+export async function getAllSupplierRates(supplierId: number) {
+    return adminFetch(`/api/admin/suppliers/${supplierId}/cars/rates`);
+}
+
+export async function updateHogicarChoice(supplierId: number, carId: number, data: { hogicarChoice?: boolean, hogicarPromotion?: number }) {
+    return adminFetch(`/api/admin/suppliers/${supplierId}/cars/${carId}/hogicar-choice`, {
+        method: 'PATCH',
+        body: JSON.stringify(data)
+    });
+}

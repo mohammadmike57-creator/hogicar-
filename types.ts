@@ -209,6 +209,9 @@ export interface Car {
   hasFinalPriceFromApi?: boolean;
   supplierId?: number | null;
   currency?: string;
+  hogicarChoice?: boolean;
+  promotionAmount?: number;
+  promotionPercent?: number;
 }
 
 export interface ApiSearchResult {
@@ -244,6 +247,9 @@ export interface ApiSearchResult {
   supplierLogoUrl?: string;
   supplierTerms?: string;
   supplierGracePeriodDays?: number;
+  hogicarChoice?: boolean;
+  promotionAmount?: number;
+  promotionPercent?: number;
 
   supplier?: {
     id?: number | null;
@@ -313,6 +319,7 @@ export interface Booking {
   netPrice?: number;
   commissionPercent?: number;
   commissionAmount?: number;
+  hogicarChoice?: boolean;
 }
 
 export interface StatsData {
