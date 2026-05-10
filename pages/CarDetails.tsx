@@ -272,15 +272,6 @@ const CarDetails: React.FC = () => {
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
                   <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-40 lg:h-56 object-contain p-4" />
                   
-                  {car.hogicarChoice && (
-                    <div className="absolute top-0 right-0 z-10">
-                        <div className="bg-[#003580] text-white text-[10px] font-black px-5 py-2.5 rounded-bl-3xl flex items-center gap-2.5 shadow-2xl border-b-2 border-l-2 border-amber-400 backdrop-blur-md">
-                            <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
-                            <span className="tracking-[0.2em] uppercase italic font-black text-amber-400">Hogicar Choice</span>
-                        </div>
-                    </div>
-                  )}
-
                   <div className="absolute top-4 left-4 flex gap-2">
                     <span className="bg-black/70 text-white text-sm px-3 py-1 rounded-full">{car.category}</span>
                     {car.tags?.[0] && <span className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">{car.tags[0]}</span>}
@@ -288,6 +279,12 @@ const CarDetails: React.FC = () => {
                   <button className="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-md"><Heart className="w-5 h-5" /></button>
                 </div>
                 <div className="p-5 sm:p-6">
+                  {car.hogicarChoice && (
+                    <div className="inline-flex items-center gap-2 bg-[#003580] text-white text-[10px] font-black px-4 py-2 rounded-xl mb-4 shadow-xl border border-amber-400/50">
+                        <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
+                        <span className="tracking-[0.2em] uppercase italic font-black text-amber-400">Hogicar Choice Exclusive Verified</span>
+                    </div>
+                  )}
                   <div className="flex flex-wrap justify-between items-start gap-4">
                     <div>
                       <div className="flex items-center gap-3">
