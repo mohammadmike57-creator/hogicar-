@@ -296,9 +296,17 @@ const CarDetails: React.FC = () => {
                         <div className="flex items-center gap-2 text-sm"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
                       </div>
                     </div>
-                    <div className="bg-blue-100/80 px-4 py-2 rounded-xl flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-blue-600" />
-                      <span className="text-sm font-bold text-blue-800">Available now</span>
+                    <div className="flex flex-col gap-2 items-end">
+                      <div className="bg-blue-100/80 px-4 py-2 rounded-xl flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-bold text-blue-800">Available now</span>
+                      </div>
+                      {car.supplier.bookingMode === 'FREE_SALE' && (
+                        <div className="bg-emerald-100/80 px-4 py-2 rounded-xl flex items-center gap-2 border border-emerald-200">
+                          <CheckCircle className="w-5 h-5 text-[#008009]" />
+                          <span className="text-sm font-bold text-[#008009]">Instant Confirmation</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

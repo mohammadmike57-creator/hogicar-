@@ -539,10 +539,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
                 {/* Secure Trust Badge */}
                 <div className="bg-[#f3f6fb] rounded-2xl sm:rounded-[2rem] border border-slate-300/70 p-5 sm:p-6 shadow-lg shadow-slate-400/20 flex items-center gap-4 sm:gap-5">
-                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner"><ShieldCheck className="w-6 h-6"/></div>
+                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner">
+                        {car?.supplier?.bookingMode === 'FREE_SALE' ? <ShieldCheck className="w-6 h-6"/> : <Clock className="w-6 h-6 text-blue-600"/>}
+                    </div>
                     <div>
-                        <h4 className="text-sm font-semibold text-slate-900 mb-1">Instant Confirmation</h4>
-                        <p className="text-sm text-slate-600 leading-tight">Your car is secured immediately.</p>
+                        <h4 className="text-sm font-semibold text-slate-900 mb-1">
+                            {car?.supplier?.bookingMode === 'FREE_SALE' ? 'Instant Confirmation' : 'Reservation Request'}
+                        </h4>
+                        <p className="text-sm text-slate-600 leading-tight">
+                            {car?.supplier?.bookingMode === 'FREE_SALE' ? 'Your car is secured immediately.' : 'Supplier will confirm your request shortly.'}
+                        </p>
                     </div>
                 </div>
 

@@ -430,6 +430,12 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       )}
 
                       <div className="flex items-center gap-4">
+                          {car.supplier.bookingMode === 'FREE_SALE' && (
+                              <span className="flex items-center gap-1.5 bg-emerald-50 text-[#008009] font-bold px-3 py-1.5 rounded-full text-[11px] shadow-sm border border-[#008009]/10">
+                                  <Zap className="w-3.5 h-3.5 fill-[#008009]/20" />
+                                  Instant Confirmation
+                              </span>
+                          )}
                           {(() => {
                               const pickupType = car.supplier?.pickupType;
                               const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
