@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Booking, Car } from '../types';
-import { CheckCircle, Printer, ArrowRight, User, CreditCard, FileText, MapPin, Calendar, Mail, Car as CarIcon, AlertCircle, LoaderCircle } from 'lucide-react';
+import { CheckCircle, Printer, ArrowRight, User, CreditCard, FileText, MapPin, Calendar, Mail, Car as CarIcon, AlertCircle, LoaderCircle, Award } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';

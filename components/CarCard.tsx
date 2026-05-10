@@ -316,196 +316,141 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-green-500 transition-all duration-300 py-2.5 px-3 md:p-4 w-full mb-3 md:mb-4 scale-95 md:scale-100 origin-center">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 md:px-0">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 hover:border-blue-400/50 transition-all duration-300 w-full mb-4 overflow-hidden group/card min-h-[220px] flex flex-col md:flex-row">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-3">
               
-              {/* --- LEFT COLUMN: IMAGE, SPECS, SUPPLIER --- */}
-              <div className="md:col-span-2 flex flex-col justify-between">
-                  <div> {/* Top Section for Car Info */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          {/* Image */}
-                          <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="sm:col-span-1 flex items-center justify-center relative group">
-                             <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-28 group-hover:scale-105 transition-transform duration-300" width={300} height={112} />
-                             {car.hogicarChoice && (
-                                 <div className="absolute top-0 right-0 z-10">
-                                     <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white text-[10px] font-black px-4 py-2 rounded-bl-2xl flex items-center gap-2 shadow-2xl border-b-2 border-l-2 border-amber-500/40 backdrop-blur-sm">
-                                         <Award className="w-4 h-4 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
-                                         <span className="tracking-widest uppercase bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent font-extrabold">Hogicar Choice</span>
-                                     </div>
-                                 </div>
-                             )}
-                             {promotionLabel ? (
-                                 <span className="absolute top-0 left-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-br-lg md:rounded-tl-xl flex items-center gap-1">
-                                     <Gift className="w-3 h-3"/> {promotionLabel}
-                                 </span>
-                             ) : car.tags && car.tags[0] && (
-                                 <span className="absolute top-0 left-0 bg-[#0071c2] text-white text-xs font-bold px-2 py-0.5 rounded-br-lg md:rounded-tl-xl">
-                                     {car.tags[0]}
-                                 </span>
-                             )}
-                          </Link>
-                          
-                          {/* Title & Specs */}
-                          <div className="sm:col-span-2">
-                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
-                                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{car.displayName}</h3>
-                              </Link>
-                              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                                  or similar {car.category}
-                                  <Info className="w-3 h-3 text-slate-400" />
-                              </p>
+              {/* --- LEFT COLUMN: IMAGE & INFO --- */}
+              <div className="md:col-span-2 p-4 md:p-6 flex flex-col sm:flex-row gap-6">
+                  {/* Image Container */}
+                  <Link 
+                    to={`/car/${car.id}?${searchParams}`} 
+                    state={{ cars: cars }} 
+                    onClick={handleSelectCar} 
+                    className="w-full sm:w-48 h-32 flex-shrink-0 flex items-center justify-center relative group bg-slate-50 rounded-xl border border-slate-100 overflow-hidden"
+                  >
+                     <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500" />
+                     
+                     {car.hogicarChoice && (
+                         <div className="absolute top-0 right-0 z-10">
+                             <div className="bg-slate-900 text-white text-[9px] font-black px-3 py-1.5 rounded-bl-xl flex items-center gap-1.5 shadow-lg border-b border-l border-amber-500/40">
+                                 <Award className="w-3.5 h-3.5 text-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                                 <span className="tracking-tighter uppercase text-amber-400">Choice</span>
+                             </div>
+                         </div>
+                     )}
 
-                              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-3 text-xs">
-                                  <div className="flex items-center gap-2 text-slate-700"><Users className="w-4 h-4 text-slate-500"/><span>{car.passengers} seats</span></div>
-                                  <div className="flex items-center gap-2 text-slate-700"><Briefcase className="w-4 h-4 text-slate-500"/><span>{car.bags} bags</span></div>
-                                  <div className="flex items-center gap-2 text-slate-700"><AutomaticIcon /><span>{car.transmission}</span></div>
-                                  <div className="flex items-center gap-2 text-slate-700"><CarDoorIcon /><span>{car.doors} doors</span></div>
-                                  <div className="flex items-center gap-2 text-slate-700"><GaugeCircle className="w-4 h-4 text-slate-500"/><span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span></div>
-                                  <div className="flex items-center gap-2 text-slate-700"><Fuel className="w-4 h-4 text-slate-500"/><span>{car.fuelPolicy}</span></div>
-                              </div>
+                     {promotionLabel ? (
+                         <span className="absolute top-0 left-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg flex items-center gap-1">
+                             <Gift className="w-3 h-3"/> {promotionLabel}
+                         </span>
+                     ) : car.tags && car.tags[0] && (
+                         <span className="absolute top-0 left-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg">
+                             {car.tags[0]}
+                         </span>
+                     )}
+                  </Link>
+                  
+                  {/* Info Section */}
+                  <div className="flex-1 flex flex-col">
+                      <div className="mb-auto">
+                          <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
+                              <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">{car.displayName}</h3>
+                          </Link>
+                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-1.5">
+                              or similar {car.category}
+                              <Info className="w-3 h-3 text-slate-400" />
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 text-[13px]">
+                              <div className="flex items-center gap-2.5 text-slate-600"><Users className="w-4 h-4 text-slate-400"/><span>{car.passengers} seats</span></div>
+                              <div className="flex items-center gap-2.5 text-slate-600"><Briefcase className="w-4 h-4 text-slate-400"/><span>{car.bags} bags</span></div>
+                              <div className="flex items-center gap-2.5 text-slate-600"><AutomaticIcon /><span>{car.transmission}</span></div>
+                              <div className="flex items-center gap-2.5 text-slate-600"><CarDoorIcon /><span>{car.doors} doors</span></div>
+                              <div className="flex items-center gap-2.5 text-slate-600"><GaugeCircle className="w-4 h-4 text-slate-400"/><span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span></div>
+                              <div className="flex items-center gap-2.5 text-slate-600"><Fuel className="w-4 h-4 text-slate-400"/><span>{car.fuelPolicy}</span></div>
                           </div>
                       </div>
+
+                      {/* Social Proof */}
+                      {recentBookingInfo.isRecent && (
+                        <div className="mt-4 inline-flex">
+                          <div className="bg-orange-50 text-orange-700 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-orange-100 shadow-sm animate-pulse">
+                            <Zap className="w-3.5 h-3.5" />
+                            <span>{recentBookingInfo.message}</span>
+                          </div>
+                        </div>
+                      )}
+                  </div>
+              </div>
+
+              {/* --- RIGHT COLUMN: PRICING --- */}
+              <div className="bg-slate-50/50 border-t md:border-t-0 md:border-l border-slate-100 p-6 flex flex-col justify-between">
+                  <div>
+                      <div className="flex flex-col items-end gap-2 mb-4">
+                          {car.hogicarChoice && car.promotionPercent && car.promotionPercent > 0 && (
+                              <div className="flex items-center gap-1.5 bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200">
+                                  <Tag className="w-3 h-3" />
+                                  <span className="text-[10px] font-black uppercase">-{car.promotionPercent}% Secret Deal</span>
+                              </div>
+                          )}
+                          <div className="text-right">
+                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Total for {days} days</p>
+                              <p className="font-black text-slate-900 text-2xl tracking-tight">
+                                  {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
+                              </p>
+                              <p className="text-blue-700 text-xs font-bold mt-1 bg-blue-50 px-2 py-1 rounded-md inline-block">
+                                  Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                              </p>
+                          </div>
+                      </div>
+
+                      <Link 
+                        to={`/car/${car.id}?${searchParams}`} 
+                        state={{ cars: cars }} 
+                        onClick={handleSelectCar} 
+                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] text-center text-sm uppercase tracking-widest"
+                      >
+                          View Deal
+                      </Link>
                   </div>
 
-                  {/* Recent Booking Info */}
-                  {recentBookingInfo.isRecent && (
-                    <div className="mt-4">
-                      <div className="bg-orange-50 text-orange-700 text-xs font-bold p-2 rounded-lg flex items-center gap-2 border border-orange-100 animate-flip-in opacity-0">
-                        <Zap className="w-4 h-4 flex-shrink-0" />
-                        <span>{recentBookingInfo.message}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Bottom Section for Supplier Info */}
-                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div className="mt-6 pt-4 border-t border-slate-100">
                       {!car.hogicarChoice ? (
-                          <div className="flex items-center gap-5">
+                          <div className="flex items-center justify-between gap-2">
                               <img 
                                   src={car.supplier.logo || (car.supplier as any).logoUrl} 
                                   alt={car.supplier.name} 
-                                  className="h-20 md:h-24 w-auto max-w-[160px] md:max-w-[200px] object-contain transition-transform duration-300 logo-scaled-hover" 
+                                  className="h-8 md:h-10 w-auto max-w-[100px] object-contain opacity-80 group-hover/card:opacity-100 transition-opacity" 
                                   style={{ 
                                     '--logo-scale': (car.supplier.logoScale || 100) / 100,
                                     '--logo-scale-mobile': (car.supplier.logoScaleMobile || 100) / 100
                                   } as any}
-                                  width={200} 
-                                  height={96} 
                               />
-                              <div className="border-l border-slate-200 pl-5 group">
-                                  <div className="flex items-center gap-1 relative">
-                                      <div className="bg-blue-600 text-white text-[10px] font-bold w-6 h-5 flex items-center justify-center rounded">
+                              <div className="flex flex-col items-end">
+                                  <div className="flex items-center gap-1.5">
+                                      <div className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                                           {car.supplier.rating}
                                       </div>
-                                      <p className="text-xs font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</p>
-                                      {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
+                                      <span className="text-[11px] font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</span>
                                   </div>
-                                  <p className="text-[10px] text-slate-500">{Math.round(car.supplier.rating * 250)}+ reviews</p>
-                                   <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-blue-600 hover:underline font-medium mt-1">
-                                      Rental Conditions
+                                  <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-slate-400 hover:text-blue-600 transition-colors mt-1 font-medium underline underline-offset-2">
+                                     Rental Conditions
                                   </button>
                               </div>
                           </div>
                       ) : (
-                          <div className="flex items-center gap-4 py-2 px-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-inner border border-amber-500/20 w-full overflow-hidden relative group/choice">
-                              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent opacity-0 group-hover/choice:opacity-100 transition-opacity duration-700"></div>
-                              <div className="w-10 h-10 rounded-full bg-slate-800 shadow-xl flex items-center justify-center border border-amber-500/30">
-                                  <Award className="w-5 h-5 text-amber-400" />
-                              </div>
-                              <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                      <span className="text-xs font-black text-white tracking-wide uppercase">Hogicar Exclusive</span>
-                                      <div className="bg-amber-400 w-1 h-1 rounded-full animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]"></div>
+                          <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                  <div className="p-1 bg-slate-900 rounded-lg shadow-md border border-amber-500/20">
+                                      <Award className="w-3.5 h-3.5 text-amber-400" />
                                   </div>
-                                  <p className="text-[9px] text-amber-200/70 uppercase tracking-[0.2em] font-bold mt-0.5">Premium Fleet · Verified Quality</p>
+                                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight">Hogicar Exclusive</span>
                               </div>
-                              <button onClick={() => setIsConditionsModalOpen(true)} className="relative z-10 text-[9px] font-black bg-amber-500 text-slate-900 px-3 py-1.5 rounded-lg border border-amber-400 hover:bg-amber-400 transition-all shadow-lg active:scale-95 uppercase tracking-tighter">
-                                  Conditions
+                              <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-slate-400 hover:text-amber-600 transition-colors font-medium underline underline-offset-2 text-left">
+                                 Rental Conditions
                               </button>
                           </div>
                       )}
-                      
-                      {!car.hogicarChoice && (() => {
-                          const pickupType = car.supplier?.pickupType;
-                          if (pickupType === 'IN_TERMINAL') {
-                              return (
-                                  <span className="flex items-center gap-1.5 bg-green-50 text-green-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Plane className="w-3 h-3" />
-                                      In Terminal
-                                  </span>
-                              );
-                          } else if (pickupType === 'MEET_AND_GREET') {
-                              return (
-                                  <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Handshake className="w-3 h-3" />
-                                      Meet & Greet
-                                  </span>
-                              );
-                          } else if (pickupType === 'SHUTTLE_BUS') {
-                              return (
-                                  <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Bus className="w-3 h-3" />
-                                      Shuttle Bus
-                                  </span>
-                              );
-                          }
-
-                          // Fallback to legacy locationDetail logic
-                          const detail = (car.locationDetail || '').toLowerCase();
-                          if (detail.includes('in terminal')) {
-                              return (
-                                  <span className="flex items-center gap-1.5 bg-green-50 text-green-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Plane className="w-3 h-3" />
-                                      In Terminal
-                                  </span>
-                              );
-                          }
-                          if (detail.includes('meet')) {
-                              return (
-                                  <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Handshake className="w-3 h-3" />
-                                      Meet & Greet
-                                  </span>
-                              );
-                          }
-                          if (detail.includes('shuttle')) {
-                              return (
-                                  <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 font-bold px-2 py-1 rounded-full text-[10px]">
-                                      <Bus className="w-3 h-3" />
-                                      Shuttle Bus
-                                  </span>
-                              );
-                          }
-                          return car.locationDetail ? (
-                              <span className="flex items-center gap-1.5 bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-full text-[10px]">
-                                 {car.locationDetail}
-                              </span>
-                          ) : null;
-                      })()}
-
-                  </div>
-              </div>
-
-              {/* --- RIGHT COLUMN: PRICE & CTA --- */}
-              <div className="md:col-span-1 flex flex-col justify-end md:border-l md:border-slate-100 md:pl-4 pt-4 md:pt-0 border-t border-slate-100">
-                  <div className="text-right flex flex-col items-end gap-2">
-                      {car.hogicarChoice && car.promotionPercent && car.promotionPercent > 0 && (
-                          <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-100">
-                              <Tag className="w-2.5 h-2.5" />
-                              <span className="text-[10px] font-black uppercase">-{car.promotionPercent}% Secret Deal</span>
-                          </div>
-                      )}
-                      <div>
-                          <p className="font-bold text-slate-900 text-lg">
-                              Total: {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
-                          </p>
-                          <p className="text-green-800 text-sm font-medium mt-1">
-                              Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
-                          </p>
-                      </div>
-                      <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="mt-2 w-full md:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-transform active:scale-95 text-center text-sm">
-                          View Deal
-                      </Link>
                   </div>
               </div>
           </div>

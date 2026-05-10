@@ -268,9 +268,19 @@ const CarDetails: React.FC = () => {
             <div className="lg:col-span-2 space-y-6 sm:space-y-7">
               {/* Hero Section - smaller image + modern layout */}
               <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 overflow-hidden">
-                <div className="relative">
+                <div className="relative bg-slate-50 border-b border-slate-100">
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
-                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-36 lg:h-44 object-contain" />
+                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-40 lg:h-56 object-contain p-4" />
+                  
+                  {car.hogicarChoice && (
+                    <div className="absolute top-0 right-0 z-10">
+                        <div className="bg-slate-900 text-white text-[10px] font-black px-4 py-2 rounded-bl-2xl flex items-center gap-2 shadow-2xl border-b border-l border-amber-500/40 backdrop-blur-sm">
+                            <Award className="w-4 h-4 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                            <span className="tracking-widest uppercase bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent font-black">Hogicar Choice</span>
+                        </div>
+                    </div>
+                  )}
+
                   <div className="absolute top-4 left-4 flex gap-2">
                     <span className="bg-black/70 text-white text-sm px-3 py-1 rounded-full">{car.category}</span>
                     {car.tags?.[0] && <span className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">{car.tags[0]}</span>}
@@ -282,12 +292,6 @@ const CarDetails: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-3">
                         <h1 className="text-xl sm:text-2xl lg:text-[1.8rem] font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
-                        {car.hogicarChoice && (
-                          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white text-[10px] font-black px-5 py-2.5 rounded-full flex items-center gap-2.5 shadow-2xl border-b border-l border-amber-500/30">
-                              <Award className="w-4 h-4 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
-                              <span className="tracking-[0.2em] uppercase bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent font-black">Hogicar Choice</span>
-                          </div>
-                        )}
                       </div>
                       <p className="text-slate-700 text-base mt-1">or similar · {car.year}</p>
                       <div className="flex flex-wrap gap-4 mt-4">
