@@ -149,7 +149,7 @@ const Searching: React.FC = () => {
     "All our suppliers are strictly vetted for quality.",
     "Prices are guaranteed once you book.",
     "Save up to 40% with local suppliers!",
-    "Instant confirmation for most car types.",
+    "Guaranteed instant confirmation on all cars.",
     "24/7 Premium support for all bookings.",
     "Transparent pricing - no hidden surprises.",
   ];

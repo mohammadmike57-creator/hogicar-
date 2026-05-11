@@ -301,9 +301,9 @@ const CarDetails: React.FC = () => {
                         <Zap className="w-5 h-5 text-blue-600" />
                         <span className="text-sm font-bold text-blue-800">Available now</span>
                       </div>
-                      {car.supplier.bookingMode === 'FREE_SALE' && (
-                        <div className="bg-emerald-100/80 px-4 py-2 rounded-xl flex items-center gap-2 border border-emerald-200">
-                          <CheckCircle className="w-5 h-5 text-[#008009]" />
+                      {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
+                        <div className="bg-emerald-50 px-4 py-2 rounded-xl flex items-center gap-2 border border-[#008009]/10 shadow-sm">
+                          <Zap className="w-5 h-5 text-[#008009] fill-[#008009]/20" />
                           <span className="text-sm font-bold text-[#008009]">Instant Confirmation</span>
                         </div>
                       )}

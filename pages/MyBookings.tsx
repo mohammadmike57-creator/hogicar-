@@ -297,7 +297,15 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                          <img src={car.image} alt={car.model} className="w-48 object-contain" />
                          <div className="flex-grow text-center sm:text-left">
-                             <h3 className="text-xl font-bold text-slate-900">{car.make} {car.model}</h3>
+                             <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                 <h3 className="text-xl font-bold text-slate-900">{car.make} {car.model}</h3>
+                                 {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
+                                     <div className="flex items-center gap-1 bg-emerald-50 text-[#008009] px-2 py-0.5 rounded text-[10px] font-black uppercase border border-emerald-100 shadow-sm">
+                                         <Zap className="w-2.5 h-2.5 fill-[#008009]/20" />
+                                         Instant
+                                     </div>
+                                 )}
+                             </div>
                              <p className="text-sm text-slate-500 mb-4">or similar {car.category} class</p>
                              <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                                  <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">{car.transmission}</span>

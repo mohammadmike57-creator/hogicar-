@@ -148,8 +148,16 @@ const Confirmation: React.FC = () => {
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Details</h3>
                   <div className="flex items-center gap-4">
                     {car && <img src={car.image} alt={car.model} className="w-32 h-20 object-cover rounded-lg" />}
-                    <div>
-                      <p className="font-bold text-slate-800">{car?.make} {car?.model || booking.carName || "Car"}</p>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-slate-800">{car?.make} {car?.model || booking.carName || "Car"}</p>
+                        {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
+                          <div className="flex items-center gap-1 bg-emerald-50 text-[#008009] px-2 py-0.5 rounded text-[10px] font-black uppercase border border-emerald-100 shadow-sm">
+                             <Zap className="w-2.5 h-2.5 fill-[#008009]/20" />
+                             Instant
+                          </div>
+                        )}
+                      </div>
                       <p className="text-sm text-slate-500">{car?.category}</p>
                     </div>
                   </div>
