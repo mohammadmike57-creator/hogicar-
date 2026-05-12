@@ -514,6 +514,12 @@ export interface BandConfig {
   label?: string;
 }
 
+export interface BondConfig {
+  name: string;
+  price: number;
+  description?: string;
+}
+
 export interface PeriodConfig {
   name: string;
   startDate: string;
@@ -526,6 +532,7 @@ export interface TemplateConfig {
   currency: string;
   locationCode?: string;
   bands: BandConfig[]; // Global bands
+  bonds?: BondConfig[]; // Global bonds/deposits
   periods: PeriodConfig[];
   oneWayFee?: number;
   gracePeriodHours?: number;

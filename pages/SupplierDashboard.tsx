@@ -1102,15 +1102,37 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5">
-                                                        <div className="relative max-w-[120px]">
-                                                            <input
-                                                                type="text"
-                                                                value={band.deposit}
-                                                                onChange={(e) => handleGridInput(key, bIdx, 'deposit', e.target.value)}
-                                                                placeholder="0"
-                                                                className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-xs font-black text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-                                                            />
-                                                            <Shield className="w-3 h-3 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                        <div className="relative max-w-[140px] flex items-center gap-2">
+                                                            <div className="relative flex-1">
+                                                                <input
+                                                                    type="text"
+                                                                    value={band.deposit}
+                                                                    onChange={(e) => handleGridInput(key, bIdx, 'deposit', e.target.value)}
+                                                                    placeholder="0"
+                                                                    className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-xs font-black text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+                                                                />
+                                                                <Shield className="w-3 h-3 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                            </div>
+                                                            {config.bonds && config.bonds.length > 0 && (
+                                                                <div className="group/dropdown relative">
+                                                                    <button className="p-2 bg-gray-50 hover:bg-blue-50 rounded-xl border border-gray-100 text-blue-600 transition-colors">
+                                                                        <Plus className="w-3 h-3" />
+                                                                    </button>
+                                                                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 hidden group-hover/dropdown:block z-50">
+                                                                        <p className="px-4 pb-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 mb-2">Select Bond</p>
+                                                                        {config.bonds.map((b, i) => (
+                                                                            <button 
+                                                                                key={i}
+                                                                                onClick={() => handleGridInput(key, bIdx, 'deposit', String(b.price))}
+                                                                                className="w-full px-4 py-2 text-left hover:bg-blue-50 transition-colors"
+                                                                            >
+                                                                                <p className="text-[10px] font-black text-gray-900">{b.name}</p>
+                                                                                <p className="text-[9px] font-bold text-blue-600">{config.currency} {b.price}</p>
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -2168,6 +2190,23 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
         setLocalConfig({ ...localConfig, periods: newPeriods });
     };
 
+    const addBond = () => {
+        const newBond = { name: 'Standard Bond', price: 500, description: '' };
+        setLocalConfig({ ...localConfig, bonds: [...(localConfig.bonds || []), newBond] });
+    };
+
+    const removeBond = (index: number) => {
+        const newBonds = [...(localConfig.bonds || [])];
+        newBonds.splice(index, 1);
+        setLocalConfig({ ...localConfig, bonds: newBonds });
+    };
+
+    const updateBond = (index: number, field: string, value: any) => {
+        const newBonds = [...(localConfig.bonds || [])];
+        newBonds[index] = { ...newBonds[index], [field]: value };
+        setLocalConfig({ ...localConfig, bonds: newBonds });
+    };
+
     const handleInherit = async (sourceLoc: string) => {
         if (!confirm(`This will overwrite your current settings for this location with the ones from ${sourceLoc}. Continue?`)) return;
         try {
@@ -2307,14 +2346,14 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     </div>
                 </div>
 
-                {/* Pricing Bonds */}
+                {/* Rental Duration Bands */}
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <Clock className="w-5 h-5 text-orange-600" />
-                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Global Pricing Bonds</h3>
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Rental Duration Bands</h3>
                         </div>
-                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Bond</button>
+                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Band</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {localConfig.bands?.map((band, idx) => (
@@ -2327,10 +2366,46 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                                     <InputField label="Max Days" type="number" value={band.maxDays || ''} onChange={(e:any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
                                 </div>
                                 <div className="mt-4">
-                                    <InputField label="Bond Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
+                                    <InputField label="Band Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+
+                {/* Security Bonds */}
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <Shield className="w-5 h-5 text-orange-600" />
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Security Bonds</h3>
+                        </div>
+                        <button onClick={addBond} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Bond</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {localConfig.bonds?.map((bond, idx) => (
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-orange-200 transition-all">
+                                <button onClick={() => removeBond(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                <div className="space-y-4">
+                                    <InputField label="Bond Name" value={bond.name} onChange={(e:any) => updateBond(idx, 'name', e.target.value)} />
+                                    <InputField 
+                                        label="Bond Price / Deposit" 
+                                        type="number" 
+                                        prefix={localConfig.currency}
+                                        value={bond.price} 
+                                        onChange={(e:any) => updateBond(idx, 'price', parseFloat(e.target.value) || 0)} 
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        {(!localConfig.bonds || localConfig.bonds.length === 0) && (
+                            <div className="md:col-span-2 py-10 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center text-gray-400">
+                                <Shield className="w-8 h-8 mb-2 opacity-20" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">No security bonds defined</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
