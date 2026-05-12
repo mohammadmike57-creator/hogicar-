@@ -3,7 +3,7 @@
 import * as React from 'react';
 import SEOMetadata from '../components/SEOMetadata';
 import { Building, Car, Globe, CheckCircle, ArrowRight, BarChart3, ShieldCheck, Database, Send } from 'lucide-react';
-import { submitSupplierApplication } from '../services/mockData';
+import { api } from '../api';
 import { SupplierApplication } from '../types';
 
 const BecomeSupplier: React.FC = () => {
@@ -20,14 +20,16 @@ const BecomeSupplier: React.FC = () => {
     integrationType: 'api'
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API submission and save to mock DB
-    setTimeout(() => {
-        submitSupplierApplication(formData);
+    try {
+        await api.submitPartnerApplication(formData);
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1000);
+    } catch (err) {
+        console.error('Failed to submit application:', err);
+        alert('Failed to submit application. Please try again later.');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

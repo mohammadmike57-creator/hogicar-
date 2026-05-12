@@ -2821,7 +2821,7 @@ export const AdminDashboard: React.FC = () => {
   const [loadingFleet, setLoadingFleet] = useState(false);
   const [carLibrary, setCarLibrary] = useState<any[]>([]);
   const [loadingCarLibrary, setLoadingCarLibrary] = useState(false);
-  const [supplierApps, setSupplierApps] = useState(MOCK_SUPPLIER_APPLICATIONS);
+  const [supplierApps, setSupplierApps] = useState<any[]>([]);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<any>(null);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
@@ -2891,6 +2891,15 @@ export const AdminDashboard: React.FC = () => {
     if (next.has(id)) next.delete(id);
     else next.add(id);
     setRevealedPasswords(next);
+  };
+
+  const fetchSupplierApps = async () => {
+    try {
+      const res = await adminFetch('/api/partner-applications/admin/all');
+      setSupplierApps(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('Failed to fetch supplier applications', e);
+    }
   };
 
   const fetchSuppliers = async () => {
@@ -2983,6 +2992,7 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => { 
     fetchSuppliers(); 
     fetchCarLibrary();
+    fetchSupplierApps();
   }, []);
 
   useEffect(() => {
@@ -3054,8 +3064,8 @@ export const AdminDashboard: React.FC = () => {
       await fetchSuppliers();
       setEditingSupplier(null);
       if (approvingApplication) { 
-        removeSupplierApplication(approvingApplication.id); 
-        setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); 
+        await adminFetch(`/api/partner-applications/admin/${approvingApplication.id}`, { method: 'DELETE' });
+        fetchSupplierApps();
         setApprovingApplication(null); 
       }
     } catch (err: any) { 
@@ -3127,7 +3137,16 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
   const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
   const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
-  const handleRejectApplication = (id: string) => { if (confirm('Reject?')) { removeSupplierApplication(id); setSupplierApps([...MOCK_SUPPLIER_APPLICATIONS]); } };
+  const handleRejectApplication = async (id: string) => { 
+    if (confirm('Are you sure you want to reject and delete this application?')) { 
+      try {
+        await adminFetch(`/api/partner-applications/admin/${id}`, { method: 'DELETE' });
+        fetchSupplierApps();
+      } catch (e) {
+        alert("Failed to reject application");
+      }
+    } 
+  };
   const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
   const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
   const handleNewSeo = () => { setEditingSeoConfig({}); setIsSeoEditorOpen(true); };

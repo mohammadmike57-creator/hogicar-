@@ -482,7 +482,7 @@ export interface CarModel {
 }
 
 export interface SupplierApplication {
-  id: string;
+  id: string | number;
   companyName: string;
   website: string;
   contactName: string;

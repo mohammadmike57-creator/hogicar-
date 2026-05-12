@@ -242,6 +242,11 @@ export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]>
   }
 };
 
+export const submitPartnerApplication = async (data: any): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/partner-applications/submit`, data);
+  return response.data;
+};
+
 // ---------- Backward‑compatible api object ----------
 export const api = {
   fetchLocations,
@@ -258,6 +263,7 @@ export const api = {
   fetchHomepageLogos,
   fetchHomepageContent,
   fetchSearchingLogos,
+  submitPartnerApplication,
 };
 
 // ---------- Supplier API ----------
@@ -331,4 +337,7 @@ export const adminApi = {
   updateSearchingLogo: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/searching-logos/${id}`, payload),
   deleteSearchingLogo: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/searching-logos/${id}`),
   fixData: () => adminAxios.post(`${API_BASE_URL}/api/admin/suppliers/fix-data`),
+  
+  getPartnerApplications: () => adminAxios.get(`${API_BASE_URL}/api/partner-applications/admin/all`),
+  deletePartnerApplication: (id: number | string) => adminAxios.delete(`${API_BASE_URL}/api/partner-applications/admin/${id}`),
 };
