@@ -142,7 +142,9 @@ const CarDetails: React.FC = () => {
   // Load car from sessionStorage / state / API
   React.useEffect(() => {
     const loadCar = async () => {
-      setLoading(true);
+      if (!car || String(car.id) !== String(id)) {
+        setLoading(true);
+      }
       setError(null);
 
       // 1. sessionStorage
@@ -160,7 +162,13 @@ const CarDetails: React.FC = () => {
       if (storedCarsRaw) {
         try {
           const parsed = JSON.parse(storedCarsRaw);
-          if (Array.isArray(parsed)) foundCars = parsed;
+          if (Array.isArray(parsed)) {
+            foundCars = parsed;
+            // Also search in foundCars if not found yet
+            if (!foundCar && id) {
+              foundCar = foundCars.find((c: Car) => String(c.id) === String(id)) || null;
+            }
+          }
         } catch (e) {}
       }
 
@@ -182,6 +190,9 @@ const CarDetails: React.FC = () => {
       if (foundCar) {
         setCar(foundCar);
         setCars(foundCars.length ? foundCars : [foundCar]);
+        // Update session storage so refresh works on the new car
+        sessionStorage.setItem('hogicar_selectedCarId', String(foundCar.id));
+        sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(foundCar));
       } else {
         setError('Car not found. Please go back to search results.');
       }
@@ -436,11 +447,14 @@ const CarDetails: React.FC = () => {
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).slice(0, 4).map(similar => (
-                      <Link 
+                      <button 
                         key={similar.id} 
-                        to={`/car/${similar.id}?${bookingParams}`} 
-                        className="flex gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition-all hover:border-blue-400"
-                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        onClick={() => {
+                          setCar(similar);
+                          navigate(`/car/${similar.id}?${bookingParams}`, { replace: true });
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="flex text-left gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition-all hover:border-blue-400 w-full"
                       >
                         <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain rounded-lg" />
                         <div className="flex-1">
@@ -448,7 +462,7 @@ const CarDetails: React.FC = () => {
                           <div className="text-sm text-slate-500">{similar.category}</div>
                           <div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)} total</div>
                         </div>
-                      </Link>
+                      </button>
                     ))}
                   </div>
                 </div>
