@@ -109,8 +109,30 @@ const Home: React.FC = () => {
     const loadSettings = async () => {
       try {
         const settings = await fetchSiteSettings();
-        if (settings && settings.heroImageUrl) {
-          setHeroImageUrl(settings.heroImageUrl);
+        if (settings) {
+          if (settings.heroImageUrl) {
+            setHeroImageUrl(settings.heroImageUrl);
+          }
+          
+          // Apply theme colors globally from settings
+          const primary = settings.themePrimaryColor || '#ea580c';
+          const secondary = settings.themeSecondaryColor || '#0f172a';
+          const heroBg = settings.themeHeroBg || '#f8fafc';
+          const footerBg = settings.themeFooterBg || '#0f172a';
+          const layoutBg = settings.themeLayoutBg || '#ffffff';
+
+          document.documentElement.style.setProperty('--primary-color', primary);
+          document.documentElement.style.setProperty('--secondary-color', secondary);
+          document.documentElement.style.setProperty('--hero-bg', heroBg);
+          document.documentElement.style.setProperty('--footer-bg', footerBg);
+          document.documentElement.style.setProperty('--layout-bg', layoutBg);
+          
+          const hexToRgb = (hex: string) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 99, 235';
+          };
+          document.documentElement.style.setProperty('--primary-rgb', hexToRgb(primary));
+          document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(secondary));
         }
       } catch (err) {
         console.error("Failed to load settings:", err);
@@ -227,7 +249,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="bg-white font-sans text-slate-900 overflow-x-hidden">
+    <div className="font-sans text-slate-900 overflow-x-hidden" style={{ backgroundColor: 'var(--layout-bg, #ffffff)' }}>
       <SEOMetadata
         title="Hogicar | Affordable Car Rentals Worldwide"
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
@@ -236,7 +258,7 @@ const Home: React.FC = () => {
       {/* HERO – classic centered layout */}
       <section 
         className="pt-28 pb-10 lg:pt-40 lg:pb-24 text-white relative overflow-hidden"
-        style={{ backgroundColor: 'var(--secondary-color, #003580)' }}
+        style={{ backgroundColor: 'var(--hero-bg, #003580)' }}
       >
         {/* Animated Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

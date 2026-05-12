@@ -1436,6 +1436,9 @@ export let MOCK_APP_CONFIG = {
   commissionPercent: 15,
   themePrimaryColor: '#ea580c', // orange-600
   themeSecondaryColor: '#0f172a', // slate-900
+  themeHeroBg: '#f8fafc', // slate-50
+  themeFooterBg: '#0f172a', // slate-900
+  themeLayoutBg: '#ffffff', // white
 };
 
 export let MOCK_PROMO_CODES: PromoCode[] = [

@@ -42,9 +42,15 @@ const App: React.FC = () => {
     // Apply theme colors from config
     const primary = MOCK_APP_CONFIG.themePrimaryColor || '#ea580c';
     const secondary = MOCK_APP_CONFIG.themeSecondaryColor || '#0f172a';
+    const heroBg = MOCK_APP_CONFIG.themeHeroBg || '#f8fafc';
+    const footerBg = MOCK_APP_CONFIG.themeFooterBg || '#0f172a';
+    const layoutBg = MOCK_APP_CONFIG.themeLayoutBg || '#ffffff';
     
     document.documentElement.style.setProperty('--primary-color', primary);
     document.documentElement.style.setProperty('--secondary-color', secondary);
+    document.documentElement.style.setProperty('--hero-bg', heroBg);
+    document.documentElement.style.setProperty('--footer-bg', footerBg);
+    document.documentElement.style.setProperty('--layout-bg', layoutBg);
 
     // Convert hex to RGB for alpha support
     const hexToRgb = (hex: string) => {
@@ -52,6 +58,7 @@ const App: React.FC = () => {
       return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 99, 235';
     };
     document.documentElement.style.setProperty('--primary-rgb', hexToRgb(primary));
+    document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(secondary));
   }, []);
 
   return (

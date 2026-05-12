@@ -45,7 +45,7 @@ const PciDssIcon = () => (
 const FullFooter = () => (
     <footer 
         className="text-white pt-24 pb-12 relative overflow-hidden"
-        style={{ backgroundColor: 'var(--secondary-color, #003580)' }}
+        style={{ backgroundColor: 'var(--footer-bg, var(--secondary-color, #003580))' }}
     >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
@@ -168,7 +168,7 @@ const Layout: React.FC = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
+    <div className="min-h-screen flex flex-col text-slate-900 text-sm font-sans" style={{ backgroundColor: 'var(--layout-bg, #f8fafc)' }}>
       {/* HEADER */}
       <header 
         className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-700 ${
@@ -178,8 +178,8 @@ const Layout: React.FC = () => {
         }`}
         style={{ 
           backgroundColor: isHomePage 
-            ? (isScrolled ? 'rgba(0, 53, 128, 0.85)' : 'transparent') 
-            : 'var(--secondary-color, #003580)',
+            ? (isScrolled ? 'rgba(var(--secondary-rgb, 0, 53, 128), 0.85)' : 'transparent') 
+            : 'var(--footer-bg, var(--secondary-color, #003580))',
           borderBottom: isScrolled || !isHomePage ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent'
         }}
       >
@@ -262,7 +262,7 @@ const Layout: React.FC = () => {
           <div 
             className="md:hidden border-t w-full shadow-xl z-50"
             style={{ 
-              backgroundColor: 'var(--secondary-color, #003580)',
+              backgroundColor: 'var(--footer-bg, var(--secondary-color, #003580))',
               borderColor: 'rgba(255,255,255,0.1)'
             }}
           >

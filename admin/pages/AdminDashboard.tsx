@@ -1293,6 +1293,9 @@ const SiteSettingsContent = () => {
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#ea580c');
   const [secondaryColor, setSecondaryColor] = useState('#0f172a');
+  const [heroBgColor, setHeroBgColor] = useState('#f8fafc');
+  const [footerBgColor, setFooterBgColor] = useState('#0f172a');
+  const [layoutBgColor, setLayoutBgColor] = useState('#ffffff');
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
@@ -1303,6 +1306,9 @@ const SiteSettingsContent = () => {
         setHeroImageUrl(data.heroImageUrl || '');
         setPrimaryColor(data.themePrimaryColor || '#ea580c');
         setSecondaryColor(data.themeSecondaryColor || '#0f172a');
+        setHeroBgColor(data.themeHeroBg || '#f8fafc');
+        setFooterBgColor(data.themeFooterBg || '#0f172a');
+        setLayoutBgColor(data.themeLayoutBg || '#ffffff');
         setLoading(false);
       })
       .catch(err => {
@@ -1311,6 +1317,9 @@ const SiteSettingsContent = () => {
         setDuration(MOCK_APP_CONFIG.searchingScreenDuration / 1000);
         setPrimaryColor(MOCK_APP_CONFIG.themePrimaryColor);
         setSecondaryColor(MOCK_APP_CONFIG.themeSecondaryColor);
+        setHeroBgColor(MOCK_APP_CONFIG.themeHeroBg || '#f8fafc');
+        setFooterBgColor(MOCK_APP_CONFIG.themeFooterBg || '#0f172a');
+        setLayoutBgColor(MOCK_APP_CONFIG.themeLayoutBg || '#ffffff');
         setLoading(false);
       });
   }, []);
@@ -1323,24 +1332,34 @@ const SiteSettingsContent = () => {
         searchingScreenDuration: duration * 1000,
         heroImageUrl: heroImageUrl,
         themePrimaryColor: primaryColor,
-        themeSecondaryColor: secondaryColor
+        themeSecondaryColor: secondaryColor,
+        themeHeroBg: heroBgColor,
+        themeFooterBg: footerBgColor,
+        themeLayoutBg: layoutBgColor
       })
     })
     .then(() => {
       updateAppConfig({ 
         searchingScreenDuration: duration * 1000,
         themePrimaryColor: primaryColor,
-        themeSecondaryColor: secondaryColor
+        themeSecondaryColor: secondaryColor,
+        themeHeroBg: heroBgColor,
+        themeFooterBg: footerBgColor,
+        themeLayoutBg: layoutBgColor
       });
       // Apply colors immediately to preview
       document.documentElement.style.setProperty('--primary-color', primaryColor);
       document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+      document.documentElement.style.setProperty('--hero-bg', heroBgColor);
+      document.documentElement.style.setProperty('--footer-bg', footerBgColor);
+      document.documentElement.style.setProperty('--layout-bg', layoutBgColor);
       
       const hexToRgb = (hex: string) => {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 99, 235';
       };
       document.documentElement.style.setProperty('--primary-rgb', hexToRgb(primaryColor));
+      document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(secondaryColor));
       
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -1408,6 +1427,60 @@ const SiteSettingsContent = () => {
                 type="text" 
                 value={secondaryColor} 
                 onChange={e => setSecondaryColor(e.target.value)}
+                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hero Section Background</label>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={heroBgColor} 
+                onChange={e => setHeroBgColor(e.target.value)}
+                className="w-12 h-12 rounded-xl border-none cursor-pointer"
+              />
+              <input 
+                type="text" 
+                value={heroBgColor} 
+                onChange={e => setHeroBgColor(e.target.value)}
+                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Footer Background</label>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={footerBgColor} 
+                onChange={e => setFooterBgColor(e.target.value)}
+                className="w-12 h-12 rounded-xl border-none cursor-pointer"
+              />
+              <input 
+                type="text" 
+                value={footerBgColor} 
+                onChange={e => setFooterBgColor(e.target.value)}
+                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">General Layout Background</label>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={layoutBgColor} 
+                onChange={e => setLayoutBgColor(e.target.value)}
+                className="w-12 h-12 rounded-xl border-none cursor-pointer"
+              />
+              <input 
+                type="text" 
+                value={layoutBgColor} 
+                onChange={e => setLayoutBgColor(e.target.value)}
                 className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
               />
             </div>
