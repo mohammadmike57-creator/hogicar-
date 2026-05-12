@@ -775,12 +775,12 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
     const [selectedSipps, setSelectedSipps] = useState<string[]>([]);
     
     const [selectedPeriodIdxs, setSelectedPeriodIdxs] = useState<number[]>([]);
-    const [isCustomPeriodActive, setIsCustomPeriodActive] = useState(false);
-    const [customPeriod, setCustomPeriod] = useState({
+    const [activePeriodTab, setActivePeriodTab] = useState<'seasons' | 'custom'>('seasons');
+    const [customPeriods, setCustomPeriods] = useState<any[]>([{
         name: 'Manual Update',
         startDate: format(new Date(), 'yyyy-MM-dd'),
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
-    });
+    }]);
 
     const [sessionBands, setSessionBands] = useState<BandConfig[]>(config.bands?.length ? config.bands : [{ minDays: 1, maxDays: null, perMonth: false }]);
     const [gridData, setGridData] = useState<Record<string, { dailyRate: string, deposit: string }[]>>({}); // key: targetId-period-range
@@ -811,14 +811,14 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
 
     const activePeriods = useMemo(() => {
         const list = (selectedPeriodIdxs || []).map(idx => config.periods![idx]);
-        if (isCustomPeriodActive) {
+        customPeriods.forEach(cp => {
             list.push({
-                ...customPeriod,
+                ...cp,
                 bands: sessionBands
             });
-        }
+        });
         return list;
-    }, [selectedPeriodIdxs, isCustomPeriodActive, customPeriod, config, sessionBands]);
+    }, [selectedPeriodIdxs, customPeriods, config, sessionBands]);
 
     const combinations = useMemo(() => {
         const res: { target: any, period: any }[] = [];
@@ -971,6 +971,22 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
         else if (targetType === 'sipp') setSelectedSipps([]);
     };
 
+    const addCustomPeriod = () => {
+        setCustomPeriods([...customPeriods, {
+            name: `Manual Update ${customPeriods.length + 1}`,
+            startDate: format(new Date(), 'yyyy-MM-dd'),
+            endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
+        }]);
+    };
+
+    const removeCustomPeriod = (idx: number) => {
+        setCustomPeriods(customPeriods.filter((_, i) => i !== idx));
+    };
+
+    const updateCustomPeriod = (idx: number, field: string, value: string) => {
+        setCustomPeriods(customPeriods.map((p, i) => i === idx ? { ...p, [field]: value } : p));
+    };
+
     const togglePeriod = (idx: number) => {
         setSelectedPeriodIdxs(prev =>
             prev.includes(idx) ? prev.filter(v => v !== idx) : [...prev, idx]
@@ -1083,62 +1099,99 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                         <div className="space-y-2">
                             <div className="flex p-1 bg-gray-50 rounded-xl mb-4">
                                 <button 
-                                    onClick={() => setIsCustomPeriodActive(false)}
-                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${!isCustomPeriodActive ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400'}`}
+                                    onClick={() => setActivePeriodTab('seasons')}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activePeriodTab === 'seasons' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400'}`}
                                 >
-                                    Seasons
+                                    Seasons ({selectedPeriodIdxs.length})
                                 </button>
                                 <button 
-                                    onClick={() => setIsCustomPeriodActive(true)}
-                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${isCustomPeriodActive ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400'}`}
+                                    onClick={() => setActivePeriodTab('custom')}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activePeriodTab === 'custom' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400'}`}
                                 >
-                                    Custom
+                                    Custom ({customPeriods.length})
                                 </button>
                             </div>
 
-                            {!isCustomPeriodActive ? (
+                            {activePeriodTab === 'seasons' ? (
                                 <div className="space-y-2">
-                                    {config.periods?.map((p, idx) => {
-                                        const isSelected = selectedPeriodIdxs.includes(idx);
-                                        return (
-                                            <button
-                                                key={idx}
-                                                onClick={() => togglePeriod(idx)}
-                                                className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
-                                                    isSelected 
-                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' 
-                                                    : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200 hover:bg-blue-50'
-                                                }`}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{p.name}</span>
-                                                    <span className={`text-[9px] font-bold ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>{p.startDate} - {p.endDate}</span>
-                                                </div>
-                                                {isSelected && <Check className="w-4 h-4" />}
-                                            </button>
-                                        );
-                                    })}
+                                    {config.periods?.length > 0 ? (
+                                        config.periods.map((p, idx) => {
+                                            const isSelected = selectedPeriodIdxs.includes(idx);
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => togglePeriod(idx)}
+                                                    className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
+                                                        isSelected 
+                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' 
+                                                        : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200 hover:bg-blue-50'
+                                                    }`}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{p.name}</span>
+                                                        <span className={`text-[9px] font-bold ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>{p.startDate} - {p.endDate}</span>
+                                                    </div>
+                                                    {isSelected && <Check className="w-4 h-4" />}
+                                                </button>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="py-8 text-center border-2 border-dashed border-gray-50 rounded-2xl">
+                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No predefined seasons</p>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <div className="space-y-1">
-                                        <label className="text-[8px] font-black text-gray-400 uppercase">Start Date</label>
-                                        <input 
-                                            type="date" 
-                                            value={customPeriod.startDate}
-                                            onChange={e => setCustomPeriod({...customPeriod, startDate: e.target.value})}
-                                            className="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-[10px] font-black outline-none focus:border-orange-500"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[8px] font-black text-gray-400 uppercase">End Date</label>
-                                        <input 
-                                            type="date" 
-                                            value={customPeriod.endDate}
-                                            onChange={e => setCustomPeriod({...customPeriod, endDate: e.target.value})}
-                                            className="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-[10px] font-black outline-none focus:border-orange-500"
-                                        />
-                                    </div>
+                                    {customPeriods.map((cp, idx) => (
+                                        <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 relative group/period">
+                                            {customPeriods.length > 1 && (
+                                                <button 
+                                                    onClick={() => removeCustomPeriod(idx)}
+                                                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover/period:opacity-100 transition-opacity z-10"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            )}
+                                            <div className="space-y-3">
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black text-gray-400 uppercase">Period Name</label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={cp.name}
+                                                        onChange={e => updateCustomPeriod(idx, 'name', e.target.value)}
+                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-orange-500 transition-all"
+                                                        placeholder="e.g. Summer Special"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black text-gray-400 uppercase">Start Date</label>
+                                                    <input 
+                                                        type="date" 
+                                                        value={cp.startDate}
+                                                        onChange={e => updateCustomPeriod(idx, 'startDate', e.target.value)}
+                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-orange-500 transition-all"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black text-gray-400 uppercase">End Date</label>
+                                                    <input 
+                                                        type="date" 
+                                                        value={cp.endDate}
+                                                        onChange={e => updateCustomPeriod(idx, 'endDate', e.target.value)}
+                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-orange-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button 
+                                        onClick={addCustomPeriod}
+                                        className="w-full py-3 rounded-2xl border-2 border-dashed border-orange-100 text-orange-600 hover:bg-orange-50 hover:border-orange-200 transition-all flex items-center justify-center gap-2 group"
+                                    >
+                                        <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Add Custom Range</span>
+                                    </button>
                                 </div>
                             )}
                         </div>
