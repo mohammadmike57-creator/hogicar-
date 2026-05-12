@@ -70,6 +70,22 @@ const normalizeHomepageContent = (content: any) => {
       ...fallback.popularDestinations,
       ...safePopular,
       destinations
+    },
+    advantage: {
+        ...fallback.advantage,
+        ...(safeContent.advantage || {})
+    },
+    stats: {
+        ...fallback.stats,
+        ...(safeContent.stats || {})
+    },
+    partners: {
+        ...fallback.partners,
+        ...(safeContent.partners || {})
+    },
+    cta: {
+        ...fallback.cta,
+        ...(safeContent.cta || {})
     }
   };
 };
@@ -204,18 +220,25 @@ const Home: React.FC = () => {
       />
       
       {/* HERO – classic centered layout */}
-      <section className="bg-[#003580] pt-28 pb-10 lg:pt-36 lg:pb-16 text-white relative overflow-hidden">
+      <section 
+        className="pt-28 pb-10 lg:pt-36 lg:pb-16 text-white relative overflow-hidden"
+        style={{ backgroundColor: 'var(--secondary-color, #003580)' }}
+      >
         <div className="absolute inset-0 opacity-10 pointer-events-none">
            <div className="absolute top-0 left-0 w-64 h-64 bg-white/20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-           <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
+           <div className="absolute bottom-0 right-0 w-96 h-96 blur-3xl rounded-full translate-x-1/2 translate-y-1/2" style={{ backgroundColor: 'var(--primary-color, #2563eb)', opacity: 0.1 }}></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-5 leading-tight tracking-tight">
             {content.hero.title || 'Search, Compare & Save on Car Rentals'}
           </h1>
-          <p className="text-blue-100/90 mb-10 max-w-2xl mx-auto text-sm sm:text-base font-medium">
+          <p className="mb-10 max-w-2xl mx-auto text-sm sm:text-base font-medium" style={{ color: 'rgba(255,255,255,0.8)' }}>
             {content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.'}
           </p>
+          
+          {content.searchWidgetTitle && (
+            <h2 className="text-xl sm:text-2xl font-black mb-6 text-white text-shadow-sm">{content.searchWidgetTitle}</h2>
+          )}
           
           <div className="relative z-20 max-w-5xl mx-auto">
             <SearchWidget
@@ -231,15 +254,15 @@ const Home: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 mt-8 text-[11px] font-black uppercase tracking-wider">
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-              <CheckCircle className="w-4 h-4 text-green-400" /> Free Cancellation
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-              <Shield className="w-4 h-4 text-blue-300" /> No Hidden Fees
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-              <Award className="w-4 h-4 text-orange-400" /> 24/7 Support
-            </div>
+            {content.valuePropositions?.slice(0, 3).map((vp: any, idx: number) => {
+              const Icon = iconMap[vp.icon] || CheckCircle;
+              const colors = ['text-green-400', 'text-slate-300', 'text-amber-400'];
+              return (
+                <div key={vp.id} className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                  <Icon className={`w-4 h-4 ${colors[idx % colors.length]}`} /> {vp.title}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -247,7 +270,7 @@ const Home: React.FC = () => {
       {/* TRUSTED PARTNERS – marquee version */}
       <section className="py-8 bg-white overflow-hidden border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] mb-4 text-slate-400/80">Partnered with the World's Best</div>
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] mb-4 text-slate-400/80">{content.partners?.title || "Partnered with the World's Best"}</div>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
         </div>
         <div className="relative flex items-center">
@@ -275,10 +298,10 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-10">
-            <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">The Hogicar Advantage</h2>
-            <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
+            <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--primary-color, #2563eb)' }}>{content.advantage?.title || "The Hogicar Advantage"}</h2>
+            <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">{content.advantage?.subtitle || "Unbeatable value, unparalleled convenience."}</h3>
             <p className="mt-3 text-base text-slate-600 leading-relaxed">
-              We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
+              {content.advantage?.description || "We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle."}
             </p>
           </div>
 
@@ -287,7 +310,7 @@ const Home: React.FC = () => {
             {content.features.slice(0, 4).map((feature, index) => {
               const Icon = iconMap[feature.icon] || CheckCircle;
               const colors = [
-                'bg-blue-100 text-blue-600',
+                'bg-slate-100 text-slate-600',
                 'bg-green-100 text-green-600',
                 'bg-yellow-100 text-yellow-600',
                 'bg-purple-100 text-purple-600'
@@ -308,9 +331,9 @@ const Home: React.FC = () => {
           {/* Stats – simplified card (no absolute/blur) */}
           <div className="bg-slate-900 text-white p-8 rounded-xl text-center">
             <Globe className="w-10 h-10 mx-auto mb-2" />
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
-            <p className="text-slate-300 mb-4">We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
-            <Link to="/supplier-login" className="bg-blue-600 px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
+            <h3 className="text-2xl md:text-3xl font-bold mb-2">{content.stats?.title || "Join our global network"}</h3>
+            <p className="text-slate-300 mb-4">{content.stats?.description || "60,000+ locations in 160 countries. We've got you covered."}</p>
+            <Link to="/supplier-login" className="px-6 py-2 rounded-full text-sm inline-flex items-center gap-2" style={{ backgroundColor: 'var(--primary-color, #2563eb)' }}>
               Become a Partner <ArrowRight className="w-4 h-4" />
             </Link>
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
@@ -331,7 +354,7 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-2">Simple Process</h2>
+            <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--primary-color, #2563eb)' }}>Simple Process</h2>
             <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
             <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
           </div>
@@ -369,14 +392,14 @@ const Home: React.FC = () => {
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                <div className="max-w-2xl">
-                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold tracking-widest uppercase mb-3">
-                       <MapPin className="w-3 h-3" /> Top Destinations
+                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-3" style={{ backgroundColor: 'rgba(var(--primary-rgb, 37, 99, 235), 0.1)', color: 'var(--primary-color, #2563eb)' }}>
+                       <MapPin className="w-3 h-3" /> {content.popularDestinations.badge || 'Top Destinations'}
                    </div>
                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">{content.popularDestinations.title}</h3>
                    <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                </div>
-               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-blue-600 transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
-                   Explore All Locations
+               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl text-sm" style={{ backgroundColor: 'var(--primary-color, #2563eb)' }}>
+                   {content.popularDestinations.buttonText || 'Explore All Locations'}
                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                </Link>
            </div>
@@ -393,7 +416,7 @@ const Home: React.FC = () => {
                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
                            <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
                                <h4 className="font-bold text-white tracking-tight text-lg">{dest.name}</h4>
-                               <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
+                               <p className="text-white/70 text-xs mb-2 flex items-center gap-1 font-medium">
                                    <MapPin className="w-3 h-3" /> {dest.country}
                                </p>
                                <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
@@ -415,9 +438,9 @@ const Home: React.FC = () => {
           <div className="bg-slate-900 rounded-3xl overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="p-5 md:p-8">
-                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white leading-tight">Get exclusive car rental deals.</h2>
-                <p className="mt-3 text-xs text-slate-300 max-w-sm">Join our newsletter for insider offers, travel inspiration, and early access to our best discounts. Straight to your inbox.</p>
-                <form className="mt-5 flex flex-col sm:flex-row gap-2 max-w-sm">
+                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white leading-tight">{content.cta?.title || "Get exclusive car rental deals."}</h2>
+                <p className="mt-3 text-xs text-slate-300 max-w-sm">{content.cta?.subtitle || "Join our newsletter for insider offers, travel inspiration, and early access to our best discounts. Straight to your inbox."}</p>
+                <form className="mt-5 flex flex-col sm:row gap-2 max-w-sm">
                   <input 
                     type="email" 
                     placeholder="Enter your email" 
@@ -425,7 +448,8 @@ const Home: React.FC = () => {
                   />
                   <button 
                     type="submit" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md whitespace-nowrap text-xs"
+                    className="hover:brightness-110 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md whitespace-nowrap text-xs"
+                    style={{ backgroundColor: 'var(--primary-color, #2563eb)' }}
                   >
                     Subscribe
                   </button>
@@ -450,7 +474,7 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mx-auto text-center mb-6">
-            <h2 className="text-[10px] font-bold tracking-widest text-blue-600 uppercase mb-1.5">Support</h2>
+            <h2 className="text-[10px] font-bold tracking-widest uppercase mb-1.5" style={{ color: 'var(--primary-color, #2563eb)' }}>Support</h2>
             <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed">
               Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.
@@ -465,8 +489,8 @@ const Home: React.FC = () => {
                     onClick={() => toggleFaq(index)} 
                     className="w-full flex justify-between items-center text-left p-3 sm:p-4 focus:outline-none group"
                   >
-                    <span className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 transition-colors">{faq.question}</span>
-                    <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
+                    <span className="font-bold text-sm sm:text-base text-slate-900 transition-colors" style={{ color: openFaqIndex === index ? 'var(--primary-color)' : '' }}>{faq.question}</span>
+                    <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? 'text-white' : 'bg-slate-100 text-slate-500'}`} style={{ backgroundColor: openFaqIndex === index ? 'var(--primary-color)' : '' }}>
                       <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
                     </span>
                   </button>

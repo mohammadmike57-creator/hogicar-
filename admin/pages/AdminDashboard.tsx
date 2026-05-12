@@ -1086,6 +1086,17 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
         <InputField label="Hero Title" value={localContent?.hero?.title || ''} onChange={e => handleChange('hero.title', e.target.value)} />
         <InputField label="Hero Subtitle" value={localContent?.hero?.subtitle || ''} onChange={e => handleChange('hero.subtitle', e.target.value)} />
         <InputField label="Hero Background" value={localContent?.hero?.backgroundImage || ''} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
+        <InputField label="Search Widget Title" value={localContent?.searchWidgetTitle || ''} onChange={e => handleChange('searchWidgetTitle', e.target.value)} />
+        <InputField label="Partners Title" value={localContent?.partners?.title || ''} onChange={e => handleChange('partners.title', e.target.value)} />
+        <InputField label="Advantage Title" value={localContent?.advantage?.title || ''} onChange={e => handleChange('advantage.title', e.target.value)} />
+        <InputField label="Advantage Subtitle" value={localContent?.advantage?.subtitle || ''} onChange={e => handleChange('advantage.subtitle', e.target.value)} />
+        <InputField label="Advantage Description" value={localContent?.advantage?.description || ''} onChange={e => handleChange('advantage.description', e.target.value)} />
+        <InputField label="Stats Title" value={localContent?.stats?.title || ''} onChange={e => handleChange('stats.title', e.target.value)} />
+        <InputField label="Stats Description" value={localContent?.stats?.description || ''} onChange={e => handleChange('stats.description', e.target.value)} />
+        <InputField label="Destinations Badge" value={localContent?.popularDestinations?.badge || ''} onChange={e => handleChange('popularDestinations.badge', e.target.value)} />
+        <InputField label="Destinations Button" value={localContent?.popularDestinations?.buttonText || ''} onChange={e => handleChange('popularDestinations.buttonText', e.target.value)} />
+        <InputField label="CTA Title" value={localContent?.cta?.title || ''} onChange={e => handleChange('cta.title', e.target.value)} />
+        <InputField label="CTA Subtitle" value={localContent?.cta?.subtitle || ''} onChange={e => handleChange('cta.subtitle', e.target.value)} />
         <InputField label="FAQs Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
       </div>
 
@@ -1280,6 +1291,8 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 const SiteSettingsContent = () => {
   const [duration, setDuration] = useState(5);
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [primaryColor, setPrimaryColor] = useState('#ea580c');
+  const [secondaryColor, setSecondaryColor] = useState('#0f172a');
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
@@ -1288,10 +1301,16 @@ const SiteSettingsContent = () => {
       .then(data => {
         setDuration(data.searchingScreenDuration / 1000);
         setHeroImageUrl(data.heroImageUrl || '');
+        setPrimaryColor(data.themePrimaryColor || '#ea580c');
+        setSecondaryColor(data.themeSecondaryColor || '#0f172a');
         setLoading(false);
       })
       .catch(err => {
         console.error('Failed to fetch settings:', err);
+        // Fallback to mock data if API fails
+        setDuration(MOCK_APP_CONFIG.searchingScreenDuration / 1000);
+        setPrimaryColor(MOCK_APP_CONFIG.themePrimaryColor);
+        setSecondaryColor(MOCK_APP_CONFIG.themeSecondaryColor);
         setLoading(false);
       });
   }, []);
@@ -1302,10 +1321,27 @@ const SiteSettingsContent = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         searchingScreenDuration: duration * 1000,
-        heroImageUrl: heroImageUrl
+        heroImageUrl: heroImageUrl,
+        themePrimaryColor: primaryColor,
+        themeSecondaryColor: secondaryColor
       })
     })
     .then(() => {
+      updateAppConfig({ 
+        searchingScreenDuration: duration * 1000,
+        themePrimaryColor: primaryColor,
+        themeSecondaryColor: secondaryColor
+      });
+      // Apply colors immediately to preview
+      document.documentElement.style.setProperty('--primary-color', primaryColor);
+      document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+      
+      const hexToRgb = (hex: string) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 99, 235';
+      };
+      document.documentElement.style.setProperty('--primary-rgb', hexToRgb(primaryColor));
+      
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     })
@@ -1339,6 +1375,43 @@ const SiteSettingsContent = () => {
             className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none font-mono" 
           />
           <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Primary Theme Color</label>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={primaryColor} 
+                onChange={e => setPrimaryColor(e.target.value)}
+                className="w-12 h-12 rounded-xl border-none cursor-pointer"
+              />
+              <input 
+                type="text" 
+                value={primaryColor} 
+                onChange={e => setPrimaryColor(e.target.value)}
+                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Secondary Theme Color</label>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={secondaryColor} 
+                onChange={e => setSecondaryColor(e.target.value)}
+                className="w-12 h-12 rounded-xl border-none cursor-pointer"
+              />
+              <input 
+                type="text" 
+                value={secondaryColor} 
+                onChange={e => setSecondaryColor(e.target.value)}
+                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
+              />
+            </div>
+          </div>
         </div>
         
         {heroImageUrl && (

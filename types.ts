@@ -419,10 +419,21 @@ export interface HomepageContent {
   popularDestinations: {
     title: string;
     subtitle: string;
+    badge: string;
+    buttonText: string;
     destinations: DestinationItem[];
   };
   partners: {
     title: string;
+  };
+  advantage: {
+    title: string;
+    subtitle: string;
+    description: string;
+  };
+  stats: {
+    title: string;
+    description: string;
   };
   cta: {
     title: string;

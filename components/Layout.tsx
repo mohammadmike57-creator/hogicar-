@@ -43,7 +43,10 @@ const PciDssIcon = () => (
 );
 
 const FullFooter = () => (
-    <footer className="bg-[#003580] text-white pt-12 pb-8">
+    <footer 
+        className="text-white pt-12 pb-8"
+        style={{ backgroundColor: 'var(--secondary-color, #003580)' }}
+    >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10 pb-10 border-b border-blue-800">
             <div>
@@ -152,11 +155,19 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
       {/* HEADER */}
-      <header className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
-        isHomePage 
-          ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
-          : 'bg-[#003580] shadow-md py-2 border-b border-[#002a66]'
-      }`}>
+      <header 
+        className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
+          isHomePage 
+            ? (isScrolled ? 'backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
+            : 'shadow-md py-2 border-b'
+        }`}
+        style={{ 
+          backgroundColor: isHomePage 
+            ? (isScrolled ? 'var(--secondary-color, #003580)E6' : 'transparent') 
+            : 'var(--secondary-color, #003580)',
+          borderColor: isHomePage ? '' : 'rgba(0,0,0,0.1)'
+        }}
+      >
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
           <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500">
@@ -230,14 +241,20 @@ const Layout: React.FC = () => {
 
         {/* Mobile menu panel */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-[#003580] bg-[#004099] w-full shadow-xl z-50">
+          <div 
+            className="md:hidden border-t w-full shadow-xl z-50"
+            style={{ 
+              backgroundColor: 'var(--secondary-color, #003580)',
+              borderColor: 'rgba(255,255,255,0.1)'
+            }}
+          >
             <div className="pt-2 pb-3 space-y-1">
               <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
                 <User className="w-5 h-5" />
                 Manage Booking
               </Link>
             </div>
-            <div className="pt-4 pb-6 border-t border-[#003580]">
+            <div className="pt-4 pb-6 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
               <div className="px-4">
                 <p className="text-xs font-extrabold text-blue-300 uppercase tracking-widest mb-3">Currency</p>
                 <div className="grid grid-cols-3 gap-2">
@@ -245,7 +262,7 @@ const Layout: React.FC = () => {
                     <button 
                       key={curr.code} 
                       onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} 
-                      className={`flex flex-col items-center justify-center gap-1 text-[10px] font-black p-3 rounded-xl border transition-all ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}
+                      className={`flex flex-col items-center justify-center gap-1 text-[10px] font-black p-3 rounded-xl border transition-all ${selectedCurrency === curr.code ? 'bg-white text-blue-900 border-white shadow-md' : 'border-white/20 text-white hover:bg-white/10'}`}
                     >
                       <span className="text-lg">{curr.flag}</span>
                       <span>{curr.code}</span>
