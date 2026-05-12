@@ -427,15 +427,27 @@ const CarDetails: React.FC = () => {
                 <button onClick={() => setIsConditionsModalOpen(true)} className="mt-6 text-blue-600 text-sm font-medium underline flex items-center gap-1">View full rental conditions <ArrowRight className="w-4 h-4" /></button>
               </div>
 
-              {/* Similar Cars */}
-              {cars && cars.length > 1 && (
+              {/* Upgrade / Other models from same supplier */}
+              {cars && cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).length > 0 && (
                 <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                  <h2 className="text-xl font-bold mb-6">You might also like</h2>
+                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    Upgrade your ride
+                  </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {cars.filter(c => c.id !== car.id).slice(0, 2).map(similar => (
-                      <Link key={similar.id} to={`/car/${similar.id}?${bookingParams}`} className="flex gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition">
+                    {cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).slice(0, 4).map(similar => (
+                      <Link 
+                        key={similar.id} 
+                        to={`/car/${similar.id}?${bookingParams}`} 
+                        className="flex gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition-all hover:border-blue-400"
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                      >
                         <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain rounded-lg" />
-                        <div><div className="font-semibold">{similar.displayName}</div><div className="text-sm text-slate-500">{similar.category}</div><div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)} total</div></div>
+                        <div className="flex-1">
+                          <div className="font-semibold">{similar.displayName}</div>
+                          <div className="text-sm text-slate-500">{similar.category}</div>
+                          <div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)} total</div>
+                        </div>
                       </Link>
                     ))}
                   </div>

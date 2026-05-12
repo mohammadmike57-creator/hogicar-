@@ -19,7 +19,6 @@ import SupplierConfirmation from './pages/SupplierConfirmation';
 import Careers from './pages/Careers';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import LeaveReview from './pages/LeaveReview';
-import { MOCK_APP_CONFIG } from './services/mockData';
 
 // Admin imports
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
@@ -38,29 +37,6 @@ if (host.startsWith("admin.") && pathname !== "/admin" && pathname !== "/admin-l
 // --- END SUBDOMAIN REDIRECT ---
 
 const App: React.FC = () => {
-  React.useEffect(() => {
-    // Apply theme colors from config
-    const primary = MOCK_APP_CONFIG.themePrimaryColor || '#ea580c';
-    const secondary = MOCK_APP_CONFIG.themeSecondaryColor || '#0f172a';
-    const heroBg = MOCK_APP_CONFIG.themeHeroBg || '#f8fafc';
-    const footerBg = MOCK_APP_CONFIG.themeFooterBg || '#0f172a';
-    const layoutBg = MOCK_APP_CONFIG.themeLayoutBg || '#ffffff';
-    
-    document.documentElement.style.setProperty('--primary-color', primary);
-    document.documentElement.style.setProperty('--secondary-color', secondary);
-    document.documentElement.style.setProperty('--hero-bg', heroBg);
-    document.documentElement.style.setProperty('--footer-bg', footerBg);
-    document.documentElement.style.setProperty('--layout-bg', layoutBg);
-
-    // Convert hex to RGB for alpha support
-    const hexToRgb = (hex: string) => {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 99, 235';
-    };
-    document.documentElement.style.setProperty('--primary-rgb', hexToRgb(primary));
-    document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(secondary));
-  }, []);
-
   return (
     <CurrencyProvider>
       <Routes>

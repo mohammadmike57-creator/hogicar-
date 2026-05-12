@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown, History } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 import SearchOverlay from './SearchOverlay';
 
@@ -530,26 +529,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 autoComplete="off"
                                 required
                             />
-                            <AnimatePresence>
-                                {isSuggestionsOpen && (
-                                    <motion.div 
-                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        transition={{ duration: 0.2 }}
-                                        onMouseDown={(e) => e.preventDefault()} 
-                                        className="absolute top-full mt-3 w-[120%] left-0 bg-white border border-slate-200 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.2)] z-50 max-h-96 overflow-hidden flex flex-col"
-                                    >
-                                        <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Location</span>
-                                            {recentLocations.length > 0 && <History className="w-3 h-3 text-slate-300" />}
-                                        </div>
-                                        <div className="overflow-y-auto custom-scrollbar">
-                                            {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            {isSuggestionsOpen && (
+                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-2 w-full left-0 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                                    {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+                                </div>
+                            )}
                         </div>
                         {differentDropoff && (
                             <div className="relative h-14 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 flex-1 w-full">
@@ -566,26 +550,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     onFocus={handleDropoffFocus}
                                     autoComplete="off"
                                 />
-                                <AnimatePresence>
-                                    {isDropoffSuggestionsOpen && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            transition={{ duration: 0.2 }}
-                                            onMouseDown={(e) => e.preventDefault()} 
-                                            className="absolute top-full mt-3 w-[120%] right-0 bg-white border border-slate-200 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.2)] z-50 max-h-96 overflow-hidden flex flex-col"
-                                        >
-                                            <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Drop-off Location</span>
-                                                {recentLocations.length > 0 && <History className="w-3 h-3 text-slate-300" />}
-                                            </div>
-                                            <div className="overflow-y-auto custom-scrollbar">
-                                                {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                {isDropoffSuggestionsOpen && (
+                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-2 w-full left-0 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                                        {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

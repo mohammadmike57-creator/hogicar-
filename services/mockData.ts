@@ -1384,8 +1384,6 @@ export let MOCK_HOMEPAGE_CONTENT: HomepageContent = {
   popularDestinations: {
     title: 'Popular Destinations',
     subtitle: "Discover the world's top spots for road trips and adventure.",
-    badge: 'Top Destinations',
-    buttonText: 'Explore All Locations',
     destinations: [
       { id: 'd1', name: 'London', country: 'United Kingdom', price: 35, image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=2070&auto=format&fit=crop' },
       { id: 'd2', name: 'Miami', country: 'United States', price: 42, image: 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?q=80&w=1974&auto=format&fit=crop' },
@@ -1394,16 +1392,7 @@ export let MOCK_HOMEPAGE_CONTENT: HomepageContent = {
     ],
   },
   partners: {
-    title: 'Partnered with the World\'s Best',
-  },
-  advantage: {
-    title: 'The Hogicar Advantage',
-    subtitle: 'Unbeatable value, unparalleled convenience.',
-    description: 'We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.',
-  },
-  stats: {
-    title: 'Join our global network',
-    description: '60,000+ locations in 160 countries. We\'ve got you covered.',
+    title: 'We work with the best',
   },
   cta: {
     title: 'Save time, save money!',
@@ -1434,11 +1423,6 @@ export const GLOBAL_TRUSTED_BRANDS = [
 export let MOCK_APP_CONFIG = {
   searchingScreenDuration: 5000, // default in ms
   commissionPercent: 15,
-  themePrimaryColor: '#ea580c', // orange-600
-  themeSecondaryColor: '#0f172a', // slate-900
-  themeHeroBg: '#f8fafc', // slate-50
-  themeFooterBg: '#0f172a', // slate-900
-  themeLayoutBg: '#ffffff', // white
 };
 
 export let MOCK_PROMO_CODES: PromoCode[] = [

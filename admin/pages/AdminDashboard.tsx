@@ -1086,17 +1086,6 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
         <InputField label="Hero Title" value={localContent?.hero?.title || ''} onChange={e => handleChange('hero.title', e.target.value)} />
         <InputField label="Hero Subtitle" value={localContent?.hero?.subtitle || ''} onChange={e => handleChange('hero.subtitle', e.target.value)} />
         <InputField label="Hero Background" value={localContent?.hero?.backgroundImage || ''} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
-        <InputField label="Search Widget Title" value={localContent?.searchWidgetTitle || ''} onChange={e => handleChange('searchWidgetTitle', e.target.value)} />
-        <InputField label="Partners Title" value={localContent?.partners?.title || ''} onChange={e => handleChange('partners.title', e.target.value)} />
-        <InputField label="Advantage Title" value={localContent?.advantage?.title || ''} onChange={e => handleChange('advantage.title', e.target.value)} />
-        <InputField label="Advantage Subtitle" value={localContent?.advantage?.subtitle || ''} onChange={e => handleChange('advantage.subtitle', e.target.value)} />
-        <InputField label="Advantage Description" value={localContent?.advantage?.description || ''} onChange={e => handleChange('advantage.description', e.target.value)} />
-        <InputField label="Stats Title" value={localContent?.stats?.title || ''} onChange={e => handleChange('stats.title', e.target.value)} />
-        <InputField label="Stats Description" value={localContent?.stats?.description || ''} onChange={e => handleChange('stats.description', e.target.value)} />
-        <InputField label="Destinations Badge" value={localContent?.popularDestinations?.badge || ''} onChange={e => handleChange('popularDestinations.badge', e.target.value)} />
-        <InputField label="Destinations Button" value={localContent?.popularDestinations?.buttonText || ''} onChange={e => handleChange('popularDestinations.buttonText', e.target.value)} />
-        <InputField label="CTA Title" value={localContent?.cta?.title || ''} onChange={e => handleChange('cta.title', e.target.value)} />
-        <InputField label="CTA Subtitle" value={localContent?.cta?.subtitle || ''} onChange={e => handleChange('cta.subtitle', e.target.value)} />
         <InputField label="FAQs Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
       </div>
 
@@ -1291,11 +1280,6 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 const SiteSettingsContent = () => {
   const [duration, setDuration] = useState(5);
   const [heroImageUrl, setHeroImageUrl] = useState('');
-  const [primaryColor, setPrimaryColor] = useState('#ea580c');
-  const [secondaryColor, setSecondaryColor] = useState('#0f172a');
-  const [heroBgColor, setHeroBgColor] = useState('#f8fafc');
-  const [footerBgColor, setFooterBgColor] = useState('#0f172a');
-  const [layoutBgColor, setLayoutBgColor] = useState('#ffffff');
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
@@ -1304,22 +1288,10 @@ const SiteSettingsContent = () => {
       .then(data => {
         setDuration(data.searchingScreenDuration / 1000);
         setHeroImageUrl(data.heroImageUrl || '');
-        setPrimaryColor(data.themePrimaryColor || '#ea580c');
-        setSecondaryColor(data.themeSecondaryColor || '#0f172a');
-        setHeroBgColor(data.themeHeroBg || '#f8fafc');
-        setFooterBgColor(data.themeFooterBg || '#0f172a');
-        setLayoutBgColor(data.themeLayoutBg || '#ffffff');
         setLoading(false);
       })
       .catch(err => {
         console.error('Failed to fetch settings:', err);
-        // Fallback to mock data if API fails
-        setDuration(MOCK_APP_CONFIG.searchingScreenDuration / 1000);
-        setPrimaryColor(MOCK_APP_CONFIG.themePrimaryColor);
-        setSecondaryColor(MOCK_APP_CONFIG.themeSecondaryColor);
-        setHeroBgColor(MOCK_APP_CONFIG.themeHeroBg || '#f8fafc');
-        setFooterBgColor(MOCK_APP_CONFIG.themeFooterBg || '#0f172a');
-        setLayoutBgColor(MOCK_APP_CONFIG.themeLayoutBg || '#ffffff');
         setLoading(false);
       });
   }, []);
@@ -1330,37 +1302,10 @@ const SiteSettingsContent = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         searchingScreenDuration: duration * 1000,
-        heroImageUrl: heroImageUrl,
-        themePrimaryColor: primaryColor,
-        themeSecondaryColor: secondaryColor,
-        themeHeroBg: heroBgColor,
-        themeFooterBg: footerBgColor,
-        themeLayoutBg: layoutBgColor
+        heroImageUrl: heroImageUrl
       })
     })
     .then(() => {
-      updateAppConfig({ 
-        searchingScreenDuration: duration * 1000,
-        themePrimaryColor: primaryColor,
-        themeSecondaryColor: secondaryColor,
-        themeHeroBg: heroBgColor,
-        themeFooterBg: footerBgColor,
-        themeLayoutBg: layoutBgColor
-      });
-      // Apply colors immediately to preview
-      document.documentElement.style.setProperty('--primary-color', primaryColor);
-      document.documentElement.style.setProperty('--secondary-color', secondaryColor);
-      document.documentElement.style.setProperty('--hero-bg', heroBgColor);
-      document.documentElement.style.setProperty('--footer-bg', footerBgColor);
-      document.documentElement.style.setProperty('--layout-bg', layoutBgColor);
-      
-      const hexToRgb = (hex: string) => {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 99, 235';
-      };
-      document.documentElement.style.setProperty('--primary-rgb', hexToRgb(primaryColor));
-      document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(secondaryColor));
-      
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     })
@@ -1394,97 +1339,6 @@ const SiteSettingsContent = () => {
             className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none font-mono" 
           />
           <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Primary Theme Color</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="color" 
-                value={primaryColor} 
-                onChange={e => setPrimaryColor(e.target.value)}
-                className="w-12 h-12 rounded-xl border-none cursor-pointer"
-              />
-              <input 
-                type="text" 
-                value={primaryColor} 
-                onChange={e => setPrimaryColor(e.target.value)}
-                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Secondary Theme Color</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="color" 
-                value={secondaryColor} 
-                onChange={e => setSecondaryColor(e.target.value)}
-                className="w-12 h-12 rounded-xl border-none cursor-pointer"
-              />
-              <input 
-                type="text" 
-                value={secondaryColor} 
-                onChange={e => setSecondaryColor(e.target.value)}
-                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hero Section Background</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="color" 
-                value={heroBgColor} 
-                onChange={e => setHeroBgColor(e.target.value)}
-                className="w-12 h-12 rounded-xl border-none cursor-pointer"
-              />
-              <input 
-                type="text" 
-                value={heroBgColor} 
-                onChange={e => setHeroBgColor(e.target.value)}
-                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Footer Background</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="color" 
-                value={footerBgColor} 
-                onChange={e => setFooterBgColor(e.target.value)}
-                className="w-12 h-12 rounded-xl border-none cursor-pointer"
-              />
-              <input 
-                type="text" 
-                value={footerBgColor} 
-                onChange={e => setFooterBgColor(e.target.value)}
-                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">General Layout Background</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="color" 
-                value={layoutBgColor} 
-                onChange={e => setLayoutBgColor(e.target.value)}
-                className="w-12 h-12 rounded-xl border-none cursor-pointer"
-              />
-              <input 
-                type="text" 
-                value={layoutBgColor} 
-                onChange={e => setLayoutBgColor(e.target.value)}
-                className="flex-grow bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none font-mono"
-              />
-            </div>
-          </div>
         </div>
         
         {heroImageUrl && (
@@ -2893,15 +2747,6 @@ export const AdminDashboard: React.FC = () => {
     setRevealedPasswords(next);
   };
 
-  const fetchSupplierApps = async () => {
-    try {
-      const res = await adminFetch('/api/partner-applications/admin/all');
-      setSupplierApps(Array.isArray(res) ? res : []);
-    } catch (e) {
-      console.error('Failed to fetch supplier applications', e);
-    }
-  };
-
   const fetchSuppliers = async () => {
     setLoadingSuppliers(true);
     try {
@@ -2919,6 +2764,15 @@ export const AdminDashboard: React.FC = () => {
       console.error('Failed to fetch suppliers', e);
       setSupplierFetchError(e instanceof Error ? e.message : 'Failed to fetch suppliers');
     } finally { setLoadingSuppliers(false); }
+  };
+
+  const fetchSupplierApps = async () => {
+    try {
+      const res = await adminFetch('/api/partner-applications/admin/all');
+      setSupplierApps(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('Failed to fetch supplier applications', e);
+    }
   };
 
   const fetchBookings = async (supplierId?: string | null) => {
@@ -3064,8 +2918,8 @@ export const AdminDashboard: React.FC = () => {
       await fetchSuppliers();
       setEditingSupplier(null);
       if (approvingApplication) { 
-        await adminFetch(`/api/partner-applications/admin/${approvingApplication.id}`, { method: 'DELETE' });
-        fetchSupplierApps();
+        await adminFetch(`/api/partner-applications/admin/${approvingApplication.id}`, { method: 'DELETE' }); 
+        fetchSupplierApps(); 
         setApprovingApplication(null); 
       }
     } catch (err: any) { 
@@ -3137,15 +2991,15 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
   const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
   const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
-  const handleRejectApplication = async (id: string) => { 
-    if (confirm('Are you sure you want to reject and delete this application?')) { 
+  const handleRejectApplication = async (id: string) => {
+    if (confirm('Are you sure you want to reject and delete this application?')) {
       try {
         await adminFetch(`/api/partner-applications/admin/${id}`, { method: 'DELETE' });
         fetchSupplierApps();
       } catch (e) {
         alert("Failed to reject application");
       }
-    } 
+    }
   };
   const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
   const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
