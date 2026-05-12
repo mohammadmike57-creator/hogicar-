@@ -18,7 +18,7 @@ import { supplierApi, getPublicLocations, API_BASE_URL } from '../api';
 import { CURRENCIES } from '../contexts/CurrencyContext';
 import { 
   Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 
-  BookingMode, TemplateConfig, Extra, RateTier, CarModel
+  BookingMode, TemplateConfig, Extra, RateTier, CarModel, CarRateTier
 } from '../types';
 import { Logo } from '../components/Logo';
 
@@ -770,76 +770,63 @@ const FleetSection = ({
 // ==================== Manual Pricing Section ====================
 const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBack, activeLocation }: { config: TemplateConfig, cars: CarType[], existingTiers?: CarRateTier[], onUpdate: () => void, onBack: () => void, activeLocation: string }) => {
     const [selectedCarIds, setSelectedCarIds] = useState<number[]>([]);
-
-    const [selectedPeriodIdx, setSelectedPeriodIdx] = useState<number>(0);
-    const [isCustomPeriod, setIsCustomPeriod] = useState(false);
+    const [selectedPeriodIdxs, setSelectedPeriodIdxs] = useState<number[]>([]);
+    const [isCustomPeriodActive, setIsCustomPeriodActive] = useState(false);
     const [customPeriod, setCustomPeriod] = useState({
         name: 'Manual Update',
         startDate: format(new Date(), 'yyyy-MM-dd'),
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
     });
 
-    const [manualBandsByCar, setManualBandsByCar] = useState<Record<number, any[]>>({});
-    const [batchSeasons, setBatchSeasons] = useState<any[]>([]);
+    const [gridData, setGridData] = useState<Record<string, any[]>>({}); // key: carId-periodName-start-end
     const [isSaving, setIsSaving] = useState(false);
     const [applyToAllLocations, setApplyToAllLocations] = useState(false);
-    const [activationNotice, setActivationNotice] = useState<any | null>(null);
 
-    const currentPeriodKey = useMemo(() => {
-        const p = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
-        return p ? `${p.name}-${p.startDate}-${p.endDate}` : 'none';
-    }, [isCustomPeriod, customPeriod, selectedPeriodIdx, config]);
-    const [lastPeriodKey, setLastPeriodKey] = useState(currentPeriodKey);
-
-    const baseBands = useMemo(() => {
-        const periodBands = (isCustomPeriod ? config.periods?.[0]?.bands : config.periods?.[selectedPeriodIdx]?.bands) || [];
-        const initializedBands = periodBands.map(b => ({
-            minDays: b.minDays,
-            maxDays: b.maxDays,
-        }));
-        return initializedBands.length > 0 ? initializedBands : [{ minDays: 1, maxDays: null }];
-    }, [selectedPeriodIdx, isCustomPeriod, config]);
-
-    useEffect(() => {
-        if (currentPeriodKey !== lastPeriodKey) {
-            setManualBandsByCar({});
-            setLastPeriodKey(currentPeriodKey);
-        }
-    }, [currentPeriodKey, lastPeriodKey]);
-
-    useEffect(() => {
-        setManualBandsByCar(prev => {
-            if (selectedCarIds.length === 0) return {};
-
-            const next: Record<number, any[]> = { ...prev };
-            
-            // Cleanup unselected cars
-            Object.keys(next).forEach(id => {
-                if (!selectedCarIds.includes(Number(id))) {
-                    delete next[Number(id)];
-                }
+    const activePeriods = useMemo(() => {
+        const list = (selectedPeriodIdxs || []).map(idx => config.periods![idx]);
+        if (isCustomPeriodActive) {
+            list.push({
+                ...customPeriod,
+                bands: config.bands || []
             });
+        }
+        return list;
+    }, [selectedPeriodIdxs, isCustomPeriodActive, customPeriod, config]);
 
-            // Initialize newly selected cars
-            selectedCarIds.forEach(carId => {
-                if (!next[carId]) {
-                    // Try to find matching existing tier for this car and period
-                    const currentPeriod = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
+    const combinations = useMemo(() => {
+        const res: { car: CarType, period: any }[] = [];
+        (selectedCarIds || []).forEach(carId => {
+            const car = cars.find(c => Number(c.id) === carId);
+            if (!car) return;
+            activePeriods.forEach(period => {
+                res.push({ car, period });
+            });
+        });
+        return res;
+    }, [selectedCarIds, activePeriods, cars]);
+
+    useEffect(() => {
+        setGridData(prev => {
+            const next = { ...prev };
+            combinations.forEach(({ car, period }) => {
+                const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
+                if (!next[key]) {
                     const existing = existingTiers?.find(t => 
-                        Number(t.carId) === carId && 
-                        t.startDate === currentPeriod?.startDate && 
-                        t.endDate === currentPeriod?.endDate
+                        Number(t.carId) === Number(car.id) && 
+                        t.startDate === period.startDate && 
+                        t.endDate === period.endDate
                     );
 
                     if (existing && existing.bands?.length > 0) {
-                        next[carId] = existing.bands.map(b => ({
+                        next[key] = existing.bands.map(b => ({
                             minDays: b.minDays,
                             maxDays: b.maxDays,
-                            dailyRate: b.dailyRate,
-                            deposit: b.deposit,
+                            dailyRate: String(b.dailyRate),
+                            deposit: String(b.deposit),
                         }));
                     } else {
-                        next[carId] = baseBands.map(b => ({
+                        const baseBands = config.bands?.length ? config.bands : [{ minDays: 1, maxDays: null }];
+                        next[key] = baseBands.map(b => ({
                             minDays: b.minDays,
                             maxDays: b.maxDays,
                             dailyRate: '',
@@ -848,23 +835,71 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                     }
                 }
             });
-
             return next;
         });
-    }, [selectedCarIds, baseBands]);
+    }, [combinations, existingTiers, config]);
 
-    const selectedCars = useMemo(
-        () => cars.filter(car => selectedCarIds.includes(Number(car.id))),
-        [cars, selectedCarIds]
-    );
+    const handleGridInput = (key: string, bandIdx: number, field: 'dailyRate' | 'deposit', value: string) => {
+        const normalized = value.replace(',', '.');
+        if (!/^\d*\.?\d{0,2}$/.test(normalized) && normalized !== '') return;
 
-    const selectedSippCodes = useMemo(() => {
-        const set = new Set<string>();
-        selectedCars.forEach(car => {
-            if (car.sippCode) set.add(car.sippCode);
+        setGridData(prev => ({
+            ...prev,
+            [key]: prev[key].map((b, i) => i === bandIdx ? { ...b, [field]: normalized } : b)
+        }));
+    };
+
+    const handleApply = async () => {
+        if (combinations.length === 0) {
+            alert('Please select at least one car and one period.');
+            return;
+        }
+
+        const invalid = combinations.find(({ car, period }) => {
+            const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
+            const bands = gridData[key] || [];
+            return bands.some(b => !String(b.dailyRate || '').trim() || Number(b.dailyRate) <= 0);
         });
-        return Array.from(set);
-    }, [selectedCars]);
+
+        if (invalid) {
+            alert(`Please enter valid rates for ${invalid.car.make} ${invalid.car.model} in period ${invalid.period.name}`);
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const seasons = combinations.map(({ car, period }) => {
+                const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
+                const bands = gridData[key];
+                return {
+                    targetType: 'car',
+                    targetValues: [String(car.id)],
+                    periodName: period.name,
+                    startDate: period.startDate,
+                    endDate: period.endDate,
+                    rates: bands.map(b => ({
+                        minDays: b.minDays,
+                        maxDays: b.maxDays,
+                        dailyRate: Number(b.dailyRate),
+                        deposit: Number(b.deposit)
+                    }))
+                };
+            });
+
+            await supplierApi.bulkUpdateRates({
+                currency: config.currency,
+                applyToAllLocations,
+                seasons
+            });
+
+            alert('Rates updated successfully!');
+            onUpdate();
+        } catch (e) {
+            alert('Failed to update rates.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const toggleCar = (id: number) => {
         setSelectedCarIds(prev =>
@@ -872,766 +907,262 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
         );
     };
 
-    const addSeasonToBatch = () => {
-        const period = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
-        if (!period) return;
-
-        if (selectedCars.length === 0) {
-            alert('Please select at least one car.');
-            return;
-        }
-        const firstInvalidCar = selectedCars.find(car => {
-            const carBands = manualBandsByCar[Number(car.id)] || [];
-            if (carBands.length === 0) return true;
-            return carBands.some(b => !String(b.dailyRate || '').trim() || Number(b.dailyRate) <= 0);
-        });
-
-        if (firstInvalidCar) {
-            const label = firstInvalidCar.name || `${firstInvalidCar.make} ${firstInvalidCar.model}`.trim();
-            alert(`Please enter valid daily rates for each bond on car: ${label}`);
-            return;
-        }
-
-        const seasonUpdates = selectedCars.map(car => {
-            const carId = Number(car.id);
-            const carBands = manualBandsByCar[carId] || [];
-            return {
-                targetType: 'car',
-                targetValues: [String(carId)],
-                selectedCarNames: [car.name || `${car.make} ${car.model}`.trim()],
-                carId,
-                carSipp: car.sippCode || '',
-                periodName: period.name,
-                startDate: period.startDate,
-                endDate: period.endDate,
-                rates: carBands.map(b => ({
-                    minDays: b.minDays,
-                    maxDays: b.maxDays,
-                    dailyRate: Number(b.dailyRate) || 0,
-                    deposit: Number(b.deposit) || 0
-                }))
-            };
-        });
-
-        setBatchSeasons(prev => [...prev, ...seasonUpdates]);
-        setManualBandsByCar(prev => {
-            const next = { ...prev };
-            selectedCarIds.forEach(carId => {
-                next[carId] = (next[carId] || []).map(b => ({ ...b, dailyRate: '', deposit: '' }));
-            });
-            return next;
-        });
+    const togglePeriod = (idx: number) => {
+        setSelectedPeriodIdxs(prev =>
+            prev.includes(idx) ? prev.filter(v => v !== idx) : [...prev, idx]
+        );
     };
-
-    const removeSeasonFromBatch = (idx: number) => {
-        setBatchSeasons(prev => prev.filter((_, i) => i !== idx));
-    };
-
-    const handleApply = async () => {
-        if (batchSeasons.length === 0) {
-            alert('Please add at least one season to the batch.');
-            return;
-        }
-
-        setIsSaving(true);
-        try {
-            const payload = {
-                currency: config.currency,
-                applyToAllLocations,
-                seasons: batchSeasons.map(season => ({
-                    targetType: season.targetType,
-                    targetValues: season.targetValues,
-                    periodName: season.periodName,
-                    startDate: season.startDate,
-                    endDate: season.endDate,
-                    rates: season.rates
-                }))
-            };
-            await supplierApi.bulkUpdateRates(payload);
-
-            const uniqueCarIds = new Set<number>();
-            const uniqueSippCodes = new Set<string>();
-            batchSeasons.forEach((season: any) => {
-                if (season.carId !== undefined && season.carId !== null) {
-                    uniqueCarIds.add(Number(season.carId));
-                }
-                if (season.carSipp) {
-                    uniqueSippCodes.add(String(season.carSipp));
-                }
-            });
-
-            setActivationNotice({
-                location: applyToAllLocations ? 'ALL LOCATIONS' : activeLocation,
-                cars: uniqueCarIds.size,
-                sippCodes: uniqueSippCodes.size,
-                seasons: batchSeasons.length,
-                updatedAt: new Date()
-            });
-            const successMsg = applyToAllLocations 
-                ? `Batch update applied successfully to ALL locations! ${batchSeasons.length} seasons synchronized.`
-                : `Batch update successful! ${batchSeasons.length} actions applied to ${activeLocation}.`;
-            alert(successMsg);
-            setBatchSeasons([]);
-            onUpdate();
-        } catch (e) {
-            alert('Failed to update rates manually.');
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleMoneyInput = (carId: number, idx: number, field: 'dailyRate' | 'deposit', value: string) => {
-        // Keep typing smooth for decimal values while still restricting to money-like input.
-        const normalized = value.replace(',', '.');
-        if (!/^\d*\.?\d{0,2}$/.test(normalized) && normalized !== '') return;
-
-        setManualBandsByCar(prev => {
-            const next = { ...prev };
-            // Synchronize across all selected cars to maintain the "Linked" promise
-            selectedCarIds.forEach(id => {
-                const bands = [...(next[id] || [])];
-                if (bands[idx]) {
-                    bands[idx] = {
-                        ...bands[idx],
-                        [field]: normalized,
-                    };
-                    next[id] = bands;
-                }
-            });
-            return next;
-        });
-    };
-
-    const updateBondRangeForAllSelectedCars = (idx: number, field: 'minDays' | 'maxDays', value: number | null) => {
-        setManualBandsByCar(prev => {
-            const next = { ...prev };
-            selectedCarIds.forEach(carId => {
-                const bands = [...(next[carId] || [])];
-                if (!bands[idx]) return;
-                bands[idx] = {
-                    ...bands[idx],
-                    [field]: value,
-                };
-                next[carId] = bands;
-            });
-            return next;
-        });
-    };
-
-    const addBondRowForAllSelectedCars = () => {
-        if (selectedCarIds.length === 0) return;
-        setManualBandsByCar(prev => {
-            const next = { ...prev };
-            
-            // Ensure all selected cars have at least one entry to reference
-            selectedCarIds.forEach(id => {
-                if (!next[id] || next[id].length === 0) {
-                    next[id] = baseBands.map(b => ({
-                        minDays: b.minDays,
-                        maxDays: b.maxDays,
-                        dailyRate: '',
-                        deposit: '',
-                    }));
-                }
-            });
-
-            const referenceBands = next[selectedCarIds[0]] || [];
-            const lastBand = referenceBands[referenceBands.length - 1];
-            const nextMin = lastBand ? (Number(lastBand.maxDays) || Number(lastBand.minDays) || 0) + 1 : 1;
-
-            selectedCarIds.forEach(carId => {
-                const bands = [...(next[carId] || [])];
-                bands.push({ minDays: nextMin, maxDays: null, dailyRate: '', deposit: '' });
-                next[carId] = bands;
-            });
-
-            return next;
-        });
-    };
-
-    const removeBondRowForAllSelectedCars = (idx: number) => {
-        setManualBandsByCar(prev => {
-            const next = { ...prev };
-            selectedCarIds.forEach(carId => {
-                next[carId] = (next[carId] || []).filter((_: any, bandIdx: number) => bandIdx !== idx);
-            });
-            return next;
-        });
-    };
-
-    const activePeriod = isCustomPeriod ? customPeriod : config.periods?.[selectedPeriodIdx];
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl shadow-gray-200/60 border border-gray-50 mt-12 overflow-hidden relative"
-        >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-50/30 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-            
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 relative z-10">
-                <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-[2rem] shadow-xl shadow-orange-200 ring-8 ring-orange-50 flex items-center justify-center">
-                        <Zap className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                        <h3 className="text-3xl font-black text-gray-900 tracking-tight">Change Rates Manually</h3>
-                        <div className="flex items-center gap-3 mt-1.5">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 rounded-full border border-orange-100">
-                                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                                <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">Manual Pricing Workspace</span>
-                            </div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Choose cars, set period, define bonds, apply prices</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="px-5 py-3 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-900 hover:border-gray-200 transition-all flex items-center gap-2"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Pricing Modes
-                    </button>
-                    <div className="hidden xl:flex items-center gap-8 bg-gray-50/50 px-8 py-4 rounded-[2rem] border border-gray-100">
-                        <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Selected Cars</span>
-                            <span className="text-lg font-black text-gray-900">{selectedCars.length}</span>
-                        </div>
-                        <div className="w-px h-8 bg-gray-200" />
-                        <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">SIPP Keys</span>
-                            <span className="text-lg font-black text-gray-900">{selectedSippCodes.length}</span>
-                        </div>
-                        <div className="w-px h-8 bg-gray-200" />
-                        <div className="flex flex-col items-center">
-                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Active Fleet</span>
-                        <span className="text-lg font-black text-gray-900">{cars.length}</span>
-                    </div>
-                    </div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-20">
+            {/* Header with Back button */}
+            <div className="flex items-center justify-between">
+                <button onClick={onBack} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-black uppercase tracking-widest text-[10px]">
+                    <ArrowLeft className="w-4 h-4" /> Back to Rates
+                </button>
+                <div className="flex items-center gap-2">
+                   <div className="px-4 py-2 rounded-2xl bg-orange-50 border border-orange-100 flex items-center gap-2">
+                       <Zap className="w-4 h-4 text-orange-600" />
+                       <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Manual Pricing Workspace</span>
+                   </div>
                 </div>
             </div>
 
-            <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-                {[
-                    { step: 'Step 1', title: 'Choose Cars', hint: 'Select supplier fleet vehicles' },
-                    { step: 'Step 2', title: 'Create Period', hint: 'Season or custom date range' },
-                    { step: 'Step 3', title: 'Set Bond Prices', hint: 'Daily rate and security bond' },
-                ].map((item, idx) => (
-                    <div
-                        key={item.title}
-                        className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-4 shadow-sm"
-                    >
-                        <p className="text-[9px] font-black text-orange-600 uppercase tracking-[0.2em]">{item.step}</p>
-                        <p className="text-sm font-black text-gray-900 mt-1">{item.title}</p>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{item.hint}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Car Selection Sidebar */}
+                <div className="lg:col-span-1 space-y-6">
+                    <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/30">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Car className="w-4 h-4 text-gray-400" />
+                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Select Vehicles</h3>
+                        </div>
+                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                            {cars.map(car => {
+                                const isSelected = selectedCarIds.includes(Number(car.id));
+                                return (
+                                    <button
+                                        key={car.id}
+                                        onClick={() => toggleCar(Number(car.id))}
+                                        className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
+                                            isSelected 
+                                            ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-200' 
+                                            : 'bg-white border-gray-100 text-gray-600 hover:border-orange-200 hover:bg-orange-50'
+                                        }`}
+                                    >
+                                        <div className="flex flex-col">
+                                            <span className={`text-[11px] font-black ${isSelected ? 'text-white' : 'text-gray-900'}`}>{car.make} {car.model}</span>
+                                            <span className={`text-[9px] font-bold uppercase tracking-tighter ${isSelected ? 'text-orange-100' : 'text-gray-400'}`}>{car.sippCode}</span>
+                                        </div>
+                                        {isSelected && <Check className="w-4 h-4" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                ))}
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12 relative z-10">
-                <div className="lg:col-span-4 space-y-6">
-                    <div className="space-y-3">
-                        <label className="flex items-center justify-between text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
-                            <span className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-lg bg-orange-50 flex items-center justify-center">
-                                    <Car className="w-3.5 h-3.5 text-orange-600" />
-                            </div>
-                                1. Choose Cars
-                            </span>
-                            {cars.length > 0 && (
+                    <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/30">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Select Periods</h3>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex p-1 bg-gray-50 rounded-xl mb-4">
                                 <button 
-                                    onClick={() => setSelectedCarIds(selectedCarIds.length === cars.length ? [] : cars.map(car => Number(car.id)))}
-                                    className="text-[9px] font-black text-orange-600 hover:text-orange-700 transition-colors uppercase tracking-widest"
+                                    onClick={() => setIsCustomPeriodActive(false)}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${!isCustomPeriodActive ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400'}`}
                                 >
-                                    {selectedCarIds.length === cars.length ? 'Clear All' : 'Select All'}
+                                    Seasons
                                 </button>
-                            )}
-                        </label>
-                        <div className="bg-white border border-gray-100 rounded-[2rem] p-4 max-h-[340px] overflow-y-auto space-y-2 shadow-sm">
-                            {cars.map(car => (
-                                <label key={car.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all group cursor-pointer ${selectedCarIds.includes(Number(car.id)) ? 'bg-orange-50/60 border-orange-200 ring-1 ring-orange-100' : 'bg-gray-50/30 border-gray-50 hover:border-gray-200'}`}>
-                                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${selectedCarIds.includes(Number(car.id)) ? 'bg-orange-600 border-orange-600' : 'bg-white border-gray-200'}`}>
-                                        {selectedCarIds.includes(Number(car.id)) && <Check className="w-3 h-3 text-white" />}
-                                    </div>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={selectedCarIds.includes(Number(car.id))}
-                                        onChange={() => toggleCar(Number(car.id))}
-                                        className="hidden"
-                                    />
-                                    <div className="min-w-0">
-                                        <p className={`text-[11px] font-black uppercase tracking-tight truncate ${selectedCarIds.includes(Number(car.id)) ? 'text-orange-900' : 'text-gray-700'}`}>
-                                            {car.name || `${car.make} ${car.model}`.trim()}
-                                        </p>
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
-                                            {car.sippCode || 'No SIPP'} • {car.category || 'Uncategorized'}
-                                        </p>
-                                    </div>
-                                </label>
-                            ))}
-                            {cars.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-8 opacity-40">
-                                    <Car className="w-8 h-8 mb-2" />
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase text-center tracking-widest">No cars found</p>
-                                </div>
-                            )}
-                        </div>
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">
-                            Pricing updates apply using the selected cars&apos; SIPP codes.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Period Selection */}
-                <div className="lg:col-span-8 space-y-6">
-                    <div className="space-y-3">
-                        <label className="flex items-center gap-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
-                            <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
-                                <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                            </div>
-                            2. Create Time Period
-                        </label>
-                        <div className="flex p-1.5 bg-gray-100/50 rounded-2xl border border-gray-100 mb-2 max-w-md">
-                            <button 
-                                onClick={() => setIsCustomPeriod(false)}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Use Existing Season
-                            </button>
-                            <button 
-                                onClick={() => setIsCustomPeriod(true)}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCustomPeriod ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Custom Range
-                            </button>
-                        </div>
-                        
-                        {!isCustomPeriod ? (
-                            <div className="relative group max-w-2xl">
-                                <select 
-                                    value={selectedPeriodIdx} 
-                                    onChange={e => setSelectedPeriodIdx(parseInt(e.target.value))}
-                                    className="w-full bg-white border border-gray-100 rounded-[2rem] py-5 px-8 text-sm font-bold text-gray-900 outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500/30 transition-all cursor-pointer appearance-none shadow-sm"
-                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 2rem center', backgroundSize: '1.25rem' }}
+                                <button 
+                                    onClick={() => setIsCustomPeriodActive(true)}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${isCustomPeriodActive ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400'}`}
                                 >
-                                    {config.periods?.map((p, idx) => (
-                                        <option key={idx} value={idx}>{p.name} ({p.startDate} - {p.endDate})</option>
-                                    ))}
-                                </select>
+                                    Custom
+                                </button>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-2 gap-6 bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm max-w-2xl">
+
+                            {!isCustomPeriodActive ? (
                                 <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Start Date</label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+                                    {config.periods?.map((p, idx) => {
+                                        const isSelected = selectedPeriodIdxs.includes(idx);
+                                        return (
+                                            <button
+                                                key={idx}
+                                                onClick={() => togglePeriod(idx)}
+                                                className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
+                                                    isSelected 
+                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' 
+                                                    : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200 hover:bg-blue-50'
+                                                }`}
+                                            >
+                                                <div className="flex flex-col">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{p.name}</span>
+                                                    <span className={`text-[9px] font-bold ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>{p.startDate} - {p.endDate}</span>
+                                                </div>
+                                                {isSelected && <Check className="w-4 h-4" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] font-black text-gray-400 uppercase">Start Date</label>
                                         <input 
                                             type="date" 
                                             value={customPeriod.startDate}
                                             onChange={e => setCustomPeriod({...customPeriod, startDate: e.target.value})}
-                                            className="w-full bg-gray-50/50 border border-gray-100 rounded-xl py-3 pl-11 pr-4 text-[11px] font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all"
+                                            className="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-[10px] font-black outline-none focus:border-orange-500"
                                         />
                                     </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">End Date</label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] font-black text-gray-400 uppercase">End Date</label>
                                         <input 
                                             type="date" 
                                             value={customPeriod.endDate}
                                             onChange={e => setCustomPeriod({...customPeriod, endDate: e.target.value})}
-                                            className="w-full bg-gray-50/50 border border-gray-100 rounded-xl py-3 pl-11 pr-4 text-[11px] font-black text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all"
+                                            className="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-[10px] font-black outline-none focus:border-orange-500"
                                         />
                                     </div>
                                 </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Rates Table Workspace */}
+                <div className="lg:col-span-3 space-y-6">
+                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 overflow-hidden">
+                        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Manual Rates Editor</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Configure pricing for selected vehicle/period combinations</p>
+                            </div>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Selected:</span>
+                                <span className="text-xs font-black text-orange-600">{combinations.length} Units</span>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle & SIPP</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pricing Period</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rental Days</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-orange-600 uppercase tracking-widest">Daily Rate ({config.currency})</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-blue-600 uppercase tracking-widest">Bond/Deposit ({config.currency})</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {combinations.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="px-8 py-20 text-center">
+                                                <div className="flex flex-col items-center gap-4 grayscale opacity-50">
+                                                    <Package className="w-12 h-12 text-gray-300" />
+                                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No combinations selected. Choose vehicles and periods from the sidebar.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        combinations.map(({ car, period }) => {
+                                            const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
+                                            const bands = gridData[key] || [];
+                                            
+                                            return bands.map((band, bIdx) => (
+                                                <tr key={`${key}-${bIdx}`} className="hover:bg-orange-50/30 transition-colors group">
+                                                    <td className="px-8 py-5">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs font-black text-gray-900">{car.make} {car.model}</span>
+                                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{car.sippCode}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] font-black text-gray-700 uppercase">{period.name}</span>
+                                                            <span className="text-[9px] font-bold text-gray-400">{period.startDate} - {period.endDate}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <span className="px-3 py-1 rounded-full bg-gray-100 text-[9px] font-black text-gray-600 uppercase tracking-tighter border border-gray-200">
+                                                            {band.minDays}-{band.maxDays || '+'} Days
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <div className="relative max-w-[120px]">
+                                                            <input
+                                                                type="text"
+                                                                value={band.dailyRate}
+                                                                onChange={(e) => handleGridInput(key, bIdx, 'dailyRate', e.target.value)}
+                                                                placeholder="0.00"
+                                                                className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none"
+                                                            />
+                                                            <DollarSign className="w-3 h-3 text-orange-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <div className="relative max-w-[120px]">
+                                                            <input
+                                                                type="text"
+                                                                value={band.deposit}
+                                                                onChange={(e) => handleGridInput(key, bIdx, 'deposit', e.target.value)}
+                                                                placeholder="0"
+                                                                className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-xs font-black text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+                                                            />
+                                                            <Shield className="w-3 h-3 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ));
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {combinations.length > 0 && (
+                            <div className="p-8 bg-gray-50 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative flex items-center">
+                                        <input 
+                                            type="checkbox" 
+                                            id="apply-all-final"
+                                            checked={applyToAllLocations}
+                                            onChange={e => setApplyToAllLocations(e.target.checked)}
+                                            className="w-5 h-5 text-orange-600 border-gray-300 rounded-lg focus:ring-orange-500 cursor-pointer"
+                                        />
+                                    </div>
+                                    <label htmlFor="apply-all-final" className="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em] cursor-pointer">
+                                        Apply these updates to <span className="text-orange-600">All Locations</span>
+                                    </label>
+                                </div>
+
+                                <button
+                                    onClick={handleApply}
+                                    disabled={isSaving}
+                                    className="px-12 py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-gray-200 hover:bg-orange-600 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                            Updating Rates...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle className="w-4 h-4" />
+                                            Submit Rates
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-
-            {activePeriod && (
-                <div className="bg-white p-10 md:p-16 rounded-[4rem] border border-slate-200 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] mb-16 relative z-10 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 via-orange-600 to-orange-400" />
-                    
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 mb-14">
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-[2rem] bg-orange-600 flex items-center justify-center shadow-2xl shadow-orange-200 ring-8 ring-orange-50">
-                                <DollarSign className="w-8 h-8 text-white" />
-                            </div>
-                            <div>
-                                <h4 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">3. Pricing Workspace</h4>
-                                <div className="flex items-center gap-3">
-                                    <span className="px-2.5 py-1 rounded-lg bg-orange-50 text-[10px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">Live Rates Edit</span>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Define your rate structure for the selected period</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center gap-4 p-3 bg-slate-50/50 rounded-3xl border border-slate-100">
-                            <div className="px-6 py-2 border-r border-slate-200">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Period</p>
-                                <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight">{isCustomPeriod ? 'Custom Selection' : activePeriod.name}</p>
-                            </div>
-                            <div className="px-6 py-2">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Validity Range</p>
-                                <p className="text-[11px] font-black text-blue-600 uppercase tracking-tight">
-                                    {format(parseISO(activePeriod.startDate), 'MMM d')} — {format(parseISO(activePeriod.endDate), 'MMM d, yyyy')}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {selectedCars.length === 0 ? (
-                        <div className="rounded-[3rem] border-2 border-dashed border-slate-100 bg-slate-50/30 p-20 text-center flex flex-col items-center gap-4 group hover:border-orange-200 transition-colors">
-                            <div className="w-20 h-20 rounded-[2.5rem] bg-white shadow-xl flex items-center justify-center text-slate-300 group-hover:text-orange-400 transition-colors">
-                                <Car className="w-10 h-10" />
-                            </div>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Select vehicles from step 2 to begin pricing</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-12">
-                            {/* Selected Cars Summary - Professional List */}
-                            <div className="bg-slate-50/50 rounded-[2.5rem] p-8 border border-slate-100">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <Users className="w-5 h-5 text-slate-400" />
-                                    <h5 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Applying rates to {selectedCars.length} vehicles:</h5>
-                                </div>
-                                <div className="flex flex-wrap gap-3">
-                                    {selectedCars.map(car => (
-                                        <div key={car.id} className="flex items-center gap-3 px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm transition-all hover:border-orange-300 hover:shadow-orange-50 group">
-                                            <Car className="w-4 h-4 text-slate-300 group-hover:text-orange-500 transition-colors" />
-                                            <span className="text-[11px] font-black text-slate-700">{car.name || `${car.make} ${car.model}`}</span>
-                                            <span className="px-2 py-0.5 rounded-md bg-slate-50 text-[9px] font-bold text-slate-400 border border-slate-100">{car.sippCode}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Unified Pricing Table */}
-                            <div className="bg-white rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden">
-                                <div className="px-12 py-10 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100">
-                                            <Layers className="w-6 h-6" />
-                                        </div>
-                                        <div>
-                                            <h6 className="text-base font-black text-slate-900 leading-none">Global Bond Configuration</h6>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Configure prices once, apply to all selected cars automatically</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-6 py-2.5 bg-green-50 rounded-2xl border border-green-100">
-                                        <Check className="w-4 h-4 text-green-600" />
-                                        <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Real-time Sync Active</span>
-                                    </div>
-                                </div>
-
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="bg-white">
-                                                <th className="px-12 py-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Rental Duration (Days)</th>
-                                                <th className="px-12 py-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Daily Rental Rate</th>
-                                                <th className="px-12 py-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Security Deposit</th>
-                                                <th className="px-12 py-8 text-right"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {(manualBandsByCar[Number(selectedCars[0].id)] || []).map((band: any, idx: number) => (
-                                                <tr key={idx} className="group hover:bg-slate-50/30 transition-all">
-                                                    <td className="px-12 py-10">
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="flex flex-col gap-2">
-                                                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Min Days</span>
-                                                                <input
-                                                                    type="number"
-                                                                    value={band.minDays}
-                                                                    disabled={isSaving}
-                                                                    onChange={e => updateBondRangeForAllSelectedCars(idx, 'minDays', parseInt(e.target.value, 10) || 1)}
-                                                                    className="w-24 bg-white border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-black text-center text-slate-900 outline-none focus:border-orange-500 focus:ring-8 focus:ring-orange-500/5 transition-all shadow-sm"
-                                                                />
-                                                            </div>
-                                                            <div className="mt-6 w-4 h-0.5 bg-slate-200 rounded-full" />
-                                                            <div className="flex flex-col gap-2">
-                                                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Max Days</span>
-                                                                <input
-                                                                    type="number"
-                                                                    value={band.maxDays || ''}
-                                                                    disabled={isSaving}
-                                                                    onChange={e => updateBondRangeForAllSelectedCars(idx, 'maxDays', e.target.value === '' ? null : parseInt(e.target.value, 10))}
-                                                                    placeholder="∞"
-                                                                    className="w-24 bg-white border-2 border-slate-100 rounded-2xl py-4 px-6 text-sm font-black text-center text-slate-900 outline-none focus:border-orange-500 focus:ring-8 focus:ring-orange-500/5 transition-all shadow-sm"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-12 py-10">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Price per Day</span>
-                                                            <div className="flex items-center max-w-[240px] bg-white border-2 border-slate-100 rounded-2xl overflow-hidden focus-within:border-orange-500 focus-within:ring-8 focus-within:ring-orange-500/5 transition-all shadow-sm">
-                                                                <div className="bg-slate-50 px-5 py-4 text-[11px] font-black text-slate-400 border-r-2 border-slate-50 uppercase tracking-widest">
-                                                                    {config.currency}
-                                                                </div>
-                                                                <input
-                                                                    type="text"
-                                                                    inputMode="decimal"
-                                                                    value={band.dailyRate || ''}
-                                                                    disabled={isSaving}
-                                                                    onChange={e => handleMoneyInput(Number(selectedCars[0].id), idx, 'dailyRate', e.target.value)}
-                                                                    className="flex-1 py-4 px-6 text-base font-black text-slate-900 outline-none bg-transparent placeholder:text-slate-200"
-                                                                    placeholder="0.00"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-12 py-10">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest ml-1">Total Bond</span>
-                                                            <div className="flex items-center max-w-[240px] bg-white border-2 border-slate-100 rounded-2xl overflow-hidden focus-within:border-blue-500 focus-within:ring-8 focus-within:ring-blue-500/5 transition-all shadow-sm">
-                                                                <div className="bg-slate-50 px-5 py-4 text-[11px] font-black text-slate-400 border-r-2 border-slate-50 uppercase tracking-widest">
-                                                                    {config.currency}
-                                                                </div>
-                                                                <input
-                                                                    type="text"
-                                                                    inputMode="decimal"
-                                                                    value={band.deposit || ''}
-                                                                    disabled={isSaving}
-                                                                    onChange={e => handleMoneyInput(Number(selectedCars[0].id), idx, 'deposit', e.target.value)}
-                                                                    className="flex-1 py-4 px-6 text-base font-black text-slate-900 outline-none bg-transparent placeholder:text-slate-200"
-                                                                    placeholder="0.00"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-12 py-10 text-right">
-                                                        <button
-                                                            onClick={() => removeBondRowForAllSelectedCars(idx)}
-                                                            className="w-12 h-12 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
-                                                        >
-                                                            <Trash2 className="w-5 h-5" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div className="p-10 bg-slate-50/30 border-t border-slate-100">
-                                    <button
-                                        onClick={addBondRowForAllSelectedCars}
-                                        disabled={isSaving}
-                                        className="w-full py-6 bg-white border-2 border-dashed border-slate-200 rounded-3xl text-[11px] font-black text-orange-600 uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 group hover:border-orange-500 hover:bg-orange-50 hover:shadow-2xl hover:shadow-orange-100 active:scale-[0.99] disabled:opacity-50"
-                                    >
-                                        <div className="w-10 h-10 rounded-2xl bg-orange-600 text-white flex items-center justify-center group-hover:rotate-90 transition-transform shadow-xl shadow-orange-200">
-                                            <Plus className="w-6 h-6" />
-                                        </div>
-                                        Add New Pricing Tier
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="pt-8">
-                                <button
-                                    onClick={addSeasonToBatch}
-                                    disabled={isSaving}
-                                    className={`w-full py-7 bg-slate-900 text-white rounded-[2.5rem] text-xs font-black uppercase tracking-[0.4em] shadow-2xl shadow-slate-300 hover:bg-orange-600 hover:shadow-orange-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-4 active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    <Zap className="w-6 h-6 animate-pulse" />
-                                    Finalize Rates & Add to Batch List
-                                </button>
-                                <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-6">
-                                    Changes will be staged below for your final review before activation.
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {activationNotice && (
-                <div className="mb-8 rounded-[2rem] border border-green-100 bg-green-50/70 p-6 relative z-10">
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-green-600 text-white flex items-center justify-center shadow-lg shadow-green-200">
-                            <CheckCircle className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-sm font-black text-green-900 uppercase tracking-wider">Rates Activated Successfully</p>
-                            <p className="text-[11px] font-bold text-green-800 uppercase tracking-widest mt-1">
-                                Cars and pricing are active for search results.
-                            </p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
-                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Location</p>
-                                    <p className="text-xs font-black text-green-900">{activationNotice.location}</p>
-                                </div>
-                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
-                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Cars</p>
-                                    <p className="text-xs font-black text-green-900">{activationNotice.cars}</p>
-                                </div>
-                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
-                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">SIPP Codes</p>
-                                    <p className="text-xs font-black text-green-900">{activationNotice.sippCodes}</p>
-                                </div>
-                                <div className="rounded-xl bg-white/80 border border-green-100 p-3">
-                                    <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Updated</p>
-                                    <p className="text-xs font-black text-green-900">{format(activationNotice.updatedAt, 'MMM d, HH:mm')}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Batch List Section */}
-            {batchSeasons.length > 0 && (
-                <div className="mb-12 relative z-10">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white shadow-lg shadow-gray-200">
-                                <Layers className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h4 className="text-lg font-black text-gray-900 tracking-tight">Defined Batch Actions</h4>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{batchSeasons.length} pricing updates pending application</p>
-                            </div>
-                        </div>
-                        <button 
-                            onClick={() => setBatchSeasons([])}
-                            className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-600 transition-colors px-4 py-2 rounded-xl hover:bg-red-50"
-                        >
-                            Clear All
-                        </button>
-                    </div>
-
-                    <div className="space-y-6">
-                        <AnimatePresence>
-                            {batchSeasons.map((season, idx) => (
-                                <motion.div 
-                                    key={idx}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 20 }}
-                                    className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-xl shadow-gray-200/30 flex flex-col lg:flex-row lg:items-center justify-between gap-8 group hover:shadow-2xl hover:border-orange-100 transition-all relative overflow-hidden"
-                                >
-                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    
-                                    <div className="flex flex-col md:flex-row items-start md:items-center gap-8 flex-1">
-                                        <div className="w-16 h-16 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-orange-600 group-hover:text-white transition-all shadow-inner group-hover:shadow-orange-200 group-hover:scale-110">
-                                            <Calendar className="w-8 h-8" />
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-3">
-                                                <span className="px-3 py-1 rounded-full bg-blue-50 text-[9px] font-black text-blue-600 uppercase tracking-widest border border-blue-100">
-                                                    {season.periodName}
-                                                </span>
-                                                <span className="px-3 py-1 rounded-full bg-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">
-                                                    {season.selectedCarNames.length} Cars
-                                                </span>
-                                            </div>
-                                            <p className="text-lg font-black text-gray-900 tracking-tight">
-                                                {format(parseISO(season.startDate), 'MMM d, yyyy')} <span className="text-gray-300 mx-2">—</span> {format(parseISO(season.endDate), 'MMM d, yyyy')}
-                                            </p>
-                                            <div className="flex flex-wrap gap-2 pt-1">
-                                                {season.selectedCarNames.slice(0, 4).map((v: string) => (
-                                                    <span key={v} className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{v}</span>
-                                                ))}
-                                                {season.selectedCarNames.length > 4 && (
-                                                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-tight">+{season.selectedCarNames.length - 4} more</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="h-16 w-px bg-gray-100 hidden lg:block mx-4" />
-                                        
-                                        <div className="flex-1">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Configured Pricing Bonds</p>
-                                            <div className="flex flex-wrap gap-3">
-                                                {season.rates.map((r: any, i: number) => (
-                                                    <div key={i} className="flex items-center gap-3 bg-gray-50/50 px-4 py-2.5 rounded-2xl border border-gray-100 group-hover:bg-white group-hover:border-orange-50 transition-colors">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Bond</span>
-                                                            <span className="text-[10px] font-black text-gray-900">{r.minDays}-{r.maxDays || '+'}d</span>
-                                                        </div>
-                                                        <div className="w-px h-6 bg-gray-200" />
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[8px] font-black text-orange-400 uppercase tracking-tighter">Rate</span>
-                                                            <span className="text-[11px] font-black text-orange-600">{config.currency}{r.dailyRate}</span>
-                                                        </div>
-                                                        {r.deposit > 0 && (
-                                                            <>
-                                                                <div className="w-px h-6 bg-gray-200" />
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-[8px] font-black text-blue-400 uppercase tracking-tighter">Bond</span>
-                                                                    <span className="text-[11px] font-black text-blue-600">{config.currency}{r.deposit}</span>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-4 self-end lg:self-auto ml-8">
-                                        <button 
-                                            onClick={() => removeSeasonFromBatch(idx)}
-                                            className="w-12 h-12 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
-                                            title="Remove from batch"
-                                        >
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                </div>
-            )}
-
-            <button 
-                onClick={handleApply}
-                disabled={isSaving || batchSeasons.length === 0}
-                className={`w-full py-5 rounded-[2rem] text-xs font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center justify-center gap-4 ${
-                    batchSeasons.length > 0
-                    ? 'bg-gray-900 text-white shadow-gray-200 hover:bg-orange-600 hover:scale-[1.01] active:scale-95' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-            >
-                {isSaving ? (
-                    <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Applying Batch Updates...
-                    </>
-                ) : (
-                    <>
-                        <CheckCircle className="w-4 h-4" />
-                        Apply All {batchSeasons.length} Batch Actions
-                    </>
-                )}
-            </button>
-
-            {batchSeasons.length > 0 && (
-                <div className="flex items-center justify-center gap-2 mt-4">
-                    <input 
-                        type="checkbox" 
-                        id="apply-all-loc-manual"
-                        checked={applyToAllLocations}
-                        onChange={e => setApplyToAllLocations(e.target.checked)}
-                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <label htmlFor="apply-all-loc-manual" className="text-[10px] font-black text-gray-500 uppercase tracking-widest cursor-pointer">
-                        Apply these rates to all locations
-                    </label>
-                </div>
-            )}
         </motion.div>
     );
-}
+};
 
 // ==================== Rates Section ====================
 const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] }) => {
