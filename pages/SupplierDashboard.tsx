@@ -769,7 +769,11 @@ const FleetSection = ({
 
 // ==================== Manual Pricing Section ====================
 const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBack, activeLocation }: { config: TemplateConfig, cars: CarType[], existingTiers?: CarRateTier[], onUpdate: () => void, onBack: () => void, activeLocation: string }) => {
+    const [targetType, setTargetType] = useState<'car' | 'category' | 'sipp'>('car');
     const [selectedCarIds, setSelectedCarIds] = useState<number[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedSipps, setSelectedSipps] = useState<string[]>([]);
+    
     const [selectedPeriodIdxs, setSelectedPeriodIdxs] = useState<number[]>([]);
     const [isCustomPeriodActive, setIsCustomPeriodActive] = useState(false);
     const [customPeriod, setCustomPeriod] = useState({
@@ -778,66 +782,87 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
         endDate: format(addDays(new Date(), 30), 'yyyy-MM-dd')
     });
 
-    const [gridData, setGridData] = useState<Record<string, any[]>>({}); // key: carId-periodName-start-end
+    const [sessionBands, setSessionBands] = useState<BandConfig[]>(config.bands?.length ? config.bands : [{ minDays: 1, maxDays: null, perMonth: false }]);
+    const [gridData, setGridData] = useState<Record<string, { dailyRate: string, deposit: string }[]>>({}); // key: targetId-period-range
     const [isSaving, setIsSaving] = useState(false);
     const [applyToAllLocations, setApplyToAllLocations] = useState(false);
+
+    const categories = useMemo(() => Array.from(new Set(cars.map(c => c.category))).sort(), [cars]);
+    const sipps = useMemo(() => Array.from(new Set(cars.map(c => c.sippCode))).sort(), [cars]);
+
+    const targets = useMemo(() => {
+        const res: { type: string, values: string[], label: string, subLabel: string, id: string }[] = [];
+        if (targetType === 'car') {
+            selectedCarIds.forEach(id => {
+                const car = cars.find(c => Number(c.id) === id);
+                if (car) res.push({ type: 'car', values: [String(id)], label: `${car.make} ${car.model}`, subLabel: car.sippCode, id: `car-${id}` });
+            });
+        } else if (targetType === 'category') {
+            selectedCategories.forEach(cat => {
+                res.push({ type: 'category', values: [cat], label: cat, subLabel: 'Category', id: `cat-${cat}` });
+            });
+        } else if (targetType === 'sipp') {
+            selectedSipps.forEach(sipp => {
+                res.push({ type: 'sipp', values: [sipp], label: sipp, subLabel: 'SIPP Code', id: `sipp-${sipp}` });
+            });
+        }
+        return res;
+    }, [targetType, selectedCarIds, selectedCategories, selectedSipps, cars]);
 
     const activePeriods = useMemo(() => {
         const list = (selectedPeriodIdxs || []).map(idx => config.periods![idx]);
         if (isCustomPeriodActive) {
             list.push({
                 ...customPeriod,
-                bands: config.bands || []
+                bands: sessionBands
             });
         }
         return list;
-    }, [selectedPeriodIdxs, isCustomPeriodActive, customPeriod, config]);
+    }, [selectedPeriodIdxs, isCustomPeriodActive, customPeriod, config, sessionBands]);
 
     const combinations = useMemo(() => {
-        const res: { car: CarType, period: any }[] = [];
-        (selectedCarIds || []).forEach(carId => {
-            const car = cars.find(c => Number(c.id) === carId);
-            if (!car) return;
+        const res: { target: any, period: any }[] = [];
+        targets.forEach(target => {
             activePeriods.forEach(period => {
-                res.push({ car, period });
+                res.push({ target, period });
             });
         });
         return res;
-    }, [selectedCarIds, activePeriods, cars]);
+    }, [targets, activePeriods]);
 
     useEffect(() => {
         setGridData(prev => {
             const next = { ...prev };
-            combinations.forEach(({ car, period }) => {
-                const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
-                if (!next[key]) {
-                    const existing = existingTiers?.find(t => 
-                        Number(t.carId) === Number(car.id) && 
-                        t.startDate === period.startDate && 
-                        t.endDate === period.endDate
-                    );
-
-                    if (existing && existing.bands?.length > 0) {
-                        next[key] = existing.bands.map(b => ({
-                            minDays: b.minDays,
-                            maxDays: b.maxDays,
-                            dailyRate: String(b.dailyRate),
-                            deposit: String(b.deposit),
-                        }));
-                    } else {
-                        const baseBands = config.bands?.length ? config.bands : [{ minDays: 1, maxDays: null }];
-                        next[key] = baseBands.map(b => ({
-                            minDays: b.minDays,
-                            maxDays: b.maxDays,
-                            dailyRate: '',
-                            deposit: '',
-                        }));
+            combinations.forEach(({ target, period }) => {
+                const key = `${target.id}-${period.name}-${period.startDate}-${period.endDate}`;
+                if (!next[key] || next[key].length !== sessionBands.length) {
+                    const existingData = next[key] || [];
+                    
+                    // Try to pre-fill from existing tiers if it's a car and we have data
+                    let initial = sessionBands.map((_, i) => existingData[i] || { dailyRate: '', deposit: '' });
+                    
+                    if (!next[key] && target.type === 'car') {
+                        const existing = existingTiers?.find(t => 
+                            Number(t.carId) === Number(target.values[0]) && 
+                            t.startDate === period.startDate && 
+                            t.endDate === period.endDate
+                        );
+                        if (existing && existing.bands?.length > 0) {
+                            initial = sessionBands.map(sb => {
+                                const match = existing.bands.find(eb => eb.minDays === sb.minDays);
+                                return {
+                                    dailyRate: match ? String(match.dailyRate) : '',
+                                    deposit: match ? String(match.deposit) : ''
+                                };
+                            });
+                        }
                     }
+                    next[key] = initial;
                 }
             });
             return next;
         });
-    }, [combinations, existingTiers, config]);
+    }, [combinations, sessionBands, existingTiers]);
 
     const handleGridInput = (key: string, bandIdx: number, field: 'dailyRate' | 'deposit', value: string) => {
         const normalized = value.replace(',', '.');
@@ -851,37 +876,37 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
 
     const handleApply = async () => {
         if (combinations.length === 0) {
-            alert('Please select at least one car and one period.');
+            alert('Please select at least one car/category and one period.');
             return;
         }
 
-        const invalid = combinations.find(({ car, period }) => {
-            const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
+        const invalid = combinations.find(({ target, period }) => {
+            const key = `${target.id}-${period.name}-${period.startDate}-${period.endDate}`;
             const bands = gridData[key] || [];
             return bands.some(b => !String(b.dailyRate || '').trim() || Number(b.dailyRate) <= 0);
         });
 
         if (invalid) {
-            alert(`Please enter valid rates for ${invalid.car.make} ${invalid.car.model} in period ${invalid.period.name}`);
+            alert(`Please enter valid rates for ${invalid.target.label} in period ${invalid.period.name}`);
             return;
         }
 
         setIsSaving(true);
         try {
-            const seasons = combinations.map(({ car, period }) => {
-                const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
-                const bands = gridData[key];
+            const seasons = combinations.map(({ target, period }) => {
+                const key = `${target.id}-${period.name}-${period.startDate}-${period.endDate}`;
+                const data = gridData[key];
                 return {
-                    targetType: 'car',
-                    targetValues: [String(car.id)],
+                    targetType: target.type,
+                    targetValues: target.values,
                     periodName: period.name,
                     startDate: period.startDate,
                     endDate: period.endDate,
-                    rates: bands.map(b => ({
-                        minDays: b.minDays,
-                        maxDays: b.maxDays,
-                        dailyRate: Number(b.dailyRate),
-                        deposit: Number(b.deposit)
+                    rates: sessionBands.map((sb, i) => ({
+                        minDays: sb.minDays,
+                        maxDays: sb.maxDays,
+                        dailyRate: Number(data[i].dailyRate),
+                        deposit: Number(data[i].deposit)
                     }))
                 };
             });
@@ -901,10 +926,49 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
         }
     };
 
+    const addBand = () => {
+        const last = sessionBands[sessionBands.length - 1];
+        const nextMin = last ? (last.maxDays || last.minDays) + 1 : 1;
+        setSessionBands([...sessionBands, { minDays: nextMin, maxDays: null, perMonth: false }]);
+    };
+
+    const removeBand = (idx: number) => {
+        if (sessionBands.length <= 1) return;
+        setSessionBands(sessionBands.filter((_, i) => i !== idx));
+    };
+
+    const updateBand = (idx: number, field: keyof BandConfig, value: any) => {
+        setSessionBands(sessionBands.map((b, i) => i === idx ? { ...b, [field]: value } : b));
+    };
+
     const toggleCar = (id: number) => {
         setSelectedCarIds(prev =>
             prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
         );
+    };
+
+    const toggleCategory = (cat: string) => {
+        setSelectedCategories(prev =>
+            prev.includes(cat) ? prev.filter(v => v !== cat) : [...prev, cat]
+        );
+    };
+
+    const toggleSipp = (sipp: string) => {
+        setSelectedSipps(prev =>
+            prev.includes(sipp) ? prev.filter(v => v !== sipp) : [...prev, sipp]
+        );
+    };
+
+    const selectAllTargets = () => {
+        if (targetType === 'car') setSelectedCarIds(cars.map(c => Number(c.id)));
+        else if (targetType === 'category') setSelectedCategories([...categories]);
+        else if (targetType === 'sipp') setSelectedSipps([...sipps]);
+    };
+
+    const clearTargets = () => {
+        if (targetType === 'car') setSelectedCarIds([]);
+        else if (targetType === 'category') setSelectedCategories([]);
+        else if (targetType === 'sipp') setSelectedSipps([]);
     };
 
     const togglePeriod = (idx: number) => {
@@ -929,24 +993,42 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Car Selection Sidebar */}
+                {/* Sidebar */}
                 <div className="lg:col-span-1 space-y-6">
+                    {/* 1. Vehicles / Categories */}
                     <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/30">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Car className="w-4 h-4 text-gray-400" />
-                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Select Vehicles</h3>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <Car className="w-4 h-4 text-gray-400" />
+                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Targets</h3>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <button onClick={selectAllTargets} className="px-2 py-1 text-[8px] font-black text-blue-600 uppercase hover:bg-blue-50 rounded-md transition-colors">All</button>
+                                <button onClick={clearTargets} className="px-2 py-1 text-[8px] font-black text-gray-400 uppercase hover:bg-gray-100 rounded-md transition-colors">None</button>
+                            </div>
                         </div>
-                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                            {cars.map(car => {
+
+                        <div className="flex p-1 bg-gray-50 rounded-xl mb-4">
+                            {(['car', 'category', 'sipp'] as const).map(type => (
+                                <button 
+                                    key={type}
+                                    onClick={() => setTargetType(type)}
+                                    className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${targetType === type ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400'}`}
+                                >
+                                    {type}s
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {targetType === 'car' && cars.map(car => {
                                 const isSelected = selectedCarIds.includes(Number(car.id));
                                 return (
                                     <button
                                         key={car.id}
                                         onClick={() => toggleCar(Number(car.id))}
                                         className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
-                                            isSelected 
-                                            ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-200' 
-                                            : 'bg-white border-gray-100 text-gray-600 hover:border-orange-200 hover:bg-orange-50'
+                                            isSelected ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-orange-50'
                                         }`}
                                     >
                                         <div className="flex flex-col">
@@ -957,13 +1039,46 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                     </button>
                                 );
                             })}
+
+                            {targetType === 'category' && categories.map(cat => {
+                                const isSelected = selectedCategories.includes(cat);
+                                return (
+                                    <button
+                                        key={cat}
+                                        onClick={() => toggleCategory(cat)}
+                                        className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
+                                            isSelected ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-orange-50'
+                                        }`}
+                                    >
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{cat}</span>
+                                        {isSelected && <Check className="w-4 h-4" />}
+                                    </button>
+                                );
+                            })}
+
+                            {targetType === 'sipp' && sipps.map(sipp => {
+                                const isSelected = selectedSipps.includes(sipp);
+                                return (
+                                    <button
+                                        key={sipp}
+                                        onClick={() => toggleSipp(sipp)}
+                                        className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
+                                            isSelected ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-orange-50'
+                                        }`}
+                                    >
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{sipp}</span>
+                                        {isSelected && <Check className="w-4 h-4" />}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
+                    {/* 2. Periods */}
                     <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/30">
                         <div className="flex items-center gap-2 mb-4">
                             <Calendar className="w-4 h-4 text-gray-400" />
-                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Select Periods</h3>
+                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Periods</h3>
                         </div>
                         <div className="space-y-2">
                             <div className="flex p-1 bg-gray-50 rounded-xl mb-4">
@@ -1028,6 +1143,52 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                             )}
                         </div>
                     </div>
+
+                    {/* 3. Rental Duration Bands */}
+                    <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/30">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-gray-400" />
+                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Rental Bands</h3>
+                            </div>
+                            <button onClick={addBand} className="p-1.5 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                                <Plus className="w-3 h-3" />
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            {sessionBands.map((band, idx) => (
+                                <div key={idx} className="p-3 bg-gray-50 rounded-2xl border border-gray-100 relative group/band">
+                                    <button 
+                                        onClick={() => removeBand(idx)}
+                                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover/band:opacity-100 transition-opacity"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <label className="text-[7px] font-black text-gray-400 uppercase">Min Days</label>
+                                            <input 
+                                                type="number" 
+                                                value={band.minDays}
+                                                onChange={e => updateBand(idx, 'minDays', parseInt(e.target.value))}
+                                                className="w-full p-1.5 bg-white border border-gray-100 rounded-lg text-[10px] font-black outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[7px] font-black text-gray-400 uppercase">Max Days</label>
+                                            <input 
+                                                type="number" 
+                                                value={band.maxDays || ''}
+                                                onChange={e => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)}
+                                                placeholder="+"
+                                                className="w-full p-1.5 bg-white border border-gray-100 rounded-lg text-[10px] font-black outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Rates Table Workspace */}
@@ -1048,7 +1209,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle & SIPP</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Target Selection</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pricing Period</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rental Days</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-orange-600 uppercase tracking-widest">Daily Rate ({config.currency})</th>
@@ -1066,16 +1227,16 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                             </td>
                                         </tr>
                                     ) : (
-                                        combinations.map(({ car, period }) => {
-                                            const key = `${car.id}-${period.name}-${period.startDate}-${period.endDate}`;
-                                            const bands = gridData[key] || [];
+                                        combinations.map(({ target, period }) => {
+                                            const key = `${target.id}-${period.name}-${period.startDate}-${period.endDate}`;
+                                            const data = gridData[key] || [];
                                             
-                                            return bands.map((band, bIdx) => (
+                                            return sessionBands.map((band, bIdx) => (
                                                 <tr key={`${key}-${bIdx}`} className="hover:bg-orange-50/30 transition-colors group">
                                                     <td className="px-8 py-5">
                                                         <div className="flex flex-col">
-                                                            <span className="text-xs font-black text-gray-900">{car.make} {car.model}</span>
-                                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{car.sippCode}</span>
+                                                            <span className="text-xs font-black text-gray-900">{target.label}</span>
+                                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{target.subLabel}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5">
@@ -1093,7 +1254,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                         <div className="relative max-w-[120px]">
                                                             <input
                                                                 type="text"
-                                                                value={band.dailyRate}
+                                                                value={data[bIdx]?.dailyRate || ''}
                                                                 onChange={(e) => handleGridInput(key, bIdx, 'dailyRate', e.target.value)}
                                                                 placeholder="0.00"
                                                                 className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none"
@@ -1106,7 +1267,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                             <div className="relative flex-1">
                                                                 <input
                                                                     type="text"
-                                                                    value={band.deposit}
+                                                                    value={data[bIdx]?.deposit || ''}
                                                                     onChange={(e) => handleGridInput(key, bIdx, 'deposit', e.target.value)}
                                                                     placeholder="0"
                                                                     className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-xs font-black text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
