@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { MOCK_CARS } from '../services/mockData';
-import { Calendar, Tag, Car, Building, ArrowRight, Lock, Mail, Search, AlertCircle, CheckCircle, XCircle, Edit2, AlertTriangle, ChevronRight, Download, Printer, Phone, Plane, FileText, X, Star, LoaderCircle } from 'lucide-react';
+import { Calendar, Tag, Car, Building, ArrowRight, Lock, Mail, Search, AlertCircle, CheckCircle, XCircle, Edit2, AlertTriangle, ChevronRight, Download, Printer, Phone, Plane, FileText, X, Star, LoaderCircle, Zap } from 'lucide-react';
 import { Booking, Extra } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
