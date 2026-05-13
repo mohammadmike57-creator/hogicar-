@@ -310,7 +310,7 @@ const Home: React.FC = () => {
             <Globe className="w-10 h-10 mx-auto mb-2" />
             <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
             <p className="text-slate-300 mb-4">We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
-            <Link to="/supplier-login" className="bg-blue-600 px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
+            <Link to="/become-supplier" className="bg-blue-600 px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
               Become a Partner <ArrowRight className="w-4 h-4" />
             </Link>
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">

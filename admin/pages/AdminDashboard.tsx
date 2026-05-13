@@ -733,7 +733,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 };
 
 // ==================== Supplier Requests ====================
-const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
+const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) => {
   const handleApprove = (app: any) => { 
     const locationCode = app.primaryLocation.replace(/[^A-Z0-9]/g, '').substring(0,3).toUpperCase();
     const newSup: any = { 
@@ -750,41 +750,92 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject }: any) => {
     }; 
     onApprove(newSup, app); 
   };
-  if (!apps.length) return <div className="bg-white rounded-2xl shadow-lg p-6 text-center text-gray-400">No pending requests</div>;
+
+  const formatDate = (dateVal: any) => {
+    if (!dateVal) return 'N/A';
+    if (Array.isArray(dateVal)) return dateVal.join('-');
+    return dateVal.toString();
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <SectionHeader title="Supplier Requests" icon={MailQuestion} />
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr className="text-xs">
-              <th className="p-2">Company</th>
-              <th className="p-2">Contact</th>
-              <th className="p-2">Fleet</th>
-              <th className="p-2">Integration</th>
-              <th className="p-2">Date</th>
-              <th className="p-2"></th>
-              </tr>
-          </thead>
-          <tbody>
-            {apps.map((app: any) => (
-              <tr key={app.id} className="hover:bg-orange-50">
-                <td className="p-2">{app.companyName}<br/><span className="text-xs text-gray-500">{app.primaryLocation}</span></td>
-                <td className="p-2">{app.contactName}<br/><span className="text-xs">{app.email}</span></td>
-                <td className="p-2">{app.fleetSize}</td>
-                <td className="p-2 uppercase text-xs">{app.integrationType}</td>
-                <td className="p-2 text-xs">{app.submissionDate}</td>
-                <td className="p-2 text-right">
-                  <div className="flex gap-1">
-                    <button onClick={() => handleApprove(app)} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button>
-                    <button onClick={() => onReject(app.id)} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+          <SectionHeader title="Supplier Requests" icon={MailQuestion} subtitle="New partner applications for review" />
+          <button onClick={onRefresh} className="p-2 hover:bg-white rounded-xl border border-gray-200 transition-colors shadow-sm">
+              <RefreshCw className="w-4 h-4 text-gray-600" />
+          </button>
       </div>
+      
+      {!apps.length ? (
+        <div className="p-20 text-center">
+            <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                <MailQuestion className="w-8 h-8" />
+            </div>
+            <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No pending requests</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50/50 border-b border-slate-100">
+              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                <th className="px-6 py-4">Company</th>
+                <th className="px-6 py-4">Contact</th>
+                <th className="px-6 py-4 text-center">Fleet</th>
+                <th className="px-6 py-4">Integration</th>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {apps.map((app: any) => (
+                <tr key={app.id} className="hover:bg-orange-50/30 transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="font-black text-slate-900 text-[13px]">{app.companyName}</div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">{app.primaryLocation}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-[12px] font-bold text-slate-700">{app.contactName}</div>
+                    <div className="text-[11px] text-blue-600 font-medium lowercase mt-0.5">{app.email}</div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-[10px] font-black bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
+                        {app.fleetSize}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${app.integrationType === 'api' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {app.integrationType}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-[11px] text-slate-400 font-bold">
+                    {formatDate(app.submissionDate)}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <motion.button 
+                        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                        onClick={() => handleApprove(app)} 
+                        className="p-2 bg-green-500 text-white rounded-lg shadow-md shadow-green-100 hover:bg-green-600 transition-colors"
+                        title="Approve & Setup Account"
+                      >
+                        <CheckCircle className="w-4 h-4"/>
+                      </motion.button>
+                      <motion.button 
+                        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                        onClick={() => onReject(app.id)} 
+                        className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                        title="Reject Application"
+                      >
+                        <XCircle className="w-4 h-4"/>
+                      </motion.button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
@@ -2850,6 +2901,12 @@ export const AdminDashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (activeSection === 'supplierrequests') {
+      fetchSupplierApps();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
     fetchBookings(selectedSupplierId);
     fetchFleet(selectedSupplierId);
   }, [selectedSupplierId]);
@@ -3030,7 +3087,7 @@ export const AdminDashboard: React.FC = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
       case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
-      case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} />;
+      case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
