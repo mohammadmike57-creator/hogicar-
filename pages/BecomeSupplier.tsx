@@ -26,9 +26,10 @@ const BecomeSupplier: React.FC = () => {
         await api.submitPartnerApplication(formData);
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
+    } catch (err: any) {
         console.error('Failed to submit application:', err);
-        alert('Failed to submit application. Please try again later.');
+        const errorMsg = err.response?.data || err.message || 'Please try again later.';
+        alert(`Failed to submit application: ${errorMsg}`);
     }
   };
 
