@@ -2494,7 +2494,9 @@ const RatesModal = ({ car, supplier, onClose }: any) => {
         const loadRates = async () => {
             try {
                 setLoading(true);
-                const data = await getSupplierRates(supplier.id, car.id);
+                const cleanCarId = parseInt(String(car.id).split(':')[0]);
+                const cleanSupplierId = parseInt(String(supplier.id).split(':')[0]);
+                const data = await getSupplierRates(cleanSupplierId, cleanCarId);
                 setRates(data);
             } catch (err) {
                 console.error(err);
@@ -2573,10 +2575,12 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
     if (supplier) loadCars();
   }, [supplier]);
 
-  const handleToggleChoice = async (carId: number, currentChoice: boolean) => {
+  const handleToggleChoice = async (carId: any, currentChoice: boolean) => {
     try {
+      const cleanCarId = parseInt(String(carId).split(':')[0]);
+      const cleanSupplierId = parseInt(String(supplier.id).split(':')[0]);
       setSavingId(carId);
-      const updated = await updateHogicarChoice(supplier.id, carId, { hogicarChoice: !currentChoice });
+      const updated = await updateHogicarChoice(cleanSupplierId, cleanCarId, { hogicarChoice: !currentChoice });
       setCars(prev => prev.map(c => c.id === carId ? updated : c));
     } catch (err: any) {
       alert(err.message);
@@ -2585,10 +2589,12 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
     }
   };
 
-  const handleUpdatePromo = async (carId: number, promo: number) => {
+  const handleUpdatePromo = async (carId: any, promo: number) => {
     try {
+      const cleanCarId = parseInt(String(carId).split(':')[0]);
+      const cleanSupplierId = parseInt(String(supplier.id).split(':')[0]);
       setSavingId(carId);
-      const updated = await updateHogicarChoice(supplier.id, carId, { hogicarPromotion: promo });
+      const updated = await updateHogicarChoice(cleanSupplierId, cleanCarId, { hogicarPromotion: promo });
       setCars(prev => prev.map(c => c.id === carId ? updated : c));
     } catch (err: any) {
       alert(err.message);
@@ -3022,7 +3028,8 @@ export const AdminDashboard: React.FC = () => {
                 body: JSON.stringify(payload)
             });
         } else {
-            await adminFetch(`/api/admin/car-models/${model.id}`, {
+            const cleanId = parseInt(String(model.id).split(':')[0]);
+            await adminFetch(`/api/admin/car-models/${cleanId}`, {
                 method: 'PUT',
                 body: JSON.stringify(payload)
             });
@@ -3035,10 +3042,11 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteCarModel = async (id: string) => { 
+  const handleDeleteCarModel = async (id: any) => { 
     if (!confirm('Are you sure you want to delete this car model?')) return;
     try {
-        await adminFetch(`/api/admin/car-models/${id}`, { method: 'DELETE' });
+        const cleanId = parseInt(String(id).split(':')[0]);
+        await adminFetch(`/api/admin/car-models/${cleanId}`, { method: 'DELETE' });
         await fetchCarLibrary();
     } catch (e: any) {
         alert(`Delete failed: ${e.message}`);
