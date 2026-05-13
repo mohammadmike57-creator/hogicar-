@@ -210,10 +210,6 @@ const Home: React.FC = () => {
            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <div className="bg-white/10 backdrop-blur-sm inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-6 border border-white/10 shadow-lg">
-            <Star className="w-4 h-4 text-yellow-400 fill-current" /> 
-            <span className="uppercase tracking-widest text-[10px]">Rated 4.9/5 by 10,000+ customers</span>
-          </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight tracking-tight">
             {content.hero.title || 'Search, Compare & Save on Car Rentals'}
           </h1>
