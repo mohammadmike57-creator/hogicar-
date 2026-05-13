@@ -22,13 +22,31 @@ const BecomeSupplier: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[DEBUG_LOG] Submitting partner application:', formData);
     try {
-        await api.submitPartnerApplication(formData);
+        const response = await api.submitPartnerApplication(formData);
+        console.log('[DEBUG_LOG] Submission successful:', response);
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
         console.error('Failed to submit application:', err);
-        const errorMsg = err.response?.data || err.message || 'Please try again later.';
+        const errorData = err.response?.data;
+        let errorMsg = 'Please try again later.';
+        
+        if (errorData) {
+            if (typeof errorData === 'string') {
+                errorMsg = errorData;
+            } else if (errorData.message) {
+                errorMsg = errorData.message;
+            } else if (errorData.error) {
+                errorMsg = errorData.error;
+            } else {
+                errorMsg = JSON.stringify(errorData);
+            }
+        } else if (err.message) {
+            errorMsg = err.message;
+        }
+        
         alert(`Failed to submit application: ${errorMsg}`);
     }
   };
