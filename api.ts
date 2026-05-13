@@ -243,7 +243,11 @@ export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]>
 };
 
 export const submitPartnerApplication = async (data: any): Promise<any> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/partner-applications/submit`, data);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/partner-applications/submit`, data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
   return response.data;
 };
 
