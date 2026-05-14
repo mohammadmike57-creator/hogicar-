@@ -444,7 +444,7 @@ export const Search: React.FC = () => {
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
       <div className="bg-slate-900 shadow-xl border-b border-slate-800 sticky top-16 z-30">
-        <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="flex justify-between items-center cursor-pointer group bg-slate-800 hover:bg-slate-700 transition-all duration-300 p-2 sm:p-3 rounded-2xl border border-slate-700 hover:border-blue-500/50 shadow-inner"
@@ -518,9 +518,8 @@ export const Search: React.FC = () => {
       </div>
       
 
-      {/* Category Image Filter - HIDDEN ON MOBILE, visible on md screens and up */}
-      <div className="hidden md:block bg-white border-b border-slate-200 py-4 sm:py-6">
-          <div className="max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-8">
+      <div className="hidden md:block bg-white border-b border-slate-200 py-6">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-blue-600"/> Filter by Category</h2>
@@ -542,7 +541,7 @@ export const Search: React.FC = () => {
                     </div>
                 </div>
               </div>
-              <div className="flex overflow-x-auto no-scrollbar md:grid md:grid-cols-7 lg:grid-cols-9 md:gap-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-1.5 sm:space-x-2 md:space-x-0">
+              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 lg:gap-6 -mx-4 px-4 md:mx-0 md:px-0">
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
@@ -556,7 +555,7 @@ export const Search: React.FC = () => {
                               key={category}
                               onClick={() => handleCategoryToggle(category)}
                               disabled={isDisabled}
-                              className={`flex-shrink-0 w-14 sm:w-16 md:w-auto flex flex-col items-center gap-0.5 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              className={`flex-shrink-0 w-16 sm:w-20 md:w-28 lg:w-32 flex flex-col items-center gap-1 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
                           >
                               {isActive && (
                                   <div className="absolute top-0 right-0 -mt-1 -mr-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white z-10 shadow">
@@ -570,10 +569,10 @@ export const Search: React.FC = () => {
                                   <img src={categoryImage} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
                               <div className="text-center leading-tight">
-                                  <span className={`text-[8px] sm:text-[9px] md:text-[9px] font-black whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                  <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight transition-colors duration-300 ${isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'}`}>
                                       {category}
                                   </span>
-                                  <span className={`block text-[8px] ${isActive ? 'text-blue-500' : 'text-slate-400'}`}>({count} cars)</span>
+                                  <span className={`block text-[9px] font-bold ${isActive ? 'text-blue-500' : 'text-slate-400'}`}>({count} cars)</span>
                               </div>
                           </button>
                       )
@@ -582,7 +581,7 @@ export const Search: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-0 md:px-2 lg:px-8 pt-0 md:pt-6">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-0 md:pt-6">
         
         {/* Mobile Filter & Sort Controls */}
         <div className="md:hidden mb-0 bg-white p-3 border-b border-slate-100 sticky top-[100px] z-20 flex gap-3 shadow-sm">
