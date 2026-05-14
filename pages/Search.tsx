@@ -291,7 +291,7 @@ export const Search: React.FC = () => {
     );
   };
 
-  const allCategories = Object.values(CarCategory);
+  const allCategories = Object.values(CarCategory).filter(cat => cat !== CarCategory.INTERMEDIATE);
   const supplierLogos = React.useMemo(() => {
     const logos = new Map<string, string>();
     allLocationSuppliers.forEach(s => {
@@ -433,7 +433,7 @@ export const Search: React.FC = () => {
     }
   }, [baseFilteredCars, priceRange, selectedCategories, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, sortBy, days, startDate, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly]);
   
-  const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.INTERMEDIATE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
+  const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
 
   return (
     <>
