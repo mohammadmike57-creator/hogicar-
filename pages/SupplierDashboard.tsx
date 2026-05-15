@@ -663,6 +663,13 @@ const FleetSection = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCar, setEditingCar] = useState<CarType | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+
+  const filteredCars = useMemo(() => {
+    return selectedCategory === 'ALL' 
+      ? cars 
+      : cars.filter(car => car.category === selectedCategory);
+  }, [cars, selectedCategory]);
 
   const handleDelete = async (id: any) => {
     if (!window.confirm('Erase this vehicle from fleet?')) return;
@@ -676,16 +683,50 @@ const FleetSection = ({
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
       <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] shadow-xl shadow-gray-200/30 border border-gray-50">
         <SectionHeader title="Fleet Management" icon={Car} subtitle="Manage your vehicle inventory" />
+        <div className="flex items-center gap-4">
+          <div className="relative hidden md:block">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <select 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="pl-11 pr-10 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.1em] appearance-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all cursor-pointer min-w-[180px]"
+            >
+              <option value="ALL">All Categories</option>
+              {Object.values(CarCategory).map(cat => (
+                <option key={cat} value={cat}>{cat.replace('_', ' ')}</option>
+              ))}
+            </select>
+          </div>
+          <button 
+              onClick={() => { setEditingCar(null); setIsModalOpen(true); }}
+              className="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+          >
+            <Plus className="w-4 h-4" /> Add Vehicle
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Category Filter */}
+      <div className="md:hidden overflow-x-auto pb-2 flex gap-2">
         <button 
-            onClick={() => { setEditingCar(null); setIsModalOpen(true); }}
-            className="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+          onClick={() => setSelectedCategory('ALL')}
+          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === 'ALL' ? 'bg-orange-600 text-white' : 'bg-white text-gray-400'}`}
         >
-          <Plus className="w-4 h-4" /> Add Vehicle
+          All
         </button>
+        {Object.values(CarCategory).map(cat => (
+          <button 
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-orange-600 text-white' : 'bg-white text-gray-400'}`}
+          >
+            {cat.replace('_', ' ')}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {cars.map(car => (
+        {filteredCars.map(car => (
             <motion.div 
                 key={car.id} 
                 whileHover={{ y: -5 }}
@@ -754,6 +795,15 @@ const FleetSection = ({
                 </div>
             </motion.div>
         ))}
+        {filteredCars.length === 0 && (
+            <div className="col-span-full py-20 flex flex-col items-center justify-center text-center">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-4">
+                    <Car className="w-10 h-10" />
+                </div>
+                <h3 className="text-lg font-black text-gray-900 tracking-tight">No vehicles found</h3>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Try choosing a different category</p>
+            </div>
+        )}
       </div>
 
       <EditCarModal 
