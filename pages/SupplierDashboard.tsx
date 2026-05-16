@@ -2610,27 +2610,25 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     </div>
                 </div>
 
-                {/* Rental Duration Bands */}
+                {/* Pricing Seasons / Periods */}
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <Clock className="w-5 h-5 text-orange-600" />
-                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Rental Duration Bands</h3>
+                            <Calendar className="w-5 h-5 text-orange-600" />
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Pricing Seasons</h3>
                         </div>
-                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Band</button>
+                        <button onClick={addPeriod} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Season</button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {localConfig.bands?.map((band, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-orange-200 transition-all">
-                                <button onClick={() => removeBand(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
+                    <div className="space-y-4">
+                        {localConfig.periods?.map((period, idx) => (
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/30 relative group hover:border-orange-200 transition-all">
+                                <button onClick={() => removePeriod(idx)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Min Days" type="number" value={band.minDays} onChange={(e:any) => updateBand(idx, 'minDays', parseInt(e.target.value))} />
-                                    <InputField label="Max Days" type="number" value={band.maxDays || ''} onChange={(e:any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
-                                </div>
-                                <div className="mt-4">
-                                    <InputField label="Band Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <InputField label="Season Name" value={period.name} onChange={(e:any) => updatePeriod(idx, 'name', e.target.value)} />
+                                    <InputField label="Start Date" type="date" value={period.startDate} onChange={(e:any) => updatePeriod(idx, 'startDate', e.target.value)} />
+                                    <InputField label="End Date" type="date" value={period.endDate} onChange={(e:any) => updatePeriod(idx, 'endDate', e.target.value)} />
                                 </div>
                             </div>
                         ))}
@@ -2673,25 +2671,27 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                     </div>
                 </div>
 
-                {/* Seasons / Periods */}
+                {/* Rental Duration Bands */}
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <Calendar className="w-5 h-5 text-orange-600" />
-                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Pricing Seasons</h3>
+                            <Clock className="w-5 h-5 text-orange-600" />
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Rental Duration Bands</h3>
                         </div>
-                        <button onClick={addPeriod} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Season</button>
+                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Band</button>
                     </div>
-                    <div className="space-y-4">
-                        {localConfig.periods?.map((period, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/30 relative group hover:border-orange-200 transition-all">
-                                <button onClick={() => removePeriod(idx)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {localConfig.bands?.map((band, idx) => (
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-orange-200 transition-all">
+                                <button onClick={() => removeBand(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <InputField label="Season Name" value={period.name} onChange={(e:any) => updatePeriod(idx, 'name', e.target.value)} />
-                                    <InputField label="Start Date" type="date" value={period.startDate} onChange={(e:any) => updatePeriod(idx, 'startDate', e.target.value)} />
-                                    <InputField label="End Date" type="date" value={period.endDate} onChange={(e:any) => updatePeriod(idx, 'endDate', e.target.value)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <InputField label="Min Days" type="number" value={band.minDays} onChange={(e:any) => updateBand(idx, 'minDays', parseInt(e.target.value))} />
+                                    <InputField label="Max Days" type="number" value={band.maxDays || ''} onChange={(e:any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
+                                </div>
+                                <div className="mt-4">
+                                    <InputField label="Band Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
                                 </div>
                             </div>
                         ))}
