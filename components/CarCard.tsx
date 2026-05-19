@@ -324,9 +324,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   <div> {/* Top Section for Car Info */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                           {/* Image */}
-                          <div className="sm:col-span-1 flex items-center justify-center relative group bg-slate-50 rounded-xl overflow-hidden min-h-[140px]">
+                          <div className="sm:col-span-1 flex items-center justify-center relative group bg-slate-50 rounded-xl overflow-hidden min-h-[160px] sm:min-h-[140px]">
                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center">
-                                <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-32 p-2 group-hover:scale-110 transition-transform duration-500" />
+                                <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-40 sm:max-h-32 p-2 group-hover:scale-110 transition-transform duration-500" />
                                 
                                 {promotionLabel ? (
                                     <span className="absolute top-0 left-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg flex items-center gap-1 shadow-sm">

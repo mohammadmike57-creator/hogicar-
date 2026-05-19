@@ -46,7 +46,7 @@ import {
 // ==================== Helper Functions ====================
 const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const MAX_DATA_URL_LENGTH = 500_000;
+    const MAX_DATA_URL_LENGTH = 1_500_000; // Increased to 1.5MB for better quality images
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -68,9 +68,18 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<s
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          
+          let quality = 0.82;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          // If still too large, try to reduce quality progressively
+          while (dataUrl.length > MAX_DATA_URL_LENGTH && quality > 0.3) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+
           if (dataUrl.length > MAX_DATA_URL_LENGTH) {
-            reject(new Error('Image is too large after optimization. Please upload a smaller image or use an image URL.'));
+            reject(new Error('The image is still too big even after compression. Please upload a smaller file or use an image URL.'));
             return;
           }
           resolve(dataUrl);
