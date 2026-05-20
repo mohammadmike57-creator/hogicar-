@@ -1888,6 +1888,8 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
     bags: 3, 
     doors: 4 
   });
+  const [targetWidth, setTargetWidth] = useState(1200);
+  const [targetHeight, setTargetHeight] = useState(800);
 
   useEffect(() => { 
     if (carModel) {
@@ -1954,7 +1956,27 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
           </div>
           <div className="flex-grow space-y-4">
             <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload Photo</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload Photo (Target: {targetWidth}x{targetHeight})</label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="space-y-1">
+                        <label className="text-[9px] text-gray-400 uppercase font-bold">Max Width</label>
+                        <input 
+                            type="number" 
+                            value={targetWidth} 
+                            onChange={(e) => setTargetWidth(parseInt(e.target.value) || 1200)}
+                            className="w-full px-2 py-1 text-[10px] border rounded bg-white"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[9px] text-gray-400 uppercase font-bold">Max Height</label>
+                        <input 
+                            type="number" 
+                            value={targetHeight} 
+                            onChange={(e) => setTargetHeight(parseInt(e.target.value) || 800)}
+                            className="w-full px-2 py-1 text-[10px] border rounded bg-white"
+                        />
+                    </div>
+                </div>
                 <div className="flex gap-2">
                     <input 
                         type="file" 
@@ -1964,7 +1986,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                             const file = e.target.files?.[0];
                             if (file) {
                                 try {
-                                    const resized = await resizeImage(file, 1200, 800);
+                                    const resized = await resizeImage(file, targetWidth, targetHeight);
                                     handleChange('imageUrl', resized);
                                 } catch (err) {
                                     console.error("Failed to resize car image", err);
