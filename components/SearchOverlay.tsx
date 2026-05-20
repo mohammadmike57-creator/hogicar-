@@ -161,9 +161,15 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 backgroundColor: '#f8fafc',
                 fontSize: '16px',
                 outline: 'none',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                appearance: 'none',
+                WebkitAppearance: 'none'
               }}
-              onFocus={(e) => e.currentTarget.style.outline = '2px solid #3b82f6'}
+              onFocus={(e) => {
+                e.currentTarget.style.outline = '2px solid #3b82f6';
+                // Prevent auto-zoom on some mobile browsers by ensuring font-size is 16px
+                e.currentTarget.style.fontSize = '16px';
+              }}
               onBlur={(e) => e.currentTarget.style.outline = 'none'}
             />
           </div>
