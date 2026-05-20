@@ -287,9 +287,9 @@ const CarDetails: React.FC = () => {
                     src={displayImage} 
                     alt={`${car.make} ${car.model}`} 
                     onError={() => setImageError(true)}
-                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     loading="eager"
-                    className="w-full h-40 lg:h-56 object-contain p-4" 
+                    className="w-full h-40 lg:h-56 object-contain p-4"
                   />
                   
                   <div className="absolute top-4 left-4 flex gap-2">

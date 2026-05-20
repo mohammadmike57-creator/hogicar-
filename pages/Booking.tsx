@@ -295,9 +295,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     src={displayImage} 
                     alt={car.model} 
                     onError={() => setImageError(true)}
-                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     loading="eager"
-                    className="w-40 sm:w-48 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-110 transition-transform duration-1000" 
+                    className="w-40 sm:w-48 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-110 transition-transform duration-1000"
                    />
                </div>
                <div className="flex-grow text-center md:text-left relative z-10">

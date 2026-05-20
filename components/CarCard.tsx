@@ -332,9 +332,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                   src={displayImage} 
                                   alt={`${car.make} ${car.model}`} 
                                   onError={() => setImageError(true)}
-                                  referrerPolicy="no-referrer"
+                                  crossOrigin="anonymous"
                                   loading="eager"
-                                  className="w-full h-auto object-contain max-h-40 sm:max-h-32 p-2 group-hover:scale-110 transition-transform duration-500" 
+                                  className="w-full h-auto object-contain max-h-40 sm:max-h-32 p-2 group-hover:scale-110 transition-transform duration-500"
                                 />
                                 
                                 {promotionLabel ? (

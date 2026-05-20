@@ -93,9 +93,9 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                     src={displayImage} 
                                     alt={car.make} 
                                     onError={() => setImageError(true)}
-                                    referrerPolicy="no-referrer"
+                                    crossOrigin="anonymous"
                                     loading="eager"
-                                    className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2" 
+                                    className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2"
                                 />
                             )}
                             <div className="flex-grow">
@@ -312,9 +312,9 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                             src={displayImage} 
                             alt={car.model} 
                             onError={() => setImageError(true)}
-                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
                             loading="eager"
-                            className="w-48 object-contain" 
+                            className="w-48 object-contain"
                          />
                          <div className="flex-grow text-center sm:text-left">
                              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">

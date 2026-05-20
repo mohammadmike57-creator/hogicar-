@@ -64,8 +64,8 @@ export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[
             // This helps bypass potentially stale "expired" images cached on mobile browsers
             if (rawImage && (rawImage.startsWith('http') || rawImage.startsWith('//')) && !rawImage.includes('unsplash.com')) {
                 const separator = rawImage.includes('?') ? '&' : '?';
-                // Use a timestamp that changes every hour to balance freshness and performance
-                const cacheBuster = Math.floor(Date.now() / (3600 * 1000));
+                // Use a timestamp that changes every minute to ensure fresh images while allowing some caching
+                const cacheBuster = Math.floor(Date.now() / (60 * 1000));
                 normalizedCar.image = `${rawImage}${separator}hcb=${cacheBuster}`;
             }
 
