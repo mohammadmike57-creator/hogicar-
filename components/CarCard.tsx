@@ -318,15 +318,15 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-[#008009] transition-all duration-300 py-2.5 px-3 md:p-6 w-full mb-3 md:mb-4 scale-95 md:scale-100 origin-center group/card">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-[#008009] transition-all duration-300 py-2.5 px-3 md:p-6 w-full mb-3 md:mb-4 scale-[0.92] md:scale-100 origin-center group/card">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
 
               {/* --- LEFT COLUMN: IMAGE, SPECS, SUPPLIER --- */}
               <div className="md:col-span-3 flex flex-col justify-between">
                   <div> {/* Top Section for Car Info */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                           {/* Image */}
-                          <div className="sm:col-span-1 flex items-center justify-center relative group bg-slate-50 rounded-xl overflow-hidden min-h-[160px] sm:min-h-[140px]">
+                          <div className="sm:col-span-1 flex items-center justify-center relative group bg-slate-50 rounded-xl overflow-hidden min-h-[140px] sm:min-h-[140px]">
                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center">
                                 <img 
                                   src={displayImage} 
@@ -359,14 +359,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               )}
                               
                               <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
-                                  <h3 className="text-xl font-black text-slate-900 group-hover:text-[#008009] transition-colors leading-tight">{car.displayName}</h3>
+                                  <h3 className="text-lg md:text-xl font-black text-slate-900 group-hover:text-[#008009] transition-colors leading-tight">{car.displayName}</h3>
                               </Link>
-                              <p className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium">
+                              <p className="text-[10px] md:text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium">
                                   or similar {car.category}
                                   <Info className="w-3 h-3 text-slate-400" />
                               </p>
                               
-                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mt-4 text-[13px]">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-2 md:gap-x-4 gap-y-1.5 md:gap-y-2 mt-3 md:mt-4 text-[11px] md:text-[13px]">
                                   <div className="flex items-center gap-2 text-slate-600 font-medium">
                                     <Users className="w-4 h-4 text-slate-400"/>
                                     <span>{car.passengers} seats</span>
@@ -407,49 +407,49 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   </div>
 
                   {/* Bottom Section for Supplier Info */}
-                  <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                  <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 md:gap-4">
                       {car.hogicarChoice ? (
-                          <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30">
-                                  <Award className="w-7 h-7 text-amber-400" />
+                          <div className="flex items-center gap-3 md:gap-4">
+                              <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30">
+                                  <Award className="w-6 h-6 md:w-7 md:h-7 text-amber-400" />
                               </div>
                               <div>
-                                  <p className="text-xs font-black text-slate-900 uppercase tracking-tight">Hogicar Exclusive Verified Fleet</p>
-                                  <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-0.5">Premium Selection & Direct Support</p>
+                                  <p className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-tight">Hogicar Exclusive Verified Fleet</p>
+                                  <p className="text-[9px] md:text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-0.5">Premium Selection & Direct Support</p>
                               </div>
                           </div>
                       ) : (
-                          <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-4 md:gap-6">
                               <img
                                   src={car.supplier.logo || (car.supplier as any).logoUrl}
                                   alt={car.supplier.name}
-                                  className="h-10 md:h-12 w-auto object-contain"
+                                  className="h-8 md:h-12 w-auto object-contain"
                               />
-                              <div className="border-l border-slate-200 pl-6 group/rating relative">
+                              <div className="border-l border-slate-200 pl-4 md:pl-6 group/rating relative">
                                   <div className="flex items-center gap-2">
-                                      <div className="bg-[#008009] text-white text-[11px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                                      <div className="bg-[#008009] text-white text-[10px] md:text-[11px] font-black px-1 md:px-1.5 py-0.5 rounded shadow-sm">
                                           {car.supplier.rating}
                                       </div>
-                                      <p className="text-sm font-bold text-slate-800">{getRatingDescription(car.supplier.rating)}</p>
+                                      <p className="text-xs md:text-sm font-bold text-slate-800">{getRatingDescription(car.supplier.rating)}</p>
                                       {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
                                   </div>
-                                  <p className="text-[11px] text-slate-500 mt-0.5 font-medium">{Math.round(car.supplier.rating * 250)}+ verified reviews</p>
+                                  <p className="text-[10px] md:text-[11px] text-slate-500 mt-0.5 font-medium">{Math.round(car.supplier.rating * 250)}+ verified reviews</p>
                               </div>
                           </div>
                       )}
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 md:gap-4">
                           {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
-                              <span className="flex items-center gap-1.5 bg-emerald-50 text-[#008009] font-bold px-3 py-1.5 rounded-full text-[11px] shadow-sm border border-[#008009]/10">
-                                  <Zap className="w-3.5 h-3.5 fill-[#008009]/20" />
+                              <span className="flex items-center gap-1 bg-emerald-50 text-[#008009] font-bold px-2 md:px-3 py-1 md:py-1.5 rounded-full text-[10px] md:text-[11px] shadow-sm border border-[#008009]/10">
+                                  <Zap className="w-3 h-3 md:w-3.5 md:h-3.5 fill-[#008009]/20" />
                                   Instant Confirmation
                               </span>
                           )}
                           {(() => {
                               const pickupType = car.supplier?.pickupType;
                               const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
-                                <span className={`flex items-center gap-1.5 ${bg} ${textCol} font-bold px-3 py-1.5 rounded-full text-[11px] shadow-sm border border-current/10`}>
-                                    {icon}
+                                <span className={`flex items-center gap-1 md:gap-1.5 ${bg} ${textCol} font-bold px-2 md:px-3 py-1 md:py-1.5 rounded-full text-[10px] md:text-[11px] shadow-sm border border-current/10`}>
+                                    {React.cloneElement(icon as React.ReactElement, { className: "w-3 h-3 md:w-3.5 md:h-3.5" })}
                                     {text}
                                 </span>
                               );
@@ -464,7 +464,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               return null;
                           })()}
 
-                          <button onClick={() => setIsConditionsModalOpen(true)} className="text-[11px] text-slate-400 hover:text-[#008009] font-bold underline underline-offset-4 transition-colors">
+                          <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] md:text-[11px] text-slate-400 hover:text-[#008009] font-bold underline underline-offset-4 transition-colors">
                               Rental Conditions
                           </button>
                       </div>
@@ -472,34 +472,34 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
               </div>
 
               {/* --- RIGHT COLUMN: PRICE & CTA --- */}
-              <div className="md:col-span-1 flex flex-col justify-between md:border-l border-slate-100 md:pl-6 pt-6 md:pt-0 border-t md:border-t-0">
-                  <div className="flex flex-col items-end text-right">
+              <div className="md:col-span-1 flex flex-col justify-between md:border-l border-slate-100 md:pl-6 pt-4 md:pt-0 border-t md:border-t-0">
+                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start">
                       {car.hogicarChoice && car.promotionPercent && car.promotionPercent > 0 && (
-                          <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full border border-amber-200 mb-4 shadow-sm">
-                              <Tag className="w-3.5 h-3.5" />
-                              <span className="text-[10px] font-black uppercase">-{car.promotionPercent}% Secret Deal</span>
+                          <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2 md:px-3 py-1 md:py-1.5 rounded-full border border-amber-200 mb-0 md:mb-4 shadow-sm">
+                              <Tag className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                              <span className="text-[9px] md:text-[10px] font-black uppercase">-{car.promotionPercent}% Secret</span>
                           </div>
                       )}
                       
-                      <div className="space-y-1">
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total Price for {days} days</p>
+                      <div className="space-y-0.5 md:space-y-1">
+                          <p className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total for {days} days</p>
                           <div className="flex flex-col items-end">
-                              <p className="font-black text-slate-900 text-3xl tracking-tight">
+                              <p className="font-black text-slate-900 text-2xl md:text-3xl tracking-tight leading-none">
                                   {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                               </p>
-                              <p className="text-[#008009] text-xs font-black bg-green-50 px-2 py-1 rounded mt-1 border border-green-100">
+                              <p className="text-[#008009] text-[10px] md:text-xs font-black bg-green-50 px-1.5 py-0.5 md:px-2 md:py-1 rounded mt-1 border border-green-100">
                                   Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
                               </p>
                           </div>
                       </div>
                   </div>
 
-                  <div className="mt-8 space-y-3">
+                  <div className="mt-4 md:mt-8 space-y-2 md:space-y-3">
                       <Link 
                         to={`/car/${car.id}?${searchParams}`} 
                         state={{ cars: cars }} 
                         onClick={handleSelectCar} 
-                        className="block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] text-center text-sm uppercase tracking-widest"
+                        className="block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] text-center text-xs md:text-sm uppercase tracking-widest"
                       >
                           View Deal
                       </Link>
