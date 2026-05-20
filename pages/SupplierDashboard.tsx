@@ -108,10 +108,10 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
     );
 };
 
-const InputField = ({ label, icon: Icon, prefix, ...props }: any) => (
+const InputField = ({ label, icon: Icon, prefix, error, helperText, ...props }: any) => (
     <div className="space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-        <div className={`flex items-center bg-white border-2 border-slate-100 rounded-2xl overflow-hidden focus-within:border-orange-500 focus-within:ring-8 focus-within:ring-orange-500/5 transition-all shadow-sm ${props.readOnly ? 'opacity-70 bg-slate-50' : 'hover:border-slate-200'}`}>
+        {label && <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>}
+        <div className={`flex items-center bg-white border-2 rounded-2xl overflow-hidden focus-within:border-orange-500 focus-within:ring-8 focus-within:ring-orange-500/5 transition-all shadow-sm ${props.readOnly ? 'opacity-70 bg-slate-50' : 'hover:border-slate-200'} ${error ? 'border-red-300' : 'border-slate-100'}`}>
             {Icon && (
                 <div className="px-5 py-4 bg-slate-50 border-r border-slate-100 flex items-center justify-center text-slate-400 transition-colors">
                     <Icon className="w-4 h-4" />
@@ -127,6 +127,8 @@ const InputField = ({ label, icon: Icon, prefix, ...props }: any) => (
                 className="flex-1 py-4 px-6 text-sm font-black text-slate-900 outline-none bg-transparent placeholder:text-slate-200 cursor-text disabled:cursor-not-allowed" 
             />
         </div>
+        {helperText && <p className="text-[9px] text-slate-400 font-medium ml-1">{helperText}</p>}
+        {error && <p className="text-[9px] text-red-500 font-bold ml-1">{error}</p>}
     </div>
 );
 

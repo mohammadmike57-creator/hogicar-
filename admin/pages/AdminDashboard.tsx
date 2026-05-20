@@ -142,12 +142,23 @@ const SectionHeader = ({ title, subtitle, icon: Icon, action }: any) => (
   </div>
 );
 
-const InputField = ({ label, error, ...props }: any) => (
-  <div className="space-y-1"><label className="block text-xs font-medium text-gray-600">{label}</label><input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500`} /></div>
+const InputField = ({ label, error, helperText, ...props }: any) => (
+  <div className="space-y-1">
+    <label className="block text-xs font-medium text-gray-600">{label}</label>
+    <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500`} />
+    {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+  </div>
 );
 
 const SelectField = ({ label, options, error, ...props }: any) => (
-  <div className="space-y-1"><label className="block text-xs font-medium text-gray-600">{label}</label><select {...props} className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white">{options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+  <div className="space-y-1">
+    <label className="block text-xs font-medium text-gray-600">{label}</label>
+    <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500 bg-white`}>
+      {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+  </div>
 );
 
 const TextAreaField = ({ label, ...props }: any) => (

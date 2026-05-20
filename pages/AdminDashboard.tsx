@@ -99,20 +99,22 @@ const EmptyState = ({ message, icon: Icon = AlertCircle }: { message: string; ic
   </div>
 );
 
-const InputField = ({ label, error, ...props }: { label: string; error?: string } & React.InputHTMLAttributes<HTMLInputElement>) => (
+const InputField = ({ label, error, helperText, ...props }: { label: string; error?: string; helperText?: string } & React.InputHTMLAttributes<HTMLInputElement>) => (
   <div className="space-y-1">
     <label className="block text-xs font-medium text-gray-600">{label}</label>
     <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition`} />
+    {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
     {error && <p className="text-xs text-red-500">{error}</p>}
   </div>
 );
 
-const SelectField = ({ label, options, error, ...props }: { label: string; options: { value: string; label: string }[]; error?: string } & React.SelectHTMLAttributes<HTMLSelectElement>) => (
+const SelectField = ({ label, options, error, helperText, ...props }: { label: string; options: { value: string; label: string }[]; error?: string; helperText?: string } & React.SelectHTMLAttributes<HTMLSelectElement>) => (
   <div className="space-y-1">
     <label className="block text-xs font-medium text-gray-600">{label}</label>
     <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white`}>
       {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
+    {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
     {error && <p className="text-xs text-red-500">{error}</p>}
   </div>
 );
