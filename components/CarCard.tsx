@@ -53,7 +53,6 @@ const VisaIcon = () => (
       src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg"
       alt="Visa"
       className="w-full h-auto object-contain"
-      referrerPolicy="no-referrer"
     />
   </div>
 );
@@ -306,6 +305,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
   const recentBookingInfo = React.useMemo(() => getRecentBookingInfo(car), [car]);
   
+  const [imageError, setImageError] = React.useState(false);
+  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+
   const handleSelectCar = () => {
     // Persist the car ID and the full results list for the next page
     sessionStorage.setItem('hogicar_selectedCarId', car.id);
@@ -326,7 +328,12 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           {/* Image */}
                           <div className="sm:col-span-1 flex items-center justify-center relative group bg-slate-50 rounded-xl overflow-hidden min-h-[160px] sm:min-h-[140px]">
                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center">
-                                <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-auto object-contain max-h-40 sm:max-h-32 p-2 group-hover:scale-110 transition-transform duration-500" />
+                                <img 
+                                  src={displayImage} 
+                                  alt={`${car.make} ${car.model}`} 
+                                  onError={() => setImageError(true)}
+                                  className="w-full h-auto object-contain max-h-40 sm:max-h-32 p-2 group-hover:scale-110 transition-transform duration-500" 
+                                />
                                 
                                 {promotionLabel ? (
                                     <span className="absolute top-0 left-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg flex items-center gap-1 shadow-sm">

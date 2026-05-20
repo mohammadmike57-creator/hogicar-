@@ -137,6 +137,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
   
+  const [imageError, setImageError] = React.useState(false);
+  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+
   const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!car || !firstName || !lastName || !email || !phoneNumber) {
@@ -288,7 +291,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                <div className="absolute inset-0 bg-gradient-to-br from-slate-100/70 to-slate-200/70 pointer-events-none"></div>
                <div className="bg-slate-100/80 p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-300/60 flex-shrink-0 relative overflow-hidden">
                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
-                   <img src={car.image} alt={car.model} className="w-40 sm:w-48 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-110 transition-transform duration-1000" />
+                   <img 
+                    src={displayImage} 
+                    alt={car.model} 
+                    onError={() => setImageError(true)}
+                    className="w-40 sm:w-48 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-110 transition-transform duration-1000" 
+                   />
                </div>
                <div className="flex-grow text-center md:text-left relative z-10">
                   <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">

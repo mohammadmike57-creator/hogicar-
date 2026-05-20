@@ -29,7 +29,10 @@ export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[
     const url = `${API_URL}/api/cars?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
 
     try {
-        const response = await fetch(url, { credentials: 'omit' });
+        const response = await fetch(url, { 
+            credentials: 'omit',
+            cache: 'no-cache'
+        });
 
         if (!response.ok) {
             const body = await response.text();

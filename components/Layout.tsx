@@ -10,7 +10,6 @@ const VisaIcon = () => (
       src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg" 
       alt="Visa" 
       className="w-full h-auto object-contain"
-      referrerPolicy="no-referrer"
     />
   </div>
 );

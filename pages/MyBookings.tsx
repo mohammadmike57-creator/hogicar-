@@ -20,6 +20,8 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
     // Ideally the Booking object should contain vehicle details from the API.
     
     const { convertPrice, getCurrencySymbol } = useCurrency();
+    const [imageError, setImageError] = React.useState(false);
+    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
 
     if (!booking) return null;
 
@@ -86,7 +88,14 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                             <Car className="w-4 h-4"/> Vehicle Information
                         </h4>
                         <div className="flex items-start gap-6">
-                            {car && <img src={car.image} alt={car.make} className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2" />}
+                            {car && (
+                                <img 
+                                    src={displayImage} 
+                                    alt={car.make} 
+                                    onError={() => setImageError(true)}
+                                    className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2" 
+                                />
+                            )}
                             <div className="flex-grow">
                                 <h3 className="text-xl font-bold text-slate-900">{car ? `${car.make} ${car.model}` : booking.carName}</h3>
                                 {car && <p className="text-sm text-slate-500 mb-4">or similar {car.category} class</p>}
@@ -228,6 +237,8 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     } as any;
 
     const { convertPrice, getCurrencySymbol } = useCurrency();
+    const [imageError, setImageError] = React.useState(false);
+    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
     const [isCancelling, setIsCancelling] = React.useState(false);
     const [showVoucher, setShowVoucher] = React.useState(false);
     // Note: Modify Logic would need significant backend support for real updates. Keeping mock for now or disabling if preferred.
@@ -295,7 +306,12 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
                      {/* Vehicle Card */}
                      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-                         <img src={car.image} alt={car.model} className="w-48 object-contain" />
+                         <img 
+                            src={displayImage} 
+                            alt={car.model} 
+                            onError={() => setImageError(true)}
+                            className="w-48 object-contain" 
+                         />
                          <div className="flex-grow text-center sm:text-left">
                              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                                  <h3 className="text-xl font-bold text-slate-900">{car.make} {car.model}</h3>

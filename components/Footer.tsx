@@ -63,7 +63,6 @@ export default function Footer() {
                     src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg"
                     alt="Visa"
                     className="w-10 h-[25px] object-contain"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="bg-white rounded px-2 py-1">

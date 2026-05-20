@@ -68,7 +68,6 @@ const VisaIcon = () => (
       src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg"
       alt="Visa"
       className="w-full h-auto object-contain"
-      referrerPolicy="no-referrer"
     />
   </div>
 );
@@ -241,6 +240,9 @@ const CarDetails: React.FC = () => {
 
   const bookingParams = new URLSearchParams({ startDate, endDate, ...(pickupCode && { pickup: pickupCode }), ...(dropoffCode && { dropoff: dropoffCode }), ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), ...(appliedPromo && { promo: appliedPromo.code }) }).toString();
 
+  const [imageError, setImageError] = React.useState(false);
+  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -281,7 +283,12 @@ const CarDetails: React.FC = () => {
               <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 overflow-hidden">
                 <div className="relative bg-slate-50 border-b border-slate-100">
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
-                  <img src={car.image} alt={`${car.make} ${car.model}`} className="w-full h-40 lg:h-56 object-contain p-4" />
+                  <img 
+                    src={displayImage} 
+                    alt={`${car.make} ${car.model}`} 
+                    onError={() => setImageError(true)}
+                    className="w-full h-40 lg:h-56 object-contain p-4" 
+                  />
                   
                   <div className="absolute top-4 left-4 flex gap-2">
                     <span className="bg-black/70 text-white text-sm px-3 py-1 rounded-full">{car.category}</span>
