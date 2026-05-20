@@ -1511,7 +1511,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
               <tr key={m.id} className="hover:bg-orange-50/30 transition-colors group">
                 <td className="px-8 py-4">
                   <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-orange-200 transition-colors">
-                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width={400} height={250} />
+                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width={400} height={250} referrerPolicy="no-referrer" loading="lazy" />
                   </div>
                 </td>
                 <td className="px-8 py-4">
@@ -1960,7 +1960,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
         <div className="flex gap-4 items-start">
           <div className="w-40 h-28 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
-              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width={400} height={250} />
+              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width={400} height={250} referrerPolicy="no-referrer" />
             ) : (
               <ImageIcon className="w-8 h-8 text-gray-200" />
             )}

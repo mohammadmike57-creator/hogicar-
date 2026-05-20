@@ -57,7 +57,18 @@ export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[
             }
             
             // Normalize other fields as per requirements
-            normalizedCar.image = car.imageUrl || car.image || "";
+            const rawImage = car.imageUrl || car.image || "";
+            normalizedCar.image = rawImage;
+            
+            // Add a cache-busting parameter for external images to ensure mobile devices get fresh versions
+            // This helps bypass potentially stale "expired" images cached on mobile browsers
+            if (rawImage && (rawImage.startsWith('http') || rawImage.startsWith('//')) && !rawImage.includes('unsplash.com')) {
+                const separator = rawImage.includes('?') ? '&' : '?';
+                // Use a timestamp that changes every hour to balance freshness and performance
+                const cacheBuster = Math.floor(Date.now() / (3600 * 1000));
+                normalizedCar.image = `${rawImage}${separator}hcb=${cacheBuster}`;
+            }
+
             normalizedCar.netPrice = car.netPrice ?? car.price ?? 0;
             normalizedCar.brand = car.brand ?? "";
             normalizedCar.model = car.model ?? "";

@@ -741,6 +741,8 @@ const FleetSection = ({
                         alt={car.name}
                         width={400}
                         height={250}
+                        referrerPolicy="no-referrer"
+                        loading="eager"
                     />
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
                         <Badge variant={(car.isAvailable || car.available) ? 'success' : 'error'}>{(car.isAvailable || car.available) ? 'Available' : 'Maintenance'}</Badge>
