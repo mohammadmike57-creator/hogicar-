@@ -371,7 +371,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 <form onSubmit={handleSearch} className="flex flex-col gap-4">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-[11px] font-black text-blue-600 uppercase tracking-[0.1em] ml-1">Pick-up Location</label>
+                        <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.15em] ml-1">Pick-up Location</label>
                         <button
                             type="button"
                             onClick={() => openSearchOverlay('pickup')}
@@ -385,7 +385,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <div className="font-extrabold text-slate-900 text-[16px] truncate leading-tight">
                                         {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
                                     </div>
-                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Where do you want to start?</div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
                                 </div>
                                 <div className="text-blue-600 flex-shrink-0 bg-blue-50 p-2 rounded-full">
                                     <SearchIcon className="w-4 h-4" />
@@ -397,7 +397,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {/* Drop-off location button */}
                     {differentDropoff && (
                         <div className="flex flex-col gap-1 -mt-1 animate-in slide-in-from-top-2 duration-300">
-                            <label className="text-[11px] font-black text-blue-600 uppercase tracking-[0.1em] ml-1">Drop-off Location</label>
+                            <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.15em] ml-1">Drop-off Location</label>
                             <button
                                 type="button"
                                 onClick={() => openSearchOverlay('dropoff')}
@@ -411,7 +411,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         <div className="font-extrabold text-slate-900 text-[16px] truncate leading-tight">
                                             {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
                                         </div>
-                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Where do you want to end?</div>
+                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
                                     </div>
                                     <div className="text-blue-600 flex-shrink-0 bg-blue-50 p-2 rounded-full">
                                         <SearchIcon className="w-4 h-4" />
@@ -424,12 +424,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {/* Date/Time Section */}
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1">
-                            <label className="text-[11px] font-black text-blue-600 uppercase tracking-[0.1em] ml-1">Pick-up</label>
+                            <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.15em] ml-1">Pick-up Date & Time</label>
                             <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-blue-500/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/5 shadow-sm overflow-hidden">
                                 <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-1">
                                         <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">Date</span>
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
                                         type="date"
@@ -443,7 +443,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-3 pt-2 flex flex-col">
                                     <div className="flex items-center gap-2 mb-1">
                                         <Clock className="w-3.5 h-3.5 text-blue-600" />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">Time</span>
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
                                         value={pickupTime}
@@ -457,12 +457,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-[11px] font-black text-blue-600 uppercase tracking-[0.1em] ml-1">Drop-off</label>
+                            <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.15em] ml-1">Drop-off Date & Time</label>
                             <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-blue-500/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/5 shadow-sm overflow-hidden">
                                 <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-1">
                                         <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">Date</span>
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
                                         type="date"
@@ -476,7 +476,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-3 pt-2 flex flex-col">
                                     <div className="flex items-center gap-2 mb-1">
                                         <Clock className="w-3.5 h-3.5 text-blue-600" />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">Time</span>
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
                                         value={dropoffTime}
@@ -501,7 +501,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </label>
                     </div>
 
-                    <button type="submit" className="w-full bg-[#FF9F1C] hover:bg-[#f39200] text-white font-black h-16 rounded-2xl shadow-[0_10px_25px_-5px_rgba(255,159,28,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-3 text-xl tracking-tight">
+                    <button type="submit" className="w-full bg-[#FF9F1C] hover:bg-[#f39200] text-white font-black h-16 rounded-2xl shadow-[0_10px_25px_-5px_rgba(255,159,28,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-3 text-lg tracking-tight">
                         <SearchIcon className="w-6 h-6 stroke-[3px]" />
                         Search Deals
                     </button>

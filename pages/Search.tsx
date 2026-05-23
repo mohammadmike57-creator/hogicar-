@@ -443,7 +443,7 @@ export const Search: React.FC = () => {
     />
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-slate-900 shadow-xl border-b border-slate-800 sticky top-16 z-30">
+      <div className="bg-slate-900 shadow-xl border-b border-slate-800 sticky top-[80px] z-30">
         <div className="max-w-[1600px] mx-auto px-4 py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -584,7 +584,7 @@ export const Search: React.FC = () => {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-0 md:pt-6">
         
         {/* Mobile Filter & Sort Controls */}
-        <div className="md:hidden mb-0 bg-white p-3 border-b border-slate-100 sticky top-[100px] z-20 flex gap-3 shadow-sm">
+        <div className="md:hidden mb-0 bg-white p-3 border-b border-slate-100 sticky top-[200px] z-20 flex gap-3 shadow-sm">
             <button 
                 onClick={() => {
                     setShowMobileSort(false);

@@ -318,7 +318,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-[#008009] transition-all duration-300 py-2.5 px-3 md:p-6 w-full mb-3 md:mb-4 scale-[0.92] md:scale-100 origin-center group/card">
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-[#008009] transition-all duration-300 py-3 px-4 md:p-6 w-full mb-3 md:mb-4 group/card">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
 
               {/* --- LEFT COLUMN: IMAGE, SPECS, SUPPLIER --- */}
@@ -409,13 +409,13 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   {/* Bottom Section for Supplier Info */}
                   <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 md:gap-4">
                       {car.hogicarChoice ? (
-                          <div className="flex items-center gap-3 md:gap-4">
-                              <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30">
-                                  <Award className="w-6 h-6 md:w-7 md:h-7 text-amber-400" />
+                          <div className="flex items-center gap-2 md:gap-4">
+                              <div className="w-8 h-8 md:w-12 md:h-12 bg-slate-900 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30 flex-shrink-0">
+                                  <Award className="w-5 h-5 md:w-7 md:h-7 text-amber-400" />
                               </div>
-                              <div>
-                                  <p className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-tight">Hogicar Exclusive Verified Fleet</p>
-                                  <p className="text-[9px] md:text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-0.5">Premium Selection & Direct Support</p>
+                              <div className="min-w-0">
+                                  <p className="text-[9px] md:text-xs font-black text-slate-900 uppercase tracking-tight leading-none truncate">Hogicar Exclusive Verified Fleet</p>
+                                  <p className="text-[8px] md:text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-1 leading-none truncate">Premium Selection & Direct Support</p>
                               </div>
                           </div>
                       ) : (
@@ -481,16 +481,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           </div>
                       )}
                       
-                      <div className="space-y-0.5 md:space-y-1">
+                      <div className="flex flex-col items-end">
                           <p className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total for {days} days</p>
-                          <div className="flex flex-col items-end">
-                              <p className="font-black text-slate-900 text-2xl md:text-3xl tracking-tight leading-none">
-                                  {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
-                              </p>
-                              <p className="text-[#008009] text-[10px] md:text-xs font-black bg-green-50 px-1.5 py-0.5 md:px-2 md:py-1 rounded mt-1 border border-green-100">
-                                  Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
-                              </p>
-                          </div>
+                          <p className="font-black text-slate-900 text-xl md:text-3xl tracking-tight leading-none mt-1">
+                              {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
+                          </p>
+                          <p className="text-[#008009] text-[9px] md:text-xs font-black bg-green-50 px-1.5 py-0.5 md:px-2 md:py-1 rounded mt-2 border border-green-100">
+                              Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                          </p>
                       </div>
                   </div>
 
