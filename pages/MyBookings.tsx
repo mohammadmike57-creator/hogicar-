@@ -16,8 +16,11 @@ import { Logo } from '../components/Logo';
 const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose: () => void }) => {
     // In real app, we might need to fetch the car if it's not in mock
     const car = MOCK_CARS.find(c => c.id === booking.carId);
-    // If not in mock, we might display fallback data or nothing. 
-    // Ideally the Booking object should contain vehicle details from the API.
+    
+    // Fallback info if car is not found in mock data
+    const carMake = car?.make || (booking.carName ? booking.carName.split(' ')[0] : 'Vehicle');
+    const carModel = car?.model || (booking.carName ? booking.carName.split(' ').slice(1).join(' ') : '');
+    const displayCarName = car ? `${car.make} ${car.model}` : (booking.carName || 'Vehicle');
     
     const { convertPrice, getCurrencySymbol } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
@@ -88,19 +91,21 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                             <Car className="w-4 h-4"/> Vehicle Information
                         </h4>
                         <div className="flex items-start gap-6">
-                            {car && (
-                                <img 
-                                    src={displayImage} 
-                                    alt={car.make} 
-                                    onError={() => setImageError(true)}
-                                    crossOrigin="anonymous"
-                                    loading="eager"
-                                    className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2"
-                                />
-                            )}
+                            <img 
+                                src={displayImage} 
+                                alt={carMake} 
+                                onError={() => setImageError(true)}
+                                crossOrigin="anonymous"
+                                loading="eager"
+                                className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2"
+                            />
                             <div className="flex-grow">
-                                <h3 className="text-xl font-bold text-slate-900">{car ? `${car.make} ${car.model}` : booking.carName}</h3>
-                                {car && <p className="text-sm text-slate-500 mb-4">or similar {car.category} class</p>}
+                                <h3 className="text-xl font-bold text-slate-900">{displayCarName}</h3>
+                                {car ? (
+                                    <p className="text-sm text-slate-500 mb-4">or similar {car.category} class</p>
+                                ) : (
+                                    <p className="text-sm text-slate-500 mb-4">Rental Vehicle</p>
+                                )}
                                 <div className="flex items-center gap-3">
                                     {car && <img src={car.supplier.logo} alt={car.supplier.name} className="h-6 w-auto object-contain" />}
                                     <span className="text-sm font-bold text-slate-700">Supplied by {booking.supplierName}</span>
