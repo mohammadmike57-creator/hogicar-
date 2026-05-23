@@ -1482,12 +1482,36 @@ const formatEnum = (val: string) => {
 
 // ==================== Car Library ====================
 const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredLibrary = useMemo(() => {
+    if (!searchQuery.trim()) return library;
+    const q = searchQuery.toLowerCase().trim();
+    return (library || []).filter((m: any) => 
+      (m.make && m.make.toLowerCase().includes(q)) || 
+      (m.model && m.model.toLowerCase().includes(q)) ||
+      (m.category && m.category.toLowerCase().includes(q)) ||
+      (m.type && m.type.toLowerCase().includes(q))
+    );
+  }, [library, searchQuery]);
+
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
       <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
-        <div>
+        <div className="flex-1">
             <h2 className="text-2xl font-black text-gray-900 tracking-tight">Global Car Library</h2>
-            <p className="text-sm text-gray-500 font-medium">Define models available for all supply partners</p>
+            <p className="text-sm text-gray-500 font-medium mb-4">Define models available for all supply partners</p>
+            
+            <div className="relative max-w-md">
+                <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input 
+                    type="text" 
+                    placeholder="Search by make or model..." 
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
         </div>
         <button onClick={() => onEdit(null)} className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center gap-2">
             <PlusCircle className="w-5 h-5" />
@@ -1507,7 +1531,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {Array.isArray(library) && library.map((m: any) => (
+            {Array.isArray(filteredLibrary) && filteredLibrary.map((m: any) => (
               <tr key={m.id} className="hover:bg-orange-50/30 transition-colors group">
                 <td className="px-8 py-4">
                   <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-orange-200 transition-colors">
