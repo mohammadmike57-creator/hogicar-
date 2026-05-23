@@ -410,7 +410,7 @@ const Searching: React.FC = () => {
                     className="w-full h-full object-contain transition-all duration-1000"
                     style={{ 
                         opacity: isChecked ? 1 : 0.6,
-                        filter: isChecked ? 'grayscale(0%) brightness(1)' : 'grayscale(100%) brightness(0.9) blur(0.3px)',
+                        filter: isChecked ? 'brightness(1)' : 'brightness(0.9) blur(0.3px)',
                         transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
                     } as any}
                   />

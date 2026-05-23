@@ -258,7 +258,7 @@ const Home: React.FC = () => {
       {/* TRUSTED PARTNERS – marquee version */}
       <section className="py-8 bg-white overflow-hidden border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] mb-4 text-slate-400/80">Partnered with the World's Best</div>
+          <div className="text-[10px] font-black text-blue-600 uppercase tracking-[0.5em] mb-4">Partnered with the World's Best</div>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
         </div>
         <div className="relative flex items-center group">
@@ -276,7 +276,7 @@ const Home: React.FC = () => {
                 <img 
                   src={s.logo || s.logoUrl} 
                   alt={s.name} 
-                  className="h-8 md:h-12 w-auto max-w-[160px] object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 logo-scaled-hover" 
+                  className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 logo-scaled-hover" 
                   width={160}
                   height={48}
                   style={{ 
