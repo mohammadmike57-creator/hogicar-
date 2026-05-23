@@ -203,21 +203,32 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO – classic centered layout */}
-      <section className="bg-[#003580] pt-20 pb-10 lg:pt-32 lg:pb-20 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
+      {/* HERO – professional centered layout with background image */}
+      <section className="relative pt-10 pb-8 lg:pt-32 lg:pb-24 text-white overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroBackgroundImage || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop"} 
+            className="w-full h-full object-cover"
+            alt="Hero Background"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
+        </div>
+
+        <div className="absolute inset-0 opacity-20 pointer-events-none z-[1]">
            <div className="absolute top-0 left-0 w-64 h-64 bg-white/20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
         </div>
+        
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-2 lg:mb-4 leading-tight tracking-tight drop-shadow-md">
             {content.hero.title || 'Search, Compare & Save on Car Rentals'}
           </h1>
-          <p className="hidden sm:block text-blue-100/90 mb-8 max-w-2xl mx-auto text-sm sm:text-base font-medium">
+          <p className="hidden sm:block text-blue-50/90 mb-8 max-w-2xl mx-auto text-sm sm:text-base font-medium">
             {content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.'}
           </p>
           
-          <div className="relative z-20 mt-4 lg:mt-0">
+          <div className="relative z-20 mt-6 lg:mt-0">
             <SearchWidget
               onSearch={handleSearch}
               showTitle={false}
