@@ -95,7 +95,7 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                 src={displayImage} 
                                 alt={carMake} 
                                 onError={() => setImageError(true)}
-                                crossOrigin="anonymous"
+                                referrerPolicy="no-referrer"
                                 loading="eager"
                                 className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2"
                             />
@@ -317,7 +317,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                             src={displayImage} 
                             alt={car.model} 
                             onError={() => setImageError(true)}
-                            crossOrigin="anonymous"
+                            referrerPolicy="no-referrer"
                             loading="eager"
                             className="w-48 object-contain"
                          />

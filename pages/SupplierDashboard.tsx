@@ -741,7 +741,7 @@ const FleetSection = ({
                         alt={car.name}
                         width={400}
                         height={250}
-                        crossOrigin="anonymous"
+                        referrerPolicy="no-referrer"
                         loading="eager"
                     />
                     <div className="absolute top-4 left-4 flex flex-col gap-2">

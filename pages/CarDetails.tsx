@@ -287,7 +287,7 @@ const CarDetails: React.FC = () => {
                     src={displayImage} 
                     alt={`${car.make} ${car.model}`} 
                     onError={() => setImageError(true)}
-                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                     loading="eager"
                     className="w-full h-40 lg:h-56 object-contain p-4"
                   />
