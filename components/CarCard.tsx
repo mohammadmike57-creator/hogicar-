@@ -83,13 +83,13 @@ const DetailedRatingsTooltip: React.FC<{ ratings: CarRatings }> = ({ ratings }) 
     ];
     return (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-64 mb-2 p-3 bg-white text-slate-900 rounded-lg shadow-xl ring-1 ring-slate-200 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-            <h4 className="font-bold text-xs mb-2">Customer Ratings Breakdown</h4>
-            <div className="space-y-2">
+            <h4 className="font-black text-[10px] mb-3 uppercase tracking-[0.1em] text-slate-400">Customer Ratings Breakdown</h4>
+            <div className="space-y-3">
                 {ratingItems.map(item => (
                     <div key={item.key}>
-                        <div className="flex justify-between items-center mb-0.5">
-                            <span className="text-[11px] font-medium text-slate-600">{item.label}</span>
-                            <span className="text-[11px] font-bold text-slate-800">{ratings[item.key]}%</span>
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="text-[12px] font-bold text-slate-700">{item.label}</span>
+                            <span className="text-[12px] font-black text-[#008009]">{ratings[item.key]}%</span>
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-1">
                             <div 
@@ -357,18 +357,18 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         </div>
 
                         {/* Supplier Info (Desktop) */}
-                        <div className="hidden sm:flex items-center gap-3">
+                        <div className="hidden sm:flex items-center gap-4">
                             <img
                                 src={car.supplier.logo || (car.supplier as any).logoUrl}
                                 alt={car.supplier.name}
-                                className="h-8 w-auto object-contain max-w-[100px]"
+                                className="h-10 w-auto object-contain max-w-[120px]"
                             />
                             <div className="flex flex-col group/rating relative">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="bg-[#008009] text-white text-[11px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-[#008009] text-white text-[13px] font-black px-2 py-0.5 rounded-md shadow-sm">
                                         {car.supplier.rating}
                                     </div>
-                                    <span className="text-[11px] font-bold text-slate-700 underline underline-offset-4 decoration-slate-200 cursor-help">{getRatingDescription(car.supplier.rating)}</span>
+                                    <span className="text-[13px] font-black text-slate-800 underline underline-offset-4 decoration-slate-200 cursor-help">{getRatingDescription(car.supplier.rating)}</span>
                                 </div>
                                 {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
                             </div>
@@ -496,17 +496,17 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
           <div className="px-3 md:px-4 py-2 bg-white border-t border-slate-50 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4 flex-wrap">
                   {/* Mobile Supplier info */}
-                  <div className="md:hidden flex items-center gap-3">
+                  <div className="md:hidden flex items-center gap-4">
                       <img
                           src={car.supplier.logo || (car.supplier as any).logoUrl}
                           alt={car.supplier.name}
-                          className="h-6 w-auto object-contain"
+                          className="h-9 w-auto object-contain"
                       />
-                      <div className="flex items-center gap-1.5">
-                          <div className="bg-[#008009] text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                      <div className="flex items-center gap-2">
+                          <div className="bg-[#008009] text-white text-[12px] font-black px-2 py-0.5 rounded-md shadow-sm">
                               {car.supplier.rating}
                           </div>
-                          <span className="text-[10px] font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</span>
+                          <span className="text-[12px] font-black text-slate-800">{getRatingDescription(car.supplier.rating)}</span>
                       </div>
                   </div>
                   
@@ -538,8 +538,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
               </div>
 
               <div className="flex items-center gap-4 ml-auto">
-                  <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] text-slate-400 hover:text-[#008009] font-black uppercase tracking-widest transition-colors">
-                      Rental Conditions
+                  <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1.5 text-[11px] md:text-[13px] text-[#008009] hover:text-[#006607] font-black uppercase tracking-widest transition-colors group/cond">
+                      <FileText className="w-3.5 h-3.5 md:w-4 h-4 group-hover/cond:scale-110 transition-transform" />
+                      <span>Rental Conditions</span>
                   </button>
               </div>
           </div>

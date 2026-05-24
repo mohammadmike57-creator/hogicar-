@@ -312,8 +312,20 @@ const CarDetails: React.FC = () => {
                       </div>
                       <p className="text-slate-700 text-base mt-1">or similar · {car.year}</p>
                       <div className="flex flex-wrap gap-4 mt-4">
-                        <div className="flex items-center gap-2 text-sm"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {!car.hogicarChoice ? <>{car.supplier.rating} · {getRatingText(car.supplier.rating)}</> : <span className="font-bold text-indigo-700">Premium Choice · Top Rated</span>}</div>
-                        <div className="flex items-center gap-2 text-sm"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
+                        <div className="flex items-center gap-2 text-base font-bold text-slate-900">
+                            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> 
+                            {!car.hogicarChoice ? (
+                                <>
+                                    <span className="bg-[#008009] text-white px-2 py-0.5 rounded shadow-sm">
+                                        {car.supplier.rating}
+                                    </span> 
+                                    <span className="underline underline-offset-4 decoration-slate-200">{getRatingText(car.supplier.rating)}</span>
+                                </>
+                            ) : (
+                                <span className="font-black text-indigo-700 uppercase tracking-wider">Premium Choice · Top Rated</span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2 text-base font-medium text-slate-600"><MapPin className="w-5 h-5 text-slate-400" /> {car.locationDetail}</div>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end">
@@ -424,8 +436,8 @@ const CarDetails: React.FC = () => {
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> {!car.hogicarChoice ? "About the Supplier" : "Hogicar Verification"}</h2>
                 {!car.hogicarChoice ? (
                   <div className="flex flex-wrap items-center gap-6">
-                    <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 object-contain" />
-                    <div><div className="font-semibold text-lg">{car.supplier.name}</div><div className="text-base text-slate-700">Car rental provider</div></div>
+                    <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 w-auto object-contain max-w-[150px]" />
+                    <div><div className="font-black text-xl text-slate-900 tracking-tight">{car.supplier.name}</div><div className="text-base text-slate-600 font-medium tracking-wide">Professional Car Rental Provider</div></div>
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-6">
@@ -444,7 +456,11 @@ const CarDetails: React.FC = () => {
                   <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
                   <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
                 </div>
-                <button onClick={() => setIsConditionsModalOpen(true)} className="mt-6 text-blue-600 text-sm font-medium underline flex items-center gap-1">View full rental conditions <ArrowRight className="w-4 h-4" /></button>
+                <button onClick={() => setIsConditionsModalOpen(true)} className="mt-8 flex items-center gap-2 text-[#008009] hover:text-[#006607] text-base font-black uppercase tracking-[0.1em] transition-colors group/cond">
+                    <FileText className="w-6 h-6 group-hover/cond:scale-110 transition-transform" />
+                    <span>View Full Rental Conditions</span>
+                    <ArrowRight className="w-5 h-5 ml-1 group-hover/cond:translate-x-1 transition-transform" />
+                </button>
               </div>
 
               {/* Upgrade / Other models from same supplier */}
