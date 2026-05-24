@@ -307,7 +307,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                              </div>
                              {isCancelled ? <XCircle className="w-10 h-10 text-red-500"/> : <CheckCircle className="w-10 h-10 text-green-500"/>}
                          </div>
-                         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div className="p-6 grid grid-cols-2 gap-6">
                              <div>
                                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pick-up</h3>
                                  <div className="flex items-start gap-3">
