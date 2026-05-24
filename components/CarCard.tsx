@@ -348,19 +348,24 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   </Link>
 
                   {/* Supplier & Rating Block */}
-                  <div className="flex flex-col items-center gap-3 pt-3 border-t border-slate-50 mt-auto">
+                  <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-100 mt-auto w-full">
                       <img
                           src={car.supplier.logo || (car.supplier as any).logoUrl}
                           alt={car.supplier.name}
-                          className="h-7 w-auto object-contain max-w-[100px]"
+                          className="h-10 w-auto object-contain max-w-[110px]"
                       />
                       <div className="flex items-center gap-2 group/rating relative">
-                          <div className="bg-[#008009] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
+                          <div className="flex flex-col items-end">
+                            <span className="text-[11px] font-black text-slate-900 leading-none mb-0.5">
+                              {getRatingDescription(car.supplier.rating)}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap">
+                              Supplier Rating
+                            </span>
+                          </div>
+                          <div className="bg-[#008009] text-white text-[14px] font-black w-9 h-9 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                               {car.supplier.rating}
                           </div>
-                          <span className="text-[10px] font-black text-slate-800 underline underline-offset-4 decoration-slate-200 cursor-help whitespace-nowrap">
-                            {getRatingDescription(car.supplier.rating)}
-                          </span>
                           {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
                       </div>
                   </div>

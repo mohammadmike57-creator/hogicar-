@@ -16,6 +16,15 @@ import BookingStepper from '../components/BookingStepper';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { supplierApi } from '../lib/api';
 
+// --- RATING HELPERS ---
+const getRatingDescription = (rating: number): string => {
+    if (rating >= 4.8) return 'Exceptional';
+    if (rating >= 4.5) return 'Very Good';
+    if (rating >= 4.0) return 'Good';
+    if (rating >= 3.0) return 'Average';
+    return 'Fair';
+};
+
 // ==================== Helper Components ====================
 
 const StructuredData: React.FC<{ car: Car; total: number; currencyCode: string }> = ({ car, total, currencyCode }) => {
@@ -437,7 +446,21 @@ const CarDetails: React.FC = () => {
                 {!car.hogicarChoice ? (
                   <div className="flex flex-wrap items-center gap-6">
                     <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 w-auto object-contain max-w-[150px]" />
-                    <div><div className="font-black text-xl text-slate-900 tracking-tight">{car.supplier.name}</div><div className="text-base text-slate-600 font-medium tracking-wide">Professional Car Rental Provider</div></div>
+                    <div className="flex items-center gap-4">
+                        <div>
+                            <div className="font-black text-xl text-slate-900 tracking-tight">{car.supplier.name}</div>
+                            <div className="text-base text-slate-600 font-medium tracking-wide">Professional Car Rental Provider</div>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200 ml-2">
+                             <div className="bg-[#008009] text-white text-lg font-black w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
+                                 {car.supplier.rating}
+                             </div>
+                             <div className="flex flex-col">
+                                 <span className="text-xs font-black text-slate-900 leading-none">{getRatingDescription(car.supplier.rating)}</span>
+                                 <span className="text-[10px] font-bold text-slate-400 mt-0.5">Reviews</span>
+                             </div>
+                        </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-6">

@@ -112,6 +112,11 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                         <span className="text-xs text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Service Provider</span>
                                         <span className="text-sm font-black text-slate-800 uppercase tracking-wide leading-none">{booking.supplierName}</span>
                                     </div>
+                                    {car && (
+                                        <div className="bg-[#008009] text-white text-[13px] font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-sm ml-auto">
+                                            {car.supplier.rating}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
