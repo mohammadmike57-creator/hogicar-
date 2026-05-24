@@ -318,10 +318,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 hover:border-[#008009]/30 transition-all duration-300 w-full mb-4 group/card overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border-2 border-[#008009] transition-all duration-300 w-full mb-4 group/card overflow-hidden">
           {/* Top Bar for Desktop - Hogicar Choice or Promo */}
           {car.hogicarChoice && (
-            <div className="hidden md:flex bg-gradient-to-r from-[#003580] to-[#004fa3] text-white px-4 py-1.5 items-center gap-2">
+            <div className="hidden md:flex bg-gradient-to-r from-[#003580] to-[#004fa3] text-white px-4 py-1 items-center gap-2">
                 <Award className="w-4 h-4 text-amber-400 fill-amber-400/20" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Hogicar Exclusive Verified Fleet</span>
                 <div className="ml-auto flex items-center gap-4 text-[10px] font-bold">
@@ -331,13 +331,13 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
             </div>
           )}
 
-          <div className="p-4 md:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                 {/* --- LEFT COLUMN: IMAGE & SPECS --- */}
-                <div className="md:col-span-3 flex flex-col sm:flex-row gap-6">
+                <div className="md:col-span-3 flex flex-col sm:flex-row gap-4">
                     {/* Image Section */}
-                    <div className="w-full sm:w-1/3 flex flex-col gap-3">
+                    <div className="w-full sm:w-1/3 flex flex-col gap-2">
                         <div className="relative aspect-[4/3] bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center group/img">
                             <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center p-4">
                                 <img 
@@ -391,7 +391,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                     )}
                                 </div>
                                 <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                                    <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-tight group-hover/card:text-[#008009] transition-colors uppercase tracking-tight">
+                                    <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight group-hover/card:text-[#008009] transition-colors uppercase tracking-tight">
                                         {car.displayName}
                                     </h3>
                                 </Link>
@@ -402,16 +402,16 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         </div>
 
                         {/* Feature Icons Grid */}
-                        <div className="grid grid-cols-4 gap-2 mt-5">
-                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                        <div className="grid grid-cols-4 gap-2 mt-3">
+                            <div className="flex flex-col items-center justify-center p-1.5 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
                                 <Users className="w-4 h-4 text-slate-400 group-hover/icon:text-blue-500 transition-colors mb-1"/>
                                 <span className="text-[10px] font-bold text-slate-600">{car.passengers}</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                            <div className="flex flex-col items-center justify-center p-1.5 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
                                 <Briefcase className="w-4 h-4 text-slate-400 group-hover/icon:text-blue-500 transition-colors mb-1"/>
                                 <span className="text-[10px] font-bold text-slate-600">{car.bags}</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                            <div className="flex flex-col items-center justify-center p-1.5 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
                                 <div className="text-slate-400 group-hover/icon:text-blue-500 transition-colors mb-1">
                                     <AutomaticIcon />
                                 </div>
@@ -419,14 +419,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                     {car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}
                                 </span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                            <div className="flex flex-col items-center justify-center p-1.5 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
                                 <Wind className="w-4 h-4 text-slate-400 group-hover/icon:text-[#008009] transition-colors mb-1"/>
                                 <span className="text-[10px] font-bold text-slate-600">A/C</span>
                             </div>
                         </div>
 
                         {/* Rich Highlights */}
-                        <div className="mt-6 space-y-2">
+                        <div className="mt-4 space-y-2">
                             <div className="flex items-center gap-2 text-[11px] font-bold text-[#008009]">
                                 <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
                                     <CalendarCheck className="w-3 h-3" />
@@ -460,7 +460,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                 </div>
 
                 {/* --- RIGHT COLUMN: PRICING & CTA --- */}
-                <div className="flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-6">
+                <div className="flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-4">
                     <div className="flex flex-row md:flex-col items-end md:items-end justify-between md:justify-start gap-4">
                         <div className="flex-1 md:w-full">
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest text-right">Total for {days} days</p>
@@ -479,7 +479,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         </div>
                     </div>
 
-                    <div className="mt-6 space-y-3">
+                    <div className="mt-4 space-y-3">
                          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center justify-between group/pay">
                             <div>
                                 <p className="text-[9px] text-emerald-700 font-black uppercase tracking-wider">Pay Online Now</p>
@@ -509,9 +509,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
             </div>
 
             {/* Bottom Bar: Supplier & Pickup Details */}
-            <div className="mt-6 pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-6">
-                    <div className="sm:hidden flex items-center gap-3"> {/* Supplier logo and rating on mobile */}
+                    <div className="sm:hidden flex items-center gap-2"> {/* Supplier logo and rating on mobile */}
                         <img
                             src={car.supplier.logo || (car.supplier as any).logoUrl}
                             alt={car.supplier.name}
