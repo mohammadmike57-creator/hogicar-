@@ -6,6 +6,8 @@
 import * as React from 'react';
 import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
+import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
+import { getRatingDescription } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -56,54 +58,6 @@ const VisaIcon = () => (
     />
   </div>
 );
-
-
-// --- RATING TOOLTIP HELPERS & COMPONENT ---
-const getRatingDescription = (rating: number): string => {
-    if (rating >= 4.8) return 'Exceptional';
-    if (rating >= 4.5) return 'Very Good';
-    if (rating >= 4.0) return 'Good';
-    if (rating >= 3.0) return 'Average';
-    return 'Fair';
-};
-
-const getProgressBarColor = (value: number) => {
-    if (value >= 90) return 'bg-green-500';
-    if (value >= 80) return 'bg-blue-500';
-    if (value >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
-};
-
-const DetailedRatingsTooltip: React.FC<{ ratings: CarRatings }> = ({ ratings }) => {
-    const ratingItems: { key: keyof CarRatings, label: string }[] = [
-        { key: 'cleanliness', label: 'Cleanliness' },
-        { key: 'condition', label: 'Car Condition' },
-        { key: 'valueForMoney', label: 'Value for Money' },
-        { key: 'pickupSpeed', label: 'Pick-up Speed' },
-    ];
-    return (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-64 mb-2 p-3 bg-white text-slate-900 rounded-lg shadow-xl ring-1 ring-slate-200 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-            <h4 className="font-black text-[10px] mb-3 uppercase tracking-[0.1em] text-slate-400">Customer Ratings Breakdown</h4>
-            <div className="space-y-3">
-                {ratingItems.map(item => (
-                    <div key={item.key}>
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-[12px] font-bold text-slate-700">{item.label}</span>
-                            <span className="text-[12px] font-black text-[#008009]">{ratings[item.key]}%</span>
-                        </div>
-                        <div className="w-full bg-slate-200 rounded-full h-1">
-                            <div 
-                                className={`h-1 rounded-full ${getProgressBarColor(ratings[item.key])}`}
-                                style={{ width: `${ratings[item.key]}%` }}
-                            ></div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-white"></div>
-        </div>
-    );
-};
 
 
 // --- RENTAL CONDITIONS MODAL ---
@@ -306,6 +260,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   const recentBookingInfo = React.useMemo(() => getRecentBookingInfo(car), [car]);
   
   const [imageError, setImageError] = React.useState(false);
+  const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
 
   const handleSelectCar = () => {
@@ -354,7 +309,16 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           alt={car.supplier.name}
                           className="h-10 w-auto object-contain max-w-[110px]"
                       />
-                      <div className="flex items-center gap-2 group/rating relative">
+                      <div 
+                        className="flex items-center gap-2 group/rating relative cursor-pointer"
+                        onMouseEnter={() => setShowRatingsTooltip(true)}
+                        onMouseLeave={() => setShowRatingsTooltip(false)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowRatingsTooltip(!showRatingsTooltip);
+                        }}
+                      >
                           <div className="flex flex-col items-end">
                             <span className="text-[11px] font-black text-slate-900 leading-none mb-0.5">
                               {getRatingDescription(car.supplier.rating)}
@@ -366,7 +330,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           <div className="bg-[#008009] text-white text-[14px] font-black w-9 h-9 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                               {car.supplier.rating}
                           </div>
-                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
+                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
                       </div>
                   </div>
               </div>

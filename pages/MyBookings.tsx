@@ -3,6 +3,7 @@ import * as React from 'react';
 import { MOCK_CARS } from '../services/mockData';
 import { Calendar, Tag, Car, Building, ArrowRight, Lock, Mail, Search, AlertCircle, CheckCircle, XCircle, Edit2, AlertTriangle, ChevronRight, Download, Printer, Phone, Plane, FileText, X, Star, LoaderCircle, Zap } from 'lucide-react';
 import { Booking, Extra } from '../types';
+import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import ModifyBookingModal from '../components/ModifyBookingModal';
@@ -24,6 +25,7 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
     
     const { convertPrice, getCurrencySymbol } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
+    const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
     const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
 
     if (!booking) return null;
@@ -113,8 +115,18 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                         <span className="text-sm font-black text-slate-800 uppercase tracking-wide leading-none">{booking.supplierName}</span>
                                     </div>
                                     {car && (
-                                        <div className="bg-[#008009] text-white text-[13px] font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-sm ml-auto">
+                                        <div 
+                                          className="bg-[#008009] text-white text-[13px] font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-sm ml-auto group/rating relative cursor-pointer"
+                                          onMouseEnter={() => setShowRatingsTooltip(true)}
+                                          onMouseLeave={() => setShowRatingsTooltip(false)}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setShowRatingsTooltip(!showRatingsTooltip);
+                                          }}
+                                        >
                                             {car.supplier.rating}
+                                            {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
                                         </div>
                                     )}
                                 </div>

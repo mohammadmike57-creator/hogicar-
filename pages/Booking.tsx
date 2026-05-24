@@ -6,6 +6,8 @@ import { CardElement, Elements, useElements, useStripe } from '@stripe/react-str
 import { getPromoCode } from '../services/mockData';
 import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap } from 'lucide-react';
 import { Car, PromoCode } from '../types';
+import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
+import { getRatingDescription } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -13,15 +15,6 @@ import { calcPricing, rentalDays } from '../utils/pricing';
 import { api } from '../api';
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
-
-// --- RATING HELPERS ---
-const getRatingDescription = (rating: number): string => {
-    if (rating >= 4.8) return 'Exceptional';
-    if (rating >= 4.5) return 'Very Good';
-    if (rating >= 4.0) return 'Good';
-    if (rating >= 3.0) return 'Average';
-    return 'Fair';
-};
 
 const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: string]: any }) => (
   <div className="relative group/input">
@@ -99,6 +92,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [timeLeft, setTimeLeft] = React.useState(20 * 60);
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const [cardholderName, setCardholderName] = React.useState('');
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
 
@@ -329,7 +323,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                             <p className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-[0.18em] sm:tracking-[0.2em] leading-none mb-2">Service Provider</p>
                             <p className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-[0.12em] sm:tracking-[0.15em]">{car.supplier.name}</p>
                           </div>
-                          <div className="flex items-center gap-2 bg-white px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl shadow-sm border border-slate-200 ml-1">
+                          <div 
+                            className="flex items-center gap-2 bg-white px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer"
+                            onMouseEnter={() => setShowRatingsTooltip(true)}
+                            onMouseLeave={() => setShowRatingsTooltip(false)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setShowRatingsTooltip(!showRatingsTooltip);
+                            }}
+                          >
                              <div className="bg-[#008009] text-white text-xs sm:text-sm font-black w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg shadow-sm">
                                  {car.supplier.rating}
                              </div>
@@ -337,6 +340,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                                  <span className="text-[10px] font-black text-slate-900 leading-none">{getRatingDescription(car.supplier.rating)}</span>
                                  <span className="text-[8px] font-bold text-slate-400 mt-0.5">Reviews</span>
                              </div>
+                             {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
                           </div>
                         </div>
                     </div>

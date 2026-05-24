@@ -10,20 +10,13 @@ import {
   DollarSign, Zap, ThumbsUp, Globe, Headphones
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
+import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
+import { getRatingDescription } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { supplierApi } from '../lib/api';
-
-// --- RATING HELPERS ---
-const getRatingDescription = (rating: number): string => {
-    if (rating >= 4.8) return 'Exceptional';
-    if (rating >= 4.5) return 'Very Good';
-    if (rating >= 4.0) return 'Good';
-    if (rating >= 3.0) return 'Average';
-    return 'Fair';
-};
 
 // ==================== Helper Components ====================
 
@@ -217,6 +210,7 @@ const CarDetails: React.FC = () => {
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
   const [promoError, setPromoError] = React.useState('');
   const [showFullSpecs, setShowFullSpecs] = React.useState(false);
+  const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
 
   React.useEffect(() => {
     if (timeLeft === 0) return;
@@ -273,8 +267,6 @@ const CarDetails: React.FC = () => {
     );
   }
 
-  const getRatingText = (rating: number) => rating >= 4.8 ? 'Exceptional' : rating >= 4.5 ? 'Very Good' : rating >= 4.0 ? 'Good' : rating >= 3.0 ? 'Average' : 'Fair';
-
   return (
     <>
       <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={car.hogicarChoice ? `Book ${car.make} ${car.model} from our exclusive verified fleet. Best price guaranteed.` : `Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
@@ -324,12 +316,22 @@ const CarDetails: React.FC = () => {
                         <div className="flex items-center gap-2 text-base font-bold text-slate-900">
                             <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> 
                             {!car.hogicarChoice ? (
-                                <>
+                                <div 
+                                  className="flex items-center gap-2 group/rating relative cursor-pointer"
+                                  onMouseEnter={() => setShowRatingsTooltip(true)}
+                                  onMouseLeave={() => setShowRatingsTooltip(false)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowRatingsTooltip(!showRatingsTooltip);
+                                  }}
+                                >
                                     <span className="bg-[#008009] text-white px-2 py-0.5 rounded shadow-sm">
                                         {car.supplier.rating}
                                     </span> 
-                                    <span className="underline underline-offset-4 decoration-slate-200">{getRatingText(car.supplier.rating)}</span>
-                                </>
+                                    <span className="underline underline-offset-4 decoration-slate-200">{getRatingDescription(car.supplier.rating)}</span>
+                                    {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
+                                </div>
                             ) : (
                                 <span className="font-black text-indigo-700 uppercase tracking-wider">Premium Choice · Top Rated</span>
                             )}
@@ -451,7 +453,16 @@ const CarDetails: React.FC = () => {
                             <div className="font-black text-xl text-slate-900 tracking-tight">{car.supplier.name}</div>
                             <div className="text-base text-slate-600 font-medium tracking-wide">Professional Car Rental Provider</div>
                         </div>
-                        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200 ml-2">
+                        <div 
+                          className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200 ml-2 group/rating relative cursor-pointer"
+                          onMouseEnter={() => setShowRatingsTooltip(true)}
+                          onMouseLeave={() => setShowRatingsTooltip(false)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowRatingsTooltip(!showRatingsTooltip);
+                          }}
+                        >
                              <div className="bg-[#008009] text-white text-lg font-black w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
                                  {car.supplier.rating}
                              </div>
@@ -459,6 +470,7 @@ const CarDetails: React.FC = () => {
                                  <span className="text-xs font-black text-slate-900 leading-none">{getRatingDescription(car.supplier.rating)}</span>
                                  <span className="text-[10px] font-bold text-slate-400 mt-0.5">Reviews</span>
                              </div>
+                             {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
                         </div>
                     </div>
                   </div>
