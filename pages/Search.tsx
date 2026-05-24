@@ -942,7 +942,7 @@ export const Search: React.FC = () => {
                         <Check className="w-3 h-3 text-[#008009]" /> All prices include taxes & fees
                     </div>
                 </div>
-                <div className="space-y-4 md:space-y-0 px-2 md:px-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-2 md:px-0">
                     {sortedAndFilteredCars.map(car => (
                         <CarCard 
                             key={car.id} 
@@ -956,7 +956,7 @@ export const Search: React.FC = () => {
                         />
                     ))}
                     {sortedAndFilteredCars.length === 0 && (
-                         <div className="text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
+                         <div className="col-span-full text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
                             <CarIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                             <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
                             <p className="text-sm text-slate-500 mt-2">Try adjusting your filters, or use dates where supplier rates are available.</p>

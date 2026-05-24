@@ -318,230 +318,169 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border-2 border-[#008009] transition-all duration-300 w-full mb-4 group/card overflow-hidden">
-          {/* Top Bar for Desktop - Hogicar Choice */}
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border-2 border-[#008009] transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full">
+          {/* Header Badge */}
           {car.hogicarChoice && (
-            <div className="hidden md:flex bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 items-center gap-2">
-                <Award className="w-4 h-4 text-white fill-white/20" />
+            <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 flex items-center justify-center gap-2">
+                <Award className="w-3.5 h-3.5 text-white fill-white/20" />
                 <span className="text-[10px] font-black uppercase tracking-widest">Hogicar Recommended</span>
-                <div className="ml-auto flex items-center gap-4 text-[10px] font-bold">
-                    <span className="flex items-center gap-1"><Check className="w-3 h-3"/> Top Rated Supplier</span>
-                    <span className="flex items-center gap-1"><Check className="w-3 h-3"/> Hand-picked Fleet</span>
-                </div>
             </div>
           )}
 
-          <div className="flex flex-col md:flex-row">
-            {/* --- LEFT: CAR INFO --- */}
-            <div className="flex-1 p-3 md:p-4">
-                <div className="flex flex-col sm:flex-row gap-4 md:gap-5">
-                    {/* Car Image Column */}
-                    <div className="w-full sm:w-[180px] md:w-[200px] flex flex-col gap-3 md:gap-4">
-                        <div className="relative aspect-[16/10] bg-white rounded-xl overflow-hidden flex items-center justify-center border border-slate-100 group/img">
-                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center p-3">
-                                <img 
-                                  src={displayImage} 
-                                  alt={`${car.make} ${car.model}`} 
-                                  onError={() => setImageError(true)}
-                                  referrerPolicy="no-referrer"
-                                  loading="eager"
-                                  className="w-full h-full object-contain group-hover/img:scale-110 transition-transform duration-700 ease-out"
-                                />
-                                
-                                {promotionLabel && (
-                                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-md flex items-center gap-1 shadow-md z-10">
-                                        <Tag className="w-2.5 h-2.5 fill-white/20"/> {promotionLabel}
-                                    </div>
-                                )}
-                            </Link>
-                        </div>
-
-                        {/* Supplier Info (Desktop) */}
-                        <div className="hidden sm:flex items-center gap-4">
-                            <img
-                                src={car.supplier.logo || (car.supplier as any).logoUrl}
-                                alt={car.supplier.name}
-                                className="h-10 w-auto object-contain max-w-[120px]"
-                            />
-                            <div className="flex flex-col group/rating relative">
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-[#008009] text-white text-[13px] font-black px-2 py-0.5 rounded-md shadow-sm">
-                                        {car.supplier.rating}
-                                    </div>
-                                    <span className="text-[13px] font-black text-slate-800 underline underline-offset-4 decoration-slate-200 cursor-help">{getRatingDescription(car.supplier.rating)}</span>
-                                </div>
-                                {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Car Details Column */}
-                    <div className="flex-1 flex flex-col">
-                        <div className="mb-4">
-                            <div className="flex items-center gap-2 mb-1.5">
-                                <span className="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">
-                                    {car.category}
-                                </span>
-                                {car.hogicarChoice && (
-                                    <span className="md:hidden flex items-center gap-1 bg-[#008009] text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">
-                                        Choice
-                                    </span>
-                                )}
-                            </div>
-                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                                <h3 className="text-base md:text-xl font-black text-slate-900 leading-tight hover:text-[#008009] transition-colors uppercase tracking-tight">
-                                    {car.displayName}
-                                </h3>
-                            </Link>
-                            <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                                or similar <Info className="w-3 h-3 text-slate-300" />
-                            </p>
-                        </div>
-
-                        {/* Specs Grid */}
-                        <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3 py-2 border-y border-slate-100 bg-slate-50/50 rounded-lg px-2">
-                            <div className="flex items-center gap-2 text-slate-600">
-                                <Users className="w-4 h-4 text-slate-400"/>
-                                <span className="text-xs font-bold">{car.passengers} Adults</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-slate-600">
-                                <Briefcase className="w-4 h-4 text-slate-400"/>
-                                <span className="text-xs font-bold">{car.bags} Large Bags</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-slate-600">
-                                <div className="text-slate-400"><AutomaticIcon /></div>
-                                <span className="text-xs font-bold">
-                                    {car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-slate-600">
-                                <Wind className="w-4 h-4 text-slate-400"/>
-                                <span className="text-xs font-bold">A/C</span>
-                            </div>
-                        </div>
-
-                        {/* Key Features List */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#008009]">
-                                <Check className="w-3.5 h-3.5" />
-                                <span>Free Cancellation</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
-                                <Check className="w-3.5 h-3.5 text-[#008009]" />
-                                <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
-                                <Check className="w-3.5 h-3.5 text-[#008009]" />
-                                <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} Mileage</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
-                                <Check className="w-3.5 h-3.5 text-[#008009]" />
-                                <span>Insurance Included</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* --- RIGHT: PRICING & CTA --- */}
-            <div className="w-full md:w-52 bg-[#f8fafc] border-t md:border-t-0 md:border-l border-slate-200 p-3 md:p-4 flex flex-col justify-between">
-                <div className="flex flex-row md:flex-col items-end md:items-end justify-between md:justify-start gap-1">
-                    <div className="flex-1 md:w-full">
-                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest text-right">Price for {days} days</p>
-                        <div className="flex flex-col items-end">
-                            {car.promotionPercent && car.promotionPercent > 0 && (
-                                <span className="text-[10px] text-slate-400 line-through font-bold">
-                                    {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
-                                </span>
-                            )}
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
-                                    {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-2.5 flex items-center justify-between group/pay">
-                        <div>
-                            <p className="text-[8px] text-emerald-700 font-black uppercase tracking-wider">Pay Online Now</p>
-                            <p className="text-base font-black text-[#008009] leading-tight">
-                                {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
-                            </p>
-                        </div>
-                        <Zap className="w-4 h-4 text-emerald-400 fill-emerald-400/20 group-hover/pay:scale-110 transition-transform"/>
-                    </div>
-
-                    <Link 
-                      to={`/car/${car.id}?${searchParams}`} 
-                      state={{ cars: cars }} 
-                      onClick={handleSelectCar} 
-                      className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3.5 rounded-xl shadow-[0_8px_20px_-6px_rgba(0,128,9,0.3)] hover:shadow-[0_12px_25px_-4px_rgba(0,128,9,0.4)] transition-all active:scale-[0.98] text-center text-[12px] uppercase tracking-widest relative overflow-hidden"
-                    >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                            View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
-                        </span>
-                    </Link>
-                    
-                    <p className="text-[10px] text-slate-400 text-center font-bold tracking-wider uppercase flex items-center justify-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400"/> Instant Confirmation
-                    </p>
-                </div>
-            </div>
-          </div>
-
-          {/* Bottom Bar: Pickup & Conditions */}
-          <div className="px-3 md:px-4 py-2 bg-white border-t border-slate-50 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-4 flex-wrap">
-                  {/* Mobile Supplier info */}
-                  <div className="md:hidden flex items-center gap-4">
-                      <img
-                          src={car.supplier.logo || (car.supplier as any).logoUrl}
-                          alt={car.supplier.name}
-                          className="h-9 w-auto object-contain"
-                      />
-                      <div className="flex items-center gap-2">
-                          <div className="bg-[#008009] text-white text-[12px] font-black px-2 py-0.5 rounded-md shadow-sm">
-                              {car.supplier.rating}
-                          </div>
-                          <span className="text-[12px] font-black text-slate-800">{getRatingDescription(car.supplier.rating)}</span>
-                      </div>
-                  </div>
+          {/* Car Image Area */}
+          <div className="relative aspect-[16/10] bg-white border-b border-slate-50 flex items-center justify-center p-6 group/img">
+              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center">
+                  <img 
+                    src={displayImage} 
+                    alt={`${car.make} ${car.model}`} 
+                    onError={() => setImageError(true)}
+                    referrerPolicy="no-referrer"
+                    loading="eager"
+                    className="w-full h-full object-contain group-hover/img:scale-110 transition-transform duration-700 ease-out"
+                  />
                   
-                  {(() => {
-                      const pickupType = car.supplier?.pickupType;
-                      const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
-                        <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-3 py-1 rounded-md text-[10px] uppercase tracking-wider border border-current/10`}>
-                            {React.cloneElement(icon as React.ReactElement, { className: "w-3.5 h-3.5" })}
-                            {text}
-                        </div>
-                      );
-
-                      if (pickupType === 'IN_TERMINAL') {
-                          return getBadge(<Plane />, "In Terminal", "bg-green-50", "text-green-700");
-                      } else if (pickupType === 'MEET_AND_GREET') {
-                          return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
-                      } else if (pickupType === 'SHUTTLE_BUS') {
-                          return getBadge(<Bus />, "Shuttle Bus", "bg-orange-50", "text-orange-700");
-                      }
-                      return null;
-                  })()}
-
-                  {recentBookingInfo.isRecent && (
-                      <div className="hidden sm:flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-widest bg-red-50 px-3 py-1 rounded-md border border-red-100">
-                           <Zap className="w-3.5 h-3.5 fill-red-500" />
-                           {recentBookingInfo.message}
+                  {promotionLabel && (
+                      <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-md flex items-center gap-1 shadow-md z-10">
+                          <Tag className="w-3 h-3 fill-white/20"/> {promotionLabel}
                       </div>
                   )}
+              </Link>
+          </div>
+
+          <div className="p-4 flex flex-col flex-grow">
+              {/* Supplier & Rating Row */}
+              <div className="flex justify-between items-center mb-4">
+                  <img
+                      src={car.supplier.logo || (car.supplier as any).logoUrl}
+                      alt={car.supplier.name}
+                      className="h-8 w-auto object-contain max-w-[100px]"
+                  />
+                  <div className="flex items-center gap-2 group/rating relative">
+                      <div className="bg-[#008009] text-white text-[12px] font-black px-2 py-0.5 rounded shadow-sm">
+                          {car.supplier.rating}
+                      </div>
+                      <span className="text-[11px] font-black text-slate-800 underline underline-offset-4 decoration-slate-200 cursor-help whitespace-nowrap">
+                        {getRatingDescription(car.supplier.rating)}
+                      </span>
+                      {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
+                  </div>
               </div>
 
-              <div className="flex items-center gap-4 ml-auto">
-                  <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1.5 text-[11px] md:text-[13px] text-[#008009] hover:text-[#006607] font-black uppercase tracking-widest transition-colors group/cond">
-                      <FileText className="w-3.5 h-3.5 md:w-4 h-4 group-hover/cond:scale-110 transition-transform" />
-                      <span>Rental Conditions</span>
-                  </button>
+              {/* Title & Category */}
+              <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-slate-100 text-slate-500 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider">
+                          {car.category}
+                      </span>
+                  </div>
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
+                      <h3 className="text-lg font-black text-slate-900 leading-tight hover:text-[#008009] transition-colors uppercase tracking-tight">
+                          {car.displayName}
+                      </h3>
+                  </Link>
+                  <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+                      or similar <Info className="w-2.5 h-2.5" />
+                  </p>
+              </div>
+
+              {/* Specs Grid (Compact) */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-5 py-3 border-y border-slate-50 bg-slate-50/30 rounded-lg px-3">
+                  <div className="flex items-center gap-2.5 text-slate-600">
+                      <Users className="w-3.5 h-3.5 text-slate-400"/>
+                      <span className="text-[11px] font-bold">{car.passengers} Adults</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-slate-600">
+                      <Briefcase className="w-3.5 h-3.5 text-slate-400"/>
+                      <span className="text-[11px] font-bold">{car.bags} Large Bags</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-slate-600">
+                      <div className="text-slate-400 scale-90"><AutomaticIcon /></div>
+                      <span className="text-[11px] font-bold">
+                          {car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}
+                      </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-slate-600">
+                      <Wind className="w-3.5 h-3.5 text-slate-400"/>
+                      <span className="text-[11px] font-bold">A/C</span>
+                  </div>
+              </div>
+
+              {/* Included Features checklist */}
+              <div className="space-y-2 mb-6">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-[#008009]">
+                      <Check className="w-3.5 h-3.5 stroke-[3px]" />
+                      <span>Free Cancellation</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
+                      <Check className="w-3.5 h-3.5 text-[#008009] stroke-[3px]" />
+                      <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
+                      <Check className="w-3.5 h-3.5 text-[#008009] stroke-[3px]" />
+                      <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} Mileage</span>
+                  </div>
+              </div>
+
+              {/* Price & CTA Section */}
+              <div className="mt-auto space-y-4">
+                  {/* Pricing Info */}
+                  <div className="flex justify-between items-end border-t border-slate-100 pt-4">
+                      <div className="flex flex-col">
+                          <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">Total for {days} days</p>
+                          <div className="flex items-center gap-2">
+                              {car.promotionPercent && car.promotionPercent > 0 && (
+                                  <span className="text-[10px] text-slate-300 line-through font-bold">
+                                      {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
+                                  </span>
+                              )}
+                              <span className="text-2xl font-black text-slate-900 tracking-tighter">
+                                  {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
+                              </span>
+                          </div>
+                      </div>
+                      
+                      <div className="text-right">
+                          <p className="text-[8px] text-emerald-600 font-black uppercase tracking-wider mb-1">Pay Now</p>
+                          <p className="text-lg font-black text-[#008009] leading-none">
+                              {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                          </p>
+                      </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Link 
+                    to={`/car/${car.id}?${searchParams}`} 
+                    state={{ cars: cars }} 
+                    onClick={handleSelectCar} 
+                    className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-4 rounded-xl shadow-[0_8px_20px_-6px_rgba(0,128,9,0.3)] hover:shadow-[0_12px_25px_-4px_rgba(0,128,9,0.4)] transition-all active:scale-[0.98] text-center text-[12px] uppercase tracking-widest relative overflow-hidden"
+                  >
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                          View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
+                      </span>
+                  </Link>
+                  
+                  {/* Badges Footer */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
+                      {(() => {
+                          const pickupType = car.supplier?.pickupType;
+                          const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
+                            <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-2 py-1 rounded-md text-[9px] uppercase tracking-wider border border-current/10`}>
+                                {React.cloneElement(icon as React.ReactElement, { className: "w-3 h-3" })}
+                                {text}
+                            </div>
+                          );
+
+                          if (pickupType === 'IN_TERMINAL') return getBadge(<Plane />, "Terminal", "bg-green-50", "text-green-700");
+                          if (pickupType === 'MEET_AND_GREET') return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
+                          if (pickupType === 'SHUTTLE_BUS') return getBadge(<Bus />, "Shuttle", "bg-orange-50", "text-orange-700");
+                          return null;
+                      })()}
+
+                      <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-[#008009] font-bold uppercase tracking-widest transition-colors">
+                          <FileText className="w-3 h-3" />
+                          <span>Conditions</span>
+                      </button>
+                  </div>
               </div>
           </div>
       </div>
