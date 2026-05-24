@@ -210,7 +210,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                                       Must be in the main driver's name, with sufficient funds for the security deposit
                                       {car.deposit > 0 && (
                                         <strong className="text-blue-600 ml-1">
-                                          ({getCurrencySymbol(car.currency || 'USD')} {convertPrice(car.deposit)})
+                                          ({getCurrencySymbol()} {convertPrice(car.deposit)})
                                         </strong>
                                       )}
                                     </p>
@@ -318,7 +318,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border-2 border-[#008009] transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-2xl border-2 border-[#008009] hover:border-[#00a30b] transition-all duration-500 w-full group/card overflow-hidden flex flex-col h-full hover:-translate-y-1">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 flex items-center justify-center gap-2">
@@ -408,30 +408,51 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       </div>
 
                       {/* Included Features checklist */}
-                      <div className="space-y-2">
+                      <div className="space-y-2 mb-4">
                           <div className="flex items-center gap-2 text-[10px] font-bold text-[#008009]">
-                              <Check className="w-3.5 h-3.5 stroke-[3px]" />
+                              <CalendarCheck className="w-3.5 h-3.5 stroke-[3px]" />
                               <span>Free Cancellation</span>
                           </div>
                           <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
-                              <Check className="w-3.5 h-3.5 text-[#008009] stroke-[3px]" />
-                              <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy}</span>
+                              <Fuel className="w-3.5 h-3.5 text-[#008009] stroke-[3px]" />
+                              <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Fair Fuel Policy (Full to Full)' : car.fuelPolicy}</span>
                           </div>
                           <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
-                              <Check className="w-3.5 h-3.5 text-[#008009] stroke-[3px]" />
+                              <GaugeCircle className="w-3.5 h-3.5 text-[#008009] stroke-[3px]" />
                               <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} Mileage</span>
                           </div>
+                          {car.supplier.bookingMode === 'FREE_SALE' && (
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-blue-600">
+                                <Zap className="w-3.5 h-3.5 fill-blue-600/20" />
+                                <span>Instant Confirmation</span>
+                            </div>
+                          )}
                       </div>
+
+                      {/* Social Proof Message */}
+                      {recentBookingInfo.isRecent && (
+                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 p-2 rounded-lg mt-2">
+                           <Clock className="w-3 h-3 text-[#008009]" />
+                           <span className="text-[10px] font-black text-[#008009] uppercase tracking-wider">{recentBookingInfo.message}</span>
+                        </div>
+                      )}
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-4 md:w-1/3 bg-slate-50/50 flex flex-col justify-between">
+                  <div className="p-4 md:w-1/3 bg-slate-50/50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100">
                       <div>
                           {/* Pricing Info */}
                           <div className="flex flex-col mb-4">
-                              <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1">Total for {days} days</p>
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Total for {days} days</p>
+                                {car.supplier.rating >= 4.5 && (
+                                    <div className="flex items-center gap-1 text-[9px] font-black text-[#008009] uppercase bg-[#008009]/5 px-1.5 py-0.5 rounded">
+                                        <Award className="w-2.5 h-2.5" /> Best Value
+                                    </div>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2">
-                                  {car.promotionPercent && car.promotionPercent > 0 && (
+                                  {car.promotionPercent > 0 && (
                                       <span className="text-[10px] text-slate-300 line-through font-bold">
                                           {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                       </span>
@@ -440,13 +461,21 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
+                              <p className="text-[9px] text-slate-400 font-bold mt-0.5 flex items-center gap-1">
+                                  <Shield className="w-2.5 h-2.5" /> All taxes included
+                              </p>
                           </div>
                           
-                          <div className="mb-6">
-                              <p className="text-[8px] text-emerald-600 font-black uppercase tracking-wider mb-1">Pay Now</p>
-                              <p className="text-lg font-black text-[#008009] leading-none">
-                                  {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                          <div className="mb-6 p-3 bg-[#008009]/5 rounded-xl border border-[#008009]/10">
+                              <p className="text-[9px] text-emerald-700 font-black uppercase tracking-widest mb-1 flex items-center gap-1">
+                                  <CreditCardIcon className="w-3 h-3" /> Pay Now
                               </p>
+                              <div className="flex items-baseline gap-1">
+                                  <span className="text-xl font-black text-[#008009] tracking-tight">
+                                      {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                                  </span>
+                                  <span className="text-[10px] text-[#008009]/60 font-bold italic">to secure car</span>
+                              </div>
                           </div>
                       </div>
 
@@ -458,30 +487,33 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                             onClick={handleSelectCar} 
                             className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-4 rounded-xl shadow-[0_8px_20px_-6px_rgba(0,128,9,0.3)] hover:shadow-[0_12px_25px_-4px_rgba(0,128,9,0.4)] transition-all active:scale-[0.98] text-center text-[12px] uppercase tracking-widest relative overflow-hidden"
                           >
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                               <span className="relative z-10 flex items-center justify-center gap-2">
                                   View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
                               </span>
                           </Link>
                           
                           {/* Badges Footer */}
-                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                              {(() => {
-                                  const pickupType = car.supplier?.pickupType;
-                                  const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
-                                    <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-2 py-1 rounded-md text-[9px] uppercase tracking-wider border border-current/10`}>
-                                        {React.cloneElement(icon as React.ReactElement, { className: "w-3 h-3" })}
-                                        {text}
-                                    </div>
-                                  );
+                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60">
+                              <div className="flex items-center gap-1.5">
+                                  {(() => {
+                                      const pickupType = car.supplier?.pickupType;
+                                      const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
+                                        <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-2 py-1 rounded-md text-[9px] uppercase tracking-wider border border-current/10`}>
+                                            {React.cloneElement(icon as React.ReactElement<any>, { className: "w-3 h-3" })}
+                                            {text}
+                                        </div>
+                                      );
 
-                                  if (pickupType === 'IN_TERMINAL') return getBadge(<Plane />, "Terminal", "bg-green-50", "text-green-700");
-                                  if (pickupType === 'MEET_AND_GREET') return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
-                                  if (pickupType === 'SHUTTLE_BUS') return getBadge(<Bus />, "Shuttle", "bg-orange-50", "text-orange-700");
-                                  return null;
-                              })()}
+                                      if (pickupType === 'IN_TERMINAL') return getBadge(<Plane />, "Terminal", "bg-green-50", "text-green-700");
+                                      if (pickupType === 'MEET_AND_GREET') return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
+                                      if (pickupType === 'SHUTTLE_BUS') return getBadge(<Bus />, "Shuttle", "bg-orange-50", "text-orange-700");
+                                      return null;
+                                  })()}
+                              </div>
 
-                              <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-[#008009] font-bold uppercase tracking-widest transition-colors">
-                                  <FileText className="w-3 h-3" />
+                              <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-[#008009] font-black uppercase tracking-widest transition-colors group/cond">
+                                  <FileText className="w-3.5 h-3.5 group-hover/cond:scale-110 transition-transform" />
                                   <span>Conditions</span>
                               </button>
                           </div>
