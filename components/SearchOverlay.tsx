@@ -166,7 +166,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 WebkitAppearance: 'none'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.outline = '2px solid #3b82f6';
+                e.currentTarget.style.outline = '2px solid #008009';
                 // Prevent auto-zoom on some mobile browsers by ensuring font-size is 16px
                 e.currentTarget.style.fontSize = '16px';
               }}
