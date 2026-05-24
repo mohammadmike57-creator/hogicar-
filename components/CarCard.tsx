@@ -329,8 +329,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
           <div className="flex flex-col md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className="relative aspect-[16/10] md:aspect-auto md:w-1/4 bg-white border-b md:border-b-0 md:border-r border-slate-50 flex items-center justify-center p-4 group/img">
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center">
+              <div className="relative md:w-1/4 bg-white border-b md:border-b-0 md:border-r border-slate-50 flex flex-col p-4 group/img">
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full aspect-[16/10] flex items-center justify-center mb-4">
                       <img 
                         src={displayImage} 
                         alt={`${car.make} ${car.model}`} 
@@ -346,28 +346,28 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           </div>
                       )}
                   </Link>
+
+                  {/* Supplier & Rating Block */}
+                  <div className="flex flex-col items-center gap-3 pt-3 border-t border-slate-50 mt-auto">
+                      <img
+                          src={car.supplier.logo || (car.supplier as any).logoUrl}
+                          alt={car.supplier.name}
+                          className="h-7 w-auto object-contain max-w-[100px]"
+                      />
+                      <div className="flex items-center gap-2 group/rating relative">
+                          <div className="bg-[#008009] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
+                              {car.supplier.rating}
+                          </div>
+                          <span className="text-[10px] font-black text-slate-800 underline underline-offset-4 decoration-slate-200 cursor-help whitespace-nowrap">
+                            {getRatingDescription(car.supplier.rating)}
+                          </span>
+                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
+                      </div>
+                  </div>
               </div>
 
               <div className="flex-grow flex flex-col md:flex-row">
                   <div className="p-4 flex-grow border-b md:border-b-0 md:border-r border-slate-50">
-                      {/* Supplier & Rating Row */}
-                      <div className="flex justify-between items-center mb-4">
-                          <img
-                              src={car.supplier.logo || (car.supplier as any).logoUrl}
-                              alt={car.supplier.name}
-                              className="h-8 w-auto object-contain max-w-[100px]"
-                          />
-                          <div className="flex items-center gap-2 group/rating relative">
-                              <div className="bg-[#008009] text-white text-[12px] font-black px-2 py-0.5 rounded shadow-sm">
-                                  {car.supplier.rating}
-                              </div>
-                              <span className="text-[11px] font-black text-slate-800 underline underline-offset-4 decoration-slate-200 cursor-help whitespace-nowrap">
-                                {getRatingDescription(car.supplier.rating)}
-                              </span>
-                              {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
-                          </div>
-                      </div>
-
                       {/* Title & Category */}
                       <div className="mb-4">
                           <div className="flex items-center gap-2 mb-1">
