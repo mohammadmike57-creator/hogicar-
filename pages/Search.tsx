@@ -942,7 +942,7 @@ export const Search: React.FC = () => {
                         <Check className="w-3 h-3 text-[#008009]" /> All prices include taxes & fees
                     </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 px-2 md:px-0">
+                <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-4 px-2 md:px-0">
                     {sortedAndFilteredCars.map(car => (
                         <CarCard 
                             key={car.id} 

@@ -135,7 +135,7 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                     </div>
 
                     {/* Itinerary */}
-                    <div className="grid grid-cols-2 gap-8 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-8">
                         <div className="border border-slate-200 rounded-lg p-5">
                             <div className="flex items-center gap-2 mb-3 text-green-700">
                                 <div className="w-2 h-2 rounded-full bg-green-600"></div>
