@@ -273,7 +273,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-2xl border-2 border-[#008009] hover:border-[#00a30b] transition-all duration-500 w-full group/card overflow-hidden flex flex-col h-full hover:-translate-y-1">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-2xl border-2 border-[#008009] hover:border-[#00a30b] transition-all duration-500 w-full group/card overflow-hidden flex flex-col h-full hover:-translate-y-1 md:scale-[0.97] md:hover:scale-100">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 md:py-1.5 py-1 flex items-center justify-center gap-2">
@@ -284,7 +284,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
           <div className="flex flex-col md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className="relative md:w-1/4 bg-white border-b md:border-b-0 md:border-r border-slate-50 flex flex-col p-2 md:p-4 group/img">
+              <div className="relative md:w-1/4 bg-white border-b md:border-b-0 md:border-r border-slate-50 flex flex-col p-2 md:p-3 group/img">
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full aspect-[16/10] flex items-center justify-center mb-2 md:mb-4">
                       <img 
                         src={displayImage} 
@@ -307,7 +307,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       <img
                           src={car.supplier.logo || (car.supplier as any).logoUrl}
                           alt={car.supplier.name}
-                          className="h-6 md:h-10 w-auto object-contain max-w-[60px] md:max-w-[110px]"
+                          className="h-6 md:h-8 w-auto object-contain max-w-[60px] md:max-w-[90px]"
                       />
                       <div 
                         className="flex items-center gap-1 md:gap-2 group/rating relative cursor-pointer"
@@ -330,13 +330,13 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           <div className="bg-[#008009] text-white text-[11px] md:text-[14px] font-black w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded md:rounded-lg shadow-sm shrink-0">
                               {car.supplier.rating}
                           </div>
-                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
+                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />}
                       </div>
                   </div>
               </div>
 
               <div className="flex-grow flex flex-col md:flex-row">
-                  <div className="p-3 md:p-4 flex-grow border-b md:border-b-0 md:border-r border-slate-50">
+                  <div className="p-3 md:p-3 flex-grow border-b md:border-b-0 md:border-r border-slate-50">
                       {/* Title & Category */}
                       <div className="mb-2 md:mb-4">
                           <div className="flex items-center gap-2 mb-1">
@@ -345,7 +345,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               </span>
                           </div>
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                              <h3 className="text-base md:text-lg font-black text-slate-900 leading-tight hover:text-[#008009] transition-colors uppercase tracking-tight line-clamp-1">
+                              <h3 className="text-base md:text-[1rem] font-black text-slate-900 leading-tight hover:text-[#008009] transition-colors uppercase tracking-tight line-clamp-1">
                                   {car.displayName}
                               </h3>
                           </Link>
@@ -355,7 +355,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       </div>
 
                       {/* Specs Grid (Compact) */}
-                      <div className="grid grid-cols-2 gap-x-2 md:gap-x-4 gap-y-1.5 md:gap-y-2.5 mb-2 md:mb-5 py-2 md:py-3 border-y border-slate-50 bg-slate-50/30 rounded-lg px-2 md:px-3">
+                      <div className="grid grid-cols-2 gap-x-2 md:gap-x-3 gap-y-1.5 md:gap-y-2 mb-2 md:mb-4 py-2 md:py-2.5 border-y border-slate-50 bg-slate-50/30 rounded-lg px-2 md:px-2.5">
                           <div className="flex items-center gap-1.5 md:gap-2.5 text-slate-600">
                               <Users className="w-3.5 md:w-3.5 h-3.5 md:h-3.5 text-slate-400"/>
                               <span className="text-[10px] md:text-[11px] font-bold">{car.passengers} <span>Adults</span></span>
@@ -408,7 +408,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-3 md:p-4 md:w-1/3 bg-slate-50/50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100">
+                  <div className="p-3 md:p-3 md:w-1/3 bg-slate-50/50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100">
                       <div>
                           {/* Pricing Info */}
                           <div className="flex flex-col mb-2 md:mb-4">
@@ -426,7 +426,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                           {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                       </span>
                                   )}
-                                  <span className="text-lg md:text-2xl font-black text-slate-900 tracking-tighter">
+                                  <span className="text-lg md:text-xl font-black text-slate-900 tracking-tighter">
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
@@ -454,7 +454,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                             to={`/car/${car.id}?${searchParams}`} 
                             state={{ cars: cars }} 
                             onClick={handleSelectCar} 
-                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-4 rounded-lg md:rounded-xl shadow-md md:shadow-[0_8px_20px_-6px_rgba(0,128,9,0.3)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-[11px] md:text-[12px] uppercase tracking-widest relative overflow-hidden"
+                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-3 rounded-lg md:rounded-xl shadow-md md:shadow-[0_6px_15px_-4px_rgba(0,128,9,0.3)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-[11px] md:text-[10px] uppercase tracking-widest relative overflow-hidden"
                           >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                               <span className="relative z-10 flex items-center justify-center gap-1 md:gap-2">

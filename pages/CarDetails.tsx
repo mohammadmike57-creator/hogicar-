@@ -281,7 +281,7 @@ const CarDetails: React.FC = () => {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-6 sm:space-y-7">
               {/* Hero Section - smaller image + modern layout */}
-              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 overflow-hidden">
+              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70">
                 <div className="relative bg-slate-50 border-b border-slate-100">
                   {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
                   <img 
@@ -329,8 +329,8 @@ const CarDetails: React.FC = () => {
                                     <span className="bg-[#008009] text-white px-2 py-0.5 rounded shadow-sm">
                                         {car.supplier.rating}
                                     </span> 
-                                    <span className="underline underline-offset-4 decoration-slate-200">{getRatingDescription(car.supplier.rating)}</span>
-                                    {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
+                                    <span className="underline underline-offset-4 decoration-slate-200 whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
+                                    {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />}
                                 </div>
                             ) : (
                                 <span className="font-black text-indigo-700 uppercase tracking-wider">Premium Choice · Top Rated</span>
@@ -466,11 +466,11 @@ const CarDetails: React.FC = () => {
                              <div className="bg-[#008009] text-white text-lg font-black w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
                                  {car.supplier.rating}
                              </div>
-                             <div className="flex flex-col">
-                                 <span className="text-xs font-black text-slate-900 leading-none">{getRatingDescription(car.supplier.rating)}</span>
+                             <div className="flex flex-col min-w-0">
+                                 <span className="text-xs font-black text-slate-900 leading-none truncate whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
                                  <span className="text-[10px] font-bold text-slate-400 mt-0.5">Reviews</span>
                              </div>
-                             {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
+                             {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />}
                         </div>
                     </div>
                   </div>

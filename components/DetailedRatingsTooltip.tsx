@@ -5,6 +5,7 @@ interface DetailedRatingsTooltipProps {
     ratings: CarRatings;
     visible?: boolean;
     className?: string;
+    align?: 'left' | 'right';
 }
 
 const getProgressBarColor = (value: number) => {
@@ -14,7 +15,7 @@ const getProgressBarColor = (value: number) => {
     return 'bg-red-500';
 };
 
-export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '' }) => {
+export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '', align = 'right' }) => {
     const ratingItems: { key: keyof CarRatings, label: string }[] = [
         { key: 'cleanliness', label: 'Cleanliness' },
         { key: 'condition', label: 'Car Condition' },
@@ -22,9 +23,12 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
         { key: 'pickupSpeed', label: 'Pick-up Speed' },
     ];
 
+    const alignClass = align === 'left' ? 'left-0' : 'right-0';
+    const arrowClass = align === 'left' ? 'left-4' : 'right-4';
+
     return (
         <div 
-            className={`absolute bottom-full right-0 mb-3 w-[260px] sm:w-72 p-4 bg-white text-slate-900 rounded-2xl shadow-2xl ring-1 ring-slate-200 transition-all duration-300 z-[100] ${visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 group-hover/rating:opacity-100 group-hover/rating:translate-y-0 pointer-events-none'} ${className}`}
+            className={`absolute bottom-full ${alignClass} mb-3 w-[260px] sm:w-72 p-4 bg-white text-slate-900 rounded-2xl shadow-2xl ring-1 ring-slate-200 transition-all duration-300 z-[100] ${visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 group-hover/rating:opacity-100 group-hover/rating:translate-y-0 pointer-events-none'} ${className}`}
         >
             <h4 className="font-black text-[10px] mb-3 uppercase tracking-[0.1em] text-slate-400">Customer Ratings Breakdown</h4>
             <div className="space-y-3">
@@ -43,7 +47,7 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
                     </div>
                 ))}
             </div>
-            <div className="absolute top-full right-4 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-white shadow-sm"></div>
+            <div className={`absolute top-full ${arrowClass} w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-white shadow-sm`}></div>
         </div>
     );
 };
