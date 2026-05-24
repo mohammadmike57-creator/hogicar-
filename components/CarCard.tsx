@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
@@ -318,194 +318,247 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl border-2 border-[#008009] transition-all duration-300 py-3 px-4 md:p-6 w-full mb-3 md:mb-4 group/card">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 hover:border-[#008009]/30 transition-all duration-300 w-full mb-4 group/card overflow-hidden">
+          {/* Top Bar for Desktop - Hogicar Choice or Promo */}
+          {car.hogicarChoice && (
+            <div className="hidden md:flex bg-gradient-to-r from-[#003580] to-[#004fa3] text-white px-4 py-1.5 items-center gap-2">
+                <Award className="w-4 h-4 text-amber-400 fill-amber-400/20" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Hogicar Exclusive Verified Fleet</span>
+                <div className="ml-auto flex items-center gap-4 text-[10px] font-bold">
+                    <span className="flex items-center gap-1"><Check className="w-3 h-3 text-amber-400"/> Priority Support</span>
+                    <span className="flex items-center gap-1"><Check className="w-3 h-3 text-amber-400"/> Quality Guaranteed</span>
+                </div>
+            </div>
+          )}
 
-              {/* --- LEFT COLUMN: IMAGE, SPECS, SUPPLIER --- */}
-              <div className="md:col-span-3 flex flex-col justify-between">
-                  <div> {/* Top Section for Car Info */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-                          {/* Image */}
-                          <div className="sm:col-span-1 flex items-center justify-center relative group bg-slate-50 rounded-xl overflow-hidden min-h-[140px] sm:min-h-[140px]">
-                             <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center">
+          <div className="p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                {/* --- LEFT COLUMN: IMAGE & SPECS --- */}
+                <div className="md:col-span-3 flex flex-col sm:flex-row gap-6">
+                    {/* Image Section */}
+                    <div className="w-full sm:w-1/3 flex flex-col gap-3">
+                        <div className="relative aspect-[4/3] bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center group/img">
+                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full h-full flex items-center justify-center p-4">
                                 <img 
                                   src={displayImage} 
                                   alt={`${car.make} ${car.model}`} 
                                   onError={() => setImageError(true)}
                                   referrerPolicy="no-referrer"
                                   loading="eager"
-                                  className="w-full h-auto object-contain max-h-40 sm:max-h-32 p-2 group-hover:scale-110 transition-transform duration-500"
+                                  className="w-full h-full object-contain group-hover/img:scale-110 transition-transform duration-700 ease-out"
                                 />
                                 
-                                {promotionLabel ? (
-                                    <span className="absolute top-0 left-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg flex items-center gap-1 shadow-sm">
-                                        <Gift className="w-3 h-3"/> {promotionLabel}
+                                {promotionLabel && (
+                                    <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-black px-2.5 py-1.5 rounded-br-xl flex items-center gap-1 shadow-lg z-10 animate-pulse">
+                                        <Tag className="w-3 h-3 fill-white/20"/> {promotionLabel}
+                                    </div>
+                                )}
+                            </Link>
+                        </div>
+                        
+                        {/* Supplier Quick Info - Below Image on Mobile/Small */}
+                        <div className="hidden sm:flex flex-col gap-2 pt-2">
+                             <div className="flex items-center gap-3">
+                                <img
+                                    src={car.supplier.logo || (car.supplier as any).logoUrl}
+                                    alt={car.supplier.name}
+                                    className="h-6 md:h-8 w-auto object-contain"
+                                />
+                                <div className="flex items-center gap-1.5 group/rating relative">
+                                    <div className="bg-[#008009] text-white text-[11px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                                        {car.supplier.rating}
+                                    </div>
+                                    <span className="text-[11px] font-bold text-slate-700 underline underline-offset-2 decoration-slate-200 cursor-help">{getRatingDescription(car.supplier.rating)}</span>
+                                    {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="flex-1 flex flex-col">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
+                            <div>
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                    <span className="bg-slate-100 text-slate-600 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-slate-200">
+                                        {car.category}
                                     </span>
-                                ) : car.tags && car.tags[0] && (
-                                    <span className="absolute top-0 left-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-sm">
-                                        {car.tags[0]}
+                                    {car.hogicarChoice && (
+                                        <span className="md:hidden flex items-center gap-1 bg-amber-100 text-amber-800 text-[9px] font-black px-2 py-0.5 rounded uppercase border border-amber-200">
+                                            <Award className="w-2.5 h-2.5" /> Hogicar Choice
+                                        </span>
+                                    )}
+                                </div>
+                                <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
+                                    <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-tight group-hover/card:text-[#008009] transition-colors uppercase tracking-tight">
+                                        {car.displayName}
+                                    </h3>
+                                </Link>
+                                <p className="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1">
+                                    or similar <Info className="w-3 h-3 text-slate-300 cursor-help" />
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Feature Icons Grid */}
+                        <div className="grid grid-cols-4 gap-2 mt-5">
+                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                                <Users className="w-4 h-4 text-slate-400 group-hover/icon:text-blue-500 transition-colors mb-1"/>
+                                <span className="text-[10px] font-bold text-slate-600">{car.passengers}</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                                <Briefcase className="w-4 h-4 text-slate-400 group-hover/icon:text-blue-500 transition-colors mb-1"/>
+                                <span className="text-[10px] font-bold text-slate-600">{car.bags}</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                                <div className="text-slate-400 group-hover/icon:text-blue-500 transition-colors mb-1">
+                                    <AutomaticIcon />
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-600 truncate w-full text-center px-1">
+                                    {car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}
+                                </span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-lg border border-slate-100 group/icon transition-colors hover:bg-white hover:border-slate-200">
+                                <Wind className="w-4 h-4 text-slate-400 group-hover/icon:text-[#008009] transition-colors mb-1"/>
+                                <span className="text-[10px] font-bold text-slate-600">A/C</span>
+                            </div>
+                        </div>
+
+                        {/* Rich Highlights */}
+                        <div className="mt-6 space-y-2">
+                            <div className="flex items-center gap-2 text-[11px] font-bold text-[#008009]">
+                                <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                                    <CalendarCheck className="w-3 h-3" />
+                                </div>
+                                <span>Free Cancellation (until 48h before)</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700">
+                                <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <Fuel className="w-3 h-3 text-blue-600" />
+                                </div>
+                                <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy} Fuel Policy</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700">
+                                <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-blue-600" />
+                                </div>
+                                <span>{car.unlimitedMileage ? 'Unlimited Mileage included' : 'Limited Mileage'}</span>
+                            </div>
+                        </div>
+
+                        {/* Social Proof on Mobile */}
+                        {recentBookingInfo.isRecent && (
+                          <div className="mt-4 sm:hidden">
+                            <div className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1.5 border border-orange-100 w-fit">
+                              <Zap className="w-3 h-3" />
+                              <span>{recentBookingInfo.message}</span>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* --- RIGHT COLUMN: PRICING & CTA --- */}
+                <div className="flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-6">
+                    <div className="flex flex-row md:flex-col items-end md:items-end justify-between md:justify-start gap-4">
+                        <div className="flex-1 md:w-full">
+                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest text-right">Total for {days} days</p>
+                            <div className="flex flex-col items-end mt-1">
+                                {car.promotionPercent && car.promotionPercent > 0 && (
+                                    <span className="text-xs text-slate-400 line-through font-bold">
+                                        {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                     </span>
                                 )}
-                             </Link>
-                          </div>
-
-                          {/* Title & Specs */}
-                          <div className="sm:col-span-2 flex flex-col">
-                              {car.hogicarChoice && (
-                                  <div className="inline-flex items-center gap-2 bg-[#003580] text-white text-[10px] font-black px-3 py-1.5 rounded-lg mb-2 shadow-sm border border-amber-400/50 w-fit">
-                                      <Award className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                                      <span className="tracking-widest uppercase italic">Hogicar Choice</span>
-                                  </div>
-                              )}
-                              
-                              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="group">
-                                  <h3 className="text-lg md:text-xl font-black text-slate-900 group-hover:text-[#008009] transition-colors leading-tight">{car.displayName}</h3>
-                              </Link>
-                              <p className="text-[10px] md:text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium">
-                                  or similar {car.category}
-                                  <Info className="w-3 h-3 text-slate-400" />
-                              </p>
-                              
-                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-2 md:gap-x-4 gap-y-1.5 md:gap-y-2 mt-3 md:mt-4 text-[11px] md:text-[13px]">
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                    <Users className="w-4 h-4 text-slate-400"/>
-                                    <span>{car.passengers} seats</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                    <Briefcase className="w-4 h-4 text-slate-400"/>
-                                    <span>{car.bags} bags</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                    <AutomaticIcon />
-                                    <span>{car.transmission}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                    <CarDoorIcon />
-                                    <span>{car.doors} doors</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                    <GaugeCircle className="w-4 h-4 text-slate-400"/>
-                                    <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
-                                    <Fuel className="w-4 h-4 text-slate-400"/>
-                                    <span>{car.fuelPolicy}</span>
-                                  </div>
-                              </div>
-
-                              {/* Social Proof */}
-                              {recentBookingInfo.isRecent && (
-                                <div className="mt-4">
-                                  <div className="bg-orange-50 text-orange-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-orange-100 shadow-sm w-fit animate-pulse">
-                                    <Zap className="w-3.5 h-3.5" />
-                                    <span>{recentBookingInfo.message}</span>
-                                  </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter">
+                                        {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
+                                    </span>
                                 </div>
-                              )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 space-y-3">
+                         <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center justify-between group/pay">
+                            <div>
+                                <p className="text-[9px] text-emerald-700 font-black uppercase tracking-wider">Pay Online Now</p>
+                                <p className="text-lg font-black text-[#008009] leading-tight">
+                                    {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                                </p>
+                            </div>
+                            <Zap className="w-5 h-5 text-emerald-500 fill-emerald-500/20 group-hover/pay:scale-110 transition-transform"/>
+                        </div>
+
+                        <Link 
+                          to={`/car/${car.id}?${searchParams}`} 
+                          state={{ cars: cars }} 
+                          onClick={handleSelectCar} 
+                          className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-4 rounded-xl shadow-[0_8px_20px_-6px_rgba(0,128,9,0.4)] hover:shadow-[0_12px_25px_-4px_rgba(0,128,9,0.5)] transition-all active:scale-[0.97] text-center text-sm uppercase tracking-[0.15em] relative overflow-hidden"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
+                            </span>
+                        </Link>
+                        
+                        <p className="text-[10px] text-slate-400 text-center font-bold tracking-wider uppercase">
+                            Instant Confirmation
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Bar: Supplier & Pickup Details */}
+            <div className="mt-6 pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-6">
+                    <div className="sm:hidden flex items-center gap-3"> {/* Supplier logo and rating on mobile */}
+                        <img
+                            src={car.supplier.logo || (car.supplier as any).logoUrl}
+                            alt={car.supplier.name}
+                            className="h-6 w-auto object-contain"
+                        />
+                        <div className="flex items-center gap-1">
+                            <div className="bg-[#008009] text-white text-[9px] font-black px-1 py-0.5 rounded shadow-sm">
+                                {car.supplier.rating}
+                            </div>
+                            <span className="text-[9px] font-bold text-slate-700">{getRatingDescription(car.supplier.rating)}</span>
+                        </div>
+                    </div>
+                    
+                    {(() => {
+                        const pickupType = car.supplier?.pickupType;
+                        const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
+                          <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider border border-current/10 shadow-sm`}>
+                              {React.cloneElement(icon as React.ReactElement, { className: "w-3.5 h-3.5" })}
+                              {text}
                           </div>
-                      </div>
-                  </div>
+                        );
 
-                  {/* Bottom Section for Supplier Info */}
-                  <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 md:gap-4">
-                      {car.hogicarChoice ? (
-                          <div className="flex items-center gap-2 md:gap-4">
-                              <div className="w-8 h-8 md:w-12 md:h-12 bg-slate-900 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg border border-amber-500/30 flex-shrink-0">
-                                  <Award className="w-5 h-5 md:w-7 md:h-7 text-amber-400" />
-                              </div>
-                              <div className="min-w-0">
-                                  <p className="text-[9px] md:text-xs font-black text-slate-900 uppercase tracking-tight leading-none truncate">Hogicar Exclusive Verified Fleet</p>
-                                  <p className="text-[8px] md:text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-1 leading-none truncate">Premium Selection & Direct Support</p>
-                              </div>
-                          </div>
-                      ) : (
-                          <div className="flex items-center gap-4 md:gap-6">
-                              <img
-                                  src={car.supplier.logo || (car.supplier as any).logoUrl}
-                                  alt={car.supplier.name}
-                                  className="h-8 md:h-12 w-auto object-contain"
-                              />
-                              <div className="border-l border-slate-200 pl-4 md:pl-6 group/rating relative">
-                                  <div className="flex items-center gap-2">
-                                      <div className="bg-[#008009] text-white text-[10px] md:text-[11px] font-black px-1 md:px-1.5 py-0.5 rounded shadow-sm">
-                                          {car.supplier.rating}
-                                      </div>
-                                      <p className="text-xs md:text-sm font-bold text-slate-800">{getRatingDescription(car.supplier.rating)}</p>
-                                      {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} />}
-                                  </div>
-                                  <p className="text-[10px] md:text-[11px] text-slate-500 mt-0.5 font-medium">{Math.round(car.supplier.rating * 250)}+ verified reviews</p>
-                              </div>
-                          </div>
-                      )}
+                        if (pickupType === 'IN_TERMINAL') {
+                            return getBadge(<Plane />, "In Terminal", "bg-green-50", "text-green-700");
+                        } else if (pickupType === 'MEET_AND_GREET') {
+                            return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
+                        } else if (pickupType === 'SHUTTLE_BUS') {
+                            return getBadge(<Bus />, "Shuttle Bus", "bg-orange-50", "text-orange-700");
+                        }
+                        return null;
+                    })()}
 
-                      <div className="flex items-center gap-2 md:gap-4">
-                          {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
-                              <span className="flex items-center gap-1 bg-emerald-50 text-[#008009] font-bold px-2 md:px-3 py-1 md:py-1.5 rounded-full text-[10px] md:text-[11px] shadow-sm border border-[#008009]/10">
-                                  <Zap className="w-3 h-3 md:w-3.5 md:h-3.5 fill-[#008009]/20" />
-                                  Instant Confirmation
-                              </span>
-                          )}
-                          {(() => {
-                              const pickupType = car.supplier?.pickupType;
-                              const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
-                                <span className={`flex items-center gap-1 md:gap-1.5 ${bg} ${textCol} font-bold px-2 md:px-3 py-1 md:py-1.5 rounded-full text-[10px] md:text-[11px] shadow-sm border border-current/10`}>
-                                    {React.cloneElement(icon as React.ReactElement, { className: "w-3 h-3 md:w-3.5 md:h-3.5" })}
-                                    {text}
-                                </span>
-                              );
+                    {recentBookingInfo.isRecent && (
+                        <div className="hidden sm:flex items-center gap-2 text-orange-600 text-[10px] font-black uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
+                             <Zap className="w-3.5 h-3.5 fill-orange-500/20" />
+                             {recentBookingInfo.message}
+                        </div>
+                    )}
+                </div>
 
-                              if (pickupType === 'IN_TERMINAL') {
-                                  return getBadge(<Plane className="w-3.5 h-3.5" />, "In Terminal", "bg-green-50", "text-green-700");
-                              } else if (pickupType === 'MEET_AND_GREET') {
-                                  return getBadge(<Handshake className="w-3.5 h-3.5" />, "Meet & Greet", "bg-blue-50", "text-blue-700");
-                              } else if (pickupType === 'SHUTTLE_BUS') {
-                                  return getBadge(<Bus className="w-3.5 h-3.5" />, "Shuttle Bus", "bg-orange-50", "text-orange-700");
-                              }
-                              return null;
-                          })()}
-
-                          <button onClick={() => setIsConditionsModalOpen(true)} className="text-[10px] md:text-[11px] text-slate-400 hover:text-[#008009] font-bold underline underline-offset-4 transition-colors">
-                              Rental Conditions
-                          </button>
-                      </div>
-                  </div>
-              </div>
-
-              {/* --- RIGHT COLUMN: PRICE & CTA --- */}
-              <div className="md:col-span-1 flex flex-col justify-between md:border-l border-slate-100 md:pl-6 pt-4 md:pt-0 border-t md:border-t-0">
-                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start">
-                      {car.hogicarChoice && car.promotionPercent && car.promotionPercent > 0 && (
-                          <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2 md:px-3 py-1 md:py-1.5 rounded-full border border-amber-200 mb-0 md:mb-4 shadow-sm">
-                              <Tag className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                              <span className="text-[9px] md:text-[10px] font-black uppercase">-{car.promotionPercent}% Secret</span>
-                          </div>
-                      )}
-                      
-                      <div className="flex flex-col items-end">
-                          <p className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total for {days} days</p>
-                          <p className="font-black text-slate-900 text-xl md:text-3xl tracking-tight leading-none mt-1">
-                              {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
-                          </p>
-                          <p className="text-[#008009] text-[9px] md:text-xs font-black bg-green-50 px-1.5 py-0.5 md:px-2 md:py-1 rounded mt-2 border border-green-100">
-                              Pay now: {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
-                          </p>
-                      </div>
-                  </div>
-
-                  <div className="mt-4 md:mt-8 space-y-2 md:space-y-3">
-                      <Link 
-                        to={`/car/${car.id}?${searchParams}`} 
-                        state={{ cars: cars }} 
-                        onClick={handleSelectCar} 
-                        className="block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] text-center text-xs md:text-sm uppercase tracking-widest"
-                      >
-                          View Deal
-                      </Link>
-                      {!car.hogicarChoice && (
-                          <p className="text-[10px] text-slate-400 text-center font-bold italic tracking-wider uppercase">Official {car.supplier.name} Rates</p>
-                      )}
-                  </div>
-              </div>
+                <div className="flex items-center gap-4 ml-auto">
+                    <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1.5 text-[10px] text-slate-400 hover:text-[#008009] font-black uppercase tracking-widest transition-colors group/terms">
+                        <FileText className="w-3.5 h-3.5 group-hover/terms:scale-110 transition-transform"/>
+                        Rental Conditions
+                    </button>
+                </div>
+            </div>
           </div>
       </div>
     </>
