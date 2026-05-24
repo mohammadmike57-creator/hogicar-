@@ -934,9 +934,14 @@ export const Search: React.FC = () => {
               </div>
             ) : (
                 <>
-                <p className="text-xs text-slate-500 font-medium mb-3 md:mt-0 px-4 md:px-0">
-                    Showing <strong>{sortedAndFilteredCars.length}</strong> of {baseFilteredCars.length} vehicles
-                </p>
+                <div className="flex items-center justify-between mb-4 px-4 md:px-0">
+                    <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest">
+                        Showing <span className="text-slate-900">{sortedAndFilteredCars.length}</span> results
+                    </p>
+                    <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                        <Check className="w-3 h-3 text-[#008009]" /> All prices include taxes & fees
+                    </div>
+                </div>
                 <div className="space-y-4 md:space-y-0 px-2 md:px-0">
                     {sortedAndFilteredCars.map(car => (
                         <CarCard 

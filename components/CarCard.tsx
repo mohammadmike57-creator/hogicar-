@@ -318,10 +318,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 border-l-8 border-l-[#008009] transition-all duration-300 w-full mb-4 group/card overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border-2 border-[#008009] transition-all duration-300 w-full mb-4 group/card overflow-hidden">
           {/* Top Bar for Desktop - Hogicar Choice */}
           {car.hogicarChoice && (
-            <div className="hidden md:flex bg-[#008009] text-white px-4 py-1 items-center gap-2">
+            <div className="hidden md:flex bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 items-center gap-2">
                 <Award className="w-4 h-4 text-white fill-white/20" />
                 <span className="text-[10px] font-black uppercase tracking-widest">Hogicar Recommended</span>
                 <div className="ml-auto flex items-center gap-4 text-[10px] font-bold">
@@ -399,7 +399,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         </div>
 
                         {/* Specs Grid */}
-                        <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 py-2 border-y border-slate-50">
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3 py-2 border-y border-slate-100 bg-slate-50/50 rounded-lg px-2">
                             <div className="flex items-center gap-2 text-slate-600">
                                 <Users className="w-4 h-4 text-slate-400"/>
                                 <span className="text-xs font-bold">{car.passengers} Adults</span>
@@ -421,22 +421,22 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         </div>
 
                         {/* Key Features List */}
-                        <div className="space-y-2.5">
-                            <div className="flex items-center gap-2 text-[11px] font-bold text-[#008009]">
-                                <Check className="w-4 h-4" />
-                                <span>Free Cancellation (up to 48 hours before pick-up)</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#008009]">
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Free Cancellation</span>
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700">
-                                <Check className="w-4 h-4 text-[#008009]" />
-                                <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy} Fuel Policy</span>
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
+                                <Check className="w-3.5 h-3.5 text-[#008009]" />
+                                <span>{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700">
-                                <Check className="w-4 h-4 text-[#008009]" />
-                                <span>{car.unlimitedMileage ? 'Unlimited Mileage' : 'Limited Mileage'}</span>
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
+                                <Check className="w-3.5 h-3.5 text-[#008009]" />
+                                <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} Mileage</span>
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700">
-                                <Check className="w-4 h-4 text-[#008009]" />
-                                <span>Collision Damage Waiver (CDW) included</span>
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
+                                <Check className="w-3.5 h-3.5 text-[#008009]" />
+                                <span>Insurance Included</span>
                             </div>
                         </div>
                     </div>
@@ -444,7 +444,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
             </div>
 
             {/* --- RIGHT: PRICING & CTA --- */}
-            <div className="w-full md:w-52 bg-slate-50/50 md:bg-slate-50/80 border-t md:border-t-0 md:border-l border-slate-100 p-3 md:p-4 flex flex-col justify-between">
+            <div className="w-full md:w-52 bg-[#f8fafc] border-t md:border-t-0 md:border-l border-slate-200 p-3 md:p-4 flex flex-col justify-between">
                 <div className="flex flex-row md:flex-col items-end md:items-end justify-between md:justify-start gap-1">
                     <div className="flex-1 md:w-full">
                         <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest text-right">Price for {days} days</p>
