@@ -178,7 +178,17 @@ export const Search: React.FC = () => {
   const [selectedFuelPolicies, setSelectedFuelPolicies] = React.useState<string[]>([]);
   const [passengerCapacity, setPassengerCapacity] = React.useState<number>(0);
   const [sortBy, setSortBy] = React.useState('Recommended');
-  const [openFilters, setOpenFilters] = React.useState<string[]>(['Price', 'Category', 'Passengers', 'LocationType', 'Supplier']);
+  const [openFilters, setOpenFilters] = React.useState<string[]>([
+    'Price',
+    'Category',
+    'Passengers',
+    'Payment',
+    'Deposit',
+    'LocationType',
+    'Transmission',
+    'Fuel',
+    'Supplier',
+  ]);
   const [showMobileFilters, setShowMobileFilters] = React.useState(false);
   const [showMobileSort, setShowMobileSort] = React.useState(false);
   
@@ -634,11 +644,11 @@ export const Search: React.FC = () => {
 
             <aside className={`
               relative bg-white w-full h-[90vh] mt-auto rounded-t-[28px] shadow-2xl flex flex-col
-              md:h-auto md:max-h-[calc(100vh-130px)] md:mt-0 md:rounded-2xl md:shadow-[0_18px_45px_-34px_rgba(15,23,42,0.55)] md:border md:border-slate-200 md:sticky md:top-32
-              overflow-hidden transition-transform duration-500 ease-out
+              md:h-auto md:mt-0 md:rounded-2xl md:shadow-[0_18px_45px_-34px_rgba(15,23,42,0.55)] md:border md:border-slate-200
+              overflow-hidden md:overflow-visible transition-transform duration-500 ease-out
               ${showMobileFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
             `}>
-              <div className="flex items-center justify-between p-5 border-b border-slate-100 md:bg-slate-950 md:text-white">
+              <div className="flex items-center justify-between p-5 md:p-4 border-b border-slate-100 md:bg-slate-950 md:text-white md:rounded-t-2xl">
                 <div className="flex items-center gap-2">
                     <h3 className="font-black text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
                       <SlidersHorizontal className="w-4 h-4 text-[#008009]" /> Filters
@@ -665,8 +675,8 @@ export const Search: React.FC = () => {
                 </div>
               </div>
 
-              <div className="divide-y divide-slate-100 overflow-y-auto flex-1 custom-scrollbar pb-24 md:pb-0">
-                  <div className="p-4 bg-emerald-50/60 md:bg-white">
+              <div className="divide-y divide-slate-100 overflow-y-auto md:overflow-visible flex-1 md:flex-none custom-scrollbar pb-24 md:pb-0">
+                  <div className="p-4 md:p-3 bg-emerald-50/60 md:bg-white">
                       <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-slate-50 p-2 rounded-xl -ml-1 border border-emerald-100 md:border-transparent">
                           <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50" />
                           <span className="ml-2 text-xs text-slate-600 font-medium">Special Offers Only</span>
@@ -674,13 +684,13 @@ export const Search: React.FC = () => {
                       </label>
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Price')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Price per Day</span>
                           {openFilters.includes('Price') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Price') && (
-                          <div className="mt-4 px-1">
+                          <div className="mt-3 px-1">
                               <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-medium">
                                   <span>{getCurrencySymbol()}0</span>
                                   <span className="text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded">{getCurrencySymbol()}{convertPrice(priceRange).toFixed(0)}</span>
@@ -697,13 +707,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {allCategories.map((type) => (
                                   <label key={type} className={`flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1`}>
                                       <input 
@@ -720,13 +730,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
                   
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Passengers')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Number of seats</span>
                           {openFilters.includes('Passengers') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Passengers') && (
-                          <div className="mt-3 grid grid-cols-4 gap-2">
+                          <div className="mt-2 grid grid-cols-4 gap-2">
                               {[2, 4, 5, 7].map(num => (
                                   <button key={num} onClick={() => setPassengerCapacity(passengerCapacity === num ? 0 : num)} className={`p-2 border rounded-md text-xs font-bold transition-colors ${passengerCapacity === num ? 'bg-[#008009] text-white border-[#008009]' : 'bg-white text-slate-700 border-slate-200 hover:border-[#008009]'}`}>
                                       {num}{num === 7 ? '+' : ''}
@@ -736,13 +746,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
                   
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Payment')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Payment Type</span>
                           {openFilters.includes('Payment') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Payment') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {allPaymentTypes.map((type) => (
                                   <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedPaymentTypes.includes(type)} onChange={() => handlePaymentTypeChange(type)} className="rounded w-4 h-4 text-[#008009]" />
@@ -754,13 +764,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Deposit')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Refundable Security Deposit</span>
                           {openFilters.includes('Deposit') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Deposit') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {[0, 300, 500].map((amount) => (
                                   <label key={amount} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="radio" name="deposit" checked={maxDeposit === amount} onChange={() => setMaxDeposit(amount)} className="w-4 h-4 text-[#008009] focus:ring-[#008009]" />
@@ -771,13 +781,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
                   
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('LocationType')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Location Type</span>
                           {openFilters.includes('LocationType') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('LocationType') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {allLocationTypes.map((type) => (
                                   <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedLocationTypes.includes(type)} onChange={() => handleLocationTypeChange(type)} className="rounded w-4 h-4 text-[#008009]" />
@@ -789,13 +799,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Transmission')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Transmission</span>
                           {openFilters.includes('Transmission') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Transmission') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {allTransmissions.map((type) => (
                                   <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedTransmissions.includes(type)} onChange={() => handleTransmissionChange(type)} className="rounded w-4 h-4 text-[#008009]" />
@@ -807,13 +817,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Fuel')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Fuel Policy</span>
                           {openFilters.includes('Fuel') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Fuel') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {allFuelPolicies.map((policy) => (
                                   <label key={policy} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedFuelPolicies.includes(policy)} onChange={() => handleFuelPolicyChange(policy)} className="rounded w-4 h-4 text-[#008009]" />
@@ -825,13 +835,13 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Suppliers in {pickupIata || location}</span>
                           {openFilters.includes('Supplier') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Supplier') && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 space-y-1.5">
                               {allSuppliers.length === 0 && (
                                   <p className="text-[10px] text-slate-400 italic">No suppliers found for this search.</p>
                               )}
