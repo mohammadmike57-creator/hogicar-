@@ -430,7 +430,14 @@ const CarDetails: React.FC = () => {
                                         {car.supplier.rating}
                                     </span> 
                                     <span className="whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
-                                    {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />}
+                                    {car.detailedRatings && (
+                                      <DetailedRatingsTooltip
+                                        ratings={car.detailedRatings}
+                                        visible={showRatingsTooltip}
+                                        align="left"
+                                        className="max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0 max-sm:translate-y-0"
+                                      />
+                                    )}
                                 </div>
                             ) : (
                                 <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-black text-amber-800 uppercase tracking-wider">Premium Choice · Top Rated</span>
@@ -605,7 +612,14 @@ const CarDetails: React.FC = () => {
                                  <span className="text-xs font-black text-slate-900 leading-none truncate whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
                                  <span className="text-[10px] font-bold text-slate-400 mt-0.5">Reviews</span>
                              </div>
-                             {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />}
+                             {car.detailedRatings && (
+                               <DetailedRatingsTooltip
+                                 ratings={car.detailedRatings}
+                                 visible={showRatingsTooltip}
+                                 align="left"
+                                 className="max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0 max-sm:translate-y-0"
+                               />
+                             )}
                         </div>
                     </div>
                   </div>

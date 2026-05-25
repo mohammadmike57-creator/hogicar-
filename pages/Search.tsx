@@ -584,10 +584,10 @@ export const Search: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-6">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-5">
         
         {/* Mobile Filter & Sort Controls */}
-        <div className="md:hidden my-3 bg-white/95 backdrop-blur p-2 border border-slate-200 rounded-2xl sticky top-2 z-20 grid grid-cols-2 gap-2 shadow-sm">
+        <div className="md:hidden my-3 bg-white/95 backdrop-blur p-2 border border-slate-200 rounded-2xl sticky top-2 z-20 grid grid-cols-2 gap-2 shadow-[0_14px_36px_-28px_rgba(15,23,42,0.7)]">
             <button 
                 onClick={() => {
                     setShowMobileSort(false);
@@ -619,13 +619,13 @@ export const Search: React.FC = () => {
             </button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-5 lg:gap-7 items-start">
           
           {/* Filters Sidebar / Mobile Pop-up */}
           <div className={`
             fixed inset-0 z-[100] md:relative md:inset-auto md:z-0
             ${showMobileFilters ? 'flex' : 'hidden md:block'} 
-            w-full md:w-64 lg:w-72 flex-shrink-0
+            w-full md:w-[270px] lg:w-[300px] flex-shrink-0
           `}>
             <div 
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
@@ -633,14 +633,14 @@ export const Search: React.FC = () => {
             />
 
             <aside className={`
-              relative bg-white w-full h-[90vh] mt-auto rounded-t-[32px] shadow-2xl flex flex-col
-              md:h-auto md:mt-0 md:rounded-lg md:shadow-sm md:border md:border-slate-200 md:sticky md:top-36
+              relative bg-white w-full h-[90vh] mt-auto rounded-t-[28px] shadow-2xl flex flex-col
+              md:h-auto md:max-h-[calc(100vh-130px)] md:mt-0 md:rounded-2xl md:shadow-[0_18px_45px_-34px_rgba(15,23,42,0.55)] md:border md:border-slate-200 md:sticky md:top-32
               overflow-hidden transition-transform duration-500 ease-out
               ${showMobileFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
             `}>
-              <div className="flex items-center justify-between p-5 border-b border-slate-100 md:bg-slate-50/50 md:rounded-t-lg">
+              <div className="flex items-center justify-between p-5 border-b border-slate-100 md:bg-slate-950 md:text-white">
                 <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
+                    <h3 className="font-black text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
                       <SlidersHorizontal className="w-4 h-4 text-[#008009]" /> Filters
                     </h3>
                     {showMobileFilters && (
@@ -652,7 +652,7 @@ export const Search: React.FC = () => {
                 <div className="flex items-center gap-4">
                     <button 
                       onClick={handleResetFilters}
-                      className="text-[10px] text-[#008009] font-bold hover:underline uppercase tracking-widest"
+                      className="text-[10px] text-[#008009] md:text-emerald-300 font-black hover:underline uppercase tracking-widest"
                     >
                       Reset
                     </button>
@@ -666,8 +666,8 @@ export const Search: React.FC = () => {
               </div>
 
               <div className="divide-y divide-slate-100 overflow-y-auto flex-1 custom-scrollbar pb-24 md:pb-0">
-                  <div className="p-4">
-                      <label className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
+                  <div className="p-4 bg-emerald-50/60 md:bg-white">
+                      <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-slate-50 p-2 rounded-xl -ml-1 border border-emerald-100 md:border-transparent">
                           <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50" />
                           <span className="ml-2 text-xs text-slate-600 font-medium">Special Offers Only</span>
                           <Gift className="w-4 h-4 text-red-500 ml-auto" />
@@ -676,7 +676,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Price')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Price per Day</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Price per Day</span>
                           {openFilters.includes('Price') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Price') && (
@@ -699,7 +699,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Car Category</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
@@ -722,7 +722,7 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Passengers')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Number of seats</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Number of seats</span>
                           {openFilters.includes('Passengers') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Passengers') && (
@@ -738,7 +738,7 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Payment')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Payment Type</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Payment Type</span>
                           {openFilters.includes('Payment') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Payment') && (
@@ -756,7 +756,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Deposit')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Refundable Security Deposit</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Refundable Security Deposit</span>
                           {openFilters.includes('Deposit') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Deposit') && (
@@ -773,7 +773,7 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('LocationType')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Location Type</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Location Type</span>
                           {openFilters.includes('LocationType') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('LocationType') && (
@@ -791,7 +791,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Transmission')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Transmission</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Transmission</span>
                           {openFilters.includes('Transmission') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Transmission') && (
@@ -809,7 +809,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Fuel')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Fuel Policy</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Fuel Policy</span>
                           {openFilters.includes('Fuel') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Fuel') && (
@@ -827,7 +827,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4">
                       <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-700 group-hover:text-[#008009]">Suppliers in {pickupIata || location}</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Suppliers in {pickupIata || location}</span>
                           {openFilters.includes('Supplier') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Supplier') && (
@@ -937,17 +937,17 @@ export const Search: React.FC = () => {
               </div>
             ) : (
                 <>
-                <div className="flex items-center justify-between gap-3 mb-4 bg-white md:bg-transparent border md:border-0 border-slate-200 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
+                <div className="flex items-center justify-between gap-3 mb-4 bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
                     <div className="min-w-0">
-                      <p className="text-base md:text-[11px] text-slate-900 md:text-slate-500 font-black md:font-bold uppercase tracking-tight md:tracking-widest">
+                      <p className="text-base md:text-sm text-slate-900 font-black uppercase tracking-tight md:tracking-wide">
                           <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> cars available
                       </p>
-                      <p className="md:hidden text-[11px] text-slate-500 font-bold mt-1">
+                      <p className="text-[11px] text-slate-500 font-bold mt-1">
                         {pickupIata || location || 'Selected location'} • {days} day{days > 1 ? 's' : ''}
                       </p>
                     </div>
-                    <div className="flex max-[380px]:hidden items-center gap-2 text-[10px] text-slate-500 md:text-slate-400 font-bold uppercase tracking-widest text-right">
-                        <Check className="w-3 h-3 text-[#008009]" /> All prices include taxes & fees
+                    <div className="flex max-[420px]:hidden items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest text-right rounded-full bg-emerald-50 px-3 py-1.5">
+                        <Check className="w-3 h-3 text-[#008009]" /> Taxes & fees included
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:gap-3 px-0">

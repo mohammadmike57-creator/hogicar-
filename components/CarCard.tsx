@@ -367,7 +367,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(15,23,42,0.65)] hover:shadow-2xl border border-slate-200 md:border-2 md:border-[#008009] hover:border-[#00a30b] transition-all duration-500 w-full group/card overflow-visible flex flex-col h-full hover:-translate-y-1 md:scale-[0.96] md:hover:scale-[0.99]">
+      <div className="bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(15,23,42,0.65)] hover:shadow-[0_22px_55px_-34px_rgba(15,23,42,0.55)] border border-slate-200 hover:border-[#008009]/45 transition-all duration-500 w-full group/card overflow-visible flex flex-col h-full hover:-translate-y-0.5 md:scale-[0.97] md:hover:scale-[0.99]">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -421,7 +421,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               Supplier Rating
                             </span>
                           </div>
-                          <div className="bg-[#008009] text-white text-sm md:text-[14px] font-black w-9 h-9 flex items-center justify-center rounded-lg shadow-sm shrink-0">
+                          <div className="bg-[#008009] text-white text-sm md:text-[14px] font-black w-9 h-9 flex items-center justify-center rounded-lg shadow-sm shrink-0 ring-4 ring-emerald-50">
                               {car.supplier.rating}
                           </div>
                           {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" />}
@@ -502,7 +502,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-3 md:p-3 md:w-1/3 bg-slate-50/60 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
+                  <div className="p-3 md:p-3 md:w-1/3 bg-slate-50/80 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
                       <div>
                           {/* Pricing Info */}
                           <div className="flex flex-col mb-2.5 md:mb-4">
@@ -529,7 +529,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               </p>
                           </div>
 
-                          <div className="mb-3 md:mb-6 p-2.5 md:p-3 bg-white md:bg-[#008009]/5 rounded-xl border border-[#008009]/10">
+                          <div className="mb-3 md:mb-6 p-2.5 md:p-3 bg-white rounded-xl border border-[#008009]/10 shadow-sm">
                               <p className="text-[10px] md:text-[9px] text-emerald-700 font-black uppercase tracking-widest mb-1 flex items-center gap-1">
                                   <CreditCardIcon className="w-3 h-3" /> Pay Now
                               </p>
@@ -548,7 +548,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                             to={`/car/${car.id}?${searchParams}`}
                             state={{ cars: cars }}
                             onClick={handleSelectCar}
-                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-3 rounded-xl shadow-md md:shadow-[0_6px_15px_-4px_rgba(0,128,9,0.3)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-xs md:text-[10px] uppercase tracking-widest relative overflow-hidden"
+                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-3 rounded-xl shadow-md md:shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-xs md:text-[10px] uppercase tracking-widest relative overflow-hidden"
                           >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                               <span className="relative z-10 flex items-center justify-center gap-1 md:gap-2">
