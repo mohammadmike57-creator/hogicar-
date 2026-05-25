@@ -276,12 +276,9 @@ const SupplierDashboard = () => {
       {/* Sidebar */}
       <motion.aside 
         initial={false}
-        animate={{ 
-          x: isSidebarOpen ? 0 : (window.innerWidth < 1024 ? -280 : 0),
-          width: isSidebarOpen ? 280 : (window.innerWidth < 1024 ? 280 : 0),
-          opacity: isSidebarOpen ? 1 : (window.innerWidth < 1024 ? 1 : 0)
-        }}
-        className={`fixed inset-y-0 left-0 bg-slate-950 border-r border-slate-800 z-50 flex flex-col overflow-hidden shadow-2xl shadow-slate-950/20 transition-all duration-300 ${!isSidebarOpen && 'lg:pointer-events-none'}`}
+        className={`fixed inset-y-0 left-0 w-[280px] bg-slate-950 border-r border-slate-800 z-50 flex flex-col overflow-hidden shadow-2xl shadow-slate-950/20 transition-transform duration-300 lg:translate-x-0 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
         <div className="p-7 mb-2 border-b border-white/10">
             <div className="flex items-center gap-3.5 group cursor-pointer">
@@ -366,14 +363,14 @@ const SupplierDashboard = () => {
       </motion.aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-500 w-full min-w-0 ${isSidebarOpen ? 'lg:ml-[280px]' : 'ml-0'}`}>
+      <main className="flex-1 transition-all duration-500 w-full min-w-0 lg:ml-[280px]">
         {/* Top Header */}
         <header className="sticky top-0 bg-white/90 backdrop-blur-xl z-40 border-b border-slate-200 px-4 lg:px-8 py-4 flex justify-between items-center shadow-sm">
             <div className="flex items-center gap-3 lg:gap-5">
-                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 bg-white hover:bg-slate-50 rounded-xl transition-all border border-slate-200 shadow-sm">
-                    {isSidebarOpen && window.innerWidth < 1024 ? <X className="w-4 h-4 text-slate-600" /> : <Menu className="w-4 h-4 text-slate-600" />}
+                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 bg-white hover:bg-slate-50 rounded-xl transition-all border border-slate-200 shadow-sm lg:hidden">
+                    {isSidebarOpen ? <X className="w-4 h-4 text-slate-600" /> : <Menu className="w-4 h-4 text-slate-600" />}
                 </button>
-                <div className="h-8 w-px bg-slate-200" />
+                <div className="h-8 w-px bg-slate-200 hidden lg:block" />
                 <div className="flex items-center gap-2 lg:gap-3.5 group cursor-pointer">
                     <motion.img 
                         whileHover={{ scale: 1.05 }}
@@ -406,7 +403,7 @@ const SupplierDashboard = () => {
         </header>
 
         {/* Content Area */}
-        <div className="p-4 lg:p-8 xl:p-10 max-w-[1500px] mx-auto min-h-[calc(100vh-100px)]">
+        <div className="p-3 sm:p-4 lg:p-8 xl:p-10 max-w-[1500px] mx-auto min-h-[calc(100vh-100px)]">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeSection}

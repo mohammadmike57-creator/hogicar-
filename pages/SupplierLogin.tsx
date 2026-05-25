@@ -71,53 +71,34 @@ const SupplierLogin: React.FC = () => {
     return (
         <div 
             onMouseMove={handleMouseMove}
-            className="min-h-screen bg-slate-50 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-orange-500/30 selection:text-orange-900"
+            className="min-h-screen bg-slate-100 flex flex-col lg:flex-row relative overflow-hidden font-sans selection:bg-blue-500/20 selection:text-blue-950"
         >
-            {/* --- SOPHISTICATED ENTERPRISE BACKGROUND --- */}
+            {/* --- ENTERPRISE BACKGROUND --- */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Soft Gradient Orbs */}
-                <motion.div 
+                <motion.div
                     style={{ x: bgX, y: bgY }}
-                    className="absolute -top-[10%] -left-[5%] w-[60%] h-[60%] bg-orange-100/40 rounded-full blur-[100px]"
+                    className="absolute inset-0 bg-[linear-gradient(135deg,#0f172a_0%,#111827_42%,#1e3a8a_100%)] lg:w-[62%]"
                 />
-                <motion.div 
-                    style={{ x: useTransform(springX, [0, window.innerWidth], [-40, 40]), y: useTransform(springY, [0, window.innerHeight], [-40, 40]) }}
-                    className="absolute -bottom-[10%] -right-[5%] w-[60%] h-[60%] bg-blue-100/30 rounded-full blur-[120px]"
+                <div className="absolute inset-0 opacity-[0.18]"
+                    style={{ backgroundImage: `linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px)`, backgroundSize: '48px 48px' }}
                 />
-
-                {/* Refined Dot Pattern */}
-                <div className="absolute inset-0 opacity-[0.4]" 
-                    style={{ backgroundImage: `radial-gradient(#e2e8f0 1.5px, transparent 0)`, backgroundSize: '32px 32px' }} 
-                />
-
-                {/* Animated Car Outlines (High-End Motion) */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-[0.08]">
-                    {[...Array(4)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ x: -1200, opacity: 0 }}
-                            animate={{ x: 2200, opacity: [0, 1, 1, 0] }}
-                            transition={{ duration: 12 + i * 4, repeat: Infinity, ease: "linear", delay: i * 6 }}
-                            className="absolute"
-                            style={{ top: `${15 + i * 22}%` }}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Car className="w-48 h-48 text-orange-600 rotate-6" />
-                                <div className="h-px w-96 bg-gradient-to-r from-orange-400 to-transparent" />
-                            </div>
-                        </motion.div>
-                    ))}
+                <div className="absolute inset-y-0 left-0 hidden lg:block w-[62%] border-r border-white/10" />
+                <div className="absolute inset-y-0 right-0 hidden lg:block w-[38%] bg-white" />
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-600 via-emerald-500 to-slate-950" />
+                <div className="absolute left-8 bottom-8 hidden lg:flex items-center gap-3 text-white/10">
+                    <Car className="w-48 h-48" />
+                    <div className="h-px w-72 bg-white/10" />
                 </div>
             </div>
 
             {/* --- LEFT SIDE: PREMIUM BRANDING --- */}
-            <div className="relative z-10 flex-1 flex flex-col justify-between p-8 lg:p-16">
+            <div className="relative z-10 flex flex-col justify-between p-6 sm:p-8 lg:p-16 lg:flex-1 min-h-[340px] lg:min-h-screen text-white">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <Logo className="h-12 w-auto" variant="dark" />
+                    <Logo className="h-12 w-auto" variant="light" />
                 </motion.div>
 
                 <div className="max-w-xl">
@@ -126,28 +107,23 @@ const SupplierLogin: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
                     >
-                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] mb-10">
-                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 shadow-sm text-white text-[10px] font-black uppercase tracking-[0.2em] mb-6 lg:mb-10">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                             Enterprise Fleet Logistics
                         </div>
-                        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6">
-                            Global Supply Chain <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">
-                                Mastery Unleashed.
-                            </span>
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.05] tracking-tight mb-5 lg:mb-6">
+                            Supplier operations, pricing, and fleet control.
                         </h1>
-                        <p className="text-sm lg:text-base text-slate-500 font-bold leading-relaxed max-w-lg mb-8">
-                            Access the world's most advanced mobility ecosystem. 
-                            Manage your fleet with precision, scale with intelligence, 
-                            and dominate your local market with HogiCar.
+                        <p className="text-sm lg:text-base text-slate-300 font-semibold leading-relaxed max-w-lg mb-6 lg:mb-8">
+                            Access a secure command center for reservations, inventory, rate strategy, and partner performance.
                         </p>
                     </motion.div>
 
                     <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
-                            { icon: TrendingUp, title: "Yield Engine", desc: "AI-driven pricing." },
-                            { icon: Globe, title: "Global Hub", desc: "Direct OTA sync." },
-                            { icon: Zap, title: "Elite Tech", desc: "Real-time fleet ops." }
+                            { icon: TrendingUp, title: "Yield Engine", desc: "Rate control." },
+                            { icon: Globe, title: "Network Hub", desc: "Location coverage." },
+                            { icon: Zap, title: "Live Ops", desc: "Fleet visibility." }
                         ].map((feature, i) => (
                             <motion.div
                                 key={i}
@@ -156,36 +132,36 @@ const SupplierLogin: React.FC = () => {
                                 transition={{ duration: 0.6, delay: 0.6 + i * 0.1 }}
                                 className="group cursor-default"
                             >
-                                <div className="p-5 rounded-[2rem] bg-white border border-slate-100 shadow-sm group-hover:shadow-xl group-hover:shadow-orange-100 group-hover:border-orange-200 transition-all duration-500">
-                                    <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-4 group-hover:rotate-12 transition-all">
+                                <div className="p-5 rounded-2xl bg-white/10 border border-white/15 shadow-sm group-hover:bg-white/[0.14] transition-all duration-500">
+                                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-blue-200 mb-4 transition-all">
                                         <feature.icon className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-slate-900 font-black text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
-                                    <p className="text-slate-400 text-[10px] leading-relaxed font-bold">{feature.desc}</p>
+                                    <h3 className="text-white font-black text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
+                                    <p className="text-slate-300 text-[10px] leading-relaxed font-bold">{feature.desc}</p>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-8 text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">
+                <div className="hidden lg:flex items-center gap-8 text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">
                     <span>&copy; {new Date().getFullYear()} Hogicar Partnership</span>
-                    <div className="w-12 h-px bg-slate-200" />
-                    <span className="hover:text-slate-900 transition-colors cursor-pointer">Security Protocol</span>
+                    <div className="w-12 h-px bg-white/20" />
+                    <span>Security Protocol</span>
                 </div>
             </div>
 
             {/* --- RIGHT SIDE: FORM CONTAINER --- */}
-            <div className="relative z-10 w-full lg:w-[500px] flex items-center justify-center p-6 lg:p-12 bg-white shadow-[-40px_0_100px_rgba(0,0,0,0.03)] border-l border-slate-100">
+            <div className="relative z-10 w-full lg:w-[520px] flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-white lg:bg-transparent">
                 <motion.div
                     style={{ rotateX: cardRotateX, rotateY: cardRotateY, perspective: 1200 }}
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="w-full max-w-md bg-white p-10 lg:p-12 rounded-[3rem] border border-slate-100 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.05)] relative"
+                    className="w-full max-w-md bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border border-slate-200 shadow-2xl shadow-slate-200/70 relative"
                 >
                     <div className="mb-8 text-center">
-                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-[2rem] bg-orange-50 border border-orange-100 text-orange-600 mb-4 shadow-inner">
+                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 text-white mb-4 shadow-inner">
                             <Building className="w-7 h-7" />
                         </div>
                         <h2 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tighter mb-1">Partner Access</h2>
@@ -196,7 +172,7 @@ const SupplierLogin: React.FC = () => {
                         <div className="space-y-2.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Partner Identity</label>
                             <div className="relative group/input">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-blue-600 transition-colors">
                                     <User className="w-4.5 h-4.5" />
                                 </div>
                                 <input
@@ -204,7 +180,7 @@ const SupplierLogin: React.FC = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-black"
                                     placeholder="Username or Email"
                                     disabled={isLoading}
                                 />
@@ -214,10 +190,10 @@ const SupplierLogin: React.FC = () => {
                         <div className="space-y-2.5">
                             <div className="flex items-center justify-between px-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Access Key</label>
-                                <button type="button" className="text-[9px] font-black text-orange-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Reset</button>
+                                <button type="button" className="text-[9px] font-black text-blue-700 uppercase tracking-widest hover:text-slate-900 transition-colors">Reset</button>
                             </div>
                             <div className="relative group/input">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-blue-600 transition-colors">
                                     <Lock className="w-4.5 h-4.5" />
                                 </div>
                                 <input
@@ -225,14 +201,14 @@ const SupplierLogin: React.FC = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-black"
                                     placeholder="••••••••"
                                     disabled={isLoading}
                                 />
                                 <button 
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-orange-500 transition-colors"
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-blue-600 transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
@@ -257,7 +233,7 @@ const SupplierLogin: React.FC = () => {
                             whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
                             disabled={isLoading}
-                            className="w-full bg-slate-900 hover:bg-orange-600 text-white font-black py-4 rounded-[1.5rem] shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-4 group"
+                            className="w-full bg-slate-950 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-4 group"
                         >
                             {isLoading ? (
                                 <LoaderCircle className="w-5 h-5 animate-spin" />
@@ -273,7 +249,7 @@ const SupplierLogin: React.FC = () => {
                     <div className="mt-8 text-center">
                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
                             New partner?{' '}
-                            <Link to="/apply" className="text-orange-600 hover:text-slate-900 transition-colors ml-1 border-b-2 border-orange-100 hover:border-slate-900 pb-0.5">Application Form</Link>
+                            <Link to="/apply" className="text-blue-700 hover:text-slate-900 transition-colors ml-1 border-b-2 border-blue-100 hover:border-slate-900 pb-0.5">Application Form</Link>
                         </p>
                     </div>
                 </motion.div>

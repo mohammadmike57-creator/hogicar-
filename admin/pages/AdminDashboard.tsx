@@ -100,42 +100,43 @@ type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fl
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 'homepagelogos' | 'searchinglogos';
 
 // ==================== UI Components ====================
-const StatCard = ({ icon: Icon, title, value, change, color = 'orange' }: any) => {
+const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => {
   const colors: any = { 
-    orange: 'from-orange-500 to-orange-600 shadow-orange-100/50 text-orange-600 bg-orange-50/50', 
-    blue: 'from-blue-500 to-blue-600 shadow-blue-100/50 text-blue-600 bg-blue-50/50', 
-    green: 'from-green-500 to-green-600 shadow-green-100/50 text-green-600 bg-green-50/50', 
-    purple: 'from-purple-500 to-purple-600 shadow-purple-100/50 text-purple-600 bg-purple-50/50' 
+    blue: 'bg-blue-50 text-blue-700 ring-blue-100',
+    green: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    orange: 'bg-amber-50 text-amber-700 ring-amber-100',
+    purple: 'bg-violet-50 text-violet-700 ring-violet-100'
   };
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/30 border border-gray-100/50 flex flex-col justify-between relative overflow-hidden group">
+      className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl hover:shadow-slate-200/70 border border-slate-200 flex flex-col justify-between relative overflow-hidden group transition-all">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-slate-800 to-emerald-500" />
       <div className="flex items-center justify-between mb-5 relative z-10">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${colors[color].split(' ').slice(0,2).join(' ')} text-white shadow-lg transition-transform group-hover:scale-110`}>
-          <Icon className="w-6 h-6" />
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
+          <Icon className="w-5 h-5" />
         </div>
         {change && (
-          <span className={`text-[10px] font-black px-2 py-1 rounded-lg border flex items-center gap-1.5 ${change.startsWith('+') ? 'text-green-600 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100'}`}>
+          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${change.startsWith('+') ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-red-700 bg-red-50 border-red-100'}`}>
             {change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             {change}
           </span>
         )}
       </div>
       <div className="relative z-10">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
-        <p className="text-2xl font-black text-slate-900 tracking-tight">{value}</p>
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.18em] mb-2">{title}</p>
+        <p className="text-3xl font-black text-slate-950 tracking-tight">{value}</p>
       </div>
     </motion.div>
   );
 };
 
 const SectionHeader = ({ title, subtitle, icon: Icon, action }: any) => (
-  <div className="flex justify-between items-center mb-8">
+  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
     <div className="flex items-center gap-4">
-      {Icon && <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100/50 shadow-sm"><Icon className="w-5 h-5" /></div>}
+      {Icon && <div className="w-10 h-10 rounded-xl bg-slate-950 text-white flex items-center justify-center border border-slate-800 shadow-sm"><Icon className="w-5 h-5" /></div>}
       <div>
-        <h2 className="text-xl font-black text-slate-900 tracking-tight">{title}</h2>
-        {subtitle && <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{subtitle}</p>}
+        <h2 className="text-xl font-black text-slate-950 tracking-tight">{title}</h2>
+        {subtitle && <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">{subtitle}</p>}
       </div>
     </div>
     {action}
@@ -145,7 +146,7 @@ const SectionHeader = ({ title, subtitle, icon: Icon, action }: any) => (
 const InputField = ({ label, error, helperText, ...props }: any) => (
   <div className="space-y-1">
     <label className="block text-xs font-medium text-gray-600">{label}</label>
-    <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500`} />
+    <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500`} />
     {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
     {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
   </div>
@@ -154,7 +155,7 @@ const InputField = ({ label, error, helperText, ...props }: any) => (
 const SelectField = ({ label, options, error, ...props }: any) => (
   <div className="space-y-1">
     <label className="block text-xs font-medium text-gray-600">{label}</label>
-    <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-orange-500 bg-white`}>
+    <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white`}>
       {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
     {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
@@ -262,7 +263,7 @@ const GlobalLocationsContent = () => {
                     <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === "Airport" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-600"}`}>{l.type || "City"}</span></td>
                     <td className="p-3">{l.countryCode}</td>
                     <td className="p-3 text-right">
-                      <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-lg bg-orange-50 text-orange-700 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
+                      <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-lg bg-blue-50 text-blue-800 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
                       <button onClick={() => handleDelete(l.id)} className="px-3 py-1.5 text-xs rounded-lg bg-red-50 text-red-700 font-bold"><Trash2 className="w-3 h-3 inline mr-1"/> Delete</button>
                     </td>
                   </tr>
@@ -285,7 +286,7 @@ const GlobalLocationsContent = () => {
             <InputField label="City" value={form.municipality} onChange={(e: any) => setForm({ ...form, municipality: e.target.value })} />
             <InputField label="Country Code" value={form.countryCode} onChange={(e: any) => setForm({ ...form, countryCode: e.target.value })} />
             <div className="flex gap-2 pt-2">
-              <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-2 rounded-xl bg-orange-600 text-white font-bold text-sm disabled:opacity-50"><Save className="w-4 h-4 inline mr-1" /> Save</button>
+              <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-2 rounded-xl bg-blue-700 text-white font-bold text-sm disabled:opacity-50"><Save className="w-4 h-4 inline mr-1" /> Save</button>
               <button onClick={resetForm} className="px-4 py-2 rounded-xl bg-white border font-bold text-sm">Reset</button>
             </div>
           </div>
@@ -296,7 +297,7 @@ const GlobalLocationsContent = () => {
 };
 
 const Badge = ({ status }: { status: string }) => {
-  const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-orange-100 text-orange-700', approved: 'bg-blue-100 text-blue-700', rejected: 'bg-red-100 text-red-700' };
+  const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-blue-100 text-blue-800', approved: 'bg-blue-100 text-blue-700', rejected: 'bg-red-100 text-red-700' };
   return <span className={`px-2 py-1 text-xs font-bold rounded-full border ${colors[status] || 'bg-gray-100'}`}>{status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}</span>;
 };
 
@@ -322,22 +323,22 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
     const active = activeSection === section;
     return (
       <motion.button 
-        whileHover={{ x: 6, backgroundColor: active ? '' : 'rgba(249, 250, 251, 1)' }} 
+        whileHover={{ x: 4 }} 
         whileTap={{ scale: 0.98 }}
         onClick={() => { setActiveSection(section); setIsOpen(false); }}
-        className={`flex items-center justify-between w-full px-4 py-4 rounded-2xl transition-all duration-300 group ${active ? 'bg-orange-600 text-white shadow-2xl shadow-orange-200' : 'text-gray-400 hover:text-gray-900'}`}
+        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 group ${active ? 'bg-white text-slate-950 shadow-lg shadow-black/20' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
       >
         <div className="flex items-center gap-3.5">
-            <div className={`p-2.5 rounded-xl transition-all duration-300 ${active ? 'bg-white/20 rotate-6' : 'bg-gray-100 group-hover:bg-white group-hover:rotate-6 group-hover:shadow-md'}`}>
-                <Icon className={`w-5 h-5 transition-colors ${active ? 'text-white' : 'text-gray-500 group-hover:text-orange-600'}`} />
+            <div className={`p-2 rounded-lg transition-all duration-300 ${active ? 'bg-blue-50' : 'bg-white/5 group-hover:bg-white/10'}`}>
+                <Icon className={`w-4 h-4 transition-colors ${active ? 'text-blue-700' : 'text-slate-500 group-hover:text-white'}`} />
             </div>
-            <span className={`text-sm font-black tracking-tight ${active ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`}>{label}</span>
+            <span className={`text-[13px] font-black tracking-tight ${active ? 'text-slate-950' : 'text-slate-300 group-hover:text-white'}`}>{label}</span>
         </div>
         {count !== undefined && count > 0 && (
             <motion.span 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className={`text-[10px] font-black px-2 py-1 rounded-lg ${active ? 'bg-white text-orange-600' : 'bg-orange-600 text-white shadow-lg shadow-orange-200'}`}
+                className={`text-[10px] font-black px-2 py-1 rounded-full ${active ? 'bg-blue-50 text-blue-700' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
             >
                 {count}
             </motion.span>
@@ -348,36 +349,36 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
 
   return (
     <>
-      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 transform transition-all duration-500 ease-in-out md:translate-x-0 md:static md:z-auto p-6 flex flex-col ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="mb-10 px-2 flex items-center gap-3.5 py-6 border-b border-slate-50 relative group cursor-pointer">
-            <div className="bg-orange-600 p-2.5 rounded-2xl shadow-lg shadow-orange-200 group-hover:rotate-12 transition-transform duration-500">
-                <Shield className="w-6 h-6 text-white" />
+      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800 transform transition-all duration-300 ease-in-out lg:translate-x-0 p-5 flex flex-col shadow-2xl shadow-slate-950/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="mb-6 px-2 flex items-center gap-3.5 py-5 border-b border-white/10 relative group cursor-pointer">
+            <div className="bg-white p-2.5 rounded-xl shadow-lg shadow-black/20 transition-transform duration-300">
+                <Shield className="w-6 h-6 text-slate-950" />
             </div>
             <div>
-                <h1 className="font-black text-slate-900 text-xl tracking-tighter leading-none">HogiCar</h1>
+                <h1 className="font-black text-white text-xl tracking-tighter leading-none">HogiCar</h1>
                 <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]"></span>
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.45)]"></span>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Admin Command</span>
                 </div>
             </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
-          <div className="px-4 mb-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">Operations</div>
+          <div className="px-4 mb-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Operations</div>
           <NavItem section="dashboard" label="Performance" icon={LayoutDashboard} />
           <NavItem section="suppliers" label="Supply Partners" icon={Building} />
           <NavItem section="supplierrequests" label="Requests" icon={MailQuestion} count={countSupplierRequests} />
           <NavItem section="bookings" label="Reservations" icon={Calendar} />
           <NavItem section="fleet" label="Active Fleet" icon={Car} />
 
-          <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">Inventory</div>
+          <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Inventory</div>
           <NavItem section="promotions" label="Smart Offers" icon={Tag} />
           <NavItem section="carlibrary" label="Global Library" icon={Car} />
           <NavItem section="apipartners" label="Integrations" icon={Share2} />
           <NavItem section="affiliates" label="Affiliate Hub" icon={DollarSign} />
 
-          <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">System</div>
+          <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">System</div>
           <NavItem section="cms" label="Pages" icon={FileText} />
           <NavItem section="seo" label="SEO" icon={Globe} />
           <NavItem section="homepage" label="Assets" icon={ImageIcon} />
@@ -387,11 +388,23 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <NavItem section="searchinglogos" label="Searching Logos" icon={Search} />
         </nav>
 
-        <div className="mt-8 pt-6 border-t border-gray-50">
+        <div className="mt-5 rounded-2xl bg-white/[0.06] border border-white/10 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-400/10 text-emerald-300 flex items-center justify-center">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-white uppercase tracking-[0.16em]">Root access</p>
+              <p className="text-[10px] text-slate-400 font-bold mt-0.5">Enterprise control plane</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/10">
           <motion.button 
-            whileHover={{ x: 5, color: '#dc2626' }} 
+            whileHover={{ x: 4 }} 
             onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} 
-            className="flex items-center w-full px-4 py-4 text-gray-400 hover:bg-red-50 rounded-2xl transition-all group font-black text-sm uppercase tracking-widest"
+            className="flex items-center w-full px-4 py-4 text-slate-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all group font-black text-sm uppercase tracking-widest"
           >
             <LogOut className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
             <span>Sign Out</span>
@@ -438,7 +451,7 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
         />
       </div>
       {isOpen && (
@@ -450,7 +463,7 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
               <button
                 key={loc.value}
                 onClick={() => handleSelect(loc)}
-                className="w-full text-left px-4 py-3 hover:bg-orange-50 border-b last:border-0 transition-colors flex items-center gap-3"
+                className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-0 transition-colors flex items-center gap-3"
               >
                 <div className={`p-1.5 rounded-lg ${loc.type === 'airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'}`}>
                   {loc.type === 'airport' ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
@@ -579,7 +592,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? "Edit Supplier" : "Add Supplier"} size="lg">
       <div className="space-y-6">
         {/* Logo section */}
-        <div className="flex gap-6 p-6 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100/50">
+        <div className="flex gap-6 p-6 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100/50">
           <div className="flex flex-col items-center">
             <div className="relative group w-48 h-32">
               {editedSupplier.logo || editedSupplier.logoUrl ? (
@@ -614,7 +627,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
         {/* Locations */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-600" /><h3 className="text-sm font-bold">Service Locations</h3></div>
+          <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-700" /><h3 className="text-sm font-bold">Service Locations</h3></div>
           <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase">Add New Location</label>
@@ -623,7 +636,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
             {selectedLocations.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedLocations.map(loc => (
-                  <div key={loc.value} className="flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1.5 rounded-xl">
+                  <div key={loc.value} className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-xl">
                     <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
                     <button onClick={() => removeLocation(loc.value)}><X className="w-3.5 h-3.5" /></button>
                   </div>
@@ -701,7 +714,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <div className="absolute right-3 top-[34px] flex items-center gap-2">
                 <button 
                   onClick={() => onCopy(editedSupplier.password || "", "edit-modal", "Password")} 
-                  className="text-gray-400 hover:text-orange-600 transition-colors"
+                  className="text-gray-400 hover:text-blue-700 transition-colors"
                   title="Copy Password"
                   type="button"
                 >
@@ -723,7 +736,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                 type="checkbox" 
                 checked={editedSupplier.enableSocialProof || false} 
                 onChange={e => handleChange("enableSocialProof", e.target.checked)} 
-                className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+                className="w-4 h-4 rounded border-slate-300 text-blue-700 focus:ring-blue-500"
               /> 
               <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Enable Social Proof</span>
             </label>
@@ -745,7 +758,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
         <div className="flex justify-end gap-3">
           <button onClick={onClose} className="px-6 py-2 text-sm font-bold text-gray-500">Cancel</button>
-          <button onClick={handleSave} className="px-8 py-2 bg-orange-600 text-white rounded-xl font-bold">Save Supplier</button>
+          <button onClick={handleSave} className="px-8 py-2 bg-blue-700 text-white rounded-xl font-bold">Save Supplier</button>
         </div>
       </div>
     </Modal>
@@ -808,7 +821,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
             </thead>
             <tbody className="divide-y divide-slate-50">
               {apps.map((app: any) => (
-                <tr key={app.id} className="hover:bg-orange-50/30 transition-colors group">
+                <tr key={app.id} className="hover:bg-blue-50/30 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="font-black text-slate-900 text-[13px]">{app.companyName}</div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">{app.primaryLocation}</div>
@@ -883,9 +896,9 @@ const BookingsContent = ({ bookings, onRefresh }: any) => (
         </thead>
         <tbody className="divide-y divide-slate-50">
           {Array.isArray(bookings) && bookings.map((b: any) => (
-            <tr key={b.id} className="hover:bg-orange-50/30 transition-colors group">
+            <tr key={b.id} className="hover:bg-blue-50/30 transition-colors group">
               <td className="px-6 py-4">
-                <span className="font-mono text-[11px] font-black text-orange-600 bg-orange-50/50 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                <span className="font-mono text-[11px] font-black text-blue-700 bg-blue-50/50 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
                     {b.bookingRef}
                 </span>
               </td>
@@ -944,11 +957,11 @@ const CmsContent = ({ pages, onEditPage }: any) => (
 // ==================== SEO ====================
 const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
-    <div className="flex justify-between"><SectionHeader title="SEO" icon={Globe} /><button onClick={onNewSeo} className="bg-orange-600 text-white px-3 py-1 rounded text-sm">New Route</button></div>
+    <div className="flex justify-between"><SectionHeader title="SEO" icon={Globe} /><button onClick={onNewSeo} className="bg-blue-700 text-white px-3 py-1 rounded text-sm">New Route</button></div>
     <div className="space-y-2 mt-4">
       {configs.map((c: any) => (
         <div key={c.route} className="p-2 border rounded flex justify-between items-center">
-          <div><p className="font-mono text-sm text-orange-600">{c.route}</p><p className="text-xs">{c.title}</p></div>
+          <div><p className="font-mono text-sm text-blue-700">{c.route}</p><p className="text-xs">{c.title}</p></div>
           <button onClick={() => onEditSeo(c)}><Edit className="w-4 h-4"/></button>
         </div>
       ))}
@@ -1146,7 +1159,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-orange-600 text-white px-4 py-2 rounded-xl font-bold text-sm disabled:opacity-60"
+            className="bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm disabled:opacity-60"
           >
             {isSaving ? 'Saving...' : 'Save'}
           </button>
@@ -1197,7 +1210,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   />
                   <label
                     htmlFor={fileInputId}
-                    className="flex-1 text-center bg-white border border-orange-200 text-orange-600 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-orange-50 transition-colors"
+                    className="flex-1 text-center bg-white border border-blue-200 text-blue-700 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
                   >
                     Upload Image
                   </label>
@@ -1232,7 +1245,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           <button
             type="button"
             onClick={addDestination}
-            className="px-3 py-2 rounded-xl bg-orange-600 text-white text-xs font-black hover:bg-orange-700 transition-colors"
+            className="px-3 py-2 rounded-xl bg-blue-700 text-white text-xs font-black hover:bg-blue-800 transition-colors"
           >
             Add Destination
           </button>
@@ -1314,7 +1327,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   />
                   <label
                     htmlFor={`popular-destination-image-${index}`}
-                    className="flex-1 text-center bg-white border border-orange-200 text-orange-600 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-orange-50 transition-colors"
+                    className="flex-1 text-center bg-white border border-blue-200 text-blue-700 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
                   >
                     Upload Image
                   </label>
@@ -1397,7 +1410,7 @@ const SiteSettingsContent = () => {
             type="number" 
             value={duration} 
             onChange={e => setDuration(Number(e.target.value))} 
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none" 
+            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
           />
         </div>
         <div>
@@ -1407,7 +1420,7 @@ const SiteSettingsContent = () => {
             value={heroImageUrl} 
             onChange={e => setHeroImageUrl(e.target.value)} 
             placeholder="https://example.com/image.jpg"
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none font-mono" 
+            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono" 
           />
           <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
         </div>
@@ -1424,7 +1437,7 @@ const SiteSettingsContent = () => {
         <div className="pt-4 flex items-center gap-4">
           <button 
             onClick={handleSave} 
-            className="bg-orange-600 text-white px-8 py-3 rounded-2xl font-black text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all active:scale-95 flex items-center gap-2"
+            className="bg-blue-700 text-white px-8 py-3 rounded-2xl font-black text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all active:scale-95 flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             Save Configuration
@@ -1446,13 +1459,13 @@ const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editi
   const EditModal = ({ affiliate, isOpen, onClose, onSave }: any) => {
     const [rate, setRate] = useState(affiliate?.commissionRate || 0);
     if (!isOpen) return null;
-    return (<Modal isOpen={isOpen} onClose={onClose} title="Edit Commission"><InputField label="Rate (decimal)" type="number" step="0.01" value={rate} onChange={e => setRate(parseFloat(e.target.value))} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={() => onSave(affiliate.id, rate)} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+    return (<Modal isOpen={isOpen} onClose={onClose} title="Edit Commission"><InputField label="Rate (decimal)" type="number" step="0.01" value={rate} onChange={e => setRate(parseFloat(e.target.value))} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={() => onSave(affiliate.id, rate)} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
   };
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <SectionHeader title="Affiliates" icon={DollarSign} />
       <EditModal affiliate={editingAffiliate} isOpen={!!editingAffiliate} onClose={() => setEditingAffiliate(null)} onSave={onSaveCommission} />
-      <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Name</th><th>Status</th><th>Commission</th><th>Clicks</th><th>Conversions</th><th>Earnings</th><th></th></tr></thead><tbody>{affiliates.map((aff: any) => (<tr key={aff.id} className="hover:bg-orange-50"><td className="p-2"><div className="font-bold">{aff.name}</div><div className="text-xs">{aff.email}</div></td><td className="p-2"><Badge status={aff.status}/></td><td className="p-2">{aff.commissionRate*100}%</td><td className="p-2">{aff.clicks}</td><td className="p-2">{aff.conversions}</td><td className="p-2">${aff.totalEarnings}</td><td className="p-2 text-right"><div className="flex gap-1">{aff.status === 'pending' && <><button onClick={() => onUpdateStatus(aff.id, 'active')} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button><button onClick={() => onUpdateStatus(aff.id, 'rejected')} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button></>}<button onClick={() => setEditingAffiliate(aff)} className="bg-gray-100 p-1 rounded"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Name</th><th>Status</th><th>Commission</th><th>Clicks</th><th>Conversions</th><th>Earnings</th><th></th></tr></thead><tbody>{affiliates.map((aff: any) => (<tr key={aff.id} className="hover:bg-blue-50"><td className="p-2"><div className="font-bold">{aff.name}</div><div className="text-xs">{aff.email}</div></td><td className="p-2"><Badge status={aff.status}/></td><td className="p-2">{aff.commissionRate*100}%</td><td className="p-2">{aff.clicks}</td><td className="p-2">{aff.conversions}</td><td className="p-2">${aff.totalEarnings}</td><td className="p-2 text-right"><div className="flex gap-1">{aff.status === 'pending' && <><button onClick={() => onUpdateStatus(aff.id, 'active')} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button><button onClick={() => onUpdateStatus(aff.id, 'rejected')} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button></>}<button onClick={() => setEditingAffiliate(aff)} className="bg-gray-100 p-1 rounded"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
     </div>
   );
 };
@@ -1468,7 +1481,7 @@ const PromotionsContent = () => {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <SectionHeader title="Promotions" icon={Tag} />
-      <form onSubmit={handleAdd} className="flex gap-2 mb-4"><input type="text" placeholder="Code" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="border rounded p-1" /><input type="number" placeholder="%" value={newDiscount} onChange={e => setNewDiscount(parseInt(e.target.value))} className="border rounded p-1 w-16" /><button type="submit" className="bg-orange-600 text-white px-3 py-1 rounded">Add</button></form>
+      <form onSubmit={handleAdd} className="flex gap-2 mb-4"><input type="text" placeholder="Code" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="border rounded p-1" /><input type="number" placeholder="%" value={newDiscount} onChange={e => setNewDiscount(parseInt(e.target.value))} className="border rounded p-1 w-16" /><button type="submit" className="bg-blue-700 text-white px-3 py-1 rounded">Add</button></form>
       <div className="overflow-x-auto"><table className="w-full"><thead><tr className="text-xs"><th>Code</th><th>Discount</th><th>Status</th><th></th></tr></thead><tbody>{promos.map(p => (<tr key={p.id}><td className="p-2 font-mono">{p.code}</td><td className="p-2">{p.discount*100}%</td><td className="p-2"><Badge status={p.status}/></td><td className="p-2 text-right"><button onClick={() => handleToggle(p.id, p.status === 'active' ? 'inactive' : 'active')} className="p-1 bg-gray-100 rounded mr-1">{p.status === 'active' ? <PowerOff className="w-4 h-4"/> : <Power className="w-4 h-4"/>}</button><button onClick={() => handleDelete(p.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></td></tr>))}</tbody></table></div>
     </div>
   );
@@ -1507,13 +1520,13 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
                 <input 
                     type="text" 
                     placeholder="Search by make or model..." 
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
         </div>
-        <button onClick={() => onEdit(null)} className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center gap-2">
+        <button onClick={() => onEdit(null)} className="bg-blue-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
             <PlusCircle className="w-5 h-5" />
             Add New Model
         </button>
@@ -1532,9 +1545,9 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {Array.isArray(filteredLibrary) && filteredLibrary.map((m: any) => (
-              <tr key={m.id} className="hover:bg-orange-50/30 transition-colors group">
+              <tr key={m.id} className="hover:bg-blue-50/30 transition-colors group">
                 <td className="px-8 py-4">
-                  <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-orange-200 transition-colors">
+                  <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-blue-200 transition-colors">
                     <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width={400} height={250} referrerPolicy="no-referrer" loading="lazy" />
                   </div>
                 </td>
@@ -1544,7 +1557,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
                 </td>
                 <td className="px-8 py-4 text-xs font-black text-slate-500">{m.year}</td>
                 <td className="px-8 py-4">
-                  <span className="px-2 py-1 text-[9px] font-black uppercase tracking-widest bg-orange-50 text-orange-600 rounded-lg border border-orange-100/50">
+                  <span className="px-2 py-1 text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-700 rounded-lg border border-blue-100/50">
                     {formatEnum(m.category)}
                   </span>
                 </td>
@@ -1555,7 +1568,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
                 </td>
                 <td className="px-8 py-4 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => onEdit(m)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-orange-600 hover:border-orange-100 transition-all shadow-sm">
+                    <button onClick={() => onEdit(m)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-700 hover:border-blue-100 transition-all shadow-sm">
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => onDelete(m.id)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm">
@@ -1602,14 +1615,14 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                 <input 
                     type="text" 
                     placeholder="Search by name, email or location..." 
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
         </div>
         <div className="flex gap-3">
-            <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-orange-50 border border-orange-200 rounded-2xl text-orange-600 hover:bg-orange-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
+            <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-blue-50 border border-blue-200 rounded-2xl text-blue-700 hover:bg-blue-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
                 <ShieldCheck className="w-5 h-5" /> Fix
             </button>
             <button onClick={onRefresh} className="p-2.5 bg-white border border-gray-200 rounded-2xl text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
@@ -1643,14 +1656,14 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
             </thead>
             <tbody className="divide-y divide-slate-50">
                 {filteredSuppliers.map((s: any) => (
-                    <tr key={s.id} className="hover:bg-orange-50/30 transition-colors group">
+                    <tr key={s.id} className="hover:bg-blue-50/30 transition-colors group">
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-orange-200 transition-colors">
+                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
                                     <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width={40} height={40}/>
                                 </div>
                                 <div>
-                                    <div className="text-[13px] font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-tight">{s.name}</div>
+                                    <div className="text-[13px] font-black text-slate-900 group-hover:text-blue-700 transition-colors leading-tight">{s.name}</div>
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{s.email || s.contactEmail}</div>
                                     <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
                                         <MapPin className="w-2.5 h-2.5" /> 
@@ -1676,10 +1689,10 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                     onClick={() => onCopy(s.password, `table-${s.id}`, "Password")}
                                     title="Click to Reveal & Copy"
                                 >
-                                    <div className="w-5 h-5 rounded-md bg-orange-50 flex items-center justify-center border border-orange-100 group-hover/pass:border-orange-200 transition-colors">
-                                        <Key className="w-2.5 h-2.5 text-orange-400" />
+                                    <div className="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center border border-blue-100 group-hover/pass:border-blue-200 transition-colors">
+                                        <Key className="w-2.5 h-2.5 text-blue-400" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-orange-600 transition-colors">
+                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-blue-700 transition-colors">
                                         {revealedPasswords.has(`table-${s.id}`) ? (s.password || 'N/A') : '••••••••'}
                                     </span>
                                     {revealedPasswords.has(`table-${s.id}`) 
@@ -1721,7 +1734,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                 <button onClick={() => onManageApi(s)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm" title="API Settings">
                                     <Rss className="w-3.5 h-3.5" />
                                 </button>
-                                <button onClick={() => onEdit(s)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-orange-600 hover:border-orange-100 transition-all shadow-sm" title="Edit Profile">
+                                <button onClick={() => onEdit(s)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-700 hover:border-blue-100 transition-all shadow-sm" title="Edit Profile">
                                     <Edit className="w-3.5 h-3.5" />
                                 </button>
                                 <button onClick={() => onDelete(s.id)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm" title="Terminate Partner">
@@ -1753,12 +1766,12 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h3 className="font-black text-gray-900 text-lg flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-orange-600" />
+                        <Activity className="w-5 h-5 text-blue-700" />
                         Financial Overview
                     </h3>
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Real-time revenue stream</p>
                 </div>
-                <select className="text-xs font-bold border border-gray-100 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50/50">
+                <select className="text-xs font-bold border border-gray-100 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                     <option>Last 30 Days</option>
                     <option>Quarterly</option>
                 </select>
@@ -1807,7 +1820,7 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
                         </div>
                         <div className="text-right">
                             <div className="text-sm font-black text-gray-900">${b.finalPrice}</div>
-                            <div className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
+                            <div className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-700'}`}>
                                 {b.status}
                             </div>
                         </div>
@@ -1845,7 +1858,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
         </thead>
         <tbody className="divide-y divide-gray-50">
           {Array.isArray(cars) && cars.map((c: any) => (
-            <tr key={c.id} className="hover:bg-orange-50/30 transition-colors">
+            <tr key={c.id} className="hover:bg-blue-50/30 transition-colors">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width={48} height={32} />
@@ -1866,7 +1879,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
               <td className="px-6 py-4 text-xs font-medium text-gray-500">
                 {c.location}
               </td>
-              <td className="px-6 py-4 font-mono text-xs text-orange-600 font-bold">
+              <td className="px-6 py-4 font-mono text-xs text-blue-700 font-bold">
                 {c.sippCode}
               </td>
               <td className="px-6 py-4">
@@ -1899,7 +1912,7 @@ const PageEditorModal = ({ page, isOpen, onClose }: any) => {
   useEffect(() => { if (page) { setTitle(page.title); setContent(page.content); } }, [page]);
   const handleSave = () => { updatePage(page.slug, { title, content }); onClose(); };
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page.slug}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+  return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page.slug}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   const [route, setRoute] = useState(config?.route || '');
@@ -1909,7 +1922,7 @@ const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   useEffect(() => { if (config) { setRoute(config.route); setTitle(config.title); setDescription(config.description); setKeywords(config.keywords || ''); } }, [config]);
   const handleSave = () => { updateSeoConfig({ route, title, description, keywords }); onClose(); };
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-orange-600 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+  return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
   const [model, setModel] = useState<any>({ 
@@ -2037,7 +2050,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                     />
                     <label 
                         htmlFor="car-model-image-upload"
-                        className="flex-grow flex items-center justify-center gap-2 px-4 py-2 bg-white text-orange-600 rounded-xl border border-orange-100 font-bold text-xs cursor-pointer hover:bg-orange-50 transition-colors shadow-sm"
+                        className="flex-grow flex items-center justify-center gap-2 px-4 py-2 bg-white text-blue-700 rounded-xl border border-blue-100 font-bold text-xs cursor-pointer hover:bg-blue-50 transition-colors shadow-sm"
                     >
                         <PlusCircle className="w-4 h-4" />
                         Choose File
@@ -2075,7 +2088,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
         </button>
         <button 
           onClick={handleSave} 
-          className="bg-orange-600 text-white px-8 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-orange-200 hover:bg-orange-700 transition-all"
+          className="bg-blue-700 text-white px-8 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-blue-200 hover:bg-blue-800 transition-all"
         >
           {carModel ? 'Save Changes' : 'Create Model'}
         </button>
@@ -2147,7 +2160,7 @@ const HomepageLogosContent = () => {
                         <p className="text-sm text-gray-500 font-medium text-left">Control global brands and trusted partners displayed on the landing page</p>
                     </div>
                     <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, scale: 100, mobileScale: 100, spacing: 24, active: true })} 
-                        className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center gap-2">
+                        className="bg-blue-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
                         <PlusCircle className="w-5 h-5" />
                         Add New Brand
                     </button>
@@ -2169,9 +2182,9 @@ const HomepageLogosContent = () => {
                             ) : logos.length === 0 ? (
                                 <tr><td colSpan={5} className="p-12 text-center text-slate-400 font-bold">No brands configured yet</td></tr>
                             ) : logos.map((l: any) => (
-                                <tr key={l.id} className="hover:bg-orange-50/30 transition-colors group">
+                                <tr key={l.id} className="hover:bg-blue-50/30 transition-colors group">
                                     <td className="px-8 py-4">
-                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-orange-200 transition-colors">
+                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
                                                 <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width={100} height={50} />
                                             ) : (
@@ -2184,7 +2197,7 @@ const HomepageLogosContent = () => {
                                     <td className="px-8 py-4"><Badge status={l.active ? 'active' : 'inactive'} /></td>
                                     <td className="px-8 py-4 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-orange-100 text-slate-600 hover:text-orange-600 rounded-xl transition-all"><Edit className="w-4 h-4"/></button>
+                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-xl transition-all"><Edit className="w-4 h-4"/></button>
                                             <button onClick={() => handleDelete(l.id)} className="p-2 bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-xl transition-all"><Trash2 className="w-4 h-4"/></button>
                                         </div>
                                     </td>
@@ -2509,7 +2522,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                             </div>
                         </div>
                         <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
-                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-2xl transition-colors flex items-center justify-center text-slate-400 hover:text-orange-600 hover:border-orange-200">
+                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-2xl transition-colors flex items-center justify-center text-slate-400 hover:text-blue-700 hover:border-blue-200">
                             <ImageIcon className="w-6 h-6" />
                         </button>
                     </div>
@@ -2533,7 +2546,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Status</label>
                     <select 
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                         value={formData.active ? 'true' : 'false'}
                         onChange={(e) => setFormData({ ...formData, active: e.target.value === 'true' })}
                     >
@@ -2544,7 +2557,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
 
                 <div className="flex gap-4 pt-4">
                     <button onClick={onClose} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onSave(formData)} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-orange-600 shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all">Save Changes</button>
+                    <button onClick={() => onSave(formData)} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-700 shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all">Save Changes</button>
                 </div>
             </div>
         </Modal>
@@ -3184,7 +3197,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
@@ -3206,23 +3219,26 @@ export const AdminDashboard: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="md:hidden bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-30 shadow-sm">
+      <div className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 px-4 py-3 flex justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-2">
-            <div className="bg-orange-600 p-1.5 rounded-lg shadow-lg">
-                <Shield className="w-5 h-5 text-white"/>
+            <div className="bg-slate-950 p-2 rounded-xl shadow-lg">
+                <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="font-black text-gray-900 tracking-tighter uppercase">Admin Portal</span>
+            <div>
+              <span className="block font-black text-slate-950 tracking-tight uppercase leading-none">Admin Portal</span>
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.18em]">Control plane</span>
+            </div>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-            <Menu className="w-6 h-6 text-gray-600" />
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors">
+            {isSidebarOpen ? <X className="w-6 h-6 text-slate-700" /> : <Menu className="w-6 h-6 text-slate-700" />}
         </button>
       </div>
 
-      <div className="max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-10 py-8 flex gap-0 md:gap-8">
+      <div className="w-full px-3 sm:px-4 lg:pl-80 lg:pr-8 xl:pr-10 py-4 lg:py-8 flex">
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
         
-        <main className="flex-grow min-w-0">
-          <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6 bg-white p-5 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100">
+        <main className="flex-grow min-w-0 max-w-[1600px] mx-auto">
+          <header className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 lg:mb-8 gap-5 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
             <div>
               <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">
                 <LayoutDashboard className="w-3 h-3" />
@@ -3233,16 +3249,16 @@ export const AdminDashboard: React.FC = () => {
               </h1>
             </div>
             
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 lg:gap-4 w-full xl:w-auto">
               {['dashboard', 'bookings', 'fleet', 'suppliers'].includes(activeSection) && (
-                <div className="flex items-center gap-3 bg-slate-50/50 p-2 rounded-xl border border-slate-100 hover:border-orange-200 transition-all duration-300">
-                  <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-orange-600 border border-slate-50">
+                <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 w-full sm:w-auto">
+                  <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-blue-700 border border-slate-100">
                     <Building className="w-4 h-4" />
                   </div>
-                  <div className="flex flex-col pr-3">
+                  <div className="flex flex-col pr-3 min-w-0 flex-1">
                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">Supplier Node</span>
                     <select 
-                        className="bg-transparent text-xs font-black text-slate-900 outline-none cursor-pointer"
+                        className="bg-transparent text-xs font-black text-slate-900 outline-none cursor-pointer min-w-0"
                         value={selectedSupplierId || ''}
                         onChange={(e) => setSelectedSupplierId(e.target.value || null)}
                     >
@@ -3256,8 +3272,8 @@ export const AdminDashboard: React.FC = () => {
               )}
 
               {selectedSupplierId && (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 bg-orange-600 px-4 py-2 rounded-xl text-white shadow-lg shadow-orange-200">
-                    <div className="flex flex-col border-r border-orange-500 pr-3">
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 bg-blue-700 px-4 py-2 rounded-xl text-white shadow-lg shadow-blue-200 w-full sm:w-auto">
+                    <div className="flex flex-col border-r border-blue-500 pr-3 min-w-0">
                         <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Login Identity</span>
                         <span className="text-[10px] font-bold truncate max-w-[120px]">
                             {suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.email || 'N/A'}
@@ -3273,12 +3289,12 @@ export const AdminDashboard: React.FC = () => {
                             }}
                             title="Click to Reveal & Copy"
                         >
-                            <span className="text-[10px] font-bold font-mono min-w-[60px] hover:text-orange-200 transition-colors">
+                            <span className="text-[10px] font-bold font-mono min-w-[60px] hover:text-blue-100 transition-colors">
                                 {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) 
                                     ? (suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password || 'N/A') 
                                     : '••••••••'}
                             </span>
-                            <div className="p-1 hover:bg-orange-500 rounded transition-colors bg-orange-700/50">
+                            <div className="p-1 hover:bg-blue-500 rounded transition-colors bg-blue-800/50">
                                 {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) ? <CheckCircle className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
                             </div>
                         </div>
@@ -3286,7 +3302,7 @@ export const AdminDashboard: React.FC = () => {
                 </motion.div>
               )}
 
-              <div className="flex items-center gap-3.5 pl-5 border-l border-slate-100">
+              <div className="hidden sm:flex items-center gap-3.5 sm:pl-4 sm:border-l border-slate-100">
                  <motion.div 
                     whileHover={{ scale: 1.05 }}
                     className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg font-black text-sm cursor-pointer"
@@ -3311,7 +3327,7 @@ export const AdminDashboard: React.FC = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }} 
                 exit={{ opacity: 0, y: -20, scale: 0.98 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="min-h-[600px]"
+                className="min-h-[600px] overflow-x-auto pb-2 [&_table]:min-w-[860px]"
             >
               {renderContent()}
             </motion.div>
