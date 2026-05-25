@@ -245,6 +245,11 @@ const CarDetails: React.FC = () => {
 
   const [imageError, setImageError] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const pickupDisplay = new Date(startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const dropoffDisplay = new Date(endDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const supplierLogo = car?.supplier.logo || (car?.supplier as any)?.logoUrl;
+  const depositDisplay = car?.deposit ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'Not listed';
+  const excessDisplay = (car as any)?.excess ? `${getCurrencySymbol()}${convertPrice((car as any).excess).toFixed(2)}` : 'See terms';
 
   if (loading) {
     return (
@@ -273,51 +278,49 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-slate-200/55 min-h-screen pb-32 lg:pb-12 text-slate-800">
-        <div className="max-w-[1500px] mx-auto px-2 sm:px-6 lg:px-10 py-6">
+      <div className="bg-slate-50 min-h-screen pb-32 lg:pb-12 text-slate-800">
+        <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10 py-6">
           <BookingStepper currentStep={3} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 mt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 mt-6">
             {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-6 sm:space-y-7">
-              {/* Hero Section - smaller image + modern layout */}
-              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70">
-                <div className="relative bg-slate-50 border-b border-slate-100">
-                  {/* Reduced image height: h-48 on mobile, h-64 on desktop */}
-                  <img 
-                    src={displayImage} 
-                    alt={`${car.make} ${car.model}`} 
-                    onError={() => setImageError(true)}
-                    referrerPolicy="no-referrer"
-                    loading="eager"
-                    className="w-full h-40 lg:h-56 object-contain p-4"
-                  />
-                  
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="bg-black/70 text-white text-sm px-3 py-1 rounded-full">{car.category}</span>
-                    {car.tags?.[0] && <span className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">{car.tags[0]}</span>}
+            <div className="lg:col-span-2 space-y-5 sm:space-y-6">
+              {/* Hero Section */}
+              <div className="overflow-visible bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+                  <div className="relative bg-gradient-to-b from-slate-50 to-white border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none">
+                    <img
+                      src={displayImage}
+                      alt={`${car.make} ${car.model}`}
+                      onError={() => setImageError(true)}
+                      referrerPolicy="no-referrer"
+                      loading="eager"
+                      className="w-full h-52 sm:h-64 lg:h-full min-h-[280px] object-contain p-5 sm:p-7"
+                    />
+                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                      <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.category}</span>
+                      {car.tags?.[0] && <span className="bg-[#008009] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.tags[0]}</span>}
+                    </div>
+                    <button className="absolute top-4 right-4 bg-white/95 p-2 rounded-full shadow-md border border-slate-100 hover:bg-slate-50 transition-colors"><Heart className="w-5 h-5 text-slate-600" /></button>
                   </div>
-                  <button className="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-md"><Heart className="w-5 h-5" /></button>
-                </div>
-                <div className="p-5 sm:p-6">
+
+                  <div className="p-5 sm:p-6">
                   {car.hogicarChoice && (
-                    <div className="inline-flex items-center gap-2 bg-[#003580] text-white text-[10px] font-black px-4 py-2 rounded-xl mb-4 shadow-xl border border-amber-400/50">
+                    <div className="inline-flex items-center gap-2 bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-xl mb-4 shadow-xl border border-amber-400/50">
                         <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
                         <span className="tracking-[0.2em] uppercase italic font-black text-amber-400">Hogicar Choice Exclusive Verified</span>
                     </div>
                   )}
-                  <div className="flex flex-wrap justify-between items-start gap-4">
+                  <div className="flex flex-wrap justify-between items-start gap-5">
                     <div>
-                      <div className="flex items-center gap-3">
-                        <h1 className="text-xl sm:text-2xl lg:text-[1.8rem] font-bold">{car.displayName || `${car.make} ${car.model}`}</h1>
-                      </div>
-                      <p className="text-slate-700 text-base mt-1">or similar · {car.year}</p>
-                      <div className="flex flex-wrap gap-4 mt-4">
-                        <div className="flex items-center gap-2 text-base font-bold text-slate-900">
-                            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> 
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#008009] mb-1">Rental deal details</p>
+                      <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
+                      <p className="text-slate-500 text-sm font-bold mt-1">or similar · {car.year} · {car.sippCode}</p>
+                      <div className="flex flex-wrap gap-3 mt-4">
+                        <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
                             {!car.hogicarChoice ? (
                                 <div 
-                                  className="flex items-center gap-2 group/rating relative cursor-pointer"
+                                  className="flex items-center gap-2 group/rating relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2"
                                   onMouseEnter={() => setShowRatingsTooltip(true)}
                                   onMouseLeave={() => setShowRatingsTooltip(false)}
                                   onClick={(e) => {
@@ -326,60 +329,94 @@ const CarDetails: React.FC = () => {
                                     setShowRatingsTooltip(!showRatingsTooltip);
                                   }}
                                 >
-                                    <span className="bg-[#008009] text-white px-2 py-0.5 rounded shadow-sm">
+                                    <span className="bg-[#008009] text-white px-2 py-1 rounded-lg shadow-sm font-black">
                                         {car.supplier.rating}
                                     </span> 
-                                    <span className="underline underline-offset-4 decoration-slate-200 whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
+                                    <span className="whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
                                     {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />}
                                 </div>
                             ) : (
-                                <span className="font-black text-indigo-700 uppercase tracking-wider">Premium Choice · Top Rated</span>
+                                <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-black text-amber-800 uppercase tracking-wider">Premium Choice · Top Rated</span>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 text-base font-medium text-slate-600"><MapPin className="w-5 h-5 text-slate-400" /> {car.locationDetail}</div>
+                        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 items-end">
-                      <div className="bg-blue-100/80 px-4 py-2 rounded-xl flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-blue-600" />
-                        <span className="text-sm font-bold text-blue-800">Available now</span>
-                      </div>
+                    <div className="flex flex-col gap-2 items-start sm:items-end">
+                      {supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-10 max-w-[140px] object-contain" />}
                       {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
-                        <div className="bg-emerald-50 px-4 py-2 rounded-xl flex items-center gap-2 border border-[#008009]/10 shadow-sm">
-                          <Zap className="w-5 h-5 text-[#008009] fill-[#008009]/20" />
-                          <span className="text-sm font-bold text-[#008009]">Instant Confirmation</span>
+                        <div className="bg-emerald-50 px-3 py-2 rounded-xl flex items-center gap-2 border border-[#008009]/10 shadow-sm">
+                          <Zap className="w-4 h-4 text-[#008009] fill-[#008009]/20" />
+                          <span className="text-xs font-black text-[#008009] uppercase tracking-wider">Instant confirmation</span>
                         </div>
                       )}
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+                    {[
+                      { icon: Users, label: `${car.passengers}`, desc: 'Seats' },
+                      { icon: Briefcase, label: `${car.bags}`, desc: 'Bags' },
+                      { icon: car.transmission === 'AUTOMATIC' ? AutomaticIcon : AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', desc: 'Gearbox' },
+                      { icon: Wind, label: car.airCon ? 'A/C' : 'Climate', desc: 'Comfort' },
+                    ].map(item => (
+                      <div key={item.desc} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <item.icon className="w-4 h-4 text-[#008009] mb-2" />
+                        <p className="text-sm font-black text-slate-950">{item.label}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 grid gap-2 sm:grid-cols-3">
+                    <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3">
+                      <p className="text-xs font-black text-[#008009] flex items-center gap-2"><CheckCircle className="w-4 h-4" /> Free cancellation</p>
+                      <p className="text-[11px] text-emerald-800 font-semibold mt-1">Flexible booking before pickup.</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
+                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><GaugeCircle className="w-4 h-4 text-[#008009]" /> {car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</p>
+                      <p className="text-[11px] text-slate-500 font-semibold mt-1">Mileage policy shown before checkout.</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
+                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><Fuel className="w-4 h-4 text-[#008009]" /> {car.fuelPolicy.replace(/_/g, ' ')}</p>
+                      <p className="text-[11px] text-slate-500 font-semibold mt-1">Fuel condition from supplier.</p>
+                    </div>
+                  </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-blue-600" /> Trip at a Glance</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                  <div className="rounded-xl border border-slate-300/70 bg-slate-100/80 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-2">Pick-up</p>
+              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-black mb-4 flex items-center gap-2 text-slate-950"><Calendar className="w-5 h-5 text-[#008009]" /> Trip at a glance</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 mb-2">Pick-up</p>
                     <p className="font-semibold text-slate-900">{pickupCode || car.location}</p>
-                    <p className="text-slate-600 mt-1">{startDate}</p>
+                    <p className="text-slate-600 mt-1">{pickupDisplay}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-300/70 bg-slate-100/80 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-2">Drop-off</p>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 mb-2">Drop-off</p>
                     <p className="font-semibold text-slate-900">{dropoffCode || pickupCode || car.location}</p>
-                    <p className="text-slate-600 mt-1">{endDate}</p>
+                    <p className="text-slate-600 mt-1">{dropoffDisplay}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-300/70 bg-slate-100/80 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-2">Rental Plan</p>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 mb-2">Rental plan</p>
                     <p className="font-semibold text-slate-900">{days} day{days > 1 ? 's' : ''}</p>
-                    <p className="text-slate-600 mt-1">Flexible cancellation window</p>
+                    <p className="text-slate-600 mt-1">Deposit: {depositDisplay}</p>
                   </div>
                 </div>
               </div>
 
               {/* Key Specifications Grid - rich icons */}
-              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><GaugeCircle className="w-5 h-5 text-blue-600" /> Key Specifications</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div>
+                    <h2 className="text-xl font-black flex items-center gap-2 text-slate-950"><GaugeCircle className="w-5 h-5 text-[#008009]" /> Vehicle details</h2>
+                    <p className="text-sm font-semibold text-slate-500 mt-1">The most important specs for this rental class.</p>
+                  </div>
+                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{car.category}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
                     { icon: Users, label: `${car.passengers} Seats`, desc: 'Comfortable seating' },
                     { icon: CarDoorIcon, label: `${car.doors} Doors`, desc: 'Easy access' },
@@ -390,34 +427,35 @@ const CarDetails: React.FC = () => {
                     { icon: Fuel, label: car.fuelPolicy.split('_').join(' '), desc: 'Fuel policy' },
                     { icon: Hash, label: car.sippCode, desc: 'Vehicle code' }
                   ].map(spec => (
-                    <div key={spec.label} className="flex flex-col items-center text-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl hover:shadow-sm transition">
-                      <spec.icon className="w-6 h-6 text-blue-600 mb-2" />
-                      <span className="text-sm font-semibold text-slate-800">{spec.label}</span>
-                      <span className="text-xs text-slate-600">{spec.desc}</span>
+                    <div key={spec.label} className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-xl hover:shadow-sm transition">
+                      <spec.icon className="w-5 h-5 text-[#008009] mb-2" />
+                      <span className="text-sm font-black text-slate-900 leading-tight">{spec.label}</span>
+                      <span className="text-[11px] font-semibold text-slate-500">{spec.desc}</span>
                     </div>
                   ))}
                 </div>
-                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-6 text-blue-600 text-sm flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
+                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-5 text-[#008009] text-sm font-black flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
                 {showFullSpecs && (
-                  <div className="mt-6 p-5 bg-[#eef2f8] border border-slate-300/70 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="mt-5 p-5 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div><span className="font-semibold">Fuel Policy:</span> {car.fuelPolicy}</div>
                     <div><span className="font-semibold">Transmission:</span> {car.transmission}</div>
                     <div><span className="font-semibold">Mileage:</span> {car.unlimitedMileage ? 'Unlimited' : 'Limited'}</div>
                     <div><span className="font-semibold">Air Conditioning:</span> Yes</div>
                     <div><span className="font-semibold">Doors:</span> {car.doors}</div>
                     <div><span className="font-semibold">SIPP Code:</span> {car.sippCode}</div>
-                    {car.deposit > 0 && <div><span className="font-semibold">Deposit:</span> {getCurrencySymbol()}{convertPrice(car.deposit)}</div>}
+                    {car.deposit > 0 && <div><span className="font-semibold">Deposit:</span> {depositDisplay}</div>}
+                    <div><span className="font-semibold">Excess:</span> {excessDisplay}</div>
                   </div>
                 )}
               </div>
 
               {/* Extras Section - modern cards */}
               {car.extras && car.extras.length > 0 && (
-                <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-green-600" /> Optional Extras</h2>
+                <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                  <h2 className="text-xl font-black mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-[#008009]" /> Optional extras</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {car.extras.map(extra => (
-                      <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-green-500 bg-green-50' : 'border-slate-300 bg-slate-100/70 hover:border-slate-400'}`}>
+                      <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-[#008009] bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-slate-100 rounded-lg"><PlusCircle className="w-5 h-5 text-slate-600" /></div>
                           <div><div className="font-semibold">{extra.name}</div><div className="text-sm text-slate-700">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
@@ -432,8 +470,8 @@ const CarDetails: React.FC = () => {
                 </div>
               )}
 
-              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                <h2 className="text-xl font-bold mb-5 flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-emerald-600" /> Included in your rate</h2>
+              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-slate-950"><ShieldCheck className="w-5 h-5 text-[#008009]" /> Included in your rate</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-700">
                   <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-600" /> Supplier base rental and local taxes</p>
                   <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-600" /> Transparent pay-now / pay-at-counter split</p>
@@ -443,8 +481,8 @@ const CarDetails: React.FC = () => {
               </div>
 
               {/* Supplier Info with trust badges */}
-              <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Building className="w-5 h-5 text-slate-600" /> {!car.hogicarChoice ? "About the Supplier" : "Hogicar Verification"}</h2>
+              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                <h2 className="text-xl font-black mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 text-[#008009]" /> {!car.hogicarChoice ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
                 {!car.hogicarChoice ? (
                   <div className="flex flex-wrap items-center gap-6">
                     <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 w-auto object-contain max-w-[150px]" />
@@ -486,10 +524,10 @@ const CarDetails: React.FC = () => {
                   </div>
                 )}
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Shield className="w-6 h-6 text-green-600 mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-100/80 border border-slate-300/70 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Shield className="w-6 h-6 text-[#008009] mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
                 </div>
                 <button onClick={() => setIsConditionsModalOpen(true)} className="mt-8 flex items-center gap-2 text-[#008009] hover:text-[#006607] text-base font-black uppercase tracking-[0.1em] transition-colors group/cond">
                     <FileText className="w-6 h-6 group-hover/cond:scale-110 transition-transform" />
@@ -532,11 +570,24 @@ const CarDetails: React.FC = () => {
             {/* Right Column - Booking Sidebar (professional) */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-5">
-                <div className="bg-[#f3f6fb] rounded-2xl shadow-xl shadow-slate-400/20 p-5 sm:p-6 border border-slate-300/70">
+                <div className="bg-white rounded-2xl shadow-[0_20px_50px_-34px_rgba(15,23,42,0.65)] p-5 sm:p-6 border border-slate-200">
                   {/* Price lock timer */}
-                  <div className="bg-slate-900 text-white p-4 rounded-xl mb-5 flex justify-between items-center">
-                    <div><div className="text-sm uppercase tracking-wide text-slate-100">Price locked for</div><div className="font-mono font-bold text-2xl">{formatTime(timeLeft)}</div></div>
-                    <Clock className="w-8 h-8 opacity-50" />
+                  <div className="bg-slate-950 text-white p-4 rounded-xl mb-5 flex justify-between items-center">
+                    <div><div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Price locked for</div><div className="font-mono font-black text-2xl">{formatTime(timeLeft)}</div></div>
+                    <Clock className="w-7 h-7 opacity-50" />
+                  </div>
+                  <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pay now</p>
+                        <p className="text-2xl font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pay at desk</p>
+                        <p className="text-sm font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-[11px] font-semibold text-slate-500">Secure the booking online and pay any remaining amount to the supplier.</p>
                   </div>
                   {/* Price breakdown */}
                   <div className="space-y-3 mb-5">
@@ -545,20 +596,20 @@ const CarDetails: React.FC = () => {
                     {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
                     {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
                     {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between text-sm text-green-700 font-bold"><span>Secret Deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
-                    <div className="border-t pt-3 mt-3"><div className="flex justify-between font-bold text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-sm text-slate-600 text-right">Including taxes & fees</div></div>
+                    <div className="border-t pt-3 mt-3"><div className="flex justify-between font-black text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-sm text-slate-600 text-right">Including taxes & fees</div></div>
                   </div>
                   {/* Promo code */}
-                  <div className="mb-5"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" /><button onClick={handleApplyPromo} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition">Apply</button></div>{promoError && <p className="text-red-600 text-sm mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-sm mt-1">✓ {appliedPromo.code} applied</p>}</div>
+                  <div className="mb-5"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#008009]/30 focus:border-[#008009] outline-none" /><button onClick={handleApplyPromo} className="bg-slate-950 text-white px-4 py-2 rounded-lg text-sm font-black hover:bg-[#008009] transition">Apply</button></div>{promoError && <p className="text-red-600 text-sm mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-sm mt-1">✓ {appliedPromo.code} applied</p>}</div>
                   {/* Insurance selection */}
-                  <div className="mb-5"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Full Protection (+${convertPrice(15 * days).toFixed(2)})</span></label></div>
-                  <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-[#008009] hover:bg-[#006607] text-white text-center font-bold py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">Continue to Book</Link>
+                  <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-3"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Full Protection (+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)})</span></label></div>
+                  <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-[#008009] hover:bg-[#006607] text-white text-center font-black py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">Continue to book</Link>
                   <div className="mt-4 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
                 <div className="bg-[#eaf7ef] rounded-2xl p-5 border border-green-200/80"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-sm text-slate-700">Up to 48 hours before pickup</div></div></div></div>
-                <div className="bg-[#eaf0fb] rounded-2xl p-5 border border-blue-200/80"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 Customer Support</div><div className="text-sm text-slate-700">We're here to help anytime</div></div></div></div>
-                <div className="bg-[#f3f6fb] rounded-2xl p-5 border border-slate-300/70">
-                  <h4 className="text-sm font-semibold text-slate-900 mb-3">Professional booking checklist</h4>
+                <div className="bg-white rounded-2xl p-5 border border-slate-200"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 customer support</div><div className="text-sm text-slate-700">We're here to help anytime</div></div></div></div>
+                <div className="bg-white rounded-2xl p-5 border border-slate-200">
+                  <h4 className="text-sm font-black text-slate-900 mb-3">Booking checklist</h4>
                   <ul className="space-y-2 text-sm text-slate-700">
                     <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Driving license and passport/ID ready</li>
                     <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Card in the main driver’s name</li>
