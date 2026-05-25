@@ -4,7 +4,7 @@ import { useParams, useNavigate, useSearchParams, useLocation } from 'react-rout
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { getPromoCode } from '../services/mockData';
-import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap } from 'lucide-react';
+import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription } from '../utils/ratings';
@@ -95,6 +95,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const [cardholderName, setCardholderName] = React.useState('');
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
+  const [checkoutStep, setCheckoutStep] = React.useState<'details' | 'payment'>('details');
+  const [bookingDraft, setBookingDraft] = React.useState<(any & { clientSecret?: string }) | null>(null);
+  const [createAccount, setCreateAccount] = React.useState(true);
+  const [accountPassword, setAccountPassword] = React.useState('');
 
   React.useEffect(() => {
     if (initialPromoCode) {
@@ -143,10 +147,56 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [imageError, setImageError] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
 
-  const handleConfirmBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const buildBookingPayload = () => {
+    if (!car) return null;
+    const carId = Number(car.id);
+    const supplierId = Number(car.supplierId ?? car.supplier?.id);
+    if (!Number.isFinite(carId) || carId <= 0) {
+      throw new Error('Invalid car id. Please go back to search and select the car again.');
+    }
+    if (!Number.isFinite(supplierId) || supplierId <= 0) {
+      throw new Error('Invalid supplier id. Please go back to search and select the car again.');
+    }
+    return {
+        carId,
+        supplierId,
+        supplierName: car.supplier?.name || 'Supplier',
+        pickupCode: search.pickupCode,
+        dropoffCode: search.dropoffCode,
+        pickupDate: startDate,
+        dropoffDate: endDate,
+        startTime,
+        endTime,
+        currency: car.currency || 'USD',
+        netPrice: priceDetails.baseNetTotal,
+        commissionPercent: car.commissionPercent ?? 0,
+        firstName,
+        lastName,
+        email,
+        phone: phoneNumber,
+        finalPrice: priceDetails.finalTotal,
+        payNow: priceDetails.payNow,
+        payAtDesk: priceDetails.payAtDesk,
+        flightNumber,
+        selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
+    };
+  };
+
+  const storeBookingAndGoToConfirmation = (booking: any) => {
+    const bookingRef = (booking as any).bookingRef || booking.id;
+    sessionStorage.setItem("allowConfirmationRef", bookingRef.toString());
+    sessionStorage.setItem("hogicar_booking", JSON.stringify(booking));
+    sessionStorage.setItem("hogicar_car", JSON.stringify(car));
+    navigate(`/confirmation?bookingRef=${bookingRef}`);
+  };
+
+  const handleCustomerDetailsContinue = async () => {
     if (!car || !firstName || !lastName || !email || !phoneNumber) {
       alert("Please fill in all required driver details.");
+      return;
+    }
+    if (createAccount && accountPassword && accountPassword.length < 8) {
+      alert("Please use at least 8 characters for the account password.");
       return;
     }
 
@@ -163,52 +213,45 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       return;
     }
 
-    const carId = Number(car.id);
-    const supplierId = Number(car.supplierId ?? car.supplier?.id);
-    if (!Number.isFinite(carId) || carId <= 0) {
-      alert('Invalid car id. Please go back to search and select the car again.');
-      return;
-    }
-    if (!Number.isFinite(supplierId) || supplierId <= 0) {
-      alert('Invalid supplier id. Please go back to search and select the car again.');
-      return;
-    }
-
     setIsSubmitting(true);
     setPaymentError(null);
-    
-    const payload = {
-        carId,
-        supplierId,
-        supplierName: car.supplier?.name || 'Supplier',
-        pickupCode: search.pickupCode,
-        dropoffCode: search.dropoffCode,
-        pickupDate: startDate,
-        dropoffDate: endDate,
-        startTime,
-        endTime,
-        currency: car.currency || 'USD',
-        netPrice: priceDetails.baseNetTotal,
-        commissionPercent: car.commissionPercent ?? 0,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phone: phoneNumber,
-        finalPrice: priceDetails.finalTotal,
-        payNow: priceDetails.payNow,
-        payAtDesk: priceDetails.payAtDesk,
-        flightNumber: flightNumber,
-        selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
-    };
-
     try {
+        const payload = buildBookingPayload();
         const booking = await api.createBooking(payload);
+        setBookingDraft(booking);
+        sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
+        sessionStorage.setItem("hogicar_customer_profile", JSON.stringify({ firstName, lastName, email, phoneNumber, flightNumber, createAccount }));
 
-        if (priceDetails.payNow > 0) {
+        if (priceDetails.payNow <= 0) {
+          storeBookingAndGoToConfirmation(booking);
+          return;
+        }
+
+        setCheckoutStep('payment');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error: any) {
+        console.error("Booking draft error:", error);
+        const message = error.message || 'An unknown error occurred.';
+        setPaymentError(message);
+        alert(`Booking could not be prepared: ${message}`);
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
+  const handlePaymentSubmit = async () => {
+    if (!bookingDraft) {
+      alert("Please complete customer details first.");
+      setCheckoutStep('details');
+      return;
+    }
+    setIsSubmitting(true);
+    setPaymentError(null);
+    try {
           if (!stripeEnabled || !stripe || !elements) {
             throw new Error('Stripe payment is not configured. Please contact support.');
           }
-          if (!booking.clientSecret) {
+          if (!bookingDraft.clientSecret) {
             throw new Error('Payment session was not created. Please try again.');
           }
 
@@ -217,7 +260,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             throw new Error('Payment form is not ready. Please try again.');
           }
 
-          const paymentResult = await stripe.confirmCardPayment(booking.clientSecret, {
+          const paymentResult = await stripe.confirmCardPayment(bookingDraft.clientSecret, {
             payment_method: {
               card: cardElement,
               billing_details: {
@@ -231,26 +274,28 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           if (paymentResult.error) {
             throw new Error(paymentResult.error.message || 'Payment confirmation failed.');
           }
-        }
-        
-        // Set one-time flag for confirmation page
-        // Use the bookingRef returned by the API (which might be in the Booking object)
-        const bookingRef = (booking as any).bookingRef || booking.id;
 
-        sessionStorage.setItem("allowConfirmationRef", bookingRef.toString());
-        sessionStorage.setItem("hogicar_booking", JSON.stringify(booking));
-        // Keep car data for confirmation page display
-        sessionStorage.setItem("hogicar_car", JSON.stringify(car));
-
-        const navUrl = `/confirmation?bookingRef=${bookingRef}`;
-        navigate(navUrl);
+          const paymentIntentId = paymentResult.paymentIntent?.id;
+          const completedBooking = paymentIntentId
+            ? await api.markBookingPaymentComplete(bookingDraft.id, paymentIntentId)
+            : bookingDraft;
+          storeBookingAndGoToConfirmation(completedBooking);
     } catch (error: any) {
-        console.error("Booking submission error:", error);
+        console.error("Payment submission error:", error);
         const message = error.message || 'An unknown error occurred.';
         setPaymentError(message);
-        alert(`Booking failed: ${message}`);
+        alert(`Payment failed: ${message}`);
     } finally {
         setIsSubmitting(false);
+    }
+  };
+
+  const handleConfirmBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (checkoutStep === 'details') {
+      await handleCustomerDetailsContinue();
+    } else {
+      await handlePaymentSubmit();
     }
   };
   
@@ -284,6 +329,24 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10">
         <div className="mb-6 sm:mb-10">
             <BookingStepper currentStep={4} />
+        </div>
+
+        <div className="mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setCheckoutStep('details')}
+            className={`rounded-xl px-4 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all ${checkoutStep === 'details' ? 'bg-slate-950 text-white shadow-lg shadow-slate-200' : 'text-slate-500 hover:bg-slate-50'}`}
+          >
+            Customer details
+          </button>
+          <button
+            type="button"
+            disabled={!bookingDraft}
+            onClick={() => bookingDraft && setCheckoutStep('payment')}
+            className={`rounded-xl px-4 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all disabled:cursor-not-allowed disabled:opacity-50 ${checkoutStep === 'payment' ? 'bg-[#008009] text-white shadow-lg shadow-emerald-100' : 'text-slate-500 hover:bg-slate-50'}`}
+          >
+            Payment
+          </button>
         </div>
 
         <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 xl:gap-10">
@@ -377,9 +440,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
               </div>
             </div>
 
-            {/* Driver Details */}
+            {checkoutStep === 'details' ? (
+            <>
+            {/* Customer Details */}
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-5 sm:mb-6 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Main driver information</h2>
+               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-2 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer and main driver details</h2>
+               <p className="text-sm text-slate-600 mb-5 sm:mb-6">We will use these details to create your Hogicar customer profile and prepare the secure payment page.</p>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">First name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Last name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
@@ -393,8 +459,47 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                </div>
             </div>
 
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
+               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-2 flex items-center gap-3"><UserPlus className="w-5 h-5 text-[#008009]"/> Create customer account</h2>
+               <p className="text-sm text-slate-600 mb-5 sm:mb-6">Your account keeps booking references, payment status, and future rental details in one place.</p>
+               <label className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 mb-5 cursor-pointer">
+                  <input type="checkbox" checked={createAccount} onChange={(e) => setCreateAccount(e.target.checked)} className="mt-1 h-4 w-4 rounded border-slate-300 text-[#008009] focus:ring-[#008009]" />
+                  <span>
+                    <span className="block text-sm font-black text-slate-900">Register my customer account with this booking</span>
+                    <span className="block text-sm text-slate-600 mt-1">We will save your profile details for faster support and future reservations.</span>
+                  </span>
+               </label>
+               {createAccount && (
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Create password <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
+                    <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
+                    <p className="text-sm text-slate-600 mt-3 font-medium flex items-center gap-2"><Info className="w-4 h-4 text-[#008009]"/> If you skip this now, you can still access the booking by email and reference number.</p>
+                  </div>
+               )}
+            </div>
+            </>
+            ) : (
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
+               <div className="flex items-start justify-between gap-4 mb-6">
+                 <div>
+                   <h2 className="text-lg sm:text-xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer details</h2>
+                   <p className="text-sm text-slate-600 mt-2">Review the customer account information before completing payment.</p>
+                 </div>
+                 <button type="button" onClick={() => setCheckoutStep('details')} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50">
+                   <ArrowLeft className="w-3.5 h-3.5" /> Edit
+                 </button>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Customer</p><p className="mt-2 text-base font-black text-slate-950">{firstName} {lastName}</p></div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Email</p><p className="mt-2 text-base font-black text-slate-950 break-all">{email}</p></div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Mobile</p><p className="mt-2 text-base font-black text-slate-950">{phoneNumber}</p></div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Flight</p><p className="mt-2 text-base font-black text-slate-950">{flightNumber || 'Not provided'}</p></div>
+               </div>
+            </div>
+            )}
 
             {/* Payment Details */}
+            {checkoutStep === 'payment' && (
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
                <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-5 sm:mb-6 flex items-center gap-3"><CreditCard className="w-5 h-5 text-[#008009]"/> Secure payment details</h2>
                <div className="space-y-6">
@@ -462,6 +567,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                   </div>
                </div>
             </div>
+            )}
           </div>
 
           {/* Sidebar / Booking Summary */}
@@ -543,6 +649,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                      </div>
                    </div>
 
+                   {checkoutStep === 'payment' && bookingDraft && (
+                    <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 mb-5">
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800 mb-2">Payment reservation active</p>
+                      <p className="text-sm text-amber-900 leading-relaxed">Reference <strong>{bookingDraft.bookingRef || bookingDraft.id}</strong> is waiting for payment. If payment is not completed within 30 minutes, we will email the customer a professional reminder.</p>
+                    </div>
+                   )}
+
                    <button
                      type="submit" 
                      disabled={isSubmitting}
@@ -553,10 +666,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                         {isSubmitting ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Securely Processing...
+                                {checkoutStep === 'details' ? 'Preparing Payment...' : 'Securely Processing...'}
                             </>
                         ) : (
-                            <>Confirm & Secure Reservation <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/></>
+                            <>{checkoutStep === 'details' ? 'Continue to Payment' : 'Pay & Confirm Reservation'} <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/></>
                         )}
                      </span>
                    </button>
