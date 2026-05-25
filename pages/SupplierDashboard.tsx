@@ -24,61 +24,62 @@ import { Logo } from '../components/Logo';
 
 // ==================== Shared UI Components ====================
 
-const StatCard = ({ icon: Icon, title, value, change, color = "orange", onClick }: any) => {
+const StatCard = ({ icon: Icon, title, value, change, color = "blue", onClick }: any) => {
   const colors: any = {
-    orange: "from-orange-500 to-orange-600 shadow-orange-100/50 text-orange-600 bg-orange-50/50",
-    blue: "from-blue-500 to-blue-600 shadow-blue-100/50 text-blue-600 bg-blue-50/50",
-    green: "from-green-500 to-green-600 shadow-green-100/50 text-green-600 bg-green-50/50",
-    purple: "from-purple-500 to-purple-600 shadow-purple-100/50 text-purple-600 bg-purple-50/50",
+    blue: "bg-blue-50 text-blue-700 ring-blue-100",
+    green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    amber: "bg-amber-50 text-amber-700 ring-amber-100",
+    violet: "bg-violet-50 text-violet-700 ring-violet-100",
   };
 
   return (
     <motion.div 
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
       onClick={onClick}
-      className={`bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/30 border border-slate-50 flex flex-col justify-between group relative overflow-hidden transition-all ${onClick ? 'cursor-pointer hover:border-orange-500/30' : ''}`}
+      className={`bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between group relative overflow-hidden transition-all ${onClick ? 'cursor-pointer hover:border-blue-300 hover:shadow-lg hover:shadow-slate-200/60' : ''}`}
     >
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-slate-800 to-emerald-500 opacity-90" />
       <div className="flex justify-between items-start mb-6 relative z-10">
-        <div className={`p-3.5 rounded-2xl shadow-lg transition-transform group-hover:scale-110 ${colors[color].split(' ').slice(-2).join(' ')}`}>
-          <Icon className="w-6 h-6" />
+        <div className={`p-3 rounded-xl ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
+          <Icon className="w-5 h-5" />
         </div>
         {change && (
-          <span className={`text-[10px] font-black px-2 py-1 rounded-lg border transition-colors duration-300 ${change.startsWith('+') ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border transition-colors duration-300 ${change.startsWith('+') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
             {change}
           </span>
         )}
       </div>
       <div className="relative z-10">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
-        <p className="text-2xl font-black text-slate-900 tracking-tight leading-none">{value}</p>
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.18em] mb-2">{title}</p>
+        <p className="text-3xl font-black text-slate-950 tracking-tight leading-none">{value}</p>
       </div>
     </motion.div>
   );
 };
 
 const SectionHeader = ({ title, icon: Icon, subtitle }: any) => (
-    <div className="flex items-center gap-4 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 border border-orange-100/50 shadow-sm">
+    <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white border border-slate-800 shadow-sm">
             <Icon className="w-5 h-5" />
         </div>
         <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">{title}</h2>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em] mt-0.5">{subtitle}</p>
+            <h2 className="text-lg font-black text-slate-950 tracking-tight">{title}</h2>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.14em] mt-0.5">{subtitle}</p>
         </div>
     </div>
 );
 
-const Badge = ({ children, variant = "default" }: any) => {
+const Badge = ({ children, variant = "default", className = "" }: any) => {
     const variants: any = {
         default: "bg-gray-100 text-gray-600",
-        success: "bg-green-50 text-green-600",
-        warning: "bg-orange-50 text-orange-600",
-        error: "bg-red-50 text-red-600",
-        info: "bg-blue-50 text-blue-600",
-        purple: "bg-purple-50 text-purple-600",
+        success: "bg-emerald-50 text-emerald-700",
+        warning: "bg-amber-50 text-amber-700",
+        error: "bg-red-50 text-red-700",
+        info: "bg-blue-50 text-blue-700",
+        purple: "bg-violet-50 text-violet-700",
     };
     return (
-        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${variants[variant]}`}>
+        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${variants[variant]} ${className}`}>
             {children}
         </span>
     );
@@ -111,7 +112,7 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
 const InputField = ({ label, icon: Icon, prefix, error, helperText, ...props }: any) => (
     <div className="space-y-2">
         {label && <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>}
-        <div className={`flex items-center bg-white border-2 rounded-2xl overflow-hidden focus-within:border-orange-500 focus-within:ring-8 focus-within:ring-orange-500/5 transition-all shadow-sm ${props.readOnly ? 'opacity-70 bg-slate-50' : 'hover:border-slate-200'} ${error ? 'border-red-300' : 'border-slate-100'}`}>
+        <div className={`flex items-center bg-white border rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all shadow-sm ${props.readOnly ? 'opacity-70 bg-slate-50' : 'hover:border-slate-300'} ${error ? 'border-red-300' : 'border-slate-200'}`}>
             {Icon && (
                 <div className="px-5 py-4 bg-slate-50 border-r border-slate-100 flex items-center justify-center text-slate-400 transition-colors">
                     <Icon className="w-4 h-4" />
@@ -237,7 +238,7 @@ const SupplierDashboard = () => {
 
   if (isLoading) return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="w-16 h-16 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin mb-4" />
+        <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-700 rounded-full animate-spin mb-4" />
         <p className="text-xs font-black text-gray-400 uppercase tracking-widest animate-pulse">Initializing Portal...</p>
     </div>
   );
@@ -249,7 +250,7 @@ const SupplierDashboard = () => {
         <p className="text-sm text-slate-500 mb-6">{error || 'Please sign in again to continue.'}</p>
         <button
           onClick={() => navigate('/supplier-login')}
-          className="w-full py-3 rounded-2xl text-xs font-black uppercase tracking-[0.2em] bg-orange-600 text-white hover:bg-orange-700 transition-colors"
+          className="w-full py-3 rounded-2xl text-xs font-black uppercase tracking-[0.2em] bg-blue-700 text-white hover:bg-blue-800 transition-colors"
         >
           Go to supplier login
         </button>
@@ -258,7 +259,7 @@ const SupplierDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] flex font-sans text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-100 flex font-sans text-slate-900 overflow-x-hidden">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -280,25 +281,25 @@ const SupplierDashboard = () => {
           width: isSidebarOpen ? 280 : (window.innerWidth < 1024 ? 280 : 0),
           opacity: isSidebarOpen ? 1 : (window.innerWidth < 1024 ? 1 : 0)
         }}
-        className={`fixed inset-y-0 left-0 bg-white border-r border-slate-100 z-50 flex flex-col overflow-hidden shadow-[20px_0_50px_rgba(0,0,0,0.02)] transition-all duration-300 ${!isSidebarOpen && 'lg:pointer-events-none'}`}
+        className={`fixed inset-y-0 left-0 bg-slate-950 border-r border-slate-800 z-50 flex flex-col overflow-hidden shadow-2xl shadow-slate-950/20 transition-all duration-300 ${!isSidebarOpen && 'lg:pointer-events-none'}`}
       >
-        <div className="p-8 mb-4">
+        <div className="p-7 mb-2 border-b border-white/10">
             <div className="flex items-center gap-3.5 group cursor-pointer">
-                <div className="w-10 h-10 bg-orange-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-orange-200 group-hover:rotate-12 transition-transform duration-500">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-950 shadow-xl shadow-black/20 group-hover:scale-105 transition-transform duration-300">
                     <Car className="w-6 h-6" />
                 </div>
                 <div>
-                    <h1 className="font-black text-xl tracking-tighter text-slate-900 leading-none">HOGICAR</h1>
+                    <h1 className="font-black text-xl tracking-tighter text-white leading-none">HOGICAR</h1>
                     <div className="flex items-center gap-1 mt-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)] animate-pulse" />
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Partner Node</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.45)] animate-pulse" />
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Supplier Command</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <nav className="flex-1 px-5 space-y-1.5 overflow-y-auto custom-scrollbar">
-            <div className="px-4 mb-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">Operations</div>
+        <nav className="flex-1 px-4 py-5 space-y-1.5 overflow-y-auto custom-scrollbar">
+            <div className="px-4 mb-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Operations</div>
             {[
                 { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
                 { id: 'reservations', label: 'Reservations', icon: Calendar },
@@ -307,18 +308,18 @@ const SupplierDashboard = () => {
                 <button
                     key={item.id}
                     onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
+                    className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
                         activeSection === item.id 
-                        ? 'bg-orange-600 text-white shadow-xl shadow-orange-200' 
-                        : 'text-slate-400 hover:bg-slate-50 hover:text-slate-900'
+                        ? 'bg-white text-slate-950 shadow-lg shadow-black/20' 
+                        : 'text-slate-400 hover:bg-white/10 hover:text-white'
                     }`}
                 >
-                    <item.icon className={`w-4 h-4 transition-transform duration-300 ${activeSection === item.id ? 'text-white' : 'group-hover:text-orange-600'}`} />
-                    <span className={`text-[13px] font-black tracking-tight ${activeSection === item.id ? 'text-white' : 'text-slate-600'}`}>{item.label}</span>
+                    <item.icon className={`w-4 h-4 transition-transform duration-300 ${activeSection === item.id ? 'text-blue-700' : 'text-slate-500 group-hover:text-white'}`} />
+                    <span className={`text-[13px] font-black tracking-tight ${activeSection === item.id ? 'text-slate-950' : 'text-slate-300 group-hover:text-white'}`}>{item.label}</span>
                 </button>
             ))}
 
-            <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">Inventory</div>
+            <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Inventory</div>
             {[
                 { id: 'rates', label: 'Pricing', icon: DollarSign },
                 { id: 'stopsales', label: 'Availability', icon: Clock },
@@ -329,22 +330,34 @@ const SupplierDashboard = () => {
                 <button
                     key={item.id}
                     onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
+                    className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
                         activeSection === item.id 
-                        ? 'bg-orange-600 text-white shadow-xl shadow-orange-200' 
-                        : 'text-slate-400 hover:bg-slate-50 hover:text-slate-900'
+                        ? 'bg-white text-slate-950 shadow-lg shadow-black/20' 
+                        : 'text-slate-400 hover:bg-white/10 hover:text-white'
                     }`}
                 >
-                    <item.icon className={`w-4 h-4 transition-transform duration-300 ${activeSection === item.id ? 'text-white' : 'group-hover:text-orange-600'}`} />
-                    <span className={`text-[13px] font-black tracking-tight ${activeSection === item.id ? 'text-white' : 'text-slate-600'}`}>{item.label}</span>
+                    <item.icon className={`w-4 h-4 transition-transform duration-300 ${activeSection === item.id ? 'text-blue-700' : 'text-slate-500 group-hover:text-white'}`} />
+                    <span className={`text-[13px] font-black tracking-tight ${activeSection === item.id ? 'text-slate-950' : 'text-slate-300 group-hover:text-white'}`}>{item.label}</span>
                 </button>
             ))}
         </nav>
 
-        <div className="p-8 mt-auto border-t border-gray-50">
+        <div className="mx-4 mb-4 rounded-2xl bg-white/[0.06] border border-white/10 p-4">
+            <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-400/10 text-emerald-300 flex items-center justify-center">
+                    <Shield className="w-4 h-4" />
+                </div>
+                <div>
+                    <p className="text-[10px] font-black text-white uppercase tracking-[0.16em]">Account verified</p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-0.5">Enterprise partner access</p>
+                </div>
+            </div>
+        </div>
+
+        <div className="p-4 mt-auto border-t border-white/10">
             <button 
                 onClick={() => { localStorage.removeItem('supplierToken'); navigate('/supplier-login'); }}
-                className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all font-black text-sm uppercase tracking-widest"
+                className="w-full flex items-center gap-4 px-5 py-4 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-300 transition-all font-black text-sm uppercase tracking-widest"
             >
                 <LogOut className="w-5 h-5" />
                 <span>Sign Out</span>
@@ -355,45 +368,45 @@ const SupplierDashboard = () => {
       {/* Main Content */}
       <main className={`flex-1 transition-all duration-500 w-full min-w-0 ${isSidebarOpen ? 'lg:ml-[280px]' : 'ml-0'}`}>
         {/* Top Header */}
-        <header className="sticky top-0 bg-white/80 backdrop-blur-xl z-40 border-b border-slate-100 px-4 lg:px-8 py-5 flex justify-between items-center shadow-sm">
+        <header className="sticky top-0 bg-white/90 backdrop-blur-xl z-40 border-b border-slate-200 px-4 lg:px-8 py-4 flex justify-between items-center shadow-sm">
             <div className="flex items-center gap-3 lg:gap-5">
-                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100">
+                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 bg-white hover:bg-slate-50 rounded-xl transition-all border border-slate-200 shadow-sm">
                     {isSidebarOpen && window.innerWidth < 1024 ? <X className="w-4 h-4 text-slate-600" /> : <Menu className="w-4 h-4 text-slate-600" />}
                 </button>
-                <div className="h-6 w-px bg-slate-100" />
+                <div className="h-8 w-px bg-slate-200" />
                 <div className="flex items-center gap-2 lg:gap-3.5 group cursor-pointer">
                     <motion.img 
                         whileHover={{ scale: 1.05 }}
-                        src={supplier.logoUrl || 'https://placehold.co/40x40/orange/white?text=S'} 
-                        className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl object-cover border border-orange-500/10 shadow-lg" 
+                        src={supplier.logoUrl || 'https://placehold.co/40x40/blue/white?text=S'} 
+                        className="w-9 h-9 lg:w-11 lg:h-11 rounded-xl object-cover border border-slate-200 shadow-sm bg-white" 
                         alt={supplier.name} 
                     />
                     <div className="max-w-[120px] lg:max-w-none truncate">
                         <h2 className="text-sm lg:text-base font-black text-slate-900 tracking-tight leading-none mb-1 truncate">{supplier.name}</h2>
                         <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">{supplier.locationCode || 'Operational'}</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em]">{supplier.locationCode || 'Operational'}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 lg:gap-5">
                 <div className="hidden lg:flex flex-col text-right items-end">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 rounded-lg border border-green-100">
-                        <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[9px] font-black text-green-700 uppercase tracking-widest">Verified</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Verified live</span>
                     </div>
                 </div>
-                <div className="h-8 w-px bg-slate-100 mx-1" />
-                <button className="relative p-2.5 bg-slate-50 hover:bg-orange-50 rounded-xl transition-all border border-slate-100 hover:border-orange-100">
-                    <Bell className="w-5 h-5 text-slate-400 group-hover:text-orange-600" />
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-600 rounded-full border-2 border-white shadow-sm" />
+                <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block" />
+                <button className="relative p-2.5 bg-white hover:bg-slate-50 rounded-xl transition-all border border-slate-200 shadow-sm">
+                    <Bell className="w-5 h-5 text-slate-500" />
+                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white shadow-sm" />
                 </button>
             </div>
         </header>
 
         {/* Content Area */}
-        <div className="p-4 lg:p-10 max-w-[1400px] mx-auto min-h-[calc(100vh-100px)]">
+        <div className="p-4 lg:p-8 xl:p-10 max-w-[1500px] mx-auto min-h-[calc(100vh-100px)]">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeSection}
@@ -434,34 +447,71 @@ const SupplierDashboard = () => {
 
 // ==================== Dashboard Overview ====================
 const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setActiveSection }: any) => (
-  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
+  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-7">
+    <div className="relative overflow-hidden rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl shadow-slate-300/40">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-emerald-400 to-slate-200" />
+        <div className="relative p-6 lg:p-8 flex flex-col xl:flex-row justify-between gap-6">
+            <div className="flex flex-col sm:flex-row gap-5 min-w-0">
+                <img
+                    src={supplier.logoUrl || 'https://placehold.co/96x96/0f172a/ffffff?text=S'}
+                    className="w-20 h-20 rounded-2xl object-cover border border-white/10 bg-white shadow-xl shadow-black/20"
+                    alt={supplier.name}
+                />
+                <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className="px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-[10px] font-black text-emerald-300 uppercase tracking-[0.2em]">Verified supplier</span>
+                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{supplier.locationCode || 'Multi-location'}</span>
+                    </div>
+                    <h1 className="text-2xl lg:text-4xl font-black text-white tracking-tight leading-tight truncate">Supplier command center</h1>
+                    <p className="text-sm text-slate-400 font-semibold mt-2 max-w-2xl">
+                        {supplier.name} operations, reservations, pricing, availability, and fleet control in one workspace.
+                    </p>
+                </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3 xl:min-w-[360px]">
+                <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-4">
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mb-2">Fleet</p>
+                    <p className="text-xl font-black text-white">{stats.activeCars}/{stats.totalCars}</p>
+                </div>
+                <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-4">
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mb-2">Pending</p>
+                    <p className="text-xl font-black text-white">{stats.pendingCount}</p>
+                </div>
+                <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-4">
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mb-2">Stop sales</p>
+                    <p className="text-xl font-black text-white">{stats.activeStopSales}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 className="text-2xl lg:text-3xl font-black text-gray-900 tracking-tighter">Welcome Back, {supplier.name.split(' ')[0]}</h1>
-            <p className="text-xs lg:text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">Here's the pulse of your rental operations</p>
+            <h2 className="text-xl lg:text-2xl font-black text-slate-950 tracking-tight">Operational overview</h2>
+            <p className="text-xs lg:text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Live commercial and fulfillment performance</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
-            <button className="flex-1 md:flex-none px-5 py-2.5 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Last 7 Days</button>
+            <button className="flex-1 md:flex-none px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Last 7 Days</button>
             <button 
                 onClick={onGenerateReport}
-                className="flex-1 md:flex-none px-5 py-2.5 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+                className="flex-1 md:flex-none px-5 py-2.5 bg-slate-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-300 hover:bg-blue-700 transition-all"
             >
                 Generate Report
             </button>
         </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <StatCard icon={DollarSign} title="Est. Revenue" value={`$${(stats.totalRevenue / 1).toFixed(0)}`} change="+12.5%" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard icon={DollarSign} title="Est. Revenue" value={`$${(stats.totalRevenue / 1).toFixed(0)}`} change="+12.5%" color="green" />
         <StatCard icon={Calendar} title="Total Bookings" value={stats.totalBookings} color="blue" change="+5.2%" onClick={() => setActiveSection('reservations')} />
         <StatCard icon={Car} title="Active Fleet" value={`${stats.activeCars}/${stats.totalCars}`} color="green" onClick={() => setActiveSection('fleet')} />
-        <StatCard icon={Clock} title="Stop Sales" value={stats.activeStopSales} color="orange" onClick={() => setActiveSection('stopsales')} />
-        <StatCard icon={Zap} title="Pending Actions" value={stats.pendingCount} color="purple" onClick={() => setActiveSection('reservations')} />
+        <StatCard icon={Clock} title="Stop Sales" value={stats.activeStopSales} color="amber" onClick={() => setActiveSection('stopsales')} />
+        <StatCard icon={Zap} title="Pending Actions" value={stats.pendingCount} color="violet" onClick={() => setActiveSection('reservations')} />
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-            <div className="flex justify-between items-center mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 p-6 lg:p-8">
+            <div className="flex justify-between items-center mb-6">
                 <SectionHeader title="Performance Analytics" icon={TrendingUp} subtitle="Daily booking trends and volume" />
             </div>
             <div className="h-[350px] w-full min-w-0">
@@ -477,8 +527,8 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
                     ]}>
                         <defs>
                             <linearGradient id="colorBook" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.15}/>
-                                <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.16}/>
+                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -488,32 +538,32 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
                             contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px'}}
                             itemStyle={{fontWeight: 'bold', fontSize: '12px'}}
                         />
-                        <Area type="monotone" dataKey="bookings" stroke="#f97316" strokeWidth={4} fillOpacity={1} fill="url(#colorBook)" />
+                        <Area type="monotone" dataKey="bookings" stroke="#2563eb" strokeWidth={4} fillOpacity={1} fill="url(#colorBook)" />
                     </AreaChart>
                 </ResponsiveContainer>
             </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 flex flex-col">
-            <div className="flex items-center justify-between mb-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 lg:p-8 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
                 <SectionHeader title="Recent Activity" icon={History} subtitle="Live operational feed" />
-                <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-1 rounded-lg uppercase">Live</span>
+                <span className="text-[10px] font-black bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full uppercase border border-emerald-100">Live</span>
             </div>
             <div className="space-y-6 flex-1 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
                 {bookings.slice(0, 8).map((b: any) => (
                     <div key={b.id} className="flex items-center justify-between group cursor-pointer hover:translate-x-1 transition-all">
                         <div className="flex items-center gap-4">
-                            <div className="w-11 h-11 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs group-hover:bg-orange-600 group-hover:text-white transition-all">
+                            <div className="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black text-xs group-hover:bg-slate-950 group-hover:text-white transition-all">
                                 {b.firstName?.[0]}{b.lastName?.[0]}
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{b.firstName} {b.lastName}</div>
-                                <div className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">{b.bookingRef} • {b.pickupCode}</div>
+                                <div className="text-sm font-bold text-slate-950 group-hover:text-blue-700 transition-colors">{b.firstName} {b.lastName}</div>
+                                <div className="text-[10px] text-slate-400 font-mono uppercase tracking-tighter">{b.bookingRef} • {b.pickupCode}</div>
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-[10px] font-black text-gray-900">${b.netPrice}</div>
-                            <div className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
+                            <div className="text-[10px] font-black text-slate-950">${b.netPrice}</div>
+                            <div className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
                                 {b.status}
                             </div>
                         </div>
@@ -551,22 +601,22 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 
     return (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[2rem] shadow-xl shadow-gray-200/30 border border-gray-50">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-200">
                 <SectionHeader title="Reservations Management" icon={Calendar} subtitle="Manage incoming booking requests" />
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <div className="relative flex-1 md:w-64">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input 
                             placeholder="Search by ID or Name..." 
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-2.5 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20" 
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" 
                         />
                     </div>
                     <select 
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value)}
-                        className="bg-gray-50/50 border border-gray-100 rounded-2xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-orange-500/20"
+                        className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     >
                         <option value="all">All Status</option>
                         <option value="pending">Pending</option>
@@ -576,8 +626,9 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                <table className="w-full text-left">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[980px] text-left">
                     <thead className="bg-slate-50/50 border-b border-slate-100">
                         <tr className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
                             <th className="px-8 py-5">Reference</th>
@@ -591,9 +642,9 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {filtered.map((b) => (
-                            <tr key={b.id} className="hover:bg-orange-50/20 transition-colors group">
+                            <tr key={b.id} className="hover:bg-blue-50/20 transition-colors group">
                                 <td className="px-8 py-6">
-                                    <div className="font-mono text-[11px] font-black text-orange-600 group-hover:scale-105 transition-transform origin-left">{b.bookingRef}</div>
+                                    <div className="font-mono text-[11px] font-black text-blue-700 group-hover:scale-105 transition-transform origin-left">{b.bookingRef}</div>
                                     <div className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">ID: {b.id}</div>
                                 </td>
                                 <td className="px-8 py-6">
@@ -613,7 +664,7 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                                 </td>
                                 <td className="px-8 py-6">
                                     <div className="text-[13px] font-black text-slate-900">${b.netPrice}</div>
-                                    <div className="text-[9px] text-green-600 font-black uppercase tracking-tighter">Confirmed</div>
+                                    <div className="text-[9px] text-emerald-700 font-black uppercase tracking-tighter">Net amount</div>
                                 </td>
                                 <td className="px-8 py-6">
                                     <Badge variant={b.status === 'confirmed' ? 'success' : b.status === 'pending' ? 'warning' : 'error'}>
@@ -636,6 +687,7 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                         ))}
                     </tbody>
                 </table>
+                </div>
                 {filtered.length === 0 && (
                     <div className="p-20 text-center">
                         <div className="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-300 mx-auto mb-4 border-2 border-dashed border-gray-100">
@@ -683,15 +735,15 @@ const FleetSection = ({
 
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] shadow-xl shadow-gray-200/30 border border-gray-50">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-200">
         <SectionHeader title="Fleet Management" icon={Car} subtitle="Manage your vehicle inventory" />
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative hidden md:block">
             <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <select 
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="pl-11 pr-10 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.1em] appearance-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all cursor-pointer min-w-[180px]"
+              className="pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] appearance-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all cursor-pointer min-w-[180px]"
             >
               <option value="ALL">All Categories</option>
               {Object.values(CarCategory).map(cat => (
@@ -701,7 +753,7 @@ const FleetSection = ({
           </div>
           <button 
               onClick={() => { setEditingCar(null); setIsModalOpen(true); }}
-              className="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+              className="flex flex-1 md:flex-none items-center justify-center gap-2 px-6 py-3 bg-slate-950 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-slate-300 hover:bg-blue-700 transition-all"
           >
             <Plus className="w-4 h-4" /> Add Vehicle
           </button>
@@ -712,7 +764,7 @@ const FleetSection = ({
       <div className="md:hidden overflow-x-auto pb-2 flex gap-2">
         <button 
           onClick={() => setSelectedCategory('ALL')}
-          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === 'ALL' ? 'bg-orange-600 text-white' : 'bg-white text-gray-400'}`}
+          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === 'ALL' ? 'bg-blue-700 text-white' : 'bg-white text-gray-400'}`}
         >
           All
         </button>
@@ -720,7 +772,7 @@ const FleetSection = ({
           <button 
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-orange-600 text-white' : 'bg-white text-gray-400'}`}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-blue-700 text-white' : 'bg-white text-gray-400'}`}
           >
             {cat.replace('_', ' ')}
           </button>
@@ -731,12 +783,12 @@ const FleetSection = ({
         {filteredCars.map(car => (
             <motion.div 
                 key={car.id} 
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/40 border border-gray-100 overflow-hidden group"
+                whileHover={{ y: -3 }}
+                className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:shadow-slate-200/70 border border-slate-200 overflow-hidden group transition-all"
             >
-                <div className="relative h-48 bg-gray-50 flex items-center justify-center p-8 overflow-hidden">
+                <div className="relative h-44 bg-slate-50 flex items-center justify-center p-7 overflow-hidden border-b border-slate-100">
                     <img 
-                        src={car.imageUrl || car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
+                        src={car.imageUrl || car.image || 'https://placehold.co/400x250/blue/white?text=Vehicle'} 
                         className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
                         alt={car.name}
                         width={400}
@@ -751,15 +803,15 @@ const FleetSection = ({
                             now.setHours(0,0,0,0);
                             return ss.carId === Number(car.id) && new Date(ss.startDate) <= now && new Date(ss.endDate) >= now;
                         }) && (
-                            <Badge variant="error" className="bg-orange-600 text-white border-none shadow-lg shadow-orange-200">Stop Sale Active</Badge>
+                            <Badge variant="error" className="bg-blue-700 text-white border-none shadow-lg shadow-blue-200">Stop Sale Active</Badge>
                         )}
                     </div>
                 </div>
-                <div className="p-8">
+                <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <h3 className="text-lg font-black text-gray-900 tracking-tight">{car.name}</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">{car.make} {car.model} • {car.year}</p>
+                            <h3 className="text-lg font-black text-slate-950 tracking-tight">{car.name}</h3>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">{car.make} {car.model} • {car.year}</p>
                         </div>
                         <div className="text-right">
                             <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-1 rounded-lg uppercase">{car.sippCode}</span>
@@ -767,27 +819,27 @@ const FleetSection = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-center gap-2 text-gray-400">
-                            <User className="w-3 h-3 text-orange-500" />
+                        <div className="flex items-center gap-2 text-slate-500">
+                            <User className="w-3 h-3 text-blue-500" />
                             <span className="text-[11px] font-bold">{car.passengers} Seats</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-400">
-                            <Package className="w-3 h-3 text-orange-500" />
+                        <div className="flex items-center gap-2 text-slate-500">
+                            <Package className="w-3 h-3 text-blue-500" />
                             <span className="text-[11px] font-bold">{car.bags} Large Bags</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-400">
-                            <Settings className="w-3 h-3 text-orange-500" />
+                        <div className="flex items-center gap-2 text-slate-500">
+                            <Settings className="w-3 h-3 text-blue-500" />
                             <span className="text-[11px] font-bold uppercase">{car.transmission}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-400">
-                            <Briefcase className="w-3 h-3 text-orange-500" />
+                        <div className="flex items-center gap-2 text-slate-500">
+                            <Briefcase className="w-3 h-3 text-blue-500" />
                             <span className="text-[11px] font-bold uppercase">{car.category}</span>
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-gray-50 flex justify-between items-center">
+                    <div className="pt-5 border-t border-slate-100 flex justify-between items-center">
                         <div className="flex gap-2">
-                            <button onClick={() => { setEditingCar(car); setIsModalOpen(true); }} className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-orange-50 hover:text-orange-600 transition-all">
+                            <button onClick={() => { setEditingCar(car); setIsModalOpen(true); }} className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-blue-50 hover:text-blue-700 transition-all">
                                 <Edit className="w-4 h-4" />
                             </button>
                             <button onClick={() => handleDelete(car.id)} className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all">
@@ -1055,9 +1107,9 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                     <ArrowLeft className="w-4 h-4" /> Back to Rates
                 </button>
                 <div className="flex items-center gap-2">
-                   <div className="px-4 py-2 rounded-2xl bg-orange-50 border border-orange-100 flex items-center gap-2">
-                       <Zap className="w-4 h-4 text-orange-600" />
-                       <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Manual Pricing Workspace</span>
+                   <div className="px-4 py-2 rounded-2xl bg-blue-50 border border-blue-100 flex items-center gap-2">
+                       <Zap className="w-4 h-4 text-blue-700" />
+                       <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest">Manual Pricing Workspace</span>
                    </div>
                 </div>
             </div>
@@ -1083,7 +1135,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                 <button 
                                     key={type}
                                     onClick={() => setTargetType(type)}
-                                    className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${targetType === type ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400'}`}
+                                    className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${targetType === type ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-400'}`}
                                 >
                                     {type}s
                                 </button>
@@ -1098,12 +1150,12 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                         key={car.id}
                                         onClick={() => toggleCar(Number(car.id))}
                                         className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
-                                            isSelected ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-orange-50'
+                                            isSelected ? 'bg-blue-700 border-blue-700 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-blue-50'
                                         }`}
                                     >
                                         <div className="flex flex-col">
                                             <span className={`text-[11px] font-black ${isSelected ? 'text-white' : 'text-gray-900'}`}>{car.make} {car.model}</span>
-                                            <span className={`text-[9px] font-bold uppercase tracking-tighter ${isSelected ? 'text-orange-100' : 'text-gray-400'}`}>{car.sippCode}</span>
+                                            <span className={`text-[9px] font-bold uppercase tracking-tighter ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>{car.sippCode}</span>
                                         </div>
                                         {isSelected && <Check className="w-4 h-4" />}
                                     </button>
@@ -1117,7 +1169,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                         key={cat}
                                         onClick={() => toggleCategory(cat)}
                                         className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
-                                            isSelected ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-orange-50'
+                                            isSelected ? 'bg-blue-700 border-blue-700 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-blue-50'
                                         }`}
                                     >
                                         <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{cat}</span>
@@ -1133,7 +1185,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                         key={sipp}
                                         onClick={() => toggleSipp(sipp)}
                                         className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between group ${
-                                            isSelected ? 'bg-orange-600 border-orange-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-orange-50'
+                                            isSelected ? 'bg-blue-700 border-blue-700 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-600 hover:bg-blue-50'
                                         }`}
                                     >
                                         <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-900'}`}>{sipp}</span>
@@ -1160,7 +1212,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                 </button>
                                 <button 
                                     onClick={() => setActivePeriodTab('custom')}
-                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activePeriodTab === 'custom' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400'}`}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activePeriodTab === 'custom' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-400'}`}
                                 >
                                     Custom ({customPeriods.length})
                                 </button>
@@ -1214,7 +1266,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                         type="text" 
                                                         value={cp.name}
                                                         onChange={e => updateCustomPeriod(idx, 'name', e.target.value)}
-                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-orange-500 transition-all"
+                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-blue-500 transition-all"
                                                         placeholder="e.g. Summer Special"
                                                     />
                                                 </div>
@@ -1224,7 +1276,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                         type="date" 
                                                         value={cp.startDate}
                                                         onChange={e => updateCustomPeriod(idx, 'startDate', e.target.value)}
-                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-orange-500 transition-all"
+                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-blue-500 transition-all"
                                                     />
                                                 </div>
                                                 <div className="space-y-1">
@@ -1233,7 +1285,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                         type="date" 
                                                         value={cp.endDate}
                                                         onChange={e => updateCustomPeriod(idx, 'endDate', e.target.value)}
-                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-orange-500 transition-all"
+                                                        className="w-full p-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black outline-none focus:border-blue-500 transition-all"
                                                     />
                                                 </div>
                                             </div>
@@ -1241,7 +1293,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                     ))}
                                     <button 
                                         onClick={addCustomPeriod}
-                                        className="w-full py-3 rounded-2xl border-2 border-dashed border-orange-100 text-orange-600 hover:bg-orange-50 hover:border-orange-200 transition-all flex items-center justify-center gap-2 group"
+                                        className="w-full py-3 rounded-2xl border-2 border-dashed border-blue-100 text-blue-700 hover:bg-blue-50 hover:border-blue-200 transition-all flex items-center justify-center gap-2 group"
                                     >
                                         <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                                         <span className="text-[10px] font-black uppercase tracking-widest">Add Custom Range</span>
@@ -1258,7 +1310,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                 <Zap className="w-4 h-4 text-gray-400" />
                                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Rental Bands</h3>
                             </div>
-                            <button onClick={addBand} className="p-1.5 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                            <button onClick={addBand} className="p-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
                                 <Plus className="w-3 h-3" />
                             </button>
                         </div>
@@ -1308,7 +1360,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                             </div>
                             <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-gray-100 shadow-sm">
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Selected:</span>
-                                <span className="text-xs font-black text-orange-600">{combinations.length} Units</span>
+                                <span className="text-xs font-black text-blue-700">{combinations.length} Units</span>
                             </div>
                         </div>
 
@@ -1319,7 +1371,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Target Selection</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pricing Period</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rental Days</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-orange-600 uppercase tracking-widest">Daily Rate ({config.currency})</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-blue-700 uppercase tracking-widest">Daily Rate ({config.currency})</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-blue-600 uppercase tracking-widest">Bond/Deposit ({config.currency})</th>
                                     </tr>
                                 </thead>
@@ -1339,7 +1391,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                             const data = gridData[key] || [];
                                             
                                             return sessionBands.map((band, bIdx) => (
-                                                <tr key={`${key}-${bIdx}`} className="hover:bg-orange-50/30 transition-colors group">
+                                                <tr key={`${key}-${bIdx}`} className="hover:bg-blue-50/30 transition-colors group">
                                                     <td className="px-8 py-5">
                                                         <div className="flex flex-col">
                                                             <span className="text-xs font-black text-gray-900">{target.label}</span>
@@ -1364,9 +1416,9 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                                 value={data[bIdx]?.dailyRate || ''}
                                                                 onChange={(e) => handleGridInput(key, bIdx, 'dailyRate', e.target.value)}
                                                                 placeholder="0.00"
-                                                                className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none"
+                                                                className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
                                                             />
-                                                            <DollarSign className="w-3 h-3 text-orange-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                            <DollarSign className="w-3 h-3 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5">
@@ -1420,18 +1472,18 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                             id="apply-all-final"
                                             checked={applyToAllLocations}
                                             onChange={e => setApplyToAllLocations(e.target.checked)}
-                                            className="w-5 h-5 text-orange-600 border-gray-300 rounded-lg focus:ring-orange-500 cursor-pointer"
+                                            className="w-5 h-5 text-blue-700 border-gray-300 rounded-lg focus:ring-blue-500 cursor-pointer"
                                         />
                                     </div>
                                     <label htmlFor="apply-all-final" className="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em] cursor-pointer">
-                                        Apply these updates to <span className="text-orange-600">All Locations</span>
+                                        Apply these updates to <span className="text-blue-700">All Locations</span>
                                     </label>
                                 </div>
 
                                 <button
                                     onClick={handleApply}
                                     disabled={isSaving}
-                                    className="px-12 py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-gray-200 hover:bg-orange-600 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-12 py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-gray-200 hover:bg-blue-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSaving ? (
                                         <>
@@ -1579,8 +1631,8 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                         onClick={() => setIsManualPricingActive(true)}
                         className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
                             isManualPricingActive
-                                ? 'bg-orange-600 text-white shadow-lg shadow-orange-200'
-                                : 'bg-orange-50 text-orange-600 hover:bg-orange-100'
+                                ? 'bg-blue-700 text-white shadow-lg shadow-blue-200'
+                                : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                         }`}
                     >
                         <Settings2 className="w-4 h-4" />
@@ -1601,7 +1653,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
                                 Get the latest spreadsheet with your fleet pre-populated.
                             </p>
-                            <button onClick={handleDownload} className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-3">
+                            <button onClick={handleDownload} className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
                                 <Download className="w-4 h-4" /> Download XLSX
                             </button>
                         </div>
@@ -1623,7 +1675,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                         onChange={e => setUploadFile(e.target.files?.[0] || null)}
                                         className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className={`w-full py-4 border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 transition-all ${uploadFile ? 'border-green-500 bg-green-50/50' : 'border-gray-100 bg-gray-50/30 group-hover:border-orange-500'}`}>
+                                    <div className={`w-full py-4 border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 transition-all ${uploadFile ? 'border-green-500 bg-green-50/50' : 'border-gray-100 bg-gray-50/30 group-hover:border-blue-500'}`}>
                                         <FileText className={`w-5 h-5 ${uploadFile ? 'text-green-600' : 'text-gray-300'}`} />
                                         <span className={`text-[10px] font-black uppercase tracking-widest ${uploadFile ? 'text-green-900' : 'text-gray-400'}`}>
                                             {uploadFile ? uploadFile.name : 'Choose XLSX File'}
@@ -1633,7 +1685,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                 <button 
                                     onClick={handleImport}
                                     disabled={!uploadFile || isSaving}
-                                    className="w-full py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 disabled:opacity-50 hover:scale-[1.02] transition-all"
+                                    className="w-full py-4 bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-200 disabled:opacity-50 hover:scale-[1.02] transition-all"
                                 >
                                     {isSaving ? 'Processing...' : 'Sync Rates Now'}
                                 </button>
@@ -1641,15 +1693,15 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                         </div>
 
                         {/* Manual Pricing Trigger Card */}
-                        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group cursor-pointer hover:border-orange-500 transition-all" onClick={() => setIsManualPricingActive(true)}>
-                            <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center text-orange-600 mb-6 border border-orange-100/50 group-hover:scale-110 transition-transform">
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col items-center text-center group cursor-pointer hover:border-blue-500 transition-all" onClick={() => setIsManualPricingActive(true)}>
+                            <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-700 mb-6 border border-blue-100/50 group-hover:scale-110 transition-transform">
                                 <Zap className="w-10 h-10" />
                             </div>
                             <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Manual Rate Change</h3>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
                                 Open the manual section to choose cars, create period, and define bond prices.
                             </p>
-                            <button className="w-full py-4 bg-orange-50 text-orange-600 border border-orange-100 rounded-2xl text-xs font-black uppercase tracking-[0.2em] group-hover:bg-orange-600 group-hover:text-white transition-all flex items-center justify-center gap-3">
+                            <button className="w-full py-4 bg-blue-50 text-blue-700 border border-blue-100 rounded-2xl text-xs font-black uppercase tracking-[0.2em] group-hover:bg-blue-700 group-hover:text-white transition-all flex items-center justify-center gap-3">
                                 <Settings2 className="w-4 h-4" /> Start Manual Update
                             </button>
                         </div>
@@ -1657,7 +1709,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
 
                     {/* Template Preview */}
                     <div className="bg-gray-900 rounded-[3rem] p-10 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full" />
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full" />
                         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                             <div className="text-center md:text-left">
                                 <h3 className="text-2xl font-black tracking-tighter mb-2">Configure Rate Template</h3>
@@ -1691,10 +1743,10 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             {config && !isManualPricingActive && (
                 <div className="space-y-8">
                     {selectedLocation && !config.locationCode && (
-                        <div className="p-6 bg-orange-50 border border-orange-100 rounded-[2rem] flex items-center justify-between gap-6">
+                        <div className="p-6 bg-blue-50 border border-blue-100 rounded-[2rem] flex items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-white rounded-2xl shadow-sm">
-                                    <Globe className="w-6 h-6 text-orange-600" />
+                                    <Globe className="w-6 h-6 text-blue-700" />
                                 </div>
                                 <div>
                                     <p className="text-xs font-black text-gray-900 uppercase tracking-widest">Using Global Strategy</p>
@@ -1705,7 +1757,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             </div>
                             <button 
                                 onClick={() => setIsConfigModalOpen(true)}
-                                className="px-6 py-3 bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
+                                className="px-6 py-3 bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-800 transition-all shadow-lg shadow-blue-200"
                             >
                                 Customize for this location
                             </button>
@@ -1715,8 +1767,8 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="p-3 bg-orange-50 rounded-2xl">
-                                <Calendar className="w-6 h-6 text-orange-600" />
+                            <div className="p-3 bg-blue-50 rounded-2xl">
+                                <Calendar className="w-6 h-6 text-blue-700" />
                             </div>
                             <div className="flex-1">
                                 <h3 className="text-xl font-black text-gray-900 tracking-tight">Active Pricing Seasons</h3>
@@ -1724,7 +1776,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             </div>
                             <button 
                                 onClick={() => setIsConfigModalOpen(true)}
-                                className="p-2 hover:bg-orange-50 rounded-xl text-orange-600 transition-all"
+                                className="p-2 hover:bg-blue-50 rounded-xl text-blue-700 transition-all"
                                 title="Edit Strategy"
                             >
                                 <Edit className="w-5 h-5" />
@@ -1732,11 +1784,11 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {config.periods?.map((p, idx) => (
-                                <div key={idx} className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 group hover:border-orange-200 transition-all">
+                                <div key={idx} className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 group hover:border-blue-200 transition-all">
                                     <p className="text-xs font-black text-gray-900 uppercase tracking-widest mb-2">{p.name}</p>
                                     <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                         <span>{p.startDate}</span>
-                                        <span className="text-orange-500">→</span>
+                                        <span className="text-blue-500">→</span>
                                         <span>{p.endDate}</span>
                                     </div>
                                 </div>
@@ -1876,7 +1928,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                                                 onClick={() => {
                                                                     setIsManualPricingActive(true);
                                                                 }}
-                                                                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all flex items-center gap-2"
+                                                                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2"
                                                             >
                                                                 <Edit className="w-3.5 h-3.5" /> Edit
                                                             </button>
@@ -2018,10 +2070,10 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
     <Modal isOpen={isOpen} onClose={onClose} title={car ? 'Edit Vehicle' : 'Add New Vehicle'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-8">
             {!car && (
-                <div className="bg-orange-50/50 p-6 rounded-3xl border border-orange-100/50 mb-8">
+                <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100/50 mb-8">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-orange-100 rounded-xl">
-                            <Car className="w-5 h-5 text-orange-600" />
+                        <div className="p-2 bg-blue-100 rounded-xl">
+                            <Car className="w-5 h-5 text-blue-700" />
                         </div>
                         <div>
                             <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider">Choose from Car Library</h3>
@@ -2030,7 +2082,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                     </div>
                     <select 
                         onChange={(e) => handleModelSelect(e.target.value)}
-                        className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                        className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                     >
                         <option value="">Select a vehicle template...</option>
                         {carModels.map((m: any) => (
@@ -2043,7 +2095,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-2">
-                        <Briefcase className="w-4 h-4 text-orange-600" />
+                        <Briefcase className="w-4 h-4 text-blue-700" />
                         <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Primary Specs</h3>
                     </div>
                     <InputField label="Display Name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required readOnly={!!formData.carModelId} />
@@ -2059,20 +2111,20 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-2">
-                        <Settings className="w-4 h-4 text-orange-600" />
+                        <Settings className="w-4 h-4 text-blue-700" />
                         <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Configuration</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Transmission</label>
-                            <select value={formData.transmission} onChange={e => handleChange('transmission', e.target.value)} className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20">
+                            <select value={formData.transmission} onChange={e => handleChange('transmission', e.target.value)} className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20">
                                 <option value="MANUAL">Manual</option>
                                 <option value="AUTOMATIC">Automatic</option>
                             </select>
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Fuel Policy</label>
-                            <select value={formData.fuelPolicy} onChange={e => handleChange('fuelPolicy', e.target.value)} className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20">
+                            <select value={formData.fuelPolicy} onChange={e => handleChange('fuelPolicy', e.target.value)} className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20">
                                 <option value="FULL_TO_FULL">Full to Full</option>
                                 <option value="SAME_TO_SAME">Same to Same</option>
                             </select>
@@ -2100,12 +2152,12 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100 flex flex-col justify-center gap-4">
                     <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" checked={formData.available} onChange={e => handleChange('available', e.target.checked)} className="w-5 h-5 rounded-lg text-orange-600 focus:ring-orange-500 border-gray-200" />
-                        <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-orange-600 transition-colors">Vehicle Online</span>
+                        <input type="checkbox" checked={formData.available} onChange={e => handleChange('available', e.target.checked)} className="w-5 h-5 rounded-lg text-blue-700 focus:ring-blue-500 border-gray-200" />
+                        <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-blue-700 transition-colors">Vehicle Online</span>
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" checked={formData.unlimitedMileage} onChange={e => handleChange('unlimitedMileage', e.target.checked)} className="w-5 h-5 rounded-lg text-orange-600 focus:ring-orange-500 border-gray-200" />
-                        <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-orange-600 transition-colors">Unlimited Mileage</span>
+                        <input type="checkbox" checked={formData.unlimitedMileage} onChange={e => handleChange('unlimitedMileage', e.target.checked)} className="w-5 h-5 rounded-lg text-blue-700 focus:ring-blue-500 border-gray-200" />
+                        <span className="text-xs font-black text-gray-600 uppercase tracking-widest group-hover:text-blue-700 transition-colors">Unlimited Mileage</span>
                     </label>
                 </div>
             </div>
@@ -2133,7 +2185,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                           handleChange('locationCode', nextCode);
                           handleChange('locationName', nextLocation?.displayName || '');
                         }} 
-                        className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer"
+                        className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                         required
                         disabled={supplierLocations.length === 0}
                     >
@@ -2152,7 +2204,7 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
 
             <div className="flex gap-4 pt-6">
                 <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition-all">Cancel</button>
-                <button type="submit" disabled={isSaving} className="flex-[2] py-4 bg-orange-600 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 hover:scale-[1.02] transition-all disabled:opacity-50">
+                <button type="submit" disabled={isSaving} className="flex-[2] py-4 bg-blue-700 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all disabled:opacity-50">
                     {isSaving ? 'Processing...' : (car ? 'Update Vehicle' : 'Add to Fleet')}
                 </button>
             </div>
@@ -2236,7 +2288,7 @@ const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefres
                             <select 
                                 value={formData.category}
                                 onChange={(e: any) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
+                                className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                             >
                                 {Object.values(CarCategory).map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
@@ -2251,7 +2303,7 @@ const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefres
                     <button 
                         onClick={handleApply}
                         disabled={isSaving}
-                        className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 transition-all disabled:opacity-50"
+                        className="w-full py-4 bg-gray-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-blue-700 transition-all disabled:opacity-50"
                     >
                         {isSaving ? 'Processing...' : 'Apply Blockout'}
                     </button>
@@ -2272,7 +2324,7 @@ const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefres
                         {stopSales.map((ss) => (
                             <div key={ss.id} className="p-5 bg-gray-50 rounded-2xl border border-gray-100 flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all">
                                 <div className="space-y-1">
-                                    <div className="text-[10px] font-black text-orange-600 uppercase tracking-widest">{ss.carInfo}</div>
+                                    <div className="text-[10px] font-black text-blue-700 uppercase tracking-widest">{ss.carInfo}</div>
                                     <div className="text-sm font-bold text-gray-900">
                                         {format(parseISO(ss.startDate), 'MMM dd, yyyy')} — {format(parseISO(ss.endDate), 'MMM dd, yyyy')}
                                     </div>
@@ -2296,16 +2348,16 @@ const ExtrasSection = () => (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
         <div className="flex justify-between items-center">
             <SectionHeader title="Extras & Add-ons" icon={Package} subtitle="Manage optional services and insurance" />
-            <button className="px-6 py-3 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200">+ New Extra</button>
+            <button className="px-6 py-3 bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-200">+ New Extra</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {['GPS Navigation', 'Baby Seat', 'Additional Driver', 'Full Coverage'].map((extra, i) => (
                 <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100">
-                    <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-orange-600 mb-6 border border-gray-100">
+                    <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-blue-700 mb-6 border border-gray-100">
                         <Package className="w-6 h-6" />
                     </div>
                     <h3 className="text-lg font-black text-gray-900 tracking-tight mb-1">{extra}</h3>
-                    <div className="text-xs text-orange-600 font-black uppercase tracking-widest mb-6">$15.00 / day</div>
+                    <div className="text-xs text-blue-700 font-black uppercase tracking-widest mb-6">$15.00 / day</div>
                     <div className="flex gap-2 pt-6 border-t border-gray-50">
                         <button className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:text-gray-900 transition-all"><Edit className="w-4 h-4" /></button>
                         <button className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:text-red-600 transition-all"><Trash2 className="w-4 h-4" /></button>
@@ -2321,12 +2373,12 @@ const LocationsSection = () => (
         <SectionHeader title="Expand Network" icon={MapPin} subtitle="Request to operate at new locations" />
         <div className="space-y-6">
             <InputField label="Airport / City Search" icon={Search} placeholder="Enter IATA code or city name..." />
-            <div className="p-6 bg-orange-50 border border-orange-100 rounded-2xl">
-                <p className="text-[10px] font-bold text-orange-800 leading-relaxed uppercase tracking-wider">
+            <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl">
+                <p className="text-[10px] font-bold text-blue-800 leading-relaxed uppercase tracking-wider">
                     Note: All new location requests are reviewed by HogiCar Admin. Expansion usually takes 24-48 hours once approved.
                 </p>
             </div>
-            <button className="w-full py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 transition-all">Submit Expansion Request</button>
+            <button className="w-full py-4 bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-200 transition-all">Submit Expansion Request</button>
         </div>
     </motion.div>
 );
@@ -2338,7 +2390,7 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
                 <div className="flex items-center gap-4 mb-4">
-                    <img src={supplier.logoUrl} className="w-20 h-20 rounded-[2rem] object-cover border-2 border-orange-500 shadow-lg" alt="Logo" width={80} height={80} />
+                    <img src={supplier.logoUrl} className="w-20 h-20 rounded-[2rem] object-cover border-2 border-blue-500 shadow-lg" alt="Logo" width={80} height={80} />
                     <div>
                         <h3 className="text-xl font-black text-gray-900 tracking-tight">{supplier.name}</h3>
                         <Badge variant="success">Verified Supplier</Badge>
@@ -2346,17 +2398,17 @@ const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
                 </div>
                 <InputField label="Reservation Contact Email" value={supplier.contactEmail} readOnly />
                 <InputField label="Phone Number" value={supplier.phone || 'N/A'} readOnly />
-                <button className="w-full py-3 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-50 hover:text-orange-600 transition-all">Update Information</button>
+                <button className="w-full py-3 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 hover:text-blue-700 transition-all">Update Information</button>
             </div>
 
             <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
                 <div className="flex items-center gap-2 mb-4">
-                    <Lock className="w-4 h-4 text-orange-600" />
+                    <Lock className="w-4 h-4 text-blue-700" />
                     <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Security</h3>
                 </div>
                 <InputField label="Login Username (Email)" value={supplier.email} readOnly />
                 <InputField label="Current Password" type="password" value="********" readOnly />
-                <button className="w-full py-3 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-orange-600 transition-all">Change Credentials</button>
+                <button className="w-full py-3 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all">Change Credentials</button>
             </div>
         </div>
     </motion.div>
@@ -2499,7 +2551,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 <div className="p-6 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl border border-white/10">
-                            <RefreshCw className="w-6 h-6 text-orange-400" />
+                            <RefreshCw className="w-6 h-6 text-blue-400" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Clone Strategy</p>
@@ -2526,13 +2578,13 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 </div>
 
                 {/* Informational Note */}
-                <div className="p-6 bg-orange-50 border border-orange-100 rounded-3xl flex items-start gap-4">
+                <div className="p-6 bg-blue-50 border border-blue-100 rounded-3xl flex items-start gap-4">
                     <div className="p-2 bg-white rounded-xl shadow-sm">
-                        <Info className="w-5 h-5 text-orange-600" />
+                        <Info className="w-5 h-5 text-blue-700" />
                     </div>
                     <div className="space-y-1">
-                        <p className="text-[10px] font-black text-orange-900 uppercase tracking-[0.2em]">Strategy Definition</p>
-                        <p className="text-[10px] font-bold text-orange-800 leading-relaxed uppercase tracking-widest opacity-80">
+                        <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.2em]">Strategy Definition</p>
+                        <p className="text-[10px] font-bold text-blue-800 leading-relaxed uppercase tracking-widest opacity-80">
                             Define your seasons and day bands below. After saving, use the "Download Template" action to fill in prices for each car model.
                         </p>
                     </div>
@@ -2545,7 +2597,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                         <select 
                             value={localConfig.currency} 
                             onChange={e => setLocalConfig({...localConfig, currency: e.target.value})}
-                            className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-orange-500/20"
+                            className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
                         >
                             {CURRENCIES.map(curr => (
                                 <option key={curr.code} value={curr.code}>
@@ -2565,7 +2617,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 {/* Booking Conditions */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-3">
-                        <Settings className="w-5 h-5 text-orange-600" />
+                        <Settings className="w-5 h-5 text-blue-700" />
                         <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Booking Conditions</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -2618,14 +2670,14 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <Calendar className="w-5 h-5 text-orange-600" />
+                            <Calendar className="w-5 h-5 text-blue-700" />
                             <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Pricing Seasons</h3>
                         </div>
-                        <button onClick={addPeriod} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Season</button>
+                        <button onClick={addPeriod} className="text-[10px] font-black text-blue-700 uppercase tracking-widest hover:text-blue-800">+ Add Season</button>
                     </div>
                     <div className="space-y-4">
                         {localConfig.periods?.map((period, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/30 relative group hover:border-orange-200 transition-all">
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/30 relative group hover:border-blue-200 transition-all">
                                 <button onClick={() => removePeriod(idx)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -2643,14 +2695,14 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <Shield className="w-5 h-5 text-orange-600" />
+                            <Shield className="w-5 h-5 text-blue-700" />
                             <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Security Bonds</h3>
                         </div>
-                        <button onClick={addBond} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Bond</button>
+                        <button onClick={addBond} className="text-[10px] font-black text-blue-700 uppercase tracking-widest hover:text-blue-800">+ Add Bond</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {localConfig.bonds?.map((bond, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-orange-200 transition-all">
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-blue-200 transition-all">
                                 <button onClick={() => removeBond(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -2679,14 +2731,14 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <Clock className="w-5 h-5 text-orange-600" />
+                            <Clock className="w-5 h-5 text-blue-700" />
                             <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Rental Duration Bands</h3>
                         </div>
-                        <button onClick={addBand} className="text-[10px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-700">+ Add Band</button>
+                        <button onClick={addBand} className="text-[10px] font-black text-blue-700 uppercase tracking-widest hover:text-blue-800">+ Add Band</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {localConfig.bands?.map((band, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-orange-200 transition-all">
+                            <div key={idx} className="bg-white p-7 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 relative group hover:border-blue-200 transition-all">
                                 <button onClick={() => removeBand(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -2705,7 +2757,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                 <div className="flex gap-4 pt-6 border-t border-gray-50">
                     <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition-all">Cancel</button>
                     <div className="flex-[2] flex flex-col gap-3">
-                        <button onClick={handleSave} disabled={isSaving} className="w-full py-4 bg-orange-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-200 hover:scale-[1.02] transition-all disabled:opacity-50">
+                        <button onClick={handleSave} disabled={isSaving} className="w-full py-4 bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all disabled:opacity-50">
                             {isSaving ? 'Saving Configuration...' : 'Save Rate Structure'}
                         </button>
                         <div className="flex items-center justify-center gap-2">
@@ -2714,7 +2766,7 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                                 id="apply-all-loc-config"
                                 checked={localConfig.applyToAllLocations}
                                 onChange={e => setLocalConfig({...localConfig, applyToAllLocations: e.target.checked})}
-                                className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                className="w-3.5 h-3.5 text-blue-700 border-gray-300 rounded focus:ring-blue-500"
                             />
                             <label htmlFor="apply-all-loc-config" className="text-[9px] font-black text-gray-500 uppercase tracking-widest cursor-pointer">
                                 Apply to all locations
