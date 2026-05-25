@@ -680,51 +680,52 @@ const CarDetails: React.FC = () => {
 
             {/* Right Column - Booking Sidebar (professional) */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-5">
-                <div className="bg-white rounded-2xl shadow-[0_20px_50px_-34px_rgba(15,23,42,0.65)] p-5 sm:p-6 border border-slate-200">
+              <div className="sticky top-20 space-y-2.5">
+                <div className="bg-white rounded-2xl shadow-[0_20px_50px_-34px_rgba(15,23,42,0.65)] p-4 border border-slate-200">
                   {/* Price lock timer */}
-                  <div className="bg-slate-950 text-white p-4 rounded-xl mb-5 flex justify-between items-center">
-                    <div><div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Price locked for</div><div className="font-mono font-black text-2xl">{formatTime(timeLeft)}</div></div>
-                    <Clock className="w-7 h-7 opacity-50" />
+                  <div className="bg-slate-950 text-white p-3 rounded-xl mb-3 flex justify-between items-center">
+                    <div><div className="text-[9px] font-black uppercase tracking-widest text-slate-400">Price locked</div><div className="font-mono font-black text-xl">{formatTime(timeLeft)}</div></div>
+                    <Clock className="w-6 h-6 opacity-50" />
                   </div>
-                  <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pay now</p>
-                        <p className="text-2xl font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pay now</p>
+                        <p className="text-xl font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pay at desk</p>
-                        <p className="text-sm font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">At desk</p>
+                        <p className="text-xs font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
                       </div>
                     </div>
-                    <p className="mt-2 text-[11px] font-semibold text-slate-500">Secure the booking online and pay any remaining amount to the supplier.</p>
                   </div>
                   {/* Price breakdown */}
-                  <div className="space-y-3 mb-5">
-                    <div className="flex justify-between text-sm"><span className="text-slate-600">Rental ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-sm"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                    {priceDetails.extrasCost > 0 && <div className="flex justify-between text-sm"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                    {priceDetails.discountAmount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
-                    {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between text-sm text-green-700 font-bold"><span>Secret Deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
-                    <div className="border-t pt-3 mt-3"><div className="flex justify-between font-black text-lg"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-sm text-slate-600 text-right">Including taxes & fees</div></div>
+                  <div className="space-y-2 mb-3">
+                    <div className="flex justify-between text-xs"><span className="text-slate-600">Rental ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-xs"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                    {priceDetails.extrasCost > 0 && <div className="flex justify-between text-xs"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
+                    {priceDetails.discountAmount > 0 && <div className="flex justify-between text-xs text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+                    {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between text-xs text-green-700 font-bold"><span>Secret Deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
+                    <div className="border-t pt-2 mt-2"><div className="flex justify-between font-black text-base"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-[11px] text-slate-600 text-right">Taxes & fees included</div></div>
                   </div>
                   {/* Promo code */}
-                  <div className="mb-5"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#008009]/30 focus:border-[#008009] outline-none" /><button onClick={handleApplyPromo} className="bg-slate-950 text-white px-4 py-2 rounded-lg text-sm font-black hover:bg-[#008009] transition">Apply</button></div>{promoError && <p className="text-red-600 text-sm mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-sm mt-1">✓ {appliedPromo.code} applied</p>}</div>
+                  <div className="mb-3"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#008009]/30 focus:border-[#008009] outline-none" /><button onClick={handleApplyPromo} className="bg-slate-950 text-white px-3 py-2 rounded-lg text-xs font-black hover:bg-[#008009] transition">Apply</button></div>{promoError && <p className="text-red-600 text-xs mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-xs mt-1">✓ {appliedPromo.code} applied</p>}</div>
                   {/* Insurance selection */}
-                  <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-3"><label className="flex items-center gap-2 mb-3 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Basic Insurance (included)</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /> <span className="text-sm font-medium">Full Protection (+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)})</span></label></div>
-                  <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-[#008009] hover:bg-[#006607] text-white text-center font-black py-4 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">Continue to book</Link>
-                  <div className="mt-4 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
+                  <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-2.5"><label className="flex items-center gap-2 mb-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /> <span className="text-xs font-medium">Basic Insurance included</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /> <span className="text-xs font-medium">Full Protection (+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)})</span></label></div>
+                  <Link to={`/book/${car.id}?${bookingParams}`} onClick={handleContinue} className="block w-full bg-[#008009] hover:bg-[#006607] text-white text-center font-black py-3 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] uppercase tracking-widest text-xs">Continue to book</Link>
+                  <div className="mt-3 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
-                <div className="bg-[#eaf7ef] rounded-2xl p-5 border border-green-200/80"><div className="flex gap-3"><ShieldCheck className="w-6 h-6 text-green-600" /><div><div className="font-bold">Free cancellation</div><div className="text-sm text-slate-700">Up to 48 hours before pickup</div></div></div></div>
-                <div className="bg-white rounded-2xl p-5 border border-slate-200"><div className="flex gap-3"><Headphones className="w-6 h-6 text-blue-600" /><div><div className="font-bold">24/7 customer support</div><div className="text-sm text-slate-700">We're here to help anytime</div></div></div></div>
-                <div className="bg-white rounded-2xl p-5 border border-slate-200">
-                  <h4 className="text-sm font-black text-slate-900 mb-3">Booking checklist</h4>
-                  <ul className="space-y-2 text-sm text-slate-700">
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Driving license and passport/ID ready</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Card in the main driver’s name</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Review supplier terms before checkout</li>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-[#eaf7ef] rounded-xl p-3 border border-green-200/80"><div className="flex gap-2"><ShieldCheck className="w-5 h-5 text-green-600 shrink-0" /><div><div className="text-xs font-black">Free cancellation</div><div className="text-[11px] text-slate-700">Before pickup</div></div></div></div>
+                  <div className="bg-white rounded-xl p-3 border border-slate-200"><div className="flex gap-2"><Headphones className="w-5 h-5 text-blue-600 shrink-0" /><div><div className="text-xs font-black">24/7 support</div><div className="text-[11px] text-slate-700">Anytime help</div></div></div></div>
+                </div>
+                <div className="bg-white rounded-xl p-3 border border-slate-200">
+                  <h4 className="text-xs font-black text-slate-900 mb-2">Booking checklist</h4>
+                  <ul className="space-y-1.5 text-xs text-slate-700">
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Driving license and passport/ID ready</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Card in the main driver’s name</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Review supplier terms before checkout</li>
                   </ul>
                 </div>
               </div>
