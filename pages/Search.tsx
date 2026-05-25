@@ -443,7 +443,7 @@ export const Search: React.FC = () => {
     />
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-slate-900 shadow-xl border-b border-slate-800 sticky top-[72px] md:top-[80px] z-30">
+      <div className="bg-slate-900 shadow-xl border-b border-slate-800 md:sticky md:top-[80px] z-30">
         <div className="max-w-[1600px] mx-auto px-3 py-3 sm:px-6 lg:px-8">
             <div 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -497,7 +497,7 @@ export const Search: React.FC = () => {
             </div>
 
             {isSearchOpen && (
-                <div className="mt-4 pt-4 border-t border-slate-200 animate-fadeIn">
+                <div className="mt-4 pt-4 border-t border-slate-700 animate-fadeIn">
                     <SearchWidget
                         onSearch={handleSearch}
                         initialValues={{ 
@@ -584,7 +584,7 @@ export const Search: React.FC = () => {
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-6">
         
         {/* Mobile Filter & Sort Controls */}
-        <div className="md:hidden my-3 bg-white/95 backdrop-blur p-2 border border-slate-200 rounded-2xl sticky top-[210px] z-20 grid grid-cols-2 gap-2 shadow-sm">
+        <div className="md:hidden my-3 bg-white/95 backdrop-blur p-2 border border-slate-200 rounded-2xl sticky top-2 z-20 grid grid-cols-2 gap-2 shadow-sm">
             <button 
                 onClick={() => {
                     setShowMobileSort(false);
@@ -934,8 +934,8 @@ export const Search: React.FC = () => {
               </div>
             ) : (
                 <>
-                <div className="flex items-center justify-between mb-4 bg-white md:bg-transparent border md:border-0 border-slate-200 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
-                    <div>
+                <div className="flex items-center justify-between gap-3 mb-4 bg-white md:bg-transparent border md:border-0 border-slate-200 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
+                    <div className="min-w-0">
                       <p className="text-base md:text-[11px] text-slate-900 md:text-slate-500 font-black md:font-bold uppercase tracking-tight md:tracking-widest">
                           <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> cars available
                       </p>
@@ -943,7 +943,7 @@ export const Search: React.FC = () => {
                         {pickupIata || location || 'Selected location'} • {days} day{days > 1 ? 's' : ''}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] text-slate-500 md:text-slate-400 font-bold uppercase tracking-widest">
+                    <div className="flex max-[380px]:hidden items-center gap-2 text-[10px] text-slate-500 md:text-slate-400 font-bold uppercase tracking-widest text-right">
                         <Check className="w-3 h-3 text-[#008009]" /> All prices include taxes & fees
                     </div>
                 </div>

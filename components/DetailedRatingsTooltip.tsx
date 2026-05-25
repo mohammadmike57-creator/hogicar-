@@ -28,7 +28,7 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
 
     return (
         <div 
-            className={`absolute bottom-full ${alignClass} mb-3 w-[260px] sm:w-72 p-4 bg-white text-slate-900 rounded-2xl shadow-2xl ring-1 ring-slate-200 transition-all duration-300 z-[100] ${visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 group-hover/rating:opacity-100 group-hover/rating:translate-y-0 pointer-events-none'} ${className}`}
+            className={`absolute bottom-full ${alignClass} mb-3 w-[min(18rem,calc(100vw-2rem))] p-4 bg-white text-slate-900 rounded-2xl shadow-2xl ring-1 ring-slate-200 transition-all duration-300 z-[1000] ${visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 group-hover/rating:opacity-100 group-hover/rating:translate-y-0 pointer-events-none'} ${className}`}
         >
             <h4 className="font-black text-[10px] mb-3 uppercase tracking-[0.1em] text-slate-400">Customer Ratings Breakdown</h4>
             <div className="space-y-3">
