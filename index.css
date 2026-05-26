@@ -34,7 +34,7 @@ html, body {
 }
 
 .animate-progress {
-  animation: progress 0.85s ease-in-out forwards;
+  animation: progress 3s ease-in-out forwards;
 }
 
 .logo-scaled-hover {

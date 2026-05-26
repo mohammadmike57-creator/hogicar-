@@ -262,7 +262,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     window.setTimeout(() => {
       navigate(`/book/${id}/payment${bookingQuery}`);
       setIsAdvancingToPayment(false);
-    }, 850);
+    }, 3000);
   };
 
   const ensureBookingDraft = async () => {
@@ -597,68 +597,68 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             ) : (
             <>
             {/* Rental & Driver Summary */}
-            <div className="bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-800">
-               <div className="bg-gradient-to-r from-[#008009] to-[#006407] px-6 py-5 flex items-center justify-between">
+            <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] overflow-hidden border border-slate-200">
+               <div className="bg-gradient-to-r from-[#008009] to-emerald-600 px-6 py-5 flex items-center justify-between">
                   <h2 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3"><Zap className="w-5 h-5 fill-white"/> Reservation Summary</h2>
-                  <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-tighter border border-white/20">Review your details</div>
+                  <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-tighter border border-white/30">Review your details</div>
                </div>
                
                <div className="p-6 sm:p-8">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                      {/* Rental Section */}
                      <div className="space-y-6">
-                        <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
-                           <div className="bg-emerald-500/10 p-2 rounded-lg"><CalendarDays className="w-5 h-5 text-emerald-400"/></div>
-                           <p className="text-sm font-black text-white uppercase tracking-widest">Rental Details</p>
+                        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                           <div className="bg-emerald-50 p-2 rounded-lg"><CalendarDays className="w-5 h-5 text-[#008009]"/></div>
+                           <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Rental Details</p>
                         </div>
                         <div className="grid grid-cols-1 gap-5">
-                           <div className="relative pl-6 border-l-2 border-emerald-500/30">
-                              <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Pick-up Location & Time</p>
-                              <p className="text-white font-bold text-base leading-snug">{pickupLabel}</p>
-                              <p className="text-slate-400 text-sm mt-1">{startDate} @ {startTime}</p>
+                           <div className="relative pl-6 border-l-2 border-emerald-500">
+                              <p className="text-[10px] font-black text-[#008009] uppercase tracking-widest mb-1">Pick-up Location & Time</p>
+                              <p className="text-slate-900 font-bold text-base leading-snug">{pickupLabel}</p>
+                              <p className="text-slate-500 text-sm mt-1 font-medium">{startDate} @ {startTime}</p>
                            </div>
-                           <div className="relative pl-6 border-l-2 border-slate-700">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Drop-off Location & Time</p>
-                              <p className="text-white font-bold text-base leading-snug">{dropoffLabel}</p>
-                              <p className="text-slate-400 text-sm mt-1">{endDate} @ {endTime}</p>
+                           <div className="relative pl-6 border-l-2 border-slate-200">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Drop-off Location & Time</p>
+                              <p className="text-slate-900 font-bold text-base leading-snug">{dropoffLabel}</p>
+                              <p className="text-slate-500 text-sm mt-1 font-medium">{endDate} @ {endTime}</p>
                            </div>
-                           <div className="relative pl-6 border-l-2 border-slate-700">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Vehicle Selection</p>
-                              <p className="text-white font-bold text-base leading-snug">{car.displayName || `${car.make} ${car.model}`}</p>
-                              <p className="text-slate-400 text-sm mt-1 uppercase tracking-tighter">{car.category} · {days} Days Rental</p>
+                           <div className="relative pl-6 border-l-2 border-slate-200">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle Selection</p>
+                              <p className="text-slate-900 font-bold text-base leading-snug">{car.displayName || `${car.make} ${car.model}`}</p>
+                              <p className="text-slate-500 text-sm mt-1 uppercase tracking-tighter font-medium">{car.category} · {days} Days Rental</p>
                            </div>
                         </div>
                      </div>
 
                      {/* Driver Section */}
                      <div className="space-y-6">
-                        <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
-                           <div className="bg-blue-500/10 p-2 rounded-lg"><User className="w-5 h-5 text-blue-400"/></div>
-                           <p className="text-sm font-black text-white uppercase tracking-widest">Driver Details</p>
+                        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                           <div className="bg-blue-50 p-2 rounded-lg"><User className="w-5 h-5 text-blue-600"/></div>
+                           <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Driver Details</p>
                         </div>
                         <div className="grid grid-cols-1 gap-5">
-                           <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Main Driver</p>
-                              <p className="text-white font-bold text-lg">{firstName} {lastName}</p>
+                           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Main Driver</p>
+                              <p className="text-slate-900 font-bold text-lg">{firstName} {lastName}</p>
                            </div>
                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
-                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Contact Email</p>
-                                 <p className="text-white font-bold text-sm truncate">{email}</p>
+                              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Email</p>
+                                 <p className="text-slate-900 font-bold text-sm truncate">{email}</p>
                               </div>
-                              <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
-                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Phone Number</p>
-                                 <p className="text-white font-bold text-sm">{phoneNumber}</p>
+                              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone Number</p>
+                                 <p className="text-slate-900 font-bold text-sm">{phoneNumber}</p>
                               </div>
                            </div>
                            {flightNumber && (
-                              <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
-                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Flight Number</p>
-                                 <p className="text-white font-bold text-sm">{flightNumber}</p>
+                              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Flight Number</p>
+                                 <p className="text-slate-900 font-bold text-sm">{flightNumber}</p>
                               </div>
                            )}
                         </div>
-                        <button type="button" onClick={() => navigate(`/book/${id}/details${bookingQuery}`)} className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                        <button type="button" onClick={() => navigate(`/book/${id}/details${bookingQuery}`)} className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-[#008009] hover:border-[#008009]/30 transition-all">
                            <ArrowLeft className="w-4 h-4" /> Edit Information
                         </button>
                      </div>
@@ -666,14 +666,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                </div>
 
                {/* Pricing Summary Bar */}
-               <div className="bg-[#008009]/10 border-t border-slate-800 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+               <div className="bg-emerald-50/50 border-t border-slate-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
-                     <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
-                     <p className="text-3xl font-black text-white">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                     <p className="text-[10px] font-black text-[#008009] uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
+                     <p className="text-3xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                   </div>
                   <div className="text-right hidden sm:block">
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
-                     <p className="text-xs font-bold text-slate-400">Total Rental Value: {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
+                     <p className="text-xs font-bold text-slate-500">Total Rental Value: {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
                   </div>
                </div>
             </div>
