@@ -100,6 +100,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [createAccount, setCreateAccount] = React.useState(true);
   const [accountPassword, setAccountPassword] = React.useState('');
   const [profileHydrated, setProfileHydrated] = React.useState(false);
+  const [isAdvancingToPayment, setIsAdvancingToPayment] = React.useState(false);
   const bookingQuery = location.search || '';
 
   React.useEffect(() => {
@@ -256,7 +257,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       createAccount,
       accountPassword
     }));
-    navigate(`/book/${id}/payment${bookingQuery}`);
+    setIsAdvancingToPayment(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.setTimeout(() => {
+      navigate(`/book/${id}/payment${bookingQuery}`);
+      setIsAdvancingToPayment(false);
+    }, 850);
   };
 
   const ensureBookingDraft = async () => {
@@ -366,6 +372,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const primaryButtonLabel = routeStep === 'details'
     ? 'Continue to Payment'
     : priceDetails.payNow > 0 ? 'Pay & Confirm Reservation' : 'Confirm Reservation';
+  const isActionBusy = isSubmitting || isAdvancingToPayment;
 
   return (
     <>
@@ -375,12 +382,32 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         noIndex={true}
       />
     <div className="bg-slate-50 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+      {isAdvancingToPayment && (
+        <div className="fixed inset-x-0 top-0 z-[90] bg-white/95 shadow-[0_12px_35px_-24px_rgba(15,23,42,0.8)] backdrop-blur-md">
+          <div className="h-1.5 w-full overflow-hidden bg-slate-100">
+            <div className="h-full w-2/3 animate-pulse rounded-r-full bg-[#008009] shadow-[0_0_28px_rgba(0,128,9,0.45)]"></div>
+          </div>
+          <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#008009]">Preparing secure payment</p>
+              <p className="mt-1 text-sm font-semibold text-slate-700">Saving driver details and opening the protected checkout page.</p>
+            </div>
+            <div className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-emerald-800 sm:flex">
+              <ShieldCheck className="h-4 w-4" /> Encrypted
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10">
         <div className="mb-6 sm:mb-10">
             <BookingStepper currentStep={4} />
         </div>
 
-        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_22px_60px_-42px_rgba(15,23,42,0.75)]">
+          <div className="h-1.5 bg-slate-100">
+            <div className={`h-full rounded-r-full bg-[#008009] transition-all duration-700 ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
+          </div>
+          <div className="p-4 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
@@ -397,6 +424,21 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                 <p className="mt-1 text-xs sm:text-sm font-black">Payment</p>
               </div>
             </div>
+          </div>
+          <div className="mt-5 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-3">
+            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3">
+              <ShieldCheck className="h-4 w-4 text-[#008009]" />
+              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-700">Secure checkout</span>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3">
+              <BadgeCheck className="h-4 w-4 text-blue-600" />
+              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-700">Verified supplier</span>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3">
+              <Headphones className="h-4 w-4 text-indigo-600" />
+              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-700">Booking support</span>
+            </div>
+          </div>
           </div>
         </div>
 
@@ -495,17 +537,39 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             <>
             {/* Customer Details */}
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-2 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer and main driver details</h2>
-               <p className="text-sm text-slate-600 mb-5 sm:mb-6">We will use these details to create your Hogicar customer profile and prepare the secure payment page.</p>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">First name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Last name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
-                  <div className="md:col-span-2 group pt-4">
-                    <label className="block text-sm font-semibold text-slate-800 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Flight number <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
-                    <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
-                    <p className="text-sm text-slate-600 mt-3 font-medium flex items-center gap-2"><Info className="w-4 h-4 text-[#008009]"/> Providing your flight number helps the provider wait if your flight is delayed.</p>
+               <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                 <div>
+                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Main driver profile</p>
+                   <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer and driver details</h2>
+                   <p className="mt-2 max-w-2xl text-sm text-slate-600">Enter the details exactly as they should appear on the rental agreement. We will save them before opening the secure payment page.</p>
+                 </div>
+                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3">
+                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-800">Required</p>
+                   <p className="mt-1 text-sm font-black text-slate-950">Driver name, email, mobile</p>
+                 </div>
+               </div>
+               <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_280px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">First name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Last name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                    <div className="md:col-span-2 group pt-2">
+                      <label className="block text-sm font-semibold text-slate-800 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Flight number <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
+                      <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
+                      <p className="text-sm text-slate-600 mt-3 font-medium flex items-start gap-2"><Info className="w-4 h-4 text-[#008009] mt-0.5 flex-shrink-0"/> Providing your flight number helps the provider track delays and keep pickup instructions accurate.</p>
+                    </div>
+                 </div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">At pickup bring</p>
+                   <div className="mt-4 space-y-3 text-sm font-semibold text-slate-700">
+                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Valid driving license</p>
+                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Passport or government ID</p>
+                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Credit card in driver name</p>
+                   </div>
+                   <div className="mt-5 rounded-xl border border-blue-100 bg-white p-3">
+                     <p className="text-xs font-bold leading-relaxed text-slate-600">These details are used for the booking record and the payment summary. You can still edit them before payment.</p>
+                   </div>
                   </div>
                </div>
             </div>
@@ -513,7 +577,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
                <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-2 flex items-center gap-3"><UserPlus className="w-5 h-5 text-[#008009]"/> Create customer account</h2>
                <p className="text-sm text-slate-600 mb-5 sm:mb-6">Your account keeps booking references, payment status, and future rental details in one place.</p>
-               <label className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 mb-5 cursor-pointer">
+               <label className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 mb-5 cursor-pointer transition hover:border-emerald-200 hover:bg-emerald-50">
                   <input type="checkbox" checked={createAccount} onChange={(e) => setCreateAccount(e.target.checked)} className="mt-1 h-4 w-4 rounded border-slate-300 text-[#008009] focus:ring-[#008009]" />
                   <span>
                     <span className="block text-sm font-black text-slate-900">Register my customer account with this booking</span>
@@ -580,7 +644,17 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             {/* Payment Details */}
             {routeStep === 'payment' && (
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-5 sm:mb-6 flex items-center gap-3"><CreditCard className="w-5 h-5 text-[#008009]"/> Secure payment details</h2>
+               <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                 <div>
+                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Protected checkout</p>
+                   <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><CreditCard className="w-5 h-5 text-[#008009]"/> Secure payment details</h2>
+                   <p className="mt-2 max-w-2xl text-sm text-slate-600">Your payment is processed through an encrypted gateway. The supplier receives the reservation only after the secure confirmation step.</p>
+                 </div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Due now</p>
+                   <p className="mt-1 text-xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                 </div>
+               </div>
                <div className="space-y-6">
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
@@ -737,15 +811,15 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
                    <button
                      type="submit" 
-                     disabled={isSubmitting}
+                     disabled={isActionBusy}
                      className="group relative w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-4 rounded-xl shadow-2xl shadow-emerald-600/20 transition-all duration-500 active:scale-[0.98] flex items-center justify-center text-xs sm:text-sm uppercase tracking-[0.14em] sm:tracking-[0.22em] disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
                    >
                      <div className="absolute inset-0 bg-gradient-to-r from-[#008009] to-[#006607] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                      <span className="relative z-10 flex items-center gap-4">
-                        {isSubmitting ? (
+                        {isActionBusy ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                {routeStep === 'details' ? 'Preparing Payment...' : 'Securely Processing...'}
+                                {routeStep === 'details' ? 'Preparing secure payment...' : 'Securely Processing...'}
                             </>
                         ) : (
                             <>{primaryButtonLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/></>
