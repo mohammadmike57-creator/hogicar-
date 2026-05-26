@@ -383,19 +383,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       />
     <div className="bg-slate-50 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
-        <div className="fixed inset-x-0 top-0 z-[90] bg-white/95 shadow-[0_12px_35px_-24px_rgba(15,23,42,0.8)] backdrop-blur-md">
-          <div className="h-1.5 w-full overflow-hidden bg-slate-100">
-            <div className="h-full w-2/3 animate-pulse rounded-r-full bg-[#008009] shadow-[0_0_28px_rgba(0,128,9,0.45)]"></div>
-          </div>
-          <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#008009]">Preparing secure payment</p>
-              <p className="mt-1 text-sm font-semibold text-slate-700">Saving driver details and opening the protected checkout page.</p>
-            </div>
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-emerald-800 sm:flex">
-              <ShieldCheck className="h-4 w-4" /> Encrypted
-            </div>
-          </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
+           <div className="w-full max-w-[320px] sm:max-w-md px-6">
+              <div className="mb-6 flex items-center justify-between">
+                 <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#008009]">Securing session</p>
+                    <p className="mt-1 text-sm font-black text-slate-900">Moving to Payment</p>
+                 </div>
+                 <div className="h-5 w-5 border-2 border-[#008009] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner border border-slate-200/50">
+                 <div className="h-full bg-gradient-to-r from-[#008009] to-emerald-400 animate-progress shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
+              </div>
+              <p className="mt-6 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Hogicar Secure Checkout Gateway</p>
+           </div>
         </div>
       )}
       <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10">
@@ -540,35 +541,35 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
                  <div>
                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Main driver profile</p>
-                   <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer and driver details</h2>
-                   <p className="mt-2 max-w-2xl text-sm text-slate-600">Enter the details exactly as they should appear on the rental agreement. We will save them before opening the secure payment page.</p>
-                 </div>
-                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3">
-                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-800">Required</p>
-                   <p className="mt-1 text-sm font-black text-slate-950">Driver name, email, mobile</p>
+                  <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Driver information</h2>
+                  <p className="mt-2 max-w-2xl text-sm text-slate-600 leading-relaxed">Please ensure the details below match the driver's official documents to ensure a smooth pick-up experience at the desk.</p>
+                </div>
+                <div className="hidden sm:block rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-800 flex items-center gap-2"><Check className="w-3 h-3"/> Required for booking</p>
+                  <p className="mt-1 text-sm font-black text-slate-950">Name, email & mobile</p>
                  </div>
                </div>
                <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_280px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">First name</label><FormInput icon={User} type="text" placeholder="John" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Last name</label><FormInput icon={User} type="text" placeholder="Doe" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
                     <div className="md:col-span-2 group pt-2">
-                      <label className="block text-sm font-semibold text-slate-800 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Flight number <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
+                      <label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Flight number <span className="text-[10px] text-slate-400 ml-2">(Highly Recommended)</span></label>
                       <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
-                      <p className="text-sm text-slate-600 mt-3 font-medium flex items-start gap-2"><Info className="w-4 h-4 text-[#008009] mt-0.5 flex-shrink-0"/> Providing your flight number helps the provider track delays and keep pickup instructions accurate.</p>
+                      <p className="text-sm text-slate-500 mt-4 font-medium flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100"><Info className="w-5 h-5 text-[#008009] mt-0.5 flex-shrink-0"/> <span>Providing your flight number helps the rental provider monitor your arrival and hold your vehicle in case of delays.</span></p>
                     </div>
                  </div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">At pickup bring</p>
-                   <div className="mt-4 space-y-3 text-sm font-semibold text-slate-700">
-                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Valid driving license</p>
-                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Passport or government ID</p>
-                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Credit card in driver name</p>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 mb-4 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Checklist for pick-up</p>
+                   <div className="space-y-4 text-sm font-bold text-slate-700">
+                     <p className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><Check className="h-4 w-4 text-[#008009]" /> Valid driving license</p>
+                     <p className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><Check className="h-4 w-4 text-[#008009]" /> Passport or ID</p>
+                     <p className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><Check className="h-4 w-4 text-[#008009]" /> Driver's credit card</p>
                    </div>
-                   <div className="mt-5 rounded-xl border border-blue-100 bg-white p-3">
-                     <p className="text-xs font-bold leading-relaxed text-slate-600">These details are used for the booking record and the payment summary. You can still edit them before payment.</p>
+                   <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+                     <p className="text-[11px] font-bold leading-relaxed text-blue-700">These details will be used for your rental agreement and secure payment record.</p>
                    </div>
                   </div>
                </div>
@@ -595,47 +596,85 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             </>
             ) : (
             <>
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-5 flex items-center gap-3"><CalendarDays className="w-5 h-5 text-[#008009]"/> Rental details</h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Pick-up</p>
-                   <p className="mt-2 text-base font-black text-slate-950">{pickupLabel}</p>
-                   <p className="mt-1 text-sm font-semibold text-slate-600">{startDate} at {startTime}</p>
-                 </div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Drop-off</p>
-                   <p className="mt-2 text-base font-black text-slate-950">{dropoffLabel}</p>
-                   <p className="mt-1 text-sm font-semibold text-slate-600">{endDate} at {endTime}</p>
-                 </div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Vehicle</p>
-                   <p className="mt-2 text-base font-black text-slate-950">{car.displayName || `${car.make} ${car.model}`}</p>
-                   <p className="mt-1 text-sm font-semibold text-slate-600">{car.category} · {days} rental days</p>
-                 </div>
-                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Due online now</p>
-                   <p className="mt-2 text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
-                   <p className="mt-1 text-sm font-semibold text-emerald-800">Total rental value {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
-                 </div>
+            {/* Rental & Driver Summary */}
+            <div className="bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-800">
+               <div className="bg-gradient-to-r from-[#008009] to-[#006407] px-6 py-5 flex items-center justify-between">
+                  <h2 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3"><Zap className="w-5 h-5 fill-white"/> Reservation Summary</h2>
+                  <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-tighter border border-white/20">Review your details</div>
                </div>
-            </div>
+               
+               <div className="p-6 sm:p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                     {/* Rental Section */}
+                     <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                           <div className="bg-emerald-500/10 p-2 rounded-lg"><CalendarDays className="w-5 h-5 text-emerald-400"/></div>
+                           <p className="text-sm font-black text-white uppercase tracking-widest">Rental Details</p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-5">
+                           <div className="relative pl-6 border-l-2 border-emerald-500/30">
+                              <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Pick-up Location & Time</p>
+                              <p className="text-white font-bold text-base leading-snug">{pickupLabel}</p>
+                              <p className="text-slate-400 text-sm mt-1">{startDate} @ {startTime}</p>
+                           </div>
+                           <div className="relative pl-6 border-l-2 border-slate-700">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Drop-off Location & Time</p>
+                              <p className="text-white font-bold text-base leading-snug">{dropoffLabel}</p>
+                              <p className="text-slate-400 text-sm mt-1">{endDate} @ {endTime}</p>
+                           </div>
+                           <div className="relative pl-6 border-l-2 border-slate-700">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Vehicle Selection</p>
+                              <p className="text-white font-bold text-base leading-snug">{car.displayName || `${car.make} ${car.model}`}</p>
+                              <p className="text-slate-400 text-sm mt-1 uppercase tracking-tighter">{car.category} · {days} Days Rental</p>
+                           </div>
+                        </div>
+                     </div>
 
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <div className="flex items-start justify-between gap-4 mb-6">
-                 <div>
-                   <h2 className="text-lg sm:text-xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer details</h2>
-                   <p className="text-sm text-slate-600 mt-2">Review the customer account information before completing payment.</p>
-                 </div>
-                 <button type="button" onClick={() => navigate(detailsRoute)} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50">
-                   <ArrowLeft className="w-3.5 h-3.5" /> Edit
-                 </button>
+                     {/* Driver Section */}
+                     <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                           <div className="bg-blue-500/10 p-2 rounded-lg"><User className="w-5 h-5 text-blue-400"/></div>
+                           <p className="text-sm font-black text-white uppercase tracking-widest">Driver Details</p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-5">
+                           <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Main Driver</p>
+                              <p className="text-white font-bold text-lg">{firstName} {lastName}</p>
+                           </div>
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
+                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Contact Email</p>
+                                 <p className="text-white font-bold text-sm truncate">{email}</p>
+                              </div>
+                              <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
+                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Phone Number</p>
+                                 <p className="text-white font-bold text-sm">{phoneNumber}</p>
+                              </div>
+                           </div>
+                           {flightNumber && (
+                              <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50">
+                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Flight Number</p>
+                                 <p className="text-white font-bold text-sm">{flightNumber}</p>
+                              </div>
+                           )}
+                        </div>
+                        <button type="button" onClick={() => navigate(`/book/${id}/details${bookingQuery}`)} className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                           <ArrowLeft className="w-4 h-4" /> Edit Information
+                        </button>
+                     </div>
+                  </div>
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Customer</p><p className="mt-2 text-base font-black text-slate-950">{firstName} {lastName}</p></div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Email</p><p className="mt-2 text-base font-black text-slate-950 break-all">{email}</p></div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Mobile</p><p className="mt-2 text-base font-black text-slate-950">{phoneNumber}</p></div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Flight</p><p className="mt-2 text-base font-black text-slate-950">{flightNumber || 'Not provided'}</p></div>
+
+               {/* Pricing Summary Bar */}
+               <div className="bg-[#008009]/10 border-t border-slate-800 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                     <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
+                     <p className="text-3xl font-black text-white">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                  </div>
+                  <div className="text-right hidden sm:block">
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
+                     <p className="text-xs font-bold text-slate-400">Total Rental Value: {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
+                  </div>
                </div>
             </div>
             </>

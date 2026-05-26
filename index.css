@@ -28,6 +28,15 @@ html, body {
   animation-play-state: paused;
 }
 
+@keyframes progress {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+.animate-progress {
+  animation: progress 0.85s ease-in-out forwards;
+}
+
 .logo-scaled-hover {
   transform: scale(var(--logo-scale, 1));
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
