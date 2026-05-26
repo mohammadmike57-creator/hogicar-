@@ -95,10 +95,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const [cardholderName, setCardholderName] = React.useState('');
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
-  const [checkoutStep, setCheckoutStep] = React.useState<'details' | 'payment'>('details');
+  const routeStep: 'details' | 'payment' = location.pathname.endsWith('/payment') ? 'payment' : 'details';
   const [bookingDraft, setBookingDraft] = React.useState<(any & { clientSecret?: string }) | null>(null);
   const [createAccount, setCreateAccount] = React.useState(true);
   const [accountPassword, setAccountPassword] = React.useState('');
+  const [profileHydrated, setProfileHydrated] = React.useState(false);
+  const bookingQuery = location.search || '';
 
   React.useEffect(() => {
     if (initialPromoCode) {
@@ -108,6 +110,46 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       }
     }
   }, [initialPromoCode]);
+
+  React.useEffect(() => {
+    const storedBookingRaw = sessionStorage.getItem("hogicar_pending_booking");
+    if (storedBookingRaw) {
+      try {
+        setBookingDraft(JSON.parse(storedBookingRaw));
+      } catch {
+        sessionStorage.removeItem("hogicar_pending_booking");
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const storedProfileRaw = sessionStorage.getItem("hogicar_customer_profile");
+    if (!storedProfileRaw) {
+      setProfileHydrated(true);
+      return;
+    }
+    try {
+      const profile = JSON.parse(storedProfileRaw);
+      setFirstName(profile.firstName || '');
+      setLastName(profile.lastName || '');
+      setEmail(profile.email || '');
+      setPhoneNumber(profile.phoneNumber || '');
+      setFlightNumber(profile.flightNumber || '');
+      setCreateAccount(profile.createAccount !== false);
+      setAccountPassword(profile.accountPassword || '');
+    } catch {
+      sessionStorage.removeItem("hogicar_customer_profile");
+    } finally {
+      setProfileHydrated(true);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (routeStep !== 'payment' || !profileHydrated) return;
+    if (!firstName || !lastName || !email || !phoneNumber) {
+      navigate(`/book/${id}/details${bookingQuery}`, { replace: true });
+    }
+  }, [routeStep, profileHydrated, firstName, lastName, email, phoneNumber, id, bookingQuery, navigate]);
 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -204,54 +246,51 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       alert("Pickup/Dropoff location code is missing. Please start your search again.");
       return;
     }
-    if (priceDetails.payNow > 0 && stripeConfigLoading) {
-      alert('Stripe is still loading. Please wait a moment and try again.');
-      return;
-    }
-    if (priceDetails.payNow > 0 && !stripeEnabled) {
-      alert('Stripe is not configured. Please contact support.');
-      return;
-    }
-
-    setIsSubmitting(true);
     setPaymentError(null);
-    try {
-        const payload = buildBookingPayload();
-        const booking = await api.createBooking(payload);
-        setBookingDraft(booking);
-        sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
-        sessionStorage.setItem("hogicar_customer_profile", JSON.stringify({ firstName, lastName, email, phoneNumber, flightNumber, createAccount }));
+    sessionStorage.setItem("hogicar_customer_profile", JSON.stringify({
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      flightNumber,
+      createAccount,
+      accountPassword
+    }));
+    navigate(`/book/${id}/payment${bookingQuery}`);
+  };
 
-        if (priceDetails.payNow <= 0) {
-          storeBookingAndGoToConfirmation(booking);
-          return;
-        }
-
-        setCheckoutStep('payment');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error: any) {
-        console.error("Booking draft error:", error);
-        const message = error.message || 'An unknown error occurred.';
-        setPaymentError(message);
-        alert(`Booking could not be prepared: ${message}`);
-    } finally {
-        setIsSubmitting(false);
+  const ensureBookingDraft = async () => {
+    if (bookingDraft?.clientSecret || (bookingDraft && priceDetails.payNow <= 0)) {
+      return bookingDraft;
     }
+    const payload = buildBookingPayload();
+    if (!payload) {
+      throw new Error('Booking details are not available. Please select the vehicle again.');
+    }
+    const booking = await api.createBooking(payload);
+    setBookingDraft(booking);
+    sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
+    return booking;
   };
 
   const handlePaymentSubmit = async () => {
-    if (!bookingDraft) {
-      alert("Please complete customer details first.");
-      setCheckoutStep('details');
+    if (!firstName || !lastName || !email || !phoneNumber) {
+      alert("Please complete the customer details page first.");
+      navigate(`/book/${id}/details${bookingQuery}`);
       return;
     }
     setIsSubmitting(true);
     setPaymentError(null);
     try {
+          const activeBooking = await ensureBookingDraft();
+          if (priceDetails.payNow <= 0) {
+            storeBookingAndGoToConfirmation(activeBooking);
+            return;
+          }
           if (!stripeEnabled || !stripe || !elements) {
             throw new Error('Stripe payment is not configured. Please contact support.');
           }
-          if (!bookingDraft.clientSecret) {
+          if (!activeBooking?.clientSecret) {
             throw new Error('Payment session was not created. Please try again.');
           }
 
@@ -260,7 +299,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             throw new Error('Payment form is not ready. Please try again.');
           }
 
-          const paymentResult = await stripe.confirmCardPayment(bookingDraft.clientSecret, {
+          const paymentResult = await stripe.confirmCardPayment(activeBooking.clientSecret, {
             payment_method: {
               card: cardElement,
               billing_details: {
@@ -277,12 +316,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
           const paymentIntentId = paymentResult.paymentIntent?.id;
           const completedBooking = paymentIntentId
-            ? await api.markBookingPaymentComplete(bookingDraft.id, paymentIntentId)
-            : bookingDraft;
+            ? await api.markBookingPaymentComplete(activeBooking.id, paymentIntentId)
+            : activeBooking;
           storeBookingAndGoToConfirmation(completedBooking);
     } catch (error: any) {
         console.error("Payment submission error:", error);
-        const message = error.message || 'An unknown error occurred.';
+        const serverMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data;
+        const message = (typeof serverMessage === 'string' && serverMessage) || error.message || 'An unknown error occurred.';
         setPaymentError(message);
         alert(`Payment failed: ${message}`);
     } finally {
@@ -292,7 +332,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
   const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (checkoutStep === 'details') {
+    if (routeStep === 'details') {
       await handleCustomerDetailsContinue();
     } else {
       await handlePaymentSubmit();
@@ -318,6 +358,15 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     );
   }
 
+  const detailsRoute = `/book/${id}/details${bookingQuery}`;
+  const pageTitle = routeStep === 'details' ? 'Customer details' : 'Secure payment';
+  const pageDescription = routeStep === 'details'
+    ? 'Add the main driver information first. The secure payment page opens after these details are saved.'
+    : 'Review the rental and customer details, then complete the secure payment to confirm the booking.';
+  const primaryButtonLabel = routeStep === 'details'
+    ? 'Continue to Payment'
+    : priceDetails.payNow > 0 ? 'Pay & Confirm Reservation' : 'Confirm Reservation';
+
   return (
     <>
     <SEOMetadata
@@ -331,22 +380,24 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             <BookingStepper currentStep={4} />
         </div>
 
-        <div className="mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-          <button
-            type="button"
-            onClick={() => setCheckoutStep('details')}
-            className={`rounded-xl px-4 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all ${checkoutStep === 'details' ? 'bg-slate-950 text-white shadow-lg shadow-slate-200' : 'text-slate-500 hover:bg-slate-50'}`}
-          >
-            Customer details
-          </button>
-          <button
-            type="button"
-            disabled={!bookingDraft}
-            onClick={() => bookingDraft && setCheckoutStep('payment')}
-            className={`rounded-xl px-4 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all disabled:cursor-not-allowed disabled:opacity-50 ${checkoutStep === 'payment' ? 'bg-[#008009] text-white shadow-lg shadow-emerald-100' : 'text-slate-500 hover:bg-slate-50'}`}
-          >
-            Payment
-          </button>
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
+              <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
+              <p className="mt-2 max-w-2xl text-sm sm:text-base font-medium leading-relaxed text-slate-600">{pageDescription}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5 sm:min-w-[360px]">
+              <div className={`rounded-xl px-3 py-3 text-center ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-500'}`}>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em]">Step 1</p>
+                <p className="mt-1 text-xs sm:text-sm font-black">Driver details</p>
+              </div>
+              <div className={`rounded-xl px-3 py-3 text-center ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-sm' : 'text-slate-500'}`}>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em]">Step 2</p>
+                <p className="mt-1 text-xs sm:text-sm font-black">Payment</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 xl:gap-10">
@@ -440,7 +491,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
               </div>
             </div>
 
-            {checkoutStep === 'details' ? (
+            {routeStep === 'details' ? (
             <>
             {/* Customer Details */}
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
@@ -479,13 +530,40 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             </div>
             </>
             ) : (
+            <>
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
+               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-5 flex items-center gap-3"><CalendarDays className="w-5 h-5 text-[#008009]"/> Rental details</h2>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Pick-up</p>
+                   <p className="mt-2 text-base font-black text-slate-950">{pickupLabel}</p>
+                   <p className="mt-1 text-sm font-semibold text-slate-600">{startDate} at {startTime}</p>
+                 </div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Drop-off</p>
+                   <p className="mt-2 text-base font-black text-slate-950">{dropoffLabel}</p>
+                   <p className="mt-1 text-sm font-semibold text-slate-600">{endDate} at {endTime}</p>
+                 </div>
+                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Vehicle</p>
+                   <p className="mt-2 text-base font-black text-slate-950">{car.displayName || `${car.make} ${car.model}`}</p>
+                   <p className="mt-1 text-sm font-semibold text-slate-600">{car.category} · {days} rental days</p>
+                 </div>
+                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
+                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Due online now</p>
+                   <p className="mt-2 text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                   <p className="mt-1 text-sm font-semibold text-emerald-800">Total rental value {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
+                 </div>
+               </div>
+            </div>
+
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
                <div className="flex items-start justify-between gap-4 mb-6">
                  <div>
                    <h2 className="text-lg sm:text-xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Customer details</h2>
                    <p className="text-sm text-slate-600 mt-2">Review the customer account information before completing payment.</p>
                  </div>
-                 <button type="button" onClick={() => setCheckoutStep('details')} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50">
+                 <button type="button" onClick={() => navigate(detailsRoute)} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50">
                    <ArrowLeft className="w-3.5 h-3.5" /> Edit
                  </button>
                </div>
@@ -496,10 +574,11 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Flight</p><p className="mt-2 text-base font-black text-slate-950">{flightNumber || 'Not provided'}</p></div>
                </div>
             </div>
+            </>
             )}
 
             {/* Payment Details */}
-            {checkoutStep === 'payment' && (
+            {routeStep === 'payment' && (
             <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
                <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-5 sm:mb-6 flex items-center gap-3"><CreditCard className="w-5 h-5 text-[#008009]"/> Secure payment details</h2>
                <div className="space-y-6">
@@ -649,7 +728,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                      </div>
                    </div>
 
-                   {checkoutStep === 'payment' && bookingDraft && (
+                   {routeStep === 'payment' && bookingDraft && (
                     <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 mb-5">
                       <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800 mb-2">Payment reservation active</p>
                       <p className="text-sm text-amber-900 leading-relaxed">Reference <strong>{bookingDraft.bookingRef || bookingDraft.id}</strong> is waiting for payment. If payment is not completed within 30 minutes, we will email the customer a professional reminder.</p>
@@ -666,10 +745,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                         {isSubmitting ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                {checkoutStep === 'details' ? 'Preparing Payment...' : 'Securely Processing...'}
+                                {routeStep === 'details' ? 'Preparing Payment...' : 'Securely Processing...'}
                             </>
                         ) : (
-                            <>{checkoutStep === 'details' ? 'Continue to Payment' : 'Pay & Confirm Reservation'} <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/></>
+                            <>{primaryButtonLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/></>
                         )}
                      </span>
                    </button>
