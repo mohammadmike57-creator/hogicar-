@@ -444,16 +444,6 @@ export const Search: React.FC = () => {
   }, [baseFilteredCars, priceRange, selectedCategories, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, sortBy, days, startDate, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly]);
   
   const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
-  const activeFiltersCount =
-    selectedCategories.length +
-    selectedSuppliers.length +
-    selectedTransmissions.length +
-    selectedFuelPolicies.length +
-    selectedPaymentTypes.length +
-    selectedLocationTypes.length +
-    (passengerCapacity > 0 ? 1 : 0) +
-    (maxDeposit > 0 ? 1 : 0) +
-    (specialOffersOnly ? 1 : 0);
 
   return (
     <>
@@ -461,7 +451,7 @@ export const Search: React.FC = () => {
         title={`Car Hire in ${location || 'Top Destinations'} | Hogicar`}
         description={`Find the best car rental deals in ${location}. Compare prices from top suppliers like Hertz, Avis, and more.`}
     />
-    <div className="min-h-screen bg-[#f4f7fb] pb-12">
+    <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
       <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
         <div className="max-w-[1600px] mx-auto px-3 py-2 sm:px-6 lg:px-8">
@@ -541,23 +531,20 @@ export const Search: React.FC = () => {
       </div>
       
 
-      <div className="hidden md:block border-b border-slate-200 bg-white py-5 shadow-[0_18px_42px_-38px_rgba(15,23,42,0.7)]">
+      <div className="hidden md:block bg-white border-b border-slate-200 py-6">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#008009]">Vehicle classes</p>
-                  <h2 className="mt-1 text-lg sm:text-xl font-black text-slate-950 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-[#008009]"/> Find the right rental car</h2>
-                  <p className="text-xs font-bold text-slate-500">Compare suppliers, payment terms, pickup type, and final total in one professional view.</p>
+                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-[#008009]"/> Filter by Category</h2>
+                  <p className="text-xs font-bold text-slate-500">Select a vehicle class to quickly narrow down your options.</p>
                 </div>
-                <div className="hidden sm:flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                      <Shield className="h-3.5 w-3.5 text-[#008009]" /> Verified rates
-                    </div>
+                <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5">
+                    <span className="text-xs text-slate-500 font-bold">Sort by:</span>
                     <div className="relative">
                         <select 
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="appearance-none bg-white border border-slate-200 text-xs text-slate-700 font-black rounded-xl pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-[#008009]/20 cursor-pointer hover:border-slate-300"
+                            className="appearance-none bg-white border border-slate-200 text-sm text-slate-700 font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#008009] cursor-pointer hover:border-slate-300"
                         >
                             <option>Recommended</option>
                             <option>Price: Low to High</option>
@@ -567,7 +554,7 @@ export const Search: React.FC = () => {
                     </div>
                 </div>
               </div>
-              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 lg:gap-5 -mx-4 px-4 md:mx-0 md:px-0">
+              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 lg:gap-6 -mx-4 px-4 md:mx-0 md:px-0">
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
@@ -581,16 +568,16 @@ export const Search: React.FC = () => {
                               key={category}
                               onClick={() => handleCategoryToggle(category)}
                               disabled={isDisabled}
-                              className={`flex-shrink-0 w-16 sm:w-20 md:w-28 lg:w-32 flex flex-col items-center gap-1.5 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              className={`flex-shrink-0 w-16 sm:w-20 md:w-28 lg:w-32 flex flex-col items-center gap-1 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
                           >
                               {isActive && (
                                   <div className="absolute top-0 right-0 -mt-1 -mr-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#008009] rounded-full flex items-center justify-center text-white border-2 border-white z-10 shadow">
                                       <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                   </div>
                               )}
-                              <div className={`w-full aspect-[4/3] rounded-xl flex items-center justify-center overflow-hidden transition-all duration-300 border shadow-sm
+                              <div className={`w-full aspect-[4/3] rounded-lg flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
                                   ${isActive
-                                      ? 'border-[#008009] shadow-lg shadow-[#008009]/20 ring-4 ring-emerald-50'
+                                      ? 'border-[#008009] shadow-lg shadow-[#008009]/30 ring-2 ring-emerald-50'
                                       : 'border-slate-200 bg-slate-50 group-hover:border-[#008009]/40 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
                                   <img src={categoryImage} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
                               </div>
@@ -620,9 +607,9 @@ export const Search: React.FC = () => {
             >
                 <SlidersHorizontal className="w-4 h-4 text-[#008009]" />
                 <span>Filters</span>
-                { activeFiltersCount > 0 && (
+                { (selectedCategories.length + selectedSuppliers.length + selectedTransmissions.length + selectedFuelPolicies.length + (passengerCapacity > 0 ? 1 : 0)) > 0 && (
                     <span className="bg-[#008009] text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
-                        {activeFiltersCount}
+                        {(selectedCategories.length + selectedSuppliers.length + selectedTransmissions.length + selectedFuelPolicies.length + (passengerCapacity > 0 ? 1 : 0))}
                     </span>
                 )}
             </button>
@@ -657,7 +644,7 @@ export const Search: React.FC = () => {
 
             <aside className={`
               relative bg-white w-full h-[90vh] mt-auto rounded-t-[28px] shadow-2xl flex flex-col
-              md:sticky md:top-[176px] md:h-auto md:max-h-[calc(100vh-196px)] md:mt-0 md:rounded-2xl md:shadow-[0_22px_55px_-38px_rgba(15,23,42,0.75)] md:border md:border-slate-200
+              md:h-auto md:mt-0 md:rounded-2xl md:shadow-[0_18px_45px_-34px_rgba(15,23,42,0.55)] md:border md:border-slate-200
               overflow-hidden md:overflow-visible transition-transform duration-500 ease-out
               ${showMobileFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
             `}>
@@ -666,9 +653,11 @@ export const Search: React.FC = () => {
                     <h3 className="font-black text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
                       <SlidersHorizontal className="w-4 h-4 text-[#008009]" /> Filters
                     </h3>
-                    <span className="bg-emerald-50 text-[#008009] md:bg-white/10 md:text-emerald-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        {activeFiltersCount > 0 ? `${activeFiltersCount} active` : `${sortedAndFilteredCars.length} results`}
-                    </span>
+                    {showMobileFilters && (
+                        <span className="md:hidden bg-emerald-50 text-[#008009] text-[10px] px-2 py-0.5 rounded-full font-bold">
+                            {sortedAndFilteredCars.length} results
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-4">
                     <button 
@@ -686,9 +675,9 @@ export const Search: React.FC = () => {
                 </div>
               </div>
 
-              <div className="divide-y divide-slate-100 overflow-y-auto md:overflow-y-auto flex-1 md:flex-auto custom-scrollbar pb-24 md:pb-0">
+              <div className="divide-y divide-slate-100 overflow-y-auto md:overflow-visible flex-1 md:flex-none custom-scrollbar pb-24 md:pb-0">
                   <div className="p-4 md:p-3 bg-emerald-50/60 md:bg-white">
-                      <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-emerald-50 p-2.5 rounded-xl border border-emerald-100 md:border-emerald-100 transition-colors">
+                      <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-slate-50 p-2 rounded-xl -ml-1 border border-emerald-100 md:border-transparent">
                           <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50" />
                           <span className="ml-2 text-xs text-slate-600 font-medium">Special Offers Only</span>
                           <Gift className="w-4 h-4 text-red-500 ml-auto" />
@@ -958,27 +947,19 @@ export const Search: React.FC = () => {
               </div>
             ) : (
                 <>
-                <div className="mb-5 overflow-hidden rounded-[22px] md:rounded-2xl border border-slate-200 bg-white shadow-[0_16px_42px_-34px_rgba(15,23,42,0.75)]">
+                <div className="mb-4 overflow-hidden rounded-[22px] md:rounded-2xl border border-slate-200 bg-white shadow-[0_16px_42px_-34px_rgba(15,23,42,0.75)]">
                     <div className="h-1 bg-[#008009]"></div>
-                    <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex items-start justify-between gap-3 p-4">
                       <div className="min-w-0">
-                        <p className="text-lg md:text-xl text-slate-950 font-black tracking-tight">
+                        <p className="text-lg md:text-sm text-slate-950 md:text-slate-900 font-black tracking-tight md:tracking-wide">
                             <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> rental cars available
                         </p>
-                        <p className="text-xs md:text-sm text-slate-500 font-bold mt-1">
+                        <p className="text-xs text-slate-500 font-bold mt-1">
                           {pickupIata || location || 'Selected location'} · {days} day{days > 1 ? 's' : ''} · Sorted by {sortBy}
                         </p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:justify-end">
-                        <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700">
-                            <Check className="w-3 h-3 text-[#008009]" /> Taxes included
-                        </div>
-                        <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-blue-700">
-                            <Shield className="w-3 h-3" /> Secure booking
-                        </div>
-                        <div className="hidden sm:flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600">
-                            <CreditCard className="w-3 h-3" /> Pay online options
-                        </div>
+                      <div className="hidden min-[420px]:flex items-center gap-2 text-[10px] text-emerald-700 font-black uppercase tracking-widest text-right rounded-full bg-emerald-50 px-3 py-1.5">
+                          <Check className="w-3 h-3 text-[#008009]" /> Taxes included
                       </div>
                     </div>
                     <div className="grid grid-cols-3 border-t border-slate-100 text-center md:hidden">
