@@ -367,7 +367,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-[22px] md:rounded-2xl shadow-[0_16px_42px_-32px_rgba(15,23,42,0.75)] hover:shadow-[0_22px_55px_-34px_rgba(15,23,42,0.55)] border border-slate-200 hover:border-[#008009]/45 transition-all duration-500 w-full group/card overflow-visible flex flex-col h-full md:hover:-translate-y-0.5 md:scale-[0.97] md:hover:scale-[0.99]">
+      <div className="relative isolate bg-white rounded-[22px] md:rounded-2xl shadow-[0_22px_60px_-38px_rgba(15,23,42,0.9)] hover:shadow-[0_28px_70px_-42px_rgba(15,23,42,0.85)] border border-slate-300/80 hover:border-[#008009]/45 transition-all duration-500 w-full group/card overflow-visible flex flex-col h-full md:hover:-translate-y-0.5">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -378,8 +378,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
 
           <div className="flex flex-col md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className={`relative md:w-1/4 bg-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-3.5 md:p-3 group/img ${car.hogicarChoice ? '' : 'rounded-t-[22px] md:rounded-l-2xl md:rounded-tr-none'}`}>
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full aspect-[16/7.5] sm:aspect-[16/7] md:aspect-[16/10] flex items-center justify-center mb-3 md:mb-4 rounded-2xl md:rounded-xl bg-gradient-to-b from-slate-50 to-white border border-slate-100 overflow-hidden">
+              <div className={`relative md:w-[27%] bg-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-3.5 md:p-4 group/img ${car.hogicarChoice ? '' : 'rounded-t-[22px] md:rounded-l-2xl md:rounded-tr-none'}`}>
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full aspect-[16/7.5] sm:aspect-[16/7] md:aspect-[16/9.5] flex items-center justify-center mb-3 md:mb-4 rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-100 overflow-hidden">
                       <img
                         src={displayImage}
                         alt={`${car.make} ${car.model}`}
@@ -438,10 +438,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
               </div>
 
               <div className="flex-grow flex flex-col md:flex-row">
-                  <div className="p-4 md:p-3 flex-grow border-b md:border-b-0 md:border-r border-slate-100">
+                  <div className="p-4 md:p-5 flex-grow border-b md:border-b-0 md:border-r border-slate-100">
                       {/* Title & Category */}
                       <div className="mb-3 md:mb-4">
-                          <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
                               <span className="bg-slate-100 text-slate-600 text-[10px] md:text-[9px] font-black px-2.5 py-1 md:px-1.5 md:py-0.5 rounded-full md:rounded uppercase tracking-wider">
                                   {car.category}
                               </span>
@@ -450,7 +450,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                               </span>
                           </div>
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                              <h3 className="text-xl sm:text-[1.35rem] md:text-[1rem] font-black text-slate-950 md:text-slate-900 leading-tight hover:text-[#008009] transition-colors tracking-tight md:uppercase line-clamp-2 md:line-clamp-1">
+                              <h3 className="text-xl sm:text-[1.35rem] md:text-[1.12rem] font-black text-slate-950 md:text-slate-900 leading-tight hover:text-[#008009] transition-colors tracking-tight line-clamp-2 md:line-clamp-1">
                                   {car.displayName}
                               </h3>
                           </Link>
@@ -460,7 +460,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       </div>
 
                       {/* Specs Grid (Compact) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-2 md:gap-x-3 md:gap-y-2 mb-3 md:mb-4 p-2.5 md:py-2.5 border border-slate-100 md:border-y md:border-x-0 bg-slate-50 rounded-2xl md:rounded px-2 md:px-2.5">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-2 md:gap-x-3 md:gap-y-2 mb-3 md:mb-4 p-2.5 md:p-3 border border-slate-100 md:border-slate-200 bg-slate-50 rounded-2xl">
                           <div className="flex items-center gap-2 rounded-xl md:rounded-none bg-white md:bg-transparent px-2 py-2 md:p-0 text-slate-600">
                               <Users className="w-3.5 h-3.5 text-slate-400"/>
                               <span className="text-[11px] md:text-[11px] font-bold">{car.passengers}<span className="hidden sm:inline"> Adults</span></span>
@@ -513,7 +513,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-4 md:p-3 md:w-1/3 bg-slate-50/80 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-[22px] md:rounded-r-2xl md:rounded-bl-none">
+                  <div className="p-4 md:p-5 md:w-[31%] bg-slate-50/90 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-[22px] md:rounded-r-2xl md:rounded-bl-none">
                       <div>
                           {/* Pricing Info */}
                           <div className="flex flex-row items-end justify-between gap-3 md:flex-col md:items-stretch mb-3 md:mb-4">
@@ -532,7 +532,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                           {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                       </span>
                                   )}
-                                  <span className="text-xl md:text-xl font-black text-slate-900 tracking-tighter">
+                                  <span className="text-2xl md:text-2xl font-black text-slate-900 tracking-tighter">
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
@@ -569,7 +569,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                             to={`/car/${car.id}?${searchParams}`}
                             state={{ cars: cars }}
                             onClick={handleSelectCar}
-                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-3 rounded-xl shadow-md md:shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-xs md:text-[10px] uppercase tracking-widest relative overflow-hidden"
+                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3.5 md:py-3.5 rounded-xl shadow-md md:shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-xs md:text-[11px] uppercase tracking-widest relative overflow-hidden"
                           >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                               <span className="relative z-10 flex items-center justify-center gap-1 md:gap-2">
