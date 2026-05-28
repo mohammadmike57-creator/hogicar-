@@ -367,18 +367,18 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="relative isolate bg-white rounded-[22px] md:rounded-2xl shadow-[0_22px_60px_-38px_rgba(15,23,42,0.9)] hover:shadow-[0_28px_70px_-42px_rgba(15,23,42,0.85)] border border-slate-300/80 hover:border-[#008009]/45 transition-all duration-500 w-full group/card overflow-visible flex flex-col h-full md:hover:-translate-y-0.5">
+      <div className="relative isolate bg-white rounded-2xl shadow-sm hover:shadow-md border border-slate-200 hover:border-emerald-500/30 transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full md:hover:-translate-y-0.5">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-1.5 flex items-center justify-center gap-2 rounded-t-2xl">
                 <Award className="w-3.5 h-3.5 text-white fill-white/20" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Hogicar Recommended</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">Hogicar Recommended</span>
             </div>
           )}
 
           <div className="flex flex-col md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className={`relative md:w-[27%] bg-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-3.5 md:p-4 group/img ${car.hogicarChoice ? '' : 'rounded-t-[22px] md:rounded-l-2xl md:rounded-tr-none'}`}>
+              <div className={`relative md:w-[28%] bg-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-4 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full aspect-[16/7.5] sm:aspect-[16/7] md:aspect-[16/9.5] flex items-center justify-center mb-3 md:mb-4 rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-100 overflow-hidden">
                       <img
                         src={displayImage}
@@ -407,8 +407,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                           />
                         </div>
                         <div className="min-w-0 md:hidden">
-                          <p className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">Supplier</p>
-                          <p className="truncate text-xs font-black text-slate-900">{car.supplier.name}</p>
+                          <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Supplier</p>
+                          <p className="truncate text-xs font-bold text-slate-900">{car.supplier.name}</p>
                         </div>
                       </div>
                       <div
@@ -422,14 +422,14 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                         }}
                       >
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] md:text-[11px] font-black text-slate-900 leading-none mb-0.5 whitespace-nowrap">
+                            <span className="text-[10px] md:text-[11px] font-bold text-slate-900 leading-none mb-0.5 whitespace-nowrap">
                               {getRatingDescription(car.supplier.rating)}
                             </span>
-                            <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap">
+                            <span className="text-[9px] font-semibold text-slate-400 whitespace-nowrap">
                               Supplier Rating
                             </span>
                           </div>
-                          <div className="bg-[#008009] text-white text-sm md:text-[14px] font-black w-9 h-9 flex items-center justify-center rounded-lg shadow-sm shrink-0 ring-4 ring-emerald-50">
+                          <div className="bg-emerald-600 text-white text-sm md:text-[14px] font-bold w-9 h-9 flex items-center justify-center rounded-lg shadow-sm shrink-0 ring-4 ring-emerald-50">
                               {car.supplier.rating}
                           </div>
                           {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" className="max-sm:fixed max-sm:left-3 max-sm:right-3 max-sm:top-24 max-sm:bottom-auto max-sm:w-auto max-sm:mb-0" />}
@@ -442,62 +442,62 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       {/* Title & Category */}
                       <div className="mb-3 md:mb-4">
                           <div className="flex items-center justify-between gap-2 mb-2.5">
-                              <span className="bg-slate-100 text-slate-600 text-[10px] md:text-[9px] font-black px-2.5 py-1 md:px-1.5 md:py-0.5 rounded-full md:rounded uppercase tracking-wider">
+                              <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                                   {car.category}
                               </span>
-                              <span className="md:hidden rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#008009]">
+                              <span className="md:hidden rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#008009]">
                                   {car.supplier.bookingMode === 'FREE_SALE' ? 'Instant' : 'On request'}
                               </span>
                           </div>
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                              <h3 className="text-xl sm:text-[1.35rem] md:text-[1.12rem] font-black text-slate-950 md:text-slate-900 leading-tight hover:text-[#008009] transition-colors tracking-tight line-clamp-2 md:line-clamp-1">
+                              <h3 className="text-lg md:text-xl font-bold text-slate-900 leading-snug hover:text-emerald-600 transition-colors tracking-tight line-clamp-2 md:line-clamp-1">
                                   {car.displayName}
                               </h3>
                           </Link>
-                          <p className="text-xs md:text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-1.5">
-                              or similar <Info className="w-3 h-3 md:w-2.5 md:h-2.5" />
+                          <p className="text-sm md:text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+                              or similar <Info className="w-3.5 h-3.5 md:w-3 md:h-3" />
                           </p>
                       </div>
 
                       {/* Specs Grid (Compact) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-2 md:gap-x-3 md:gap-y-2 mb-3 md:mb-4 p-2.5 md:p-3 border border-slate-100 md:border-slate-200 bg-slate-50 rounded-2xl">
-                          <div className="flex items-center gap-2 rounded-xl md:rounded-none bg-white md:bg-transparent px-2 py-2 md:p-0 text-slate-600">
-                              <Users className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[11px] md:text-[11px] font-bold">{car.passengers}<span className="hidden sm:inline"> Adults</span></span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-3 mb-4 p-3 border border-slate-100 bg-slate-50/50 rounded-xl">
+                          <div className="flex items-center gap-2 text-slate-700">
+                              <Users className="w-4 h-4 text-slate-400"/>
+                              <span className="text-xs font-semibold">{car.passengers} <span className="hidden sm:inline">Seats</span></span>
                           </div>
-                          <div className="flex items-center gap-2 rounded-xl md:rounded-none bg-white md:bg-transparent px-2 py-2 md:p-0 text-slate-600">
-                              <Briefcase className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[11px] md:text-[11px] font-bold">{car.bags}<span className="hidden sm:inline"> Bags</span></span>
+                          <div className="flex items-center gap-2 text-slate-700">
+                              <Briefcase className="w-4 h-4 text-slate-400"/>
+                              <span className="text-xs font-semibold">{car.bags} <span className="hidden sm:inline">Bags</span></span>
                           </div>
-                          <div className="flex items-center gap-2 rounded-xl md:rounded-none bg-white md:bg-transparent px-2 py-2 md:p-0 text-slate-600">
-                              <div className="text-slate-400 scale-[0.8] md:scale-90"><AutomaticIcon /></div>
-                              <span className="text-[11px] md:text-[11px] font-bold">
+                          <div className="flex items-center gap-2 text-slate-700">
+                              <div className="text-slate-400"><AutomaticIcon /></div>
+                              <span className="text-xs font-semibold">
                                   {car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}
                               </span>
                           </div>
-                          <div className="flex items-center gap-2 rounded-xl md:rounded-none bg-white md:bg-transparent px-2 py-2 md:p-0 text-slate-600">
-                              <Wind className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[11px] md:text-[11px] font-bold">A/C</span>
+                          <div className="flex items-center gap-2 text-slate-700">
+                              <Wind className="w-4 h-4 text-slate-400"/>
+                              <span className="text-xs font-semibold">A/C</span>
                           </div>
                       </div>
 
                       {/* Included Features checklist */}
-                      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-1.5 mb-3 md:mb-4">
-                          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2 py-1.5 text-[11px] md:text-[10px] font-bold text-[#008009]">
-                              <CalendarCheck className="w-3.5 h-3.5 md:w-3.5 md:h-3.5 stroke-[3px] shrink-0" />
+                      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 mb-4">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                              <Check className="w-4 h-4 shrink-0" />
                               <span>Free Cancellation</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] md:text-[10px] font-bold text-slate-700">
-                              <Fuel className="w-3.5 h-3.5 text-[#008009] stroke-[3px] shrink-0" />
+                          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                               <span className="truncate">{car.fuelPolicy === 'FULL_TO_FULL' ? 'Fair Fuel Policy' : car.fuelPolicy}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] md:text-[10px] font-bold text-slate-700">
-                              <GaugeCircle className="w-3.5 h-3.5 text-[#008009] stroke-[3px] shrink-0" />
+                          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                               <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} Mileage</span>
                           </div>
                           {car.supplier.bookingMode === 'FREE_SALE' && (
-                            <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2 py-1.5 text-[11px] md:text-[10px] font-bold text-blue-600">
-                                <Zap className="w-3.5 h-3.5 fill-blue-600/20 shrink-0" />
+                            <div className="flex items-center gap-2 text-sm font-semibold text-blue-600">
+                                <Zap className="w-4 h-4 fill-blue-600/10 shrink-0" />
                                 <span className="truncate">Instant Confirmation</span>
                             </div>
                           )}
@@ -506,85 +506,85 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                       {/* Social Proof Message */}
                       {recentBookingInfo.isRecent && (
                         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 p-2 rounded-lg mt-3 md:mt-2">
-                           <Clock className="w-3.5 h-3.5 md:w-3 md:h-3 text-[#008009]" />
-                           <span className="text-[10px] font-black text-[#008009] uppercase tracking-wider">{recentBookingInfo.message}</span>
+                           <Clock className="w-3.5 h-3.5 md:w-3 md:h-3 text-emerald-600" />
+                           <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">{recentBookingInfo.message}</span>
                         </div>
                       )}
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-4 md:p-5 md:w-[31%] bg-slate-50/90 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-[22px] md:rounded-r-2xl md:rounded-bl-none">
+                  <div className="p-4 md:p-5 md:w-[32%] bg-slate-50/40 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
                       <div>
                           {/* Pricing Info */}
-                          <div className="flex flex-row items-end justify-between gap-3 md:flex-col md:items-stretch mb-3 md:mb-4">
+                          <div className="flex flex-row items-end justify-between gap-3 md:flex-col md:items-stretch mb-4">
                             <div>
-                              <div className="flex items-start justify-between gap-2 mb-1">
-                                <p className="text-[10px] md:text-[9px] text-slate-500 font-black uppercase tracking-widest">Total <span>for {days} days</span></p>
+                              <div className="flex items-start justify-between gap-2 mb-1.5">
+                                <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total for {days} days</p>
                                 {car.supplier.rating >= 4.5 && (
-                                    <div className="hidden md:flex shrink-0 items-center gap-1 text-[9px] font-black text-[#008009] uppercase bg-[#008009]/5 px-1.5 py-0.5 rounded">
-                                        <Award className="w-2.5 h-2.5" /> <span>Best Value</span>
+                                    <div className="hidden md:flex shrink-0 items-center gap-1 text-[10px] font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                                        <Award className="w-3 h-3" /> <span>Best Value</span>
                                     </div>
                                 )}
                               </div>
-                              <div className="flex flex-wrap items-center gap-1 md:gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
                                   {car.promotionPercent > 0 && (
-                                      <span className="text-[10px] text-slate-300 line-through font-bold">
+                                      <span className="text-sm text-slate-400 line-through font-medium">
                                           {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                       </span>
                                   )}
-                                  <span className="text-2xl md:text-2xl font-black text-slate-900 tracking-tighter">
+                                  <span className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
-                              <p className="text-[11px] md:text-[9px] text-slate-500 font-bold mt-1 flex items-center gap-1">
-                                  <Shield className="w-3 h-3 md:w-2.5 md:h-2.5" /> All taxes included
+                              <p className="text-xs text-slate-500 font-medium mt-1.5 flex items-center gap-1.5">
+                                  <Shield className="w-3.5 h-3.5 text-slate-400" /> All taxes included
                               </p>
                             </div>
                             {car.supplier.rating >= 4.5 && (
-                                <div className="md:hidden flex shrink-0 items-center gap-1 text-[9px] font-black text-[#008009] uppercase bg-[#008009]/5 px-2 py-1 rounded-full">
-                                    <Award className="w-3 h-3" /> <span>Best Value</span>
+                                <div className="md:hidden flex shrink-0 items-center gap-1 text-[10px] font-bold text-emerald-700 uppercase bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                                    <Award className="w-3.5 h-3.5" /> <span>Best Value</span>
                                 </div>
                             )}
                           </div>
 
-                          <div className="mb-3 md:mb-6 p-3 md:p-3 bg-white rounded-2xl md:rounded-xl border border-[#008009]/10 shadow-sm flex items-center justify-between md:block gap-3">
+                          <div className="mb-4 p-4 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-between md:block gap-3">
                             <div>
-                              <p className="text-[10px] md:text-[9px] text-emerald-700 font-black uppercase tracking-widest mb-1 flex items-center gap-1">
-                                  <CreditCardIcon className="w-3 h-3" /> Pay Now
+                              <p className="text-[11px] text-emerald-700 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                  <CreditCardIcon className="w-3.5 h-3.5" /> Pay Now
                               </p>
-                              <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
-                                  <span className="text-lg md:text-xl font-black text-[#008009] tracking-tight">
+                              <div className="flex flex-wrap items-baseline gap-1.5">
+                                  <span className="text-xl md:text-2xl font-black text-emerald-600 tracking-tight">
                                       {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
                                   </span>
-                                  <span className="text-[10px] text-[#008009]/60 font-bold italic">to secure car</span>
+                                  <span className="text-[11px] text-emerald-600/70 font-semibold italic">to secure car</span>
                               </div>
                             </div>
-                            <p className="text-right text-[10px] font-bold leading-tight text-slate-500 md:hidden">Pay the rest at pickup</p>
+                            <p className="text-right text-[11px] font-medium leading-tight text-slate-500 md:hidden">Pay the rest at pickup</p>
                           </div>
                       </div>
 
-                      <div className="space-y-2.5 md:space-y-4">
+                      <div className="space-y-3 md:space-y-4">
                           {/* CTA Button */}
                           <Link
                             to={`/car/${car.id}?${searchParams}`}
                             state={{ cars: cars }}
                             onClick={handleSelectCar}
-                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3.5 md:py-3.5 rounded-xl shadow-md md:shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-lg transition-all active:scale-[0.98] text-center text-xs md:text-[11px] uppercase tracking-widest relative overflow-hidden"
+                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-bold py-4 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-center text-sm uppercase tracking-widest relative overflow-hidden"
                           >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
-                              <span className="relative z-10 flex items-center justify-center gap-1 md:gap-2">
-                                  View <span>Deal</span> <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
+                              <span className="relative z-10 flex items-center justify-center gap-2">
+                                  View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
                               </span>
                           </Link>
                           
                           {/* Badges Footer */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 md:pt-2 border-t border-slate-200/60">
-                              <div className="flex min-w-0 items-center gap-1.5">
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                              <div className="flex min-w-0 items-center gap-2">
                                   {(() => {
                                       const pickupType = car.supplier?.pickupType;
                                       const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
-                                        <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-2 py-1 rounded-md text-[9px] uppercase tracking-wider border border-current/10`}>
-                                            {React.cloneElement(icon as React.ReactElement<any>, { className: "w-3 h-3" })}
+                                        <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-bold px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wider border border-current/10`}>
+                                            {React.cloneElement(icon as React.ReactElement<any>, { className: "w-3.5 h-3.5" })}
                                             {text}
                                         </div>
                                       );
@@ -596,8 +596,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
                                   })()}
                               </div>
 
-                              <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1 text-[10px] text-slate-500 hover:text-[#008009] font-black uppercase tracking-widest transition-colors group/cond">
-                                  <FileText className="w-3.5 h-3.5 group-hover/cond:scale-110 transition-transform" />
+                              <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-600 font-bold uppercase tracking-widest transition-colors group/cond">
+                                  <FileText className="w-4 h-4 group-hover/cond:scale-110 transition-transform" />
                                   <span>Conditions</span>
                               </button>
                           </div>
