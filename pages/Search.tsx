@@ -461,19 +461,19 @@ export const Search: React.FC = () => {
         title={`Car Hire in ${location || 'Top Destinations'} | Hogicar`}
         description={`Find the best car rental deals in ${location}. Compare prices from top suppliers like Hertz, Avis, and more.`}
     />
-    <div className="min-h-screen bg-slate-50 pb-12">
+    <div className="min-h-screen bg-[#f4f7fb] pb-12">
       {/* Search Header */}
       <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
         <div className="max-w-[1600px] mx-auto px-3 py-2 sm:px-6 lg:px-8">
             <div className="rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-2.5 py-2">
               <div className="grid grid-cols-[1fr_auto] gap-2 lg:grid-cols-[minmax(190px,0.9fr)_minmax(260px,1.2fr)_auto] lg:items-center">
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="bg-emerald-500/10 p-2 rounded-xl flex-shrink-0 border border-emerald-500/20">
-                    <MapPin className="w-4 h-4 text-emerald-500" />
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="bg-[#008009]/15 p-1.5 rounded-lg flex-shrink-0 border border-[#008009]/25">
+                    <MapPin className="w-3.5 h-3.5 text-[#00a30b]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[15px] font-bold text-white truncate">{location || 'Select Location'}</p>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-slate-400 min-w-0">
+                    <p className="text-sm font-black text-white truncate">{location || 'Select Location'}</p>
+                    <div className="mt-0.5 flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold text-slate-400 min-w-0">
                       <span className="truncate">{pickupIata || 'Pickup'}</span>
                       <ArrowRight className="w-3 h-3 text-slate-600 shrink-0" />
                       <span className="truncate">{dropoffIata || pickupIata || 'Dropoff'}</span>
@@ -481,19 +481,19 @@ export const Search: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="col-span-2 grid grid-cols-2 gap-2 lg:col-span-1 lg:flex lg:min-w-0 lg:justify-center">
-                  <div className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/40 px-3 py-2">
-                    <Calendar className="w-4 h-4 text-emerald-500 shrink-0" />
+                <div className="col-span-2 grid grid-cols-2 gap-1.5 lg:col-span-1 lg:flex lg:min-w-0 lg:justify-center">
+                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5">
+                    <Calendar className="w-3 h-3 text-[#00a30b] shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Pickup</p>
-                      <p className="text-xs font-bold text-white truncate">{startDateTimeDisplay}</p>
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Pickup</p>
+                      <p className="text-[11px] font-black text-white truncate">{startDateTimeDisplay}</p>
                     </div>
                   </div>
-                  <div className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/40 px-3 py-2">
-                    <Calendar className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5">
+                    <Calendar className="w-3 h-3 text-[#00a30b] shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Return</p>
-                      <p className="text-xs font-bold text-white truncate">{endDateTimeDisplay}</p>
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Return</p>
+                      <p className="text-[11px] font-black text-white truncate">{endDateTimeDisplay}</p>
                     </div>
                   </div>
                 </div>
@@ -546,8 +546,8 @@ export const Search: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#008009]">Vehicle classes</p>
-                  <h2 className="mt-1 text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-emerald-600"/> Find your perfect rental</h2>
-                  <p className="text-sm font-medium text-slate-500">Compare top suppliers and transparent rates in one place.</p>
+                  <h2 className="mt-1 text-lg sm:text-xl font-black text-slate-950 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-[#008009]"/> Find the right rental car</h2>
+                  <p className="text-xs font-bold text-slate-500">Compare suppliers, payment terms, pickup type, and final total in one professional view.</p>
                 </div>
                 <div className="hidden sm:flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
@@ -642,7 +642,7 @@ export const Search: React.FC = () => {
             </button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
           
           {/* Filters Sidebar / Mobile Pop-up */}
           <div className={`
@@ -657,16 +657,16 @@ export const Search: React.FC = () => {
 
             <aside className={`
               relative bg-white w-full h-[90vh] mt-auto rounded-t-[28px] shadow-2xl flex flex-col
-              md:sticky md:top-[180px] md:h-auto md:max-h-[calc(100vh-200px)] md:mt-0 md:rounded-2xl md:shadow-sm md:border md:border-slate-200
+              md:sticky md:top-[176px] md:h-auto md:max-h-[calc(100vh-196px)] md:mt-0 md:rounded-2xl md:shadow-[0_22px_55px_-38px_rgba(15,23,42,0.75)] md:border md:border-slate-200
               overflow-hidden md:overflow-visible transition-transform duration-500 ease-out
               ${showMobileFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
             `}>
               <div className="flex items-center justify-between p-5 md:p-4 border-b border-slate-100 md:bg-slate-950 md:text-white md:rounded-t-2xl">
                 <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-                      <SlidersHorizontal className="w-4 h-4 text-emerald-500" /> Filters
+                    <h3 className="font-black text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
+                      <SlidersHorizontal className="w-4 h-4 text-[#008009]" /> Filters
                     </h3>
-                    <span className="bg-emerald-50 text-emerald-700 md:bg-white/10 md:text-emerald-200 text-xs px-2 py-0.5 rounded-full font-bold">
+                    <span className="bg-emerald-50 text-[#008009] md:bg-white/10 md:text-emerald-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
                         {activeFiltersCount > 0 ? `${activeFiltersCount} active` : `${sortedAndFilteredCars.length} results`}
                     </span>
                 </div>
@@ -697,7 +697,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Price')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Price per Day</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Price per Day</span>
                           {openFilters.includes('Price') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Price') && (
@@ -720,7 +720,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Car Category</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
@@ -743,7 +743,7 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Passengers')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Number of seats</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Number of seats</span>
                           {openFilters.includes('Passengers') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Passengers') && (
@@ -759,7 +759,7 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Payment')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Payment Type</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Payment Type</span>
                           {openFilters.includes('Payment') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Payment') && (
@@ -812,7 +812,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Transmission')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Transmission</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Transmission</span>
                           {openFilters.includes('Transmission') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Transmission') && (
@@ -830,7 +830,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Fuel')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Fuel Policy</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Fuel Policy</span>
                           {openFilters.includes('Fuel') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Fuel') && (
@@ -848,7 +848,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 uppercase tracking-wider">Suppliers in {pickupIata || location}</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Suppliers in {pickupIata || location}</span>
                           {openFilters.includes('Supplier') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Supplier') && (
@@ -962,22 +962,22 @@ export const Search: React.FC = () => {
                     <div className="h-1 bg-[#008009]"></div>
                     <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
                       <div className="min-w-0">
-                        <p className="text-lg md:text-xl text-slate-900 font-bold tracking-tight">
-                            <span className="text-emerald-600">{sortedAndFilteredCars.length}</span> rental cars available
+                        <p className="text-lg md:text-xl text-slate-950 font-black tracking-tight">
+                            <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> rental cars available
                         </p>
-                        <p className="text-sm text-slate-500 font-medium mt-1">
-                          {pickupIata || location || 'Selected location'} · {days} days · Sorted by {sortBy}
+                        <p className="text-xs md:text-sm text-slate-500 font-bold mt-1">
+                          {pickupIata || location || 'Selected location'} · {days} day{days > 1 ? 's' : ''} · Sorted by {sortBy}
                         </p>
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:justify-end">
-                        <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
-                            <Check className="w-3.5 h-3.5 text-emerald-500" /> Taxes included
+                        <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                            <Check className="w-3 h-3 text-[#008009]" /> Taxes included
                         </div>
-                        <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-blue-700">
-                            <Shield className="w-3.5 h-3.5" /> Secure booking
+                        <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-blue-700">
+                            <Shield className="w-3 h-3" /> Secure booking
                         </div>
-                        <div className="hidden sm:flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                            <CreditCard className="w-3.5 h-3.5" /> Pay online
+                        <div className="hidden sm:flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                            <CreditCard className="w-3 h-3" /> Pay online options
                         </div>
                       </div>
                     </div>
