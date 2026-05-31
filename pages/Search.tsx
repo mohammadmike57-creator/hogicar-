@@ -419,6 +419,7 @@ export const Search: React.FC = () => {
       if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
       if (selectedPaymentTypes.length > 0 && !selectedPaymentTypes.includes(car.supplier.commissionType)) return false;
       if (maxDeposit > 0 && car.deposit > maxDeposit) return false;
+      if (specialOffersOnly && !car.promotionAmount && !car.promotionPercent && !car.tags?.some(tag => /deal|offer|promo|discount/i.test(tag))) return false;
       if (selectedLocationTypes.length > 0) {
           const pt = car.supplier?.pickupType;
           let carMatch = false;
@@ -594,7 +595,7 @@ export const Search: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-5">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-4">
         
         {/* Mobile Filter & Sort Controls */}
         <div className="md:hidden my-3 bg-white/95 backdrop-blur p-2 border border-slate-200 rounded-2xl sticky top-2 z-20 grid grid-cols-2 gap-2 shadow-[0_14px_36px_-28px_rgba(15,23,42,0.7)]">
@@ -629,7 +630,7 @@ export const Search: React.FC = () => {
             </button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-5 lg:gap-7 items-start">
+        <div className="flex flex-col md:flex-row gap-4 lg:gap-5 items-start">
           
           {/* Filters Sidebar / Mobile Pop-up */}
           <div className={`
@@ -947,23 +948,23 @@ export const Search: React.FC = () => {
               </div>
             ) : (
                 <>
-                <div className="flex items-center justify-between gap-3 mb-4 bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+                <div className="flex items-center justify-between gap-3 mb-3 bg-white border border-black/[0.04] rounded-2xl shadow-sm p-3 md:p-3.5">
                     <div className="min-w-0">
-                      <p className="text-base md:text-sm text-slate-900 font-black uppercase tracking-tight md:tracking-wide">
-                          <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> cars available
+                      <p className="text-sm md:text-sm text-slate-900 font-bold">
+                          <span className="text-[#1180C4] font-extrabold">{sortedAndFilteredCars.length}</span> vehicles available
                       </p>
-                      <p className="text-[11px] text-slate-500 font-bold mt-1">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
                         {pickupIata || location || 'Selected location'} • {days} day{days > 1 ? 's' : ''}
                       </p>
                     </div>
-                    <div className="flex max-[420px]:hidden items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest text-right rounded-full bg-emerald-50 px-3 py-1.5">
-                        <Check className="w-3 h-3 text-[#008009]" /> Taxes & fees included
+                    <div className="flex max-[420px]:hidden items-center gap-1.5 text-[10px] text-emerald-700 font-semibold rounded-full bg-emerald-50 px-3 py-1.5">
+                        <Check className="w-3 h-3" /> All taxes included
                     </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:gap-3 px-0">
+                <div className="grid grid-cols-1 gap-3 md:gap-2.5 px-0">
                     {sortedAndFilteredCars.map(car => (
-                        <CarCard 
-                            key={car.id} 
+                        <CarCard
+                            key={car.id}
                             car={car}
                             cars={sortedAndFilteredCars}
                             days={days}
