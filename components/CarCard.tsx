@@ -367,221 +367,223 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
+      <div className="bg-white rounded-2xl shadow-[0_8px_24px_-12px_rgba(15,23,42,0.4)] hover:shadow-[0_16px_40px_-16px_rgba(15,23,42,0.35)] border border-slate-200 hover:border-[#008009]/30 transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full hover:-translate-y-0.5 md:scale-[0.97] md:hover:scale-[0.99]">
+          {/* Header Badge */}
+          {car.hogicarChoice && (
+            <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
+                <Award className="w-4 h-4 text-white fill-white/20" />
+                <span className="text-xs font-black uppercase tracking-widest">Hogicar Recommended</span>
+            </div>
+          )}
 
-      {/* PREMIUM CARD DESIGN */}
-      <div className="relative bg-white rounded-[24px] border border-black/[0.04] shadow-[0_10px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_16px_50px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 w-full overflow-hidden group/card">
+          <div className="flex flex-col md:flex-row flex-grow">
+              {/* Car Image Area */}
+              <div className={`relative md:w-1/4 bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-4 md:p-3 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="w-full aspect-[16/9] md:aspect-[16/10] flex items-center justify-center mb-3 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100">
+                      <img
+                        src={displayImage}
+                        alt={`${car.make} ${car.model}`}
+                        onError={() => setImageError(true)}
+                        referrerPolicy="no-referrer"
+                        loading="eager"
+                        className="w-full h-full object-contain p-2 group-hover/img:scale-105 transition-transform duration-500 ease-out"
+                      />
 
-        {/* Hogicar Choice Badge - Top Right */}
-        {car.hogicarChoice && (
-          <div className="absolute top-5 right-5 z-20 bg-[#F57C00] text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-            <Award className="w-4 h-4 fill-white/30" />
-            <span className="text-xs font-bold tracking-wide">HogiCar Choice</span>
-          </div>
-        )}
+                      {promotionLabel && (
+                          <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg z-10">
+                              <Tag className="w-3.5 h-3.5 fill-white/20"/> {promotionLabel}
+                          </div>
+                      )}
+                  </Link>
 
-        <div className="p-5 md:p-6">
-          {/* TOP SECTION - Vehicle Info & Image */}
-          <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-6 mb-5">
-
-            {/* Left: Vehicle Name & Category */}
-            <div className="flex-1 min-w-0">
-              <div className="mb-3">
-                <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                  <h3 className="text-2xl md:text-[32px] font-bold text-[#111827] leading-tight hover:text-[#1180C4] transition-colors mb-1">
-                    {car.displayName}
-                  </h3>
-                </Link>
-                <p className="text-sm text-[#6B7280] font-medium">or similar vehicle</p>
-              </div>
-
-              {/* Best Value Badge */}
-              {(car.promotionPercent > 0 || car.supplier.rating >= 4.5) && (
-                <div className="inline-flex items-center gap-1.5 bg-[#DCFCE7] text-[#15803D] px-3 py-1.5 rounded-full text-xs font-bold mb-4">
-                  <Gift className="w-3.5 h-3.5" />
-                  <span>Best Value</span>
-                </div>
-              )}
-
-              {/* Premium Feature Chips - Horizontal Scroll */}
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-[14px] px-3 py-2.5 shrink-0">
-                  <Users className="w-4 h-4 text-[#6B7280]" />
-                  <span className="text-sm font-semibold text-[#111827]">{car.passengers} Seats</span>
-                </div>
-
-                <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-[14px] px-3 py-2.5 shrink-0">
-                  <div className="text-[#6B7280] scale-90"><AutomaticIcon /></div>
-                  <span className="text-sm font-semibold text-[#111827]">{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
-                </div>
-
-                <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-[14px] px-3 py-2.5 shrink-0">
-                  <Briefcase className="w-4 h-4 text-[#6B7280]" />
-                  <span className="text-sm font-semibold text-[#111827]">{car.bags} Bags</span>
-                </div>
-
-                <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-[14px] px-3 py-2.5 shrink-0">
-                  <Fuel className="w-4 h-4 text-[#6B7280]" />
-                  <span className="text-sm font-semibold text-[#111827]">{car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy}</span>
-                </div>
-
-                {car.unlimitedMileage && (
-                  <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-[14px] px-3 py-2.5 shrink-0">
-                    <GaugeCircle className="w-4 h-4 text-[#6B7280]" />
-                    <span className="text-sm font-semibold text-[#111827]">Unlimited Mileage</span>
+                  {/* Supplier & Rating Block */}
+                  <div className="flex items-center justify-between gap-3 pt-3 md:pt-4 border-t border-slate-100 mt-auto w-full">
+                      <img
+                          src={car.supplier.logo || (car.supplier as any).logoUrl}
+                          alt={car.supplier.name}
+                          className="h-11 md:h-10 w-auto object-contain max-w-[140px] md:max-w-[118px]"
+                      />
+                      <div
+                        className="flex items-center gap-2 group/rating relative cursor-pointer z-20"
+                        onMouseEnter={() => setShowRatingsTooltip(true)}
+                        onMouseLeave={() => setShowRatingsTooltip(false)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowRatingsTooltip(!showRatingsTooltip);
+                        }}
+                      >
+                          <div className="flex flex-col items-end">
+                            <span className="text-xs md:text-[11px] font-black text-slate-900 leading-none mb-1">
+                              {getRatingDescription(car.supplier.rating)}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap">
+                              Supplier Rating
+                            </span>
+                          </div>
+                          <div className="bg-[#008009] text-white text-base md:text-[14px] font-black w-10 h-10 md:w-9 md:h-9 flex items-center justify-center rounded-xl shadow-md shrink-0 ring-4 ring-emerald-50">
+                              {car.supplier.rating}
+                          </div>
+                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" />}
+                      </div>
                   </div>
-                )}
               </div>
 
-              {/* Location Section */}
-              <div className="mt-4 flex items-start gap-2 text-sm text-[#6B7280]">
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium text-[#111827]">{pickupCode || 'Pickup Location'}</p>
-                  <p className="text-xs">
-                    {(() => {
-                      const pickupType = car.supplier?.pickupType;
-                      if (pickupType === 'IN_TERMINAL') return 'In Terminal';
-                      if (pickupType === 'MEET_AND_GREET') return 'Meet & Greet';
-                      if (pickupType === 'SHUTTLE_BUS') return 'Shuttle Bus';
-                      return car.locationDetail || 'See details';
-                    })()}
-                  </p>
-                </div>
-              </div>
-            </div>
+              <div className="flex-grow flex flex-col md:flex-row">
+                  <div className="p-4 md:p-3 flex-grow border-b md:border-b-0 md:border-r border-slate-100">
+                      {/* Title & Category */}
+                      <div className="mb-4 md:mb-4">
+                          <div className="flex items-center gap-2 mb-2">
+                              <span className="bg-slate-100 text-slate-700 text-xs md:text-[9px] font-black px-2.5 py-1.5 md:px-1.5 md:py-0.5 rounded-lg uppercase tracking-wide">
+                                  {car.category}
+                              </span>
+                          </div>
+                          <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
+                              <h3 className="text-lg md:text-[1rem] font-black text-slate-900 leading-snug hover:text-[#008009] transition-colors uppercase tracking-tight line-clamp-2 md:line-clamp-1">
+                                  {car.displayName}
+                              </h3>
+                          </Link>
+                          <p className="text-xs md:text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-1.5">
+                              or similar <Info className="w-3.5 h-3.5 md:w-2.5 md:h-2.5" />
+                          </p>
+                      </div>
 
-            {/* Right: Large Vehicle Image */}
-            <div className="md:w-[40%] flex items-center justify-center">
-              <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full">
-                <div className="relative aspect-[4/3] md:aspect-[16/11] w-full">
-                  <img
-                    src={displayImage}
-                    alt={`${car.make} ${car.model}`}
-                    onError={() => setImageError(true)}
-                    referrerPolicy="no-referrer"
-                    loading="eager"
-                    className="w-full h-full object-contain drop-shadow-lg group-hover/card:scale-105 transition-transform duration-500"
-                  />
+                      {/* Specs Grid (Compact) */}
+                      <div className="grid grid-cols-2 gap-2 md:gap-x-3 md:gap-y-2 mb-4 md:mb-4 py-3 md:py-2.5 border border-slate-100 md:border-y md:border-x-0 bg-slate-50 rounded-xl md:rounded px-3 md:px-2.5">
+                          <div className="flex items-center gap-2 text-slate-600">
+                              <Users className="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-400"/>
+                              <span className="text-xs md:text-[11px] font-bold">{car.passengers}<span className="ml-1">Adults</span></span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-600">
+                              <Briefcase className="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-400"/>
+                              <span className="text-xs md:text-[11px] font-bold">{car.bags}<span className="ml-1">Bags</span></span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-600">
+                              <div className="text-slate-400 scale-100 md:scale-90"><AutomaticIcon /></div>
+                              <span className="text-xs md:text-[11px] font-bold">
+                                  {car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}
+                              </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-600">
+                              <Wind className="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-400"/>
+                              <span className="text-xs md:text-[11px] font-bold">A/C</span>
+                          </div>
+                      </div>
 
-                  {promotionLabel && (
-                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
-                      <Tag className="w-3 h-3 fill-white/30" />
-                      {promotionLabel}
-                    </div>
-                  )}
-                </div>
-              </Link>
-            </div>
-          </div>
+                      {/* Included Features checklist */}
+                      <div className="grid grid-cols-1 gap-2 mb-4 md:mb-4">
+                          <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs md:text-[10px] font-bold text-[#008009] border border-emerald-100">
+                              <CalendarCheck className="w-4 h-4 md:w-3.5 md:h-3.5 stroke-[2.5px] shrink-0" />
+                              <span>Free Cancellation</span>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs md:text-[10px] font-bold text-slate-700 border border-slate-100">
+                              <Fuel className="w-4 h-4 md:w-3.5 md:h-3.5 text-[#008009] stroke-[2.5px] shrink-0" />
+                              <span className="truncate">{car.fuelPolicy === 'FULL_TO_FULL' ? 'Fair Fuel Policy' : car.fuelPolicy}</span>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs md:text-[10px] font-bold text-slate-700 border border-slate-100">
+                              <GaugeCircle className="w-4 h-4 md:w-3.5 md:h-3.5 text-[#008009] stroke-[2.5px] shrink-0" />
+                              <span>{car.unlimitedMileage ? 'Unlimited' : 'Limited'} Mileage</span>
+                          </div>
+                          {car.supplier.bookingMode === 'FREE_SALE' && (
+                            <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs md:text-[10px] font-bold text-blue-600 border border-blue-100">
+                                <Zap className="w-4 h-4 md:w-3.5 md:h-3.5 fill-blue-600/20 shrink-0" />
+                                <span className="truncate">Instant Confirmation</span>
+                            </div>
+                          )}
+                      </div>
 
-          {/* MIDDLE SECTION - Supplier Trust */}
-          <div className="flex items-center justify-between gap-4 py-4 border-y border-black/[0.06] mb-5">
-
-            {/* Supplier Logo */}
-            <div className="flex items-center gap-3">
-              <img
-                src={car.supplier.logo || (car.supplier as any).logoUrl}
-                alt={car.supplier.name}
-                className="h-8 md:h-10 w-auto object-contain max-w-[120px]"
-              />
-            </div>
-
-            {/* Supplier Rating */}
-            <div
-              className="flex items-center gap-2 cursor-pointer group/rating relative"
-              onMouseEnter={() => setShowRatingsTooltip(true)}
-              onMouseLeave={() => setShowRatingsTooltip(false)}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowRatingsTooltip(!showRatingsTooltip);
-              }}
-            >
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#6B7280]">
-                  ⭐ {getRatingDescription(car.supplier.rating)}
-                </p>
-                <p className="text-[10px] text-[#9CA3AF]">2000+ Reviews</p>
-              </div>
-              <div className="bg-[#111827] text-white text-base font-black w-11 h-11 flex items-center justify-center rounded-xl shadow-md">
-                {car.supplier.rating}
-              </div>
-              {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" />}
-            </div>
-
-            {/* Trust Indicator */}
-            <div className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-[#15803D]">
-              <Check className="w-4 h-4" />
-              <span>Verified Supplier</span>
-            </div>
-          </div>
-
-          {/* BOTTOM SECTION - Price & CTA */}
-          <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
-
-            {/* Price Container - Highlighted */}
-            <div className="flex-1 bg-[#F8FAFC] rounded-[16px] p-4 md:p-5">
-              <p className="text-xs font-semibold text-[#6B7280] mb-2">Price for {days} days</p>
-
-              <div className="flex items-baseline gap-2 mb-3">
-                {car.promotionPercent > 0 && (
-                  <span className="text-base text-[#9CA3AF] line-through font-semibold">
-                    {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
-                  </span>
-                )}
-                <span className="text-3xl md:text-[38px] font-extrabold text-[#111827] tracking-tight">
-                  {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
-                </span>
-              </div>
-
-              {/* Benefits List */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-[#22C55E]">
-                  <Check className="w-4 h-4" />
-                  <span>Free Cancellation</span>
-                </div>
-                {car.supplier.bookingMode === 'FREE_SALE' && (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-[#22C55E]">
-                    <Check className="w-4 h-4" />
-                    <span>Instant Confirmation</span>
+                      {/* Social Proof Message */}
+                      {recentBookingInfo.isRecent && (
+                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg mt-3 md:mt-2">
+                           <Clock className="w-4 h-4 md:w-3 md:h-3 text-[#008009]" />
+                           <span className="text-xs md:text-[10px] font-black text-[#008009] uppercase tracking-wide">{recentBookingInfo.message}</span>
+                        </div>
+                      )}
                   </div>
-                )}
-                <div className="flex items-center gap-2 text-xs font-semibold text-[#22C55E]">
-                  <Check className="w-4 h-4" />
-                  <span>Pay Later Available</span>
-                </div>
+
+                  {/* Price & CTA Section */}
+                  <div className="p-4 md:p-3 md:w-1/3 bg-slate-50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
+                      <div>
+                          {/* Pricing Info */}
+                          <div className="flex flex-col mb-3 md:mb-4">
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <p className="text-xs md:text-[9px] text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
+                                {car.supplier.rating >= 4.5 && (
+                                    <div className="flex shrink-0 items-center gap-1 text-[10px] font-black text-[#008009] uppercase bg-[#008009]/10 px-2 py-1 rounded-md">
+                                        <Award className="w-3 h-3" /> <span>Best Value</span>
+                                    </div>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap items-baseline gap-2">
+                                  {car.promotionPercent > 0 && (
+                                      <span className="text-xs text-slate-400 line-through font-bold">
+                                          {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
+                                      </span>
+                                  )}
+                                  <span className="text-2xl md:text-xl font-black text-slate-900 tracking-tight">
+                                      {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
+                                  </span>
+                              </div>
+                              <p className="text-xs md:text-[9px] text-slate-500 font-bold mt-1.5 flex items-center gap-1">
+                                  <Shield className="w-3.5 h-3.5 md:w-2.5 md:h-2.5" /> All taxes included
+                              </p>
+                          </div>
+
+                          <div className="mb-4 md:mb-6 p-3 md:p-3 bg-white rounded-xl border border-[#008009]/15 shadow-sm">
+                              <p className="text-xs md:text-[9px] text-emerald-700 font-black uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                                  <CreditCardIcon className="w-3.5 h-3.5" /> Pay Now
+                              </p>
+                              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                                  <span className="text-xl md:text-xl font-black text-[#008009] tracking-tight">
+                                      {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
+                                  </span>
+                                  <span className="text-xs text-[#008009]/60 font-bold">to secure car</span>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div className="space-y-3 md:space-y-4">
+                          {/* CTA Button */}
+                          <Link
+                            to={`/car/${car.id}?${searchParams}`}
+                            state={{ cars: cars }}
+                            onClick={handleSelectCar}
+                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-4 md:py-3 rounded-xl shadow-lg md:shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-xl transition-all active:scale-[0.97] text-center text-sm md:text-[10px] uppercase tracking-wider relative overflow-hidden"
+                          >
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
+                              <span className="relative z-10 flex items-center justify-center gap-2">
+                                  View Deal <ChevronRight className="w-5 h-5 md:w-4 md:h-4 group-hover/btn:translate-x-1 transition-transform"/>
+                              </span>
+                          </Link>
+
+                          {/* Badges Footer */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 md:pt-2 border-t border-slate-200">
+                              <div className="flex min-w-0 items-center gap-1.5">
+                                  {(() => {
+                                      const pickupType = car.supplier?.pickupType;
+                                      const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
+                                        <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-2.5 py-1.5 rounded-lg text-[10px] uppercase tracking-wide border border-current/10 shadow-sm`}>
+                                            {React.cloneElement(icon as React.ReactElement<any>, { className: "w-3.5 h-3.5" })}
+                                            {text}
+                                        </div>
+                                      );
+
+                                      if (pickupType === 'IN_TERMINAL') return getBadge(<Plane />, "Terminal", "bg-green-50", "text-green-700");
+                                      if (pickupType === 'MEET_AND_GREET') return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
+                                      if (pickupType === 'SHUTTLE_BUS') return getBadge(<Bus />, "Shuttle", "bg-orange-50", "text-orange-700");
+                                      return null;
+                                  })()}
+                              </div>
+
+                              <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1.5 text-xs md:text-[10px] text-slate-500 hover:text-[#008009] font-black uppercase tracking-wide transition-colors group/cond">
+                                  <FileText className="w-4 h-4 md:w-3.5 md:h-3.5 group-hover/cond:scale-110 transition-transform" />
+                                  <span>Conditions</span>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
               </div>
-
-              {/* Social Proof */}
-              {recentBookingInfo.isRecent && (
-                <div className="mt-3 pt-3 border-t border-[#E5E7EB] flex items-center gap-2 text-xs text-[#F57C00] font-semibold">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{recentBookingInfo.message}</span>
-                </div>
-              )}
-            </div>
-
-            {/* CTA Button */}
-            <div className="md:w-[200px] space-y-2">
-              <Link
-                to={`/car/${car.id}?${searchParams}`}
-                state={{ cars: cars }}
-                onClick={handleSelectCar}
-                className="block w-full h-14 bg-[#1180C4] hover:bg-[#0d6aa8] text-white font-bold text-base rounded-[18px] shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-              >
-                <span>View Deal</span>
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-
-              <button
-                onClick={() => setIsConditionsModalOpen(true)}
-                className="w-full text-xs text-[#6B7280] hover:text-[#1180C4] font-semibold underline-offset-2 hover:underline transition-colors"
-              >
-                View rental conditions
-              </button>
-            </div>
           </div>
-        </div>
       </div>
     </>
   );
