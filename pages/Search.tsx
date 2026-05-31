@@ -465,15 +465,15 @@ export const Search: React.FC = () => {
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
       <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
-        <div className="max-w-[1600px] mx-auto px-3 py-2.5 sm:px-6 lg:px-8">
-            <div className="rounded-2xl md:rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-3 py-3 sm:px-3 md:py-2">
-              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex min-w-0 items-center gap-2.5">
-                  <div className="bg-[#008009]/15 p-2 rounded-lg flex-shrink-0 border border-[#008009]/25">
-                    <MapPin className="w-4 h-4 text-[#00a30b]" />
+        <div className="max-w-[1600px] mx-auto px-2 py-1.5 sm:px-6 sm:py-2.5 lg:px-8">
+            <div className="rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-2.5 py-2 sm:px-3 md:py-2">
+              <div className="flex flex-col gap-1.5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="bg-[#008009]/15 p-1.5 sm:p-2 rounded-lg flex-shrink-0 border border-[#008009]/25">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00a30b]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-base sm:text-base font-black text-white truncate">{location || 'Select Location'}</p>
+                    <p className="text-sm sm:text-base font-black text-white truncate">{location || 'Select Location'}</p>
                     <div className="mt-0.5 flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-slate-400 min-w-0">
                       <span className="truncate">{pickupIata || 'Pickup'}</span>
                       <ArrowRight className="w-3 h-3 text-slate-600 shrink-0" />
@@ -482,38 +482,42 @@ export const Search: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 lg:flex lg:min-w-0 lg:flex-1 lg:justify-center">
-                  <div className="flex min-w-0 items-center gap-2 rounded-xl md:rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-2 md:px-2.5 md:py-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#00a30b] shrink-0" />
+                <div className="grid grid-cols-2 gap-1.5 lg:flex lg:min-w-0 lg:flex-1 lg:justify-center">
+                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
                     <div className="min-w-0">
                       <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Pickup</p>
-                      <p className="text-[11px] font-black text-white truncate">{startDateTimeDisplay}</p>
+                      <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{startDateTimeDisplay}</p>
                     </div>
                   </div>
-                  <div className="flex min-w-0 items-center gap-2 rounded-xl md:rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-2 md:px-2.5 md:py-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#00a30b] shrink-0" />
+                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
                     <div className="min-w-0">
                       <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Return</p>
-                      <p className="text-[11px] font-black text-white truncate">{endDateTimeDisplay}</p>
+                      <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{endDateTimeDisplay}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-                  <div className="rounded-xl md:rounded-lg bg-slate-800/70 border border-slate-700 px-3 py-2 md:px-2.5 md:py-1.5">
+                <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_1fr_auto] items-center gap-1.5">
+                  <div className="hidden sm:block rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
                     <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Days</p>
                     <p className="text-[11px] font-black text-white">{days}</p>
                   </div>
-                  <div className="rounded-xl md:rounded-lg bg-slate-800/70 border border-slate-700 px-3 py-2 md:px-2.5 md:py-1.5">
+                  <div className="hidden sm:block rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
                     <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Suppliers</p>
                     <p className="text-[11px] font-black text-white">{allSuppliers.length}</p>
+                  </div>
+                  <div className="sm:hidden rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Trip</p>
+                    <p className="text-[10px] font-black text-white">{days} day{days > 1 ? 's' : ''}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="h-full flex items-center justify-center gap-1.5 text-white font-black text-[11px] sm:text-xs px-3 sm:px-4 rounded-xl md:rounded-lg bg-[#008009] hover:bg-[#006607] transition-all shadow-md shadow-[#008009]/20 active:scale-[0.98] whitespace-nowrap"
+                    className="h-full flex items-center justify-center gap-1.5 text-white font-black text-[10px] sm:text-xs px-3 sm:px-4 rounded-lg bg-[#008009] hover:bg-[#006607] transition-all shadow-md shadow-[#008009]/20 active:scale-[0.98] whitespace-nowrap"
                   >
-                    <Edit className="w-3.5 h-3.5" />
+                    <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
                   </button>
                 </div>
@@ -607,62 +611,14 @@ export const Search: React.FC = () => {
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-5">
         
-        {/* Mobile Category Controls */}
-        <div className="md:hidden -mx-3 border-b border-slate-200 bg-white px-3 py-3 shadow-sm">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs font-black uppercase tracking-widest text-slate-900">Choose car type</p>
-              <p className="text-[11px] font-bold text-slate-500">Swipe to filter by class</p>
-            </div>
-            {selectedCategories.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setSelectedCategories([])}
-                className="shrink-0 rounded-full border border-slate-200 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-            {categoryOrder.map(category => {
-              const isActive = selectedCategories.includes(category);
-              const count = filterCounts.category.get(category) || 0;
-              const categoryImage =
-                categoryImages[category] ||
-                categoryImages[category.toUpperCase()] ||
-                (MOCK_CATEGORY_IMAGES as Record<string, string>)[category];
-              return (
-                <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
-                  className={`min-w-[92px] rounded-2xl border p-2 text-left transition-all ${
-                    isActive
-                      ? 'border-[#008009] bg-emerald-50 shadow-sm'
-                      : 'border-slate-200 bg-white'
-                  }`}
-                >
-                  <div className="mb-2 aspect-[4/3] overflow-hidden rounded-xl bg-slate-50">
-                    <img src={categoryImage} alt={category} className="h-full w-full object-cover" width={92} height={69} />
-                  </div>
-                  <span className={`block truncate text-[10px] font-black uppercase ${isActive ? 'text-[#008009]' : 'text-slate-800'}`}>
-                    {category}
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-400">{count} cars</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Mobile Filter & Sort Controls */}
-        <div className="md:hidden my-3 bg-white/95 backdrop-blur p-2 border border-slate-200 rounded-2xl sticky top-2 z-20 grid grid-cols-2 gap-2 shadow-[0_14px_36px_-28px_rgba(15,23,42,0.7)]">
+        <div className="md:hidden my-2 bg-white/95 backdrop-blur p-1.5 border border-slate-200 rounded-xl sticky top-2 z-20 grid grid-cols-2 gap-1.5 shadow-[0_14px_36px_-28px_rgba(15,23,42,0.7)]">
             <button 
                 onClick={() => {
                     setShowMobileSort(false);
                     setShowMobileFilters(true);
                 }}
-                className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl font-black text-xs shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50"
+                className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-lg font-black text-[11px] shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50"
             >
                 <SlidersHorizontal className="w-4 h-4 text-[#008009]" />
                 <span>Filters</span>
@@ -677,7 +633,7 @@ export const Search: React.FC = () => {
                     setShowMobileFilters(false);
                     setShowMobileSort(true);
                 }}
-                className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl font-black text-xs shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50 min-w-0"
+                className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-lg font-black text-[11px] shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50 min-w-0"
             >
                 {sortBy === 'Recommended' ? (
                     <Gem className="w-4 h-4 text-[#008009]" />
