@@ -436,7 +436,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
               <div className="mt-4 flex items-start gap-2 text-sm text-[#6B7280]">
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-medium text-[#111827]">{pickupIata || 'Pickup Location'}</p>
+                  <p className="font-medium text-[#111827]">{pickupCode || 'Pickup Location'}</p>
                   <p className="text-xs">
                     {(() => {
                       const pickupType = car.supplier?.pickupType;
