@@ -267,7 +267,7 @@ export const Search: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => setIsSearchWidgetOpen(!isSearchWidgetOpen)}
-                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-1.5"
+                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-1.5"
                 >
                     <SlidersHorizontal className="w-3 h-3" />
                     {isSearchWidgetOpen ? 'Close' : 'Modify'}

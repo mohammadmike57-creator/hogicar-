@@ -42,11 +42,13 @@
 
 .view-deal-btn {
   background: linear-gradient(135deg, #123C69, #1B4D8C);
+  color: white;
   box-shadow: 0 4px 6px -1px rgba(18, 60, 105, 0.2);
 }
 
 .view-deal-btn:hover {
   background: linear-gradient(135deg, #0A2647, #123C69);
+  color: white;
   box-shadow: 0 10px 15px -3px rgba(18, 60, 105, 0.3);
 }
 
