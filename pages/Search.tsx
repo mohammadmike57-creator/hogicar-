@@ -242,24 +242,25 @@ export const Search: React.FC = () => {
         <div className="zoom-container py-3">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3">
             <div className="space-y-1">
-              <div className="flex flex-wrap gap-1.5">
-                <div className="bg-white rounded-full shadow-sm border px-3 py-1 flex items-center gap-1.5 text-xs">
-                  <MapPin className="w-3 h-3 text-[#D4AF37]" />
-                  <span className="font-medium text-gray-700">{pickupName}</span>
+              <div className="flex flex-wrap gap-2">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-2 flex items-center gap-2 text-sm sm:text-xs">
+                  <MapPin className="w-4 h-4 text-[#D4AF37]" />
+                  <span className="font-bold text-gray-800">{pickupName}</span>
                 </div>
-                <div className="bg-white rounded-full shadow-sm border px-3 py-1 flex items-center gap-1.5 text-xs">
-                  <Calendar className="w-3 h-3 text-[#D4AF37]" />
-                  <span className="font-medium text-gray-700">{dateRangeDisplay}</span>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-2 flex items-center gap-2 text-sm sm:text-xs">
+                  <Calendar className="w-4 h-4 text-[#D4AF37]" />
+                  <span className="font-bold text-gray-800">{dateRangeDisplay}</span>
                 </div>
                 <button 
                     onClick={() => setIsSearchWidgetOpen(!isSearchWidgetOpen)}
-                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-colors"
+                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2"
                 >
-                    {isSearchWidgetOpen ? 'Close' : 'Update'}
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    {isSearchWidgetOpen ? 'Close' : 'Modify'}
                 </button>
               </div>
-              <h1 className="text-base sm:text-lg font-bold text-[#0A2647]">Compare <span className="text-[#D4AF37]">premium rentals</span></h1>
-              <p className="text-gray-500 text-[10px]">{loading ? 'Searching...' : `${filteredCars.length} verified offers`}</p>
+              <h1 className="text-xl sm:text-lg font-black text-[#0A2647]">Compare <span className="text-[#D4AF37]">premium rentals</span></h1>
+              <p className="text-gray-600 text-xs sm:text-[10px] font-medium">{loading ? 'Searching for best deals...' : `${filteredCars.length} verified offers found`}</p>
             </div>
             <div className="flex gap-1.5">
               <div className="bg-white rounded-full shadow-sm border px-2 py-1 flex items-center gap-1 text-[10px]">
@@ -453,18 +454,21 @@ export const Search: React.FC = () => {
           )}
 
           <main className="lg:col-span-3 mt-4">
-            <div className="flex flex-wrap justify-between gap-2 mb-3 bg-white p-2 rounded-lg shadow-sm border">
-              <div className="flex items-center gap-1.5 text-xs">
-                <CarIcon className="w-3.5 h-3.5 text-[#D4AF37]" /> 
-                <span className="font-bold text-sm">{filteredCars.length}</span> 
-                <span className="text-gray-500 text-[11px]">vehicles</span>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 bg-white p-3 sm:p-2 rounded-xl shadow-sm border border-gray-100">
+              <div className="flex items-center gap-2 text-sm sm:text-xs">
+                <div className="bg-[#D4AF37]/10 p-1.5 rounded-lg">
+                  <CarIcon className="w-4 h-4 text-[#D4AF37]" /> 
+                </div>
+                <div>
+                  <span className="font-black text-lg sm:text-sm text-[#0A2647]">{filteredCars.length}</span> 
+                  <span className="text-gray-500 text-xs sm:text-[11px] ml-1 font-medium">vehicles available</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-gray-500 hidden sm:inline font-semibold">Sort</span>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <select 
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-white border rounded-lg px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-[#1B4D8C] outline-none"
+                    className="flex-1 sm:flex-none bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 sm:py-1.5 text-xs font-bold focus:ring-2 focus:ring-[#1B4D8C]/20 outline-none transition-all"
                 >
                   <option value="rating_desc">🌟 Recommended</option>
                   <option value="price_asc">💰 Price: Low</option>
@@ -473,9 +477,9 @@ export const Search: React.FC = () => {
                 </select>
                 <button 
                     onClick={() => setIsFilterDrawerOpen(true)}
-                    className="lg:hidden flex items-center gap-1 bg-gray-50 border rounded-lg px-2 py-1 text-xs font-semibold"
+                    className="lg:hidden flex items-center justify-center gap-2 bg-[#1B4D8C] text-white rounded-xl px-4 py-2 text-xs font-bold shadow-md active:scale-95 transition-all"
                 >
-                  <Filter className="w-3 h-3" /> Filter
+                  <Filter className="w-3.5 h-3.5" /> Filter
                 </button>
               </div>
             </div>

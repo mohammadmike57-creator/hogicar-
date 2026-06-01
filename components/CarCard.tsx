@@ -7,7 +7,7 @@ import * as React from 'react';
 import { 
   Users, Info, Briefcase, FileText, CreditCard as CreditCardIcon, 
   Handshake, Zap, MapPin, Check, Wind, Settings, Luggage, 
-  Building, Bus, Gauge, CalendarX, X, AlertCircle, Fuel, Star
+  Building, Bus, Gauge, CalendarX, X, AlertCircle, Fuel, Star, Calendar
 } from 'lucide-react';
 import { Car as CarType, Supplier } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -164,8 +164,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
         <>
             <div className="car-card overflow-hidden bg-white">
                 <div className="flex flex-col sm:flex-row">
-                    <div className="sm:w-[180px] bg-gradient-to-br from-gray-50 to-gray-100 p-4 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
-                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-24 h-24 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden mb-3 transition-transform hover:scale-105">
+                    <div className="sm:w-[220px] bg-gradient-to-br from-gray-50 to-gray-100 p-6 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
+                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[240px] h-40 sm:w-36 sm:h-36 bg-white rounded-2xl shadow-sm flex items-center justify-center overflow-hidden mb-4 transition-transform hover:scale-105">
                             {car.image ? (
                                 <img src={car.image} alt={car.displayName} className="w-full h-full object-contain p-2" />
                             ) : (
@@ -173,18 +173,18 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                             )}
                         </Link>
                         <div className="text-center">
-                            <h3 className="font-bold text-[#0A2647] text-base leading-tight">{car.displayName}</h3>
-                            <p className="text-[10px] text-gray-400">or similar {car.model}</p>
+                            <h3 className="font-extrabold text-[#0A2647] text-lg sm:text-base leading-tight mb-1">{car.displayName}</h3>
+                            <p className="text-xs sm:text-[10px] text-gray-500">or similar {car.model}</p>
                         </div>
                     </div>
 
                     <div className="flex-1 p-4 flex flex-col sm:flex-row sm:items-stretch justify-between gap-4">
                         <div className="flex-1">
-                            <div className="flex flex-wrap gap-2 mb-3">
-                                <span className="spec-badge spec-transmission py-1 px-3 text-xs font-bold"><Settings className="w-3.5 h-3.5" />{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
-                                <span className="spec-badge spec-seats py-1 px-3 text-xs font-bold"><Users className="w-3.5 h-3.5" />{car.passengers} Seats</span>
-                                <span className="spec-badge spec-bags py-1 px-3 text-xs font-bold"><Luggage className="w-3.5 h-3.5" />{car.bags} Bags</span>
-                                <span className="spec-badge spec-ac py-1 px-3 text-xs font-bold"><Wind className="w-3.5 h-3.5" />Air Con</span>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <span className="spec-badge spec-transmission py-1.5 px-3 text-xs font-bold"><Settings className="w-4 h-4" />{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
+                                <span className="spec-badge spec-seats py-1.5 px-3 text-xs font-bold"><Users className="w-4 h-4" />{car.passengers} Seats</span>
+                                <span className="spec-badge spec-bags py-1.5 px-3 text-xs font-bold"><Luggage className="w-4 h-4" />{car.bags} Bags</span>
+                                <span className="spec-badge spec-ac py-1.5 px-3 text-xs font-bold"><Wind className="w-4 h-4" />Air Con</span>
                             </div>
 
                             <div className="flex items-center gap-2 mb-1">
@@ -196,22 +196,22 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                                     )}
                                 </div>
                                 <div>
-                                    <div className="font-bold text-gray-800 text-xs">{car.supplier.name}</div>
-                                    <div className="flex items-center gap-0.5 cursor-pointer" onClick={() => setIsRatingModalOpen(true)}>
-                                        <span className="text-xs font-bold text-[#D4AF37]">{car.supplier.rating}</span>
-                                        <span className="text-[8px] text-gray-500">★</span>
-                                        <span className="text-[10px] text-gray-600 ml-0.5">Very Good</span>
-                                        <span className="text-[7px] text-gray-400 ml-0.5">(248)</span>
-                                        <Info className="w-2 h-2 text-gray-400 ml-0.5" />
+                                    <div className="font-bold text-gray-800 text-sm sm:text-xs">{car.supplier.name}</div>
+                                    <div className="flex items-center gap-1 cursor-pointer" onClick={() => setIsRatingModalOpen(true)}>
+                                        <span className="text-sm sm:text-xs font-bold text-[#D4AF37]">{car.supplier.rating}</span>
+                                        <span className="text-[10px] sm:text-[8px] text-gray-500">★</span>
+                                        <span className="text-xs sm:text-[10px] text-gray-600 ml-0.5">Very Good</span>
+                                        <span className="text-[9px] sm:text-[7px] text-gray-400 ml-0.5">(248)</span>
+                                        <Info className="w-3 h-3 sm:w-2 sm:h-2 text-gray-400 ml-0.5" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="text-[10px] text-gray-600 mb-1 flex items-center gap-1 bg-gray-50 rounded px-1.5 py-0.5 w-fit">
-                                <MapPin className="w-2.5 h-2.5 text-[#D4AF37]" />
+                            <div className="text-xs sm:text-[10px] text-gray-600 mb-2 flex items-center gap-1.5 bg-gray-50 rounded-lg px-2 py-1 w-fit">
+                                <MapPin className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 text-[#D4AF37]" />
                                 <span>{car.locationDetail || 'Queen Alia Airport'}</span>
                                 <span className="w-0.5 h-0.5 rounded-full bg-gray-300"></span>
-                                <span className="font-semibold text-[#1B4D8C] text-[9px]">{pickupTypeLabel}</span>
+                                <span className="font-bold text-[#1B4D8C] text-[10px] sm:text-[9px]">{pickupTypeLabel}</span>
                             </div>
 
                             <div className="flex flex-wrap gap-1 mb-1">
