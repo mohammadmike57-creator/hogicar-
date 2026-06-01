@@ -21,6 +21,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         rating: apiCar.supplier?.rating || 4.5,
         logo: apiCar.supplier?.logoUrl || '',
         commissionType: mockSupplier?.commissionType || 'PAY_AT_DESK' as any,
+        commissionPercent: mockSupplier?.commissionPercent || mockSupplier?.commissionValue || 0,
         commissionValue: mockSupplier?.commissionValue || 0,
         bookingMode: mockSupplier?.bookingMode || 'FREE_SALE' as any,
         status: 'active',
@@ -246,7 +247,10 @@ export const Search: React.FC = () => {
 
   return (
     <div className="bg-[#F8FAFE] min-h-screen font-sans text-[#0A2647] antialiased">
-      <SEOMetadata title={`Car Rental in ${pickupName} | RentCompare`} />
+      <SEOMetadata 
+        title={`Car Rental in ${pickupName} | RentCompare`} 
+        description={`Compare and book premium car rentals in ${pickupName}. Best prices, verified suppliers, and free cancellation available.`} 
+      />
       
       <div className="relative overflow-hidden bg-gradient-to-r from-[#0A2647]/5 to-[#1B4D8C]/5 border-b">
         <div className="zoom-container py-3">
@@ -308,22 +312,28 @@ export const Search: React.FC = () => {
 
       <div className="zoom-container py-4">
         {/* Top Category Filter */}
-        <div className="flex overflow-x-auto gap-4 pb-6 mb-2 no-scrollbar scroll-smooth">
+        <div className="flex overflow-x-auto lg:justify-center gap-4 pb-6 mb-2 no-scrollbar scroll-smooth">
             {[CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.SUV, CarCategory.VAN, CarCategory.LUXURY].map(cat => (
                 <button 
                     key={cat}
                     onClick={() => handleCategoryToggle(cat)}
-                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[100px] p-4 rounded-2xl border-2 transition-all duration-300 ${
+                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[110px] p-5 rounded-3xl border-2 transition-all duration-300 shadow-sm ${
                         selectedCategories.includes(cat) 
-                        ? 'bg-[#1B4D8C] border-[#1B4D8C] text-white shadow-lg scale-105 -translate-y-1' 
+                        ? 'bg-gradient-to-br from-[#123C69] to-[#1B4D8C] border-[#123C69] text-white shadow-xl scale-105 -translate-y-1' 
                         : 'bg-white border-gray-100 text-[#0A2647] hover:border-[#F57C00]/30 hover:shadow-md'
                     }`}
                 >
-                    <div className={`w-12 h-8 mb-2 flex items-center justify-center transition-transform duration-300 ${selectedCategories.includes(cat) ? 'scale-110' : ''}`}>
-                        <CarIcon className={`w-8 h-8 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
+                    <div className={`w-12 h-9 mb-2 flex items-center justify-center transition-all duration-300 ${selectedCategories.includes(cat) ? 'scale-110 drop-shadow-md' : ''}`}>
+                        <CarIcon className={`w-9 h-9 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-wider">{cat.toLowerCase()}</span>
-                    {selectedCategories.includes(cat) && <div className="mt-1 w-1.5 h-1.5 bg-[#F57C00] rounded-full animate-bounce" />}
+                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${selectedCategories.includes(cat) ? 'text-white' : 'text-gray-500'}`}>{cat.toLowerCase()}</span>
+                    {selectedCategories.includes(cat) && (
+                        <div className="absolute -top-1 -right-1">
+                            <div className="bg-[#F57C00] text-white rounded-full p-1 shadow-md">
+                                <Check className="w-3 h-3 stroke-[4]" />
+                            </div>
+                        </div>
+                    )}
                 </button>
             ))}
         </div>

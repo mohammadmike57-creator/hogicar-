@@ -113,6 +113,7 @@ export interface Supplier {
   logo: string;
   commissionType: CommissionType;
   commissionPercent: number; // Percentage (e.g., 25.00 for 25%)
+  commissionValue?: number; // Legacy or alternative field
   bookingMode: BookingMode;
   status: 'active' | 'pending' | 'rejected';
   
@@ -205,6 +206,7 @@ export interface Car {
   // New fields for card details
   locationDetail: string; // e.g., "In Terminal", "Meet & Greet"
   unlimitedMileage: boolean;
+  excess?: number;
   tags?: string[];
   detailedRatings?: CarRatings;
   hasFinalPriceFromApi?: boolean;

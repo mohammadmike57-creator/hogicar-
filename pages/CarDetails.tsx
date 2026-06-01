@@ -378,8 +378,8 @@ const CarDetails: React.FC = () => {
 
       <div className="bg-[#f4f9ff] min-h-screen font-sans text-[#1a2c3e] p-4 sm:p-8 pb-32 lg:pb-8">
         <div className="max-w-[1380px] mx-auto">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-sm font-semibold text-[#2c6e9e] bg-white/85 backdrop-blur-md px-5 py-2 rounded-full shadow-sm hover:bg-white transition-all mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to search results
+          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-3 text-sm font-black text-[#2c6e9e] bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-full shadow-lg border border-white/50 hover:bg-white hover:scale-105 transition-all mb-10 active:scale-95">
+            <ArrowLeft className="w-5 h-5" /> Back to search results
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8">
@@ -387,21 +387,31 @@ const CarDetails: React.FC = () => {
             <div className="space-y-6">
               <div className="bg-white/98 rounded-[2rem] shadow-xl border border-white/60 overflow-hidden">
                 <div className="p-6 sm:p-8">
-                  <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
-                    <div className="car-name">
-                      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-br from-[#0b2b3b] to-[#1a5d7a] bg-clip-text text-transparent">
-                        {car.displayName || `${car.make} ${car.model}`} <span className="text-[#5a6e7a] text-xl font-medium bg-none">or similar</span>
+                  <div className="flex flex-wrap justify-between items-start gap-6 mb-8">
+                    <div className="car-name space-y-2">
+                      <h1 className="text-4xl sm:text-5xl font-black tracking-tighter leading-none bg-gradient-to-br from-[#0b2b3b] to-[#1a5d7a] bg-clip-text text-transparent">
+                        {car.displayName || `${car.make} ${car.model}`} <span className="text-[#5a6e7a] text-2xl font-medium bg-none">or similar</span>
                       </h1>
-                      <div className="text-[#5a7b9a] text-sm mt-1">
-                        {car.category} · {car.transmission} · {car.airCon ? 'A/C' : 'Climate control'}
+                      <div className="flex items-center gap-3">
+                        <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{car.category}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                        <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{car.transmission}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                        <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{car.airCon ? 'A/C' : 'Climate control'}</span>
                       </div>
                     </div>
-                    <div className="bg-[#f8fafd] rounded-full px-5 py-2 flex items-center gap-3 shadow-sm border border-slate-100">
-                      <Building className="w-4 h-4 text-[#1a2c3e]" />
-                      <strong className="text-sm">{car.supplier.name}</strong>
-                      <span className="bg-[#eef2fc] text-[#2c6280] text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 uppercase tracking-wider">
-                        <Handshake className="w-3.5 h-3.5" /> {car.supplier.pickupType?.replace(/_/g, ' ').toLowerCase() || 'Meet & Greet'}
-                      </span>
+                    <div className="bg-[#f8fafd] rounded-3xl p-3 flex items-center gap-4 shadow-lg border border-slate-100">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-2 shadow-sm">
+                        {supplierLogo ? <img src={supplierLogo} alt={car.supplier.name} className="max-h-10 object-contain" /> : <Building className="w-6 h-6 text-slate-400" />}
+                      </div>
+                      <div>
+                        <div className="font-black text-slate-900 text-base">{car.supplier.name}</div>
+                        <div className="flex items-center gap-1.5">
+                            <Star className="w-3.5 h-3.5 text-[#D4AF37] fill-[#D4AF37]" />
+                            <span className="text-sm font-black text-[#D4AF37]">{car.supplier.rating}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">(248 reviews)</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
