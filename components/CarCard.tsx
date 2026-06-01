@@ -182,7 +182,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
     return (
         <>
-            <div className="car-card overflow-hidden bg-white border-2 border-gray-100 sm:border-0 rounded-[2rem] mb-6 sm:mb-0 border-l-[6px] border-l-[#F57C00] sm:border-l-0 shadow-lg sm:shadow-none">
+            <div className="car-card overflow-hidden bg-white border-2 border-gray-100 rounded-[2rem] mb-6 border-l-[6px] border-l-[#F57C00] shadow-lg">
                 <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-[220px] bg-gradient-to-br from-gray-50 to-gray-100 p-8 sm:p-6 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
                         <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[260px] h-44 sm:w-36 sm:h-36 bg-white rounded-3xl shadow-sm flex items-center justify-center overflow-hidden mb-5 sm:mb-4 transition-all hover:scale-105 hover:shadow-md">

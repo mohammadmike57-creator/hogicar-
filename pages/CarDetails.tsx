@@ -181,7 +181,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
                 <PolicyRow label="Mileage" value={car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'} tone={car.unlimitedMileage ? 'good' : 'default'} />
                 <PolicyRow label="Fuel policy" value={car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ')} />
                 <PolicyRow label="Transmission" value={car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'} />
-                <PolicyRow label="Vehicle class" value={`${car.category} or similar`} />
+                <PolicyRow label="Vehicle class" value={car.category} />
               </ConditionCard>
             </div>
 
@@ -390,7 +390,7 @@ const CarDetails: React.FC = () => {
                   <div className="flex flex-wrap justify-between items-start gap-6 mb-8">
                     <div className="car-name space-y-2">
                       <h1 className="text-4xl sm:text-5xl font-black tracking-tighter leading-none bg-gradient-to-br from-[#0b2b3b] to-[#1a5d7a] bg-clip-text text-transparent">
-                        {car.displayName || `${car.make} ${car.model}`} <span className="text-[#5a6e7a] text-2xl font-medium bg-none">or similar</span>
+                        {car.displayName || `${car.make} ${car.model}`}
                       </h1>
                       <div className="flex items-center gap-3">
                         <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{car.category}</span>
@@ -459,14 +459,10 @@ const CarDetails: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex-1 w-full bg-white/80 rounded-[1.2rem] p-3 flex flex-col items-center gap-3 border border-[#f0e6d5]">
+                    <div className="flex-1 w-full bg-white/80 rounded-[1.2rem] p-3 flex flex-col items-center justify-center border border-[#f0e6d5]">
                       <div className="bg-[#fef6e8] rounded-2xl px-3 py-2 flex items-center gap-3 w-full justify-center">
                          <img src={displayImage} alt={car.displayName} className="h-8 object-contain" />
-                         <span className="text-[10px] font-bold text-[#8b6946] truncate max-w-[100px]">{car.displayName} · Similar</span>
-                      </div>
-                      <div className="bg-[#f0f4fa] rounded-full px-4 py-1.5 flex items-center gap-3 w-full justify-center">
-                         {supplierLogo ? <img src={supplierLogo} className="h-6 object-contain" /> : <Building className="w-5 h-5 text-[#2c6280]" />}
-                         <span className="text-[10px] font-extrabold text-[#2c6280] truncate max-w-[100px]">{car.supplier.name} · Partner</span>
+                         <span className="text-[10px] font-bold text-[#8b6946] truncate max-w-[100px]">{car.displayName}</span>
                       </div>
                     </div>
                   </div>
