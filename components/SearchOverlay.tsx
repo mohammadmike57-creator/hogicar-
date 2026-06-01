@@ -23,7 +23,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   const [results, setResults] = useState<LocationSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   let scrollY = 0;
 
   // Lock/unlock body scroll and force body to no margins

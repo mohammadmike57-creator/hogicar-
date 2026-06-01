@@ -29,12 +29,29 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     nextThreeDays.setDate(today.getDate() + 3);
 
     const [pickupQuery, setPickupQuery] = React.useState(initialValues?.pickupName || initialValues?.location || '');
-    const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { label: initialValues.pickupName || initialValues.location || '', value: initialValues.pickup, type: 'AIRPORT' } : null);
+    const createLocationSelection = (code?: string, label?: string): LocationSuggestion | null => {
+        if (!code) return null;
+        return {
+            value: code,
+            label: label || code,
+            iataCode: code,
+            name: label || code,
+            municipality: '',
+            countryCode: '',
+            type: 'airport'
+        };
+    };
+
+    const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(
+        createLocationSelection(initialValues?.pickup, initialValues?.pickupName || initialValues?.location)
+    );
     
     const [differentDropoff, setDifferentDropoff] = React.useState(initialValues?.differentDropoff || false);
     
     const [dropoffQuery, setDropoffQuery] = React.useState(initialValues?.dropoffName || initialValues?.dropoffLocation || '');
-    const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { label: initialValues.dropoffName || initialValues.dropoffLocation || '', value: initialValues.dropoff, type: 'AIRPORT' } : null);
+    const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(
+        createLocationSelection(initialValues?.dropoff, initialValues?.dropoffName || initialValues?.dropoffLocation)
+    );
 
     const [pickupDate, setPickupDate] = React.useState(initialValues?.pickupDate || today.toISOString().split('T')[0]);
     const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || nextThreeDays.toISOString().split('T')[0]);
@@ -53,7 +70,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     
     const mobileWidgetRef = React.useRef<HTMLDivElement>(null);
     const desktopWidgetRef = React.useRef<HTMLDivElement>(null);
-    const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+    const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
     // Overlay state
     const [isSearchOverlayOpen, setIsSearchOverlayOpen] = React.useState(false);

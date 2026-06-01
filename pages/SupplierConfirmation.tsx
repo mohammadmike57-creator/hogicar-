@@ -63,7 +63,7 @@ const SupplierConfirmation: React.FC = () => {
         setError('');
 
         try {
-            await api.supplierConfirm(bookingId, confirmationNumber);
+            await api.supplierConfirm(booking?.id || bookingId, confirmationNumber);
             setIsConfirmed(true);
         } catch (err: any) {
             console.error(err);

@@ -203,8 +203,8 @@ const Home: React.FC = () => {
         description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
       />
       
-      {/* HERO – professional centered layout with background image */}
-      <section className="relative pt-24 pb-12 lg:pt-32 lg:pb-24 text-white overflow-hidden">
+      {/* HERO – professional centered search experience */}
+      <section className="relative pt-24 pb-10 lg:pt-32 lg:pb-20 text-white overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -212,12 +212,8 @@ const Home: React.FC = () => {
             className="w-full h-full object-cover"
             alt="Hero Background"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
-        </div>
-
-        <div className="absolute inset-0 opacity-20 pointer-events-none z-[1]">
-           <div className="absolute top-0 left-0 w-64 h-64 bg-white/20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-           <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute inset-0 bg-[#003580]/88"></div>
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#002b67] to-transparent"></div>
         </div>
         
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
@@ -242,13 +238,13 @@ const Home: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 mt-8 text-[11px] font-black uppercase tracking-wider">
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15">
               <CheckCircle className="w-4 h-4 text-green-400" /> Free Cancellation
             </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15">
               <Shield className="w-4 h-4 text-blue-300" /> No Hidden Fees
             </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15">
               <Award className="w-4 h-4 text-orange-400" /> 24/7 Support
             </div>
           </div>

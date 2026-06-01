@@ -1,16 +1,12 @@
 import * as React from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { fetchPublicSuppliers } from '../api';
-import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
-import { loadCars } from '../utils/loadCars';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { MOCK_CATEGORY_IMAGES, SUPPLIERS, loadCars } from '../services/mockData';
 import CarCard from '../components/CarCard';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X } from 'lucide-react';
-import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
-import { calculatePrice } from '../services/mockData';
+import { SlidersHorizontal, Filter, Car as CarIcon, Users, MapPin, Check, Calendar, X, Shield, Clock } from 'lucide-react';
+import { CarCategory, Car, Transmission, ApiSearchResult, Supplier, RateTier, PickupType } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
-import { API_BASE_URL } from '../lib/config';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
@@ -23,9 +19,9 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         name: apiCar.supplier?.name ?? 'Unknown Supplier',
         rating: apiCar.supplier?.rating || 4.5,
         logo: apiCar.supplier?.logoUrl || '',
-        commissionType: mockSupplier?.commissionType || CommissionType.PAY_AT_DESK,
+        commissionType: mockSupplier?.commissionType || 'PAY_AT_DESK' as any,
         commissionValue: mockSupplier?.commissionValue || 0,
-        bookingMode: mockSupplier?.bookingMode || BookingMode.FREE_SALE,
+        bookingMode: mockSupplier?.bookingMode || 'FREE_SALE' as any,
         status: 'active',
         location: 'API Location',
         locations: [],
@@ -70,7 +66,6 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         finalPrice: apiCar.finalPrice,
         year: apiCar.year || new Date().getFullYear(),
         category: apiCar.category as CarCategory || CarCategory.ECONOMY,
-        type: MOCK_CAR_LIBRARY.find(m => m.category === apiCar.category)?.type || CarType.SEDAN,
         sippCode: apiCar.sippCode || 'XXXX',
         transmission: apiCar.transmission as Transmission || Transmission.AUTOMATIC,
         passengers: apiCar.passengers || 4,
@@ -80,7 +75,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         image: apiCar.image || '',
         supplier: mappedSupplier,
         features: [],
-        fuelPolicy: apiCar.fuelPolicy as FuelPolicy || FuelPolicy.FULL_TO_FULL,
+        fuelPolicy: apiCar.fuelPolicy as any || 'FULL_TO_FULL',
         isAvailable: apiCar.available !== false,
         location: 'API Result',
         deposit: apiCar.deposit || 0,
@@ -103,7 +98,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         hogicarChoice: apiCar.hogicarChoice,
         promotionAmount: apiCar.promotionAmount,
         promotionPercent: apiCar.promotionPercent,
-    };
+    } as Car;
 };
 
 export const Search: React.FC = () => {
@@ -111,7 +106,6 @@ export const Search: React.FC = () => {
   const navigate = useNavigate();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata;
-  const location = pickupName;
   const pickupDateParam = searchParams.get('pickupDate');
   const dropoffDateParam = searchParams.get('dropoffDate');
   const startTimeParam = searchParams.get('startTime');
@@ -124,7 +118,7 @@ export const Search: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isSearchWidgetOpen, setIsSearchWidgetOpen] = React.useState(false);
   
   const today = new Date();
   const defaultStart = today.toISOString().split('T')[0];
@@ -135,8 +129,6 @@ export const Search: React.FC = () => {
 
   const startD = new Date(startDate);
   const endD = new Date(endDate);
-  const diffTime = Math.abs(endD.getTime() - startD.getTime());
-  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   
   React.useEffect(() => {
     const fetchApiCars = async () => {
@@ -154,855 +146,340 @@ export const Search: React.FC = () => {
             setApiCars(mappedCars);
         } catch (err) {
             console.error("Failed to fetch search results:", err);
-            setError("We couldn't retrieve car results at the moment. Please try again later.");
+            setError("Failed to load results.");
             setApiCars([]);
         } finally {
             setLoading(false);
         }
     };
-
     fetchApiCars();
-  }, [searchParams]);
+  }, [searchParams, startDate, endDate, pickupIata, dropoffIata]);
 
-  const formatDateTime = (date: Date, time: string) => {
-    return `${date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${time}`;
-  };
-  const startDateTimeDisplay = formatDateTime(startD, startTimeParam || '10:00');
-  const endDateTimeDisplay = formatDateTime(endD, endTimeParam || '10:00');
-
-  // Filter States
-  const [priceRange, setPriceRange] = React.useState(5000);
+  const [priceRange, setPriceRange] = React.useState(500);
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
-  const [selectedSuppliers, setSelectedSuppliers] = React.useState<string[]>([]);
-  const [selectedTransmissions, setSelectedTransmissions] = React.useState<string[]>([]);
-  const [selectedFuelPolicies, setSelectedFuelPolicies] = React.useState<string[]>([]);
-  const [passengerCapacity, setPassengerCapacity] = React.useState<number>(0);
-  const [sortBy, setSortBy] = React.useState('Recommended');
-  const [openFilters, setOpenFilters] = React.useState<string[]>([
-    'Price',
-    'Category',
-    'Passengers',
-    'Payment',
-    'Deposit',
-    'LocationType',
-    'Transmission',
-    'Fuel',
-    'Supplier',
-  ]);
-  const [showMobileFilters, setShowMobileFilters] = React.useState(false);
-  const [showMobileSort, setShowMobileSort] = React.useState(false);
+  const [selectedTransmissions, setSelectedTransmissions] = React.useState<Transmission[]>([]);
+  const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<PickupType[]>([]);
+  const [sortBy, setSortBy] = React.useState('rating_desc');
+  const [freeCancelOnly, setFreeCancelOnly] = React.useState(false);
   
-  const [selectedPaymentTypes, setSelectedPaymentTypes] = React.useState<string[]>([]);
-  const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
-  const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
-  const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
-  const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
-  const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = React.useState(false);
 
-  const normalizeCategoryImages = (images: unknown): Record<string, string> => {
-    const normalized: Record<string, string> = {};
-    if (!images || typeof images !== 'object') {
-      return normalized;
-    }
-
-    Object.entries(images as Record<string, unknown>).forEach(([key, value]) => {
-      const normalizedKey = key.trim().toUpperCase();
-      const normalizedValue = typeof value === 'string' ? value.trim() : '';
-      if (normalizedKey && normalizedValue) {
-        normalized[normalizedKey] = normalizedValue;
-      }
+  const filteredCars = React.useMemo(() => {
+    let cars = [...apiCars].filter(car => {
+        const dailyPrice = car.finalPrice || car.netPrice;
+        if (convertPrice(dailyPrice) > priceRange) return false;
+        if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false;
+        if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
+        const pType = car.supplier?.pickupType || (car as any).pickupType;
+        if (selectedLocationTypes.length > 0 && !selectedLocationTypes.includes(pType)) return false;
+        if (freeCancelOnly && !car.supplier.includesCDW) return false;
+        return true;
     });
 
-    return normalized;
+    if (sortBy === 'price_asc') cars.sort((a, b) => (a.finalPrice || a.netPrice) - (b.finalPrice || b.netPrice));
+    else if (sortBy === 'price_desc') cars.sort((a, b) => (b.finalPrice || b.netPrice) - (a.finalPrice || a.netPrice));
+    else if (sortBy === 'rating_desc') cars.sort((a, b) => b.supplier.rating - a.supplier.rating);
+
+    return cars;
+  }, [apiCars, priceRange, selectedCategories, selectedTransmissions, selectedLocationTypes, freeCancelOnly, sortBy, convertPrice]);
+
+  const handleCategoryToggle = (cat: string) => {
+    setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
   };
 
-  React.useEffect(() => {
-    const loadLocationSuppliers = async () => {
-      if (pickupIata) {
-        try {
-          const results = await fetchPublicSuppliers(pickupIata);
-          setAllLocationSuppliers(results);
-        } catch (err) {
-          console.error("Failed to fetch location suppliers:", err);
-        }
-      }
-    };
-    loadLocationSuppliers();
-  }, [pickupIata]);
+  const handleTransmissionToggle = (trans: Transmission) => {
+    setSelectedTransmissions(prev => prev.includes(trans) ? prev.filter(t => t !== trans) : [...prev, trans]);
+  };
 
-  React.useEffect(() => {
-    const loadCategoryImages = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/homepage/category-images`);
-        if (!response.ok) {
-          return;
-        }
+  const handleLocationTypeToggle = (type: PickupType) => {
+    setSelectedLocationTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+  };
 
-        const data = await response.json();
-        const normalizedImages = normalizeCategoryImages(data);
-        if (Object.keys(normalizedImages).length > 0) {
-          setCategoryImages({ ...(MOCK_CATEGORY_IMAGES as Record<string, string>), ...normalizedImages });
-        }
-      } catch (err) {
-        console.error('Failed to load category images:', err);
-      }
-    };
-
-    loadCategoryImages();
-  }, []);
-
-  React.useEffect(() => {
-    if (showMobileFilters || showMobileSort) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showMobileFilters, showMobileSort]);
-
-  const handleResetFilters = () => {
-    setPriceRange(5000);
+  const resetFilters = () => {
     setSelectedCategories([]);
-    setSelectedSuppliers([]);
     setSelectedTransmissions([]);
-    setSelectedFuelPolicies([]);
-    setPassengerCapacity(0);
-    setSelectedPaymentTypes([]);
-    setMaxDeposit(0);
     setSelectedLocationTypes([]);
-    setSpecialOffersOnly(false);
+    setPriceRange(500);
+    setFreeCancelOnly(false);
   };
 
-  const handleSearch = (params: any) => {
-    const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
-    if (!pickup) return;
-
-    const newSearchParams = new URLSearchParams();
-    newSearchParams.set('pickup', pickup);
-    if(pickupName) newSearchParams.set('pickupName', pickupName);
-
-    if (pickupDate) newSearchParams.set('pickupDate', pickupDate);
-    if (dropoffDate) newSearchParams.set('dropoffDate', dropoffDate);
-    if (startTime) newSearchParams.set('startTime', startTime);
-    if (endTime) newSearchParams.set('endTime', endTime);
-    
-    if(dropoff) newSearchParams.set('dropoff', dropoff);
-    if(dropoffName) newSearchParams.set('dropoffName', dropoffName);
-    
-    setIsSearchOpen(false);
-    navigate(`/searching?${newSearchParams.toString()}`);
+  const handleSearchUpdate = (values: any) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('pickup', values.pickup);
+    if (values.pickupName) params.set('pickupName', values.pickupName);
+    params.set('pickupDate', values.pickupDate);
+    params.set('dropoffDate', values.dropoffDate);
+    params.set('startTime', values.startTime);
+    params.set('endTime', values.endTime);
+    if (values.dropoff) params.set('dropoff', values.dropoff);
+    if (values.dropoffName) params.set('dropoffName', values.dropoffName);
+    navigate(`/search?${params.toString()}`);
+    setIsSearchWidgetOpen(false);
   };
 
-  const toggleFilterSection = (section: string) => {
-    setOpenFilters(prev =>
-      prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
-    );
-  };
-
-  const allCategories = Object.values(CarCategory).filter(cat => cat !== CarCategory.INTERMEDIATE);
-  const supplierLogos = React.useMemo(() => {
-    const logos = new Map<string, string>();
-    allLocationSuppliers.forEach(s => {
-      if (s.name && !logos.has(s.name)) {
-        logos.set(s.name, s.logoUrl || '');
-      }
-    });
-    if (apiCars) {
-      apiCars.forEach(c => {
-        if (c.supplier?.name && !logos.has(c.supplier.name)) {
-          logos.set(c.supplier.name, c.supplier.logo || '');
-        }
-      });
-    }
-    return logos;
-  }, [apiCars, allLocationSuppliers]);
-
-  const allSuppliers = React.useMemo(() => {
-    return Array.from(supplierLogos.keys()).sort();
-  }, [supplierLogos]);
-  const allTransmissions = Object.values(Transmission);
-  const allFuelPolicies = Object.values(FuelPolicy);
-  const allLocationTypes = ['In Terminal', 'Shuttle Bus', 'Meet & Greet'];
-  const paymentTypeMapping: { [key in CommissionType]: string } = {
-    [CommissionType.FULL_PREPAID]: "Pay fully online",
-    [CommissionType.PARTIAL_PREPAID]: "Pay partially online",
-    [CommissionType.PAY_AT_DESK]: "Pay at desk",
-  };
-  const allPaymentTypes = Object.values(CommissionType);
-  
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev =>
-        prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-    );
-  };
-
-  const handleSupplierChange = (supplier: string) => {
-    setSelectedSuppliers(prev => 
-      prev.includes(supplier) ? prev.filter(s => s !== supplier) : [...prev, supplier]
-    );
-  };
-
-  const handleTransmissionChange = (transmission: string) => {
-      setSelectedTransmissions(prev => 
-        prev.includes(transmission) ? prev.filter(t => t !== transmission) : [...prev, transmission]
-      );
-  }
-
-  const handleFuelPolicyChange = (policy: string) => {
-      setSelectedFuelPolicies(prev => 
-        prev.includes(policy) ? prev.filter(p => p !== policy) : [...prev, policy]
-      );
-  }
-  
-  const handlePaymentTypeChange = (paymentType: string) => {
-    setSelectedPaymentTypes(prev => 
-      prev.includes(paymentType) ? prev.filter(p => p !== paymentType) : [...prev, paymentType]
-    );
-  };
-
-  const handleLocationTypeChange = (locationType: string) => {
-      setSelectedLocationTypes(prev => 
-        prev.includes(locationType) ? prev.filter(l => l !== locationType) : [...prev, locationType]
-      );
-  };
-
-  const getCarDailyPrice = (car: Car) => calculatePrice(car, days, startDate).dailyRate;
-  
-  const baseFilteredCars = React.useMemo(() => {
-    return apiCars || [];
-  }, [apiCars]);
-
-  const filterCounts = React.useMemo(() => {
-    const counts = {
-      category: new Map<string, number>(),
-      supplier: new Map<string, number>(),
-      transmission: new Map<string, number>(),
-      fuelPolicy: new Map<string, number>(),
-      paymentType: new Map<string, number>(),
-      locationType: new Map<string, number>(),
-    };
-
-    baseFilteredCars.forEach(car => {
-        counts.category.set(car.category, (counts.category.get(car.category) || 0) + 1);
-        counts.supplier.set(car.supplier.name, (counts.supplier.get(car.supplier.name) || 0) + 1);
-        counts.transmission.set(car.transmission, (counts.transmission.get(car.transmission) || 0) + 1);
-        counts.fuelPolicy.set(car.fuelPolicy, (counts.fuelPolicy.get(car.fuelPolicy) || 0) + 1);
-        counts.paymentType.set(car.supplier.commissionType, (counts.paymentType.get(car.supplier.commissionType) || 0) + 1);
-        
-        const pt = car.supplier?.pickupType;
-        let matched = false;
-        if (pt === 'IN_TERMINAL') { counts.locationType.set('In Terminal', (counts.locationType.get('In Terminal') || 0) + 1); matched = true; }
-        else if (pt === 'MEET_AND_GREET') { counts.locationType.set('Meet & Greet', (counts.locationType.get('Meet & Greet') || 0) + 1); matched = true; }
-        else if (pt === 'SHUTTLE_BUS') { counts.locationType.set('Shuttle Bus', (counts.locationType.get('Shuttle Bus') || 0) + 1); matched = true; }
-        
-        if (!matched) {
-            allLocationTypes.forEach(locType => {
-                if (car.locationDetail.toLowerCase().includes(locType.toLowerCase())) {
-                    counts.locationType.set(locType, (counts.locationType.get(locType) || 0) + 1);
-                }
-            });
-        }
-    });
-    return counts;
-  }, [baseFilteredCars]);
-
-  const sortedAndFilteredCars = React.useMemo(() => {
-    const filtered = baseFilteredCars.filter(car => {
-      const basePrice = getCarDailyPrice(car);
-      if (basePrice > priceRange) return false;
-      if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false;
-      if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.supplier.name)) return false;
-      if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
-      if (selectedFuelPolicies.length > 0 && !selectedFuelPolicies.includes(car.fuelPolicy)) return false;
-      if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
-      if (selectedPaymentTypes.length > 0 && !selectedPaymentTypes.includes(car.supplier.commissionType)) return false;
-      if (maxDeposit > 0 && car.deposit > maxDeposit) return false;
-      if (specialOffersOnly && !(car.promotionAmount || car.promotionPercent || car.hogicarChoice)) return false;
-      if (selectedLocationTypes.length > 0) {
-          const pt = car.supplier?.pickupType;
-          let carMatch = false;
-          if (pt === 'IN_TERMINAL' && selectedLocationTypes.includes('In Terminal')) carMatch = true;
-          else if (pt === 'MEET_AND_GREET' && selectedLocationTypes.includes('Meet & Greet')) carMatch = true;
-          else if (pt === 'SHUTTLE_BUS' && selectedLocationTypes.includes('Shuttle Bus')) carMatch = true;
-          else {
-              carMatch = selectedLocationTypes.some(locType => car.locationDetail.toLowerCase().includes(locType.toLowerCase()));
-          }
-          if (!carMatch) return false;
-      }
-      return true;
-    });
-
-    switch(sortBy) {
-        case 'Price: Low to High':
-            return [...filtered].sort((a, b) => getCarDailyPrice(a) - getCarDailyPrice(b));
-        case 'Price: High to Low':
-            return [...filtered].sort((a, b) => getCarDailyPrice(b) - getCarDailyPrice(a));
-        default:
-            return filtered;
-    }
-  }, [baseFilteredCars, priceRange, selectedCategories, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, sortBy, days, startDate, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly]);
-  
-  const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
-  const activeFilterCount =
-    selectedCategories.length +
-    selectedSuppliers.length +
-    selectedTransmissions.length +
-    selectedFuelPolicies.length +
-    selectedPaymentTypes.length +
-    selectedLocationTypes.length +
-    (passengerCapacity > 0 ? 1 : 0) +
-    (maxDeposit > 0 ? 1 : 0) +
-    (specialOffersOnly ? 1 : 0);
+  const dateRangeDisplay = `${startD.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${endD.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
   return (
-    <>
-    <SEOMetadata
-        title={`Car Hire in ${location || 'Top Destinations'} | Hogicar`}
-        description={`Find the best car rental deals in ${location}. Compare prices from top suppliers like Hertz, Avis, and more.`}
-    />
-    <div className="bg-slate-50 min-h-screen pb-12">
-      {/* Search Header */}
-      <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
-        <div className="max-w-[1600px] mx-auto px-2 py-1.5 sm:px-6 sm:py-2.5 lg:px-8">
-            <div className="rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-2.5 py-2 sm:px-3 md:py-2">
-              <div className="flex flex-col gap-1.5 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex min-w-0 items-center gap-2">
-                  <div className="bg-[#008009]/15 p-1.5 sm:p-2 rounded-lg flex-shrink-0 border border-[#008009]/25">
-                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00a30b]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm sm:text-base font-black text-white truncate">{location || 'Select Location'}</p>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-slate-400 min-w-0">
-                      <span className="truncate">{pickupIata || 'Pickup'}</span>
-                      <ArrowRight className="w-3 h-3 text-slate-600 shrink-0" />
-                      <span className="truncate">{dropoffIata || pickupIata || 'Dropoff'}</span>
-                    </div>
-                  </div>
-                </div>
+    <div className="bg-[#F8FAFE] min-h-screen font-sans text-[#0A2647] antialiased">
+      <SEOMetadata title={`Car Rental in ${pickupName} | RentCompare`} />
+      
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+        <div className="zoom-container py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="text-xl font-extrabold bg-gradient-to-r from-[#0A2647] to-[#1B4D8C] bg-clip-text text-transparent">
+              Rent<span className="text-[#D4AF37]">Compare</span>
+            </Link>
+            <div className="hidden md:block h-5 w-px bg-gray-300"></div>
+            <span className="hidden md:block text-[10px] font-medium text-gray-500 uppercase tracking-widest">Executive</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-1 text-gray-500">
+              <Users className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold">24/7 Support</span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
+              <Users className="w-4 h-4 text-[#D4AF37]" />
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <div className="grid grid-cols-2 gap-1.5 lg:flex lg:min-w-0 lg:flex-1 lg:justify-center">
-                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
-                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Pickup</p>
-                      <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{startDateTimeDisplay}</p>
-                    </div>
-                  </div>
-                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
-                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Return</p>
-                      <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{endDateTimeDisplay}</p>
-                    </div>
-                  </div>
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#0A2647]/5 to-[#1B4D8C]/5 border-b">
+        <div className="zoom-container py-3">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex flex-wrap gap-1.5">
+                <div className="bg-white rounded-full shadow-sm border px-3 py-1 flex items-center gap-1.5 text-xs">
+                  <MapPin className="w-3 h-3 text-[#D4AF37]" />
+                  <span className="font-medium text-gray-700">{pickupName}</span>
                 </div>
+                <div className="bg-white rounded-full shadow-sm border px-3 py-1 flex items-center gap-1.5 text-xs">
+                  <Calendar className="w-3 h-3 text-[#D4AF37]" />
+                  <span className="font-medium text-gray-700">{dateRangeDisplay}</span>
+                </div>
+                <button 
+                    onClick={() => setIsSearchWidgetOpen(!isSearchWidgetOpen)}
+                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-colors"
+                >
+                    {isSearchWidgetOpen ? 'Close' : 'Update'}
+                </button>
+              </div>
+              <h1 className="text-base sm:text-lg font-bold text-[#0A2647]">Compare <span className="text-[#D4AF37]">premium rentals</span></h1>
+              <p className="text-gray-500 text-[10px]">{loading ? 'Searching...' : `${filteredCars.length} verified offers`}</p>
+            </div>
+            <div className="flex gap-1.5">
+              <div className="bg-white rounded-full shadow-sm border px-2 py-1 flex items-center gap-1 text-[10px]">
+                <Shield className="w-3 h-3 text-[#D4AF37]" />
+                <span>Best price</span>
+              </div>
+              <div className="bg-white rounded-full shadow-sm border px-2 py-1 flex items-center gap-1 text-[10px]">
+                <Clock className="w-3 h-3 text-[#D4AF37]" />
+                <span>Free cancel</span>
+              </div>
+            </div>
+          </div>
 
-                <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_1fr_auto] items-center gap-1.5">
-                  <div className="hidden sm:block rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Days</p>
-                    <p className="text-[11px] font-black text-white">{days}</p>
-                  </div>
-                  <div className="hidden sm:block rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Suppliers</p>
-                    <p className="text-[11px] font-black text-white">{allSuppliers.length}</p>
-                  </div>
-                  <div className="sm:hidden rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Trip</p>
-                    <p className="text-[10px] font-black text-white">{days} day{days > 1 ? 's' : ''}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="h-full flex items-center justify-center gap-1.5 text-white font-black text-[10px] sm:text-xs px-3 sm:px-4 rounded-lg bg-[#008009] hover:bg-[#006607] transition-all shadow-md shadow-[#008009]/20 active:scale-[0.98] whitespace-nowrap"
-                  >
-                    <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                    <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
+          {isSearchWidgetOpen && (
+            <div className="mt-4 p-4 bg-white rounded-xl shadow-xl border animate-fadeIn">
+                <SearchWidget 
+                    onSearch={handleSearchUpdate}
+                    initialValues={{
+                        pickup: pickupIata,
+                        pickupName: pickupName,
+                        pickupDate: startDate,
+                        dropoffDate: endDate,
+                        startTime: startTimeParam || '10:00',
+                        endTime: endTimeParam || '10:00',
+                        dropoff: dropoffIata || '',
+                        dropoffName: dropoffName || '',
+                        differentDropoff: !!dropoffIata && pickupIata !== dropoffIata
+                    }}
+                />
+            </div>
+          )}
+        </div>
+        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#D4AF37]/30 to-transparent"></div>
+      </div>
+
+      <div className="zoom-container py-4">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-6">
+          <aside className={`fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-white shadow-2xl transform ${isFilterDrawerOpen ? 'translate-x-0' : '-translate-x-full'} transition lg:relative lg:translate-x-0 lg:shadow-none lg:bg-transparent lg:w-auto overflow-auto rounded-r-2xl lg:rounded-none`}>
+            <div className="lg:bg-white lg:rounded-xl lg:border lg:shadow-sm bg-white p-4 h-full">
+              <div className="flex justify-between pb-2 border-b mb-4">
+                <div className="flex items-center gap-1.5">
+                  <SlidersHorizontal className="w-4 h-4 text-[#1B4D8C]" />
+                  <h2 className="font-bold text-sm">Refine</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={resetFilters} className="text-[10px] font-semibold text-[#1B4D8C] hover:text-[#D4AF37]">Reset</button>
+                  <button onClick={() => setIsFilterDrawerOpen(false)} className="lg:hidden p-0.5 text-gray-400">
+                    <X className="w-4 h-4" />
                   </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-2">Category</h3>
+                  <div className="space-y-1.5">
+                    {[CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.INTERMEDIATE, CarCategory.SUV, CarCategory.LUXURY].map(cat => (
+                      <label key={cat} className="flex items-center text-xs cursor-pointer group">
+                        <input 
+                            type="checkbox" 
+                            checked={selectedCategories.includes(cat)}
+                            onChange={() => handleCategoryToggle(cat)}
+                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C] transition-colors">{cat}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-2">Transmission</h3>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center text-xs cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedTransmissions.includes(Transmission.AUTOMATIC)}
+                        onChange={() => handleTransmissionToggle(Transmission.AUTOMATIC)}
+                        className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                      /> 
+                      <span className="group-hover:text-[#1B4D8C]">Automatic</span>
+                    </label>
+                    <label className="flex items-center text-xs cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedTransmissions.includes(Transmission.MANUAL)}
+                        onChange={() => handleTransmissionToggle(Transmission.MANUAL)}
+                        className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                      /> 
+                      <span className="group-hover:text-[#1B4D8C]">Manual</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <h3 className="text-[10px] font-bold uppercase">Daily ({getCurrencySymbol()})</h3>
+                    <span className="text-sm font-bold text-[#D4AF37]">{getCurrencySymbol()} {priceRange}</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="10" 
+                    max="1000" 
+                    value={priceRange} 
+                    onChange={(e) => setPriceRange(parseInt(e.target.value))}
+                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]" 
+                  />
+                </div>
+
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase mb-2 text-gray-400">Conditions</h3>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center text-xs cursor-pointer group mb-1.5">
+                        <input 
+                            type="checkbox" 
+                            checked={freeCancelOnly}
+                            onChange={(e) => setFreeCancelOnly(e.target.checked)}
+                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C]">Free cancel</span>
+                    </label>
+                    <label className="flex items-center text-xs cursor-pointer group mb-1.5">
+                        <input 
+                            type="checkbox" 
+                            checked={selectedLocationTypes.includes(PickupType.MEET_AND_GREET)}
+                            onChange={() => handleLocationTypeToggle(PickupType.MEET_AND_GREET)}
+                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C]">Meet & Greet</span>
+                    </label>
+                    <label className="flex items-center text-xs cursor-pointer group">
+                        <input 
+                            type="checkbox" 
+                            checked={selectedLocationTypes.includes(PickupType.IN_TERMINAL)}
+                            onChange={() => handleLocationTypeToggle(PickupType.IN_TERMINAL)}
+                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C]">In-terminal</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
+          </aside>
 
-            {isSearchOpen && (
-                <div className="mt-3 pt-3 border-t border-slate-700 animate-fadeIn">
-                    <SearchWidget
-                        onSearch={handleSearch}
-                        initialValues={{ 
-                            pickup: pickupIata,
-                            pickupName: pickupName,
-                            pickupDate: startDate, 
-                            dropoffDate: endDate,
-                            startTime: startTimeParam || '10:00',
-                            endTime: endTimeParam || '10:00',
-                            dropoff: dropoffIata || '',
-                            dropoffName: dropoffName || '',
-                            differentDropoff: !!dropoffIata && pickupIata !== dropoffIata
-                        }}
-                    />
-                </div>
-            )}
-        </div>
-      </div>
-      
-
-      <div className="hidden md:block bg-white border-b border-slate-200 py-6">
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
-                <div>
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-[#008009]"/> Filter by Category</h2>
-                  <p className="text-xs font-bold text-slate-500">Select a vehicle class to quickly narrow down your options.</p>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5">
-                    <span className="text-xs text-slate-500 font-bold">Sort by:</span>
-                    <div className="relative">
-                        <select 
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="appearance-none bg-white border border-slate-200 text-sm text-slate-700 font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#008009] cursor-pointer hover:border-slate-300"
-                        >
-                            <option>Recommended</option>
-                            <option>Price: Low to High</option>
-                            <option>Price: High to Low</option>
-                        </select>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                </div>
-              </div>
-              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 lg:gap-6 -mx-4 px-4 md:mx-0 md:px-0">
-                  {categoryOrder.map(category => {
-                      const isActive = selectedCategories.includes(category);
-                      const count = filterCounts.category.get(category) || 0;
-                      const isDisabled = false;
-                      const categoryImage =
-                        categoryImages[category] ||
-                        categoryImages[category.toUpperCase()] ||
-                        (MOCK_CATEGORY_IMAGES as Record<string, string>)[category];
-                      return (
-                          <button
-                              key={category}
-                              onClick={() => handleCategoryToggle(category)}
-                              disabled={isDisabled}
-                              className={`flex-shrink-0 w-16 sm:w-20 md:w-28 lg:w-32 flex flex-col items-center gap-1 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
-                          >
-                              {isActive && (
-                                  <div className="absolute top-0 right-0 -mt-1 -mr-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#008009] rounded-full flex items-center justify-center text-white border-2 border-white z-10 shadow">
-                                      <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                                  </div>
-                              )}
-                              <div className={`w-full aspect-[4/3] rounded-lg flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
-                                  ${isActive
-                                      ? 'border-[#008009] shadow-lg shadow-[#008009]/30 ring-2 ring-emerald-50'
-                                      : 'border-slate-200 bg-slate-50 group-hover:border-[#008009]/40 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
-                                  <img src={categoryImage} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width={100} height={100} />
-                              </div>
-                              <div className="text-center leading-tight">
-                                  <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight transition-colors duration-300 ${isActive ? 'text-[#008009]' : 'text-slate-700 group-hover:text-slate-900'}`}>
-                                      {category}
-                                  </span>
-                                  <span className={`block text-[9px] font-bold ${isActive ? 'text-[#008009]/70' : 'text-slate-400'}`}>({count} cars)</span>
-                              </div>
-                          </button>
-                      )
-                  })}
-              </div>
-          </div>
-      </div>
-
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-5">
-        
-        {/* Mobile Filter & Sort Controls */}
-        <div className="md:hidden my-2 bg-white/95 backdrop-blur p-1.5 border border-slate-200 rounded-xl sticky top-2 z-20 grid grid-cols-2 gap-1.5 shadow-[0_14px_36px_-28px_rgba(15,23,42,0.7)]">
-            <button 
-                onClick={() => {
-                    setShowMobileSort(false);
-                    setShowMobileFilters(true);
-                }}
-                className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-lg font-black text-[11px] shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50"
-            >
-                <SlidersHorizontal className="w-4 h-4 text-[#008009]" />
-                <span>Filters</span>
-                { activeFilterCount > 0 && (
-                    <span className="bg-[#008009] text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
-                        {activeFilterCount}
-                    </span>
-                )}
-            </button>
-            <button 
-                onClick={() => {
-                    setShowMobileFilters(false);
-                    setShowMobileSort(true);
-                }}
-                className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-lg font-black text-[11px] shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50 min-w-0"
-            >
-                {sortBy === 'Recommended' ? (
-                    <Gem className="w-4 h-4 text-[#008009]" />
-                ) : (
-                    <ArrowUpDown className="w-4 h-4 text-[#008009]" />
-                )}
-                <span className="truncate">{sortBy}</span>
-            </button>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-5 lg:gap-7 items-start">
-          
-          {/* Filters Sidebar / Mobile Pop-up */}
-          <div className={`
-            fixed inset-0 z-[100] md:relative md:inset-auto md:z-0
-            ${showMobileFilters ? 'flex' : 'hidden md:block'} 
-            w-full md:w-[270px] lg:w-[300px] flex-shrink-0
-          `}>
+          {isFilterDrawerOpen && (
             <div 
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
-              onClick={() => setShowMobileFilters(false)}
+                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+                onClick={() => setIsFilterDrawerOpen(false)}
             />
+          )}
 
-            <aside className={`
-              relative bg-white w-full h-[90vh] mt-auto rounded-t-[28px] shadow-2xl flex flex-col
-              md:h-auto md:mt-0 md:rounded-2xl md:shadow-[0_18px_45px_-34px_rgba(15,23,42,0.55)] md:border md:border-slate-200
-              overflow-hidden md:overflow-visible transition-transform duration-500 ease-out
-              ${showMobileFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
-            `}>
-              <div className="flex items-center justify-between p-5 md:p-4 border-b border-slate-100 md:bg-slate-950 md:text-white md:rounded-t-2xl">
-                <div className="flex items-center gap-2">
-                    <h3 className="font-black text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-                      <SlidersHorizontal className="w-4 h-4 text-[#008009]" /> Filters
-                    </h3>
-                    {showMobileFilters && (
-                        <span className="md:hidden bg-emerald-50 text-[#008009] text-[10px] px-2 py-0.5 rounded-full font-bold">
-                            {activeFilterCount} active
-                        </span>
-                    )}
-                </div>
-                <div className="flex items-center gap-4">
-                    <button 
-                      onClick={handleResetFilters}
-                      className="text-[10px] text-[#008009] md:text-emerald-300 font-black hover:underline uppercase tracking-widest"
-                    >
-                      Reset
-                    </button>
-                    <button 
-                      onClick={() => setShowMobileFilters(false)}
-                      className="md:hidden p-2 bg-slate-100 rounded-full text-slate-500 active:scale-90 transition-all"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                </div>
+          <main className="lg:col-span-3 mt-4">
+            <div className="flex flex-wrap justify-between gap-2 mb-3 bg-white p-2 rounded-lg shadow-sm border">
+              <div className="flex items-center gap-1.5 text-xs">
+                <CarIcon className="w-3.5 h-3.5 text-[#D4AF37]" /> 
+                <span className="font-bold text-sm">{filteredCars.length}</span> 
+                <span className="text-gray-500 text-[11px]">vehicles</span>
               </div>
-
-              <div className="divide-y divide-slate-100 overflow-y-auto md:overflow-visible flex-1 md:flex-none custom-scrollbar pb-24 md:pb-0">
-                  <div className="p-4 md:p-3 bg-emerald-50/60 md:bg-white">
-                      <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-slate-50 p-2 rounded-xl -ml-1 border border-emerald-100 md:border-transparent">
-                          <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50" />
-                          <span className="ml-2 text-xs text-slate-600 font-medium">Special Offers Only</span>
-                          <Gift className="w-4 h-4 text-red-500 ml-auto" />
-                      </label>
-                  </div>
-
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Price')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Price per Day</span>
-                          {openFilters.includes('Price') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Price') && (
-                          <div className="mt-3 px-1">
-                              <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-medium">
-                                  <span>{getCurrencySymbol()}0</span>
-                                  <span className="text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded">{getCurrencySymbol()}{convertPrice(priceRange).toFixed(0)}</span>
-                              </div>
-                              <input 
-                                  type="range" 
-                                  min="0" 
-                                  max="5000" 
-                                  value={priceRange} 
-                                  onChange={(e) => setPriceRange(Number(e.target.value))}
-                                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#008009]"
-                              />
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
-                          {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Category') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allCategories.map((type) => (
-                                  <label key={type} className={`flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1`}>
-                                      <input 
-                                          type="checkbox" 
-                                          checked={selectedCategories.includes(type)}
-                                          onChange={() => handleCategoryToggle(type)}
-                                          className="rounded border-gray-300 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50 w-4 h-4" 
-                                      />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{type}</span>
-                                      <span className="ml-auto text-[10px] text-slate-400">({filterCounts.category.get(type) || 0})</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-                  
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Passengers')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Number of seats</span>
-                          {openFilters.includes('Passengers') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Passengers') && (
-                          <div className="mt-2 grid grid-cols-4 gap-2">
-                              {[2, 4, 5, 7].map(num => (
-                                  <button key={num} onClick={() => setPassengerCapacity(passengerCapacity === num ? 0 : num)} className={`p-2 border rounded-md text-xs font-bold transition-colors ${passengerCapacity === num ? 'bg-[#008009] text-white border-[#008009]' : 'bg-white text-slate-700 border-slate-200 hover:border-[#008009]'}`}>
-                                      {num}{num === 7 ? '+' : ''}
-                                  </button>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-                  
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Payment')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Payment Type</span>
-                          {openFilters.includes('Payment') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Payment') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allPaymentTypes.map((type) => (
-                                  <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedPaymentTypes.includes(type)} onChange={() => handlePaymentTypeChange(type)} className="rounded w-4 h-4 text-[#008009]" />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{paymentTypeMapping[type as CommissionType]}</span>
-                                      <span className="ml-auto text-[10px] text-slate-400">({filterCounts.paymentType.get(type) || 0})</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Deposit')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Refundable Security Deposit</span>
-                          {openFilters.includes('Deposit') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Deposit') && (
-                          <div className="mt-2 space-y-1.5">
-                              {[0, 300, 500].map((amount) => (
-                                  <label key={amount} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="radio" name="deposit" checked={maxDeposit === amount} onChange={() => setMaxDeposit(amount)} className="w-4 h-4 text-[#008009] focus:ring-[#008009]" />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{amount === 0 ? 'Any amount' : `Less than ${getCurrencySymbol()}${convertPrice(amount).toFixed(0)}`}</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-                  
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('LocationType')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Location Type</span>
-                          {openFilters.includes('LocationType') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('LocationType') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allLocationTypes.map((type) => (
-                                  <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedLocationTypes.includes(type)} onChange={() => handleLocationTypeChange(type)} className="rounded w-4 h-4 text-[#008009]" />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{type}</span>
-                                      <span className="ml-auto text-[10px] text-slate-400">({filterCounts.locationType.get(type) || 0})</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Transmission')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Transmission</span>
-                          {openFilters.includes('Transmission') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Transmission') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allTransmissions.map((type) => (
-                                  <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedTransmissions.includes(type)} onChange={() => handleTransmissionChange(type)} className="rounded w-4 h-4 text-[#008009]" />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{type}</span>
-                                      <span className="ml-auto text-[10px] text-slate-400">({filterCounts.transmission.get(type) || 0})</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Fuel')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Fuel Policy</span>
-                          {openFilters.includes('Fuel') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Fuel') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allFuelPolicies.map((policy) => (
-                                  <label key={policy} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedFuelPolicies.includes(policy)} onChange={() => handleFuelPolicyChange(policy)} className="rounded w-4 h-4 text-[#008009]" />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{policy}</span>
-                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.fuelPolicy.get(policy) || 0})</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="p-4 md:p-3">
-                      <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Suppliers in {pickupIata || location}</span>
-                          {openFilters.includes('Supplier') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                      </button>
-                      {openFilters.includes('Supplier') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allSuppliers.length === 0 && (
-                                  <p className="text-[10px] text-slate-400 italic">No suppliers found for this search.</p>
-                              )}
-                              {allSuppliers.map((name) => (
-                                  <label key={name} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-[#008009]" />
-                                      {supplierLogos.get(name) && (
-                                         <img src={supplierLogos.get(name)} alt={name} className="w-10 h-8 ml-2 object-contain" width={40} height={32} />
-                                     )}
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{name}</span>
-                                      <span className="ml-auto text-[10px] text-slate-400">({filterCounts.supplier.get(name) || 0})</span>
-                                  </label>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-              </div>
-
-              <div className="p-4 border-t border-slate-100 md:hidden bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] absolute bottom-0 left-0 right-0 z-10">
-                  <button 
-                    onClick={() => setShowMobileFilters(false)}
-                    className="w-full bg-[#008009] text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-[#008009]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                  >
-                    Show {sortedAndFilteredCars.length} results
-                  </button>
-              </div>
-            </aside>
-          </div>
-
-          {/* Mobile Sorting Pop-up */}
-          <div className={`
-            fixed inset-0 z-[110] md:hidden
-            ${showMobileSort ? 'flex' : 'hidden'} 
-            w-full flex-col
-          `}>
-            <div 
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300"
-              onClick={() => setShowMobileSort(false)}
-            />
-
-            <aside className={`
-              relative bg-white w-full mt-auto rounded-t-[32px] shadow-2xl flex flex-col
-              overflow-hidden transition-transform duration-500 ease-out
-              ${showMobileSort ? 'translate-y-0' : 'translate-y-full'}
-            `}>
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
-                  <ArrowUpDown className="w-4 h-4 text-[#008009]" /> Sort By
-                </h3>
-                <button 
-                  onClick={() => setShowMobileSort(false)}
-                  className="p-2 bg-slate-100 rounded-full text-slate-500 active:scale-90 transition-all"
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-gray-500 hidden sm:inline font-semibold">Sort</span>
+                <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="bg-white border rounded-lg px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-[#1B4D8C] outline-none"
                 >
-                  <X className="w-5 h-5" />
+                  <option value="rating_desc">🌟 Recommended</option>
+                  <option value="price_asc">💰 Price: Low</option>
+                  <option value="price_desc">💰 Price: High</option>
+                  <option value="rating_desc">⭐ Rating</option>
+                </select>
+                <button 
+                    onClick={() => setIsFilterDrawerOpen(true)}
+                    className="lg:hidden flex items-center gap-1 bg-gray-50 border rounded-lg px-2 py-1 text-xs font-semibold"
+                >
+                  <Filter className="w-3 h-3" /> Filter
                 </button>
               </div>
+            </div>
 
-              <div className="p-4 space-y-3 pb-12">
-                {[
-                  { label: 'Recommended', icon: <Gem className="w-4 h-4" /> },
-                  { label: 'Price: Low to High', icon: <ArrowUpDown className="w-4 h-4 rotate-180" /> },
-                  { label: 'Price: High to Low', icon: <ArrowUpDown className="w-4 h-4" /> }
-                ].map((option) => (
-                  <button
-                    key={option.label}
-                    onClick={() => {
-                      setSortBy(option.label);
-                      setShowMobileSort(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-5 rounded-2xl transition-all ${
-                      sortBy === option.label 
-                        ? 'bg-[#008009] border-2 border-[#008009] text-white shadow-lg shadow-emerald-200' 
-                        : 'bg-slate-50 border-2 border-transparent text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${sortBy === option.label ? 'bg-white/20' : 'bg-white shadow-sm'}`}>
-                            {React.cloneElement(option.icon as React.ReactElement<any>, { 
-                                className: `w-4 h-4 ${sortBy === option.label ? 'text-white' : 'text-[#008009]'}` 
-                            })}
-                        </div>
-                        <span className="font-bold text-sm">{option.label}</span>
-                    </div>
-                    {sortBy === option.label && <div className="bg-white rounded-full p-1"><Check className="w-3 h-3 text-[#008009]" /></div>}
-                  </button>
-                ))}
-              </div>
-            </aside>
-          </div>
-          
-          {/* Results List */}
-          <main className="flex-grow w-full">
             {loading ? (
-              <div className="text-center py-20 px-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 font-semibold text-slate-700">Finding the best deals for you...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center bg-white rounded-lg shadow-sm border border-red-200 py-12 px-6">
-                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-bold text-slate-800">Something went wrong</h3>
-                  <p className="text-sm text-slate-500 mt-2">{error}</p>
-              </div>
-            ) : (
-                <>
-                <div className="flex items-center justify-between gap-3 mb-4 bg-white border border-slate-200 rounded-2xl shadow-sm p-4 md:p-4">
-                    <div className="min-w-0">
-                      <p className="text-base md:text-sm text-slate-900 font-black uppercase tracking-tight md:tracking-wide">
-                          <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> cars available
-                      </p>
-                      <p className="text-[11px] text-slate-500 font-bold mt-1">
-                        {pickupIata || location || 'Selected location'} • {days} day{days > 1 ? 's' : ''} • {sortBy}
-                      </p>
-                    </div>
-                    <div className="flex max-[420px]:hidden items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest text-right rounded-full bg-emerald-50 px-3 py-1.5">
-                        <Check className="w-3 h-3 text-[#008009]" /> Taxes & fees included
-                    </div>
+                <div className="space-y-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-32 bg-white rounded-xl border animate-pulse" />
+                    ))}
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:gap-3 px-0">
-                    {sortedAndFilteredCars.map(car => (
+            ) : filteredCars.length > 0 ? (
+                <div className="space-y-3">
+                    {filteredCars.map(car => (
                         <CarCard 
                             key={car.id} 
-                            car={car}
-                            cars={sortedAndFilteredCars}
-                            days={days}
-                            startDate={startDate}
-                            endDate={endDate}
-                            pickupCode={pickupIata}
-                            dropoffCode={dropoffIata || pickupIata}
+                            car={car} 
+                            pickupDate={startD}
+                            dropoffDate={endD}
+                            cars={filteredCars}
                         />
                     ))}
-                    {sortedAndFilteredCars.length === 0 && (
-                         <div className="col-span-full text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
-                            <CarIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-bold text-slate-800">No cars found</h3>
-                            <p className="text-sm text-slate-500 mt-2">Try adjusting your filters, or use dates where supplier rates are available.</p>
-                            <p className="text-xs text-slate-400 mt-2">Location: {pickupIata || 'N/A'} • {startDate} to {endDate}</p>
-                        </div>
-                    )}
                 </div>
-                </>
+            ) : (
+                <div className="text-center py-20 bg-white rounded-xl border">
+                  <CarIcon className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+                  <h3 className="text-sm font-semibold">No matches</h3>
+                  <p className="text-gray-400 text-xs">Adjust filters</p>
+                  <button 
+                    onClick={resetFilters}
+                    className="mt-2 bg-[#0A2647] text-white px-3 py-1 rounded-lg text-xs"
+                  >
+                    Clear
+                  </button>
+                </div>
             )}
           </main>
         </div>
       </div>
     </div>
-    </>
   );
 };

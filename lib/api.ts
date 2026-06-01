@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 
 export const supplierApi = {
   // Auth
-  login: (email: string, password: string) => api.post('/api/supplier/login', { email, password }),
+  login: (email: string, password: string) => api.post('/api/supplier/auth/login', { email, password }),
   getMe: () => api.get('/api/supplier/me'),
 
   // Cars

@@ -231,8 +231,8 @@ const CarDetails: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null);
 
   // Extract search params
-  const startDate = searchParams.get('startDate') || new Date().toISOString().split('T')[0];
-  const endDate = searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const startDate = searchParams.get('startDate') || searchParams.get('pickupDate') || new Date().toISOString().split('T')[0];
+  const endDate = searchParams.get('endDate') || searchParams.get('dropoffDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
   const pickupCode = searchParams.get('pickup');
   const dropoffCode = searchParams.get('dropoff');
   const days = rentalDays(startDate, endDate);
