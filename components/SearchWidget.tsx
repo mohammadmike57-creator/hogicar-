@@ -392,7 +392,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <button
                             type="button"
                             onClick={() => openSearchOverlay('pickup')}
-                            className="relative h-16 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-[#008009]/50 shadow-sm"
+                            className="relative h-16 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-[#F57C00]/50 shadow-sm"
                         >
                             <div className="flex items-center gap-4 w-full min-w-0">
                                 <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
@@ -404,7 +404,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     </div>
                                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
                                 </div>
-                                <div className="text-[#008009] flex-shrink-0 bg-emerald-50 p-2 rounded-full">
+                                <div className="text-[#F57C00] flex-shrink-0 bg-orange-50 p-2 rounded-full">
                                     <SearchIcon className="w-4 h-4" />
                                 </div>
                             </div>
@@ -418,7 +418,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <button
                                 type="button"
                                 onClick={() => openSearchOverlay('dropoff')}
-                                className="relative h-16 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-[#008009]/50 shadow-sm"
+                                className="relative h-16 bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-[#F57C00]/50 shadow-sm"
                             >
                                 <div className="flex items-center gap-4 w-full min-w-0">
                                     <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
@@ -430,7 +430,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         </div>
                                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
                                     </div>
-                                    <div className="text-[#008009] flex-shrink-0 bg-emerald-50 p-2 rounded-full">
+                                    <div className="text-[#F57C00] flex-shrink-0 bg-orange-50 p-2 rounded-full">
                                         <SearchIcon className="w-4 h-4" />
                                     </div>
                                 </div>
@@ -442,10 +442,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] ml-1">Pick-up Date & Time</label>
-                            <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-[#008009]/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#008009]/5 shadow-sm overflow-hidden">
+                            <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-[#F57C00]/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#F57C00]/5 shadow-sm overflow-hidden">
                                 <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 text-[#008009]" />
+                                        <Calendar className="w-3.5 h-3.5 text-[#F57C00]" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
@@ -459,7 +459,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 </div>
                                 <div className="p-3 pt-2 flex flex-col">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Clock className="w-3.5 h-3.5 text-[#008009]" />
+                                        <Clock className="w-3.5 h-3.5 text-[#F57C00]" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
@@ -475,10 +475,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] ml-1">Drop-off Date & Time</label>
-                            <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-[#008009]/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#008009]/5 shadow-sm overflow-hidden">
+                            <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-[#F57C00]/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#F57C00]/5 shadow-sm overflow-hidden">
                                 <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 text-[#008009]" />
+                                        <Calendar className="w-3.5 h-3.5 text-[#F57C00]" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
@@ -492,7 +492,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 </div>
                                 <div className="p-3 pt-2 flex flex-col">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Clock className="w-3.5 h-3.5 text-[#008009]" />
+                                        <Clock className="w-3.5 h-3.5 text-[#F57C00]" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
@@ -509,16 +509,16 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <div className="space-y-3 mt-1 px-1">
                         <label className="flex items-center text-[13px] font-extrabold text-slate-700 cursor-pointer select-none">
-                            <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-5 w-5 rounded-md border-2 border-slate-300 text-[#008009] focus:ring-0 mr-3" />
+                            <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-5 w-5 rounded-md border-2 border-slate-300 text-[#F57C00] focus:ring-0 mr-3" />
                             Different drop-off location
                         </label>
                         <label className="flex items-center text-[13px] font-extrabold text-slate-700 cursor-pointer select-none">
-                            <input type="checkbox" defaultChecked className="h-5 w-5 rounded-md border-2 border-slate-300 text-[#008009] focus:ring-0 mr-3" />
+                            <input type="checkbox" defaultChecked className="h-5 w-5 rounded-md border-2 border-slate-300 text-[#F57C00] focus:ring-0 mr-3" />
                             Driver aged 30 - 65?
                         </label>
                     </div>
 
-                    <button type="submit" className="w-full bg-[#FF9F1C] hover:bg-[#f39200] text-white font-black h-16 rounded-2xl shadow-[0_10px_25px_-5px_rgba(255,159,28,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-3 text-lg tracking-tight">
+                    <button type="submit" className="w-full bg-[#F57C00] hover:bg-[#E65100] text-white font-black h-16 rounded-2xl shadow-[0_10px_25px_-5px_rgba(245,124,0,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-3 text-lg tracking-tight">
                         <SearchIcon className="w-6 h-6 stroke-[3px]" />
                         Search Deals
                     </button>
@@ -540,7 +540,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)] relative z-10 border border-slate-100">
                 <form onSubmit={handleSearch} className="flex flex-col gap-5">
                     <div className="flex flex-row items-center gap-4 w-full">
-                        <div className={`relative h-16 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all duration-300 border border-slate-200/50 focus-within:border-[#008009] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#008009]/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full`}>
+                        <div className={`relative h-16 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all duration-300 border border-slate-200/50 focus-within:border-[#F57C00] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#F57C00]/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full`}>
                             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                 {getLocationIcon(pickupSelection?.type || '', 'w-6 h-6')}
                             </div>
@@ -562,7 +562,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             )}
                         </div>
                         {differentDropoff && (
-                            <div className="relative h-16 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all duration-300 border border-slate-200/50 focus-within:border-[#008009] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#008009]/10 flex-1 w-full animate-in fade-in slide-in-from-left-4">
+                            <div className="relative h-16 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all duration-300 border border-slate-200/50 focus-within:border-[#F57C00] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#F57C00]/10 flex-1 w-full animate-in fade-in slide-in-from-left-4">
                                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                     {getLocationIcon(dropoffSelection?.type || '', 'w-6 h-6')}
                                 </div>
@@ -613,19 +613,19 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 options={timeOptions}
                             />
                         </div>
-                        <button type="submit" className="h-16 px-12 bg-[#FF9F1C] hover:bg-[#f39200] text-white font-black rounded-2xl shadow-[0_15px_30px_-5px_rgba(255,159,28,0.4)] transition-all active:scale-95 flex items-center justify-center text-xl whitespace-nowrap tracking-tight">
+                        <button type="submit" className="h-16 px-12 bg-[#F57C00] hover:bg-[#E65100] text-white font-black rounded-2xl shadow-[0_15px_30px_-5px_rgba(245,124,0,0.4)] transition-all active:scale-95 flex items-center justify-center text-xl whitespace-nowrap tracking-tight">
                             Search Deals
                         </button>
                     </div>
                 </form>
 
                 <div className="mt-5 flex items-center gap-8 px-2 text-[12px] uppercase tracking-widest font-black">
-                    <label className="flex items-center text-slate-500 cursor-pointer select-none hover:text-[#008009] transition-colors group">
-                        <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-5 w-5 rounded-lg border-2 border-slate-200 text-[#008009] focus:ring-0 mr-3 group-hover:border-[#008009]/40 transition-colors" />
+                    <label className="flex items-center text-slate-500 cursor-pointer select-none hover:text-[#F57C00] transition-colors group">
+                        <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-5 w-5 rounded-lg border-2 border-slate-200 text-[#F57C00] focus:ring-0 mr-3 group-hover:border-[#F57C00]/40 transition-colors" />
                         Drop car off at different location
                     </label>
-                    <label className="flex items-center text-slate-500 cursor-pointer select-none hover:text-[#008009] transition-colors group">
-                        <input type="checkbox" defaultChecked className="h-5 w-5 rounded-lg border-2 border-slate-200 text-[#008009] focus:ring-0 mr-3 group-hover:border-[#008009]/40 transition-colors" />
+                    <label className="flex items-center text-slate-500 cursor-pointer select-none hover:text-[#F57C00] transition-colors group">
+                        <input type="checkbox" defaultChecked className="h-5 w-5 rounded-lg border-2 border-slate-200 text-[#F57C00] focus:ring-0 mr-3 group-hover:border-[#F57C00]/40 transition-colors" />
                         Driver aged 30 - 65?
                     </label>
                 </div>

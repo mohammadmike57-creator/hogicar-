@@ -75,42 +75,62 @@ const RatingModal = ({ car, onClose }: { car: CarType, onClose: () => void }) =>
 
 const TermsModal = ({ car, onClose }: { car: CarType, onClose: () => void }) => {
     const cond = {
-        deposit: `JOD ${car.deposit}`,
-        excess: `JOD ${car.excess || 300}`,
-        fuel: car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy,
-        cancel: 'Free 48h',
-        incl: 'Basic insurance, VAT, 24h roadside'
+        deposit: `${car.currency || 'JOD'} ${car.deposit}`,
+        excess: `${car.currency || 'JOD'} ${car.excess || 300}`,
+        fuel: car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full (Professional Policy)' : car.fuelPolicy.replace(/_/g, ' ').toLowerCase(),
+        cancel: 'Free cancellation up to 48h before pickup',
+        insurance: 'Collision Damage Waiver, Theft Protection, Third Party Liability',
+        driver: 'Minimum age 21, valid driving license (held for min 1 year)',
+        payment: 'Credit card required for security deposit at pickup',
+        mileage: car.unlimitedMileage ? 'Unlimited mileage included' : 'Limited mileage applies'
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className="bg-white rounded-xl max-w-sm w-full shadow-lg overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className="bg-gradient-to-r from-[#0A2647] to-[#1B4D8C] px-4 py-2 flex justify-between items-center">
-                    <h3 className="text-white font-bold text-sm">📋 Rental Conditions</h3>
-                    <button onClick={onClose} className="text-white/80 hover:text-white">
-                        <X className="w-4 h-4" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-gray-100" onClick={e => e.stopPropagation()}>
+                <div className="bg-gradient-to-r from-[#123C69] to-[#1B4D8C] px-6 py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-white/20 p-2 rounded-lg">
+                            <FileText className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-white font-black text-base uppercase tracking-wider">Rental Conditions</h3>
+                    </div>
+                    <button onClick={onClose} className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all">
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
-                <div className="p-4 text-sm">
-                    <div className="space-y-2">
+                <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {Object.entries(cond).map(([k, v]) => (
-                            <div key={k} className="flex items-start gap-2 p-1.5 bg-gray-50 rounded">
-                                {k === 'deposit' && <CreditCardIcon className="w-4 h-4 text-[#D4AF37]" />}
-                                {k === 'excess' && <AlertCircle className="w-4 h-4 text-[#D4AF37]" />}
-                                {k === 'fuel' && <Fuel className="w-4 h-4 text-[#D4AF37]" />}
-                                {k === 'cancel' && <CalendarX className="w-4 h-4 text-[#D4AF37]" />}
-                                {k === 'incl' && <Check className="w-4 h-4 text-[#D4AF37]" />}
-                                <div>
-                                    <strong className="text-xs block capitalize">{k}:</strong>
-                                    <span className="text-xs">{v}</span>
+                            <div key={k} className="flex flex-col gap-2 p-4 bg-gray-50/50 rounded-xl border border-gray-100 hover:border-[#F57C00]/30 transition-colors">
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-[#F57C00]/10 p-1.5 rounded-lg">
+                                        {k === 'deposit' && <CreditCardIcon className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'excess' && <AlertCircle className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'fuel' && <Fuel className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'cancel' && <CalendarX className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'insurance' && <Shield className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'driver' && <Users className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'payment' && <CreditCardIcon className="w-4 h-4 text-[#F57C00]" />}
+                                        {k === 'mileage' && <Gauge className="w-4 h-4 text-[#F57C00]" />}
+                                    </div>
+                                    <strong className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{k}</strong>
                                 </div>
+                                <span className="text-xs font-bold text-[#0A2647]">{v}</span>
                             </div>
                         ))}
                     </div>
-                    <div className="mt-2 text-center text-[10px] text-gray-400">Full terms at booking</div>
+                    <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
+                        <Info className="w-5 h-5 text-[#1B4D8C] shrink-0 mt-0.5" />
+                        <p className="text-[10px] text-[#1B4D8C] font-medium leading-relaxed">
+                            These are key highlights. Full terms and conditions will be provided during the booking process and at the rental desk. Please ensure you have all required documents.
+                        </p>
+                    </div>
                 </div>
-                <div className="px-4 pb-4">
-                    <button onClick={onClose} className="w-full bg-[#1B4D8C] text-white font-semibold py-1.5 rounded-lg text-xs">Got it</button>
+                <div className="px-6 pb-6 pt-2">
+                    <button onClick={onClose} className="w-full bg-[#123C69] hover:bg-[#0A2647] text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95">
+                        I Understand & Agree
+                    </button>
                 </div>
             </div>
         </div>
@@ -162,7 +182,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
     return (
         <>
-            <div className="car-card overflow-hidden bg-white">
+            <div className="car-card overflow-hidden bg-white border-2 border-gray-100 sm:border-0 rounded-2xl mb-4 sm:mb-0">
                 <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-[220px] bg-gradient-to-br from-gray-50 to-gray-100 p-6 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
                         <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[240px] h-40 sm:w-36 sm:h-36 bg-white rounded-2xl shadow-sm flex items-center justify-center overflow-hidden mb-4 transition-transform hover:scale-105">
@@ -208,42 +228,46 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                             </div>
 
                             <div className="text-xs sm:text-[10px] text-gray-600 mb-2 flex items-center gap-1.5 bg-gray-50 rounded-lg px-2 py-1 w-fit">
-                                <MapPin className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 text-[#D4AF37]" />
-                                <span>{car.locationDetail || 'Queen Alia Airport'}</span>
+                                {pickupType === 'MEET_AND_GREET' ? (
+                                    <Handshake className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 text-[#F57C00]" />
+                                ) : (
+                                    <Building className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 text-[#F57C00]" />
+                                )}
+                                <span className="font-medium">{car.locationDetail || 'Queen Alia Airport'}</span>
                                 <span className="w-0.5 h-0.5 rounded-full bg-gray-300"></span>
-                                <span className="font-bold text-[#1B4D8C] text-[10px] sm:text-[9px]">{pickupTypeLabel}</span>
+                                <span className="font-black text-[#1B4D8C] text-[10px] sm:text-[9px] uppercase tracking-tighter">{pickupTypeLabel}</span>
                             </div>
 
-                            <div className="flex flex-wrap gap-1 mb-1">
-                                {incList.map((item, idx) => (
-                                    <span key={idx} className="included-badge flex items-center gap-1">
-                                        <Check className="w-2 h-2" />
-                                        {item}
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {car.unlimitedMileage && (
+                                    <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 uppercase tracking-wider shadow-md border border-emerald-400/20 transition-transform hover:scale-105">
+                                        <Gauge className="w-3.5 h-3.5" />
+                                        Unlimited Mileage
                                     </span>
-                                ))}
+                                )}
+                                {car.fuelPolicy === 'FULL_TO_FULL' && (
+                                    <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 uppercase tracking-wider shadow-md border border-blue-400/20 transition-transform hover:scale-105">
+                                        <Fuel className="w-3.5 h-3.5" />
+                                        Full to Full
+                                    </span>
+                                )}
+                                {car.supplier.bookingMode === 'FREE_SALE' && (
+                                    <span className="bg-gradient-to-r from-amber-500 to-[#F57C00] text-white text-[10px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 uppercase tracking-wider shadow-md border border-orange-400/20 transition-transform hover:scale-105">
+                                        <Zap className="w-3.5 h-3.5" />
+                                        Instant Booking
+                                    </span>
+                                )}
                             </div>
 
                             <div className="mt-1 pt-1 border-t flex flex-wrap justify-between gap-1 items-center">
-                                <div className="flex gap-1">
-                                    <span className="tag-cancel text-white text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                                        <CalendarX className="w-2.5 h-2.5" />
-                                        Free cancel
+                                <div className="flex gap-2">
+                                    <span className="bg-orange-50 text-[#F57C00] text-[10px] font-black px-2 py-1 rounded-lg border border-orange-100 flex items-center gap-1.5 uppercase tracking-wider">
+                                        <CalendarX className="w-3 h-3" />
+                                        Free Cancellation
                                     </span>
-                                    {car.unlimitedMileage && (
-                                        <span className="tag-unlimited text-white text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                                            <Gauge className="w-2.5 h-2.5" />
-                                            Unlimited
-                                        </span>
-                                    )}
-                                    {car.supplier.bookingMode === 'FREE_SALE' && (
-                                        <span className="tag-instant text-white text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                                            <Zap className="w-2.5 h-2.5" />
-                                            Instant
-                                        </span>
-                                    )}
                                 </div>
-                                <button onClick={() => setIsTermsModalOpen(true)} className="text-[10px] font-semibold bg-[#F8FAFE] border rounded-full px-1.5 py-0.5 flex items-center gap-1">
-                                    <FileText className="w-2.5 h-2.5" />
+                                <button onClick={() => setIsTermsModalOpen(true)} className="text-[10px] font-black text-[#123C69] bg-white border-2 border-gray-50 hover:border-[#F57C00]/30 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all shadow-sm active:scale-95 uppercase tracking-widest">
+                                    <FileText className="w-3.5 h-3.5" />
                                     Full terms
                                 </button>
                             </div>
@@ -251,17 +275,16 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
                         <div className="sm:min-w-[200px] border-t sm:border-t-0 sm:border-l pt-4 sm:pt-0 sm:pl-4 flex flex-col justify-between">
                             <div className="text-right">
-                                <div className="text-xs text-gray-400 line-through mb-0.5">{sym} {(dailyPriceValue * 1.2).toFixed(2)}</div>
-                                <div className="font-extrabold text-[#0A2647] text-xl">{dayPrice}<span className="text-xs font-normal text-gray-500 ml-1">/day</span></div>
-                                <div className="text-sm font-bold text-[#D4AF37] mt-1">Total for {days} days: {totalDisplay}</div>
-                                <div className="mt-3 payment-block shadow-sm">
-                                    <div className="payment-row border-b border-gray-100 pb-1">
-                                        <span className="payment-label text-xs"><CreditCardIcon className="w-3.5 h-3.5 text-[#1B4D8C]" />Pay online</span>
-                                        <span className="payment-amount text-sm">{payNowDisplay}</span>
+                                <div className="font-extrabold text-[#0A2647] text-2xl tracking-tighter">{dayPrice}<span className="text-xs font-medium text-gray-400 ml-1">/day</span></div>
+                                <div className="text-[11px] font-black text-[#F57C00] mt-1 uppercase tracking-wider">Total: {totalDisplay}</div>
+                                <div className="mt-3 payment-block shadow-md bg-white border-2 border-gray-50 p-2 rounded-xl">
+                                    <div className="payment-row border-b border-gray-100 pb-2 mb-1">
+                                        <span className="payment-label text-[10px] font-black uppercase text-gray-400"><CreditCardIcon className="w-3.5 h-3.5 text-[#1B4D8C]" />Pay online</span>
+                                        <span className="payment-amount text-sm font-black text-[#1B4D8C]">{payNowDisplay}</span>
                                     </div>
                                     <div className="payment-row pt-1">
-                                        <span className="payment-label text-xs"><Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />Pay at pickup</span>
-                                        <span className="payment-amount text-sm">{payLaterDisplay}</span>
+                                        <span className="payment-label text-[10px] font-black uppercase text-gray-400"><Calendar className="w-3.5 h-3.5 text-[#F57C00]" />At pickup</span>
+                                        <span className="payment-amount text-sm font-black text-[#F57C00]">{payLaterDisplay}</span>
                                     </div>
                                 </div>
                             </div>

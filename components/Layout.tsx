@@ -42,12 +42,12 @@ const PciDssIcon = () => (
 );
 
 const FullFooter = () => (
-    <footer className="bg-[#0A2647] text-white pt-12 pb-8">
+    <footer className="bg-[#123C69] text-white pt-12 pb-8">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10 pb-10 border-b border-[#1B4D8C]">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10 pb-10 border-b border-white/10">
             <div>
                 <div className="flex items-center gap-2 mb-4">
-                   <Logo className="h-16 w-auto" variant="light" />
+                   <Logo className="h-20 w-auto" variant="light" />
                 </div>
                 <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
@@ -108,7 +108,7 @@ const FullFooter = () => (
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-blue-300 text-xs order-3 md:order-1 text-center md:text-left">&copy; 2024 Hogicar. All rights reserved.</p>
+          <p className="text-blue-300 text-xs order-3 md:order-1 text-center md:text-left">&copy; 2024 HOGICAR.com. All rights reserved.</p>
           
           <div className="flex items-center gap-3 order-1 md:order-2">
               <span className="text-xs font-bold text-blue-200 hidden sm:inline">Secure Payments</span>
@@ -167,8 +167,8 @@ const Layout: React.FC = () => {
       {/* HEADER */}
       <header className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
         isHomePage 
-          ? (isScrolled ? 'bg-[#0A2647]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
-          : 'bg-[#0A2647] shadow-md py-2 border-b border-[#1B4D8C]'
+          ? (isScrolled ? 'bg-[#123C69]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
+          : 'bg-[#123C69] shadow-md py-2 border-b border-white/10'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}

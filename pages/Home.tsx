@@ -199,8 +199,8 @@ const Home: React.FC = () => {
   return (
     <div className="bg-white font-sans text-slate-900">
       <SEOMetadata
-        title="Hogicar | Affordable Car Rentals Worldwide"
-        description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
+        title="HOGICAR.com | Affordable Car Rentals Worldwide"
+        description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with HOGICAR.com."
       />
       
       {/* HERO – professional centered search experience */}
@@ -212,8 +212,8 @@ const Home: React.FC = () => {
             className="w-full h-full object-cover"
             alt="Hero Background"
           />
-          <div className="absolute inset-0 bg-[#003580]/88"></div>
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#002b67] to-transparent"></div>
+          <div className="absolute inset-0 bg-[#123C69]/88"></div>
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#123C69] to-transparent"></div>
         </div>
         
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
@@ -254,7 +254,7 @@ const Home: React.FC = () => {
       {/* TRUSTED PARTNERS – marquee version */}
       <section className="py-8 bg-white overflow-hidden border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-          <div className="text-[10px] font-black text-[#008009] uppercase tracking-[0.5em] mb-4">Partnered with the World's Best</div>
+          <div className="text-[10px] font-black text-[#F57C00] uppercase tracking-[0.5em] mb-4">Partnered with the World's Best</div>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
         </div>
         <div className="relative flex items-center group">
@@ -290,7 +290,7 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-10">
-            <h2 className="text-xs font-bold tracking-widest text-[#008009] uppercase mb-2">The Hogicar Advantage</h2>
+            <h2 className="text-xs font-bold tracking-widest text-[#F57C00] uppercase mb-2">The HOGICAR.com Advantage</h2>
             <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
             <p className="mt-3 text-base text-slate-600 leading-relaxed">
               We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
@@ -325,7 +325,7 @@ const Home: React.FC = () => {
             <Globe className="w-10 h-10 mx-auto mb-2" />
             <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
             <p className="text-slate-300 mb-4">We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
-            <Link to="/become-supplier" className="bg-blue-600 px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
+            <Link to="/become-supplier" className="bg-[#123C69] px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
               Become a Partner <ArrowRight className="w-4 h-4" />
             </Link>
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
@@ -346,7 +346,7 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-xs font-bold tracking-widest text-[#008009] uppercase mb-2">Simple Process</h2>
+            <h2 className="text-xs font-bold tracking-widest text-[#F57C00] uppercase mb-2">Simple Process</h2>
             <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
             <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
           </div>
@@ -384,13 +384,13 @@ const Home: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                <div className="max-w-2xl">
-                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#008009] text-[10px] font-bold tracking-widest uppercase mb-3">
+                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-[#F57C00] text-[10px] font-bold tracking-widest uppercase mb-3">
                        <MapPin className="w-3 h-3" /> Top Destinations
                    </div>
                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">{content.popularDestinations.title}</h3>
                    <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                </div>
-               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#008009] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
+               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#F57C00] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
                    Explore All Locations
                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                </Link>
@@ -465,7 +465,7 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-slate-50/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mx-auto text-center mb-6">
-            <h2 className="text-[10px] font-bold tracking-widest text-[#008009] uppercase mb-1.5">Support</h2>
+            <h2 className="text-[10px] font-bold tracking-widest text-[#F57C00] uppercase mb-1.5">Support</h2>
             <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed">
               Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.

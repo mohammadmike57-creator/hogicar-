@@ -166,6 +166,8 @@ export const Search: React.FC = () => {
   const [selectedSuppliers, setSelectedSuppliers] = React.useState<string[]>([]);
   const [selectedPassengers, setSelectedPassengers] = React.useState<number[]>([]);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = React.useState(false);
+  const [selectedFuelPolicies, setSelectedFuelPolicies] = React.useState<string[]>([]);
+  const [minRating, setMinRating] = React.useState<number>(0);
 
   const filteredCars = React.useMemo(() => {
     let cars = [...apiCars].filter(car => {
@@ -175,6 +177,8 @@ export const Search: React.FC = () => {
         if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
         if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.supplier.name)) return false;
         if (selectedPassengers.length > 0 && !selectedPassengers.some(p => car.passengers >= p)) return false;
+        if (selectedFuelPolicies.length > 0 && !selectedFuelPolicies.includes(car.fuelPolicy)) return false;
+        if (minRating > 0 && car.supplier.rating < minRating) return false;
         const pType = car.supplier?.pickupType || (car as any).pickupType;
         if (selectedLocationTypes.length > 0 && !selectedLocationTypes.includes(pType)) return false;
         if (freeCancelOnly && !car.supplier.includesCDW) return false;
@@ -208,12 +212,18 @@ export const Search: React.FC = () => {
     setSelectedPassengers(prev => prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num]);
   };
 
+  const handleFuelPolicyToggle = (policy: string) => {
+    setSelectedFuelPolicies(prev => prev.includes(policy) ? prev.filter(p => p !== policy) : [...prev, policy]);
+  };
+
   const resetFilters = () => {
     setSelectedCategories([]);
     setSelectedTransmissions([]);
     setSelectedLocationTypes([]);
     setSelectedSuppliers([]);
     setSelectedPassengers([]);
+    setSelectedFuelPolicies([]);
+    setMinRating(0);
     setPriceRange(500);
     setFreeCancelOnly(false);
   };
@@ -297,6 +307,27 @@ export const Search: React.FC = () => {
       </div>
 
       <div className="zoom-container py-4">
+        {/* Top Category Filter */}
+        <div className="flex overflow-x-auto gap-4 pb-6 mb-2 no-scrollbar scroll-smooth">
+            {[CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.SUV, CarCategory.VAN, CarCategory.LUXURY].map(cat => (
+                <button 
+                    key={cat}
+                    onClick={() => handleCategoryToggle(cat)}
+                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[100px] p-4 rounded-2xl border-2 transition-all duration-300 ${
+                        selectedCategories.includes(cat) 
+                        ? 'bg-[#1B4D8C] border-[#1B4D8C] text-white shadow-lg scale-105 -translate-y-1' 
+                        : 'bg-white border-gray-100 text-[#0A2647] hover:border-[#F57C00]/30 hover:shadow-md'
+                    }`}
+                >
+                    <div className={`w-12 h-8 mb-2 flex items-center justify-center transition-transform duration-300 ${selectedCategories.includes(cat) ? 'scale-110' : ''}`}>
+                        <CarIcon className={`w-8 h-8 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
+                    </div>
+                    <span className="text-[11px] font-black uppercase tracking-wider">{cat.toLowerCase()}</span>
+                    {selectedCategories.includes(cat) && <div className="mt-1 w-1.5 h-1.5 bg-[#F57C00] rounded-full animate-bounce" />}
+                </button>
+            ))}
+        </div>
+
         <div className="lg:grid lg:grid-cols-4 lg:gap-6">
           <aside className={`fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-white shadow-2xl transform ${isFilterDrawerOpen ? 'translate-x-0' : '-translate-x-full'} transition lg:relative lg:translate-x-0 lg:shadow-none lg:bg-transparent lg:w-auto overflow-auto rounded-r-2xl lg:rounded-none`}>
             <div className="lg:bg-white lg:rounded-xl lg:border lg:shadow-sm bg-white p-4 h-full">
@@ -315,24 +346,58 @@ export const Search: React.FC = () => {
 
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Car Category</h3>
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider flex items-center gap-2">
+                    <Fuel className="w-3 h-3" /> Fuel Policy
+                  </h3>
                   <div className="space-y-2">
-                    {[CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.INTERMEDIATE, CarCategory.STANDARD, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.VAN, CarCategory.LUXURY].map(cat => (
-                      <label key={cat} className="flex items-center text-sm cursor-pointer group">
+                    {['FULL_TO_FULL', 'SAME_LEVEL'].map(policy => (
+                      <label key={policy} className="flex items-center text-sm cursor-pointer group">
                         <input 
                             type="checkbox" 
-                            checked={selectedCategories.includes(cat)}
-                            onChange={() => handleCategoryToggle(cat)}
-                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C] focus:ring-[#1B4D8C]" 
+                            checked={selectedFuelPolicies.includes(policy)}
+                            onChange={() => handleFuelPolicyToggle(policy)}
+                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
                         /> 
-                        <span className="group-hover:text-[#1B4D8C] transition-colors font-medium text-gray-700 capitalize">{cat.toLowerCase()}</span>
+                        <span className="group-hover:text-[#1B4D8C] transition-colors font-medium text-gray-700">{policy.replace(/_/g, ' ').toLowerCase()}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Transmission</h3>
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider flex items-center gap-2">
+                    <Star className="w-3 h-3" /> Supplier Rating
+                  </h3>
+                  <div className="space-y-2">
+                    {[9, 8, 7].map(rating => (
+                      <label key={rating} className="flex items-center text-sm cursor-pointer group">
+                        <input 
+                            type="radio" 
+                            name="rating"
+                            checked={minRating === rating}
+                            onChange={() => setMinRating(rating)}
+                            className="mr-3 w-4 h-4 rounded-full border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C] transition-colors font-medium text-gray-700">{rating}+ Excellent</span>
+                      </label>
+                    ))}
+                    <label className="flex items-center text-sm cursor-pointer group">
+                        <input 
+                            type="radio" 
+                            name="rating"
+                            checked={minRating === 0}
+                            onChange={() => setMinRating(0)}
+                            className="mr-3 w-4 h-4 rounded-full border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C] transition-colors font-medium text-gray-700">Any Rating</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider flex items-center gap-2">
+                    <Settings className="w-3 h-3" /> Transmission
+                  </h3>
                   <div className="space-y-2">
                     <label className="flex items-center text-sm cursor-pointer group">
                       <input 
