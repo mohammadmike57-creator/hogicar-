@@ -234,10 +234,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
     return (
         <>
-            <div className="car-card overflow-hidden bg-white border-2 border-slate-900 rounded-3xl mb-6 border-l-[6px] border-l-[#F57C00] shadow-xl">
+            <div className="car-card overflow-hidden bg-white border-2 border-[#1B4D8C] rounded-3xl mb-4 border-l-[6px] border-l-[#F57C00] shadow-xl">
                 <div className="flex flex-col sm:flex-row">
-                    <div className="sm:w-[220px] bg-gradient-to-br from-gray-50 to-gray-100 p-5 sm:p-6 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
-                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[200px] h-32 sm:w-36 sm:h-36 bg-white rounded-3xl shadow-sm flex items-center justify-center overflow-hidden mb-4 transition-all hover:scale-105 hover:shadow-md">
+                    <div className="sm:w-[180px] bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
+                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[200px] h-28 sm:w-32 sm:h-32 bg-white rounded-3xl shadow-sm flex items-center justify-center overflow-hidden mb-3 transition-all hover:scale-105 hover:shadow-md">
                             {car.image ? (
                                 <img src={car.image} alt={car.displayName} className="w-full h-full object-contain p-3 sm:p-2" />
                             ) : (
@@ -245,21 +245,21 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                             )}
                         </Link>
                         <div className="text-center">
-                            <h3 className="font-black text-[#0A2647] text-lg sm:text-base leading-tight mb-1 tracking-tight">{car.displayName}</h3>
+                            <h3 className="font-black text-[#0A2647] text-base sm:text-sm leading-tight mb-1 tracking-tight">{car.displayName}</h3>
                             <p className="text-xs sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">or similar {car.model}</p>
                         </div>
                     </div>
 
-                    <div className="flex-1 p-5 sm:p-4 flex flex-col sm:flex-row sm:items-stretch justify-between gap-5 sm:gap-4">
+                    <div className="flex-1 p-3 sm:p-3 flex flex-col sm:flex-row sm:items-stretch justify-between gap-3 sm:gap-3">
                         <div className="flex-1">
-                            <div className="flex flex-wrap gap-2.5 mb-5 sm:mb-4">
+                            <div className="flex flex-wrap gap-2.5 mb-3 sm:mb-2">
                                 <span className="spec-badge spec-transmission py-2 px-4 sm:py-1.5 sm:px-3 text-xs font-black uppercase tracking-wider"><Settings className="w-4 h-4" />{car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}</span>
                                 <span className="spec-badge spec-seats py-2 px-4 sm:py-1.5 sm:px-3 text-xs font-black uppercase tracking-wider"><Users className="w-4 h-4" />{car.passengers} Seats</span>
                                 <span className="spec-badge spec-bags py-2 px-4 sm:py-1.5 sm:px-3 text-xs font-black uppercase tracking-wider"><Luggage className="w-4 h-4" />{car.bags} Bags</span>
                                 <span className="spec-badge spec-ac py-2 px-4 sm:py-1.5 sm:px-3 text-xs font-black uppercase tracking-wider"><Wind className="w-4 h-4" />A/C</span>
                             </div>
 
-                            <div className="flex items-center gap-3 mb-2 sm:mb-1">
+                            <div className="flex items-center gap-3 mb-1 sm:mb-1">
                                 <div className="w-14 h-14 sm:w-11 sm:h-11 rounded-xl sm:rounded-lg supplier-logo text-white flex items-center justify-center font-black text-base sm:text-sm shadow-lg overflow-hidden bg-[#0A2647] border-2 border-white">
                                     {car.supplier.logo ? (
                                         <img src={car.supplier.logo} alt={car.supplier.name} className="w-full h-full object-contain p-1.5 sm:p-1 brightness-0 invert" />
@@ -279,7 +279,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                                 </div>
                             </div>
 
-                            <div className="text-sm sm:text-[10px] text-gray-600 mb-4 sm:mb-2 flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-xl px-3 py-1.5 sm:px-2 sm:py-1 w-fit shadow-sm">
+                            <div className="text-sm sm:text-[10px] text-gray-600 mb-2 sm:mb-1 flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-xl px-3 py-1.5 sm:px-2 sm:py-1 w-fit shadow-sm">
                                 {pickupType === 'MEET_AND_GREET' ? (
                                     <Handshake className="w-4 h-4 sm:w-2.5 sm:h-2.5 text-[#F57C00]" />
                                 ) : (
@@ -290,7 +290,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                                 <span className="font-black text-[#1B4D8C] text-[11px] sm:text-[9px] uppercase tracking-widest">{pickupTypeLabel}</span>
                             </div>
 
-                            <div className="flex flex-wrap gap-2.5 mb-4 sm:mb-3">
+                            <div className="flex flex-wrap gap-2.5 mb-3 sm:mb-2">
                                 {car.unlimitedMileage && (
                                     <span className="bg-[#f0fdf4] text-[#166534] text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-sm border border-emerald-100 transition-all hover:bg-emerald-100 active:scale-95">
                                         <Infinity className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
@@ -333,7 +333,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                             </div>
                         </div>
 
-                        <div className="sm:min-w-[220px] border-t sm:border-t-0 sm:border-l border-gray-100 pt-5 sm:pt-0 sm:pl-6 flex flex-col justify-between">
+                        <div className="sm:min-w-[190px] border-t sm:border-t-0 sm:border-l border-gray-100 pt-3 sm:pt-0 sm:pl-4 flex flex-col justify-between">
                             <div className="text-right flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-start gap-2">
                                 <div className="flex flex-col items-end">
                                     <div className="font-black text-[#0A2647] text-2xl sm:text-2xl tracking-tighter leading-none">{dayPrice}<span className="text-xs font-bold text-gray-400 ml-1 uppercase">/day</span></div>
@@ -350,8 +350,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                                     </div>
                                 </div>
                             </div>
-                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="mt-4 sm:mt-4 w-full view-deal-btn text-sm sm:text-sm font-black py-3 sm:py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl text-center flex items-center justify-center gap-3 group uppercase tracking-[0.1em]">
-                                Book Now
+                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="mt-4 sm:mt-4 w-full view-deal-btn text-sm sm:text-sm font-black py-2 sm:py-2.5 rounded-2xl transition-all shadow-lg hover:shadow-xl text-center flex items-center justify-center gap-3 group uppercase tracking-[0.1em]">
+                                View Deal
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
                             </Link>
                         </div>

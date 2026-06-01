@@ -253,28 +253,28 @@ export const Search: React.FC = () => {
       />
       
       <div className="relative overflow-hidden bg-gradient-to-r from-[#0A2647]/5 to-[#1B4D8C]/5 border-b">
-        <div className="zoom-container py-3">
+        <div className="zoom-container py-2">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3">
             <div className="space-y-1">
               <div className="flex flex-wrap gap-2">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-2 flex items-center gap-2 text-sm sm:text-xs">
-                  <MapPin className="w-4 h-4 text-[#D4AF37]" />
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-2 py-1.5 flex items-center gap-2 text-[11px] sm:text-[10px]">
+                  <MapPin className="w-3.5 h-3.5 text-[#D4AF37]" />
                   <span className="font-bold text-gray-800">{pickupName}</span>
                 </div>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-2 flex items-center gap-2 text-sm sm:text-xs">
-                  <Calendar className="w-4 h-4 text-[#D4AF37]" />
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-2 py-1.5 flex items-center gap-2 text-[11px] sm:text-[10px]">
+                  <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
                   <span className="font-bold text-gray-800">{dateRangeDisplay}</span>
                 </div>
                 <button 
                     onClick={() => setIsSearchWidgetOpen(!isSearchWidgetOpen)}
-                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2"
+                    className="bg-[#1B4D8C] hover:bg-[#0A2647] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-1.5"
                 >
-                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    <SlidersHorizontal className="w-3 h-3" />
                     {isSearchWidgetOpen ? 'Close' : 'Modify'}
                 </button>
               </div>
-              <h1 className="text-xl sm:text-lg font-black text-[#0A2647]">Compare <span className="text-[#D4AF37]">premium rentals</span></h1>
-              <p className="text-gray-600 text-xs sm:text-[10px] font-medium">{loading ? 'Searching for best deals...' : `${filteredCars.length} verified offers found`}</p>
+              <h1 className="text-lg sm:text-base font-black text-[#0A2647]">Compare <span className="text-[#D4AF37]">premium rentals</span></h1>
+              <p className="text-gray-600 text-[11px] sm:text-[9px] font-medium">{loading ? 'Searching for best deals...' : `${filteredCars.length} verified offers found`}</p>
             </div>
             <div className="flex gap-1.5">
               <div className="bg-white rounded-full shadow-sm border px-2 py-1 flex items-center gap-1 text-[10px]">
@@ -289,7 +289,7 @@ export const Search: React.FC = () => {
           </div>
 
           {isSearchWidgetOpen && (
-            <div className="mt-4 p-4 bg-white rounded-xl shadow-xl border animate-fadeIn">
+            <div className="mt-2 p-3 bg-white rounded-xl shadow-lg border border-gray-100 animate-fadeIn">
                 <SearchWidget 
                     onSearch={handleSearchUpdate}
                     initialValues={{
@@ -317,16 +317,16 @@ export const Search: React.FC = () => {
                 <button 
                     key={cat}
                     onClick={() => handleCategoryToggle(cat)}
-                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[90px] sm:min-w-[110px] p-3 sm:p-5 rounded-3xl border-2 transition-all duration-300 shadow-sm ${
+                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[80px] sm:min-w-[100px] p-2 sm:p-3 rounded-3xl border-2 transition-all duration-300 shadow-sm ${
                         selectedCategories.includes(cat) 
                         ? 'bg-gradient-to-br from-[#123C69] to-[#1B4D8C] border-[#123C69] text-white shadow-xl scale-105 -translate-y-1' 
                         : 'bg-white border-gray-100 text-[#0A2647] hover:border-[#F57C00]/30 hover:shadow-md'
                     }`}
                 >
-                    <div className={`w-10 h-8 sm:w-12 sm:h-9 mb-2 flex items-center justify-center transition-all duration-300 ${selectedCategories.includes(cat) ? 'scale-110 drop-shadow-md' : ''}`}>
-                        <CarIcon className={`w-7 h-7 sm:w-9 sm:h-9 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
+                    <div className={`w-8 h-6 sm:w-10 sm:h-8 mb-1.5 flex items-center justify-center transition-all duration-300 ${selectedCategories.includes(cat) ? 'scale-110 drop-shadow-md' : ''}`}>
+                        <CarIcon className={`w-6 h-6 sm:w-8 sm:h-8 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
                     </div>
-                    <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] ${selectedCategories.includes(cat) ? 'text-white' : 'text-gray-500'}`}>{cat.toLowerCase()}</span>
+                    <span className={`text-[8px] sm:text-[9px] font-black uppercase tracking-[0.15em] ${selectedCategories.includes(cat) ? 'text-white' : 'text-gray-500'}`}>{cat.toLowerCase()}</span>
                     {selectedCategories.includes(cat) && (
                         <div className="absolute -top-1 -right-1">
                             <div className="bg-[#F57C00] text-white rounded-full p-1 shadow-md">
