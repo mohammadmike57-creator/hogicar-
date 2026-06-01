@@ -8,7 +8,7 @@ import {
   ArrowRight, Shield, Wifi, Wind, Thermometer, Smartphone, Battery, Coffee, Gift, Award,
   Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2,
   DollarSign, Zap, ThumbsUp, Globe, Headphones, ArrowLeft, Infinity, Lock, Route, Gem,
-  Coins, ArrowLeftRight, Book, Medal, Plane, Settings, RefreshCw
+  Coins, ArrowLeftRight, Book, Medal, Plane, Settings, RefreshCw, CalendarX, UserPlus
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';

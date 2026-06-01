@@ -7,7 +7,7 @@ import * as React from 'react';
 import { 
   Users, Info, Briefcase, FileText, CreditCard as CreditCardIcon, 
   Handshake, Zap, MapPin, Check, Wind, Settings, Luggage, 
-  Building, Bus, Gauge, CalendarX, X, AlertCircle, Fuel, Star, Calendar
+  Building, Bus, Gauge, CalendarX, X, AlertCircle, Fuel, Star, Calendar, Shield
 } from 'lucide-react';
 import { Car as CarType, Supplier } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
