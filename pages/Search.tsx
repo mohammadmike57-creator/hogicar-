@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { MOCK_CATEGORY_IMAGES, SUPPLIERS } from '../services/mockData';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
-import { SlidersHorizontal, Filter, Car as CarIcon, Users, MapPin, Check, Calendar, X, Shield, Clock } from 'lucide-react';
+import { SlidersHorizontal, Filter, Car as CarIcon, Users, MapPin, Check, Calendar, X, Shield, Clock, Fuel, Star, Settings } from 'lucide-react';
 import { CarCategory, Car, Transmission, ApiSearchResult, Supplier, RateTier, PickupType } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
