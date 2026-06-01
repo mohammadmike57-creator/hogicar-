@@ -389,9 +389,17 @@ const CarDetails: React.FC = () => {
 
   const [imageError, setImageError] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  
+  const pickupType = car?.supplier?.pickupType || (car as any)?.pickupType;
+  const pickupTypeLabel =
+    pickupType === 'IN_TERMINAL' ? 'In Terminal' :
+    pickupType === 'MEET_AND_GREET' ? 'Meet & Greet' :
+    pickupType === 'SHUTTLE_BUS' ? 'Shuttle Bus' :
+    car?.locationDetail || 'Location details';
+
   const pickupDisplay = new Date(startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const dropoffDisplay = new Date(endDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  const supplierLogo = car?.supplier.logo || (car?.supplier as any)?.logoUrl;
+  const supplierLogo = car?.supplier?.logo || (car?.supplier as any)?.logoUrl;
   const depositDisplay = car?.deposit ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'Not listed';
   const excessDisplay = (car as any)?.excess ? `${getCurrencySymbol()}${convertPrice((car as any).excess).toFixed(2)}` : 'See terms';
 
