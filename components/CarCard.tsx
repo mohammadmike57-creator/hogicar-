@@ -7,11 +7,13 @@ import * as React from 'react';
 import { 
   Users, Info, Briefcase, FileText, CreditCard as CreditCardIcon, 
   Handshake, Zap, MapPin, Check, Wind, Settings, Luggage, 
-  Building, Bus, Gauge, CalendarX, X, AlertCircle, Fuel, Star, Calendar, Shield, ArrowRight
+  Building, Bus, Gauge, CalendarX, X, AlertCircle, Fuel, Star, Calendar, Shield, ArrowRight,
+  ShieldCheck, ShieldAlert, Infinity, Globe, Clock, Medal, Plane
 } from 'lucide-react';
 import { Car as CarType, Supplier } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
+import { getRatingDescription } from '../utils/ratings';
 import { Link, useSearchParams } from 'react-router-dom';
 
 interface CarCardProps {
@@ -74,61 +76,111 @@ const RatingModal = ({ car, onClose }: { car: CarType, onClose: () => void }) =>
 };
 
 const TermsModal = ({ car, onClose }: { car: CarType, onClose: () => void }) => {
-    const cond = {
-        deposit: `${car.currency || 'JOD'} ${car.deposit}`,
-        excess: `${car.currency || 'JOD'} ${car.excess || 300}`,
-        fuel: car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full (Professional Policy)' : car.fuelPolicy.replace(/_/g, ' ').toLowerCase(),
-        cancel: 'Free cancellation up to 48h before pickup',
-        insurance: 'Collision Damage Waiver, Theft Protection, Third Party Liability',
-        driver: 'Minimum age 21, valid driving license (held for min 1 year)',
-        payment: 'Credit card required for security deposit at pickup',
-        mileage: car.unlimitedMileage ? 'Unlimited mileage included' : 'Limited mileage applies'
-    };
+    const { convertPrice, getCurrencySymbol } = useCurrency();
+    const sym = getCurrencySymbol();
+    
+    const depositText = car.deposit > 0 ? `${sym}${convertPrice(car.deposit).toFixed(2)}` : 'No deposit required';
+    const excessText = (car as any).excess > 0 ? `${sym}${convertPrice((car as any).excess).toFixed(2)}` : 'Included';
+    
+    const supplier = car.supplier;
+    const pickupTypeLabel =
+        car.pickupType === 'IN_TERMINAL' ? 'In Terminal' :
+        car.pickupType === 'MEET_AND_GREET' ? 'Meet & Greet' :
+        car.pickupType === 'SHUTTLE_BUS' ? 'Shuttle Bus' :
+        'Terminal / Counter';
+
+    const PolicyRow = ({ label, value, tone = 'default', description }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn'; description?: string }) => (
+        <div className="flex flex-col gap-1 border-b border-slate-100 py-3 last:border-b-0">
+            <div className="flex items-start justify-between gap-3">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{label}</span>
+                <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-[#008009]' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
+            </div>
+            {description && <p className="text-[9px] font-bold text-slate-400 leading-tight">{description}</p>}
+        </div>
+    );
+
+    const ConditionCard = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
+        <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+            <h4 className="mb-4 flex items-center gap-3 text-xs font-black text-slate-900 uppercase tracking-widest">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white shadow-lg shadow-slate-200">{icon}</span>
+                {title}
+            </h4>
+            <div className="space-y-1">
+                {children}
+            </div>
+        </section>
+    );
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-gray-100" onClick={e => e.stopPropagation()}>
-                <div className="bg-gradient-to-r from-[#123C69] to-[#1B4D8C] px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-white/20 p-2 rounded-lg">
-                            <FileText className="w-5 h-5 text-white" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-fadeIn" onClick={onClose}>
+            <div className="bg-[#f8fafd] rounded-[2rem] max-w-4xl w-full shadow-2xl overflow-hidden border border-white/20 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+                <div className="bg-white px-6 py-5 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-[#F57C00]/10 p-2 rounded-xl">
+                            <FileText className="w-6 h-6 text-[#F57C00]" />
                         </div>
-                        <h3 className="text-white font-black text-base uppercase tracking-wider">Rental Conditions</h3>
+                        <div>
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <span className="bg-[#008009] text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Verified Terms</span>
+                                <span className="text-slate-300 font-light">|</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Policy Guide</span>
+                            </div>
+                            <h3 className="text-slate-900 font-black text-lg uppercase tracking-tight">Rental Conditions: {car.displayName}</h3>
+                        </div>
                     </div>
-                    <button onClick={onClose} className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all">
-                        <X className="w-5 h-5" />
+                    <button onClick={onClose} className="bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 p-2.5 rounded-full transition-all active:scale-90">
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.entries(cond).map(([k, v]) => (
-                            <div key={k} className="flex flex-col gap-2 p-4 bg-gray-50/50 rounded-xl border border-gray-100 hover:border-[#F57C00]/30 transition-colors">
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-[#F57C00]/10 p-1.5 rounded-lg">
-                                        {k === 'deposit' && <CreditCardIcon className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'excess' && <AlertCircle className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'fuel' && <Fuel className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'cancel' && <CalendarX className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'insurance' && <Shield className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'driver' && <Users className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'payment' && <CreditCardIcon className="w-4 h-4 text-[#F57C00]" />}
-                                        {k === 'mileage' && <Gauge className="w-4 h-4 text-[#F57C00]" />}
-                                    </div>
-                                    <strong className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{k}</strong>
-                                </div>
-                                <span className="text-xs font-bold text-[#0A2647]">{v}</span>
-                            </div>
-                        ))}
+
+                <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <ConditionCard icon={<CreditCardIcon className="w-4 h-4" />} title="Payment & Deposit">
+                            <PolicyRow label="Security Deposit" value={depositText} tone={car.deposit > 0 ? 'warn' : 'default'} description="Blocked on your credit card at pickup." />
+                            <PolicyRow label="Card Requirements" value="Credit Card Mandatory" description="Debit/Prepaid cards are usually not accepted." />
+                            <PolicyRow label="Card Holder" value="Main Driver" description="The card must be in the name of the main driver." />
+                        </ConditionCard>
+
+                        <ConditionCard icon={<ShieldCheck className="w-4 h-4" />} title="Insurance Coverage">
+                            <PolicyRow label="Collision (CDW)" value="Included" tone="good" description="Reduces your liability in case of accident." />
+                            <PolicyRow label="Theft Protection" value="Included" tone="good" description="Coverage if the car is stolen." />
+                            <PolicyRow label="Damage Excess" value={excessText} description="Max liability in case of damage." />
+                        </ConditionCard>
+
+                        <ConditionCard icon={<Users className="w-4 h-4" />} title="Driver Policy">
+                            <PolicyRow label="Minimum Age" value="21+ Years" description="Young driver fee may apply under 25." />
+                            <PolicyRow label="Driver License" value="Held for 1+ Year" description="Original physical license required." />
+                            <PolicyRow label="Documentation" value="ID / Passport" description="Must be presented at the rental desk." />
+                        </ConditionCard>
+
+                        <ConditionCard icon={<Clock className="w-4 h-4" />} title="Usage & Return">
+                            <PolicyRow label="Mileage Policy" value={car.unlimitedMileage ? 'Unlimited' : 'Limited'} tone="good" description="Drive as much as you need." />
+                            <PolicyRow label="Fuel Policy" value="Full to Full" tone="good" description="Return with the same fuel level." />
+                            <PolicyRow label="Grace Period" value="59 Minutes" description="Extra time for late returns." />
+                        </ConditionCard>
+
+                        <ConditionCard icon={<Globe className="w-4 h-4" />} title="Territorial Policy">
+                            <PolicyRow label="Cross Border" value="Not Allowed" tone="warn" description="Driving to other countries is restricted." />
+                            <PolicyRow label="Off-Road Driving" value="Prohibited" tone="warn" description="Insurance is void on unpaved roads." />
+                            <PolicyRow label="One-Way Rental" value="Request Basis" description="Fee may apply for different return location." />
+                        </ConditionCard>
                     </div>
-                    <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
-                        <Info className="w-5 h-5 text-[#1B4D8C] shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-[#1B4D8C] font-medium leading-relaxed">
-                            These are key highlights. Full terms and conditions will be provided during the booking process and at the rental desk. Please ensure you have all required documents.
-                        </p>
+
+                    <div className="mt-8 p-5 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-4">
+                        <div className="bg-amber-100 p-2 rounded-lg shrink-0">
+                            <AlertCircle className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-black text-amber-800 uppercase tracking-widest mb-1">Important Note</p>
+                            <p className="text-[11px] text-amber-700 font-bold leading-relaxed">
+                                You must present a valid international physical credit card for the security deposit. Virtual cards and digital payments are not accepted at the counter. Full terms will be provided in your confirmation voucher.
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div className="px-6 pb-6 pt-2">
-                    <button onClick={onClose} className="w-full bg-[#123C69] hover:bg-[#0A2647] text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95">
+
+                <div className="px-6 py-6 border-t border-slate-100 bg-white">
+                    <button onClick={onClose} className="w-full bg-[#123C69] hover:bg-[#0A2647] text-white font-black py-4 rounded-xl text-sm uppercase tracking-widest transition-all shadow-xl shadow-[#123C69]/20 active:scale-95">
                         I Understand & Agree
                     </button>
                 </div>
@@ -220,7 +272,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                                     <div className="flex items-center gap-1.5 cursor-pointer group" onClick={() => setIsRatingModalOpen(true)}>
                                         <span className="text-base sm:text-xs font-black text-[#D4AF37]">{car.supplier.rating}</span>
                                         <span className="text-xs sm:text-[8px] text-[#D4AF37]">★</span>
-                                        <span className="text-sm sm:text-[10px] font-bold text-gray-600 ml-0.5">Very Good</span>
+                                        <span className="text-sm sm:text-[10px] font-bold text-gray-600 ml-0.5">{getRatingDescription(car.supplier.rating)}</span>
                                         <span className="text-[11px] sm:text-[7px] font-medium text-gray-400 ml-0.5">(248 reviews)</span>
                                         <Info className="w-4 h-4 sm:w-2 sm:h-2 text-gray-400 ml-1 group-hover:text-[#1B4D8C] transition-colors" />
                                     </div>
@@ -240,30 +292,38 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
                             <div className="flex flex-wrap gap-2.5 mb-4 sm:mb-3">
                                 {car.unlimitedMileage && (
-                                    <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-md border border-emerald-400/20 transition-all hover:shadow-lg active:scale-95">
-                                        <Gauge className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                                    <span className="bg-[#f0fdf4] text-[#166534] text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-sm border border-emerald-100 transition-all hover:bg-emerald-100 active:scale-95">
+                                        <Infinity className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                                         Unlimited Mileage
                                     </span>
                                 )}
                                 {car.fuelPolicy === 'FULL_TO_FULL' && (
-                                    <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-md border border-blue-400/20 transition-all hover:shadow-lg active:scale-95">
+                                    <span className="bg-[#f0f9ff] text-[#0369a1] text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-sm border border-blue-100 transition-all hover:bg-blue-100 active:scale-95">
                                         <Fuel className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                                         Full to Full
                                     </span>
                                 )}
                                 {car.supplier.bookingMode === 'FREE_SALE' && (
-                                    <span className="bg-gradient-to-r from-amber-500 to-[#F57C00] text-white text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-md border border-orange-400/20 transition-all hover:shadow-lg active:scale-95">
-                                        <Zap className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                                        Instant Booking
+                                    <span className="bg-[#fff7ed] text-[#9a3412] text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-sm border border-orange-100 transition-all hover:bg-orange-100 active:scale-95">
+                                        <Zap className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#F57C00]" />
+                                        Instant Confirmation
                                     </span>
                                 )}
+                                <span className="bg-[#fdf2f2] text-[#991b1b] text-[10px] font-black px-4 py-2 sm:px-3 sm:py-1.5 rounded-2xl flex items-center gap-2 uppercase tracking-widest shadow-sm border border-red-100 transition-all hover:bg-red-100 active:scale-95">
+                                    <ShieldCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                                    Theft Protection
+                                </span>
                             </div>
 
                             <div className="mt-2 pt-3 border-t border-gray-100 flex flex-wrap justify-between gap-2 items-center">
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-wrap">
                                     <span className="bg-[#E6F4EA] text-[#008009] text-[10px] font-black px-3 py-1.5 rounded-xl border border-[#008009]/10 flex items-center gap-2 uppercase tracking-widest shadow-sm">
                                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                                         Free Cancellation
+                                    </span>
+                                    <span className="bg-[#f0f9ff] text-[#0369a1] text-[10px] font-black px-3 py-1.5 rounded-xl border border-blue-100 flex items-center gap-2 uppercase tracking-widest shadow-sm">
+                                        <ShieldCheck className="w-3.5 h-3.5 stroke-[3]" />
+                                        Secure Booking
                                     </span>
                                 </div>
                                 <button onClick={() => setIsTermsModalOpen(true)} className="text-[10px] font-black text-[#123C69] bg-white border-2 border-gray-50 hover:border-[#F57C00]/30 rounded-2xl px-4 py-2 flex items-center gap-2.5 transition-all shadow-sm active:scale-95 uppercase tracking-widest">
