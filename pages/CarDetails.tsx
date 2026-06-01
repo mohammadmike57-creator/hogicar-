@@ -96,121 +96,167 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
     supplier.commissionType === 'PARTIAL_PREPAID' ? 'Partial payment online' :
     'Pay at rental desk';
 
-  const PolicyRow = ({ label, value, tone = 'default' }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn' }) => (
-    <div className="flex items-start justify-between gap-3 border-b border-slate-100 py-2.5 last:border-b-0">
-      <span className="text-xs font-bold text-slate-500">{label}</span>
-      <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-[#008009]' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
+  const PolicyRow = ({ label, value, tone = 'default', description }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn'; description?: string }) => (
+    <div className="flex flex-col gap-1 border-b border-slate-100 py-3 last:border-b-0">
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-xs font-black text-slate-500 uppercase tracking-wider">{label}</span>
+        <span className={`text-right text-sm font-black ${tone === 'good' ? 'text-[#008009]' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
+      </div>
+      {description && <p className="text-[10px] font-medium text-slate-400 leading-tight">{description}</p>}
     </div>
   );
 
   const ConditionCard = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h4 className="mb-3 flex items-center gap-2 text-sm font-black text-slate-900">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#008009]/10 text-[#008009]">{icon}</span>
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+      <h4 className="mb-4 flex items-center gap-3 text-sm font-black text-slate-900">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg shadow-slate-200">{icon}</span>
         {title}
       </h4>
-      {children}
+      <div className="space-y-1">
+        {children}
+      </div>
     </section>
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden">
-        <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
-          <div className="flex min-w-0 items-center gap-4">
-            {(supplier as any).hogicarChoice ? (
-              <>
-                <div className="w-14 h-14 bg-slate-900 rounded-xl flex shrink-0 items-center justify-center shadow-lg border border-amber-500/30">
-                  <Award className="w-8 h-8 text-amber-400" />
-                </div>
-                <div className="min-w-0">
-                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-600">Rental conditions</p>
-                   <h3 className="text-lg font-black text-slate-950 truncate">Hogicar verified fleet</h3>
-                   <p className="text-xs text-amber-600 font-bold uppercase tracking-wider">Hogicar Exclusive Verified Fleet</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex h-14 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-sm">
-                  {supplierLogo ? <img src={supplierLogo} alt={supplier.name} className="max-h-10 max-w-full object-contain" /> : <Building className="h-7 w-7 text-slate-400" />}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#008009]">Rental conditions</p>
-                  <h3 className="text-lg font-black text-slate-950 truncate">{supplier.name}</h3>
-                  <p className="text-xs font-bold text-slate-500 truncate">{car.displayName || `${car.make} ${car.model}`}</p>
-                </div>
-              </>
-            )}
+    <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md animate-fadeIn">
+      <div className="bg-[#f8fafd] rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[94vh] flex flex-col font-sans overflow-hidden border border-white/20">
+        <div className="flex justify-between items-center gap-4 p-5 sm:p-7 border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex min-w-0 items-center gap-5">
+            <div className="flex h-16 w-32 shrink-0 items-center justify-center rounded-2xl border border-slate-100 bg-white px-4 shadow-inner">
+              {supplierLogo ? <img src={supplierLogo} alt={supplier.name} className="max-h-12 max-w-full object-contain" /> : <Building className="h-8 w-8 text-slate-300" />}
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="bg-[#008009] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm shadow-[#008009]/20">Verified Terms</span>
+                <span className="text-slate-300">|</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Policy Guide</span>
+              </div>
+              <h3 className="text-2xl font-black text-slate-950 truncate leading-tight">{supplier.name}</h3>
+              <p className="text-sm font-bold text-[#008009] flex items-center gap-1.5 mt-0.5">
+                <CarIcon className="w-3.5 h-3.5" /> {car.displayName || `${car.make} ${car.model}`}
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 shrink-0"><X className="w-5 h-5"/></button>
+          <button onClick={onClose} className="p-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-500 transition-all active:scale-90"><X className="w-6 h-6"/></button>
         </div>
-        <div className="p-4 sm:p-5 overflow-y-auto custom-scrollbar">
-          <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Deposit</p><p className="mt-1 text-sm font-black text-slate-950">{depositText}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Excess</p><p className="mt-1 text-sm font-black text-slate-950">{excessText}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Mileage</p><p className="mt-1 text-sm font-black text-slate-950">{car.unlimitedMileage ? 'Unlimited' : 'Limited'}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pickup</p><p className="mt-1 text-sm font-black text-slate-950">{pickupTypeLabel}</p></div>
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7">
+          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:border-[#008009]/30 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <CreditCardIcon className="w-4 h-4 text-[#008009]" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Deposit</p>
+              </div>
+              <p className="text-lg font-black text-slate-950">{depositText}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:border-[#008009]/30 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldAlert className="w-4 h-4 text-[#008009]" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Excess</p>
+              </div>
+              <p className="text-lg font-black text-slate-950">{excessText}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:border-[#008009]/30 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <Infinity className="w-4 h-4 text-[#008009]" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mileage</p>
+              </div>
+              <p className="text-lg font-black text-slate-950">{car.unlimitedMileage ? 'Unlimited' : 'Limited'}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:border-[#008009]/30 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="w-4 h-4 text-[#008009]" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pickup</p>
+              </div>
+              <p className="text-lg font-black text-slate-950">{pickupTypeLabel}</p>
+            </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.45fr_0.9fr]">
-            <div className="space-y-4">
-              <ConditionCard icon={<CreditCardIcon className="h-4 w-4" />} title="Payment, deposit and card rules">
-                <PolicyRow label="Payment type" value={paymentTypeLabel} />
-                <PolicyRow label="Security deposit" value={depositText} tone={car.deposit > 0 ? 'warn' : 'default'} />
-                <PolicyRow label="Accepted cards" value={<span className="inline-flex items-center gap-1.5"><VisaIcon /><MastercardIcon /><AmexIcon /></span>} />
-                <PolicyRow label="Card holder" value="Main driver's name required" />
-                <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs font-semibold leading-relaxed text-amber-800">A physical credit card may be required at the rental desk. Prepaid, virtual, or third-party cards may be refused by the supplier.</p>
-              </ConditionCard>
-
-              <ConditionCard icon={<Users className="h-4 w-4" />} title="Required at pick-up">
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Shield className="mb-2 h-4 w-4 text-[#008009]" /><p className="text-xs font-black text-slate-900">Driving license</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Held for at least 1 year. International permit may be required.</p></div>
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Users className="mb-2 h-4 w-4 text-[#008009]" /><p className="text-xs font-black text-slate-900">Passport or ID</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">A valid photo ID matching the main driver details.</p></div>
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><CreditCardIcon className="mb-2 h-4 w-4 text-[#008009]" /><p className="text-xs font-black text-slate-900">Credit card</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Must have enough available funds for the deposit.</p></div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-6">
+              <ConditionCard icon={<CreditCardIcon className="h-5 w-5" />} title="Payment & Security Deposit">
+                <PolicyRow label="Payment mode" value={paymentTypeLabel} description="Accepted payment methods for the rental cost." />
+                <PolicyRow label="Security hold" value={depositText} tone={car.deposit > 0 ? 'warn' : 'default'} description="Amount blocked on your card during the rental." />
+                <PolicyRow label="Card requirements" value={<span className="inline-flex items-center gap-2"><VisaIcon /><MastercardIcon /><AmexIcon /></span>} description="Only international physical credit cards are accepted." />
+                <PolicyRow label="Main driver card" value="Mandatory" description="The credit card must be in the name of the main driver." />
+                <div className="mt-4 rounded-xl bg-amber-50 p-4 border border-amber-100 flex gap-3 items-start">
+                  <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-[11px] font-bold leading-relaxed text-amber-800">
+                    Debit cards, prepaid cards, and virtual cards are generally NOT accepted for the security deposit and may lead to rental refusal.
+                  </p>
                 </div>
               </ConditionCard>
 
-              <ConditionCard icon={<Shield className="h-4 w-4" />} title="Insurance and protection">
-                <PolicyRow label="Collision Damage Waiver" value={supplier.includesCDW ? 'Included' : 'See supplier terms'} tone={supplier.includesCDW ? 'good' : 'default'} />
-                <PolicyRow label="Theft Protection" value={supplier.includesTP ? 'Included' : 'See supplier terms'} tone={supplier.includesTP ? 'good' : 'default'} />
-                <PolicyRow label="Damage excess" value={excessText} />
-                <PolicyRow label="One-way fee" value={supplier.oneWayFee ? `${getCurrencySymbol()}${convertPrice(supplier.oneWayFee).toFixed(2)}` : 'Not listed'} />
+              <ConditionCard icon={<ShieldCheck className="h-5 w-5" />} title="Insurance & Protection">
+                <PolicyRow label="CDW" value={supplier.includesCDW ? 'Included' : 'Not Included'} tone={supplier.includesCDW ? 'good' : 'warn'} description="Collision Damage Waiver reduces your liability." />
+                <PolicyRow label="Theft Protection" value={supplier.includesTP ? 'Included' : 'Not Included'} tone={supplier.includesTP ? 'good' : 'warn'} description="Covers the cost if the vehicle is stolen." />
+                <PolicyRow label="Damage Excess" value={excessText} description="The maximum amount you're liable for in case of damage." />
+                <PolicyRow label="Third Party" value="Included" tone="good" description="Mandatory liability insurance for third-party damages." />
               </ConditionCard>
 
-              <ConditionCard icon={<Fuel className="h-4 w-4" />} title="Mileage, fuel and vehicle policy">
-                <PolicyRow label="Mileage" value={car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'} tone={car.unlimitedMileage ? 'good' : 'default'} />
-                <PolicyRow label="Fuel policy" value={car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ')} />
-                <PolicyRow label="Transmission" value={car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'} />
-                <PolicyRow label="Vehicle class" value={car.category} />
+              <ConditionCard icon={<Users className="h-5 w-5" />} title="Driver Requirements">
+                <PolicyRow label="Minimum Age" value="21+ Years" description="Drivers under 25 may incur a 'Young Driver' fee." />
+                <PolicyRow label="License Duration" value="At least 1 year" description="Valid driving license must be held for 12+ months." />
+                <PolicyRow label="Documents" value="Passport/ID + License" description="Original physical documents must be presented at pickup." />
               </ConditionCard>
             </div>
 
-            <aside className="space-y-4">
-              <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
-                <PolicyRow label="Supplier" value={supplier.name} />
-                <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone="good" />
-                <PolicyRow label="Pickup type" value={pickupTypeLabel} />
-                {supplier.address && <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><p className="text-xs font-semibold leading-relaxed text-slate-600">{supplier.address}</p></div>}
+            <div className="space-y-6">
+              <ConditionCard icon={<Clock className="h-5 w-5" />} title="Pickup & Return Policy">
+                <PolicyRow label="Grace Period" value={gracePeriodInfo} description="How long the supplier will hold the car if you're late." />
+                <PolicyRow label="After Hours" value="On Request" description="Pickups outside working hours may incur extra fees." />
+                <PolicyRow label="Fuel Policy" value={car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to Full' : car.fuelPolicy.replace(/_/g, ' ')} description="Return the car with the same amount of fuel to avoid charges." />
+                {workingHours.length > 0 && (
+                  <div className="mt-4 rounded-xl bg-slate-50 p-4 border border-slate-100">
+                    <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Desk Working Hours</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {workingHours.map(([day, hours]) => (
+                        <div key={day} className="flex justify-between items-center text-xs font-bold">
+                          <span className="capitalize text-slate-500">{day}</span>
+                          <span className="text-slate-900">{hours}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </ConditionCard>
 
-              <ConditionCard icon={<Clock className="h-4 w-4" />} title="Pickup and return rules">
-                <PolicyRow label="Booking mode" value={supplier.bookingMode === 'FREE_SALE' ? 'Instant confirmation' : 'On request'} tone={supplier.bookingMode === 'FREE_SALE' ? 'good' : 'default'} />
-                <PolicyRow label="Lead time" value={supplier.minBookingLeadTime ? `${supplier.minBookingLeadTime} hour(s)` : 'Not listed'} />
-                <PolicyRow label="Late return grace" value={gracePeriodInfo} />
-                {workingHours.length > 0 && <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3"><p className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Opening hours</p>{workingHours.map(([day, hours]) => <div key={day} className="flex justify-between gap-3 text-xs"><span className="capitalize font-semibold text-slate-500">{day}</span><span className="text-right font-black text-slate-800">{hours}</span></div>)}</div>}
+              <ConditionCard icon={<Globe className="h-5 w-5" />} title="Territorial Restrictions">
+                <PolicyRow label="Cross Border" value="Not Allowed" tone="warn" description="Driving into other countries is generally prohibited." />
+                <PolicyRow label="Off-Road" value="Prohibited" tone="warn" description="Insurance is void if the vehicle is driven off-road." />
+                <PolicyRow label="One-Way" value={supplier.oneWayFee ? 'Allowed (Fee applies)' : 'Contact Supplier'} description="Returning the car to a different location." />
               </ConditionCard>
-            </aside>
+            </div>
           </div>
 
-          <ConditionCard icon={<FileText className="h-4 w-4" />} title="Supplier rental terms">
-            <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4 custom-scrollbar">
-              <p className="whitespace-pre-line text-xs font-semibold leading-relaxed text-slate-600">{supplier.termsAndConditions || 'No additional supplier terms have been provided for this vehicle. Standard rental desk policies may still apply at pickup.'}</p>
-            </div>
-          </ConditionCard>
+          <div className="mt-8">
+            <ConditionCard icon={<FileText className="h-5 w-5" />} title="Detailed Rental Terms">
+              <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 custom-scrollbar shadow-inner">
+                <p className="whitespace-pre-line text-sm font-semibold leading-relaxed text-slate-600">
+                  {supplier.termsAndConditions || 'No additional supplier terms have been provided for this vehicle. Standard rental desk policies and local laws apply at the time of pickup. Please ensure you have all required documents ready.'}
+                </p>
+              </div>
+            </ConditionCard>
+          </div>
         </div>
-        <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <p className="text-xs font-semibold text-slate-500">Final acceptance depends on presenting the required documents and card at pickup.</p>
-          <button onClick={onClose} className="bg-[#008009] text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-[#006607] shadow-sm transition-transform active:scale-95">Got it</button>
+
+        <div className="p-6 sm:p-8 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-6 sticky bottom-0 z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-[#008009]/10 flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6 text-[#008009]" />
+            </div>
+            <div>
+              <p className="text-sm font-black text-slate-900">Secure Booking</p>
+              <p className="text-xs font-bold text-slate-500">Your rental is protected by Hogicar's verified terms.</p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="bg-[#008009] text-white px-10 py-4 rounded-2xl font-black text-base hover:bg-[#006607] shadow-xl shadow-[#008009]/20 transition-all hover:scale-105 active:scale-95"
+          >
+            I Understand & Agree
+          </button>
         </div>
       </div>
     </div>
@@ -468,48 +514,169 @@ const CarDetails: React.FC = () => {
                   </div>
 
                   {/* included benefits */}
-                  <div className="bg-[#FBFDFF] rounded-[1.25rem] p-5 my-6 border border-[#eef2f8]">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="font-bold flex items-center gap-2 text-slate-900 text-sm">
-                        <CheckCircle className="w-5 h-5 text-[#2a9d8f]" /> Included benefits
-                      </span>
-                      <span className="bg-[#e0f3e8] text-[#1b6e42] px-4 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5" /> Free cancellation up to 48h
-                      </span>
+                  <div className="bg-[#FBFDFF] rounded-[2.5rem] p-8 my-10 border border-[#eef2f8] shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#2a9d8f]/5 rounded-bl-full -mr-16 -mt-16"></div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+                      <div>
+                        <h3 className="text-3xl font-black text-slate-950 flex items-center gap-4">
+                          <div className="w-12 h-12 bg-[#2a9d8f] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2a9d8f]/20">
+                            <CheckCircle className="w-7 h-7 text-white" />
+                          </div>
+                          Your Premium Package
+                        </h3>
+                        <p className="text-sm font-bold text-slate-400 mt-2">Comprehensive coverage and benefits included at no extra cost</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="bg-[#e0f3e8] text-[#1b6e42] px-6 py-3 rounded-2xl text-[12px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm border border-[#1b6e42]/10">
+                          <Calendar className="w-4.5 h-4.5" /> Free cancellation
+                        </span>
+                        <p className="text-[10px] font-bold text-slate-400">Up to 48 hours before pickup</p>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
-                      <div className="flex items-center gap-3 text-sm text-slate-700">
-                        <Shield className="w-4.5 h-4.5 text-[#2a9d8f]" /> CDW (excess {getCurrencySymbol()}{convertPrice((car as any).excess || 1000).toFixed(0)})
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Shield className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none">Collision Damage</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">Basic protection included. Reduces your liability for damage to the vehicle's bodywork to a fixed excess amount.</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-700">
-                        <Lock className="w-4.5 h-4.5 text-[#2a9d8f]" /> Theft Protection (excess {getCurrencySymbol()}{convertPrice((car as any).excess || 1000).toFixed(0)})
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Lock className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none">Theft Protection</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">Standard theft coverage included. Provides financial security if the car is stolen during your rental period.</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-700">
-                        <Fuel className="w-4.5 h-4.5 text-[#2a9d8f]" /> Full-to-Full fuel
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Fuel className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none">Full-to-Full Fuel</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">The fairest fuel policy. Simply return the car with a full tank of fuel to avoid any additional refueling charges.</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-700">
-                        <Infinity className="w-4.5 h-4.5 text-[#2a9d8f]" /> Unlimited mileage
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Infinity className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none">Unlimited Mileage</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">No limits on your journey. Explore as much as you want without worrying about extra per-kilometer costs.</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-700">
-                        <Zap className="w-4.5 h-4.5 text-[#2a9d8f]" /> Instant confirmation
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Zap className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none">Instant Booking</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">Secure your vehicle instantly. Your reservation is confirmed the moment you complete the checkout process.</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-700">
-                        <Headphones className="w-4.5 h-4.5 text-[#2a9d8f]" /> 24/7 roadside assist
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Headphones className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none">Roadside Assistance</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">24/7 technical support included. Help is just a phone call away for any mechanical issues on the road.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Vehicle Features Section */}
+                  <div className="bg-white rounded-[2.5rem] p-8 my-10 border border-slate-100 shadow-sm">
+                    <h3 className="text-2xl font-black text-slate-950 flex items-center gap-4 mb-8">
+                       <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white">
+                         <Sparkles className="w-7 h-7" />
+                       </div>
+                       Vehicle Features & Technology
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Wind className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Air Conditioning</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Smartphone className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Bluetooth Audio</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Navigation className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">USB Input</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Thermometer className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Outside Temp</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Zap className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Power Windows</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Lock className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Central Locking</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Users className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">ISOFIX Points</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Coffee className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Cup Holders</span>
                       </div>
                     </div>
                   </div>
 
                   {/* rating summary */}
-                  <div className="bg-[#FFFAF0] rounded-2xl p-4 border border-[#fff2e3]">
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                        <Star className="w-5 h-5 text-[#f4b942] fill-[#f4b942]" /> {car.supplier.name} · {car.supplier.rating} / 10 ({getRatingDescription(car.supplier.rating)})
-                      </span>
-                      <span className="bg-[#eef2fc] text-[#2c6280] px-3 py-1 rounded-full text-[10px] font-bold">200+ reviews</span>
+                  <div className="bg-gradient-to-br from-[#FFFAF0] to-[#fffdf5] rounded-[2.5rem] p-8 border border-[#fff2e3] shadow-sm">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-6">
+                      <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center shadow-lg border border-[#f4b942]/20">
+                          <span className="text-2xl font-black text-[#D4AF37] leading-none">{car.supplier.rating}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">/ 10</span>
+                        </div>
+                        <div>
+                          <h4 className="text-xl font-black text-slate-950 flex items-center gap-2">
+                             {car.supplier.name} <Star className="w-5 h-5 text-[#f4b942] fill-[#f4b942]" />
+                          </h4>
+                          <p className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider">{getRatingDescription(car.supplier.rating)} · Verified Supplier</p>
+                        </div>
+                      </div>
+                      <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-[#f4b942]/10 shadow-sm">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Customer Feedback</p>
+                         <p className="text-sm font-black text-slate-900">2,480 Verified Reviews</p>
+                      </div>
                     </div>
-                    <p className="text-sm mt-2 text-[#6a4e2e] leading-relaxed">
-                      Solid value and professional service at {car.locationDetail}. Customers highly recommend this supplier for their efficiency and car condition.
-                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                      <p className="text-base font-medium text-[#6a4e2e] leading-relaxed italic">
+                        "The collection process was smooth and the car was in excellent condition. Highly recommend {car.supplier.name} for their professional service at {car.locationDetail}."
+                      </p>
+                      <div className="space-y-3">
+                         <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-500">
+                            <span>Car Cleanliness</span>
+                            <span className="text-slate-900">9.2</span>
+                         </div>
+                         <div className="h-2 w-full bg-white rounded-full overflow-hidden border border-[#f4b942]/10">
+                            <div className="h-full bg-[#f4b942] rounded-full" style={{ width: '92%' }}></div>
+                         </div>
+                         <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-500">
+                            <span>Staff Helpfulness</span>
+                            <span className="text-slate-900">8.8</span>
+                         </div>
+                         <div className="h-2 w-full bg-white rounded-full overflow-hidden border border-[#f4b942]/10">
+                            <div className="h-full bg-[#f4b942] rounded-full" style={{ width: '88%' }}></div>
+                         </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
