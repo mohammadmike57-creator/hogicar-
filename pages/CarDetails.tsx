@@ -430,301 +430,560 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="min-h-screen bg-slate-50 pb-28 font-sans text-slate-900 lg:pb-12">
-        <div className="border-b border-slate-200 bg-white">
-          <div className="mx-auto flex max-w-[1380px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-            <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-700 shadow-sm transition-colors hover:border-[#008009]/40 hover:text-[#008009]">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </button>
-            <div className="hidden items-center gap-2 text-xs font-bold text-slate-500 sm:flex">
-              <ShieldCheck className="h-4 w-4 text-[#008009]" />
-              Verified supplier terms and secure booking
-            </div>
-          </div>
-        </div>
+      <div className="bg-[#f4f9ff] min-h-screen font-sans text-[#1a2c3e] p-4 sm:p-8 pb-32 lg:pb-8">
+        <div className="max-w-[1380px] mx-auto">
+          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-3 text-sm font-black text-[#2c6e9e] bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-full shadow-lg border border-white/50 hover:bg-white hover:scale-105 transition-all mb-10 active:scale-95">
+            <ArrowLeft className="w-5 h-5" /> Back to search results
+          </button>
 
-        <div className="mx-auto max-w-[1380px] px-4 py-5 sm:px-6 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
-            <main className="space-y-5">
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="grid gap-0 lg:grid-cols-[1fr_0.92fr]">
-                  <div className="flex min-h-[300px] items-center justify-center border-b border-slate-100 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-                    <div className="w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-inner">
-                      <img
-                        src={displayImage}
-                        alt={car.displayName || `${car.make} ${car.model}`}
-                        onError={() => setImageError(true)}
-                        referrerPolicy="no-referrer"
-                        className="mx-auto h-52 w-full object-contain sm:h-64"
-                      />
-                    </div>
-                  </div>
-                  <div className="p-5 sm:p-6">
-                    <div className="mb-4 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-[#008009] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">Available</span>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">{car.category}</span>
-                      {car.hogicarChoice && (
-                        <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700">Hogicar choice</span>
-                      )}
-                    </div>
-
-                    <h1 className="text-3xl font-black leading-tight tracking-tight text-slate-950 sm:text-4xl">
-                      {car.displayName || `${car.make} ${car.model}`}
-                    </h1>
-                    <p className="mt-2 text-sm font-semibold text-slate-500">{car.make} {car.model} or similar vehicle from a verified rental partner.</p>
-
-                    <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {[
-                        { icon: <Users className="h-4 w-4" />, label: 'Seats', value: `${car.passengers}` },
-                        { icon: <Briefcase className="h-4 w-4" />, label: 'Bags', value: `${car.bags}` },
-                        { icon: <Settings className="h-4 w-4" />, label: 'Gearbox', value: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual' },
-                        { icon: <Wind className="h-4 w-4" />, label: 'Climate', value: car.airCon ? 'A/C' : 'Standard' },
-                      ].map((item) => (
-                        <div key={item.label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#008009] shadow-sm">{item.icon}</div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
-                          <p className="mt-0.5 text-sm font-black text-slate-900">{item.value}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8">
+            {/* LEFT COLUMN: vehicle details, timeline with real car image & logo */}
+            <div className="space-y-6">
+              <div className="bg-white/98 rounded-[2rem] shadow-xl border border-white/60 overflow-hidden">
+                <div className="p-6 sm:p-8">
+                  <div className="flex flex-wrap justify-between items-start gap-6 mb-8">
+                    <div className="car-name space-y-3">
+                      <div className="flex items-center gap-3">
+                        <span className="bg-[#008009] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-[#008009]/20 flex items-center gap-2">
+                          <Medal className="w-3.5 h-3.5" /> Verified Choice
+                        </span>
+                        {car.isAvailable && (
+                          <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] flex items-center gap-2 border border-emerald-100">
+                            <Zap className="w-3.5 h-3.5" /> High Demand
+                          </span>
+                        )}
+                      </div>
+                      <h1 className="text-4xl sm:text-6xl font-black tracking-tighter leading-[0.9] text-slate-900 drop-shadow-sm">
+                        {car.displayName || `${car.make} ${car.model}`}
+                      </h1>
+                      <div className="flex flex-wrap items-center gap-3 pt-2">
+                        <span className="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-slate-200">{car.category}</span>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-bold text-xs">
+                          <Settings className="w-3.5 h-3.5" /> {car.transmission}
                         </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-12 w-24 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3">
-                            {supplierLogo ? <img src={supplierLogo} alt={car.supplier.name} className="max-h-8 max-w-full object-contain" /> : <Building className="h-5 w-5 text-slate-400" />}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-black text-slate-900">{car.supplier.name}</p>
-                            <p className="text-xs font-bold text-slate-500">{getRatingDescription(car.supplier.rating)} supplier</p>
-                          </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-bold text-xs">
+                          <Wind className="w-3.5 h-3.5" /> {car.airCon ? 'Air Conditioning' : 'Climate Control'}
                         </div>
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#008009] text-sm font-black text-white shadow-sm">
-                          {car.supplier.rating}
+                      </div>
+                    </div>
+                    <div className="bg-[#f8fafd] rounded-3xl p-3 flex items-center gap-4 shadow-lg border border-slate-100">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-2 shadow-sm">
+                        {supplierLogo ? <img src={supplierLogo} alt={car.supplier.name} className="max-h-10 object-contain" /> : <Building className="w-6 h-6 text-slate-400" />}
+                      </div>
+                      <div>
+                        <div className="font-black text-slate-900 text-base">{car.supplier.name}</div>
+                        <div className="flex items-center gap-1.5">
+                            <Star className="w-3.5 h-3.5 text-[#D4AF37] fill-[#D4AF37]" />
+                            <span className="text-sm font-black text-[#D4AF37]">{car.supplier.rating}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">(248 reviews)</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </section>
 
-              <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  { icon: <Calendar className="h-4 w-4" />, label: 'Pickup', value: `${pickupDisplay} · 10:00`, sub: pickupCode || car.location },
-                  { icon: <RefreshCw className="h-4 w-4" />, label: 'Return', value: `${dropoffDisplay} · 10:00`, sub: dropoffCode || pickupCode || car.location },
-                  { icon: <MapPin className="h-4 w-4" />, label: 'Pickup type', value: pickupTypeLabel, sub: car.locationDetail },
-                  { icon: <Clock className="h-4 w-4" />, label: 'Duration', value: `${days} day${days > 1 ? 's' : ''}`, sub: 'Taxes and fees included' },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-[#008009]/10 text-[#008009]">{item.icon}</div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
-                    <p className="mt-1 text-sm font-black text-slate-950">{item.value}</p>
-                    <p className="mt-1 truncate text-xs font-semibold text-slate-500">{item.sub}</p>
-                  </div>
-                ))}
-              </section>
-
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg font-black text-slate-950">Included In Your Booking</h2>
-                    <p className="mt-1 text-sm font-semibold text-slate-500">Clear rental terms before you reserve.</p>
-                  </div>
-                  <button onClick={() => setIsConditionsModalOpen(true)} className="hidden rounded-lg border border-[#008009]/30 bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-wider text-[#008009] sm:inline-flex">
-                    Rental terms
-                  </button>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {[
-                    { icon: <ShieldCheck className="h-5 w-5" />, title: 'Collision damage waiver', text: car.supplier.includesCDW ? 'Included by supplier' : 'Check supplier terms' },
-                    { icon: <Lock className="h-5 w-5" />, title: 'Theft protection', text: car.supplier.includesTP ? 'Included by supplier' : 'Check supplier terms' },
-                    { icon: <Fuel className="h-5 w-5" />, title: 'Fuel policy', text: car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ') },
-                    { icon: <Infinity className="h-5 w-5" />, title: 'Mileage', text: car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage' },
-                    { icon: <CalendarX className="h-5 w-5" />, title: 'Cancellation', text: 'Free cancellation up to 48h' },
-                    { icon: <Zap className="h-5 w-5" />, title: 'Confirmation', text: car.supplier.bookingMode === 'FREE_SALE' ? 'Instant confirmation' : 'On request' },
-                  ].map((item) => (
-                    <div key={item.title} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#008009] shadow-sm">{item.icon}</div>
-                      <p className="text-sm font-black text-slate-900">{item.title}</p>
-                      <p className="mt-1 text-xs font-semibold text-slate-500">{item.text}</p>
+                  <div className="flex flex-wrap gap-5 py-4 border-y border-[#edf2f9] my-6">
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-[#2a4c6e]">
+                      <Users className="w-4.5 h-4.5 text-[#f4a261]" /> {car.passengers} seats
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-[#2a4c6e]">
+                      <Settings className="w-4.5 h-4.5 text-[#f4a261]" /> {car.transmission}
+                    </div>
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-[#2a4c6e]">
+                      <Briefcase className="w-4.5 h-4.5 text-[#f4a261]" /> {car.bags} bags
+                    </div>
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-[#2a4c6e]">
+                      <Wind className="w-4.5 h-4.5 text-[#f4a261]" /> Climate control
+                    </div>
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-[#2a4c6e]">
+                      <Infinity className="w-4.5 h-4.5 text-[#f4a261]" /> {car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}
+                    </div>
+                  </div>
 
-              <section className="grid gap-5 lg:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                  <h2 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-950">
-                    <FileText className="h-5 w-5 text-[#008009]" /> Requirements
-                  </h2>
-                  <div className="space-y-3">
-                    {[
-                      { icon: <Book className="h-4 w-4" />, title: 'Driving license', text: 'Valid license held for at least 1 year.' },
-                      { icon: <User className="h-4 w-4" />, title: 'Passport or ID', text: 'Original photo ID matching the main driver.' },
-                      { icon: <CreditCardIcon className="h-4 w-4" />, title: 'Credit card', text: `Required for refundable deposit: ${depositDisplay}.` },
-                      { icon: <ShieldAlert className="h-4 w-4" />, title: 'Damage excess', text: `${excessDisplay} according to supplier terms.` },
-                    ].map((item) => (
-                      <div key={item.title} className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#008009] shadow-sm">{item.icon}</div>
+                  {/* Journey Itinerary Section */}
+                  <div className="bg-[#fefdf8] rounded-[2.5rem] p-8 my-8 border border-[#ffedd5] shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#f4a261]/5 rounded-bl-full -mr-10 -mt-10"></div>
+                    <div className="flex flex-col lg:flex-row items-center gap-10">
+                      <div className="flex-1 w-full">
+                        <div className="flex items-center gap-3 mb-8">
+                          <div className="w-10 h-10 bg-[#f4a261] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[#f4a261]/20">
+                            <Route className="w-6 h-6" />
+                          </div>
+                          <h3 className="text-xl font-black text-[#c26e2c] uppercase tracking-widest leading-none">Journey Itinerary</h3>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 relative">
+                          <div className="absolute top-[22px] left-[15%] right-[15%] h-0.5 border-t-2 border-dashed border-[#cbdde9] -z-0"></div>
+                          
+                          <div className="text-center flex-1 min-w-[120px] relative z-10">
+                            <div className="w-11 h-11 bg-[#e6f4ea] border-2 border-[#80b380] text-[#2d6a4f] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                              <Plane className="w-5 h-5" />
+                            </div>
+                            <div className="text-sm font-black text-[#1e4c6b]">{pickupDisplay} · 10:00</div>
+                            <div className="text-[11px] font-bold text-slate-900 mt-1">{pickupCode || car.location}</div>
+                            <div className="text-[10px] font-medium text-[#6f8fae] bg-slate-50 px-2 py-1 rounded-lg mt-2 inline-block border border-slate-100">{pickupTypeLabel}</div>
+                          </div>
+
+                          <div className="text-center flex-1 min-w-[120px] relative z-10">
+                            <div className="w-11 h-11 bg-[#ffe6e6] border-2 border-[#e9a8a8] text-[#b34343] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                              <Plane className="w-5 h-5 rotate-45" />
+                            </div>
+                            <div className="text-sm font-black text-[#1e4c6b]">{dropoffDisplay} · 10:00</div>
+                            <div className="text-[11px] font-bold text-slate-900 mt-1">{dropoffCode || pickupCode || car.location}</div>
+                            <div className="text-[10px] font-medium text-[#6f8fae] bg-slate-50 px-2 py-1 rounded-lg mt-2 inline-block border border-slate-100">Return to Desk</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="w-full lg:w-[320px] bg-white rounded-[2rem] p-6 flex flex-col items-center justify-center border border-[#f0e6d5] shadow-inner relative group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]"></div>
+                        <div className="relative z-10 w-full">
+                          <div className="bg-[#fef6e8] rounded-2xl p-4 flex flex-col items-center gap-4 w-full shadow-sm border border-[#fff2e3]">
+                             <img src={displayImage} alt={car.displayName} className="h-24 object-contain drop-shadow-2xl transition-transform group-hover:scale-110 duration-500" />
+                             <div className="text-center">
+                               <span className="text-xs font-black text-[#8b6946] uppercase tracking-[0.15em] block mb-1">{car.displayName}</span>
+                               <span className="text-[10px] font-bold text-[#c26e2c] bg-[#f4a261]/10 px-3 py-1 rounded-full border border-[#f4a261]/20">Official Partner Vehicle</span>
+                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trust Section */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-10">
+                    <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                      <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-slate-900 leading-tight">Secure Payment</p>
+                        <p className="text-[11px] font-bold text-slate-400">100% SSL Encrypted</p>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                      <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                        <CheckCircle className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-slate-900 leading-tight">Instant Confirmation</p>
+                        <p className="text-[11px] font-bold text-slate-400">Voucher sent in seconds</p>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                      <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                        <Headphones className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-slate-900 leading-tight">24/7 Support</p>
+                        <p className="text-[11px] font-bold text-slate-400">We are here to help</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* included benefits */}
+                  <div className="bg-[#FBFDFF] rounded-[2.5rem] p-8 my-10 border border-[#eef2f8] shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#2a9d8f]/5 rounded-bl-full -mr-16 -mt-16"></div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+                      <div>
+                        <h3 className="text-3xl font-black text-slate-950 flex items-center gap-4">
+                          <div className="w-12 h-12 bg-[#2a9d8f] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2a9d8f]/20">
+                            <CheckCircle className="w-7 h-7 text-white" />
+                          </div>
+                          Your Premium Package
+                        </h3>
+                        <p className="text-sm font-bold text-slate-400 mt-2">Comprehensive coverage and benefits included at no extra cost</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="bg-[#e0f3e8] text-[#1b6e42] px-6 py-3 rounded-2xl text-[12px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm border border-[#1b6e42]/10">
+                          <Calendar className="w-4.5 h-4.5" /> Free cancellation
+                        </span>
+                        <p className="text-[10px] font-bold text-slate-400">Up to 48 hours before pickup</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative group">
+                        <div className="absolute top-4 right-4 text-[#2a9d8f] opacity-20 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Shield className="w-6 h-6" />
+                        </div>
                         <div>
-                          <p className="text-sm font-black text-slate-900">{item.title}</p>
-                          <p className="mt-0.5 text-xs font-semibold leading-relaxed text-slate-500">{item.text}</p>
+                          <p className="text-base font-black text-slate-900 leading-none tracking-tight">Collision Damage</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">Basic protection included. Reduces your liability for damage to the vehicle's bodywork to a fixed excess amount.</p>
                         </div>
                       </div>
-                    ))}
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative group">
+                        <div className="absolute top-4 right-4 text-[#2a9d8f] opacity-20 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Lock className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none tracking-tight">Theft Protection</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">Standard theft coverage included. Provides financial security if the car is stolen during your rental period.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative group">
+                        <div className="absolute top-4 right-4 text-[#2a9d8f] opacity-20 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Fuel className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none tracking-tight">Full-to-Full Fuel</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">The fairest fuel policy. Simply return the car with a full tank of fuel to avoid any additional refueling charges.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative group">
+                        <div className="absolute top-4 right-4 text-[#2a9d8f] opacity-20 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Infinity className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none tracking-tight">Unlimited Mileage</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">No limits on your journey. Explore as much as you want without worrying about extra per-kilometer costs.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative group">
+                        <div className="absolute top-4 right-4 text-[#2a9d8f] opacity-20 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Zap className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none tracking-tight">Instant Booking</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">Secure your vehicle instantly. Your reservation is confirmed the moment you complete the checkout process.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 relative group">
+                        <div className="absolute top-4 right-4 text-[#2a9d8f] opacity-20 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f]">
+                          <Headphones className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-slate-900 leading-none tracking-tight">Roadside Assistance</p>
+                          <p className="text-xs font-bold text-slate-500 mt-2 leading-relaxed">24/7 technical support included. Help is just a phone call away for any mechanical issues on the road.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Vehicle Features Section */}
+                  <div className="bg-white rounded-[2.5rem] p-8 my-10 border border-slate-100 shadow-sm">
+                    <h3 className="text-2xl font-black text-slate-950 flex items-center gap-4 mb-8">
+                       <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white">
+                         <Sparkles className="w-7 h-7" />
+                       </div>
+                       Vehicle Features & Technology
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Wind className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Air Conditioning</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Smartphone className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Bluetooth Audio</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Navigation className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">USB Input</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Thermometer className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Outside Temp</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Zap className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Power Windows</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Lock className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Central Locking</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Users className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">ISOFIX Points</span>
+                      </div>
+                      <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center text-center gap-2 border border-slate-100">
+                        <Coffee className="w-6 h-6 text-[#2c6e9e]" />
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">Cup Holders</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* rating summary */}
+                  <div className="bg-gradient-to-br from-[#FFFAF0] to-[#fffdf5] rounded-[2.5rem] p-8 border border-[#fff2e3] shadow-sm">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-6">
+                      <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center shadow-lg border border-[#f4b942]/20">
+                          <span className="text-2xl font-black text-[#D4AF37] leading-none">{car.supplier.rating}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">/ 10</span>
+                        </div>
+                        <div>
+                          <h4 className="text-xl font-black text-slate-950 flex items-center gap-2">
+                             {car.supplier.name} <Star className="w-5 h-5 text-[#f4b942] fill-[#f4b942]" />
+                          </h4>
+                          <p className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider">{getRatingDescription(car.supplier.rating)} · Verified Supplier</p>
+                        </div>
+                      </div>
+                      <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-[#f4b942]/10 shadow-sm">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Customer Feedback</p>
+                         <p className="text-sm font-black text-slate-900">2,480 Verified Reviews</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                      <p className="text-base font-medium text-[#6a4e2e] leading-relaxed italic">
+                        "The collection process was smooth and the car was in excellent condition. Highly recommend {car.supplier.name} for their professional service at {car.locationDetail}."
+                      </p>
+                      <div className="space-y-3">
+                         <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-500">
+                            <span>Car Cleanliness</span>
+                            <span className="text-slate-900">9.2</span>
+                         </div>
+                         <div className="h-2 w-full bg-white rounded-full overflow-hidden border border-[#f4b942]/10">
+                            <div className="h-full bg-[#f4b942] rounded-full" style={{ width: '92%' }}></div>
+                         </div>
+                         <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-500">
+                            <span>Staff Helpfulness</span>
+                            <span className="text-slate-900">8.8</span>
+                         </div>
+                         <div className="h-2 w-full bg-white rounded-full overflow-hidden border border-[#f4b942]/10">
+                            <div className="h-full bg-[#f4b942] rounded-full" style={{ width: '88%' }}></div>
+                         </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                  <h2 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-950">
-                    <Sparkles className="h-5 w-5 text-[#008009]" /> Vehicle Features
+            {/* RIGHT COLUMN: Extras → Premium guarantee → Your deal (with policy grid) → Key info */}
+            <div className="sticky-side space-y-6">
+              {/* 1. EXTRAS CARD */}
+              <div className="bg-white rounded-[2rem] shadow-xl border border-white/60 overflow-hidden border-l-4 border-l-[#f4a261]">
+                <div className="p-5 border-b-2 border-[#ffe0b5] bg-gradient-to-r from-[#fffaf2] to-white">
+                  <h2 className="text-lg font-bold flex items-center gap-2 text-[#1f3b4c]">
+                    <Gem className="w-5 h-5 text-[#f4a261]" /> Extras & Enhancements
                   </h2>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { icon: <Wind className="h-4 w-4" />, label: 'Air conditioning' },
-                      { icon: <Smartphone className="h-4 w-4" />, label: 'Bluetooth audio' },
-                      { icon: <Navigation className="h-4 w-4" />, label: 'USB input' },
-                      { icon: <Zap className="h-4 w-4" />, label: 'Power windows' },
-                      { icon: <Lock className="h-4 w-4" />, label: 'Central locking' },
-                      { icon: <Coffee className="h-4 w-4" />, label: 'Cup holders' },
-                    ].map((item) => (
-                      <div key={item.label} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs font-bold text-slate-700">
-                        <span className="text-[#008009]">{item.icon}</span>
-                        {item.label}
-                      </div>
-                    ))}
-                  </div>
                 </div>
-              </section>
-
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <h2 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-950">
-                  <PlusCircle className="h-5 w-5 text-[#008009]" /> Optional Extras
-                </h2>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {car.extras && car.extras.length > 0 ? car.extras.map(extra => (
-                    <label key={extra.id} className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border p-4 transition-colors ${selectedExtraIds.includes(extra.id) ? 'border-[#008009] bg-emerald-50' : 'border-slate-200 bg-white hover:border-[#008009]/40'}`}>
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-[#008009]">
-                          {extra.name.toLowerCase().includes('gps') ? <Navigation className="h-5 w-5" /> :
-                            extra.name.toLowerCase().includes('wifi') ? <Wifi className="h-5 w-5" /> :
-                            extra.name.toLowerCase().includes('driver') ? <UserPlus className="h-5 w-5" /> :
-                            extra.name.toLowerCase().includes('child') ? <Baby className="h-5 w-5" /> :
-                            <PlusCircle className="h-5 w-5" />}
+                <div className="p-6">
+                  <div className="space-y-3">
+                    {car.extras && car.extras.length > 0 ? car.extras.map(extra => (
+                      <div key={extra.id} className="flex items-center justify-between p-3.5 bg-white border border-[#ffe7cf] rounded-2xl hover:border-[#f4a261] hover:bg-[#fffef7] transition-all">
+                        <div className="flex items-center gap-4">
+                          <div className="w-9 h-9 bg-gradient-to-br from-[#fef3e2] to-[#ffe6c9] rounded-full flex items-center justify-center text-[#c26e2c]">
+                            {extra.name.toLowerCase().includes('gps') ? <Navigation className="w-5 h-5" /> : 
+                             extra.name.toLowerCase().includes('wifi') ? <Wifi className="w-5 h-5" /> : 
+                             extra.name.toLowerCase().includes('driver') ? <UserPlus className="w-5 h-5" /> : 
+                             extra.name.toLowerCase().includes('child') ? <Baby className="w-5 h-5" /> : 
+                             <PlusCircle className="w-5 h-5" />}
+                          </div>
+                          <div>
+                            <div className="text-sm font-bold text-[#2c4b66]">{extra.name}</div>
+                            <div className="text-[10px] text-[#7c8ea0]">{extra.type === 'per_day' ? 'Daily extra' : 'One-time fee'}</div>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-slate-900">{extra.name}</p>
-                          <p className="text-xs font-semibold text-slate-500">{extra.type === 'per_day' ? 'Daily extra' : 'One-time fee'}</p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-extrabold text-[#2a9d8f]">+{getCurrencySymbol()}{convertPrice(extra.price).toFixed(0)}{extra.type === 'per_day' ? '/day' : ''}</span>
+                          <input 
+                            type="checkbox" 
+                            checked={selectedExtraIds.includes(extra.id)}
+                            onChange={() => handleToggleExtra(extra.id)}
+                            className="w-5 h-5 rounded-md border-slate-300 text-[#f4a261] focus:ring-[#f4a261]" 
+                          />
                         </div>
                       </div>
-                      <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-sm font-black text-[#008009]">+{getCurrencySymbol()}{convertPrice(extra.price).toFixed(0)}{extra.type === 'per_day' ? '/day' : ''}</span>
-                        <input
-                          type="checkbox"
-                          checked={selectedExtraIds.includes(extra.id)}
-                          onChange={() => handleToggleExtra(extra.id)}
-                          className="h-5 w-5 rounded border-slate-300 text-[#008009] focus:ring-[#008009]"
-                        />
+                    )) : (
+                      <p className="text-center text-slate-400 text-sm">No extras available.</p>
+                    )}
+                  </div>
+                  <div className="bg-[#fff2e3] rounded-2xl p-3 text-center text-[10px] text-[#8b6946] flex items-center justify-center gap-2 mt-4">
+                    <Info className="w-3.5 h-3.5" /> Selected extras will be confirmed at counter. Prices include VAT.
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. PREMIUM GUARANTEE CARD */}
+              <div className="bg-white rounded-[2rem] shadow-xl border border-white/60 p-5 border-l-4 border-l-[#f4a261]">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="font-bold flex items-center gap-2 text-sm text-slate-900">
+                    <Medal className="w-5 h-5 text-[#e9b741]" /> Premium guarantee
+                  </span>
+                  <span className="text-[#2a9d8f] text-[11px] font-bold flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5" /> Verified supplier
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-4 text-[11px] text-[#2c4b66] font-medium">
+                  <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Best rate guarantee</span>
+                  <span className="flex items-center gap-1.5"><Headphones className="w-3.5 h-3.5" /> 24/7 support</span>
+                  <span className="flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> Free modifications</span>
+                </div>
+              </div>
+
+              {/* 3. YOUR DEAL CARD */}
+              <div className="bg-white rounded-[2rem] shadow-2xl border border-white/60 overflow-hidden">
+                <div className="p-5 border-b border-slate-100 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#0066b3]" />
+                  <h2 className="text-lg font-bold">Your deal</h2>
+                </div>
+                <div className="p-6">
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="bg-[#eef2fc] text-[#2c6280] px-4 py-1.5 rounded-full text-[11px] font-bold">
+                      <Calendar className="w-3.5 h-3.5 inline mr-1" /> {days} days · {new Date(startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – {new Date(endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </span>
+                    <span className="text-3xl font-black text-[#2b7a4b] tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                  </div>
+                  <div className="text-[11px] text-[#6c819e] text-right mb-5 font-medium tracking-wide">Approx. {selectedCurrency !== 'JOD' ? `JOD ${(convertPrice(priceDetails.finalTotal) * 0.71).toFixed(2)}` : ''} (incl. taxes)</div>
+
+                  <div className="bg-[#fafdff] rounded-[1.5rem] p-5 my-5 border border-[#eef2f8] space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-dashed border-[#e5edf5]">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-[#0066b3] flex items-center gap-2">
+                          <Lock className="w-3.5 h-3.5" /> Pay now (online)
+                        </span>
+                        <span className="text-[10px] text-[#6c819e]">secure deposit</span>
                       </div>
-                    </label>
-                  )) : (
-                    <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-500">No optional extras are available for this vehicle.</p>
-                  )}
-                </div>
-              </section>
-            </main>
-
-            <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-              <section className="overflow-hidden rounded-2xl border-2 border-[#008009]/30 bg-white shadow-xl shadow-slate-200/70">
-                <div className="border-b border-slate-100 bg-slate-950 p-5 text-white">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Your deal</p>
-                      <h2 className="mt-1 text-lg font-black">Reserve this car</h2>
+                      <span className="font-extrabold text-[#1f5e3a]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span>
                     </div>
-                    <div className="rounded-xl bg-white/10 px-3 py-1.5 text-xs font-black">{days} days</div>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <div className="mb-4">
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Total price</p>
-                    <div className="mt-1 flex items-end justify-between gap-3">
-                      <span className="text-3xl font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
-                      <span className="pb-1 text-xs font-bold text-slate-500">taxes included</span>
+                    <div className="flex justify-between items-center pb-3 border-b border-dashed border-[#e5edf5]">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-[#2c6280] flex items-center gap-2">
+                          <Handshake className="w-3.5 h-3.5" /> Due at counter
+                        </span>
+                        <span className="text-[10px] text-[#6c819e]">remaining balance</span>
+                      </div>
+                      <span className="font-extrabold text-[#1f5e3a]">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 bg-[#eef6fc] -mx-5 px-5 py-3 rounded-b-[1.5rem]">
+                      <span className="font-black text-sm text-[#1a2c3e]">Total rental cost</span>
+                      <span className="font-black text-lg text-[#1f5e3a]">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-2">
-                      <span className="text-xs font-bold text-slate-500">Pay now</span>
-                      <span className="text-sm font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span>
+                  {/* POLICY GRID */}
+                  <div className="grid grid-cols-2 gap-3 my-6">
+                    <div className="bg-white border border-[#eef2f8] p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+                      <div className="w-9 h-9 bg-[#f0f6fe] rounded-full flex items-center justify-center text-[#2c6280]">
+                        <Coins className="w-4.5 h-4.5" />
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-[#5f7c9c] uppercase tracking-wider">Refundable deposit</div>
+                        <div className="text-[11px] font-extrabold text-[#1f3b4c]">{getCurrencySymbol()}{convertPrice(car.deposit).toFixed(0)} <small className="font-normal opacity-70">hold</small></div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-2">
-                      <span className="text-xs font-bold text-slate-500">At pickup</span>
-                      <span className="text-sm font-black text-slate-900">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span>
+                    <div className="bg-white border border-[#eef2f8] p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+                      <div className="w-9 h-9 bg-[#f0f6fe] rounded-full flex items-center justify-center text-[#2c6280]">
+                        <Shield className="w-4.5 h-4.5" />
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-[#5f7c9c] uppercase tracking-wider">Excess (CDW)</div>
+                        <div className="text-[11px] font-extrabold text-[#1f3b4c]">{getCurrencySymbol()}{convertPrice((car as any).excess || 1000).toFixed(0)} <small className="font-normal opacity-70">reducible</small></div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-bold text-slate-500">Refundable deposit</span>
-                      <span className="text-sm font-black text-slate-900">{depositDisplay}</span>
+                    <div className="bg-white border border-[#eef2f8] p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+                      <div className="w-9 h-9 bg-[#f0f6fe] rounded-full flex items-center justify-center text-[#2c6280]">
+                        <Fuel className="w-4.5 h-4.5" />
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-[#5f7c9c] uppercase tracking-wider">Fuel policy</div>
+                        <div className="text-[11px] font-extrabold text-[#1f3b4c]">{car.fuelPolicy.replace(/_/g, ' ')}</div>
+                      </div>
+                    </div>
+                    <div className="bg-white border border-[#eef2f8] p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+                      <div className="w-9 h-9 bg-[#f0f6fe] rounded-full flex items-center justify-center text-[#2c6280]">
+                        <CalendarX className="w-4.5 h-4.5" />
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-bold text-[#5f7c9c] uppercase tracking-wider">Cancellation</div>
+                        <div className="text-[10px] font-bold text-[#0066b3] bg-[#e8f0fe] px-2 py-0.5 rounded-full inline-block mt-0.5 whitespace-nowrap">Free up to 48h</div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    <div className="rounded-xl border border-slate-200 p-3">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Excess</p>
-                      <p className="mt-1 text-xs font-black text-slate-900">{excessDisplay}</p>
+                  <div className="bg-[#fff4e0] rounded-2xl p-4 text-[11px] mb-6 border border-[#ffe0b5]">
+                    <div className="font-bold flex items-center gap-2 mb-1">
+                      <Info className="w-4 h-4 text-[#c26e2c]" /> Payment conditions
                     </div>
-                    <div className="rounded-xl border border-slate-200 p-3">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fuel</p>
-                      <p className="mt-1 text-xs font-black text-slate-900">{car.fuelPolicy.replace(/_/g, ' ')}</p>
-                    </div>
+                    <span className="text-[#6a4e2e] leading-relaxed">
+                      {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)} prepayment guarantees your reservation. Remaining {getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)} due at {car.supplier.name} counter.
+                    </span>
                   </div>
 
-                  <Link
+                  <Link 
                     to={`/book/${car.id}/details?${bookingParams}`}
                     onClick={handleContinue}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#008009] px-5 py-4 text-sm font-black uppercase tracking-wider text-white shadow-lg shadow-[#008009]/20 transition-colors hover:bg-[#006607] active:scale-[0.98]"
+                    className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-[#0066b3] to-[#0088cc] hover:from-[#004b8a] hover:to-[#006bb3] text-white font-extrabold rounded-full shadow-lg transition-all active:scale-[0.98] text-sm uppercase tracking-widest"
                   >
-                    <Zap className="h-5 w-5" /> Reserve now
+                    <Zap className="w-5 h-5" /> Reserve for {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}
                   </Link>
-                  <button onClick={() => setIsConditionsModalOpen(true)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-slate-700 transition-colors hover:border-[#008009]/40 hover:text-[#008009]">
-                    <FileText className="h-4 w-4" /> View rental conditions
-                  </button>
-                  <p className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] font-bold text-slate-500">
-                    <ShieldCheck className="h-4 w-4 text-[#008009]" /> Secure checkout and instant confirmation
+                  <p className="text-[10px] text-[#6c819e] text-center mt-4 flex items-center justify-center gap-2">
+                    <ShieldCheck className="w-4 h-4" /> SSL Secure · Instant confirmation
                   </p>
                 </div>
-              </section>
+              </div>
 
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-4 text-sm font-black uppercase tracking-widest text-slate-900">Key Information</h2>
-                <ul className="space-y-3 text-sm font-semibold text-slate-600">
-                  <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#008009]" /> Main driver credit card required for deposit.</li>
-                  <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#008009]" /> Passport or photo ID required at pickup.</li>
-                  <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#008009]" /> Free cancellation up to 48 hours before pickup.</li>
-                  <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#008009]" /> Cross-border driving is not permitted unless approved.</li>
-                </ul>
-              </section>
-            </aside>
+              {/* 4. KEY INFORMATION CARD */}
+              <div className="bg-white rounded-[2rem] shadow-xl border border-white/60 overflow-hidden">
+                <div className="p-5 border-b border-slate-100 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-[#e9a23b]" />
+                  <h2 className="text-lg font-bold text-slate-900">Key information</h2>
+                </div>
+                <div className="p-6">
+                  <ul className="space-y-3.5">
+                    <li className="flex items-center gap-3 text-sm text-[#2c4b66] font-medium">
+                      <Book className="w-4.5 h-4.5 text-[#e9a23b]" /> Driver's license (1+ year) & ID required
+                    </li>
+                    <li className="flex items-center gap-3 text-sm text-[#2c4b66] font-medium">
+                      <CreditCardIcon className="w-4.5 h-4.5 text-[#e9a23b]" /> Int'l credit card for deposit (main driver)
+                    </li>
+                    <li className="flex items-center gap-3 text-sm text-[#2c4b66] font-medium">
+                      <Clock className="w-4.5 h-4.5 text-[#e9a23b]" /> Late return: 59 min grace period
+                    </li>
+                    <li className="flex items-center gap-3 text-sm text-[#2c4b66] font-medium">
+                      <Baby className="w-4.5 h-4.5 text-[#e9a23b]" /> Child seats on request (additional fee)
+                    </li>
+                    <li className="flex items-center gap-3 text-sm text-[#2c4b66] font-medium">
+                      <Globe className="w-4.5 h-4.5 text-[#e9a23b]" /> Cross-border not permitted
+                    </li>
+                  </ul>
+                  <hr className="my-5 border-slate-100" />
+                  <div className="text-[11px] text-[#6c819e] font-medium leading-relaxed">
+                    <Building className="w-3.5 h-3.5 inline mr-1" /> {car.supplier.name} counter: {car.locationDetail}.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mx-auto mt-8 max-w-4xl border-t border-slate-200 pt-5 text-center text-[11px] font-semibold leading-relaxed text-slate-500">
-            By proceeding, you agree to {car.supplier.name} rental terms. Remaining balance is due at collection. Optional extras are subject to supplier confirmation.
+          {/* Footer Legal */}
+          <div className="max-w-[1100px] mx-auto mt-12 text-center text-[11px] text-[#8fa0b5] border-t border-[#e0e9f2] pt-6 leading-relaxed">
+             <FileText className="w-4 h-4 inline mr-1" /> By proceeding, you agree to {car.supplier.name} rental terms. 
+             Prepayment is non-refundable within 48h of pick-up. Remaining balance due at collection. 
+             Extras can be added at checkout.
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-10px_30px_-20px_rgba(15,23,42,0.45)] backdrop-blur lg:hidden">
-          <div className="mx-auto flex max-w-md items-center justify-between gap-3">
+        {/* Mobile Floating CTA */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] p-4 z-40">
+          <div className="flex justify-between items-center max-w-md mx-auto">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total</p>
-              <p className="text-xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Price</div>
+              <div className="text-xl font-black text-[#2b7a4b]">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div>
             </div>
-            <Link
-              to={`/book/${car.id}/details?${bookingParams}`}
-              onClick={handleContinue}
-              className="rounded-xl bg-[#008009] px-6 py-3 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-[#008009]/20 active:scale-95"
+            <Link 
+              to={`/book/${car.id}/details?${bookingParams}`} 
+              onClick={handleContinue} 
+              className="bg-gradient-to-r from-[#0066b3] to-[#0088cc] text-white px-8 py-3 rounded-full font-black uppercase tracking-widest text-xs shadow-lg active:scale-95 transition-all"
             >
-              Reserve
+              Book Now
             </Link>
           </div>
         </div>
