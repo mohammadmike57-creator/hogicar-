@@ -163,6 +163,8 @@ export const Search: React.FC = () => {
   const [sortBy, setSortBy] = React.useState('rating_desc');
   const [freeCancelOnly, setFreeCancelOnly] = React.useState(false);
   
+  const [selectedSuppliers, setSelectedSuppliers] = React.useState<string[]>([]);
+  const [selectedPassengers, setSelectedPassengers] = React.useState<number[]>([]);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = React.useState(false);
 
   const filteredCars = React.useMemo(() => {
@@ -171,6 +173,8 @@ export const Search: React.FC = () => {
         if (convertPrice(dailyPrice) > priceRange) return false;
         if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false;
         if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
+        if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.supplier.name)) return false;
+        if (selectedPassengers.length > 0 && !selectedPassengers.some(p => car.passengers >= p)) return false;
         const pType = car.supplier?.pickupType || (car as any).pickupType;
         if (selectedLocationTypes.length > 0 && !selectedLocationTypes.includes(pType)) return false;
         if (freeCancelOnly && !car.supplier.includesCDW) return false;
@@ -196,10 +200,20 @@ export const Search: React.FC = () => {
     setSelectedLocationTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
   };
 
+  const handleSupplierToggle = (sup: string) => {
+    setSelectedSuppliers(prev => prev.includes(sup) ? prev.filter(s => s !== sup) : [...prev, sup]);
+  };
+
+  const handlePassengerToggle = (num: number) => {
+    setSelectedPassengers(prev => prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num]);
+  };
+
   const resetFilters = () => {
     setSelectedCategories([]);
     setSelectedTransmissions([]);
     setSelectedLocationTypes([]);
+    setSelectedSuppliers([]);
+    setSelectedPassengers([]);
     setPriceRange(500);
     setFreeCancelOnly(false);
   };
@@ -224,27 +238,6 @@ export const Search: React.FC = () => {
     <div className="bg-[#F8FAFE] min-h-screen font-sans text-[#0A2647] antialiased">
       <SEOMetadata title={`Car Rental in ${pickupName} | RentCompare`} />
       
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
-        <div className="zoom-container py-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link to="/" className="text-xl font-extrabold bg-gradient-to-r from-[#0A2647] to-[#1B4D8C] bg-clip-text text-transparent">
-              Rent<span className="text-[#D4AF37]">Compare</span>
-            </Link>
-            <div className="hidden md:block h-5 w-px bg-gray-300"></div>
-            <span className="hidden md:block text-[10px] font-medium text-gray-500 uppercase tracking-widest">Executive</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-1 text-gray-500">
-              <Users className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold">24/7 Support</span>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
-              <Users className="w-4 h-4 text-[#D4AF37]" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="relative overflow-hidden bg-gradient-to-r from-[#0A2647]/5 to-[#1B4D8C]/5 border-b">
         <div className="zoom-container py-3">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3">
@@ -319,51 +312,68 @@ export const Search: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-2">Category</h3>
-                  <div className="space-y-1.5">
-                    {[CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.INTERMEDIATE, CarCategory.SUV, CarCategory.LUXURY].map(cat => (
-                      <label key={cat} className="flex items-center text-xs cursor-pointer group">
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Car Category</h3>
+                  <div className="space-y-2">
+                    {[CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.INTERMEDIATE, CarCategory.STANDARD, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.VAN, CarCategory.LUXURY].map(cat => (
+                      <label key={cat} className="flex items-center text-sm cursor-pointer group">
                         <input 
                             type="checkbox" 
                             checked={selectedCategories.includes(cat)}
                             onChange={() => handleCategoryToggle(cat)}
-                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C] focus:ring-[#1B4D8C]" 
                         /> 
-                        <span className="group-hover:text-[#1B4D8C] transition-colors">{cat}</span>
+                        <span className="group-hover:text-[#1B4D8C] transition-colors font-medium text-gray-700 capitalize">{cat.toLowerCase()}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-2">Transmission</h3>
-                  <div className="space-y-1.5">
-                    <label className="flex items-center text-xs cursor-pointer group">
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Transmission</h3>
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm cursor-pointer group">
                       <input 
                         type="checkbox" 
                         checked={selectedTransmissions.includes(Transmission.AUTOMATIC)}
                         onChange={() => handleTransmissionToggle(Transmission.AUTOMATIC)}
-                        className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                        className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
                       /> 
-                      <span className="group-hover:text-[#1B4D8C]">Automatic</span>
+                      <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700">Automatic</span>
                     </label>
-                    <label className="flex items-center text-xs cursor-pointer group">
+                    <label className="flex items-center text-sm cursor-pointer group">
                       <input 
                         type="checkbox" 
                         checked={selectedTransmissions.includes(Transmission.MANUAL)}
                         onChange={() => handleTransmissionToggle(Transmission.MANUAL)}
-                        className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                        className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
                       /> 
-                      <span className="group-hover:text-[#1B4D8C]">Manual</span>
+                      <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700">Manual</span>
                     </label>
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <h3 className="text-[10px] font-bold uppercase">Daily ({getCurrencySymbol()})</h3>
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Capacity</h3>
+                  <div className="space-y-2">
+                    {[4, 5, 7].map(num => (
+                      <label key={num} className="flex items-center text-sm cursor-pointer group">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedPassengers.includes(num)}
+                          onChange={() => handlePassengerToggle(num)}
+                          className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700">{num}+ Passengers</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <h3 className="text-[11px] font-bold uppercase text-gray-400 tracking-wider">Max Daily Price</h3>
                     <span className="text-sm font-bold text-[#D4AF37]">{getCurrencySymbol()} {priceRange}</span>
                   </div>
                   <input 
@@ -372,42 +382,65 @@ export const Search: React.FC = () => {
                     max="1000" 
                     value={priceRange} 
                     onChange={(e) => setPriceRange(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]" 
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]" 
                   />
+                  <div className="flex justify-between mt-1 text-[10px] text-gray-400 font-medium">
+                    <span>{getCurrencySymbol()} 10</span>
+                    <span>{getCurrencySymbol()} 1000+</span>
+                  </div>
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase mb-2 text-gray-400">Conditions</h3>
-                  <div className="space-y-1.5">
-                    <label className="flex items-center text-xs cursor-pointer group mb-1.5">
+                  <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Rental Conditions</h3>
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm cursor-pointer group">
                         <input 
                             type="checkbox" 
                             checked={freeCancelOnly}
                             onChange={(e) => setFreeCancelOnly(e.target.checked)}
-                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
                         /> 
-                        <span className="group-hover:text-[#1B4D8C]">Free cancel</span>
+                        <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700">Free Cancellation</span>
                     </label>
-                    <label className="flex items-center text-xs cursor-pointer group mb-1.5">
-                        <input 
-                            type="checkbox" 
-                            checked={selectedLocationTypes.includes(PickupType.MEET_AND_GREET)}
-                            onChange={() => handleLocationTypeToggle(PickupType.MEET_AND_GREET)}
-                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
-                        /> 
-                        <span className="group-hover:text-[#1B4D8C]">Meet & Greet</span>
-                    </label>
-                    <label className="flex items-center text-xs cursor-pointer group">
+                    <label className="flex items-center text-sm cursor-pointer group">
                         <input 
                             type="checkbox" 
                             checked={selectedLocationTypes.includes(PickupType.IN_TERMINAL)}
                             onChange={() => handleLocationTypeToggle(PickupType.IN_TERMINAL)}
-                            className="mr-2 w-3.5 h-3.5 rounded border-gray-300 text-[#1B4D8C]" 
+                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
                         /> 
-                        <span className="group-hover:text-[#1B4D8C]">In-terminal</span>
+                        <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700">In Terminal</span>
+                    </label>
+                    <label className="flex items-center text-sm cursor-pointer group">
+                        <input 
+                            type="checkbox" 
+                            checked={selectedLocationTypes.includes(PickupType.MEET_AND_GREET)}
+                            onChange={() => handleLocationTypeToggle(PickupType.MEET_AND_GREET)}
+                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
+                        /> 
+                        <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700">Meet & Greet</span>
                     </label>
                   </div>
                 </div>
+
+                {apiCars.length > 0 && (
+                  <div>
+                    <h3 className="text-[11px] font-bold uppercase text-gray-400 mb-3 tracking-wider">Suppliers</h3>
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                      {Array.from(new Set(apiCars.map(c => c.supplier.name))).sort().map(sup => (
+                        <label key={sup} className="flex items-center text-sm cursor-pointer group">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedSuppliers.includes(sup)}
+                            onChange={() => handleSupplierToggle(sup)}
+                            className="mr-3 w-4 h-4 rounded border-gray-300 text-[#1B4D8C]" 
+                          /> 
+                          <span className="group-hover:text-[#1B4D8C] font-medium text-gray-700 truncate">{sup}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </aside>

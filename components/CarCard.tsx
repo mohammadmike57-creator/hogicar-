@@ -125,18 +125,20 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
     const {
         days,
-        totalFinalPrice,
-        totalCommissionAmount,
-        payAtPickup,
-        dailyPrice
-    } = calcPricing(car, pickupDate, dropoffDate);
+        finalTotal,
+        payNow,
+        payAtDesk,
+    } = calcPricing(car, { 
+        pickupDate: pickupDate.toISOString().split('T')[0], 
+        dropoffDate: dropoffDate.toISOString().split('T')[0] 
+    });
 
     const sym = getCurrencySymbol();
-    const dayPriceValue = convertPrice(dailyPrice);
-    const dayPrice = `${sym} ${dayPriceValue.toFixed(2)}`;
-    const totalDisplay = `${sym} ${convertPrice(totalFinalPrice).toFixed(2)}`;
-    const payNowDisplay = `${sym} ${convertPrice(totalCommissionAmount).toFixed(2)}`;
-    const payLaterDisplay = `${sym} ${convertPrice(payAtPickup).toFixed(2)}`;
+    const dailyPriceValue = finalTotal / days;
+    const dayPrice = `${sym} ${convertPrice(dailyPriceValue).toFixed(2)}`;
+    const totalDisplay = `${sym} ${convertPrice(finalTotal).toFixed(2)}`;
+    const payNowDisplay = `${sym} ${convertPrice(payNow).toFixed(2)}`;
+    const payLaterDisplay = `${sym} ${convertPrice(payAtDesk).toFixed(2)}`;
 
     const pickupType = car.supplier?.pickupType || (car as any).pickupType;
     const pickupTypeLabel =
@@ -162,27 +164,27 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
         <>
             <div className="car-card overflow-hidden bg-white">
                 <div className="flex flex-col sm:flex-row">
-                    <div className="sm:w-[130px] bg-gradient-to-br from-gray-50 to-gray-100 p-2 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
-                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden mb-1">
+                    <div className="sm:w-[180px] bg-gradient-to-br from-gray-50 to-gray-100 p-4 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
+                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-24 h-24 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden mb-3 transition-transform hover:scale-105">
                             {car.image ? (
-                                <img src={car.image} alt={car.displayName} className="w-full h-full object-contain p-1" />
+                                <img src={car.image} alt={car.displayName} className="w-full h-full object-contain p-2" />
                             ) : (
-                                <CarTypeIcon className="w-6 h-6 text-[#1B4D8C]/70" />
+                                <CarTypeIcon className="w-10 h-10 text-[#1B4D8C]/70" />
                             )}
                         </Link>
                         <div className="text-center">
-                            <h3 className="font-bold text-[#0A2647] text-[13px] leading-tight">{car.displayName}</h3>
-                            <p className="text-[8px] text-gray-400">or similar {car.model}</p>
+                            <h3 className="font-bold text-[#0A2647] text-base leading-tight">{car.displayName}</h3>
+                            <p className="text-[10px] text-gray-400">or similar {car.model}</p>
                         </div>
                     </div>
 
-                    <div className="flex-1 p-2 flex flex-col sm:flex-row sm:items-stretch justify-between gap-1">
+                    <div className="flex-1 p-4 flex flex-col sm:flex-row sm:items-stretch justify-between gap-4">
                         <div className="flex-1">
-                            <div className="flex flex-wrap gap-1 mb-1">
-                                <span className="spec-badge spec-transmission"><Settings className="w-2.5 h-2.5" />{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
-                                <span className="spec-badge spec-seats"><Users className="w-2.5 h-2.5" />{car.passengers}s</span>
-                                <span className="spec-badge spec-bags"><Luggage className="w-2.5 h-2.5" />{car.bags}b</span>
-                                <span className="spec-badge spec-ac"><Wind className="w-2.5 h-2.5" />AC</span>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                <span className="spec-badge spec-transmission py-1 px-3 text-xs font-bold"><Settings className="w-3.5 h-3.5" />{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
+                                <span className="spec-badge spec-seats py-1 px-3 text-xs font-bold"><Users className="w-3.5 h-3.5" />{car.passengers} Seats</span>
+                                <span className="spec-badge spec-bags py-1 px-3 text-xs font-bold"><Luggage className="w-3.5 h-3.5" />{car.bags} Bags</span>
+                                <span className="spec-badge spec-ac py-1 px-3 text-xs font-bold"><Wind className="w-3.5 h-3.5" />Air Con</span>
                             </div>
 
                             <div className="flex items-center gap-2 mb-1">
@@ -247,24 +249,25 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                             </div>
                         </div>
 
-                        <div className="sm:min-w-[160px] border-t sm:border-t-0 sm:border-l pt-1.5 sm:pt-0 sm:pl-2 flex flex-col justify-between">
+                        <div className="sm:min-w-[200px] border-t sm:border-t-0 sm:border-l pt-4 sm:pt-0 sm:pl-4 flex flex-col justify-between">
                             <div className="text-right">
-                                <div className="text-[8px] text-gray-400 line-through">{sym} {(dayPriceValue * 1.2).toFixed(2)}</div>
-                                <div className="font-extrabold text-[#0A2647] text-sm">{dayPrice}<span className="text-[8px] font-normal text-gray-500">/day</span></div>
-                                <div className="text-[10px] font-bold text-[#D4AF37] mt-0.5">Total: {totalDisplay}</div>
-                                <div className="mt-1 payment-block">
-                                    <div className="payment-row">
-                                        <span className="payment-label"><CreditCardIcon className="w-3 h-3 text-[#1B4D8C]" />Pay now</span>
-                                        <span className="payment-amount">{payNowDisplay}</span>
+                                <div className="text-xs text-gray-400 line-through mb-0.5">{sym} {(dailyPriceValue * 1.2).toFixed(2)}</div>
+                                <div className="font-extrabold text-[#0A2647] text-xl">{dayPrice}<span className="text-xs font-normal text-gray-500 ml-1">/day</span></div>
+                                <div className="text-sm font-bold text-[#D4AF37] mt-1">Total for {days} days: {totalDisplay}</div>
+                                <div className="mt-3 payment-block shadow-sm">
+                                    <div className="payment-row border-b border-gray-100 pb-1">
+                                        <span className="payment-label text-xs"><CreditCardIcon className="w-3.5 h-3.5 text-[#1B4D8C]" />Pay online</span>
+                                        <span className="payment-amount text-sm">{payNowDisplay}</span>
                                     </div>
-                                    <div className="payment-row">
-                                        <span className="payment-label"><Building className="w-3 h-3 text-[#D4AF37]" />At pickup</span>
-                                        <span className="payment-amount">{payLaterDisplay}</span>
+                                    <div className="payment-row pt-1">
+                                        <span className="payment-label text-xs"><Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />Pay at pickup</span>
+                                        <span className="payment-amount text-sm">{payLaterDisplay}</span>
                                     </div>
                                 </div>
                             </div>
-                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="mt-1 w-full view-deal-btn text-white text-[10px] font-bold py-1.5 rounded transition text-center">
-                                View Deal →
+                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="mt-3 w-full view-deal-btn text-white text-sm font-bold py-3 rounded-xl transition-all shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 group">
+                                View Deal 
+                                <span className="group-hover:translate-x-1 transition-transform">→</span>
                             </Link>
                         </div>
                     </div>

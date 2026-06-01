@@ -6,25 +6,22 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'dark' }) => {
-  const primaryColor = variant === 'dark' ? '#123C69' : '#FFFFFF';
-  const accentColor = '#F57C00';
-  const circleColor = '#123C69';
+  const primaryColor = variant === 'dark' ? '#0A2647' : '#FFFFFF';
+  const accentColor = '#D4AF37';
 
   return (
     <svg
-      viewBox="0 0 1200 200"
+      viewBox="0 0 1200 240"
       preserveAspectRatio="xMidYMid meet"
       width="100%"
       height="100%"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="100" cy="100" r="55" fill={circleColor}/>
-      <path d="M60 105 Q100 65 140 95" stroke={accentColor} strokeWidth="16" fill="none" strokeLinecap="round"/>
-      <line x1="75" y1="120" x2="125" y2="120" stroke={accentColor} strokeWidth="10" strokeLinecap="round"/>
-      <text x="190" y="125" fontFamily="Montserrat, Arial, sans-serif" fontSize="140" fontWeight="700" letterSpacing="4" fill={primaryColor}>
-        HOGI<tspan fill={accentColor}>CAR</tspan>
-        <tspan fontSize="70" fill={accentColor}>.com</tspan>
+      <path d="M40 120 L100 60 L160 120 L100 180 Z" fill={accentColor}/>
+      <path d="M70 120 L100 90 L130 120 L100 150 Z" fill={primaryColor}/>
+      <text x="200" y="165" fontFamily="Inter, system-ui, sans-serif" fontSize="180" fontWeight="800" letterSpacing="-4" fill={primaryColor}>
+        Rent<tspan fill={accentColor}>Compare</tspan>
       </text>
     </svg>
   );
