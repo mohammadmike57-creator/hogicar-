@@ -312,21 +312,21 @@ export const Search: React.FC = () => {
 
       <div className="zoom-container py-4">
         {/* Top Category Filter */}
-        <div className="flex overflow-x-auto lg:justify-center gap-4 pb-6 mb-2 no-scrollbar scroll-smooth">
+        <div className="flex overflow-x-auto lg:justify-center gap-3 pb-6 mb-2 no-scrollbar scroll-smooth">
             {[CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.SUV, CarCategory.VAN, CarCategory.LUXURY].map(cat => (
                 <button 
                     key={cat}
                     onClick={() => handleCategoryToggle(cat)}
-                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[110px] p-5 rounded-3xl border-2 transition-all duration-300 shadow-sm ${
+                    className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[90px] sm:min-w-[110px] p-3 sm:p-5 rounded-3xl border-2 transition-all duration-300 shadow-sm ${
                         selectedCategories.includes(cat) 
                         ? 'bg-gradient-to-br from-[#123C69] to-[#1B4D8C] border-[#123C69] text-white shadow-xl scale-105 -translate-y-1' 
                         : 'bg-white border-gray-100 text-[#0A2647] hover:border-[#F57C00]/30 hover:shadow-md'
                     }`}
                 >
-                    <div className={`w-12 h-9 mb-2 flex items-center justify-center transition-all duration-300 ${selectedCategories.includes(cat) ? 'scale-110 drop-shadow-md' : ''}`}>
-                        <CarIcon className={`w-9 h-9 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
+                    <div className={`w-10 h-8 sm:w-12 sm:h-9 mb-2 flex items-center justify-center transition-all duration-300 ${selectedCategories.includes(cat) ? 'scale-110 drop-shadow-md' : ''}`}>
+                        <CarIcon className={`w-7 h-7 sm:w-9 sm:h-9 ${selectedCategories.includes(cat) ? 'text-white' : 'text-[#F57C00]'}`} />
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${selectedCategories.includes(cat) ? 'text-white' : 'text-gray-500'}`}>{cat.toLowerCase()}</span>
+                    <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] ${selectedCategories.includes(cat) ? 'text-white' : 'text-gray-500'}`}>{cat.toLowerCase()}</span>
                     {selectedCategories.includes(cat) && (
                         <div className="absolute -top-1 -right-1">
                             <div className="bg-[#F57C00] text-white rounded-full p-1 shadow-md">

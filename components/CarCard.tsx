@@ -234,10 +234,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
 
     return (
         <>
-            <div className="car-card overflow-hidden bg-white border-2 border-gray-100 rounded-[2rem] mb-6 border-l-[6px] border-l-[#F57C00] shadow-lg">
+            <div className="car-card overflow-hidden bg-white border-2 border-slate-900 rounded-3xl mb-6 border-l-[6px] border-l-[#F57C00] shadow-xl">
                 <div className="flex flex-col sm:flex-row">
-                    <div className="sm:w-[220px] bg-gradient-to-br from-gray-50 to-gray-100 p-8 sm:p-6 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
-                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[260px] h-44 sm:w-36 sm:h-36 bg-white rounded-3xl shadow-sm flex items-center justify-center overflow-hidden mb-5 sm:mb-4 transition-all hover:scale-105 hover:shadow-md">
+                    <div className="sm:w-[220px] bg-gradient-to-br from-gray-50 to-gray-100 p-5 sm:p-6 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-200">
+                        <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="w-full max-w-[200px] h-32 sm:w-36 sm:h-36 bg-white rounded-3xl shadow-sm flex items-center justify-center overflow-hidden mb-4 transition-all hover:scale-105 hover:shadow-md">
                             {car.image ? (
                                 <img src={car.image} alt={car.displayName} className="w-full h-full object-contain p-3 sm:p-2" />
                             ) : (
@@ -245,8 +245,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                             )}
                         </Link>
                         <div className="text-center">
-                            <h3 className="font-black text-[#0A2647] text-xl sm:text-base leading-tight mb-1 tracking-tight">{car.displayName}</h3>
-                            <p className="text-sm sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">or similar {car.model}</p>
+                            <h3 className="font-black text-[#0A2647] text-lg sm:text-base leading-tight mb-1 tracking-tight">{car.displayName}</h3>
+                            <p className="text-xs sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">or similar {car.model}</p>
                         </div>
                     </div>
 
@@ -336,8 +336,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                         <div className="sm:min-w-[220px] border-t sm:border-t-0 sm:border-l border-gray-100 pt-5 sm:pt-0 sm:pl-6 flex flex-col justify-between">
                             <div className="text-right flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-start gap-2">
                                 <div className="flex flex-col items-end">
-                                    <div className="font-black text-[#0A2647] text-3xl sm:text-2xl tracking-tighter leading-none">{dayPrice}<span className="text-xs font-bold text-gray-400 ml-1 uppercase">/day</span></div>
-                                    <div className="text-xs sm:text-[11px] font-black text-[#F57C00] mt-1.5 uppercase tracking-[0.1em] bg-orange-50 px-2 py-0.5 rounded-lg border border-orange-100">Total: {totalDisplay}</div>
+                                    <div className="font-black text-[#0A2647] text-2xl sm:text-2xl tracking-tighter leading-none">{dayPrice}<span className="text-xs font-bold text-gray-400 ml-1 uppercase">/day</span></div>
+                                    <div className="text-[10px] sm:text-[11px] font-black text-[#F57C00] mt-1.5 uppercase tracking-[0.1em] bg-orange-50 px-2 py-0.5 rounded-lg border border-orange-100">Total: {totalDisplay}</div>
                                 </div>
                                 <div className="hidden sm:block mt-4 payment-block shadow-lg bg-white border-2 border-gray-50 p-3 rounded-2xl">
                                     <div className="payment-row border-b border-gray-50 pb-2 mb-1.5">
@@ -350,7 +350,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, pickupDate, dropoffDate, onViewD
                                     </div>
                                 </div>
                             </div>
-                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="mt-5 sm:mt-4 w-full view-deal-btn text-white text-base sm:text-sm font-black py-4 sm:py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl text-center flex items-center justify-center gap-3 group uppercase tracking-[0.1em]">
+                            <Link to={`/car/${car.id}?${searchParams}`} state={{ cars }} onClick={handleSelectCar} className="mt-4 sm:mt-4 w-full view-deal-btn text-sm sm:text-sm font-black py-3 sm:py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl text-center flex items-center justify-center gap-3 group uppercase tracking-[0.1em]">
                                 Book Now
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
                             </Link>
