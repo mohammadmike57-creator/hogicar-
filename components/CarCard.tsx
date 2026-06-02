@@ -761,30 +761,6 @@ const CarCard: React.FC<CarCardProps> = ({
                               </span>
                           </Link>
 
-                          {/* Badges Footer */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200">
-                              <div className="flex min-w-0 items-center gap-1.5">
-                                  {(() => {
-                                      const pickupType = car.supplier?.pickupType;
-                                      const getBadge = (icon: any, text: string, bg: string, textCol: string) => (
-                                        <div className={`flex items-center gap-1.5 ${bg} ${textCol} font-black px-2.5 py-1.5 rounded-lg text-[10px] uppercase tracking-wide border border-current/10 shadow-sm`}>
-                                            {React.cloneElement(icon as React.ReactElement<any>, { className: "w-3.5 h-3.5" })}
-                                            {text}
-                                        </div>
-                                      );
-
-                                      if (pickupType === 'IN_TERMINAL') return getBadge(<Plane />, "Terminal", "bg-green-50", "text-green-700");
-                                      if (pickupType === 'MEET_AND_GREET') return getBadge(<Handshake />, "Meet & Greet", "bg-blue-50", "text-blue-700");
-                                      if (pickupType === 'SHUTTLE_BUS') return getBadge(<Bus />, "Shuttle", "bg-orange-50", "text-orange-700");
-                                      return null;
-                                  })()}
-                              </div>
-
-                              <button onClick={() => setIsConditionsModalOpen(true)} className="flex items-center gap-1.5 text-xs md:text-[10px] text-slate-500 hover:text-[#008009] font-black uppercase tracking-wide transition-colors group/cond">
-                                  <FileText className="w-4 h-4 md:w-3.5 md:h-3.5 group-hover/cond:scale-110 transition-transform" />
-                                  <span>Conditions</span>
-                              </button>
-                          </div>
                       </div>
                   </div>
               </div>
