@@ -85,7 +85,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         isAvailable: apiCar.available !== false,
         location: 'API Result',
         deposit: apiCar.deposit || 0,
-        excess: 1000,
+        excess: apiCar.excess || 0,
         stopSales: [],
         rateTiers: [apiRateTier],
         extras: [],
@@ -1022,55 +1022,68 @@ export const Search: React.FC = () => {
       
       {/* Floating Comparison Bar */}
       {selectedCompareCars.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-3xl animate-in slide-in-from-bottom-8 duration-500 ease-out">
-            <div className="bg-slate-900/95 backdrop-blur-xl text-white rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] p-2.5 md:p-3 border border-white/10 ring-1 ring-white/5">
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 ml-2 md:ml-4">
-                        <div className="bg-gradient-to-br from-[#008009] to-[#00a30b] p-2.5 rounded-2xl shadow-lg shadow-emerald-900/40 shrink-0 hidden sm:flex">
-                            <ArrowLeftRight className="w-5 h-5 text-white" />
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-4xl animate-in slide-in-from-bottom-8 duration-700 cubic-bezier(0.4, 0, 0.2, 1)">
+            <div className="bg-slate-900/90 backdrop-blur-2xl text-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] p-3 md:p-4 border border-white/10 ring-1 ring-white/10 overflow-hidden relative">
+                {/* Animated progress background */}
+                <div 
+                    className="absolute bottom-0 left-0 h-1 bg-[#008009] transition-all duration-500 ease-out opacity-50"
+                    style={{ width: `${(selectedCompareCars.length / 4) * 100}%` }}
+                />
+              
+                <div className="flex items-center justify-between gap-4 relative z-10">
+                    <div className="flex items-center gap-4 ml-2 md:ml-4">
+                        <div className="bg-gradient-to-br from-[#008009] to-[#00a30b] p-3 rounded-[1.25rem] shadow-2xl shadow-emerald-900/50 shrink-0 hidden sm:flex items-center justify-center">
+                            <ArrowLeftRight className="w-5 h-5 text-white stroke-[2.5px]" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[11px] md:text-[13px] font-black uppercase tracking-tight md:tracking-wider leading-none">Compare Choices</p>
-                            <p className="text-[9px] md:text-[10px] text-slate-400 font-bold mt-1.5 uppercase tracking-widest flex items-center gap-1.5">
-                                <span className={`inline-block w-1.5 h-1.5 rounded-full ${selectedCompareCars.length >= 2 ? 'bg-[#008009] animate-pulse' : 'bg-amber-500'}`}></span>
-                                {selectedCompareCars.length} of 4 vehicles selected
-                            </p>
+                            <p className="text-sm md:text-base font-black uppercase tracking-tight leading-none text-white">Compare Deck</p>
+                            <div className="mt-2 flex items-center gap-2">
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className={`w-3 h-1 rounded-full ${i <= selectedCompareCars.length ? 'bg-[#008009]' : 'bg-slate-700'}`} />
+                                    ))}
+                                </div>
+                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.1em]">{selectedCompareCars.length}/4 Selected</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2 md:gap-6 shrink-0 mr-1 md:mr-2">
-                        <div className="flex -space-x-3 md:-space-x-4 mr-1">
+                  
+                    <div className="flex items-center gap-3 md:gap-8 shrink-0 mr-1 md:mr-2">
+                        <div className="flex -space-x-2 md:-space-x-4">
                             {selectedCompareCars.map(car => (
                                 <div key={car.id} className="relative group/comp">
-                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl border-2 border-slate-900 bg-white p-1.5 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:z-20 cursor-pointer shadow-xl ring-1 ring-white/10">
-                                        <img src={car.image} alt={car.model} className="w-full h-full object-contain" />
+                                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1.25rem] border-2 border-slate-900 bg-white p-1.5 overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:scale-110 hover:z-20 cursor-pointer shadow-2xl ring-1 ring-white/10 group-hover/comp:ring-[#008009]/50">
+                                        <img src={car.image} alt={car.model} className="w-full h-full object-contain drop-shadow-md" />
                                     </div>
                                     <button 
                                         onClick={() => toggleCompare(car)}
-                                        className="absolute -top-1.5 -right-1.5 bg-red-600 text-white p-1 rounded-full shadow-lg opacity-0 group-hover/comp:opacity-100 transition-opacity z-30 hover:scale-110 active:scale-90"
+                                        className="absolute -top-1 -right-1 bg-red-600 text-white p-1.5 rounded-full shadow-lg opacity-0 group-hover/comp:opacity-100 transition-all duration-300 z-30 hover:scale-110 active:scale-90 border-2 border-slate-900"
                                     >
-                                        <X className="w-3 h-3" />
+                                        <X className="w-2.5 h-2.5" />
                                     </button>
                                 </div>
                             ))}
                             {Array.from({ length: 4 - selectedCompareCars.length }).map((_, i) => (
-                                <div key={i} className="w-10 h-10 md:w-14 md:h-14 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-800/50 flex items-center justify-center">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                                <div key={i} className="w-12 h-12 md:w-16 md:h-16 rounded-[1.25rem] border-2 border-dashed border-slate-700 bg-slate-800/30 flex items-center justify-center group/empty">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover/empty:scale-150 transition-transform" />
                                 </div>
                             ))}
                         </div>
-                        
+                      
                         <button 
                             disabled={selectedCompareCars.length < 2}
                             onClick={() => setIsCompareModalOpen(true)}
                             className={`
-                                px-5 md:px-8 py-3 md:py-4 rounded-[1.25rem] font-black text-[10px] md:text-[12px] uppercase tracking-widest transition-all duration-300
+                                relative group/btn overflow-hidden px-6 md:px-10 py-3.5 md:py-4.5 rounded-[1.5rem] font-black text-xs md:text-sm uppercase tracking-[0.2em] transition-all duration-500
                                 ${selectedCompareCars.length >= 2 
-                                    ? 'bg-[#008009] hover:bg-[#00a30b] text-white shadow-xl shadow-emerald-900/30 hover:shadow-emerald-900/50 active:scale-95' 
+                                    ? 'bg-[#008009] text-white shadow-[0_20px_40px_-12px_rgba(0,128,9,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(0,128,9,0.6)] active:scale-95' 
                                     : 'bg-slate-800 text-slate-500 cursor-not-allowed'}
                             `}
                         >
-                            {selectedCompareCars.length < 2 ? 'Select more' : 'Compare'}
+                            <span className="relative z-10">{selectedCompareCars.length < 2 ? 'Select +1' : 'Analyze Now'}</span>
+                            {selectedCompareCars.length >= 2 && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                            )}
                         </button>
                     </div>
                 </div>

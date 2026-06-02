@@ -82,7 +82,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
   const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
   const gracePeriodInfo = supplier.gracePeriodDays ? `${supplier.gracePeriodDays} day(s)` : `${supplier.gracePeriodHours} hour(s)`;
   const depositText = car.deposit > 0 ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'No deposit listed';
-  const excessAmount = (car as any).excess;
+  const excessAmount = car.excess;
   const excessText = excessAmount > 0 ? `${getCurrencySymbol()}${convertPrice(excessAmount).toFixed(2)}` : 'See supplier terms';
   const supplierLogo = supplier.logo || (supplier as any).logoUrl;
   const pickupTypeLabel =
@@ -346,7 +346,7 @@ const CarDetails: React.FC = () => {
   const dropoffDisplay = new Date(endDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const supplierLogo = car?.supplier.logo || (car?.supplier as any)?.logoUrl;
   const depositDisplay = car?.deposit ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'Not listed';
-  const excessDisplay = (car as any)?.excess ? `${getCurrencySymbol()}${convertPrice((car as any).excess).toFixed(2)}` : 'See terms';
+  const excessDisplay = car?.excess ? `${getCurrencySymbol()}${convertPrice(car.excess).toFixed(2)}` : 'See terms';
 
   if (loading) {
     return (

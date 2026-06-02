@@ -198,6 +198,7 @@ export interface Car {
   
   // Advanced Pricing & Specs
   deposit: number; // Security deposit amount
+  excess?: number; // Damage excess amount
   stopSales: string[]; // Array of ISO date strings where car is unavailable
   rateTiers: RateTier[]; // Per-vehicle pricing
   extras: Extra[]; // Dynamic extras provided by supplier
