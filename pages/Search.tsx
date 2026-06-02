@@ -1004,7 +1004,7 @@ export const Search: React.FC = () => {
                             pickupCode={pickupIata}
                             dropoffCode={dropoffIata || pickupIata}
                             isComparing={selectedCompareCars.some(c => c.id === car.id)}
-                            showCompareControl={isCompareMode || selectedCompareCars.some(c => c.id === car.id)}
+                            showCompareControl
                             onCompareToggle={() => toggleCompare(car)}
                         />
                     ))}
@@ -1041,23 +1041,6 @@ export const Search: React.FC = () => {
                 </div>
                 <span className={`relative flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition-colors ${isCompareMode ? 'bg-blue-600' : 'bg-slate-300'}`}>
                     <span className={`h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${isCompareMode ? 'translate-x-6' : 'translate-x-0'}`} />
-                </span>
-            </button>
-        </div>
-        <div className="fixed bottom-6 right-6 z-[100] hidden animate-in slide-in-from-bottom-6 duration-500 md:block">
-            <button
-                onClick={() => setIsCompareMode(prev => !prev)}
-                className={`flex items-center gap-3 rounded-2xl border px-5 py-3 text-xs font-black uppercase tracking-[0.16em] shadow-[0_18px_42px_-24px_rgba(15,23,42,0.65)] backdrop-blur-2xl transition-all active:scale-95 ${
-                    isCompareMode
-                        ? 'border-[#008009] bg-[#008009] text-white'
-                        : 'border-slate-200 bg-white/95 text-slate-900 hover:border-[#008009] hover:text-[#008009]'
-                }`}
-                aria-pressed={isCompareMode}
-            >
-                <ArrowLeftRight className="h-4 w-4" />
-                Compare
-                <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isCompareMode ? 'bg-white/25' : 'bg-slate-200'}`}>
-                    <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isCompareMode ? 'translate-x-4' : 'translate-x-0'}`} />
                 </span>
             </button>
         </div>

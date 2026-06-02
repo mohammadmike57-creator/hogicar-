@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight, ArrowLeftRight } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
 import { getRatingDescription } from '../utils/ratings';
@@ -430,8 +430,8 @@ const CarCard: React.FC<CarCardProps> = ({
                       aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
                       className="flex shrink-0 items-center gap-2 pt-1 text-base font-semibold text-slate-900"
                     >
-                        <span>{isComparing ? 'Chosen' : 'Compare'}</span>
-                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                        <span>Compare</span>
+                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-blue-600 shadow-[0_8px_18px_-10px_rgba(37,99,235,0.8)]' : 'bg-slate-300'}`}>
                             <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
                         </span>
                     </button>
@@ -534,16 +534,16 @@ const CarCard: React.FC<CarCardProps> = ({
                     aria-pressed={isComparing}
                     aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
                     className={`
-                        absolute right-2.5 top-2.5 z-30 flex min-h-10 items-center gap-2 rounded-xl border px-2.5 py-2 shadow-[0_12px_28px_-14px_rgba(15,23,42,0.75)] backdrop-blur-md transition-all duration-300 active:scale-95 sm:right-3 sm:top-3 sm:px-3 group/compare
+                        absolute right-2.5 top-2.5 z-30 flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 shadow-[0_12px_28px_-14px_rgba(15,23,42,0.75)] backdrop-blur-md transition-all duration-300 active:scale-95 sm:right-3 sm:top-3 group/compare
                         ${isComparing 
                             ? 'border-[#008009] bg-[#008009] text-white ring-4 ring-emerald-50 hover:bg-[#006607]' 
                             : 'border-slate-200 bg-white/95 text-slate-700 hover:border-[#008009] hover:bg-emerald-50 hover:text-[#008009]'}
                     `}
                   >
-                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-lg ${isComparing ? 'bg-white/20' : 'bg-slate-100 group-hover/compare:bg-white'}`}>
-                      {isComparing ? <Check className="h-3.5 w-3.5 stroke-[3px]" /> : <ArrowLeftRight className="h-3.5 w-3.5" />}
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px]">{isComparing ? 'Chosen' : 'Add choice'}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px]">Compare</span>
+                    <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-white/25' : 'bg-slate-200 group-hover/compare:bg-white'}`}>
+                        <span className={`h-4 w-4 rounded-full shadow-sm transition-transform ${isComparing ? 'translate-x-4 bg-white' : 'translate-x-0 bg-white'}`} />
+                    </span>
                   </button>}
 
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
