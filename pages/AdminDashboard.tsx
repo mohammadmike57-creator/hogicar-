@@ -39,6 +39,57 @@ import {
 } from '../../types';
 
 // ==================== Types ====================
+const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const MAX_DATA_URL_LENGTH = 800_000; // Reduced to 800KB to prevent 400 Bad Request on some servers
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          let quality = 0.82;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          // If still too large, try to reduce quality progressively
+          while (dataUrl.length > MAX_DATA_URL_LENGTH && quality > 0.3) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+
+          if (dataUrl.length > MAX_DATA_URL_LENGTH) {
+            reject(new Error('The image is still too big even after compression. Please upload a smaller file or use an image URL.'));
+            return;
+          }
+          resolve(dataUrl);
+        } else {
+          reject(new Error("Could not get canvas context"));
+        }
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+};
+
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions';
@@ -336,13 +387,14 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, locationsList }:
         setEditedSupplier(prev => ({ ...prev, [field]: value }));
     };
     
-    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                handleChange('logo', reader.result as string);
-            };
-            reader.readAsDataURL(e.target.files[0]);
+            try {
+                const resized = await resizeImage(e.target.files[0], 400, 400);
+                handleChange('logo', resized);
+            } catch (err: any) {
+                alert(err.message);
+            }
         }
     };
     
@@ -645,14 +697,14 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: { carModel: Ca
         setModel(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                handleChange('image', reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const resized = await resizeImage(e.target.files[0], 1200, 800);
+                handleChange('image', resized);
+            } catch (err: any) {
+                alert(err.message);
+            }
         }
     };
 
