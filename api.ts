@@ -294,6 +294,7 @@ export const supplierApi = {
   getCarModels: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/car-models`),
   
   getMe: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/me`),
+  updateMe: (payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/me`, payload),
   getMyLocations: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/locations`),
   requestLocation: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/locations/request`, payload),
   getBookings: () => supplierAxios.get(`${API_BASE_URL}/api/bookings`),

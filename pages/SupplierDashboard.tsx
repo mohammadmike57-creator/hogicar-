@@ -133,6 +133,116 @@ const InputField = ({ label, icon: Icon, prefix, error, helperText, ...props }: 
     </div>
 );
 
+const removeSolidLogoBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const samplePoints = [
+        [0, 0],
+        [Math.floor(width / 2), 0],
+        [width - 1, 0],
+        [0, Math.floor(height / 2)],
+        [width - 1, Math.floor(height / 2)],
+        [0, height - 1],
+        [Math.floor(width / 2), height - 1],
+        [width - 1, height - 1],
+    ];
+    const bg = samplePoints.reduce(
+        (acc, [x, y]) => {
+            const index = (y * width + x) * 4;
+            acc.r += data[index];
+            acc.g += data[index + 1];
+            acc.b += data[index + 2];
+            return acc;
+        },
+        { r: 0, g: 0, b: 0 }
+    );
+    bg.r /= samplePoints.length;
+    bg.g /= samplePoints.length;
+    bg.b /= samplePoints.length;
+
+    const bgBrightness = (bg.r + bg.g + bg.b) / 3;
+    const isRemovableBg = bgBrightness > 225 || bgBrightness < 42;
+    if (!isRemovableBg) return;
+
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const brightness = (r + g + b) / 3;
+        const colorDistance = Math.hypot(r - bg.r, g - bg.g, b - bg.b);
+        const lowSaturation = Math.max(r, g, b) - Math.min(r, g, b) < 38;
+        const closeToDarkBg = bgBrightness < 42 && brightness < 70 && colorDistance < 64;
+        const closeToLightBg = bgBrightness > 225 && brightness > 210 && colorDistance < 70;
+
+        if ((closeToDarkBg || closeToLightBg) && lowSaturation) {
+            data[i + 3] = 0;
+        } else if (colorDistance < 42 && lowSaturation) {
+            data[i + 3] = Math.min(data[i + 3], 90);
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+};
+
+const prepareLogoImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const MAX_DATA_URL_LENGTH = 700_000;
+                const maxWidth = 640;
+                const maxHeight = 360;
+                let width = img.width;
+                let height = img.height;
+                const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    reject(new Error('Could not process the logo image.'));
+                    return;
+                }
+
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, width, height);
+                removeSolidLogoBackground(ctx, width, height);
+
+                let outputCanvas = canvas;
+                let dataUrl = outputCanvas.toDataURL('image/png');
+                while (dataUrl.length > MAX_DATA_URL_LENGTH && outputCanvas.width > 180 && outputCanvas.height > 100) {
+                    const smallerCanvas = document.createElement('canvas');
+                    smallerCanvas.width = Math.round(outputCanvas.width * 0.84);
+                    smallerCanvas.height = Math.round(outputCanvas.height * 0.84);
+                    const smallerCtx = smallerCanvas.getContext('2d');
+                    if (!smallerCtx) break;
+                    smallerCtx.imageSmoothingEnabled = true;
+                    smallerCtx.imageSmoothingQuality = 'high';
+                    smallerCtx.drawImage(outputCanvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
+                    outputCanvas = smallerCanvas;
+                    dataUrl = outputCanvas.toDataURL('image/png');
+                }
+
+                if (dataUrl.length > MAX_DATA_URL_LENGTH) {
+                    reject(new Error('The logo is too large. Please upload a smaller logo file.'));
+                    return;
+                }
+
+                resolve(dataUrl);
+            };
+            img.onerror = () => reject(new Error('Could not read the logo image.'));
+            img.src = event.target?.result as string;
+        };
+        reader.onerror = () => reject(new Error('Could not read the logo file.'));
+        reader.readAsDataURL(file);
+    });
+};
+
 // ==================== Main Dashboard Component ====================
 
 const SupplierDashboard = () => {
@@ -375,7 +485,7 @@ const SupplierDashboard = () => {
                     <motion.img 
                         whileHover={{ scale: 1.05 }}
                         src={supplier.logoUrl || 'https://placehold.co/40x40/blue/white?text=S'} 
-                        className="w-9 h-9 lg:w-11 lg:h-11 rounded-xl object-cover border border-slate-200 shadow-sm bg-white" 
+                        className="w-9 h-9 lg:w-11 lg:h-11 rounded-xl object-contain border border-slate-200 shadow-sm bg-white p-1.5" 
                         alt={supplier.name} 
                     />
                     <div className="max-w-[120px] lg:max-w-none truncate">
@@ -427,7 +537,7 @@ const SupplierDashboard = () => {
                     {activeSection === 'stopsales' && <StopSalesSection stopSales={stopSales} onRefresh={refreshStopSales} />}
                     {activeSection === 'extras' && <ExtrasSection />}
                     {activeSection === 'locations' && <LocationsSection />}
-                    {activeSection === 'profile' && <ProfileSection supplier={supplier} />}
+                    {activeSection === 'profile' && <ProfileSection supplier={supplier} onSupplierUpdated={setSupplier} />}
                 </motion.div>
             </AnimatePresence>
             
@@ -451,7 +561,7 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
             <div className="flex flex-col sm:flex-row gap-5 min-w-0">
                 <img
                     src={supplier.logoUrl || 'https://placehold.co/96x96/0f172a/ffffff?text=S'}
-                    className="w-20 h-20 rounded-2xl object-cover border border-white/10 bg-white shadow-xl shadow-black/20"
+                    className="w-20 h-20 rounded-2xl object-contain border border-white/10 bg-white shadow-xl shadow-black/20 p-2"
                     alt={supplier.name}
                 />
                 <div className="min-w-0">
@@ -2380,36 +2490,115 @@ const LocationsSection = () => (
     </motion.div>
 );
 
-const ProfileSection = ({ supplier }: { supplier: Supplier }) => (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8 max-w-4xl">
-        <SectionHeader title="Supplier Profile" icon={User} subtitle="Account settings and security" />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
-                <div className="flex items-center gap-4 mb-4">
-                    <img src={supplier.logoUrl} className="w-20 h-20 rounded-[2rem] object-cover border-2 border-blue-500 shadow-lg" alt="Logo" width="80" height="80" />
-                    <div>
-                        <h3 className="text-xl font-black text-gray-900 tracking-tight">{supplier.name}</h3>
-                        <Badge variant="success">Verified Supplier</Badge>
-                    </div>
-                </div>
-                <InputField label="Reservation Contact Email" value={supplier.contactEmail} readOnly />
-                <InputField label="Phone Number" value={supplier.phone || 'N/A'} readOnly />
-                <button className="w-full py-3 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 hover:text-blue-700 transition-all">Update Information</button>
-            </div>
+const ProfileSection = ({ supplier, onSupplierUpdated }: { supplier: Supplier, onSupplierUpdated: (supplier: Supplier) => void }) => {
+    const [logoUrl, setLogoUrl] = useState((supplier as any).logoUrl || '');
+    const [isSavingLogo, setIsSavingLogo] = useState(false);
+    const [logoError, setLogoError] = useState('');
+    const [logoSuccess, setLogoSuccess] = useState('');
 
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
-                <div className="flex items-center gap-2 mb-4">
-                    <Lock className="w-4 h-4 text-blue-700" />
-                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Security</h3>
+    useEffect(() => {
+        setLogoUrl((supplier as any).logoUrl || '');
+        setLogoError('');
+        setLogoSuccess('');
+    }, [supplier]);
+
+    const saveLogo = async (nextLogoUrl = logoUrl) => {
+        setIsSavingLogo(true);
+        setLogoError('');
+        setLogoSuccess('');
+        try {
+            const res = await supplierApi.updateMe({ logoUrl: nextLogoUrl.trim() });
+            const updated = res?.data?.data ?? res?.data ?? { ...supplier, logoUrl: nextLogoUrl.trim() };
+            onSupplierUpdated(updated);
+            setLogoUrl((updated as any).logoUrl || nextLogoUrl.trim());
+            setLogoSuccess('Logo updated');
+        } catch (err: any) {
+            setLogoError(err?.response?.data?.message || err?.message || 'Could not update logo.');
+        } finally {
+            setIsSavingLogo(false);
+        }
+    };
+
+    const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        setLogoError('');
+        setLogoSuccess('');
+        try {
+            const processedLogo = await prepareLogoImage(file);
+            setLogoUrl(processedLogo);
+            await saveLogo(processedLogo);
+        } catch (err: any) {
+            setLogoError(err?.message || 'Could not process logo image.');
+        } finally {
+            event.target.value = '';
+        }
+    };
+
+    return (
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8 max-w-4xl">
+            <SectionHeader title="Supplier Profile" icon={User} subtitle="Account settings and security" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-20 h-20 rounded-[2rem] bg-white border-2 border-blue-500 shadow-lg flex items-center justify-center overflow-hidden p-2">
+                            {logoUrl ? (
+                                <img src={logoUrl} className="max-w-full max-h-full object-contain" alt="Logo" width="80" height="80" />
+                            ) : (
+                                <User className="w-8 h-8 text-slate-300" />
+                            )}
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight">{supplier.name}</h3>
+                            <Badge variant="success">Verified Supplier</Badge>
+                        </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-slate-100 bg-slate-50/60 p-4 space-y-4">
+                        <InputField
+                            label="Supplier Logo URL"
+                            icon={Globe}
+                            value={logoUrl}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLogoUrl(e.target.value)}
+                            placeholder="https://example.com/logo.png"
+                            helperText="Paste a direct image URL or upload a logo file below."
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer hover:border-blue-300 hover:text-blue-700 transition-all shadow-sm">
+                                <Upload className="w-4 h-4" />
+                                Upload Logo
+                                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                            </label>
+                            <button
+                                onClick={() => saveLogo()}
+                                disabled={isSavingLogo}
+                                className="px-4 py-3 bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-800 disabled:opacity-60 transition-all"
+                            >
+                                {isSavingLogo ? 'Saving...' : 'Save URL'}
+                            </button>
+                        </div>
+                        {logoError && <p className="text-[10px] font-bold text-red-600">{logoError}</p>}
+                        {logoSuccess && <p className="text-[10px] font-bold text-emerald-700">{logoSuccess}</p>}
+                    </div>
+
+                    <InputField label="Reservation Contact Email" value={(supplier as any).contactEmail || supplier.email || ''} readOnly />
+                    <InputField label="Phone Number" value={supplier.phone || 'N/A'} readOnly />
                 </div>
-                <InputField label="Login Username (Email)" value={supplier.email} readOnly />
-                <InputField label="Current Password" type="password" value="********" readOnly />
-                <button className="w-full py-3 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all">Change Credentials</button>
+
+                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 space-y-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Lock className="w-4 h-4 text-blue-700" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Security</h3>
+                    </div>
+                    <InputField label="Login Username (Email)" value={supplier.email} readOnly />
+                    <InputField label="Current Password" type="password" value="********" readOnly />
+                    <button className="w-full py-3 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all">Change Credentials</button>
+                </div>
             </div>
-        </div>
-    </motion.div>
-);
+        </motion.div>
+    );
+};
 
 // ==================== TemplateConfigModal Component ====================
 const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, supplier }: any) => {
