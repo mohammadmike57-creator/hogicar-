@@ -404,7 +404,7 @@ const CarCard: React.FC<CarCardProps> = ({
           )}
 
           <div className="p-4 md:hidden">
-              <div className="mb-3">
+              <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                       {car.hogicarChoice && (
                         <span className="mb-2 inline-flex rounded-md bg-blue-900 px-2.5 py-1 text-xs font-bold text-white">Recommended</span>
@@ -418,6 +418,24 @@ const CarCard: React.FC<CarCardProps> = ({
                           or similar {car.category.toString().toLowerCase()} car <Info className="h-4 w-4" />
                       </p>
                   </div>
+
+                  {showCompareControl && (
+                    <button
+                      onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onCompareToggle?.();
+                      }}
+                      aria-pressed={isComparing}
+                      aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
+                      className="flex shrink-0 items-center gap-2 pt-1 text-base font-semibold text-slate-900"
+                    >
+                        <span>Compare</span>
+                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-blue-600 shadow-[0_8px_18px_-10px_rgba(37,99,235,0.8)]' : 'bg-slate-300'}`}>
+                            <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </span>
+                    </button>
+                  )}
               </div>
 
               <div className="grid grid-cols-[1fr_42%] items-center gap-3">
@@ -477,26 +495,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       </button>
                   </div>
                   <div className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                          <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
-                          {showCompareControl && (
-                            <button
-                              onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  onCompareToggle?.();
-                              }}
-                              aria-pressed={isComparing}
-                              aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-900"
-                            >
-                                <span>Compare</span>
-                                <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-blue-600' : 'bg-slate-300'}`}>
-                                    <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-4' : 'translate-x-0'}`} />
-                                </span>
-                            </button>
-                          )}
-                      </div>
+                      <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
                       <p className="text-[2rem] font-black leading-none text-slate-950">{getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(0)}</p>
                       <button
                         type="button"
