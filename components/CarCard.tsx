@@ -385,6 +385,16 @@ const CarCard: React.FC<CarCardProps> = ({
     pickupType === 'MEET_AND_GREET' ? 'Meet & greet' :
     pickupType === 'SHUTTLE_BUS' ? 'Shuttle bus' :
     car.locationDetail || 'Pickup details';
+  const desktopPickupTypeLabel =
+    pickupType === 'IN_TERMINAL' ? 'In Terminal' :
+    pickupType === 'MEET_AND_GREET' ? 'Meet & Greet' :
+    pickupType === 'SHUTTLE_BUS' ? 'Shuttle Bus' :
+    car.locationDetail || 'Pickup details';
+  const DesktopPickupIcon =
+    pickupType === 'IN_TERMINAL' ? Plane :
+    pickupType === 'MEET_AND_GREET' ? Handshake :
+    pickupType === 'SHUTTLE_BUS' ? Bus :
+    Building;
 
   const handleSelectCar = () => {
     // Persist the car ID and the full results list for the next page
@@ -584,8 +594,9 @@ const CarCard: React.FC<CarCardProps> = ({
                               <span className="bg-slate-100 text-slate-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
                                   {car.category}
                               </span>
-                              <span className="bg-blue-50 text-blue-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
-                                  {pickupTypeLabel}
+                              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
+                                  <DesktopPickupIcon className="h-3 w-3" />
+                                  {desktopPickupTypeLabel}
                               </span>
                           </div>
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
@@ -634,12 +645,26 @@ const CarCard: React.FC<CarCardProps> = ({
                               <GaugeCircle className="w-3 h-3 text-[#008009] stroke-[2.5px] shrink-0" />
                               <span className="truncate">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span>
                           </div>
-                          {car.supplier.bookingMode === 'FREE_SALE' && (
-                            <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[9px] font-bold text-blue-600 border border-blue-100">
-                                <Zap className="w-3 h-3 fill-blue-600/20 shrink-0" />
-                                <span className="truncate">Instant Confirmation</span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[9px] font-bold text-blue-600 border border-blue-100">
+                              <Zap className="w-3 h-3 fill-blue-600/20 shrink-0" />
+                              <span className="truncate">Instant Confirmation</span>
+                          </div>
+                      </div>
+
+                      <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-2.5 py-1.5">
+                          <div className="flex min-w-0 items-center gap-2">
+                              <DesktopPickupIcon className="h-3.5 w-3.5 shrink-0 text-[#008009]" />
+                              <div className="min-w-0">
+                                  <p className="truncate text-[9px] font-black uppercase tracking-wide text-slate-900">{desktopPickupTypeLabel}</p>
+                                  <p className="truncate text-[9px] font-semibold text-slate-500">{car.locationDetail || car.location || 'Pickup location'}</p>
+                              </div>
+                          </div>
+                          <button
+                            onClick={() => setIsConditionsModalOpen(true)}
+                            className="shrink-0 text-[9px] font-black uppercase tracking-wide text-[#008009] hover:text-slate-950"
+                          >
+                              Rental terms
+                          </button>
                       </div>
 
                       {/* Social Proof Message */}
