@@ -384,7 +384,7 @@ const CarDetails: React.FC = () => {
             <div className="lg:col-span-2 space-y-5 sm:space-y-6">
               {/* Hero Section */}
               <div className="overflow-visible bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200">
-                <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+                <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
                   <div className="relative bg-gradient-to-b from-slate-50 to-white border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none">
                     <img
                       src={displayImage}
@@ -392,7 +392,7 @@ const CarDetails: React.FC = () => {
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="w-full h-52 sm:h-64 lg:h-full min-h-[300px] object-contain drop-shadow-2xl mix-blend-multiply scale-110 lg:scale-125 transition-transform duration-700"
+                      className="w-full h-52 sm:h-64 lg:h-full min-h-[300px] object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-700"
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                       <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.category}</span>
