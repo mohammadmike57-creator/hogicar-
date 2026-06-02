@@ -525,8 +525,8 @@ const CarCard: React.FC<CarCardProps> = ({
 
           <div className="hidden md:flex md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className={`relative md:w-1/4 bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 md:p-3 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
+              <div className={`relative md:w-[22%] bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.35/1] flex items-center justify-center mb-2 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
                       <img
                         src={displayImage}
                         alt={`${car.make} ${car.model}`}
@@ -544,11 +544,11 @@ const CarCard: React.FC<CarCardProps> = ({
                   </Link>
 
                   {/* Supplier & Rating Block */}
-                  <div className="flex items-center justify-between gap-2 pt-2 md:pt-4 border-t border-slate-100 mt-auto w-full">
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 mt-auto w-full">
                       <img
                           src={car.supplier.logo || (car.supplier as any).logoUrl}
                           alt={car.supplier.name}
-                          className="h-8 md:h-10 w-auto object-contain max-w-[118px] md:max-w-[118px]"
+                          className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
                         className="flex items-center gap-2 group/rating relative cursor-pointer z-20"
@@ -561,14 +561,14 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                       >
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] md:text-[11px] font-black text-slate-900 leading-none mb-0.5 md:mb-1">
+                            <span className="text-[10px] font-black text-slate-900 leading-none mb-0.5">
                               {getRatingDescription(car.supplier.rating)}
                             </span>
-                            <span className="text-[8px] md:text-[9px] font-bold text-slate-400 whitespace-nowrap">
+                            <span className="text-[8px] font-bold text-slate-400 whitespace-nowrap">
                               Supplier Rating
                             </span>
                           </div>
-                          <div className="bg-[#008009] text-white text-sm md:text-[14px] font-black w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-lg md:rounded-xl shadow-md shrink-0 ring-2 md:ring-4 ring-emerald-50">
+                          <div className="bg-[#008009] text-white text-sm font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-md shrink-0 ring-2 ring-emerald-50">
                               {car.supplier.rating}
                           </div>
                           <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />
@@ -577,10 +577,10 @@ const CarCard: React.FC<CarCardProps> = ({
               </div>
 
               <div className="flex-grow flex flex-col md:flex-row">
-                  <div className="p-3 md:p-3 flex-grow border-b md:border-b-0 md:border-r border-slate-100">
+                  <div className="p-2.5 flex-grow border-b md:border-b-0 md:border-r border-slate-100">
                       {/* Title & Category */}
-                      <div className="mb-3 md:mb-4">
-                          <div className="flex items-center gap-1.5 mb-1.5 md:mb-2">
+                      <div className="mb-2.5">
+                          <div className="flex items-center gap-1.5 mb-1.5">
                               <span className="bg-slate-100 text-slate-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
                                   {car.category}
                               </span>
@@ -589,54 +589,54 @@ const CarCard: React.FC<CarCardProps> = ({
                               </span>
                           </div>
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                              <h3 className="text-base md:text-[1rem] font-black text-slate-900 leading-snug hover:text-[#008009] transition-colors uppercase tracking-tight line-clamp-2 md:line-clamp-1">
+                              <h3 className="text-[0.95rem] font-black text-slate-900 leading-snug hover:text-[#008009] transition-colors uppercase tracking-tight line-clamp-1">
                                   {car.displayName}
                               </h3>
                           </Link>
-                          <p className="text-[10px] md:text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-1">
-                              or similar <Info className="w-3 h-3 md:w-2.5 md:h-2.5" />
+                          <p className="text-[9px] text-slate-500 font-bold flex items-center gap-1 mt-0.5">
+                              or similar <Info className="w-2.5 h-2.5" />
                           </p>
                       </div>
 
                       {/* Specs Grid (Compact) */}
-                      <div className="grid grid-cols-4 md:grid-cols-2 gap-1.5 md:gap-x-3 md:gap-y-2 mb-3 md:mb-4 py-2 md:py-2.5 border border-slate-100 md:border-y md:border-x-0 bg-slate-50 rounded-xl md:rounded px-2 md:px-2.5">
+                      <div className="grid grid-cols-4 gap-1.5 mb-2 py-2 border-y border-slate-100 bg-slate-50 rounded px-2">
                           <div className="flex items-center gap-2 text-slate-600">
                               <Users className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[10px] md:text-[11px] font-bold">{car.passengers}<span className="hidden min-[390px]:inline ml-1">Adults</span></span>
+                              <span className="text-[10px] font-bold">{car.passengers}<span className="hidden min-[390px]:inline ml-1">Adults</span></span>
                           </div>
                           <div className="flex items-center gap-2 text-slate-600">
                               <Briefcase className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[10px] md:text-[11px] font-bold">{car.bags}<span className="hidden min-[390px]:inline ml-1">Bags</span></span>
+                              <span className="text-[10px] font-bold">{car.bags}<span className="hidden min-[390px]:inline ml-1">Bags</span></span>
                           </div>
                           <div className="flex items-center gap-2 text-slate-600">
                               <div className="text-slate-400 scale-100 md:scale-90"><AutomaticIcon /></div>
-                              <span className="text-[10px] md:text-[11px] font-bold">
+                              <span className="text-[10px] font-bold">
                                   {car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}
                               </span>
                           </div>
                           <div className="flex items-center gap-2 text-slate-600">
                               <Wind className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[10px] md:text-[11px] font-bold">A/C</span>
+                              <span className="text-[10px] font-bold">A/C</span>
                           </div>
                       </div>
 
                       {/* Included Features checklist */}
-                      <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5 md:gap-2 mb-3 md:mb-4">
-                          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 md:px-3 py-1.5 md:py-2 text-[10px] md:text-[10px] font-bold text-[#008009] border border-emerald-100">
-                              <CalendarCheck className="w-3.5 h-3.5 stroke-[2.5px] shrink-0" />
+                      <div className="grid grid-cols-2 gap-1.5 mb-2.5">
+                          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[9px] font-bold text-[#008009] border border-emerald-100">
+                              <CalendarCheck className="w-3 h-3 stroke-[2.5px] shrink-0" />
                               <span className="truncate">Free cancellation</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 md:px-3 py-1.5 md:py-2 text-[10px] md:text-[10px] font-bold text-slate-700 border border-slate-100">
-                              <Fuel className="w-3.5 h-3.5 text-[#008009] stroke-[2.5px] shrink-0" />
+                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[9px] font-bold text-slate-700 border border-slate-100">
+                              <Fuel className="w-3 h-3 text-[#008009] stroke-[2.5px] shrink-0" />
                               <span className="truncate">{car.fuelPolicy === 'FULL_TO_FULL' ? 'Fair fuel' : car.fuelPolicy}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 md:px-3 py-1.5 md:py-2 text-[10px] md:text-[10px] font-bold text-slate-700 border border-slate-100">
-                              <GaugeCircle className="w-3.5 h-3.5 text-[#008009] stroke-[2.5px] shrink-0" />
+                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[9px] font-bold text-slate-700 border border-slate-100">
+                              <GaugeCircle className="w-3 h-3 text-[#008009] stroke-[2.5px] shrink-0" />
                               <span className="truncate">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span>
                           </div>
                           {car.supplier.bookingMode === 'FREE_SALE' && (
-                            <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 md:px-3 py-1.5 md:py-2 text-[10px] md:text-[10px] font-bold text-blue-600 border border-blue-100">
-                                <Zap className="w-3.5 h-3.5 fill-blue-600/20 shrink-0" />
+                            <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[9px] font-bold text-blue-600 border border-blue-100">
+                                <Zap className="w-3 h-3 fill-blue-600/20 shrink-0" />
                                 <span className="truncate">Instant Confirmation</span>
                             </div>
                           )}
@@ -652,11 +652,11 @@ const CarCard: React.FC<CarCardProps> = ({
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-3 md:p-3 md:w-1/3 bg-slate-50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
+                  <div className="p-2.5 md:w-[29%] bg-slate-50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
                       <div>
                           {/* Pricing Info */}
-                          <div className="flex flex-col mb-2.5 md:mb-4">
-                              <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex flex-col mb-2.5">
+                              <div className="flex items-start justify-between gap-2 mb-1.5">
                                 <p className="text-[10px] md:text-[9px] text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
                                 {car.supplier.rating >= 4.5 && (
                                     <div className="flex shrink-0 items-center gap-1 text-[9px] md:text-[10px] font-black text-[#008009] uppercase bg-[#008009]/10 px-2 py-1 rounded-md">
@@ -670,38 +670,38 @@ const CarCard: React.FC<CarCardProps> = ({
                                           {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                       </span>
                                   )}
-                                  <span className="text-2xl md:text-xl font-black text-slate-900 tracking-tight">
+                                  <span className="text-lg font-black text-slate-900 tracking-tight">
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
-                              <p className="text-[10px] md:text-[9px] text-slate-500 font-bold mt-1 flex items-center gap-1">
-                                  <Shield className="w-3 h-3 md:w-2.5 md:h-2.5" /> All taxes included
+                              <p className="text-[9px] text-slate-500 font-bold mt-1 flex items-center gap-1">
+                                  <Shield className="w-2.5 h-2.5" /> All taxes included
                               </p>
                           </div>
 
-                          <div className="mb-3 md:mb-6 grid grid-cols-2 md:grid-cols-1 gap-1.5 md:gap-2">
-                              <div className="p-2.5 md:p-3 bg-white rounded-xl border border-[#008009]/15 shadow-sm">
-                                  <p className="text-[10px] md:text-[9px] text-emerald-700 font-black uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                                      <CreditCardIcon className="w-3 h-3 md:w-3.5 md:h-3.5" /> Pay now
+                          <div className="mb-3 grid grid-cols-2 gap-1.5">
+                              <div className="p-2 bg-white rounded-xl border border-[#008009]/15 shadow-sm">
+                                  <p className="text-[8px] text-emerald-700 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
+                                      <CreditCardIcon className="w-3 h-3" /> Pay now
                                   </p>
                                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                      <span className="text-base md:text-xl font-black text-[#008009] tracking-tight">
+                                      <span className="text-sm font-black text-[#008009] tracking-tight">
                                           {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
                                       </span>
                                   </div>
                               </div>
-                              <div className="p-2.5 md:p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
-                                  <p className="text-[10px] md:text-[9px] text-slate-500 font-black uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                                      <Building className="w-3 h-3 md:w-3.5 md:h-3.5" /> At pickup
+                              <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                  <p className="text-[8px] text-slate-500 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
+                                      <Building className="w-3 h-3" /> At pickup
                                   </p>
-                                  <span className="text-base md:text-base font-black text-slate-900 tracking-tight">
+                                  <span className="text-sm font-black text-slate-900 tracking-tight">
                                       {getCurrencySymbol()}{convertPrice(payAtPickup).toFixed(2)}
                                   </span>
                               </div>
                           </div>
                       </div>
 
-                      <div className="space-y-2.5 md:space-y-4">
+                      <div className="space-y-2">
                           {showCompareControl && (
                             <button
                               onClick={(e) => {
@@ -711,15 +711,15 @@ const CarCard: React.FC<CarCardProps> = ({
                               }}
                               aria-pressed={isComparing}
                               aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.14em] transition-all active:scale-[0.98] ${
+                              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-[9px] font-black uppercase tracking-[0.14em] transition-all active:scale-[0.98] ${
                                   isComparing
                                     ? 'border-[#008009] bg-emerald-50 text-[#008009]'
                                     : 'border-slate-200 bg-white text-slate-700 hover:border-[#008009] hover:text-[#008009]'
                               }`}
                             >
                                 <span>Compare this car</span>
-                                <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-[#008009]' : 'bg-slate-200'}`}>
-                                    <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-4' : 'translate-x-0'}`} />
+                                <span className={`relative flex h-[18px] w-8 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-[#008009]' : 'bg-slate-200'}`}>
+                                    <span className={`h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-3.5' : 'translate-x-0'}`} />
                                 </span>
                             </button>
                           )}
@@ -728,16 +728,16 @@ const CarCard: React.FC<CarCardProps> = ({
                             to={`/car/${car.id}?${searchParams}`}
                             state={{ cars: cars }}
                             onClick={handleSelectCar}
-                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-3 md:py-3 rounded-xl shadow-lg md:shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-xl transition-all active:scale-[0.97] text-center text-xs md:text-[10px] uppercase tracking-wider relative overflow-hidden"
+                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-2.5 rounded-xl shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-xl transition-all active:scale-[0.97] text-center text-[10px] uppercase tracking-wider relative overflow-hidden"
                           >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                               <span className="relative z-10 flex items-center justify-center gap-2">
-                                  View Deal <ChevronRight className="w-5 h-5 md:w-4 md:h-4 group-hover/btn:translate-x-1 transition-transform"/>
+                                  View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
                               </span>
                           </Link>
 
                           {/* Badges Footer */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 md:pt-2 border-t border-slate-200">
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200">
                               <div className="flex min-w-0 items-center gap-1.5">
                                   {(() => {
                                       const pickupType = car.supplier?.pickupType;
