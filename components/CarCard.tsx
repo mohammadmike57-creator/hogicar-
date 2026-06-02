@@ -329,6 +329,7 @@ interface CarCardProps {
   pickupCode: string;
   dropoffCode: string;
   isComparing?: boolean;
+  showCompareControl?: boolean;
   onCompareToggle?: () => void;
 }
 
@@ -341,6 +342,7 @@ const CarCard: React.FC<CarCardProps> = ({
     pickupCode, 
     dropoffCode,
     isComparing = false,
+    showCompareControl = true,
     onCompareToggle
 }) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
@@ -395,11 +397,109 @@ const CarCard: React.FC<CarCardProps> = ({
             </div>
           )}
 
-          <div className="flex flex-col md:flex-row flex-grow">
+          <div className="p-4 md:hidden">
+              <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                      {car.hogicarChoice && (
+                        <span className="mb-2 inline-flex rounded-md bg-blue-900 px-2.5 py-1 text-xs font-bold text-white">Recommended</span>
+                      )}
+                      <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
+                          <h3 className="text-[1.7rem] font-black leading-tight tracking-tight text-slate-950">
+                              {car.displayName || `${car.make} ${car.model}`}
+                          </h3>
+                      </Link>
+                      <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-blue-600">
+                          or similar {car.category.toString().toLowerCase()} car <Info className="h-4 w-4" />
+                      </p>
+                  </div>
+
+                  {showCompareControl && (
+                    <button
+                      onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onCompareToggle?.();
+                      }}
+                      aria-pressed={isComparing}
+                      aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
+                      className="flex shrink-0 items-center gap-2 pt-1 text-base font-semibold text-slate-900"
+                    >
+                        <span>{isComparing ? 'Chosen' : 'Compare'}</span>
+                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                            <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </span>
+                    </button>
+                  )}
+              </div>
+
+              <div className="grid grid-cols-[1fr_42%] items-center gap-3">
+                  <div className="space-y-3 text-slate-950">
+                      <div className="flex items-center gap-3 text-lg font-semibold">
+                          <Users className="h-6 w-6 stroke-[1.8px]" />
+                          <span>{car.passengers} seats</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-lg font-semibold">
+                          <div className="scale-125"><AutomaticIcon /></div>
+                          <span>{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-lg font-semibold">
+                          <GaugeCircle className="h-6 w-6 stroke-[1.8px]" />
+                          <span>{car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</span>
+                      </div>
+                  </div>
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex aspect-[4/3] items-center justify-center">
+                      <img
+                        src={displayImage}
+                        alt={`${car.make} ${car.model}`}
+                        onError={() => setImageError(true)}
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-contain drop-shadow-md"
+                      />
+                  </Link>
+              </div>
+
+              <div className="mt-5">
+                  <p className="text-xl font-black leading-tight text-slate-950">{pickupCode || car.location || 'Pickup location'}</p>
+                  <p className="mt-1 text-lg font-medium text-slate-500">{pickupTypeLabel}</p>
+              </div>
+
+              <div className="mt-5 grid grid-cols-[1fr_auto] items-end gap-4">
+                  <div className="min-w-0">
+                      <img
+                          src={car.supplier.logo || (car.supplier as any).logoUrl}
+                          alt={car.supplier.name}
+                          className="mb-3 h-10 max-w-[135px] object-contain"
+                      />
+                      <div className="flex items-center gap-3">
+                          <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-900 text-xl font-bold text-white">{car.supplier.rating}</span>
+                          <div>
+                              <p className="text-lg font-black leading-none text-slate-950">{getRatingDescription(car.supplier.rating)}</p>
+                              <p className="mt-1 text-base font-medium text-slate-500">200+ reviews</p>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="text-right">
+                      <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
+                      <p className="text-[2rem] font-black leading-none text-slate-950">{getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(0)}</p>
+                      <p className="mt-2 text-lg font-medium text-green-700">Free cancellation</p>
+                  </div>
+              </div>
+
+              <Link
+                to={`/car/${car.id}?${searchParams}`}
+                state={{ cars: cars }}
+                onClick={handleSelectCar}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#008009] px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-lg active:scale-[0.98]"
+              >
+                  View deal <ChevronRight className="h-5 w-5" />
+              </Link>
+          </div>
+
+          <div className="hidden md:flex md:flex-row flex-grow">
               {/* Car Image Area */}
               <div className={`relative md:w-1/4 bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 md:p-3 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
                   {/* Compare Toggle */}
-                  <button 
+                  {showCompareControl && <button 
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -418,7 +518,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       {isComparing ? <Check className="h-3.5 w-3.5 stroke-[3px]" /> : <ArrowLeftRight className="h-3.5 w-3.5" />}
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px]">{isComparing ? 'Chosen' : 'Add choice'}</span>
-                  </button>
+                  </button>}
 
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
                       <img

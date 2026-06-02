@@ -273,20 +273,6 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                 <DetailLine label="CDW" value={car.supplier?.includesCDW ? 'Included' : 'Check terms'} />
                 <DetailLine label="Theft" value={car.supplier?.includesTP ? 'Included' : 'Check terms'} />
             </div>
-
-            {(car.rateTiers || []).length > 0 && (
-                <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-3">
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Rate details</p>
-                    <div className="mt-2 space-y-2">
-                        {car.rateTiers.slice(0, 2).map(tier => (
-                            <div key={tier.id} className="rounded-lg bg-white p-3 ring-1 ring-slate-100">
-                                <p className="text-xs font-black text-slate-950">{tier.name}</p>
-                                <p className="mt-0.5 text-[10px] font-bold text-slate-500">{tier.startDate} to {tier.endDate}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
         </section>
     );
 
@@ -305,8 +291,8 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                                     <Badge tone="success">{selectedCars.length} selected</Badge>
                                 </div>
                                 <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-500">
-                                    <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {startDate} to {endDate}</span>
                                     <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> {days} rental day{days === 1 ? '' : 's'}</span>
+                                    <span>Prices, specs, ratings and rental conditions</span>
                                 </p>
                             </div>
                         </div>
@@ -333,7 +319,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                         <div className="mb-3 flex items-center justify-between gap-3">
                             <div>
                                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-950">Selected choices</p>
-                                <p className="mt-0.5 text-[11px] font-semibold text-slate-500">Scroll down for full rates, specs, deposit, excess and supplier terms.</p>
+                                <p className="mt-0.5 text-[11px] font-semibold text-slate-500">Scroll down for prices, specs, deposit, excess and supplier terms.</p>
                             </div>
                         </div>
                         <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
@@ -408,39 +394,6 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                             );
                         })}
                     />
-                    <ComparisonRow
-                        label="Supplier rate tiers"
-                        helper="Season and duration based rate rules"
-                        icon={<FileText className="h-4 w-4" />}
-                        values={selectedCars.map(car => (
-                            <div className="w-full space-y-2">
-                                {(car.rateTiers || []).length === 0 ? (
-                                    <Metric label="Rate structure" value="Standard rate" sublabel={car.netPrice ? `Base supplier amount ${formatMoney(car.netPrice)}` : 'No rate tiers listed'} />
-                                ) : (
-                                    car.rateTiers.slice(0, 3).map(tier => (
-                                        <div key={tier.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="text-xs font-black text-slate-950">{tier.name}</p>
-                                                    <p className="mt-0.5 text-[10px] font-bold text-slate-500">{tier.startDate} to {tier.endDate}</p>
-                                                </div>
-                                                {tier.promotionLabel && <Badge tone="warning">{tier.promotionLabel}</Badge>}
-                                            </div>
-                                            <div className="mt-2 space-y-1">
-                                                {tier.rates.slice(0, 3).map(rate => (
-                                                    <div key={`${tier.id}-${rate.minDays}-${rate.maxDays}`} className="flex justify-between gap-3 text-[11px] font-bold text-slate-600">
-                                                        <span>{rate.minDays}-{rate.maxDays} days</span>
-                                                        <span className="font-black text-slate-950">{formatMoney(rate.dailyRate)} / day</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        ))}
-                    />
-
                     <SectionHeader icon={<GaugeCircle className="h-4 w-4" />} title="Vehicle specifications" subtitle="Capacity, category, transmission and core vehicle equipment" />
                     <ComparisonRow
                         label="Model and class"

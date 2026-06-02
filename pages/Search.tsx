@@ -5,7 +5,7 @@ import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '..
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
@@ -201,8 +201,10 @@ export const Search: React.FC = () => {
   const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
   const [selectedCompareCars, setSelectedCompareCars] = React.useState<Car[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = React.useState(false);
+  const [isCompareMode, setIsCompareMode] = React.useState(false);
 
   const toggleCompare = (car: Car) => {
+    setIsCompareMode(true);
     setSelectedCompareCars(prev => {
         const isAlreadySelected = prev.some(c => c.id === car.id);
         if (isAlreadySelected) {
@@ -1002,6 +1004,7 @@ export const Search: React.FC = () => {
                             pickupCode={pickupIata}
                             dropoffCode={dropoffIata || pickupIata}
                             isComparing={selectedCompareCars.some(c => c.id === car.id)}
+                            showCompareControl={isCompareMode || selectedCompareCars.some(c => c.id === car.id)}
                             onCompareToggle={() => toggleCompare(car)}
                         />
                     ))}
@@ -1020,7 +1023,28 @@ export const Search: React.FC = () => {
         </div>
       </div>
       
-      {/* Floating Comparison Bar */}
+      {/* Smart Comparison Bar */}
+      {selectedCompareCars.length === 0 && sortedAndFilteredCars.length > 0 && (
+        <div className="fixed bottom-4 left-1/2 z-[100] w-[94%] max-w-5xl -translate-x-1/2 animate-in slide-in-from-bottom-8 duration-700 sm:bottom-6">
+            <button
+                onClick={() => setIsCompareMode(prev => !prev)}
+                className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/95 p-4 text-left text-slate-950 shadow-[0_22px_58px_-30px_rgba(15,23,42,0.55)] ring-1 ring-slate-900/5 backdrop-blur-2xl sm:rounded-3xl sm:px-6"
+                aria-pressed={isCompareMode}
+            >
+                <div className="flex min-w-0 items-center gap-3">
+                    <Sparkles className="h-6 w-6 shrink-0 text-slate-950" />
+                    <div className="min-w-0">
+                        <p className="text-lg font-black leading-tight text-slate-950 sm:text-xl">Smart comparison</p>
+                        <p className="mt-1 text-sm font-medium text-slate-600 sm:text-base">Compare prices, specs, ratings and more</p>
+                    </div>
+                </div>
+                <span className={`relative flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition-colors ${isCompareMode ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                    <span className={`h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${isCompareMode ? 'translate-x-6' : 'translate-x-0'}`} />
+                </span>
+            </button>
+        </div>
+      )}
+
       {selectedCompareCars.length > 0 && (
         <div className="fixed bottom-4 left-1/2 z-[100] w-[94%] max-w-5xl -translate-x-1/2 animate-in slide-in-from-bottom-8 duration-700 sm:bottom-6">
             <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-3 text-slate-950 shadow-[0_26px_70px_-28px_rgba(15,23,42,0.65)] ring-1 ring-slate-900/5 backdrop-blur-2xl sm:rounded-3xl sm:p-4">
