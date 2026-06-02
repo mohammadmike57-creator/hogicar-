@@ -371,6 +371,12 @@ const CarCard: React.FC<CarCardProps> = ({
   const [imageError, setImageError] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const displayRatings = car.detailedRatings || {
+    cleanliness: 85,
+    condition: 82,
+    valueForMoney: 80,
+    pickupSpeed: 78,
+  };
   const pickupType = car.supplier?.pickupType;
   const pickupTypeLabel =
     pickupType === 'IN_TERMINAL' ? 'Terminal pickup' :
@@ -470,18 +476,38 @@ const CarCard: React.FC<CarCardProps> = ({
                           alt={car.supplier.name}
                           className="mb-3 h-10 max-w-[135px] object-contain"
                       />
-                      <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        className="group/rating relative flex items-center gap-3 text-left"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowRatingsTooltip(!showRatingsTooltip);
+                        }}
+                        aria-label="Show supplier rating details"
+                      >
                           <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-900 text-xl font-bold text-white">{car.supplier.rating}</span>
                           <div>
                               <p className="text-lg font-black leading-none text-slate-950">{getRatingDescription(car.supplier.rating)}</p>
                               <p className="mt-1 text-base font-medium text-slate-500">200+ reviews</p>
                           </div>
-                      </div>
+                          <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="left" />
+                      </button>
                   </div>
                   <div className="text-right">
                       <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
                       <p className="text-[2rem] font-black leading-none text-slate-950">{getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(0)}</p>
-                      <p className="mt-2 text-lg font-medium text-green-700">Free cancellation</p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsConditionsModalOpen(true);
+                        }}
+                        className="mt-2 text-right text-lg font-medium text-green-700 underline-offset-4 active:scale-[0.98]"
+                      >
+                          Free cancellation · Rental terms
+                      </button>
                   </div>
               </div>
 
@@ -565,7 +591,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           <div className="bg-[#008009] text-white text-sm md:text-[14px] font-black w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-lg md:rounded-xl shadow-md shrink-0 ring-2 md:ring-4 ring-emerald-50">
                               {car.supplier.rating}
                           </div>
-                          {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" />}
+                          <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />
                       </div>
                   </div>
               </div>
