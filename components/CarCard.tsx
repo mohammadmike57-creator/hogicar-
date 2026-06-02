@@ -386,7 +386,7 @@ const CarCard: React.FC<CarCardProps> = ({
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className="bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 border-[#008009]/45 hover:border-[#008009] transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full md:hover:-translate-y-0.5">
+      <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full md:hover:-translate-y-0.5 ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -406,7 +406,7 @@ const CarCard: React.FC<CarCardProps> = ({
                         onCompareToggle?.();
                     }}
                     aria-pressed={isComparing}
-                    aria-label={isComparing ? 'Remove from comparison' : 'Add to comparison'}
+                    aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
                     className={`
                         absolute right-2.5 top-2.5 z-30 flex min-h-10 items-center gap-2 rounded-xl border px-2.5 py-2 shadow-[0_12px_28px_-14px_rgba(15,23,42,0.75)] backdrop-blur-md transition-all duration-300 active:scale-95 sm:right-3 sm:top-3 sm:px-3 group/compare
                         ${isComparing 
@@ -417,7 +417,7 @@ const CarCard: React.FC<CarCardProps> = ({
                     <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-lg ${isComparing ? 'bg-white/20' : 'bg-slate-100 group-hover/compare:bg-white'}`}>
                       {isComparing ? <Check className="h-3.5 w-3.5 stroke-[3px]" /> : <ArrowLeftRight className="h-3.5 w-3.5" />}
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px]">{isComparing ? 'Selected' : 'Compare'}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px]">{isComparing ? 'Chosen' : 'Add choice'}</span>
                   </button>
 
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">

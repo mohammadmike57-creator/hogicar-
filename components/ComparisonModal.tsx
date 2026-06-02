@@ -112,8 +112,8 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
     );
 
     const SectionHeader = ({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) => (
-        <div className="sticky top-[151px] z-20 grid w-max min-w-full border-y border-slate-200 bg-slate-100/95 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80" style={{ gridTemplateColumns: `220px repeat(${selectedCars.length}, minmax(285px, 1fr))` }}>
-            <div className="sticky left-0 z-30 flex items-center gap-3 border-r border-slate-200 bg-slate-100/95 px-5 py-4 shadow-[8px_0_18px_-18px_rgba(15,23,42,0.7)]">
+        <div className="grid w-max min-w-full border-y border-slate-200 bg-slate-100" style={{ gridTemplateColumns: `220px repeat(${selectedCars.length}, minmax(285px, 1fr))` }}>
+            <div className="sticky left-0 z-30 flex items-center gap-3 border-r border-slate-200 bg-slate-100 px-5 py-4 shadow-[8px_0_18px_-18px_rgba(15,23,42,0.7)]">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-[#008009] shadow-sm">{icon}</span>
                 <div>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-950">{title}</p>
