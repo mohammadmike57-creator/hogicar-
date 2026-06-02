@@ -176,18 +176,132 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
         </div>
     );
 
+    const DetailLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 py-2.5 last:border-b-0">
+            <span className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">{label}</span>
+            <span className="max-w-[58%] text-right text-xs font-black leading-relaxed text-slate-900">{value}</span>
+        </div>
+    );
+
+    const SelectedCarCard = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing> }) => {
+        const isBestPrice = pricing.finalTotal === bestTotal;
+        const isBestSupplier = Number(car.supplier?.rating || 0) === bestRating;
+
+        return (
+            <section className={`relative rounded-2xl border bg-white p-3 shadow-sm sm:p-4 ${isBestPrice ? 'border-[#008009] ring-4 ring-emerald-50' : 'border-slate-200'}`}>
+                <button
+                    onClick={() => onRemove(car)}
+                    className="absolute right-3 top-3 z-10 rounded-lg bg-white p-2 text-slate-400 shadow-sm ring-1 ring-slate-200 transition hover:bg-red-600 hover:text-white hover:ring-red-600"
+                    aria-label={`Remove ${getVehicleName(car)} from comparison`}
+                >
+                    <X className="h-4 w-4" />
+                </button>
+                <div className="flex gap-3 sm:gap-4">
+                    <div className="flex h-20 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-2 sm:h-24 sm:w-32 sm:p-3">
+                        <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-lg" />
+                    </div>
+                    <div className="min-w-0 pr-8">
+                        <div className="mb-2 flex flex-wrap gap-1.5">
+                            {car.hogicarChoice && <Badge tone="success">Hogicar choice</Badge>}
+                            {isBestPrice && <Badge tone="success">Best total</Badge>}
+                            {isBestSupplier && <Badge tone="default">Top rated</Badge>}
+                        </div>
+                        <h3 className="text-sm font-black uppercase leading-tight text-slate-950 sm:text-base">{getVehicleName(car)}</h3>
+                        <p className="mt-1 text-xs font-bold text-slate-500">{car.category} or similar</p>
+                        <div className="mt-3 flex min-w-0 items-center gap-2">
+                            <img src={car.supplier?.logo} alt={car.supplier?.name || 'Supplier'} className="h-6 max-w-[96px] object-contain sm:h-7 sm:max-w-[110px]" />
+                            <span className="h-5 w-px bg-slate-200" />
+                            <span className="inline-flex items-center gap-1 text-xs font-black text-slate-900"><Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {car.supplier?.rating || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4">
+                    <Metric label="Total" value={formatMoney(pricing.finalTotal)} tone={isBestPrice ? 'success' : 'default'} />
+                    <Metric label="Deposit" value={Number(car.deposit || 0) === 0 ? 'Zero' : formatMoney(car.deposit)} tone={Number(car.deposit || 0) === bestDeposit ? 'success' : 'default'} />
+                    <Metric label="Excess" value={Number(car.excess || 0) === 0 ? 'Zero' : formatMoney(car.excess)} tone={Number(car.excess || 0) === bestExcess ? 'success' : 'default'} />
+                </div>
+                <button
+                    onClick={() => handleSelectCar(car)}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#008009] px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_30px_-16px_rgba(0,128,9,0.9)] transition hover:bg-slate-950 active:scale-[0.98] sm:mt-4"
+                >
+                    Select this deal <ArrowRight className="h-4 w-4" />
+                </button>
+            </section>
+        );
+    };
+
+    const MobileCarDetails = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing> }) => (
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+                <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-50 p-2 ring-1 ring-slate-100">
+                    <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain" />
+                </div>
+                <div className="min-w-0">
+                    <h3 className="text-sm font-black uppercase leading-tight text-slate-950">{getVehicleName(car)}</h3>
+                    <p className="mt-1 text-xs font-bold text-slate-500">{car.supplier?.name || 'Supplier'} · {car.category}</p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                        {pricing.finalTotal === bestTotal && <Badge tone="success">Best total</Badge>}
+                        {Number(car.deposit || 0) === bestDeposit && <Badge tone="success">Lowest deposit</Badge>}
+                        {Number(car.excess || 0) === bestExcess && <Badge tone="success">Lowest excess</Badge>}
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 px-3">
+                <DetailLine label="Total" value={formatMoney(pricing.finalTotal)} />
+                <DetailLine label="Per day" value={formatMoney(pricing.finalTotal / Math.max(days, 1))} />
+                <DetailLine label="Pay now" value={formatMoney(pricing.payNow)} />
+                <DetailLine label="At pickup" value={formatMoney(pricing.payAtDesk)} />
+                <DetailLine label="Deposit" value={Number(car.deposit || 0) === 0 ? 'Zero deposit' : formatMoney(car.deposit)} />
+                <DetailLine label="Excess" value={Number(car.excess || 0) === 0 ? 'Zero excess' : formatMoney(car.excess)} />
+            </div>
+
+            <div className="mt-4 rounded-xl border border-slate-100 bg-white px-3">
+                <DetailLine label="Seats" value={`${car.passengers} adults`} />
+                <DetailLine label="Bags" value={car.bags} />
+                <DetailLine label="Doors" value={car.doors || 'N/A'} />
+                <DetailLine label="Transmission" value={formatEnum(car.transmission)} />
+                <DetailLine label="Air con" value={car.airCon ? 'Included' : 'Not listed'} />
+                <DetailLine label="SIPP" value={car.sippCode || 'Not listed'} />
+            </div>
+
+            <div className="mt-4 rounded-xl border border-slate-100 bg-white px-3">
+                <DetailLine label="Rating" value={`${car.supplier?.rating || 'N/A'} / 5`} />
+                <DetailLine label="Pickup" value={getPickupLabel(car)} />
+                <DetailLine label="Mileage" value={car.unlimitedMileage ? 'Unlimited' : 'Limited'} />
+                <DetailLine label="Fuel" value={formatEnum(car.fuelPolicy)} />
+                <DetailLine label="CDW" value={car.supplier?.includesCDW ? 'Included' : 'Check terms'} />
+                <DetailLine label="Theft" value={car.supplier?.includesTP ? 'Included' : 'Check terms'} />
+            </div>
+
+            {(car.rateTiers || []).length > 0 && (
+                <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Rate details</p>
+                    <div className="mt-2 space-y-2">
+                        {car.rateTiers.slice(0, 2).map(tier => (
+                            <div key={tier.id} className="rounded-lg bg-white p-3 ring-1 ring-slate-100">
+                                <p className="text-xs font-black text-slate-950">{tier.name}</p>
+                                <p className="mt-0.5 text-[10px] font-bold text-slate-500">{tier.startDate} to {tier.endDate}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </section>
+    );
+
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/75 p-0 backdrop-blur-xl sm:p-4 lg:p-8">
             <div className="flex h-full w-full max-w-[1500px] flex-col overflow-hidden bg-slate-50 shadow-[0_30px_120px_-30px_rgba(0,0,0,0.65)] sm:h-[96vh] sm:rounded-3xl">
-                <div className="border-b border-slate-200 bg-white">
-                    <div className="flex flex-col gap-5 px-5 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-7">
+                <div className="shrink-0 border-b border-slate-200 bg-white">
+                    <div className="flex flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 lg:flex-row lg:items-center lg:justify-between lg:px-7">
                         <div className="flex min-w-0 items-center gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-xl">
-                                <ArrowLeftRight className="h-6 w-6" />
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-xl sm:h-12 sm:w-12">
+                                <ArrowLeftRight className="h-5 w-5 sm:h-6 sm:w-6" />
                             </div>
                             <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h2 className="text-xl font-black uppercase tracking-tight text-slate-950 sm:text-2xl">Professional Vehicle Comparison</h2>
+                                    <h2 className="text-lg font-black uppercase tracking-tight text-slate-950 sm:text-2xl">Professional Vehicle Comparison</h2>
                                     <Badge tone="success">{selectedCars.length} selected</Badge>
                                 </div>
                                 <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-slate-500">
@@ -196,10 +310,10 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                             <button
                                 onClick={onClose}
-                                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+                                className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 active:scale-95 sm:flex-none sm:tracking-[0.18em]"
                             >
                                 Back to results
                             </button>
@@ -212,72 +326,47 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                             </button>
                         </div>
                     </div>
-
-                    <div className="overflow-x-auto border-t border-slate-100 px-5 pb-5 lg:px-7 custom-scrollbar">
-                        <div className="grid min-w-max gap-4" style={{ gridTemplateColumns: `repeat(${selectedCars.length}, minmax(300px, 1fr))` }}>
-                            {pricedCars.map(({ car, pricing }) => {
-                                const isBestPrice = pricing.finalTotal === bestTotal;
-                                const isBestSupplier = Number(car.supplier?.rating || 0) === bestRating;
-                                return (
-                                    <section key={car.id} className={`relative rounded-2xl border bg-white p-4 shadow-sm ${isBestPrice ? 'border-[#008009] ring-4 ring-emerald-50' : 'border-slate-200'}`}>
-                                        <button
-                                            onClick={() => onRemove(car)}
-                                            className="absolute right-3 top-3 z-10 rounded-lg bg-white p-2 text-slate-400 shadow-sm ring-1 ring-slate-200 transition hover:bg-red-600 hover:text-white hover:ring-red-600"
-                                            aria-label={`Remove ${getVehicleName(car)} from comparison`}
-                                        >
-                                            <X className="h-4 w-4" />
-                                        </button>
-                                        <div className="flex gap-4">
-                                            <div className="flex h-24 w-32 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-3">
-                                                <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-lg" />
-                                            </div>
-                                            <div className="min-w-0 pr-8">
-                                                <div className="mb-2 flex flex-wrap gap-1.5">
-                                                    {car.hogicarChoice && <Badge tone="success">Hogicar choice</Badge>}
-                                                    {isBestPrice && <Badge tone="success">Best total</Badge>}
-                                                    {isBestSupplier && <Badge tone="default">Top rated</Badge>}
-                                                </div>
-                                                <h3 className="text-base font-black uppercase leading-tight text-slate-950">{getVehicleName(car)}</h3>
-                                                <p className="mt-1 text-xs font-bold text-slate-500">{car.category} or similar</p>
-                                                <div className="mt-3 flex items-center gap-2">
-                                                    <img src={car.supplier?.logo} alt={car.supplier?.name || 'Supplier'} className="h-7 max-w-[110px] object-contain" />
-                                                    <span className="h-5 w-px bg-slate-200" />
-                                                    <span className="inline-flex items-center gap-1 text-xs font-black text-slate-900"><Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {car.supplier?.rating || 'N/A'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="mt-4 grid grid-cols-3 gap-2">
-                                            <Metric label="Total" value={formatMoney(pricing.finalTotal)} tone={isBestPrice ? 'success' : 'default'} />
-                                            <Metric label="Deposit" value={Number(car.deposit || 0) === 0 ? 'Zero' : formatMoney(car.deposit)} tone={Number(car.deposit || 0) === bestDeposit ? 'success' : 'default'} />
-                                            <Metric label="Excess" value={Number(car.excess || 0) === 0 ? 'Zero' : formatMoney(car.excess)} tone={Number(car.excess || 0) === bestExcess ? 'success' : 'default'} />
-                                        </div>
-                                        <button
-                                            onClick={() => handleSelectCar(car)}
-                                            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#008009] px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white shadow-[0_14px_30px_-16px_rgba(0,128,9,0.9)] transition hover:bg-slate-950 active:scale-[0.98]"
-                                        >
-                                            Select this deal <ArrowRight className="h-4 w-4" />
-                                        </button>
-                                    </section>
-                                );
-                            })}
-                        </div>
-                    </div>
                 </div>
 
                 <div className="flex-1 overflow-auto bg-white custom-scrollbar">
-                    <SectionHeader icon={<CreditCard className="h-4 w-4" />} title="Rates and financials" subtitle="Full rental amount, payment split, deposit and excess" />
-                    <ComparisonRow
-                        label="Total rental price"
-                        helper={`All taxes for ${days} day${days === 1 ? '' : 's'}`}
-                        icon={<Calendar className="h-4 w-4" />}
-                        values={pricedCars.map(({ pricing }) => (
-                            <ValueBlock
-                                primary={<span className="text-2xl">{formatMoney(pricing.finalTotal)}</span>}
-                                secondary={`Equivalent to ${formatMoney(pricing.finalTotal / Math.max(days, 1))} per day`}
-                                badge={pricing.finalTotal === bestTotal ? <Badge tone="success">Lowest total</Badge> : undefined}
-                            />
+                    <div className="border-b border-slate-100 bg-slate-50 px-4 py-4 sm:px-5 lg:px-7">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-950">Selected choices</p>
+                                <p className="mt-0.5 text-[11px] font-semibold text-slate-500">Scroll down for full rates, specs, deposit, excess and supplier terms.</p>
+                            </div>
+                        </div>
+                        <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+                            {pricedCars.map(({ car, pricing }) => (
+                                <SelectedCarCard key={car.id} car={car} pricing={pricing} />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 bg-slate-50 p-4 md:hidden">
+                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#008009]">Full mobile comparison</p>
+                            <p className="mt-1 text-xs font-semibold leading-relaxed text-emerald-800">Every selected car is shown with pricing, deposit, excess, specs, supplier rating and rental policies.</p>
+                        </div>
+                        {pricedCars.map(({ car, pricing }) => (
+                            <MobileCarDetails key={`mobile-${car.id}`} car={car} pricing={pricing} />
                         ))}
-                    />
+                    </div>
+
+                    <div className="hidden md:block">
+                        <SectionHeader icon={<CreditCard className="h-4 w-4" />} title="Rates and financials" subtitle="Full rental amount, payment split, deposit and excess" />
+                        <ComparisonRow
+                            label="Total rental price"
+                            helper={`All taxes for ${days} day${days === 1 ? '' : 's'}`}
+                            icon={<Calendar className="h-4 w-4" />}
+                            values={pricedCars.map(({ pricing }) => (
+                                <ValueBlock
+                                    primary={<span className="text-2xl">{formatMoney(pricing.finalTotal)}</span>}
+                                    secondary={`Equivalent to ${formatMoney(pricing.finalTotal / Math.max(days, 1))} per day`}
+                                    badge={pricing.finalTotal === bestTotal ? <Badge tone="success">Lowest total</Badge> : undefined}
+                                />
+                            ))}
+                        />
                     <ComparisonRow
                         label="Payment breakdown"
                         helper="What is paid online and at pickup"
@@ -483,6 +572,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                             </div>
                         ))}
                     />
+                </div>
                 </div>
 
                 <div className="flex flex-col gap-4 border-t border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-7">
