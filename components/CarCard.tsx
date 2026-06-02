@@ -404,7 +404,7 @@ const CarCard: React.FC<CarCardProps> = ({
           )}
 
           <div className="p-4 md:hidden">
-              <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="mb-3">
                   <div className="min-w-0">
                       {car.hogicarChoice && (
                         <span className="mb-2 inline-flex rounded-md bg-blue-900 px-2.5 py-1 text-xs font-bold text-white">Recommended</span>
@@ -418,24 +418,6 @@ const CarCard: React.FC<CarCardProps> = ({
                           or similar {car.category.toString().toLowerCase()} car <Info className="h-4 w-4" />
                       </p>
                   </div>
-
-                  {showCompareControl && (
-                    <button
-                      onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          onCompareToggle?.();
-                      }}
-                      aria-pressed={isComparing}
-                      aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                      className="flex shrink-0 items-center gap-2 pt-1 text-base font-semibold text-slate-900"
-                    >
-                        <span>Compare</span>
-                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-blue-600 shadow-[0_8px_18px_-10px_rgba(37,99,235,0.8)]' : 'bg-slate-300'}`}>
-                            <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
-                        </span>
-                    </button>
-                  )}
               </div>
 
               <div className="grid grid-cols-[1fr_42%] items-center gap-3">
@@ -495,7 +477,26 @@ const CarCard: React.FC<CarCardProps> = ({
                       </button>
                   </div>
                   <div className="text-right">
-                      <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
+                      <div className="flex items-center justify-end gap-2">
+                          <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
+                          {showCompareControl && (
+                            <button
+                              onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  onCompareToggle?.();
+                              }}
+                              aria-pressed={isComparing}
+                              aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
+                              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-900"
+                            >
+                                <span>Compare</span>
+                                <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                                    <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-4' : 'translate-x-0'}`} />
+                                </span>
+                            </button>
+                          )}
+                      </div>
                       <p className="text-[2rem] font-black leading-none text-slate-950">{getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(0)}</p>
                       <button
                         type="button"
@@ -524,28 +525,6 @@ const CarCard: React.FC<CarCardProps> = ({
           <div className="hidden md:flex md:flex-row flex-grow">
               {/* Car Image Area */}
               <div className={`relative md:w-1/4 bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 md:p-3 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
-                  {/* Compare Toggle */}
-                  {showCompareControl && <button 
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onCompareToggle?.();
-                    }}
-                    aria-pressed={isComparing}
-                    aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                    className={`
-                        absolute right-2.5 top-2.5 z-30 flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 shadow-[0_12px_28px_-14px_rgba(15,23,42,0.75)] backdrop-blur-md transition-all duration-300 active:scale-95 sm:right-3 sm:top-3 group/compare
-                        ${isComparing 
-                            ? 'border-[#008009] bg-[#008009] text-white ring-4 ring-emerald-50 hover:bg-[#006607]' 
-                            : 'border-slate-200 bg-white/95 text-slate-700 hover:border-[#008009] hover:bg-emerald-50 hover:text-[#008009]'}
-                    `}
-                  >
-                    <span className="text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px]">Compare</span>
-                    <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-white/25' : 'bg-slate-200 group-hover/compare:bg-white'}`}>
-                        <span className={`h-4 w-4 rounded-full shadow-sm transition-transform ${isComparing ? 'translate-x-4 bg-white' : 'translate-x-0 bg-white'}`} />
-                    </span>
-                  </button>}
-
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
                       <img
                         src={displayImage}
@@ -722,6 +701,27 @@ const CarCard: React.FC<CarCardProps> = ({
                       </div>
 
                       <div className="space-y-2.5 md:space-y-4">
+                          {showCompareControl && (
+                            <button
+                              onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  onCompareToggle?.();
+                              }}
+                              aria-pressed={isComparing}
+                              aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
+                              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.14em] transition-all active:scale-[0.98] ${
+                                  isComparing
+                                    ? 'border-[#008009] bg-emerald-50 text-[#008009]'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:border-[#008009] hover:text-[#008009]'
+                              }`}
+                            >
+                                <span>Compare this car</span>
+                                <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-[#008009]' : 'bg-slate-200'}`}>
+                                    <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-4' : 'translate-x-0'}`} />
+                                </span>
+                            </button>
+                          )}
                           {/* CTA Button */}
                           <Link
                             to={`/car/${car.id}?${searchParams}`}

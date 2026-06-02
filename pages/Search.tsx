@@ -484,7 +484,32 @@ export const Search: React.FC = () => {
       <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
         <div className="max-w-[1600px] mx-auto px-2 py-1.5 sm:px-6 sm:py-2.5 lg:px-8">
             <div className="rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-2.5 py-2 sm:px-3 md:py-2">
-              <div className="flex flex-col gap-1.5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="md:hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-white truncate">{location || 'Select Location'}</p>
+                    <p className="mt-0.5 truncate text-[10px] font-bold text-slate-400">
+                      {pickupIata || 'Pickup'} to {dropoffIata || pickupIata || 'Dropoff'} · {days} day{days > 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsSearchOpen(!isSearchOpen)}
+                    className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#008009] px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-md shadow-[#008009]/20 active:scale-[0.98]"
+                  >
+                    <Edit className="h-3 w-3" />
+                    <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center gap-2 overflow-hidden rounded-lg border border-slate-700 bg-slate-800/70 px-2.5 py-1.5">
+                  <Calendar className="h-3.5 w-3.5 shrink-0 text-[#00a30b]" />
+                  <p className="min-w-0 truncate text-[10px] font-black text-white">
+                    {startDateTimeDisplay} - {endDateTimeDisplay}
+                  </p>
+                </div>
+              </div>
+
+              <div className="hidden flex-col gap-1.5 md:flex lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex min-w-0 items-center gap-2">
                   <div className="bg-[#008009]/15 p-1.5 sm:p-2 rounded-lg flex-shrink-0 border border-[#008009]/25">
                     <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00a30b]" />
