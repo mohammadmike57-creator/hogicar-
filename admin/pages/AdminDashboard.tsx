@@ -46,7 +46,7 @@ import {
 // ==================== Helper Functions ====================
 const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const MAX_DATA_URL_LENGTH = 1_500_000; // Increased to 1.5MB for better quality images
+    const MAX_DATA_URL_LENGTH = 800_000; // Reduced to 800KB to prevent 400 Bad Request on some servers
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -1191,7 +1191,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 
                 <div className="h-24 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
                   {imageUrl ? (
-                    <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width={320} height={210} loading="lazy" />
+                    <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width="320" height="210" loading="lazy" />
                   ) : (
                     <div className="text-[11px] font-bold text-slate-400">No image</div>
                   )}
@@ -1305,8 +1305,8 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                       src={destination.image}
                       alt={`${destination?.name || 'Destination'} preview`}
                       className="w-full h-full object-cover"
-                      width={320}
-                      height={180}
+                      width="320"
+                      height="180"
                       loading="lazy"
                     />
                   ) : (
@@ -1548,7 +1548,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
               <tr key={m.id} className="hover:bg-blue-50/30 transition-colors group">
                 <td className="px-8 py-4">
                   <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-blue-200 transition-colors">
-                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width={400} height={250} referrerPolicy="no-referrer" loading="lazy" />
+                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width="400" height="250" referrerPolicy="no-referrer" loading="lazy" />
                   </div>
                 </td>
                 <td className="px-8 py-4">
@@ -1660,7 +1660,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
-                                    <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width={40} height={40}/>
+                                    <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width="40" height="40"/>
                                 </div>
                                 <div>
                                     <div className="text-[13px] font-black text-slate-900 group-hover:text-blue-700 transition-colors leading-tight">{s.name}</div>
@@ -1861,7 +1861,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
             <tr key={c.id} className="hover:bg-blue-50/30 transition-colors">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width={48} height={32} />
+                    <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width="48" height="32" />
                     <div>
                         <div className="text-sm font-bold text-gray-800">{c.displayName}</div>
                         <div className="text-[10px] text-gray-400 uppercase tracking-tighter">{c.make} {c.model}</div>
@@ -1997,7 +1997,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
         <div className="flex gap-4 items-start">
           <div className="w-40 h-28 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
-              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width={400} height={250} referrerPolicy="no-referrer" />
+              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width="400" height="250" referrerPolicy="no-referrer" />
             ) : (
               <ImageIcon className="w-8 h-8 text-gray-200" />
             )}
@@ -2186,7 +2186,7 @@ const HomepageLogosContent = () => {
                                     <td className="px-8 py-4">
                                         <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
-                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width={100} height={50} />
+                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
                                             ) : (
                                                 <ImageIcon className="w-4 h-4 text-slate-300" />
                                             )}
@@ -2322,7 +2322,7 @@ const SearchingLogosContent = () => {
                                     <td className="px-8 py-4">
                                         <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
-                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width={100} height={50} />
+                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
                                             ) : (
                                                 <ImageIcon className="w-4 h-4 text-slate-300" />
                                             )}
@@ -2398,7 +2398,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                     </div>
                     {formData.logoUrl && (
                         <div className="mt-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50 flex items-center justify-center">
-                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width={200} height={100} />
+                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
                         </div>
                     )}
                 </div>
@@ -2528,7 +2528,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                     </div>
                     {formData.logoUrl && (
                         <div className="mt-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50 flex items-center justify-center">
-                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width={200} height={100} />
+                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
                         </div>
                     )}
                 </div>
@@ -3090,6 +3090,7 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveCarModel = async (model: any) => {
     try {
         const payload = {
+            id: model.id ? parseInt(String(model.id).split(':')[0]) : undefined,
             make: model.make,
             model: model.model,
             year: model.year,
