@@ -1025,7 +1025,8 @@ export const Search: React.FC = () => {
       
       {/* Smart Comparison Bar */}
       {selectedCompareCars.length === 0 && sortedAndFilteredCars.length > 0 && (
-        <div className="fixed bottom-4 left-1/2 z-[100] w-[94%] max-w-5xl -translate-x-1/2 animate-in slide-in-from-bottom-8 duration-700 sm:bottom-6">
+        <>
+        <div className="fixed bottom-4 left-1/2 z-[100] w-[94%] max-w-5xl -translate-x-1/2 animate-in slide-in-from-bottom-8 duration-700 md:hidden">
             <button
                 onClick={() => setIsCompareMode(prev => !prev)}
                 className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/95 p-4 text-left text-slate-950 shadow-[0_22px_58px_-30px_rgba(15,23,42,0.55)] ring-1 ring-slate-900/5 backdrop-blur-2xl sm:rounded-3xl sm:px-6"
@@ -1043,6 +1044,24 @@ export const Search: React.FC = () => {
                 </span>
             </button>
         </div>
+        <div className="fixed bottom-6 right-6 z-[100] hidden animate-in slide-in-from-bottom-6 duration-500 md:block">
+            <button
+                onClick={() => setIsCompareMode(prev => !prev)}
+                className={`flex items-center gap-3 rounded-2xl border px-5 py-3 text-xs font-black uppercase tracking-[0.16em] shadow-[0_18px_42px_-24px_rgba(15,23,42,0.65)] backdrop-blur-2xl transition-all active:scale-95 ${
+                    isCompareMode
+                        ? 'border-[#008009] bg-[#008009] text-white'
+                        : 'border-slate-200 bg-white/95 text-slate-900 hover:border-[#008009] hover:text-[#008009]'
+                }`}
+                aria-pressed={isCompareMode}
+            >
+                <ArrowLeftRight className="h-4 w-4" />
+                Compare
+                <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isCompareMode ? 'bg-white/25' : 'bg-slate-200'}`}>
+                    <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isCompareMode ? 'translate-x-4' : 'translate-x-0'}`} />
+                </span>
+            </button>
+        </div>
+        </>
       )}
 
       {selectedCompareCars.length > 0 && (
