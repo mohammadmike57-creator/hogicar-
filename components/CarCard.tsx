@@ -450,7 +450,7 @@ const CarCard: React.FC<CarCardProps> = ({
                   )}
               </div>
 
-              <div className="grid grid-cols-[1fr_42%] items-center gap-3">
+              <div className="grid grid-cols-[1fr_52%] items-center gap-3">
                   <div className="space-y-3 text-slate-950">
                       <div className="flex items-center gap-3 text-lg font-semibold">
                           <Users className="h-6 w-6 stroke-[1.8px]" />
@@ -465,13 +465,13 @@ const CarCard: React.FC<CarCardProps> = ({
                           <span>{car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</span>
                       </div>
                   </div>
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex aspect-[4/3] items-center justify-center">
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex items-center justify-center relative group/img-link">
                       <img
                         src={displayImage}
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
-                        className="h-full w-full object-contain drop-shadow-md"
+                        className="w-full h-auto object-contain drop-shadow-2xl mix-blend-multiply scale-110 group-hover/img-link:scale-125 transition-transform duration-500 ease-out"
                       />
                   </Link>
               </div>
@@ -535,15 +535,15 @@ const CarCard: React.FC<CarCardProps> = ({
 
           <div className="hidden md:flex md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className={`relative md:w-[22%] bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.35/1] flex items-center justify-center mb-2 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
+              <div className={`relative md:w-[30%] bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
+                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.35/1] flex items-center justify-center mb-2 group/img-link">
                       <img
                         src={displayImage}
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
                         loading="eager"
-                        className="w-full h-full object-contain p-2 group-hover/img:scale-105 transition-transform duration-500 ease-out"
+                        className="w-full h-full object-contain drop-shadow-2xl mix-blend-multiply scale-110 group-hover/img-link:scale-125 transition-transform duration-500 ease-out z-10"
                       />
 
                       {promotionLabel && (

@@ -197,8 +197,8 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                     <X className="h-4 w-4" />
                 </button>
                 <div className="flex gap-3 sm:gap-4">
-                    <div className="flex h-20 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-2 sm:h-24 sm:w-32 sm:p-3">
-                        <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-lg" />
+                    <div className="flex h-20 w-32 shrink-0 items-center justify-center bg-transparent p-0 sm:h-28 sm:w-44">
+                        <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-2xl mix-blend-multiply scale-110" />
                     </div>
                     <div className="min-w-0 pr-8">
                         <div className="mb-2 flex flex-wrap gap-1.5">
@@ -233,8 +233,8 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
     const MobileCarDetails = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing> }) => (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start gap-3">
-                <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-50 p-2 ring-1 ring-slate-100">
-                    <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain" />
+                <div className="flex h-16 w-32 shrink-0 items-center justify-center bg-transparent p-0">
+                    <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-2xl mix-blend-multiply scale-110" />
                 </div>
                 <div className="min-w-0">
                     <h3 className="text-sm font-black uppercase leading-tight text-slate-950">{getVehicleName(car)}</h3>

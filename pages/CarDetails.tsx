@@ -392,7 +392,7 @@ const CarDetails: React.FC = () => {
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="w-full h-52 sm:h-64 lg:h-full min-h-[280px] object-contain p-5 sm:p-7"
+                      className="w-full h-52 sm:h-64 lg:h-full min-h-[300px] object-contain drop-shadow-2xl mix-blend-multiply scale-110 lg:scale-125 transition-transform duration-700"
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                       <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.category}</span>
@@ -665,7 +665,7 @@ const CarDetails: React.FC = () => {
                         }}
                         className="flex text-left gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition-all hover:border-blue-400 w-full"
                       >
-                        <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain rounded-lg" />
+                        <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain mix-blend-multiply drop-shadow-lg" />
                         <div className="flex-1">
                           <div className="font-semibold">{similar.displayName}</div>
                           <div className="text-sm text-slate-500">{similar.category}</div>
