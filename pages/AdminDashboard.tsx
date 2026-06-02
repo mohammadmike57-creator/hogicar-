@@ -39,7 +39,48 @@ import {
 } from '../../types';
 
 // ==================== Types ====================
-const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
+const removeLightBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const samplePoints = [
+    [0, 0],
+    [width - 1, 0],
+    [0, height - 1],
+    [width - 1, height - 1],
+  ];
+  const bg = samplePoints.reduce(
+    (acc, [x, y]) => {
+      const index = (y * width + x) * 4;
+      acc.r += data[index];
+      acc.g += data[index + 1];
+      acc.b += data[index + 2];
+      return acc;
+    },
+    { r: 0, g: 0, b: 0 }
+  );
+  bg.r /= samplePoints.length;
+  bg.g /= samplePoints.length;
+  bg.b /= samplePoints.length;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const brightness = (r + g + b) / 3;
+    const colorDistance = Math.hypot(r - bg.r, g - bg.g, b - bg.b);
+    const lowSaturation = Math.max(r, g, b) - Math.min(r, g, b) < 34;
+
+    if (brightness > 238 && colorDistance < 72) {
+      data[i + 3] = 0;
+    } else if (brightness > 218 && lowSaturation && colorDistance < 54) {
+      data[i + 3] = Math.min(data[i + 3], 70);
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+};
+
+const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: { removeBackground?: boolean } = {}): Promise<string> => {
   return new Promise((resolve, reject) => {
     const MAX_DATA_URL_LENGTH = 800_000; // Reduced to 800KB to prevent 400 Bad Request on some servers
     const reader = new FileReader();
@@ -63,6 +104,35 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<s
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, width, height);
+
+          if (options.removeBackground) {
+            removeLightBackground(ctx, canvas.width, canvas.height);
+            let outputCanvas = canvas;
+            let dataUrl = outputCanvas.toDataURL('image/png');
+
+            while (dataUrl.length > MAX_DATA_URL_LENGTH && outputCanvas.width > 420 && outputCanvas.height > 280) {
+              const nextWidth = Math.round(outputCanvas.width * 0.86);
+              const nextHeight = Math.round(outputCanvas.height * 0.86);
+              const smallerCanvas = document.createElement('canvas');
+              smallerCanvas.width = nextWidth;
+              smallerCanvas.height = nextHeight;
+              const smallerCtx = smallerCanvas.getContext('2d');
+              if (!smallerCtx) break;
+              smallerCtx.imageSmoothingEnabled = true;
+              smallerCtx.imageSmoothingQuality = 'high';
+              smallerCtx.drawImage(outputCanvas, 0, 0, nextWidth, nextHeight);
+              outputCanvas = smallerCanvas;
+              dataUrl = outputCanvas.toDataURL('image/png');
+            }
+
+            if (dataUrl.length > MAX_DATA_URL_LENGTH) {
+              reject(new Error('The transparent image is still too big. Please upload a smaller car image.'));
+              return;
+            }
+
+            resolve(dataUrl);
+            return;
+          }
           
           let quality = 0.82;
           let dataUrl = canvas.toDataURL('image/jpeg', quality);
@@ -700,7 +770,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: { carModel: Ca
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             try {
-                const resized = await resizeImage(e.target.files[0], 1200, 800);
+                const resized = await resizeImage(e.target.files[0], 1200, 800, { removeBackground: true });
                 handleChange('image', resized);
             } catch (err: any) {
                 alert(err.message);
@@ -730,7 +800,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: { carModel: Ca
                     <label className="block text-xs font-medium text-gray-600 mb-1">Car Image</label>
                     <div className="mt-1 flex items-center gap-4">
                         {model.image ? (
-                            <img src={model.image} alt="Preview" className="w-48 h-auto object-cover rounded-xl border p-1" />
+                            <img src={model.image} alt="Preview" className="w-48 h-28 object-contain rounded-xl border border-gray-200 bg-transparent p-2" />
                         ) : (
                             <div className="w-48 h-24 bg-gray-100 rounded-xl border flex items-center justify-center">
                                 <ImageIcon className="w-8 h-8 text-gray-400" />
@@ -1081,7 +1151,7 @@ const FleetContent = ({ cars, suppliers, onAddPromotion }: { cars: CarType[], su
                             return (
                                 <tr key={car.id} className="hover:bg-orange-50/50 transition-colors">
                                     <td className="py-3 px-4 flex items-center gap-3">
-                                        <img src={car.image} alt="" className="w-16 h-10 object-cover rounded bg-gray-100 border border-gray-200" />
+                                        <img src={car.image} alt="" className="w-16 h-10 object-contain rounded bg-transparent border border-gray-200 p-1" />
                                         <div>
                                             <span className="block font-bold text-gray-800 text-sm">{car.make} {car.model}</span>
                                             <span className="text-xs text-gray-500">{car.category}</span>
@@ -1132,7 +1202,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => (
                     {library.map((model: CarModel) => (
                         <tr key={model.id} className="hover:bg-orange-50/50 transition-colors">
                             <td className="py-3 px-4">
-                                <img src={model.image} alt={`${model.make} ${model.model}`} className="w-16 h-10 object-cover rounded bg-gray-100 border border-gray-200" />
+                                <img src={model.image} alt={`${model.make} ${model.model}`} className="w-16 h-10 object-contain rounded bg-transparent border border-gray-200 p-1" />
                              </td>
                             <td className="py-3 px-4">
                                 <span className="block font-bold text-gray-800 text-sm">{model.make} {model.model}</span>
