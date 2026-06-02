@@ -277,8 +277,8 @@ const Home: React.FC = () => {
                   src={s.logo || s.logoUrl} 
                   alt={s.name} 
                   className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 logo-scaled-hover" 
-                  width={160}
-                  height={48}
+                  width="160"
+                  height="48"
                   style={{ 
                       '--logo-scale': (s.scale || 100) / 100,
                       '--logo-scale-mobile': (s.mobileScale || 100) / 100,
@@ -407,7 +407,7 @@ const Home: React.FC = () => {
                        key={dest.name} 
                        className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white aspect-[4/3]"
                    >
-                       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width={400} height={300} />
+                       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
                            <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
@@ -455,8 +455,8 @@ const Home: React.FC = () => {
                   src="https://images.unsplash.com/photo-1568605117036-5fe5e7185743?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
                   alt="Modern car interior" 
                   className="absolute inset-0 w-full h-full object-cover"
-                  width={600}
-                  height={400}
+                  width="600"
+                  height="400"
                 />
                 <div className="absolute inset-0 bg-slate-900/20"></div>
               </div>
