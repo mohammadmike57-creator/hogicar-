@@ -330,6 +330,7 @@ interface CarCardProps {
   dropoffCode: string;
   isComparing?: boolean;
   showCompareControl?: boolean;
+  showMobileCompareControl?: boolean;
   onCompareToggle?: () => void;
 }
 
@@ -343,6 +344,7 @@ const CarCard: React.FC<CarCardProps> = ({
     dropoffCode,
     isComparing = false,
     showCompareControl = true,
+    showMobileCompareControl = true,
     onCompareToggle
 }) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
@@ -419,7 +421,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       </p>
                   </div>
 
-                  {showCompareControl && (
+                  {showMobileCompareControl && (
                     <button
                       onClick={(e) => {
                           e.preventDefault();

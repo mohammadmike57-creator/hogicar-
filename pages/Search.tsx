@@ -1030,6 +1030,7 @@ export const Search: React.FC = () => {
                             dropoffCode={dropoffIata || pickupIata}
                             isComparing={selectedCompareCars.some(c => c.id === car.id)}
                             showCompareControl
+                            showMobileCompareControl={isCompareMode || selectedCompareCars.some(c => c.id === car.id)}
                             onCompareToggle={() => toggleCompare(car)}
                         />
                     ))}
