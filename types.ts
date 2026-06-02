@@ -111,6 +111,7 @@ export interface Supplier {
   name: string;
   rating: number;
   logo: string;
+  logoUrl?: string;
   commissionType: CommissionType;
   commissionPercent: number; // Percentage (e.g., 25.00 for 25%)
   bookingMode: BookingMode;

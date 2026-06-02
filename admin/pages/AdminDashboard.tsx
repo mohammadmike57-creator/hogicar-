@@ -597,10 +597,10 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     if (e.target.files?.[0]) {
       try {
         const resized = await resizeImage(e.target.files[0], 800, 400);
-        handleChange("logo", resized);
+        setEditedSupplier(prev => ({ ...prev, logoUrl: resized, logo: "" }));
       } catch (err) {
         const reader = new FileReader();
-        reader.onloadend = () => handleChange("logo", reader.result);
+        reader.onloadend = () => setEditedSupplier(prev => ({ ...prev, logoUrl: reader.result as string, logo: "" }));
         reader.readAsDataURL(e.target.files[0]);
       }
     }
@@ -684,6 +684,14 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <InputField label="Company Name" value={editedSupplier.name || ""} onChange={e => handleChange("name", e.target.value)} />
               <InputField label="Reservation Email" value={editedSupplier.contactEmail || ""} onChange={e => handleChange("contactEmail", e.target.value)} />
             </div>
+            <InputField 
+              label="Supplier Logo URL" 
+              icon={Globe}
+              value={editedSupplier.logoUrl || editedSupplier.logo || ""} 
+              onChange={e => setEditedSupplier(prev => ({ ...prev, logoUrl: e.target.value, logo: "" }))} 
+              placeholder="https://example.com/logo.png"
+              helperText="Paste a direct image URL or use the upload button on the left."
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputField label="Phone" value={editedSupplier.phone || ""} onChange={e => handleChange("phone", e.target.value)} />
               <SelectField label="Pickup Type" value={editedSupplier.pickupType || "IN_TERMINAL"} onChange={e => handleChange("pickupType", e.target.value)} options={[
