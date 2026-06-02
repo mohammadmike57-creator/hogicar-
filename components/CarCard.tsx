@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight, ArrowLeftRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
 import { getRatingDescription } from '../utils/ratings';
@@ -328,9 +328,21 @@ interface CarCardProps {
   endDate: string;
   pickupCode: string;
   dropoffCode: string;
+  isComparing?: boolean;
+  onCompareToggle?: () => void;
 }
 
-const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, pickupCode, dropoffCode }) => {
+const CarCard: React.FC<CarCardProps> = ({ 
+    car, 
+    cars, 
+    days, 
+    startDate, 
+    endDate, 
+    pickupCode, 
+    dropoffCode,
+    isComparing = false,
+    onCompareToggle
+}) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
   const { convertPrice, getCurrencySymbol } = useCurrency();
 
@@ -386,6 +398,24 @@ const CarCard: React.FC<CarCardProps> = ({ car, cars, days, startDate, endDate, 
           <div className="flex flex-col md:flex-row flex-grow">
               {/* Car Image Area */}
               <div className={`relative md:w-1/4 bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 md:p-3 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
+                  {/* Compare Toggle */}
+                  <button 
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onCompareToggle?.();
+                    }}
+                    className={`
+                        absolute top-3 right-3 z-30 p-2 rounded-xl transition-all shadow-sm border
+                        ${isComparing 
+                            ? 'bg-[#008009] text-white border-[#008009] scale-110' 
+                            : 'bg-white/80 backdrop-blur-md text-slate-400 border-slate-200 hover:text-[#008009] hover:border-[#008009]'}
+                    `}
+                    title="Compare this car"
+                  >
+                    <ArrowLeftRight className={`w-4 h-4 ${isComparing ? 'animate-pulse' : ''}`} />
+                  </button>
+
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
                       <img
                         src={displayImage}

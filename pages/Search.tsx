@@ -4,7 +4,8 @@ import { fetchPublicSuppliers } from '../api';
 import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X } from 'lucide-react';
+import ComparisonModal from '../components/ComparisonModal';
+import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
@@ -198,6 +199,20 @@ export const Search: React.FC = () => {
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
   const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
   const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
+  const [selectedCompareCars, setSelectedCompareCars] = React.useState<Car[]>([]);
+  const [isCompareModalOpen, setIsCompareModalOpen] = React.useState(false);
+
+  const toggleCompare = (car: Car) => {
+    setSelectedCompareCars(prev => {
+        const isAlreadySelected = prev.some(c => c.id === car.id);
+        if (isAlreadySelected) {
+            return prev.filter(c => c.id !== car.id);
+        } else {
+            if (prev.length >= 4) return prev; // Limit to 4 cars for comparison
+            return [...prev, car];
+        }
+    });
+  };
 
   const normalizeCategoryImages = (images: unknown): Record<string, string> => {
     const normalized: Record<string, string> = {};
@@ -986,6 +1001,8 @@ export const Search: React.FC = () => {
                             endDate={endDate}
                             pickupCode={pickupIata}
                             dropoffCode={dropoffIata || pickupIata}
+                            isComparing={selectedCompareCars.some(c => c.id === car.id)}
+                            onCompareToggle={() => toggleCompare(car)}
                         />
                     ))}
                     {sortedAndFilteredCars.length === 0 && (
@@ -1002,6 +1019,68 @@ export const Search: React.FC = () => {
           </main>
         </div>
       </div>
+      
+      {/* Floating Comparison Bar */}
+      {selectedCompareCars.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-2xl animate-in slide-in-from-bottom-8 duration-300">
+            <div className="bg-slate-900 text-white rounded-3xl shadow-2xl shadow-slate-900/40 p-3 md:p-4 border border-white/10 backdrop-blur-md bg-slate-900/95">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="bg-[#008009] p-2 rounded-xl shrink-0 hidden sm:flex">
+                            <ArrowLeftRight className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-black uppercase tracking-wider leading-none">Compare Choices</p>
+                            <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{selectedCompareCars.length} of 4 selected</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                        <div className="flex -space-x-3 sm:-space-x-4">
+                            {selectedCompareCars.map(car => (
+                                <div key={car.id} className="relative group/comp">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-slate-900 bg-white p-1 overflow-hidden transition-transform hover:scale-110 hover:z-10 cursor-pointer shadow-lg">
+                                        <img src={car.image} alt={car.model} className="w-full h-full object-contain" />
+                                    </div>
+                                    <button 
+                                        onClick={() => toggleCompare(car)}
+                                        className="absolute -top-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-lg opacity-0 group-hover/comp:opacity-100 transition-opacity"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <button 
+                            disabled={selectedCompareCars.length < 2}
+                            onClick={() => setIsCompareModalOpen(true)}
+                            className={`
+                                px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all
+                                ${selectedCompareCars.length >= 2 
+                                    ? 'bg-[#008009] hover:bg-[#00a30b] text-white shadow-lg shadow-emerald-900/20 active:scale-95' 
+                                    : 'bg-slate-800 text-slate-500 cursor-not-allowed'}
+                            `}
+                        >
+                            Compare Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Comparison Modal */}
+      {isCompareModalOpen && (
+        <ComparisonModal 
+            selectedCars={selectedCompareCars} 
+            onClose={() => setIsCompareModalOpen(false)}
+            onRemove={toggleCompare}
+            days={days}
+            startDate={startDate}
+            endDate={endDate}
+        />
+      )}
     </div>
     </>
   );
