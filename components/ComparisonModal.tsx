@@ -1,6 +1,7 @@
 
 import * as React from 'react';
-import { X, Check, Users, Briefcase, Fuel, Zap, Shield, Award, Building, CreditCard, ArrowLeftRight, Plane, Handshake, Bus, GaugeCircle, Wind, Star } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { X, Check, Users, Briefcase, Fuel, Zap, Shield, Award, Building, CreditCard, ArrowLeftRight, Plane, Handshake, Bus, GaugeCircle, Wind, Star, ArrowRight } from 'lucide-react';
 import { Car, FuelPolicy, Transmission } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
@@ -16,15 +17,32 @@ interface ComparisonModalProps {
 
 const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose, onRemove, days, startDate, endDate }) => {
     const { convertPrice, getCurrencySymbol } = useCurrency();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const searchParams = location.search;
     const search = { pickupDate: startDate, dropoffDate: endDate };
 
+    const handleSelectCar = (car: Car) => {
+        // Persist the car ID and the full results list for the next page
+        sessionStorage.setItem('hogicar_selectedCarId', car.id);
+        sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
+        // We don't have the full cars list here, but we can try to get it from sessionStorage if it exists
+        // or just let the details page handle it from its own API fetch fallback if needed.
+        // Actually, CarCard sets hogicar_cars.
+        
+        navigate(`/car/${car.id}${searchParams}`);
+    };
+
     const ComparisonRow = ({ label, values, highlightBest = false }: { label: string; values: (string | number | React.ReactNode)[]; highlightBest?: boolean }) => (
-        <div className="grid grid-cols-[120px_repeat(auto-fit,minmax(150px,1fr))] items-center border-b border-slate-100 last:border-0">
-            <div className="bg-slate-50/50 p-4 text-[10px] font-black text-slate-500 uppercase tracking-wider h-full flex items-center">
+        <div 
+            className="grid items-center border-b border-slate-100 last:border-0 w-max min-w-full"
+            style={{ gridTemplateColumns: `120px repeat(${selectedCars.length}, minmax(220px, 1fr))` }}
+        >
+            <div className="bg-slate-50/90 backdrop-blur-sm p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider h-full flex items-center sticky left-0 z-20 border-r border-slate-100 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)]">
                 {label}
             </div>
             {values.map((val, idx) => (
-                <div key={idx} className="p-4 text-center border-l border-slate-100 h-full flex items-center justify-center font-bold text-slate-800 text-sm">
+                <div key={idx} className="p-6 text-center border-l border-slate-100 h-full flex items-center justify-center font-bold text-slate-800 text-sm bg-white">
                     {val}
                 </div>
             ))}
@@ -44,8 +62,8 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
     const getDeposit = (car: Car) => car.deposit || 0;
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-6 backdrop-blur-md bg-slate-950/60 animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-6xl h-full md:h-auto md:max-h-[90vh] md:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-4 md:p-6 backdrop-blur-md bg-slate-950/60 animate-in fade-in duration-300">
+            <div className="bg-white w-full max-w-7xl h-full sm:h-[95vh] md:h-auto md:max-h-[90vh] sm:rounded-3xl md:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in zoom-in-95 duration-300">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white sticky top-0 z-10">
                     <div className="flex items-center gap-4">
@@ -66,34 +84,47 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                 </div>
 
                 {/* Comparison Table */}
-                <div className="flex-grow overflow-auto custom-scrollbar">
-                    <div className="min-w-[800px]">
+                <div className="flex-grow overflow-auto custom-scrollbar bg-slate-50/50">
+                    <div className="min-w-full">
                         {/* Car Header Cards */}
-                        <div className="grid grid-cols-[120px_repeat(auto-fit,minmax(150px,1fr))] bg-white sticky top-0 z-[5]">
-                            <div className="bg-slate-50/50 border-b border-slate-100"></div>
+                        <div 
+                            className="grid bg-white sticky top-0 z-30 border-b border-slate-200 shadow-sm w-max min-w-full"
+                            style={{ gridTemplateColumns: `120px repeat(${selectedCars.length}, minmax(220px, 1fr))` }}
+                        >
+                            <div className="bg-slate-50/90 backdrop-blur-sm sticky left-0 z-40 border-r border-slate-100 flex items-center justify-center shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+                                <ArrowLeftRight className="w-5 h-5 text-slate-300" />
+                            </div>
                             {selectedCars.map(car => (
-                                <div key={car.id} className="p-6 border-l border-b border-slate-100 relative group">
+                                <div key={car.id} className="p-6 border-l border-slate-100 relative group bg-white">
                                     <button 
                                         onClick={() => onRemove(car)}
-                                        className="absolute top-2 right-2 p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm"
+                                        className="absolute top-3 right-3 p-1.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm z-10"
+                                        title="Remove from comparison"
                                     >
-                                        <X className="w-4 h-4" />
+                                        <X className="w-3.5 h-3.5" />
                                     </button>
                                     
-                                    <div className="aspect-[16/10] bg-slate-50 rounded-2xl p-4 mb-4 ring-1 ring-slate-100 flex items-center justify-center">
-                                        <img src={car.image} alt={car.model} className="max-h-full object-contain drop-shadow-md" />
+                                    <div className="aspect-[16/10] bg-slate-50 rounded-2xl p-4 mb-4 ring-1 ring-slate-100 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-300">
+                                        <img src={car.image} alt={car.model} className="max-h-full object-contain drop-shadow-lg" />
                                     </div>
                                     
                                     <div className="text-center">
                                         <p className="text-[10px] font-black text-[#008009] uppercase tracking-widest mb-1">{car.category}</p>
-                                        <h3 className="font-black text-slate-900 text-base leading-tight uppercase tracking-tight">{car.make} {car.model}</h3>
-                                        <div className="mt-4 flex items-center justify-center gap-2">
-                                            <img src={car.supplier.logo} className="h-6 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" alt={car.supplier.name} />
+                                        <h3 className="font-black text-slate-900 text-base leading-tight uppercase tracking-tight line-clamp-1">{car.make} {car.model}</h3>
+                                        <div className="mt-3 flex items-center justify-center gap-2">
+                                            <img src={car.supplier.logo} className="h-6 w-auto object-contain" alt={car.supplier.name} />
                                             <div className="flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md">
                                                 <Star className="w-3 h-3 text-[#008009] fill-[#008009]" />
                                                 <span className="text-[10px] font-black text-[#008009]">{car.supplier.rating}</span>
                                             </div>
                                         </div>
+                                        <button 
+                                            onClick={() => handleSelectCar(car)}
+                                            className="mt-4 w-full py-2.5 bg-[#008009] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#00a30b] transition-all shadow-md flex items-center justify-center gap-2 group/btn"
+                                        >
+                                            Select Vehicle
+                                            <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                                        </button>
                                     </div>
                                 </div>
                             ))}

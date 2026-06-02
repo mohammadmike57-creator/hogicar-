@@ -1022,32 +1022,40 @@ export const Search: React.FC = () => {
       
       {/* Floating Comparison Bar */}
       {selectedCompareCars.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-2xl animate-in slide-in-from-bottom-8 duration-300">
-            <div className="bg-slate-900 text-white rounded-3xl shadow-2xl shadow-slate-900/40 p-3 md:p-4 border border-white/10 backdrop-blur-md bg-slate-900/95">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-3xl animate-in slide-in-from-bottom-8 duration-500 ease-out">
+            <div className="bg-slate-900/95 backdrop-blur-xl text-white rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] p-2.5 md:p-3 border border-white/10 ring-1 ring-white/5">
                 <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="bg-[#008009] p-2 rounded-xl shrink-0 hidden sm:flex">
+                    <div className="flex items-center gap-3 ml-2 md:ml-4">
+                        <div className="bg-gradient-to-br from-[#008009] to-[#00a30b] p-2.5 rounded-2xl shadow-lg shadow-emerald-900/40 shrink-0 hidden sm:flex">
                             <ArrowLeftRight className="w-5 h-5 text-white" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-sm font-black uppercase tracking-wider leading-none">Compare Choices</p>
-                            <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{selectedCompareCars.length} of 4 selected</p>
+                            <p className="text-[11px] md:text-[13px] font-black uppercase tracking-tight md:tracking-wider leading-none">Compare Choices</p>
+                            <p className="text-[9px] md:text-[10px] text-slate-400 font-bold mt-1.5 uppercase tracking-widest flex items-center gap-1.5">
+                                <span className={`inline-block w-1.5 h-1.5 rounded-full ${selectedCompareCars.length >= 2 ? 'bg-[#008009] animate-pulse' : 'bg-amber-500'}`}></span>
+                                {selectedCompareCars.length} of 4 vehicles selected
+                            </p>
                         </div>
                     </div>
                     
-                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                        <div className="flex -space-x-3 sm:-space-x-4">
+                    <div className="flex items-center gap-2 md:gap-6 shrink-0 mr-1 md:mr-2">
+                        <div className="flex -space-x-3 md:-space-x-4 mr-1">
                             {selectedCompareCars.map(car => (
                                 <div key={car.id} className="relative group/comp">
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-slate-900 bg-white p-1 overflow-hidden transition-transform hover:scale-110 hover:z-10 cursor-pointer shadow-lg">
+                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl border-2 border-slate-900 bg-white p-1.5 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:z-20 cursor-pointer shadow-xl ring-1 ring-white/10">
                                         <img src={car.image} alt={car.model} className="w-full h-full object-contain" />
                                     </div>
                                     <button 
                                         onClick={() => toggleCompare(car)}
-                                        className="absolute -top-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-lg opacity-0 group-hover/comp:opacity-100 transition-opacity"
+                                        className="absolute -top-1.5 -right-1.5 bg-red-600 text-white p-1 rounded-full shadow-lg opacity-0 group-hover/comp:opacity-100 transition-opacity z-30 hover:scale-110 active:scale-90"
                                     >
                                         <X className="w-3 h-3" />
                                     </button>
+                                </div>
+                            ))}
+                            {Array.from({ length: 4 - selectedCompareCars.length }).map((_, i) => (
+                                <div key={i} className="w-10 h-10 md:w-14 md:h-14 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-800/50 flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
                                 </div>
                             ))}
                         </div>
@@ -1056,13 +1064,13 @@ export const Search: React.FC = () => {
                             disabled={selectedCompareCars.length < 2}
                             onClick={() => setIsCompareModalOpen(true)}
                             className={`
-                                px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all
+                                px-5 md:px-8 py-3 md:py-4 rounded-[1.25rem] font-black text-[10px] md:text-[12px] uppercase tracking-widest transition-all duration-300
                                 ${selectedCompareCars.length >= 2 
-                                    ? 'bg-[#008009] hover:bg-[#00a30b] text-white shadow-lg shadow-emerald-900/20 active:scale-95' 
+                                    ? 'bg-[#008009] hover:bg-[#00a30b] text-white shadow-xl shadow-emerald-900/30 hover:shadow-emerald-900/50 active:scale-95' 
                                     : 'bg-slate-800 text-slate-500 cursor-not-allowed'}
                             `}
                         >
-                            Compare Now
+                            {selectedCompareCars.length < 2 ? 'Select more' : 'Compare'}
                         </button>
                     </div>
                 </div>

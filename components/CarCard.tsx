@@ -406,14 +406,16 @@ const CarCard: React.FC<CarCardProps> = ({
                         onCompareToggle?.();
                     }}
                     className={`
-                        absolute top-3 right-3 z-30 p-2 rounded-xl transition-all shadow-sm border
+                        absolute top-3 right-3 z-30 px-3 py-1.5 rounded-full transition-all shadow-lg border flex items-center gap-2 group/compare
                         ${isComparing 
-                            ? 'bg-[#008009] text-white border-[#008009] scale-110' 
-                            : 'bg-white/80 backdrop-blur-md text-slate-400 border-slate-200 hover:text-[#008009] hover:border-[#008009]'}
+                            ? 'bg-[#008009] text-white border-[#008009] ring-4 ring-emerald-50' 
+                            : 'bg-white/95 backdrop-blur-md text-slate-600 border-slate-200 hover:border-[#008009] hover:text-[#008009]'}
                     `}
-                    title="Compare this car"
                   >
-                    <ArrowLeftRight className={`w-4 h-4 ${isComparing ? 'animate-pulse' : ''}`} />
+                    <div className={`p-1 rounded-full ${isComparing ? 'bg-white/20' : 'bg-slate-100 group-hover/compare:bg-emerald-50'}`}>
+                      {isComparing ? <Check className="w-3 h-3" /> : <ArrowLeftRight className="w-3 h-3" />}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider">{isComparing ? 'Selected' : 'Compare'}</span>
                   </button>
 
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.25/1] md:aspect-[16/10] flex items-center justify-center mb-2 md:mb-4 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
