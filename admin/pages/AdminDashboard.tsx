@@ -684,6 +684,26 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <InputField label="Company Name" value={editedSupplier.name || ""} onChange={e => handleChange("name", e.target.value)} />
               <InputField label="Reservation Email" value={editedSupplier.contactEmail || ""} onChange={e => handleChange("contactEmail", e.target.value)} />
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SelectField label="Pickup Type" value={editedSupplier.pickupType || "IN_TERMINAL"} onChange={e => handleChange("pickupType", e.target.value)} options={[
+                { value: "IN_TERMINAL", label: "In Terminal" },
+                { value: "MEET_AND_GREET", label: "Meet & Greet" },
+                { value: "SHUTTLE_BUS", label: "Shuttle Bus" }
+              ]} />
+              <div className="bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Supplier Rating (1-5)</label>
+                <div className="flex items-center gap-3 mt-1">
+                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                  <input 
+                    type="range" min="1" max="5" step="0.1" 
+                    value={editedSupplier.rating || 4.5} 
+                    onChange={e => handleChange("rating", parseFloat(e.target.value))}
+                    className="flex-grow h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  />
+                  <span className="text-sm font-black text-gray-700 min-w-[2rem]">{editedSupplier.rating || 4.5}</span>
+                </div>
+              </div>
+            </div>
             <InputField 
               label="Supplier Logo URL" 
               icon={Globe}
@@ -694,11 +714,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputField label="Phone" value={editedSupplier.phone || ""} onChange={e => handleChange("phone", e.target.value)} />
-              <SelectField label="Pickup Type" value={editedSupplier.pickupType || "IN_TERMINAL"} onChange={e => handleChange("pickupType", e.target.value)} options={[
-                { value: "IN_TERMINAL", label: "In Terminal" },
-                { value: "MEET_AND_GREET", label: "Meet & Greet" },
-                { value: "SHUTTLE_BUS", label: "Shuttle Bus" }
-              ]} />
             </div>
           </div>
         </div>

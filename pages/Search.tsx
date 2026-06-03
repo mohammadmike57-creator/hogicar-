@@ -28,7 +28,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         commissionValue: mockSupplier?.commissionValue || 0,
         bookingMode: mockSupplier?.bookingMode || BookingMode.FREE_SALE,
         status: 'active',
-        location: 'API Location',
+        location: '',
         locations: [],
         contactEmail: mockSupplier?.contactEmail || 'contact@api.supplier',
         gracePeriodHours: mockSupplier?.gracePeriodHours || 1,
@@ -44,7 +44,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     
     const apiRateTier: RateTier = {
         id: `api-tier-${apiCar.id}`,
-        name: 'API Rate',
+        name: 'Standard Rate',
         startDate: '2020-01-01',
         endDate: '2099-12-31',
         rates: [{ minDays: 1, maxDays: 99, dailyRate: dailyPrice || 0 }]
@@ -83,7 +83,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         features: [],
         fuelPolicy: apiCar.fuelPolicy as FuelPolicy || FuelPolicy.FULL_TO_FULL,
         isAvailable: apiCar.available !== false,
-        location: 'API Result',
+        location: '',
         deposit: apiCar.deposit || 0,
         excess: apiCar.excess || 0,
         stopSales: [],

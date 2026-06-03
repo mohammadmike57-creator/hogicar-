@@ -559,11 +559,16 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-emerald-400 to-slate-200" />
         <div className="relative p-6 lg:p-8 flex flex-col xl:flex-row justify-between gap-6">
             <div className="flex flex-col sm:flex-row gap-5 min-w-0">
-                <img
-                    src={supplier.logoUrl || 'https://placehold.co/96x96/0f172a/ffffff?text=S'}
-                    className="w-20 h-20 rounded-2xl object-contain border border-white/10 bg-white shadow-xl shadow-black/20 p-2"
-                    alt={supplier.name}
-                />
+                <div className="relative group cursor-pointer" onClick={() => setActiveSection('profile')}>
+                    <img
+                        src={supplier.logoUrl || 'https://placehold.co/96x96/0f172a/ffffff?text=S'}
+                        className="w-20 h-20 rounded-2xl object-contain border border-white/10 bg-white shadow-xl shadow-black/20 p-2 transition-transform group-hover:scale-105"
+                        alt={supplier.name}
+                    />
+                    <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Edit className="w-5 h-5 text-white" />
+                    </div>
+                </div>
                 <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                         <span className="px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-[10px] font-black text-emerald-300 uppercase tracking-[0.2em]">Verified supplier</span>
