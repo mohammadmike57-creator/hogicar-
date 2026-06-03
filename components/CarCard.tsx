@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
+import { persistSelectedCar } from '../utils/storage';
 
 // --- ICONS ---
 
@@ -398,10 +399,7 @@ const CarCard: React.FC<CarCardProps> = ({
     Building;
 
   const handleSelectCar = () => {
-    // Persist the car ID and the full results list for the next page
-    sessionStorage.setItem('hogicar_selectedCarId', car.id);
-    sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
-    sessionStorage.setItem('hogicar_cars', JSON.stringify(cars));
+    persistSelectedCar(car, cars);
   };
 
   return (

@@ -31,6 +31,7 @@ import { getRatingDescription, getRatingColor, getRatingTextColor } from '../uti
 import { Car, PickupType } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
+import { persistSelectedCar } from '../utils/storage';
 
 interface ComparisonModalProps {
     selectedCars: Car[];
@@ -93,8 +94,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
     const formatMoney = (value?: number) => `${getCurrencySymbol()}${convertPrice(Number(value || 0)).toFixed(2)}`;
 
     const handleSelectCar = (car: Car) => {
-        sessionStorage.setItem('hogicar_selectedCarId', car.id);
-        sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
+        persistSelectedCar(car, selectedCars);
         navigate(`/car/${car.id}${searchParams}`);
     };
 

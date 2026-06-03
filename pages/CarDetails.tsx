@@ -17,6 +17,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { supplierApi } from '../lib/api';
+import { persistSelectedCar } from '../utils/storage';
 
 // ==================== Helper Components ====================
 
@@ -288,9 +289,7 @@ const CarDetails: React.FC = () => {
       if (foundCar) {
         setCar(foundCar);
         setCars(foundCars.length ? foundCars : [foundCar]);
-        // Update session storage so refresh works on the new car
-        sessionStorage.setItem('hogicar_selectedCarId', String(foundCar.id));
-        sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(foundCar));
+        persistSelectedCar(foundCar, foundCars.length ? foundCars : [foundCar]);
       } else {
         setError('Car not found. Please go back to search results.');
       }
@@ -332,9 +331,7 @@ const CarDetails: React.FC = () => {
 
   const handleContinue = () => {
     if (car) {
-      sessionStorage.setItem('hogicar_selectedCarId', String(car.id));
-      sessionStorage.setItem('hogicar_selectedCar', JSON.stringify(car));
-      sessionStorage.setItem('hogicar_cars', JSON.stringify(cars));
+      persistSelectedCar(car, cars);
     }
   };
 

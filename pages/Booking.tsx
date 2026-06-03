@@ -46,7 +46,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   // Get car object from persisted search results
   const { car, cars } = React.useMemo(() => {
     const carsFromState = location.state?.cars;
-    const carsFromStorage = JSON.parse(sessionStorage.getItem('hogicar_cars') || 'null');
+    let carsFromStorage: Car[] | null = null;
+    try {
+      const storedCarsRaw = sessionStorage.getItem('hogicar_cars');
+      carsFromStorage = storedCarsRaw ? JSON.parse(storedCarsRaw) : null;
+    } catch {
+      sessionStorage.removeItem('hogicar_cars');
+      carsFromStorage = null;
+    }
     const selectedCarId = sessionStorage.getItem('hogicar_selectedCarId');
     const selectedCarRaw = sessionStorage.getItem('hogicar_selectedCar');
     let selectedCarFromStorage: Car | null = null;
