@@ -27,6 +27,7 @@ import {
     MapPin,
     FileText,
 } from 'lucide-react';
+import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
 import { Car, PickupType } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
@@ -443,7 +444,19 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                         icon={<Star className="h-4 w-4" />}
                         values={selectedCars.map(car => (
                             <ValueBlock
-                                primary={<span className="inline-flex items-center gap-2"><Star className="h-5 w-5 fill-amber-400 text-amber-400" /> {car.supplier?.rating || 'N/A'} / 5</span>}
+                                primary={
+                                    <div className="flex items-center gap-2">
+                                        <div className={`${getRatingColor(car.supplier?.rating || 0)} text-white w-9 h-9 flex items-center justify-center rounded-xl font-black text-sm shadow-sm ring-2 ring-white`}>
+                                            {car.supplier?.rating || 'N/A'}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className={`text-[11px] font-black uppercase tracking-tight leading-none ${getRatingTextColor(car.supplier?.rating || 0)}`}>
+                                                {getRatingDescription(car.supplier?.rating || 0)}
+                                            </span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Verified Experience</span>
+                                        </div>
+                                    </div>
+                                }
                                 secondary={car.supplier?.name || 'Supplier not listed'}
                                 badge={Number(car.supplier?.rating || 0) === bestRating ? <Badge tone="success">Highest rated</Badge> : undefined}
                             />

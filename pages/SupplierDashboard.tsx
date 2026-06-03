@@ -559,15 +559,12 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-emerald-400 to-slate-200" />
         <div className="relative p-6 lg:p-8 flex flex-col xl:flex-row justify-between gap-6">
             <div className="flex flex-col sm:flex-row gap-5 min-w-0">
-                <div className="relative group cursor-pointer" onClick={() => setActiveSection('profile')}>
+                <div className="relative group">
                     <img
                         src={supplier.logoUrl || 'https://placehold.co/96x96/0f172a/ffffff?text=S'}
                         className="w-20 h-20 rounded-2xl object-contain border border-white/10 bg-white shadow-xl shadow-black/20 p-2 transition-transform group-hover:scale-105"
                         alt={supplier.name}
                     />
-                    <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <Edit className="w-5 h-5 text-white" />
-                    </div>
                 </div>
                 <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -2560,31 +2557,20 @@ const ProfileSection = ({ supplier, onSupplierUpdated }: { supplier: Supplier, o
                         </div>
                     </div>
 
-                    <div className="rounded-3xl border border-slate-100 bg-slate-50/60 p-4 space-y-4">
-                        <InputField
-                            label="Supplier Logo URL"
-                            icon={Globe}
-                            value={logoUrl}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLogoUrl(e.target.value)}
-                            placeholder="https://example.com/logo.png"
-                            helperText="Paste a direct image URL or upload a logo file below."
-                        />
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <label className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer hover:border-blue-300 hover:text-blue-700 transition-all shadow-sm">
-                                <Upload className="w-4 h-4" />
-                                Upload Logo
-                                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                            </label>
-                            <button
-                                onClick={() => saveLogo()}
-                                disabled={isSavingLogo}
-                                className="px-4 py-3 bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-800 disabled:opacity-60 transition-all"
-                            >
-                                {isSavingLogo ? 'Saving...' : 'Save URL'}
-                            </button>
+                    <div className="rounded-3xl border border-slate-100 bg-slate-50/60 p-6 space-y-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Globe className="w-4 h-4 text-slate-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Branding Information</span>
                         </div>
-                        {logoError && <p className="text-[10px] font-bold text-red-600">{logoError}</p>}
-                        {logoSuccess && <p className="text-[10px] font-bold text-emerald-700">{logoSuccess}</p>}
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Supplier Logo</p>
+                            <p className="text-sm font-semibold text-slate-900 break-all">{logoUrl || 'No logo URL provided'}</p>
+                        </div>
+                        <div className="p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl">
+                            <p className="text-[10px] font-bold text-blue-800 leading-relaxed italic">
+                                Branding updates are currently locked. Please contact HogiCar Support to change your company logo or profile details.
+                            </p>
+                        </div>
                     </div>
 
                     <InputField label="Reservation Contact Email" value={(supplier as any).contactEmail || supplier.email || ''} readOnly />
@@ -2598,7 +2584,11 @@ const ProfileSection = ({ supplier, onSupplierUpdated }: { supplier: Supplier, o
                     </div>
                     <InputField label="Login Username (Email)" value={supplier.email} readOnly />
                     <InputField label="Current Password" type="password" value="********" readOnly />
-                    <button className="w-full py-3 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all">Change Credentials</button>
+                    <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                        <p className="text-[10px] font-bold text-slate-500 leading-relaxed text-center">
+                            Credentials can only be modified by the primary account administrator.
+                        </p>
+                    </div>
                 </div>
             </div>
         </motion.div>

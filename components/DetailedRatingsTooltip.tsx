@@ -11,8 +11,10 @@ interface DetailedRatingsTooltipProps {
 
 const getProgressBarColor = (value: number) => {
     if (value >= 90) return 'from-[#008009] to-[#00a80b]';
-    if (value >= 80) return 'from-blue-500 to-blue-600';
+    if (value >= 80) return 'from-emerald-500 to-emerald-600';
+    if (value >= 70) return 'from-lime-500 to-lime-600';
     if (value >= 60) return 'from-amber-500 to-amber-600';
+    if (value >= 40) return 'from-orange-500 to-orange-600';
     return 'from-rose-500 to-rose-600';
 };
 

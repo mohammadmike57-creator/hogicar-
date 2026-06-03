@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
-import { getRatingDescription } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -228,7 +228,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                         <aside className="space-y-4">
                             <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
                                 <PolicyRow label="Supplier" value={supplierName} />
-                                <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone="good" />
+                                <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone={supplier.rating >= 4 ? 'good' : supplier.rating >= 3 ? 'default' : 'warn'} />
                                 <PolicyRow label="Pickup type" value={pickupTypeLabel} />
                                 {supplier.address && (
                                     <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3">
@@ -476,10 +476,7 @@ const CarCard: React.FC<CarCardProps> = ({
                   </Link>
               </div>
 
-              <div className="mt-5">
-                  <p className="text-xl font-black leading-tight text-slate-950">{pickupCode || car.location || 'Pickup location'}</p>
-                  <p className="mt-1 text-lg font-medium text-slate-500">{pickupTypeLabel}</p>
-              </div>
+              {/* Pickup location removed for mobile as per user request */}
 
               <div className="mt-5 grid grid-cols-[1fr_auto] items-end gap-4">
                   <div className="min-w-0">
@@ -498,10 +495,14 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                         aria-label="Show supplier rating details"
                       >
-                          <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-900 text-xl font-bold text-white">{car.supplier.rating}</span>
+                          <span className={`flex h-12 w-12 items-center justify-center rounded-lg ${getRatingColor(car.supplier.rating)} text-xl font-bold text-white shadow-lg shadow-slate-200/50`}>
+                              {car.supplier.rating}
+                          </span>
                           <div>
-                              <p className="text-lg font-black leading-none text-slate-950">{getRatingDescription(car.supplier.rating)}</p>
-                              <p className="mt-1 text-base font-medium text-slate-500">200+ reviews</p>
+                              <p className={`text-lg font-black leading-none ${getRatingTextColor(car.supplier.rating)}`}>
+                                  {getRatingDescription(car.supplier.rating)}
+                              </p>
+                              <p className="mt-1 text-sm font-bold text-slate-400">Excellent reliability</p>
                           </div>
                           <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="left" />
                       </button>
@@ -561,7 +562,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
-                        className="flex items-center gap-2 group/rating relative cursor-pointer z-20"
+                        className="flex items-center gap-3 group/rating relative cursor-pointer z-20 bg-slate-50/50 hover:bg-white p-2 rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm hover:shadow-md"
                         onMouseEnter={() => setShowRatingsTooltip(true)}
                         onMouseLeave={() => setShowRatingsTooltip(false)}
                         onClick={(e) => {
@@ -571,14 +572,14 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                       >
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-black text-slate-900 leading-none mb-0.5">
+                            <span className={`text-xs font-black leading-none mb-1 uppercase tracking-tight ${getRatingTextColor(car.supplier.rating)}`}>
                               {getRatingDescription(car.supplier.rating)}
                             </span>
-                            <span className="text-[8px] font-bold text-slate-400 whitespace-nowrap">
-                              Supplier Rating
+                            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap uppercase tracking-wider">
+                              Partner Rating
                             </span>
                           </div>
-                          <div className="bg-[#008009] text-white text-sm font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-md shrink-0 ring-2 ring-emerald-50">
+                          <div className={`${getRatingColor(car.supplier.rating)} text-white text-base font-black w-10 h-10 flex items-center justify-center rounded-xl shadow-lg ring-4 ring-white shrink-0`}>
                               {car.supplier.rating}
                           </div>
                           <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />

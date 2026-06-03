@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -187,7 +187,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
             <aside className="space-y-4">
               <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
                 <PolicyRow label="Supplier" value={supplier.name} />
-                <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone="good" />
+                <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone={supplier.rating >= 4 ? 'good' : supplier.rating >= 3 ? 'default' : 'warn'} />
                 <PolicyRow label="Pickup type" value={pickupTypeLabel} />
                 {supplier.address && <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><p className="text-xs font-semibold leading-relaxed text-slate-600">{supplier.address}</p></div>}
               </ConditionCard>
@@ -417,7 +417,7 @@ const CarDetails: React.FC = () => {
                         <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
                             {!car.hogicarChoice ? (
                                 <div 
-                                  className="flex items-center gap-2 group/rating relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2"
+                                  className="flex items-center gap-2 group/rating relative cursor-pointer rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 transition-all shadow-sm"
                                   onMouseEnter={() => setShowRatingsTooltip(true)}
                                   onMouseLeave={() => setShowRatingsTooltip(false)}
                                   onClick={(e) => {
@@ -426,10 +426,15 @@ const CarDetails: React.FC = () => {
                                     setShowRatingsTooltip(!showRatingsTooltip);
                                   }}
                                 >
-                                    <span className="bg-[#008009] text-white px-2 py-1 rounded-lg shadow-sm font-black">
+                                    <span className={`${getRatingColor(car.supplier.rating)} text-white px-2 py-1 rounded-lg shadow-md font-black text-sm`}>
                                         {car.supplier.rating}
                                     </span> 
-                                    <span className="whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
+                                    <div className="flex flex-col">
+                                        <span className={`font-black text-xs leading-none ${getRatingTextColor(car.supplier.rating)} uppercase tracking-tight`}>
+                                            {getRatingDescription(car.supplier.rating)}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Verified</span>
+                                    </div>
                                     {car.detailedRatings && (
                                       <DetailedRatingsTooltip
                                         ratings={car.detailedRatings}
@@ -440,7 +445,9 @@ const CarDetails: React.FC = () => {
                                     )}
                                 </div>
                             ) : (
-                                <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-black text-amber-800 uppercase tracking-wider">Premium Choice · Top Rated</span>
+                                <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-black text-amber-800 uppercase tracking-wider flex items-center gap-2">
+                                    <Award className="w-4 h-4 fill-amber-500/20" /> Premium Choice · Top Rated
+                                </span>
                             )}
                         </div>
                         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
@@ -605,12 +612,14 @@ const CarDetails: React.FC = () => {
                             setShowRatingsTooltip(!showRatingsTooltip);
                           }}
                         >
-                             <div className="bg-[#008009] text-white text-lg font-black w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
+                             <div className={`${getRatingColor(car.supplier.rating)} text-white text-lg font-black w-10 h-10 flex items-center justify-center rounded-xl shadow-md ring-2 ring-slate-50`}>
                                  {car.supplier.rating}
                              </div>
                              <div className="flex flex-col min-w-0">
-                                 <span className="text-xs font-black text-slate-900 leading-none truncate whitespace-nowrap">{getRatingDescription(car.supplier.rating)}</span>
-                                 <span className="text-[10px] font-bold text-slate-400 mt-0.5">Reviews</span>
+                                 <span className={`text-xs font-black leading-none truncate whitespace-nowrap uppercase tracking-tight ${getRatingTextColor(car.supplier.rating)}`}>
+                                     {getRatingDescription(car.supplier.rating)}
+                                 </span>
+                                 <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Partner Rating</span>
                              </div>
                              {car.detailedRatings && (
                                <DetailedRatingsTooltip
