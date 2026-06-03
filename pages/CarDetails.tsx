@@ -18,6 +18,7 @@ import BookingStepper from '../components/BookingStepper';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { supplierApi } from '../lib/api';
 import { persistSelectedCar } from '../utils/storage';
+import { loadCars } from '../utils/loadCars';
 
 // ==================== Helper Components ====================
 
@@ -251,6 +252,10 @@ const CarDetails: React.FC = () => {
       const storedCarsRaw = sessionStorage.getItem('hogicar_cars');
       let foundCar: Car | null = null;
       let foundCars: Car[] = [];
+      const stateCars = Array.isArray(location.state?.cars) ? location.state.cars : [];
+      const stateCar = id && stateCars.length
+        ? stateCars.find((c: Car) => String(c.id) === String(id)) || null
+        : null;
 
       if (storedCarRaw) {
         try {
@@ -272,11 +277,37 @@ const CarDetails: React.FC = () => {
       }
 
       // 2. location.state
-      if (!foundCar && location.state?.cars) {
-        const stateCars = location.state.cars;
-        if (Array.isArray(stateCars)) {
-          foundCars = stateCars;
-          foundCar = stateCars.find((c: Car) => String(c.id) === String(id)) || null;
+      if (stateCars.length) {
+        if (!foundCars.length) foundCars = stateCars;
+        if (!foundCar) foundCar = stateCar;
+        if (foundCar && stateCar && !(foundCar.image || (foundCar as any).imageUrl) && (stateCar.image || (stateCar as any).imageUrl)) {
+          foundCar = {
+            ...foundCar,
+            image: stateCar.image || (stateCar as any).imageUrl,
+            imageUrl: (stateCar as any).imageUrl || stateCar.image,
+          } as Car;
+        }
+      }
+
+      if (foundCar && id && !(foundCar.image || (foundCar as any).imageUrl)) {
+        try {
+          const refreshedCars = await loadCars({
+            locationsOptions: [],
+            pickupCode: pickupCode || undefined,
+            dropoffCode: dropoffCode || pickupCode || undefined,
+            pickupDate: startDate,
+            dropoffDate: endDate,
+          });
+          const refreshedCar = refreshedCars.find(c => String(c.id) === String(id));
+          if (refreshedCar?.image) {
+            foundCar = {
+              ...foundCar,
+              image: refreshedCar.image,
+              imageUrl: refreshedCar.image,
+            } as Car;
+          }
+        } catch (refreshError) {
+          console.warn('Could not refresh car image for details page', refreshError);
         }
       }
 
@@ -382,14 +413,14 @@ const CarDetails: React.FC = () => {
               {/* Hero Section */}
               <div className="overflow-visible bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200">
                 <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
-                  <div className="relative bg-gradient-to-b from-slate-50 to-white border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none">
+                  <div className="relative flex min-h-[300px] items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4 sm:p-6 lg:min-h-[420px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none">
                     <img
                       src={displayImage}
                       alt={`${car.make} ${car.model}`}
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="w-full h-52 sm:h-64 lg:h-full min-h-[300px] object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-700"
+                      className="h-auto max-h-[280px] w-full max-w-full object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-700 sm:max-h-[340px] lg:max-h-[460px]"
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                       <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
