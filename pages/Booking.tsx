@@ -188,7 +188,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
   
   const [imageError, setImageError] = React.useState(false);
-  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const supplierLogo = car?.supplier?.logo || car?.supplier?.logoUrl;
+  const transmissionLabel = car?.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual';
+  const fuelPolicyLabel = car?.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car?.fuelPolicy?.replace(/_/g, ' ') || 'Full to full';
 
   const buildBookingPayload = () => {
     if (!car) return null;
@@ -455,23 +458,31 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     onError={() => setImageError(true)}
                     referrerPolicy="no-referrer"
                     loading="eager"
-                    className="w-36 sm:w-44 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-105 transition-transform duration-700"
+                    className="w-36 sm:w-44 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-105 transition-transform duration-700 mix-blend-multiply"
                    />
                </div>
                <div className="flex-grow text-center md:text-left relative z-10">
                   <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
-                      <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg border border-white/10">{car.category}</span>
+                      <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg border border-white/10">
+                        {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
+                      </span>
                       <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] border border-emerald-100">Ready for Pick-up</span>
                   </div>
                   <h1 className="text-[1.35rem] sm:text-3xl font-black text-slate-950 leading-tight tracking-tight mb-3">{car.displayName || `${car.make} ${car.model}`}</h1>
                   <p className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-[0.14em] sm:tracking-[0.22em] flex items-center justify-center md:justify-start gap-2 sm:gap-3 flex-wrap">
-                    {car.transmission} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.fuelPolicy} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location}
+                    {transmissionLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {fuelPolicyLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location || 'Airport'}
                   </p>
                   
                   {!car.hogicarChoice ? (
                     <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
                         <div className="bg-white border border-slate-200 p-2.5 sm:p-3 rounded-xl shadow-sm">
-                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
+                          {supplierLogo ? (
+                            <img src={supplierLogo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
+                          ) : (
+                            <div className="h-12 sm:h-16 w-24 bg-slate-50 flex items-center justify-center rounded-lg border border-dashed border-slate-200">
+                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{car.supplier.name}</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-4 sm:gap-5">
                           <div>

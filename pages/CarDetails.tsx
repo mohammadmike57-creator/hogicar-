@@ -341,7 +341,7 @@ const CarDetails: React.FC = () => {
   const bookingParams = new URLSearchParams({ startDate, endDate, ...(pickupCode && { pickup: pickupCode }), ...(dropoffCode && { dropoff: dropoffCode }), ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), ...(appliedPromo && { promo: appliedPromo.code }) }).toString();
 
   const [imageError, setImageError] = React.useState(false);
-  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle');
   const pickupDisplay = new Date(startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const dropoffDisplay = new Date(endDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const supplierLogo = car?.supplier.logo || (car?.supplier as any)?.logoUrl;
@@ -395,7 +395,9 @@ const CarDetails: React.FC = () => {
                       className="w-full h-52 sm:h-64 lg:h-full min-h-[300px] object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-700"
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                      <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.category}</span>
+                      <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
+                        {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
+                      </span>
                       {car.tags?.[0] && <span className="bg-[#008009] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.tags[0]}</span>}
                     </div>
                     <button className="absolute top-4 right-4 bg-white/95 p-2 rounded-full shadow-md border border-slate-100 hover:bg-slate-50 transition-colors"><Heart className="w-5 h-5 text-slate-600" /></button>
@@ -688,7 +690,7 @@ const CarDetails: React.FC = () => {
                         }}
                         className="flex text-left gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition-all hover:border-blue-400 w-full"
                       >
-                        <img src={similar.image} alt={similar.displayName} className="w-24 h-24 object-contain mix-blend-multiply drop-shadow-lg" />
+                        <img src={similar.image || (similar as any).imageUrl} alt={similar.displayName} className="w-24 h-24 object-contain mix-blend-multiply drop-shadow-lg" />
                         <div className="flex-1">
                           <div className="font-semibold">{similar.displayName}</div>
                           <div className="text-sm text-slate-500">{similar.category}</div>

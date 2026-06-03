@@ -210,7 +210,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                         <h3 className="text-sm font-black uppercase leading-tight text-slate-950 sm:text-base">{getVehicleName(car)}</h3>
                         <p className="mt-1 text-xs font-bold text-slate-500">{car.category} or similar</p>
                         <div className="mt-3 flex min-w-0 items-center gap-2">
-                            <img src={car.supplier?.logo} alt={car.supplier?.name || 'Supplier'} className="h-6 max-w-[96px] object-contain sm:h-7 sm:max-w-[110px]" />
+                            <img src={car.supplier?.logo || (car.supplier as any)?.logoUrl} alt={car.supplier?.name || 'Supplier'} className="h-6 max-w-[96px] object-contain sm:h-7 sm:max-w-[110px]" />
                             <span className="h-5 w-px bg-slate-200" />
                             <span className="inline-flex items-center gap-1 text-xs font-black text-slate-900"><Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {car.supplier?.rating || 'N/A'}</span>
                         </div>
