@@ -378,6 +378,7 @@ const CarCard: React.FC<CarCardProps> = ({
     condition: 82,
     valueForMoney: 80,
     pickupSpeed: 78,
+    staffService: 84,
   };
   const pickupType = car.supplier?.pickupType;
   const pickupTypeLabel =

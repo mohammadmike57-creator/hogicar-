@@ -495,7 +495,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                                  <span className="text-[10px] font-black text-slate-900 leading-none">{getRatingDescription(car.supplier.rating)}</span>
                                  <span className="text-[8px] font-bold text-slate-400 mt-0.5">Reviews</span>
                              </div>
-                             {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
+                             {car.detailedRatings ? (
+                               <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />
+                             ) : (
+                               <DetailedRatingsTooltip 
+                                 ratings={{ cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }} 
+                                 visible={showRatingsTooltip} 
+                               />
+                             )}
                           </div>
                         </div>
                     </div>

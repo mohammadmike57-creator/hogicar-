@@ -300,14 +300,30 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                      
                      {/* Header Status Card */}
                      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                         <div className={`p-6 border-b border-slate-100 flex justify-between items-center ${isCancelled ? 'bg-red-50' : (isCompleted ? 'bg-slate-50' : 'bg-white')}`}>
-                             <div>
-                                 <h1 className="text-2xl font-bold text-slate-900 mb-1">{isCancelled ? 'Booking Cancelled' : (isCompleted ? 'Booking Completed' : 'Booking Details')}</h1>
-                                 <p className="text-sm text-slate-500">Reference: <span className="font-mono font-bold text-slate-700">{booking.bookingRef || booking.id}</span></p>
-                             </div>
-                             {isCancelled ? <XCircle className="w-10 h-10 text-red-500"/> : <CheckCircle className="w-10 h-10 text-green-500"/>}
-                         </div>
-                         <div className="p-6 grid grid-cols-2 gap-6">
+                        <div className={`p-6 border-b border-slate-100 flex justify-between items-center ${isCancelled ? 'bg-red-50' : (isCompleted ? 'bg-slate-50' : 'bg-white')}`}>
+                            <div>
+                                <h1 className="text-2xl font-bold text-slate-900 mb-1">{isCancelled ? 'Booking Cancelled' : (isCompleted ? 'Booking Completed' : 'Booking Details')}</h1>
+                                <p className="text-sm text-slate-500">Reference: <span className="font-mono font-bold text-slate-700">{booking.bookingRef || booking.id}</span></p>
+                            </div>
+                            {isCancelled ? <XCircle className="w-10 h-10 text-red-500"/> : <CheckCircle className="w-10 h-10 text-green-500"/>}
+                        </div>
+                        {isCompleted && !booking.reviewSubmitted && (
+                            <div className="p-6 bg-yellow-50 border-b border-yellow-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-200">
+                                        <Star className="w-6 h-6 text-white fill-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-900">How was your trip?</h3>
+                                        <p className="text-sm text-slate-600">Share your feedback and help others choose the right car.</p>
+                                    </div>
+                                </div>
+                                <Link to={`/leave-review/${booking.id}`} className="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 transition-all shadow-md active:scale-95 text-sm whitespace-nowrap">
+                                    Rate Now
+                                </Link>
+                            </div>
+                        )}
+                        <div className="p-6 grid grid-cols-2 gap-6">
                              <div>
                                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pick-up</h3>
                                  <div className="flex items-start gap-3">

@@ -166,6 +166,7 @@ export interface CarRatings {
   condition: number; // 0-100
   valueForMoney: number; // 0-100
   pickupSpeed: number; // 0-100
+  staffService: number; // 0-100
 }
 
 export interface Car {

@@ -46,6 +46,8 @@ const LeaveReview: React.FC = () => {
     const [condition, setCondition] = React.useState(0);
     const [valueForMoney, setValueForMoney] = React.useState(0);
     const [pickupSpeed, setPickupSpeed] = React.useState(0);
+    const [staffService, setStaffService] = React.useState(0);
+    const [comment, setComment] = React.useState('');
     
     const [submitted, setSubmitted] = React.useState(false);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -53,7 +55,7 @@ const LeaveReview: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!cleanliness || !condition || !valueForMoney || !pickupSpeed) {
+        if (!cleanliness || !condition || !valueForMoney || !pickupSpeed || !staffService) {
             setError('Please provide a rating for all categories.');
             return;
         }
@@ -70,7 +72,9 @@ const LeaveReview: React.FC = () => {
                 cleanliness, 
                 condition, 
                 valueForMoney, 
-                pickupSpeed 
+                pickupSpeed,
+                staffService,
+                comment
             });
             
             setSubmitted(true);
@@ -117,20 +121,39 @@ const LeaveReview: React.FC = () => {
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="space-y-6">
-                                    {[{label: "Cleanliness of the car", rating: cleanliness, setRating: setCleanliness},
-                                      {label: "Condition of the car", rating: condition, setRating: setCondition},
-                                      {label: "Value for money", rating: valueForMoney, setRating: setValueForMoney},
-                                      {label: "Speed of pick-up", rating: pickupSpeed, setRating: setPickupSpeed}
-                                    ].map(cat => (
-                                        <div key={cat.label} className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                                            <label className="font-semibold text-slate-700">{cat.label}</label>
-                                            <StarRatingInput rating={cat.rating} setRating={cat.setRating} />
-                                        </div>
-                                    ))}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                        {[
+                                          {label: "Cleanliness", sub: "How clean was the car?", rating: cleanliness, setRating: setCleanliness},
+                                          {label: "Condition", sub: "Was the car well-maintained?", rating: condition, setRating: setCondition},
+                                          {label: "Value", sub: "Did the price match the quality?", rating: valueForMoney, setRating: setValueForMoney},
+                                          {label: "Pick-up Speed", sub: "How fast was the collection?", rating: pickupSpeed, setRating: setPickupSpeed},
+                                          {label: "Staff Service", sub: "Were the staff helpful?", rating: staffService, setRating: setStaffService}
+                                        ].map(cat => (
+                                            <div key={cat.label} className="flex flex-col gap-2 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <label className="font-bold text-slate-800 text-sm">{cat.label}</label>
+                                                        <p className="text-[10px] text-slate-500 uppercase font-black tracking-wider">{cat.sub}</p>
+                                                    </div>
+                                                </div>
+                                                <StarRatingInput rating={cat.rating} setRating={cat.setRating} size="w-6 h-6" />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="font-bold text-slate-800 text-sm">Write a Review</label>
+                                        <textarea
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                            placeholder="Tell us about your experience (optional)..."
+                                            className="w-full h-32 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700 resize-none"
+                                        />
+                                    </div>
                                     
                                     {error && (
-                                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded flex items-center gap-2">
-                                            <AlertCircle className="w-4 h-4"/> {error}
+                                        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl flex items-center gap-2 animate-shake">
+                                            <AlertCircle className="w-4 h-4 flex-shrink-0"/> {error}
                                         </div>
                                     )}
 
