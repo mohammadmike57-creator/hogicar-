@@ -97,6 +97,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
             condition: 90,
             valueForMoney: 90,
             pickupSpeed: 90,
+            staffService: 90,
         },
         hasFinalPriceFromApi: hasFinalPrice,
         supplierId: apiCar.supplierId,

@@ -71,9 +71,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     const foundCarInList = routeId
       ? allCars.find((c: Car) => String(c.id) === String(routeId))
       : null;
-    const foundCar = foundCarInList
-      || (selectedCarFromStorage && routeId && String(selectedCarFromStorage.id) === String(routeId) ? selectedCarFromStorage : null)
-      || selectedCarFromStorage;
+    const foundCar = (selectedCarFromStorage && routeId && String(selectedCarFromStorage.id) === String(routeId))
+      ? selectedCarFromStorage
+      : (foundCarInList || selectedCarFromStorage);
+    
     return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
@@ -450,7 +451,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-hidden group">
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-visible group">
                <div className="bg-gradient-to-b from-slate-50 to-white p-4 sm:p-6 rounded-2xl border border-slate-200 flex-shrink-0 relative overflow-hidden">
                    <img 
                     src={displayImage} 
@@ -507,11 +508,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                                  <span className="text-[8px] font-bold text-slate-400 mt-0.5">Reviews</span>
                              </div>
                              {car.detailedRatings ? (
-                               <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />
+                               <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />
                              ) : (
                                <DetailedRatingsTooltip 
                                  ratings={{ cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }} 
                                  visible={showRatingsTooltip} 
+                                 align="left"
                                />
                              )}
                           </div>

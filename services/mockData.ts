@@ -511,6 +511,7 @@ const extraCars: Car[] = [
             condition: 96,
             valueForMoney: 90,
             pickupSpeed: 92,
+            staffService: 95,
         }
     },
     {
@@ -544,6 +545,7 @@ const extraCars: Car[] = [
             condition: 93,
             valueForMoney: 85,
             pickupSpeed: 88,
+            staffService: 90,
         }
     },
     {
