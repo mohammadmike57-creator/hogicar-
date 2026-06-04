@@ -499,7 +499,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       />
                       <button
                         type="button"
-                        className="group/rating relative flex items-center gap-3 text-left bg-slate-50/50 hover:bg-white p-2 -m-2 rounded-2xl transition-all active:scale-[0.98]"
+                        className="group/rating relative flex items-center gap-3 text-left bg-slate-50 hover:bg-white p-2 -m-2 rounded-2xl transition-all active:scale-[0.98]"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -581,7 +581,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
-                        className="flex items-center gap-2.5 group/rating relative cursor-pointer z-20 bg-slate-50/50 hover:bg-white p-2 pr-2.5 rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm hover:shadow-lg hover:-translate-y-0.5"
+                        className="flex items-center gap-2.5 group/rating relative cursor-pointer z-20 bg-slate-50 hover:bg-white p-2 pr-2.5 rounded-xl border border-slate-100 transition-all shadow-sm hover:shadow-lg hover:-translate-y-0.5"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
