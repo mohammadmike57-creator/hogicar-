@@ -575,8 +575,6 @@ const CarCard: React.FC<CarCardProps> = ({
                       />
                       <div
                         className="flex items-center gap-3 group/rating relative cursor-pointer z-20 bg-slate-50/50 hover:bg-white p-2 rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm hover:shadow-md"
-                        onMouseEnter={() => setShowRatingsTooltip(true)}
-                        onMouseLeave={() => setShowRatingsTooltip(false)}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();

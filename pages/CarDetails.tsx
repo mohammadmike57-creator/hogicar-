@@ -448,8 +448,6 @@ const CarDetails: React.FC = () => {
                             {!car.hogicarChoice ? (
                                 <div 
                                   className="flex items-center gap-2 group/rating relative cursor-pointer rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 transition-all shadow-sm"
-                                  onMouseEnter={() => setShowRatingsTooltip(true)}
-                                  onMouseLeave={() => setShowRatingsTooltip(false)}
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -641,8 +639,6 @@ const CarDetails: React.FC = () => {
                         </div>
                         <div 
                           className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200 ml-2 group/rating relative cursor-pointer"
-                          onMouseEnter={() => setShowRatingsTooltip(true)}
-                          onMouseLeave={() => setShowRatingsTooltip(false)}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();

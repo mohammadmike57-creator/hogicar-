@@ -499,8 +499,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                           </div>
                           <div
                             className="flex items-center gap-2 bg-slate-50 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer"
-                            onMouseEnter={() => setShowRatingsTooltip(true)}
-                            onMouseLeave={() => setShowRatingsTooltip(false)}
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();

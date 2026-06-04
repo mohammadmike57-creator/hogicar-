@@ -42,44 +42,39 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
 
     return (
         <div 
-            className={`absolute bottom-full ${alignClass} mb-4 w-[min(22rem,calc(100vw-2rem))] transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1) z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'} ${className}`}
+            className={`absolute bottom-full ${alignClass} mb-2 w-[min(19rem,calc(100vw-2rem))] transition-all duration-200 ease-out z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-1 scale-95 pointer-events-none'} ${className}`}
         >
-            <div className="relative bg-white/95 backdrop-blur-xl text-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] ring-1 ring-slate-200/50 overflow-hidden">
-                {/* Premium Header */}
-                <div className="bg-gradient-to-br from-slate-50/50 to-white/50 p-5 border-b border-slate-100/50">
-                    <div className="flex items-center justify-between mb-1.5">
+            <div className="relative bg-white text-slate-900 rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden">
+                {/* Clean Header */}
+                <div className="bg-slate-50 p-3.5 border-b border-slate-100">
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="p-1 bg-emerald-50 rounded-lg">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-[#008009]" />
-                            </div>
-                            <h4 className="font-extrabold text-[11px] uppercase tracking-[0.15em] text-slate-600">Verified Ratings</h4>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#008009]" />
+                            <h4 className="font-bold text-[10px] uppercase tracking-wider text-slate-600">Supplier Performance</h4>
                         </div>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#008009] rounded-lg shadow-lg shadow-[#008009]/20">
-                            <Star className="w-3 h-3 fill-white text-white" />
-                            <span className="text-xs font-black text-white">{(averageRating / 20).toFixed(1)}</span>
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white border border-slate-200 rounded-sm">
+                            <Star className="w-2.5 h-2.5 fill-[#008009] text-[#008009]" />
+                            <span className="text-[11px] font-bold text-slate-900">{(averageRating / 20).toFixed(1)}</span>
                         </div>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Based on recent customer experiences</p>
                 </div>
 
-                <div className="p-6 space-y-4">
+                <div className="p-4 space-y-3.5">
                     {ratingItems.map((item, index) => (
                         <div key={item.key} className="group/item">
-                            <div className="flex justify-between items-center mb-1.5">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center group-hover/item:bg-[#008009]/10 transition-colors">
-                                        <item.icon className="w-3.5 h-3.5 text-slate-400 group-hover/item:text-[#008009] transition-colors" />
-                                    </div>
-                                    <span className="text-[12px] font-bold text-slate-600 tracking-tight">{item.label}</span>
+                            <div className="flex justify-between items-center mb-1">
+                                <div className="flex items-center gap-2">
+                                    <item.icon className="w-3 h-3 text-slate-400" />
+                                    <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight">{item.label}</span>
                                 </div>
-                                <span className="text-[12px] font-black text-slate-900">{ratings[item.key] || 0}%</span>
+                                <span className="text-[11px] font-bold text-slate-900">{ratings[item.key] || 0}%</span>
                             </div>
-                            <div className="w-full bg-slate-100/80 rounded-full h-1.5 overflow-hidden">
+                            <div className="w-full bg-slate-100 h-1.5 overflow-hidden">
                                 <div 
-                                    className={`h-full rounded-full bg-gradient-to-r transition-all duration-700 cubic-bezier(0.34, 1.56, 0.64, 1) ${getProgressBarColor(ratings[item.key] || 0)}`}
+                                    className={`h-full transition-all duration-500 ease-out ${getProgressBarColor(ratings[item.key] || 0)}`}
                                     style={{ 
                                         width: visible ? `${ratings[item.key] || 0}%` : '0%',
-                                        transitionDelay: visible ? `${index * 80}ms` : '0ms'
+                                        transitionDelay: visible ? `${index * 40}ms` : '0ms'
                                     }}
                                 ></div>
                             </div>
@@ -87,20 +82,11 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
                     ))}
                 </div>
 
-                {/* Premium Footer Tag */}
-                <div className="px-5 py-3.5 bg-slate-900 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1 bg-[#008009] rounded-full">
-                            <ThumbsUp className="w-2.5 h-2.5 text-white" />
-                        </div>
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.05em]">Highly Recommended</span>
-                    </div>
-                    <span className="text-[9px] font-bold text-slate-400">Hogicar Trusted Partner</span>
+                {/* Clean Footer */}
+                <div className="px-4 py-2 bg-slate-50 border-t border-slate-100">
+                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest text-center">Verified Customer Feedback</p>
                 </div>
             </div>
-
-            {/* Arrow - placed outside overflow-hidden container */}
-            <div className={`absolute top-full ${arrowClass} w-0 h-0 border-x-6 border-x-transparent border-t-6 border-t-slate-900`}></div>
         </div>
     );
 };

@@ -117,8 +117,6 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                     {car && (
                                         <div 
                                           className="bg-[#008009] text-white text-[13px] font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-sm ml-auto group/rating relative cursor-pointer"
-                                          onMouseEnter={() => setShowRatingsTooltip(true)}
-                                          onMouseLeave={() => setShowRatingsTooltip(false)}
                                           onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
