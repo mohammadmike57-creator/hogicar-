@@ -498,23 +498,23 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                             <p className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-[0.12em] sm:tracking-[0.15em]">{car.supplier.name}</p>
                           </div>
                           <div
-                            className="flex items-center gap-2.5 bg-white px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+                            className="flex items-center gap-2 bg-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               setShowRatingsTooltip(!showRatingsTooltip);
                             }}
                           >
-                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg shadow-md overflow-hidden shrink-0 ring-1 ring-white/10`}>
+                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg shadow-md overflow-hidden shrink-0 ring-1 ring-white/10`}>
                                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
-                                 <span className="relative z-10 text-xs sm:text-base font-black tracking-tight">{car.supplier.rating}</span>
+                                 <span className="relative z-10 text-[10px] sm:text-sm font-black tracking-tight">{car.supplier.rating}</span>
                              </div>
                              <div className="hidden sm:flex flex-col">
                                  <div className="flex items-center gap-1">
-                                     <span className={`text-[11px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
-                                     <Info className="w-2.5 h-2.5 text-slate-300 group-hover/rating:text-slate-400" />
+                                     <span className={`text-[10px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
+                                     <Info className="w-2 h-2 text-slate-300 group-hover/rating:text-slate-400" />
                                  </div>
-                                 <span className="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest">Verified</span>
+                                 <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-widest">Verified</span>
                              </div>
                              {car.detailedRatings ? (
                                <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />

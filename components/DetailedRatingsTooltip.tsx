@@ -70,9 +70,12 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
                                     <div className="p-1.5 rounded-lg bg-slate-50 text-slate-400 group-hover/item:text-[#008009] group-hover/item:bg-[#008009]/5 transition-colors">
                                         <item.icon className="w-3.5 h-3.5" />
                                     </div>
-                                    <span className="text-[12px] font-bold text-slate-600 group-hover/item:text-slate-900 transition-colors uppercase tracking-tight">{item.label}</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-[12px] font-bold text-slate-600 group-hover/item:text-slate-900 transition-colors uppercase tracking-tight leading-none mb-0.5">{item.label}</span>
+                                        <span className="text-[10px] font-black text-[#008009] uppercase tracking-wider">{ratings[item.key] || 0}% Score</span>
+                                    </div>
                                 </div>
-                                <span className="text-[12px] font-black text-slate-900 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{ratings[item.key] || 0}%</span>
+                                <span className="text-[13px] font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 shadow-sm">{ratings[item.key] || 0}%</span>
                             </div>
                             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner">
                                 <div 
