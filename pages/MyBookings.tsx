@@ -116,15 +116,24 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                     </div>
                                     {car && (
                                         <div 
-                                          className="bg-[#008009] text-white text-[13px] font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-sm ml-auto group/rating relative cursor-pointer"
+                                          className="flex items-center gap-2.5 bg-white p-1.5 pr-2.5 rounded-xl border border-slate-200 ml-auto group/rating relative cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
                                           onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             setShowRatingsTooltip(!showRatingsTooltip);
                                           }}
                                         >
-                                            {car.supplier.rating}
-                                            {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} />}
+                                            <div className={`relative ${getRatingColor(car.supplier.rating)} text-white text-[13px] font-black w-8 h-8 flex items-center justify-center rounded-lg shadow-sm overflow-hidden ring-1 ring-white/10`}>
+                                                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
+                                                <span className="relative z-10">{car.supplier.rating}</span>
+                                            </div>
+                                            <div className="hidden sm:flex flex-col">
+                                                <div className="flex items-center gap-1">
+                                                    <span className={`text-[10px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
+                                                    <Info className="w-2.5 h-2.5 text-slate-300 group-hover/rating:text-slate-400" />
+                                                </div>
+                                            </div>
+                                            {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" />}
                                         </div>
                                     )}
                                 </div>
