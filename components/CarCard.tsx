@@ -419,6 +419,7 @@ const CarCard: React.FC<CarCardProps> = ({
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
       <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
+        <div className="relative flex flex-col h-full w-full overflow-hidden rounded-2xl">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -523,7 +524,6 @@ const CarCard: React.FC<CarCardProps> = ({
                                   Trusted Supplier
                               </p>
                           </div>
-                          <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="left" />
                       </button>
                   </div>
                   <div className="text-right">
@@ -603,7 +603,6 @@ const CarCard: React.FC<CarCardProps> = ({
                               <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-40" />
                               <span className="relative z-10">{ratingToDisplay}</span>
                           </div>
-                          <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />
                       </div>
                   </div>
               </div>
@@ -787,6 +786,41 @@ const CarCard: React.FC<CarCardProps> = ({
                   </div>
               </div>
           </div>
+
+          {/* Rating Detail Overlay - Professional Inside Popup */}
+          {showRatingsTooltip && (
+            <div 
+              className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 animate-fadeIn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowRatingsTooltip(false);
+              }}
+            >
+              <div 
+                className="relative w-full max-w-[18rem] transform transition-all duration-300"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowRatingsTooltip(false);
+                  }}
+                  className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full shadow-xl flex items-center justify-center border border-slate-200 z-[60] hover:bg-slate-50 transition-all active:scale-90"
+                  aria-label="Close ratings"
+                >
+                  <X className="w-4 h-4 text-slate-500" />
+                </button>
+                <DetailedRatingsTooltip 
+                  ratings={displayRatings} 
+                  visible={true} 
+                  className="!static !opacity-100 !scale-100 !translate-y-0 !w-full !mb-0 shadow-2xl" 
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
