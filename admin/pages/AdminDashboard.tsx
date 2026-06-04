@@ -87,7 +87,7 @@ const removeLightBackground = (ctx: CanvasRenderingContext2D, width: number, hei
 
 const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: { removeBackground?: boolean } = {}): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const MAX_DATA_URL_LENGTH = 800_000; // Reduced to 800KB to prevent 400 Bad Request on some servers
+    const MAX_DATA_URL_LENGTH = 3_000_000; // Increased for high-resolution 8K support
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -2029,8 +2029,8 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
     bags: 3, 
     doors: 4 
   });
-  const [targetWidth, setTargetWidth] = useState(1200);
-  const [targetHeight, setTargetHeight] = useState(800);
+  const [targetWidth, setTargetWidth] = useState(7680);
+  const [targetHeight, setTargetHeight] = useState(4320);
 
   useEffect(() => { 
     if (carModel) {
@@ -2100,12 +2100,15 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload Photo (Target: {targetWidth}x{targetHeight})</label>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                     <div className="space-y-1">
-                        <label className="text-[9px] text-gray-400 uppercase font-bold">Max Width</label>
+                        <div className="flex justify-between items-center">
+                            <label className="text-[9px] text-gray-400 uppercase font-bold">Max Width</label>
+                            <span className="text-[7px] bg-blue-100 text-blue-700 px-1 rounded font-black">8K</span>
+                        </div>
                         <input 
                             type="number" 
                             value={targetWidth} 
-                            onChange={(e) => setTargetWidth(parseInt(e.target.value) || 1200)}
-                            className="w-full px-2 py-1 text-[10px] border rounded bg-white"
+                            onChange={(e) => setTargetWidth(parseInt(e.target.value) || 7680)}
+                            className="w-full px-2 py-1 text-[10px] border rounded bg-white font-bold"
                         />
                     </div>
                     <div className="space-y-1">
@@ -2113,8 +2116,8 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                         <input 
                             type="number" 
                             value={targetHeight} 
-                            onChange={(e) => setTargetHeight(parseInt(e.target.value) || 800)}
-                            className="w-full px-2 py-1 text-[10px] border rounded bg-white"
+                            onChange={(e) => setTargetHeight(parseInt(e.target.value) || 4320)}
+                            className="w-full px-2 py-1 text-[10px] border rounded bg-white font-bold"
                         />
                     </div>
                 </div>

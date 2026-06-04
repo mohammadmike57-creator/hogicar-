@@ -419,7 +419,7 @@ const CarCard: React.FC<CarCardProps> = ({
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
       <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
-        <div className="relative flex flex-col h-full w-full overflow-hidden rounded-2xl">
+        <div className="relative flex flex-col h-full w-full rounded-2xl">
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -581,7 +581,9 @@ const CarCard: React.FC<CarCardProps> = ({
                           className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
-                        className="flex items-center gap-3 group/rating relative cursor-pointer z-20 bg-gradient-to-br from-slate-50 to-white hover:from-white hover:to-white p-2 pr-3 rounded-2xl border border-slate-200/60 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                        className="flex items-center gap-3 group/rating relative cursor-pointer z-30 bg-gradient-to-br from-slate-50 to-white hover:from-white hover:to-white p-2 pr-3 rounded-2xl border border-slate-200/60 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                        onMouseEnter={() => setShowRatingsTooltip(true)}
+                        onMouseLeave={() => setShowRatingsTooltip(false)}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -605,6 +607,14 @@ const CarCard: React.FC<CarCardProps> = ({
                                 </span>
                             </div>
                           </div>
+
+                          {/* Desktop Tooltip */}
+                          <DetailedRatingsTooltip 
+                            ratings={displayRatings} 
+                            visible={showRatingsTooltip} 
+                            align="right"
+                            className="hidden md:block"
+                          />
                       </div>
                   </div>
               </div>
@@ -791,7 +801,7 @@ const CarCard: React.FC<CarCardProps> = ({
 
           {showRatingsTooltip && (
             <div 
-              className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex flex-col items-center justify-end animate-fadeIn overflow-hidden rounded-2xl"
+              className="md:hidden absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex flex-col items-center justify-end animate-fadeIn overflow-hidden rounded-2xl"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
