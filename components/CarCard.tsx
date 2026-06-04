@@ -381,6 +381,19 @@ const CarCard: React.FC<CarCardProps> = ({
     pickupSpeed: 78,
     staffService: 84,
   };
+
+  const ratingToDisplay = React.useMemo(() => {
+    // If we have real detailed ratings, use them to calculate the average
+    // to ensure the main rating reflects any changes in detailed ratings
+    if (car.detailedRatings) {
+      const values = Object.values(car.detailedRatings);
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      return parseFloat((avg / 20).toFixed(1));
+    }
+    // Fallback to the supplier's main rating
+    return car.supplier.rating;
+  }, [car.detailedRatings, car.supplier.rating]);
+
   const pickupType = car.supplier?.pickupType;
   const pickupTypeLabel =
     pickupType === 'IN_TERMINAL' ? 'Terminal pickup' :
@@ -405,7 +418,7 @@ const CarCard: React.FC<CarCardProps> = ({
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card overflow-hidden flex flex-col h-full md:hover:-translate-y-0.5 ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
+      <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
           {/* Header Badge */}
           {car.hogicarChoice && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -494,12 +507,12 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                         aria-label="Show supplier rating details"
                       >
-                          <span className={`flex h-12 w-12 items-center justify-center rounded-lg ${getRatingColor(car.supplier.rating)} text-xl font-bold text-white shadow-lg shadow-slate-200/50`}>
-                              {car.supplier.rating}
+                          <span className={`flex h-12 w-12 items-center justify-center rounded-lg ${getRatingColor(ratingToDisplay)} text-xl font-bold text-white shadow-lg shadow-slate-200/50`}>
+                              {ratingToDisplay}
                           </span>
                           <div>
-                              <p className={`text-lg font-black leading-none ${getRatingTextColor(car.supplier.rating)}`}>
-                                  {getRatingDescription(car.supplier.rating)}
+                              <p className={`text-lg font-black leading-none ${getRatingTextColor(ratingToDisplay)}`}>
+                                  {getRatingDescription(ratingToDisplay)}
                               </p>
                               <p className="mt-1 text-sm font-bold text-slate-400">Excellent reliability</p>
                           </div>
@@ -571,15 +584,15 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                       >
                           <div className="flex flex-col items-end">
-                            <span className={`text-xs font-black leading-none mb-1 uppercase tracking-tight ${getRatingTextColor(car.supplier.rating)}`}>
-                              {getRatingDescription(car.supplier.rating)}
+                            <span className={`text-xs font-black leading-none mb-1 uppercase tracking-tight ${getRatingTextColor(ratingToDisplay)}`}>
+                              {getRatingDescription(ratingToDisplay)}
                             </span>
                             <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap uppercase tracking-wider">
                               Partner Rating
                             </span>
                           </div>
-                          <div className={`${getRatingColor(car.supplier.rating)} text-white text-base font-black w-10 h-10 flex items-center justify-center rounded-xl shadow-lg ring-4 ring-white shrink-0`}>
-                              {car.supplier.rating}
+                          <div className={`${getRatingColor(ratingToDisplay)} text-white text-base font-black w-10 h-10 flex items-center justify-center rounded-xl shadow-lg ring-4 ring-white shrink-0`}>
+                              {ratingToDisplay}
                           </div>
                           <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />
                       </div>
@@ -683,7 +696,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           <div className="flex flex-col mb-2.5">
                               <div className="flex items-start justify-between gap-2 mb-1.5">
                                 <p className="text-[10px] md:text-[9px] text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
-                                {car.supplier.rating >= 4.5 && (
+                                {ratingToDisplay >= 4.5 && (
                                     <div className="flex shrink-0 items-center gap-1 text-[9px] md:text-[10px] font-black text-[#008009] uppercase bg-[#008009]/10 px-2 py-1 rounded-md">
                                         <Award className="w-3 h-3" /> <span>Best Value</span>
                                     </div>
