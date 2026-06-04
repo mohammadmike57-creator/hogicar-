@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
+import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight, Star } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
@@ -393,6 +393,8 @@ const CarCard: React.FC<CarCardProps> = ({
     // Fallback to the supplier's main rating
     return car.supplier.rating;
   }, [car.detailedRatings, car.supplier.rating]);
+  const ratingDescription = getRatingDescription(ratingToDisplay);
+  const ratingPercent = Math.max(0, Math.min(100, Math.round((ratingToDisplay / 5) * 100)));
 
   const pickupType = car.supplier?.pickupType;
   const pickupTypeLabel =
@@ -574,23 +576,32 @@ const CarCard: React.FC<CarCardProps> = ({
                           className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
-                        className="flex items-center gap-3 group/rating relative cursor-pointer z-20 bg-slate-50/50 hover:bg-white p-2 rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm hover:shadow-md"
+                        className="group/rating relative z-20 flex min-w-[172px] cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm transition-all hover:border-[#008009]/30 hover:shadow-md"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           setShowRatingsTooltip(!showRatingsTooltip);
                         }}
                       >
-                          <div className="flex flex-col items-end">
-                            <span className={`text-xs font-black leading-none mb-1 uppercase tracking-tight ${getRatingTextColor(ratingToDisplay)}`}>
-                              {getRatingDescription(ratingToDisplay)}
-                            </span>
-                            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap uppercase tracking-wider">
-                              Partner Rating
-                            </span>
+                          <div className={`${getRatingColor(ratingToDisplay)} flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[15px] font-black text-white shadow-sm ring-1 ring-black/5`}>
+                              {ratingToDisplay.toFixed(1)}
                           </div>
-                          <div className={`${getRatingColor(ratingToDisplay)} text-white text-base font-black w-10 h-10 flex items-center justify-center rounded-xl shadow-lg ring-4 ring-white shrink-0`}>
-                              {ratingToDisplay}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className={`truncate text-[11px] font-black uppercase tracking-[0.12em] ${getRatingTextColor(ratingToDisplay)}`}>
+                                {ratingDescription}
+                              </span>
+                              <span className="flex shrink-0 items-center gap-0.5 text-[10px] font-black text-amber-500">
+                                <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> {ratingToDisplay.toFixed(1)}
+                              </span>
+                            </div>
+                            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                              <div className="h-full rounded-full bg-[#008009]" style={{ width: `${ratingPercent}%` }} />
+                            </div>
+                            <div className="mt-1 flex items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
+                              <span>Verified score</span>
+                              <span>{ratingPercent}%</span>
+                            </div>
                           </div>
                           <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />
                       </div>

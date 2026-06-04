@@ -690,17 +690,40 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                 { value: "MEET_AND_GREET", label: "Meet & Greet" },
                 { value: "SHUTTLE_BUS", label: "Shuttle Bus" }
               ]} />
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-gray-200">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Supplier Rating (1-5)</label>
-                <div className="flex items-center gap-3 mt-1">
-                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  <input 
-                    type="range" min="1" max="5" step="0.1" 
-                    value={editedSupplier.rating || 4.5} 
-                    onChange={e => handleChange("rating", parseFloat(e.target.value))}
-                    className="flex-grow h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                  />
-                  <span className="text-sm font-black text-gray-700 min-w-[2rem]">{editedSupplier.rating || 4.5}</span>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Supplier Rating</label>
+                    <p className="mt-0.5 text-[11px] font-bold text-slate-500">Shown on customer car cards.</p>
+                  </div>
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#008009] text-base font-black text-white shadow-sm">
+                    {(editedSupplier.rating || 4.5).toFixed(1)}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 mb-3" aria-hidden="true">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <Star
+                      key={star}
+                      className={`h-4 w-4 ${(editedSupplier.rating || 4.5) >= star - 0.25 ? 'fill-amber-400 text-amber-400' : 'fill-slate-100 text-slate-200'}`}
+                    />
+                  ))}
+                  <span className="ml-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                    {(editedSupplier.rating || 4.5) >= 4.5 ? 'Fabulous' : (editedSupplier.rating || 4.5) >= 4 ? 'Very good' : 'Standard'}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="5"
+                  step="0.1"
+                  value={editedSupplier.rating || 4.5}
+                  onChange={e => handleChange("rating", parseFloat(e.target.value))}
+                  className="w-full h-2 cursor-pointer appearance-none rounded-full bg-slate-100 accent-[#008009]"
+                />
+                <div className="mt-2 flex justify-between text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
+                  <span>1.0</span>
+                  <span>Customer trust score</span>
+                  <span>5.0</span>
                 </div>
               </div>
             </div>
