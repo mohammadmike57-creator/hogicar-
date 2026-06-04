@@ -447,44 +447,35 @@ const CarDetails: React.FC = () => {
                         <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
                             {!car.hogicarChoice ? (
                                 <div 
-                                  className="flex items-center gap-3 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 p-2 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+                                  className="flex items-center gap-4 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 hover:from-white hover:to-white p-2.5 pr-4 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     setShowRatingsTooltip(!showRatingsTooltip);
                                   }}
                                 >
-                                    <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-1 ring-white/20 transition-transform group-hover/rating:scale-105`}>
-                                        <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-40" />
-                                        <span className="relative z-10 text-lg font-black">{car.supplier.rating}</span>
+                                    <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
+                                        <span className="relative z-10 text-xl font-black">{car.supplier.rating}</span>
                                     </div> 
                                     <div className="flex flex-col">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className={`font-black text-base leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className={`font-black text-lg leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>
                                                 {getRatingDescription(car.supplier.rating)}
                                             </span>
-                                            <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-400 transition-colors" />
+                                            <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                         </div>
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1">
-                                            <CheckCircle className="w-2.5 h-2.5 text-[#008009]" />
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                            <CheckCircle className="w-3 h-3 text-[#008009]" />
                                             Verified Supplier
                                         </span>
                                     </div>
-                                    {car.detailedRatings ? (
-                                      <DetailedRatingsTooltip
-                                        ratings={car.detailedRatings}
-                                        visible={showRatingsTooltip}
-                                        align="left"
-                                        className="max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0 max-sm:translate-y-0"
-                                      />
-                                    ) : (
-                                      <DetailedRatingsTooltip
-                                        ratings={{ cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
-                                        visible={showRatingsTooltip}
-                                        align="left"
-                                        className="max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0 max-sm:translate-y-0"
-                                      />
-                                    )}
+                                    <DetailedRatingsTooltip
+                                       ratings={car.detailedRatings || { cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
+                                       visible={showRatingsTooltip}
+                                       align="left"
+                                       className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
+                                     />
                                 </div>
                             ) : (
                                 <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-black text-amber-800 uppercase tracking-wider flex items-center gap-2">
@@ -645,44 +636,35 @@ const CarDetails: React.FC = () => {
                             <div className="text-base text-slate-600 font-medium tracking-wide">Professional Car Rental Provider</div>
                         </div>
                         <div 
-                          className="flex items-center gap-3 bg-white p-2 pr-3 rounded-2xl shadow-sm border border-slate-200 ml-2 group/rating relative cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+                          className="flex items-center gap-4 bg-white p-2.5 pr-4 rounded-2xl shadow-sm border border-slate-200 ml-2 group/rating relative cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all active:scale-[0.98]"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             setShowRatingsTooltip(!showRatingsTooltip);
                           }}
                         >
-                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-1 ring-white/20 transition-transform group-hover/rating:scale-105`}>
-                                 <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-40" />
-                                 <span className="relative z-10 text-lg font-black">{car.supplier.rating}</span>
+                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
+                                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
+                                 <span className="relative z-10 text-xl font-black">{car.supplier.rating}</span>
                              </div>
                              <div className="flex flex-col min-w-0">
-                                 <div className="flex items-center gap-1">
-                                     <span className={`text-base font-black leading-none truncate whitespace-nowrap tracking-tight ${getRatingTextColor(car.supplier.rating)}`}>
+                                 <div className="flex items-center gap-2 mb-0.5">
+                                     <span className={`text-lg font-black leading-none truncate whitespace-nowrap tracking-tight ${getRatingTextColor(car.supplier.rating)}`}>
                                          {getRatingDescription(car.supplier.rating)}
                                      </span>
-                                     <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-400 transition-colors" />
+                                     <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                  </div>
-                                 <span className="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-1">
-                                     <CheckCircle className="w-2.5 h-2.5 text-[#008009]" />
+                                 <span className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                     <CheckCircle className="w-3 h-3 text-[#008009]" />
                                      Verified Rating
                                  </span>
                              </div>
-                             {car.detailedRatings ? (
-                               <DetailedRatingsTooltip
-                                 ratings={car.detailedRatings}
-                                 visible={showRatingsTooltip}
-                                 align="left"
-                                 className="max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0 max-sm:translate-y-0"
-                               />
-                             ) : (
-                               <DetailedRatingsTooltip
-                                 ratings={{ cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
-                                 visible={showRatingsTooltip}
-                                 align="left"
-                                 className="max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0 max-sm:translate-y-0"
-                               />
-                             )}
+                             <DetailedRatingsTooltip
+                               ratings={car.detailedRatings || { cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
+                               visible={showRatingsTooltip}
+                               align="left"
+                               className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
+                             />
                         </div>
                     </div>
                   </div>

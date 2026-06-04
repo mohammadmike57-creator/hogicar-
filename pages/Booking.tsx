@@ -498,33 +498,33 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                             <p className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-[0.12em] sm:tracking-[0.15em]">{car.supplier.name}</p>
                           </div>
                           <div
-                            className="flex items-center gap-2 bg-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+                            className="flex items-center gap-3 bg-white px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-2xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               setShowRatingsTooltip(!showRatingsTooltip);
                             }}
                           >
-                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg shadow-md overflow-hidden shrink-0 ring-1 ring-white/10`}>
-                                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
-                                 <span className="relative z-10 text-[10px] sm:text-sm font-black tracking-tight">{car.supplier.rating}</span>
+                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
+                                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
+                                 <span className="relative z-10 text-[11px] sm:text-base font-black tracking-tight">{car.supplier.rating}</span>
                              </div>
                              <div className="hidden sm:flex flex-col">
-                                 <div className="flex items-center gap-1">
-                                     <span className={`text-[10px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
-                                     <Info className="w-2 h-2 text-slate-300 group-hover/rating:text-slate-400" />
+                                 <div className="flex items-center gap-1.5 mb-0.5">
+                                     <span className={`text-xs font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
+                                     <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                  </div>
-                                 <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-widest">Verified</span>
+                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
+                                   <BadgeCheck className="w-2.5 h-2.5 text-[#008009]" />
+                                   Verified
+                                 </span>
                              </div>
-                             {car.detailedRatings ? (
-                               <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="left" />
-                             ) : (
-                               <DetailedRatingsTooltip 
-                                 ratings={{ cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }} 
-                                 visible={showRatingsTooltip} 
-                                 align="left"
-                               />
-                             )}
+                             <DetailedRatingsTooltip
+                                ratings={car.detailedRatings || { cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
+                                visible={showRatingsTooltip}
+                                align="left"
+                                className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
+                             />
                           </div>
                         </div>
                     </div>

@@ -116,24 +116,35 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                     </div>
                                     {car && (
                                         <div 
-                                          className="flex items-center gap-2 bg-white p-1 pr-2 rounded-xl border border-slate-200 ml-auto group/rating relative cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+                                          className="flex items-center gap-3 bg-white p-2 pr-3 rounded-2xl border border-slate-200 ml-auto group/rating relative cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all active:scale-[0.98]"
                                           onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             setShowRatingsTooltip(!showRatingsTooltip);
                                           }}
                                         >
-                                            <div className={`relative ${getRatingColor(car.supplier.rating)} text-white text-[11px] font-black w-7 h-7 flex items-center justify-center rounded-lg shadow-sm overflow-hidden ring-1 ring-white/10`}>
-                                                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
+                                            <div className={`relative ${getRatingColor(car.supplier.rating)} text-white text-xs font-black w-8 h-8 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
+                                                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
                                                 <span className="relative z-10">{car.supplier.rating}</span>
                                             </div>
                                             <div className="hidden sm:flex flex-col">
-                                                <div className="flex items-center gap-1">
-                                                    <span className={`text-[9px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
-                                                    <Info className="w-2 h-2 text-slate-300 group-hover/rating:text-slate-400" />
+                                                <div className="flex items-center gap-1.5 mb-0.5">
+                                                    <span className={`text-[11px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
+                                                    <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                                 </div>
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
+                                                  <BadgeCheck className="w-2.5 h-2.5 text-[#008009]" />
+                                                  Verified
+                                                </span>
                                             </div>
-                                            {car.detailedRatings && <DetailedRatingsTooltip ratings={car.detailedRatings} visible={showRatingsTooltip} align="right" />}
+                                            {car.detailedRatings && (
+                                              <DetailedRatingsTooltip 
+                                                ratings={car.detailedRatings} 
+                                                visible={showRatingsTooltip} 
+                                                align="right" 
+                                                className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
+                                              />
+                                            )}
                                         </div>
                                     )}
                                 </div>
