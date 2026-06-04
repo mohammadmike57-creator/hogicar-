@@ -5,14 +5,13 @@ import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '..
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight, Sparkles, Search as SearchIcon } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
 import { calculatePrice } from '../services/mockData';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { API_BASE_URL } from '../lib/config';
-import { Logo } from '../components/Logo';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
@@ -483,9 +482,9 @@ export const Search: React.FC = () => {
     />
     <div className="bg-slate-50 min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-[#0b3f95] shadow-lg border-b border-blue-950/30 md:sticky md:top-[80px] z-30">
-        <div className="mx-auto max-w-[3840px] px-2 py-1.5 sm:px-6 sm:py-3 lg:px-8 2xl:px-10">
-            <div className="rounded-xl border border-white/10 bg-slate-950/30 px-2.5 py-2 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] sm:px-3 md:bg-transparent md:border-transparent md:shadow-none">
+      <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
+        <div className="max-w-[1600px] mx-auto px-2 py-1.5 sm:px-6 sm:py-2.5 lg:px-8">
+            <div className="rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-2.5 py-2 sm:px-3 md:py-2">
               <div className="md:hidden">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -511,50 +510,57 @@ export const Search: React.FC = () => {
                 </div>
               </div>
 
-              <div className="hidden items-center gap-5 md:grid md:grid-cols-[220px_minmax(360px,760px)_auto] lg:grid-cols-[260px_minmax(420px,820px)_auto] 2xl:grid-cols-[320px_minmax(520px,940px)_auto]">
-                <div className="flex min-w-0 items-center">
-                  <Logo variant="light" className="h-12 w-[190px] max-w-full lg:h-14 lg:w-[220px]" />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="group mx-auto flex w-full min-w-0 items-center justify-between gap-4 rounded-2xl bg-white px-5 py-3 text-left shadow-xl shadow-blue-950/20 ring-1 ring-white/70 transition hover:shadow-2xl active:scale-[0.99]"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0b3f95]">
-                      <MapPin className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-base font-black text-slate-950 2xl:text-lg">{location || 'Select pickup location'}</p>
-                      <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-black text-slate-500 2xl:text-sm">
-                        <span className="truncate">{startDateTimeDisplay}</span>
-                        <span className="text-slate-300">-</span>
-                        <span className="truncate">{endDateTimeDisplay}</span>
-                      </div>
+              <div className="hidden flex-col gap-1.5 md:flex lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="bg-[#008009]/15 p-1.5 sm:p-2 rounded-lg flex-shrink-0 border border-[#008009]/25">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00a30b]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm sm:text-base font-black text-white truncate">{location || 'Select Location'}</p>
+                    <div className="mt-0.5 flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-slate-400 min-w-0">
+                      <span className="truncate">{pickupIata || 'Pickup'}</span>
+                      <ArrowRight className="w-3 h-3 text-slate-600 shrink-0" />
+                      <span className="truncate">{dropoffIata || pickupIata || 'Dropoff'}</span>
                     </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span className="hidden rounded-lg bg-slate-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-500 lg:inline-flex">
-                      {days} day{days > 1 ? 's' : ''}
-                    </span>
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b3f95] text-white transition group-hover:bg-[#008009]">
-                      <SearchIcon className="h-5 w-5" />
-                    </span>
-                  </div>
-                </button>
+                </div>
 
-                <div className="flex items-center justify-end gap-3">
-                  <div className="hidden rounded-xl border border-white/10 bg-white/10 px-3 py-2 xl:block">
-                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-blue-100">Results</p>
-                    <p className="text-sm font-black text-white">{sortedAndFilteredCars.length} cars</p>
+                <div className="grid grid-cols-2 gap-1.5 lg:flex lg:min-w-0 lg:flex-1 lg:justify-center">
+                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Pickup</p>
+                      <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{startDateTimeDisplay}</p>
+                    </div>
+                  </div>
+                  <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Return</p>
+                      <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{endDateTimeDisplay}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_1fr_auto] items-center gap-1.5">
+                  <div className="hidden sm:block rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Days</p>
+                    <p className="text-[11px] font-black text-white">{days}</p>
+                  </div>
+                  <div className="hidden sm:block rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Suppliers</p>
+                    <p className="text-[11px] font-black text-white">{allSuppliers.length}</p>
+                  </div>
+                  <div className="sm:hidden rounded-lg bg-slate-800/70 border border-slate-700 px-2.5 py-1.5">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Trip</p>
+                    <p className="text-[10px] font-black text-white">{days} day{days > 1 ? 's' : ''}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#008009] px-5 text-xs font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-blue-950/20 transition hover:bg-[#006607] active:scale-[0.98]"
+                    className="h-full flex items-center justify-center gap-1.5 text-white font-black text-[10px] sm:text-xs px-3 sm:px-4 rounded-lg bg-[#008009] hover:bg-[#006607] transition-all shadow-md shadow-[#008009]/20 active:scale-[0.98] whitespace-nowrap"
                   >
-                    <Edit className="h-3.5 w-3.5" />
+                    <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
                   </button>
                 </div>
@@ -562,7 +568,7 @@ export const Search: React.FC = () => {
             </div>
 
             {isSearchOpen && (
-                <div className="mt-3 animate-fadeIn rounded-2xl border border-white/10 bg-slate-950/25 p-3">
+                <div className="mt-3 pt-3 border-t border-slate-700 animate-fadeIn">
                     <SearchWidget
                         onSearch={handleSearch}
                         initialValues={{ 
@@ -584,7 +590,7 @@ export const Search: React.FC = () => {
       
 
       <div className="hidden md:block bg-white border-b border-slate-200 py-6">
-          <div className="mx-auto max-w-[3840px] px-4 sm:px-6 lg:px-8 2xl:px-10">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-[#008009]"/> Filter by Category</h2>
@@ -646,7 +652,7 @@ export const Search: React.FC = () => {
           </div>
       </div>
 
-      <div className="mx-auto max-w-[3840px] px-3 pt-0 sm:px-6 lg:px-8 2xl:px-10 md:pt-5">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-0 md:pt-5">
         
         {/* Mobile Filter & Sort Controls */}
         <div className="md:hidden my-2 bg-white/95 backdrop-blur p-1.5 border border-slate-200 rounded-xl sticky top-2 z-20 grid grid-cols-2 gap-1.5 shadow-[0_14px_36px_-28px_rgba(15,23,42,0.7)]">
