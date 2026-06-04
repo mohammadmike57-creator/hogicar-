@@ -569,42 +569,56 @@ const CarCard: React.FC<CarCardProps> = ({
                   </Link>
 
                   {/* Supplier & Rating Block */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 mt-auto w-full">
-                      <img
-                          src={car.supplier.logo || (car.supplier as any).logoUrl}
-                          alt={car.supplier.name}
-                          className="h-8 w-auto object-contain max-w-[105px]"
-                      />
-                      <div
-                        className="group/rating relative z-20 flex min-w-[172px] cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm transition-all hover:border-[#008009]/30 hover:shadow-md"
+                  <div className="mt-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-sm ring-1 ring-slate-100/70">
+                      <div className="mb-2.5 flex items-center justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-2">
+                              <div className="flex h-9 w-20 shrink-0 items-center justify-start rounded-xl bg-slate-50 px-2">
+                                  <img
+                                      src={car.supplier.logo || (car.supplier as any).logoUrl}
+                                      alt={car.supplier.name}
+                                      className="max-h-6 max-w-full object-contain"
+                                  />
+                              </div>
+                              <div className="min-w-0">
+                                  <p className="truncate text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Supplier</p>
+                                  <p className="truncate text-[11px] font-black text-slate-900">{car.supplier.name}</p>
+                              </div>
+                          </div>
+                          <span className="shrink-0 rounded-full border border-emerald-100 bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-[#008009]">
+                              Verified
+                          </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="group/rating relative z-20 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-2.5 text-left transition-all hover:border-[#008009]/30 hover:bg-white hover:shadow-md"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           setShowRatingsTooltip(!showRatingsTooltip);
                         }}
                       >
-                          <div className={`${getRatingColor(ratingToDisplay)} flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[15px] font-black text-white shadow-sm ring-1 ring-black/5`}>
+                          <div className={`${getRatingColor(ratingToDisplay)} flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-base font-black text-white shadow-sm ring-4 ring-white`}>
                               {ratingToDisplay.toFixed(1)}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className={`truncate text-[11px] font-black uppercase tracking-[0.12em] ${getRatingTextColor(ratingToDisplay)}`}>
-                                {ratingDescription}
-                              </span>
-                              <span className="flex shrink-0 items-center gap-0.5 text-[10px] font-black text-amber-500">
-                                <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> {ratingToDisplay.toFixed(1)}
-                              </span>
-                            </div>
-                            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                              <div className="h-full rounded-full bg-[#008009]" style={{ width: `${ratingPercent}%` }} />
-                            </div>
-                            <div className="mt-1 flex items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
-                              <span>Verified score</span>
-                              <span>{ratingPercent}%</span>
-                            </div>
+                              <div className="flex items-center justify-between gap-2">
+                                  <span className={`truncate text-[12px] font-black uppercase tracking-[0.08em] ${getRatingTextColor(ratingToDisplay)}`}>
+                                      {ratingDescription}
+                                  </span>
+                                  <span className="flex shrink-0 items-center gap-1 rounded-md bg-white px-1.5 py-0.5 text-[10px] font-black text-amber-600 shadow-sm">
+                                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> {ratingToDisplay.toFixed(1)}
+                                  </span>
+                              </div>
+                              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white">
+                                  <div className="h-full rounded-full bg-[#008009]" style={{ width: `${ratingPercent}%` }} />
+                              </div>
+                              <div className="mt-1 flex items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
+                                  <span>Customer score</span>
+                                  <span className="text-slate-500">{ratingPercent}%</span>
+                              </div>
                           </div>
                           <DetailedRatingsTooltip ratings={displayRatings} visible={showRatingsTooltip} align="right" />
-                      </div>
+                      </button>
                   </div>
               </div>
 
