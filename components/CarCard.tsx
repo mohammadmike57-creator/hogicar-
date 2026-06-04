@@ -787,10 +787,9 @@ const CarCard: React.FC<CarCardProps> = ({
               </div>
           </div>
 
-          {/* Rating Detail Overlay - Professional Inside Popup */}
           {showRatingsTooltip && (
             <div 
-              className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 animate-fadeIn"
+              className="absolute inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex flex-col items-center justify-start sm:justify-center p-2 sm:p-6 animate-fadeIn overflow-y-auto custom-scrollbar"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -798,7 +797,7 @@ const CarCard: React.FC<CarCardProps> = ({
               }}
             >
               <div 
-                className="relative w-full max-w-[18rem] transform transition-all duration-300"
+                className="relative w-full max-w-[18rem] transform transition-all duration-300 my-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button 
@@ -807,7 +806,7 @@ const CarCard: React.FC<CarCardProps> = ({
                     e.stopPropagation();
                     setShowRatingsTooltip(false);
                   }}
-                  className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full shadow-xl flex items-center justify-center border border-slate-200 z-[60] hover:bg-slate-50 transition-all active:scale-90"
+                  className="absolute -top-2.5 -right-2.5 w-8 h-8 bg-white rounded-full shadow-xl flex items-center justify-center border border-slate-200 z-[60] hover:bg-slate-50 transition-all active:scale-90"
                   aria-label="Close ratings"
                 >
                   <X className="w-4 h-4 text-slate-500" />
