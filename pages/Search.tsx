@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchPublicSuppliers } from '../api';
-import { MOCK_CARS, MOCK_CATEGORY_IMAGES, MOCK_CAR_LIBRARY, SUPPLIERS } from '../services/mockData';
+import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
 import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
-import { calculatePrice } from '../services/mockData';
+import { calculatePrice } from '../utils/bookingUtils';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
@@ -18,28 +18,25 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
     const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
     
-    const mockSupplier = SUPPLIERS.find(s => s.name.toLowerCase() === (apiCar.supplier?.name ?? "").toLowerCase());
-
     const mappedSupplier: Supplier = {
-        id: mockSupplier?.id || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
+        id: apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
         name: apiCar.supplier?.name ?? 'Unknown Supplier',
         rating: apiCar.supplier?.rating || 4.5,
         logo: apiCar.supplier?.logoUrl || '',
-        commissionType: mockSupplier?.commissionType || CommissionType.PAY_AT_DESK,
-        commissionValue: mockSupplier?.commissionValue || 0,
-        bookingMode: mockSupplier?.bookingMode || BookingMode.FREE_SALE,
+        commissionType: CommissionType.PAY_AT_DESK,
+        commissionValue: 0,
+        bookingMode: BookingMode.FREE_SALE,
         status: 'active',
         location: '',
         locations: [],
-        contactEmail: mockSupplier?.contactEmail || 'contact@api.supplier',
-        gracePeriodHours: mockSupplier?.gracePeriodHours || 1,
-        minBookingLeadTime: mockSupplier?.minBookingLeadTime || 2,
-        termsAndConditions: mockSupplier?.termsAndConditions || "Standard terms apply.",
+        contactEmail: 'contact@api.supplier',
+        gracePeriodHours: 1,
+        minBookingLeadTime: 2,
+        termsAndConditions: "Standard terms apply.",
         connectionType: 'api',
-        includesCDW: mockSupplier?.includesCDW ?? true,
-        includesTP: mockSupplier?.includesTP ?? true,
-        oneWayFee: mockSupplier?.oneWayFee,
-        enableSocialProof: mockSupplier?.enableSocialProof ?? false,
+        includesCDW: true,
+        includesTP: true,
+        enableSocialProof: false,
         pickupType: apiCar.supplier?.pickupType as any || apiCar.pickupType as any || PickupType.IN_TERMINAL
     };
     
@@ -72,7 +69,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         finalPrice: apiCar.finalPrice,
         year: apiCar.year || new Date().getFullYear(),
         category: apiCar.category as CarCategory || CarCategory.ECONOMY,
-        type: MOCK_CAR_LIBRARY.find(m => m.category === apiCar.category)?.type || CarType.SEDAN,
+        type: CarType.SEDAN,
         sippCode: apiCar.sippCode || 'XXXX',
         transmission: apiCar.transmission as Transmission || Transmission.AUTOMATIC,
         passengers: apiCar.passengers || 4,
@@ -200,7 +197,7 @@ export const Search: React.FC = () => {
   const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
   const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
   const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
-  const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(MOCK_CATEGORY_IMAGES as Record<string, string>);
+  const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(CATEGORY_IMAGES as Record<string, string>);
   const [selectedCompareCars, setSelectedCompareCars] = React.useState<Car[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = React.useState(false);
   const [isCompareMode, setIsCompareMode] = React.useState(false);
@@ -260,7 +257,7 @@ export const Search: React.FC = () => {
         const data = await response.json();
         const normalizedImages = normalizeCategoryImages(data);
         if (Object.keys(normalizedImages).length > 0) {
-          setCategoryImages({ ...(MOCK_CATEGORY_IMAGES as Record<string, string>), ...normalizedImages });
+          setCategoryImages({ ...(CATEGORY_IMAGES as Record<string, string>), ...normalizedImages });
         }
       } catch (err) {
         console.error('Failed to load category images:', err);
@@ -624,7 +621,7 @@ export const Search: React.FC = () => {
                         const categoryImage =
                           categoryImages[category] ||
                           categoryImages[category.toUpperCase()] ||
-                          (MOCK_CATEGORY_IMAGES as Record<string, string>)[category];
+                          (CATEGORY_IMAGES as Record<string, string>)[category];
                         return (
                             <button
                                 key={category}

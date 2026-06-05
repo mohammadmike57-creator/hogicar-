@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { MOCK_CARS, getPromoCode } from '../services/mockData';
+const getPromoCode = (code: string): PromoCode | undefined => {
+  return undefined; // Mock data removed
+};
 import {
   Check, ShieldCheck, User, Users, Briefcase, Fuel, Info, CreditCard as CreditCardIcon,
   ShieldAlert, Calendar, Tag, Car as CarIcon, Snowflake, XCircle, FileText, Clock,
@@ -313,7 +315,7 @@ const CarDetails: React.FC = () => {
 
       // 3. fallback to mock data
       if (!foundCar && id) {
-        const mockCar = MOCK_CARS.find(c => String(c.id) === String(id));
+        const mockCar = null; // Mock data removed
         if (mockCar) foundCar = mockCar as any;
       }
 

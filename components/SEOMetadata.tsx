@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { useLocation } from 'react-router-dom';
-import { MOCK_SEO_CONFIGS } from '../services/mockData';
+const MOCK_SEO_CONFIGS: any[] = [];
 
 interface SEOMetadataProps {
   title: string;

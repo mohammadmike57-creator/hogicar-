@@ -1,7 +1,8 @@
 import * as React from 'react';
 import SEOMetadata from '../components/SEOMetadata';
 import { PieChart, Globe, DollarSign, ArrowRight, CheckCircle, BarChart2, MousePointer, Link2, LogOut, LayoutDashboard, Copy, TrendingUp, X } from 'lucide-react';
-import { MOCK_AFFILIATES, registerAffiliate } from '../services/mockData';
+const MOCK_AFFILIATES: any[] = [];
+const registerAffiliate = (name: string, email: string, website: string, pass: string) => ({ id: 'aff-' + Date.now(), name, email, website, status: 'active', commissionRate: 0.1 });
 import { Affiliate } from '../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 

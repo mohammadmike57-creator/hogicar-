@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getPage } from '../services/mockData';
+const getPage = (slug: string) => null;
 import SEOMetadata from '../components/SEOMetadata';
 import { ArrowLeft, Clock } from 'lucide-react';
 

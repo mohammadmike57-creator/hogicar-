@@ -1,7 +1,8 @@
 
 import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MOCK_BOOKINGS, MOCK_CARS } from '../services/mockData';
+const MOCK_BOOKINGS: any[] = [];
+const MOCK_CARS: any[] = [];
 import { Star, ArrowLeft, Send, CheckCircle, LoaderCircle, AlertCircle } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';

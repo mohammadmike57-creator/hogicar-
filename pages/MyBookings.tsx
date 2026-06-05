@@ -1,6 +1,5 @@
 
 import * as React from 'react';
-import { MOCK_CARS } from '../services/mockData';
 import { Calendar, Tag, Car, Building, ArrowRight, Lock, Mail, Search, AlertCircle, CheckCircle, XCircle, Edit2, AlertTriangle, ChevronRight, Download, Printer, Phone, Plane, FileText, X, Star, LoaderCircle, Zap } from 'lucide-react';
 import { Booking, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
@@ -17,7 +16,7 @@ import { Logo } from '../components/Logo';
 // Re-using a customer-facing version of the voucher modal
 const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose: () => void }) => {
     // In real app, we might need to fetch the car if it's not in mock
-    const car = MOCK_CARS.find(c => c.id === booking.carId);
+    const car = null; // Mock data removed
     
     // Fallback info if car is not found in mock data
     const carMake = car?.make || (booking.carName ? booking.carName.split(' ')[0] : 'Vehicle');
@@ -268,6 +267,8 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
         </div>
     )
 }
+
+const MOCK_CARS: any[] = [];
 
 const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string | number) => void, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
     // Attempt to find detailed car info from mock if available, otherwise fallback to basic info

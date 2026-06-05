@@ -25,23 +25,43 @@ import {
     updateHogicarChoice 
 } from '../../lib/adminApi';
 import { API_BASE_URL } from '../../lib/config';
-import { 
-  ADMIN_STATS, SUPPLIERS, MOCK_BOOKINGS, addMockSupplier, 
-  MOCK_API_PARTNERS, addMockApiPartner, updateApiPartnerStatus, 
-  MOCK_CARS, MOCK_PAGES, updatePage, MOCK_SEO_CONFIGS, updateSeoConfig, 
-  MOCK_HOMEPAGE_CONTENT, MOCK_APP_CONFIG, 
-  updateAppConfig, MOCK_CAR_LIBRARY, saveCarModel, deleteCarModel, 
-  MOCK_AFFILIATES, updateAffiliateStatus, updateAffiliateCommissionRate, 
-  MOCK_SUPPLIER_APPLICATIONS, removeSupplierApplication, 
-  MOCK_CATEGORY_IMAGES, calculatePrice, 
-  addPromoCode, MOCK_PROMO_CODES, updatePromoCodeStatus, deletePromoCode 
-} from '../../services/mockData';
+import { calculatePrice } from '../../utils/bookingUtils';
 import { 
   Supplier, CommissionType, BookingMode, PickupType, ApiConnection, ApiPartner, 
   PageContent, SEOConfig, HomepageContent, CarModel, CarCategory, 
   CarType as VehicleType, Affiliate, SupplierApplication, Car as CarType, 
-  RateTier, FeatureItem, StepItem, FaqItem
+  RateTier, FeatureItem, StepItem, FaqItem, Booking
 } from '../../types';
+
+// Mock data stubs (Real mock data removed)
+const ADMIN_STATS = { totalRevenue: 0, totalBookings: 0, activeSuppliers: 0, activeCars: 0, revenueGrowth: 0, bookingsGrowth: 0 };
+const SUPPLIERS: Supplier[] = [];
+const MOCK_BOOKINGS: Booking[] = [];
+const addMockSupplier = (s: any) => {};
+const MOCK_API_PARTNERS: any[] = [];
+const addMockApiPartner = (p: any) => {};
+const updateApiPartnerStatus = (id: string, s: string) => {};
+const MOCK_CARS: any[] = [];
+const MOCK_PAGES: any[] = [];
+const updatePage = (p: any) => {};
+const MOCK_SEO_CONFIGS: any[] = [];
+const updateSeoConfig = (c: any) => {};
+const MOCK_HOMEPAGE_CONTENT: any = null;
+const MOCK_APP_CONFIG = { searchingScreenDuration: 5000, commissionPercent: 15 };
+const updateAppConfig = (c: any) => {};
+const MOCK_CAR_LIBRARY: any[] = [];
+const saveCarModel = (m: any) => {};
+const deleteCarModel = (id: string) => {};
+const MOCK_AFFILIATES: any[] = [];
+const updateAffiliateStatus = (id: string, s: string) => {};
+const updateAffiliateCommissionRate = (id: string, r: number) => {};
+const MOCK_SUPPLIER_APPLICATIONS: any[] = [];
+const removeSupplierApplication = (id: string) => {};
+const MOCK_CATEGORY_IMAGES: any = {};
+const addPromoCode = (c: string, d: number) => ({});
+const MOCK_PROMO_CODES: any[] = [];
+const updatePromoCodeStatus = (id: string, s: string) => {};
+const deletePromoCode = (id: string) => {};
 
 // ==================== Helper Functions ====================
 const removeLightBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Booking, Car, Extra } from '../types';
-import { calculatePrice, calculateBookingFinancials } from '../services/mockData';
+import { calculatePrice, calculateBookingFinancials } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { X, Calendar, Clock, Phone, Plane, PlusCircle, Check, Save, ArrowRight, RefreshCw, CreditCard } from 'lucide-react';
 

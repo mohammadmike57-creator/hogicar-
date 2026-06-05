@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin } from 'lucide-react';
-import { SUPPLIERS as MOCK_SUPPLIERS, MOCK_HOMEPAGE_CONTENT, GLOBAL_TRUSTED_BRANDS } from '../services/mockData';
+import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
@@ -9,26 +9,19 @@ import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSett
 import { LocationSuggestion } from '../api';
 
 const normalizeHomepageContent = (content: any) => {
-  const fallback = MOCK_HOMEPAGE_CONTENT;
   const safeContent = content && typeof content === 'object' ? content : {};
   const safePopular = safeContent.popularDestinations && typeof safeContent.popularDestinations === 'object'
     ? safeContent.popularDestinations
     : {};
-  const fallbackDestinations = Array.isArray(fallback?.popularDestinations?.destinations)
-    ? fallback.popularDestinations.destinations
-    : [];
 
-  const normalizeDestinationImage = (destination: any, index: number) => {
+  const normalizeDestinationImage = (destination: any) => {
     const image = typeof destination?.image === 'string' ? destination.image.trim() : '';
     if (image) return image;
 
     const legacyImage = typeof destination?.imageUrl === 'string' ? destination.imageUrl.trim() : '';
     if (legacyImage) return legacyImage;
 
-    const fallbackImage = typeof fallbackDestinations[index]?.image === 'string'
-      ? fallbackDestinations[index].image
-      : '';
-    return fallbackImage;
+    return '';
   };
 
   const hasDestinationsArray = Array.isArray(safePopular.destinations);
@@ -40,34 +33,31 @@ const normalizeHomepageContent = (content: any) => {
           name: destination?.name || '',
           country: destination?.country || '',
           price: Number(destination?.price) || 0,
-          image: normalizeDestinationImage(destination, index)
+          image: normalizeDestinationImage(destination)
         }))
         .filter((destination: any) => destination.name || destination.country || destination.image || destination.price > 0)
-    : fallbackDestinations;
+    : [];
 
   return {
-    ...fallback,
     ...safeContent,
     hero: {
-      ...fallback.hero,
+      title: 'Car Hire – Search, Compare & Save',
+      subtitle: 'Free cancellations on most bookings',
+      backgroundImage: '',
       ...(safeContent.hero || {})
     },
     howItWorks: {
-      ...fallback.howItWorks,
+      title: 'Get Your Perfect Car in 3 Easy Steps',
+      steps: [],
       ...(safeContent.howItWorks || {}),
-      steps: Array.isArray(safeContent?.howItWorks?.steps) && safeContent.howItWorks.steps.length > 0
-        ? safeContent.howItWorks.steps
-        : fallback.howItWorks.steps
     },
     faqs: {
-      ...fallback.faqs,
+      title: 'Frequently Asked Questions',
+      items: [],
       ...(safeContent.faqs || {}),
-      items: Array.isArray(safeContent?.faqs?.items) && safeContent.faqs.items.length > 0
-        ? safeContent.faqs.items
-        : fallback.faqs.items
     },
     popularDestinations: {
-      ...fallback.popularDestinations,
+      title: 'Popular Destinations',
       ...safePopular,
       destinations
     }
@@ -86,7 +76,7 @@ const Home: React.FC = () => {
   const [dropoffName, setDropoffName] = React.useState<string>('');
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
-  const [homepageContent, setHomepageContent] = React.useState<any>(MOCK_HOMEPAGE_CONTENT);
+  const [homepageContent, setHomepageContent] = React.useState<any>(null);
   
   React.useEffect(() => {
     const loadSettings = async () => {
@@ -136,13 +126,13 @@ const Home: React.FC = () => {
             
             // Fallback to global brands ONLY if no logos are configured at all
             if (allLogos.length === 0) {
-                allLogos = GLOBAL_TRUSTED_BRANDS;
+                allLogos = TRUSTED_BRANDS;
             }
             
             setSuppliers(allLogos);
         } catch (error) {
             console.error('Error loading home suppliers:', error);
-            setSuppliers(GLOBAL_TRUSTED_BRANDS);
+            setSuppliers(TRUSTED_BRANDS);
         }
     };
 

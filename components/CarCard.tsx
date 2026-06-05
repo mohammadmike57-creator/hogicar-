@@ -9,7 +9,7 @@ import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName } from '../utils/ratings';
 import { Link } from 'react-router-dom';
-import { calculatePrice } from '../services/mockData';
+import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
 import { persistSelectedCar } from '../utils/storage';
