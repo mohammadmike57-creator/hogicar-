@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../services/mockData';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -214,7 +214,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                                 <PolicyRow label="Mileage" value={car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'} tone={car.unlimitedMileage ? 'good' : 'default'} />
                                 <PolicyRow label="Fuel policy" value={car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ')} />
                                 <PolicyRow label="Transmission" value={car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'} />
-                                <PolicyRow label="Vehicle class" value={`${car.category} or similar`} />
+                                <PolicyRow label="Vehicle class" value={`${formatCategoryName(car.category)} or similar`} />
                             </ConditionCard>
 
                             <ConditionCard icon={<FileText className="h-4 w-4" />} title="Supplier rental terms">
@@ -631,7 +631,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       <div className="mb-2.5">
                           <div className="flex items-center gap-1.5 mb-1.5">
                               <span className="bg-slate-100 text-slate-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
-                                  {car.category}
+                                  {formatCategoryName(car.category)}
                               </span>
                               <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
                                   <DesktopPickupIcon className="h-3 w-3" />

@@ -589,30 +589,33 @@ export const Search: React.FC = () => {
       </div>
       
 
-      <div className="hidden md:block bg-white border-b border-slate-200 py-6">
+      <div className="bg-white border-b border-slate-200 py-5 md:py-8">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
                 <div>
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2"><CarIcon className="w-5 h-5 text-[#008009]"/> Filter by Category</h2>
-                  <p className="text-xs font-bold text-slate-500">Select a vehicle class to quickly narrow down your options.</p>
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+                      <CarIcon className="w-6 h-6 text-[#008009]"/> 
+                      Vehicle Categories
+                  </h2>
+                  <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Select a car class to quickly narrow down your options.</p>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5">
-                    <span className="text-xs text-slate-500 font-bold">Sort by:</span>
+                <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Sort by:</span>
                     <div className="relative">
                         <select 
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="appearance-none bg-white border border-slate-200 text-sm text-slate-700 font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#008009] cursor-pointer hover:border-slate-300"
+                            className="appearance-none bg-transparent text-sm text-slate-900 font-bold rounded-lg pr-8 py-0.5 focus:outline-none cursor-pointer"
                         >
                             <option>Recommended</option>
                             <option>Price: Low to High</option>
                             <option>Price: High to Low</option>
                         </select>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <ArrowUpDown className="w-3.5 h-3.5 text-[#008009] absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                 </div>
               </div>
-              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 lg:gap-6 -mx-4 px-4 md:mx-0 md:px-0">
+              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-4 sm:gap-6 -mx-4 px-4 md:mx-0 md:px-0 pb-2">
                   {categoryOrder.map(category => {
                       const isActive = selectedCategories.includes(category);
                       const count = filterCounts.category.get(category) || 0;
@@ -626,25 +629,32 @@ export const Search: React.FC = () => {
                               key={category}
                               onClick={() => handleCategoryToggle(category)}
                               disabled={isDisabled}
-                              className={`flex-shrink-0 w-16 sm:w-20 md:w-28 lg:w-32 flex flex-col items-center gap-1 group transition-all duration-300 relative ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
-                          >
-                              {isActive && (
-                                  <div className="absolute top-0 right-0 -mt-1 -mr-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#008009] rounded-full flex items-center justify-center text-white border-2 border-white z-10 shadow">
-                                      <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                                  </div>
-                              )}
-                              <div className={`w-full aspect-[4/3] rounded-lg flex items-center justify-center overflow-hidden transition-all duration-300 border-2 shadow-sm
+                              className={`flex-shrink-0 w-24 sm:w-28 md:w-32 lg:w-36 flex flex-col p-2.5 rounded-2xl transition-all duration-300 relative border-2 group
                                   ${isActive
-                                      ? 'border-[#008009] shadow-lg shadow-[#008009]/30 ring-2 ring-emerald-50'
-                                      : 'border-slate-200 bg-slate-50 group-hover:border-[#008009]/40 group-hover:shadow-md group-hover:-translate-y-0.5'}`}>
-                                  <img src={categoryImage} alt={category} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" width="100" height="100" />
+                                      ? 'bg-[#008009]/5 border-[#008009] shadow-md shadow-emerald-100'
+                                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/30 hover:shadow-sm hover:-translate-y-1'}`}
+                          >
+                              <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-slate-50 border border-slate-50">
+                                  <img 
+                                    src={categoryImage} 
+                                    alt={category} 
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                    width="100" height="100" 
+                                  />
                               </div>
-                              <div className="text-center leading-tight">
-                                  <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight transition-colors duration-300 ${isActive ? 'text-[#008009]' : 'text-slate-700 group-hover:text-slate-900'}`}>
-                                      {category}
+                              <div className="text-center">
+                                  <span className={`block text-[11px] sm:text-xs font-bold tracking-tight transition-colors duration-300 ${isActive ? 'text-[#008009]' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                      {category.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}
                                   </span>
-                                  <span className={`block text-[9px] font-bold ${isActive ? 'text-[#008009]/70' : 'text-slate-400'}`}>({count} cars)</span>
+                                  <span className={`block text-[9px] font-bold mt-0.5 ${isActive ? 'text-[#008009]/70' : 'text-slate-400'}`}>
+                                      {count} vehicles
+                                  </span>
                               </div>
+                              {isActive && (
+                                <div className="absolute -top-1.5 -right-1.5 bg-[#008009] text-white rounded-full p-0.5 shadow-lg border-2 border-white z-10">
+                                  <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                </div>
+                              )}
                           </button>
                       )
                   })}
@@ -767,7 +777,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
+                          <span className="text-xs font-bold text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Vehicle Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
@@ -780,7 +790,9 @@ export const Search: React.FC = () => {
                                           onChange={() => handleCategoryToggle(type)}
                                           className="rounded border-gray-300 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50 w-4 h-4" 
                                       />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{type}</span>
+                                      <span className="ml-2 text-xs text-slate-600 font-medium">
+                                          {type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}
+                                      </span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.category.get(type) || 0})</span>
                                   </label>
                               ))}

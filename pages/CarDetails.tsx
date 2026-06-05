@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -28,7 +28,7 @@ const StructuredData: React.FC<{ car: Car; total: number; currencyCode: string }
     "@type": "Product",
     "name": `${car.make} ${car.model}`,
     "image": car.image,
-    "description": `Rent a ${car.make} ${car.model} (${car.category}) from ${car.supplier.name}. Features include ${car.passengers} seats and space for ${car.bags} bags.`,
+    "description": `Rent a ${car.make} ${car.model} (${formatCategoryName(car.category)}) from ${car.supplier.name}. Features include ${car.passengers} seats and space for ${car.bags} bags.`,
     "brand": { "@type": "Brand", "name": car.make },
     "vehicleModelDate": car.year,
     "vehicleTransmission": car.transmission,
@@ -182,7 +182,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
                 <PolicyRow label="Mileage" value={car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'} tone={car.unlimitedMileage ? 'good' : 'default'} />
                 <PolicyRow label="Fuel policy" value={car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ')} />
                 <PolicyRow label="Transmission" value={car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'} />
-                <PolicyRow label="Vehicle class" value={`${car.category} or similar`} />
+                <PolicyRow label="Vehicle class" value={`${formatCategoryName(car.category)} or similar`} />
               </ConditionCard>
             </div>
 
@@ -424,7 +424,7 @@ const CarDetails: React.FC = () => {
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                       <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
-                        {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
+                        {formatCategoryName(car.category)}
                       </span>
                       {car.tags?.[0] && <span className="bg-[#008009] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.tags[0]}</span>}
                     </div>
@@ -558,7 +558,7 @@ const CarDetails: React.FC = () => {
                     <h2 className="text-xl font-black flex items-center gap-2 text-slate-950"><GaugeCircle className="w-5 h-5 text-[#008009]" /> Vehicle details</h2>
                     <p className="text-sm font-semibold text-slate-500 mt-1">The most important specs for this rental class.</p>
                   </div>
-                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{car.category}</span>
+                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{formatCategoryName(car.category)}</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[

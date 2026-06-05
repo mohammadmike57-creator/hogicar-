@@ -25,3 +25,11 @@ export const getRatingTextColor = (rating: number): string => {
     if (rating >= 2.0) return 'text-orange-600';
     return 'text-red-600';
 };
+
+export const formatCategoryName = (category: string): string => {
+    if (!category) return '';
+    return category
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+};
