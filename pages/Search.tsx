@@ -594,11 +594,11 @@ export const Search: React.FC = () => {
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-                      <CarIcon className="w-6 h-6 text-[#008009]"/> 
-                      Vehicle Categories
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight flex items-center gap-3">
+                      <CarIcon className="w-7 h-7 text-[#008009]"/> 
+                      Popular Categories
                   </h2>
-                  <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Select a car class to quickly narrow down your options.</p>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Compare the best deals across various car classes.</p>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Sort by:</span>
@@ -661,8 +661,8 @@ export const Search: React.FC = () => {
                     })}
                 </div>
                 {/* Scroll Indicators */}
-                <div className="absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-white to-transparent pointer-events-none md:hidden opacity-0" />
-                <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden" />
+                <div className="absolute left-0 top-0 bottom-4 w-16 bg-gradient-to-r from-white via-white/40 to-transparent pointer-events-none md:hidden opacity-0" />
+                <div className="absolute right-0 top-0 bottom-4 w-16 bg-gradient-to-l from-white via-white/40 to-transparent pointer-events-none md:hidden" />
               </div>
           </div>
       </div>
