@@ -7,7 +7,7 @@ import { getPromoCode } from '../services/mockData';
 import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -520,7 +520,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                                  </span>
                              </div>
                              <DetailedRatingsTooltip
-                                ratings={car.detailedRatings || { cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
+                               ratings={car.detailedRatings || { 
+                                 cleanliness: Math.min(Math.round(car.supplier.rating * 10 + 2), 100), 
+                                 condition: Math.round(car.supplier.rating * 10), 
+                                 valueForMoney: Math.min(Math.round(car.supplier.rating * 10 - 2), 100), 
+                                 pickupSpeed: Math.min(Math.round(car.supplier.rating * 10 - 4), 100), 
+                                 staffService: Math.min(Math.round(car.supplier.rating * 10 + 1), 100) 
+                               }}
                                 visible={showRatingsTooltip}
                                 align="left"
                                 className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
