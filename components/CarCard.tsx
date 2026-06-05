@@ -625,7 +625,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       {/* Title & Category */}
                       <div className="mb-2.5">
                           <div className="flex items-center gap-1.5 mb-1.5">
-                              <span className="bg-slate-100 text-slate-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
+                              <span className="hidden md:inline-block bg-slate-100 text-slate-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
                                   {formatCategoryName(car.category)}
                               </span>
                               <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">

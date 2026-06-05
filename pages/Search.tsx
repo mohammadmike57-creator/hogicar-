@@ -619,7 +619,7 @@ export const Search: React.FC = () => {
       </div>
       
 
-      <div className="bg-white border-b border-slate-200 py-4 md:py-5">
+      <div className="hidden md:block bg-white border-b border-slate-200 py-4 md:py-5">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
                 <div>
@@ -832,7 +832,7 @@ export const Search: React.FC = () => {
                       )}
                   </div>
 
-                  <div className="p-4 md:p-3">
+                  <div className="hidden md:block p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
                           <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
