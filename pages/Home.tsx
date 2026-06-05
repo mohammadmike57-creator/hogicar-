@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin } from 'lucide-react';
+import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Gift, Sparkles } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -431,36 +431,76 @@ const Home: React.FC = () => {
       </section>
 
       {/* NEWSLETTER CTA */}
-      <section className="py-8 lg:py-12 bg-white">
+      <section className="py-12 lg:py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-900 rounded-3xl overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="p-5 md:p-8">
-                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white leading-tight">Get exclusive car rental deals.</h2>
-                <p className="mt-3 text-xs text-slate-300 max-w-sm">Join our newsletter for insider offers, travel inspiration, and early access to our best discounts. Straight to your inbox.</p>
-                <form className="mt-5 flex flex-col sm:flex-row gap-2 max-w-sm">
-                  <input 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    className="flex-grow px-3 py-2 rounded-full text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all bg-white placeholder-slate-400"
-                  />
+          <div className="relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5">
+            {/* Ambient Glows */}
+            <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 bg-[#008009]/15 rounded-full blur-3xl"></div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
+              <div className="p-8 md:p-14 lg:p-16 relative z-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-6">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Limited Time Offers
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15] mb-6">
+                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">car rental deals</span>
+                </h2>
+                
+                <p className="text-base md:text-lg text-slate-400 max-w-md leading-relaxed mb-10">
+                  Join 10,000+ travelers receiving insider offers, premium travel inspiration, and first-look access to our most competitive rates.
+                </p>
+                
+                <form className="flex flex-col sm:flex-row gap-3 max-w-md">
+                  <div className="relative flex-grow">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-slate-500" />
+                    </div>
+                    <input 
+                      type="email" 
+                      placeholder="Enter your email address" 
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all bg-white/5 border border-white/10 placeholder-slate-500"
+                    />
+                  </div>
                   <button 
                     type="submit" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md whitespace-nowrap text-xs"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 active:scale-[0.98] whitespace-nowrap text-sm"
                   >
-                    Subscribe
+                    Join the Club
                   </button>
                 </form>
+                
+                <div className="mt-6 flex items-center gap-4">
+                    <p className="text-[10px] text-slate-500 flex items-center gap-1.5">
+                        <Shield className="w-3 h-3" />
+                        We respect your privacy.
+                    </p>
+                    <div className="h-1 w-1 rounded-full bg-slate-700"></div>
+                    <p className="text-[10px] text-slate-500">Unsubscribe at any time.</p>
+                </div>
               </div>
-              <div className="hidden lg:block relative">
+              
+              <div className="hidden lg:block relative h-full min-h-[560px]">
                 <img 
-                  src="https://images.unsplash.com/photo-1568605117036-5fe5e7185743?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                  alt="Modern car interior" 
+                  src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop" 
+                  alt="Luxury vehicle" 
                   className="absolute inset-0 w-full h-full object-cover"
-                  width="600"
-                  height="400"
                 />
-                <div className="absolute inset-0 bg-slate-900/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent"></div>
+                
+                <div className="absolute bottom-10 right-10 bg-white/10 backdrop-blur-xl border border-white/20 p-5 rounded-2xl shadow-2xl">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-emerald-500/20 p-2.5 rounded-xl">
+                      <Gift className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-black text-lg leading-tight">Save up to 30%</p>
+                      <p className="text-slate-300 text-xs font-medium">On your first luxury booking</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
