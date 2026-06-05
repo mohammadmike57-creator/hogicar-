@@ -5,7 +5,7 @@ import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
-import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight, Sparkles } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ChevronUp, Filter, ArrowUpDown, Car as CarIcon, Truck, Gem, Users, Briefcase, Gift, CreditCard, Shield, MapPin, Check, Edit, Calendar, ArrowRight, AlertCircle, X, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
 import { calculatePrice } from '../utils/bookingUtils';
 import SEOMetadata from '../components/SEOMetadata';
@@ -399,6 +399,8 @@ export const Search: React.FC = () => {
     return apiCars || [];
   }, [apiCars]);
 
+  const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
+
   const filterCounts = React.useMemo(() => {
     const counts = {
       category: new Map<string, number>(),
@@ -432,6 +434,28 @@ export const Search: React.FC = () => {
     });
     return counts;
   }, [baseFilteredCars]);
+
+  const categorySummaries = React.useMemo(() => {
+    const summaries = new Map<string, { count: number; fromTotal: number | null; passengers: number | null; bags: number | null }>();
+
+    categoryOrder.forEach(category => {
+      const carsInCategory = baseFilteredCars.filter(car => car.category === category && car.isAvailable !== false);
+      if (carsInCategory.length === 0) {
+        summaries.set(category, { count: 0, fromTotal: null, passengers: null, bags: null });
+        return;
+      }
+
+      const cheapest = [...carsInCategory].sort((a, b) => calculatePrice(a, days, startDate).total - calculatePrice(b, days, startDate).total)[0];
+      summaries.set(category, {
+        count: carsInCategory.length,
+        fromTotal: calculatePrice(cheapest, days, startDate).total,
+        passengers: cheapest.passengers || null,
+        bags: cheapest.bags || null,
+      });
+    });
+
+    return summaries;
+  }, [baseFilteredCars, days, startDate]);
 
   const sortedAndFilteredCars = React.useMemo(() => {
     const filtered = baseFilteredCars.filter(car => {
@@ -469,7 +493,6 @@ export const Search: React.FC = () => {
     }
   }, [baseFilteredCars, priceRange, selectedCategories, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, sortBy, days, startDate, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly]);
   
-  const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
   const activeFilterCount =
     selectedCategories.length +
     selectedSuppliers.length +
@@ -596,15 +619,15 @@ export const Search: React.FC = () => {
       </div>
       
 
-      <div className="bg-white border-b border-slate-200 py-5 md:py-8">
+      <div className="bg-white border-b border-slate-200 py-4 md:py-5">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
                 <div>
-                  <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight flex items-center gap-3">
-                      <CarIcon className="w-7 h-7 text-[#008009]"/> 
+                  <h2 className="text-lg sm:text-2xl font-black text-slate-950 tracking-tight flex items-center gap-2">
+                      <CarIcon className="w-5 h-5 text-[#008009]"/>
                       Car Categories
                   </h2>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Select your preferred vehicle type to filter results.</p>
+                  <p className="text-xs font-semibold text-slate-500 mt-1">Prices show the lowest total for {days} day{days > 1 ? 's' : ''}.</p>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Sort by:</span>
@@ -623,10 +646,12 @@ export const Search: React.FC = () => {
                 </div>
               </div>
               <div className="relative">
-                <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 md:gap-5 -mx-4 px-4 md:mx-0 md:px-0 pb-4 snap-x">
+                <div className="flex overflow-x-auto no-scrollbar gap-2 -mx-4 px-4 md:mx-0 md:px-0 pb-3 snap-x">
                     {categoryOrder.map(category => {
                         const isActive = selectedCategories.includes(category);
-                        const count = filterCounts.category.get(category) || 0;
+                        const summary = categorySummaries.get(category);
+                        const count = summary?.count || filterCounts.category.get(category) || 0;
+                        const hasCars = count > 0;
                         const categoryImage =
                           categoryImages[category] ||
                           categoryImages[category.toUpperCase()] ||
@@ -635,30 +660,51 @@ export const Search: React.FC = () => {
                             <button
                                 key={category}
                                 onClick={() => handleCategoryToggle(category)}
-                                className={`flex-shrink-0 w-[105px] sm:w-[125px] md:w-[135px] lg:w-[145px] flex flex-col p-2.5 sm:p-3.5 rounded-[24px] transition-all duration-500 relative border group snap-start
+                                disabled={!hasCars}
+                                className={`flex-shrink-0 w-[132px] sm:w-[150px] md:w-[162px] flex flex-col rounded-lg transition-all duration-300 relative border group snap-start overflow-hidden
                                     ${isActive
-                                        ? 'bg-[#008009] border-[#008009] shadow-[0_15px_30px_-10px_rgba(0,128,9,0.3)] ring-4 ring-[#008009]/10 -translate-y-1'
-                                        : 'bg-white border-slate-200 hover:border-[#008009]/40 hover:bg-white hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-1.5'}`}
+                                        ? 'bg-white border-[#008009] shadow-[0_16px_34px_-18px_rgba(0,128,9,0.65)] ring-2 ring-[#008009]/10'
+                                        : hasCars
+                                          ? 'bg-white border-slate-200 hover:border-[#008009]/50 hover:shadow-[0_16px_32px_-22px_rgba(15,23,42,0.7)]'
+                                          : 'bg-slate-50 border-slate-200 opacity-55 cursor-not-allowed'}`}
                             >
-                                <div className={`w-full aspect-[4/3] rounded-[18px] overflow-hidden mb-3 relative transition-transform duration-500 ${isActive ? 'scale-[1.02]' : 'group-hover:scale-[1.04]'}`}>
+                                <div className="px-3 pt-3 text-center">
+                                    <span className={`block truncate text-sm font-black tracking-tight ${isActive ? 'text-[#008009]' : 'text-slate-900'}`}>
+                                        {formatCategoryName(category)}
+                                    </span>
+                                    <div className="mt-2 flex items-center justify-center gap-3 text-slate-600">
+                                      <span className="inline-flex items-center gap-1 text-xs font-bold">
+                                        <Users className="h-4 w-4 stroke-[1.8px]" />
+                                        {summary?.passengers || '-'}
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 text-xs font-bold">
+                                        <Briefcase className="h-4 w-4 stroke-[1.8px]" />
+                                        {summary?.bags || '-'}
+                                      </span>
+                                    </div>
+                                </div>
+                                <div className="relative mx-3 mt-2 aspect-[1.65/1] overflow-hidden">
                                     <img 
                                       src={categoryImage} 
                                       alt={category} 
-                                      className="w-full h-full object-cover" 
+                                      className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
                                       loading="lazy"
                                     />
-                                    {!isActive && <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/5 transition-colors duration-300" />}
                                 </div>
-                                <div className="text-center px-1">
-                                    <span className={`block text-[11px] sm:text-[13px] font-black tracking-tight transition-colors duration-300 truncate ${isActive ? 'text-white' : 'text-slate-800 group-hover:text-[#008009]'}`}>
-                                        {formatCategoryName(category)}
+                                <div className="mt-auto border-t border-slate-100 px-3 py-2.5 text-center">
+                                    <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                                        {hasCars ? `${count} available` : 'No cars'}
                                     </span>
-                                    <span className={`block text-[9px] sm:text-[10px] font-bold mt-0.5 transition-colors duration-300 ${isActive ? 'text-white/80' : 'text-slate-400'}`}>
-                                        {count} {count === 1 ? 'option' : 'options'}
+                                    <span className={`mt-0.5 block text-[12px] font-semibold ${isActive ? 'text-[#008009]' : 'text-slate-700'}`}>
+                                        {summary?.fromTotal != null ? (
+                                          <>Total from <strong className="text-base font-black text-slate-950">{getCurrencySymbol()}{convertPrice(summary.fromTotal).toFixed(0)}</strong></>
+                                        ) : (
+                                          'Unavailable'
+                                        )}
                                     </span>
                                 </div>
                                 {isActive && (
-                                  <div className="absolute -top-1.5 -right-1.5 bg-white text-[#008009] rounded-full p-1.5 shadow-xl border-2 border-[#008009] z-10 animate-in zoom-in-50 duration-500">
+                                  <div className="absolute right-2 top-2 bg-[#008009] text-white rounded-full p-1 shadow-lg z-10 animate-in zoom-in-50 duration-300">
                                     <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3px]" />
                                   </div>
                                 )}
