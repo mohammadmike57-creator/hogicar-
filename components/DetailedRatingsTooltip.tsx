@@ -5,6 +5,7 @@ import { Sparkles, Clock, ThumbsUp, Users, ShieldCheck, MapPin, RotateCcw } from
 interface DetailedRatingsTooltipProps {
     ratings: CarRatings;
     visible?: boolean;
+    onClose?: () => void;
     className?: string;
     align?: 'left' | 'right' | 'center';
     supplierName?: string;
@@ -24,7 +25,7 @@ const getProgressBarColor = (value: number) => {
 const clampPercent = (value: number | undefined) => Math.max(0, Math.min(100, Number(value || 0)));
 const scoreFromPercent = (value: number | undefined) => (clampPercent(value) / 10).toFixed(1);
 
-export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '', align = 'right', supplierName = 'Supplier', rating, reviewCount, compact = false }) => {
+export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, onClose, className = '', align = 'right', supplierName = 'Supplier', rating, reviewCount, compact = false }) => {
     const ratingItems: { key: keyof CarRatings, label: string, icon: any }[] = [
         { key: 'staffService', label: 'Staff helpfulness', icon: Users },
         { key: 'condition', label: 'Car condition', icon: ShieldCheck },

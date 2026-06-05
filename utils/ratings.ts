@@ -1,6 +1,24 @@
+import { Car, CarRatings } from '../types';
+
 export const normalizeRatingScore = (rating: number): number => {
     const safeRating = Number.isFinite(rating) ? rating : 0;
     return safeRating > 5 ? safeRating : safeRating * 2;
+};
+
+export const getCarRatings = (car: Car): CarRatings => {
+    if (car.detailedRatings) return car.detailedRatings;
+    if (car.supplier?.detailedRatings) return car.supplier.detailedRatings;
+
+    const base = normalizeRatingScore(car.supplier?.rating || 0) * 10;
+    return {
+        cleanliness: Math.min(Math.round(base), 100),
+        condition: Math.min(Math.round(base), 100),
+        valueForMoney: Math.min(Math.round(base), 100),
+        pickupSpeed: Math.min(Math.round(base), 100),
+        dropoffSpeed: Math.min(Math.round(base), 100),
+        staffService: Math.min(Math.round(base), 100),
+        easeOfLocating: Math.min(Math.round(base), 100),
+    };
 };
 
 export const getRatingDescription = (rating: number): string => {

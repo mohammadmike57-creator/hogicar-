@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -117,8 +117,8 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden">
+    <div className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+      <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
           <div className="flex min-w-0 items-center gap-4">
             {(supplier as any).hogicarChoice ? (
@@ -347,6 +347,13 @@ const CarDetails: React.FC = () => {
     return () => clearInterval(interval);
   }, [timeLeft]);
 
+  React.useEffect(() => {
+    if (!showRatingsTooltip) return;
+    const handleGlobalClick = () => setShowRatingsTooltip(false);
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, [showRatingsTooltip]);
+
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
   const priceDetails = React.useMemo(() => {
@@ -473,7 +480,7 @@ const CarDetails: React.FC = () => {
                                         </span>
                                     </div>
                                     <DetailedRatingsTooltip
-                                       ratings={car.detailedRatings || { cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
+                                       ratings={getCarRatings(car)}
                                        visible={showRatingsTooltip}
                                        align="left"
                                        className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
@@ -662,7 +669,7 @@ const CarDetails: React.FC = () => {
                                  </span>
                              </div>
                              <DetailedRatingsTooltip
-                               ratings={car.detailedRatings || { cleanliness: 88, condition: 85, valueForMoney: 82, pickupSpeed: 80, staffService: 86 }}
+                               ratings={getCarRatings(car)}
                                visible={showRatingsTooltip}
                                align="left"
                                className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"

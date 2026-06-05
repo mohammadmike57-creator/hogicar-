@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
-import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName } from '../utils/ratings';
+import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -100,8 +100,8 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
     );
 
     return (
-        <div className="fixed inset-0 bg-slate-950/70 z-[9999] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden">
+        <div className="fixed inset-0 bg-slate-950/70 z-[9999] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+            <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
                     <div className="flex min-w-0 items-center gap-4">
@@ -374,25 +374,18 @@ const CarCard: React.FC<CarCardProps> = ({
   const [imageError, setImageError] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
-  const displayRatings = React.useMemo(() => {
-    if (car.detailedRatings) return car.detailedRatings;
-    if (car.supplier.detailedRatings) return car.supplier.detailedRatings;
-    
-    const base = normalizeRatingScore(car.supplier.rating) * 10;
-    return {
-      cleanliness: Math.min(Math.round(base), 100),
-      condition: Math.min(Math.round(base), 100),
-      valueForMoney: Math.min(Math.round(base), 100),
-      pickupSpeed: Math.min(Math.round(base), 100),
-      dropoffSpeed: Math.min(Math.round(base), 100),
-      staffService: Math.min(Math.round(base), 100),
-      easeOfLocating: Math.min(Math.round(base), 100),
-    };
-  }, [car.detailedRatings, car.supplier.detailedRatings, car.supplier.rating]);
+  const displayRatings = React.useMemo(() => getCarRatings(car), [car]);
 
   const ratingToDisplay = React.useMemo(() => {
     return parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
   }, [car.supplier.rating]);
+
+  React.useEffect(() => {
+    if (!showRatingsTooltip) return;
+    const handleGlobalClick = () => setShowRatingsTooltip(false);
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, [showRatingsTooltip]);
 
   const pickupType = car.supplier?.pickupType;
   const pickupTypeLabel =
