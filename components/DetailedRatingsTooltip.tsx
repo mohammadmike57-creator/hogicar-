@@ -1,33 +1,40 @@
 import * as React from 'react';
 import { CarRatings } from '../types';
-import { Star, ShieldCheck, Sparkles, Clock, ThumbsUp, Users, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Clock, ThumbsUp, Users, ShieldCheck, MapPin, RotateCcw } from 'lucide-react';
 
 interface DetailedRatingsTooltipProps {
     ratings: CarRatings;
     visible?: boolean;
     className?: string;
     align?: 'left' | 'right' | 'center';
+    supplierName?: string;
+    rating?: number;
+    reviewCount?: number;
 }
 
 const getProgressBarColor = (value: number) => {
-    if (value >= 90) return 'bg-[#008009]';
-    if (value >= 80) return 'bg-emerald-500';
-    if (value >= 70) return 'bg-lime-500';
-    if (value >= 60) return 'bg-amber-500';
-    if (value >= 40) return 'bg-orange-500';
-    return 'bg-rose-500';
+    if (value >= 80) return 'bg-[#5fd018]';
+    if (value >= 70) return 'bg-[#73d13d]';
+    if (value >= 60) return 'bg-[#f59e0b]';
+    if (value >= 40) return 'bg-[#f97316]';
+    return 'bg-[#ef4444]';
 };
 
-export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '', align = 'right' }) => {
+const clampPercent = (value: number | undefined) => Math.max(0, Math.min(100, Number(value || 0)));
+const scoreFromPercent = (value: number | undefined) => (clampPercent(value) / 10).toFixed(1);
+
+export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '', align = 'right', supplierName = 'Supplier', rating, reviewCount }) => {
     const ratingItems: { key: keyof CarRatings, label: string, icon: any }[] = [
-        { key: 'cleanliness', label: 'Cleanliness', icon: Sparkles },
-        { key: 'condition', label: 'Car Condition', icon: ShieldCheck },
-        { key: 'valueForMoney', label: 'Value for Money', icon: ThumbsUp },
-        { key: 'pickupSpeed', label: 'Pick-up Speed', icon: Clock },
-        { key: 'staffService', label: 'Staff Service', icon: Users },
+        { key: 'staffService', label: 'Staff helpfulness', icon: Users },
+        { key: 'condition', label: 'Car condition', icon: ShieldCheck },
+        { key: 'easeOfLocating', label: 'Ease of locating', icon: MapPin },
+        { key: 'valueForMoney', label: 'Value for money', icon: ThumbsUp },
+        { key: 'dropoffSpeed', label: 'Drop-off speed', icon: RotateCcw },
+        { key: 'pickupSpeed', label: 'Pick-up speed', icon: Clock },
+        { key: 'cleanliness', label: 'Car cleanliness', icon: Sparkles },
     ];
 
-    const averageRating = Object.values(ratings).reduce((a, b) => a + b, 0) / ratingItems.length;
+    const reviewText = reviewCount && reviewCount > 0 ? `${reviewCount} customer ratings` : 'recent customer ratings';
 
     let alignClass = 'right-0';
     let arrowClass = 'right-4';
@@ -42,40 +49,39 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
 
     return (
         <div 
-            className={`absolute bottom-full ${alignClass} mb-3 w-64 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98] pointer-events-none'} ${className}`}
+            className={`absolute bottom-full ${alignClass} mb-3 w-[min(34rem,calc(100vw-2rem))] transition-all duration-300 z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-[0.98] pointer-events-none'} ${className}`}
         >
-            <div className="relative bg-white text-slate-900 rounded-2xl shadow-[0_20px_40px_-12px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
-                {/* Compact Header */}
-                <div className="bg-slate-50/80 px-4 py-3 border-b border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                                <ShieldCheck className="w-3.5 h-3.5 text-[#008009]" />
-                                <h4 className="font-bold text-[11px] uppercase tracking-wider text-slate-700">Verified Rating</h4>
+            <div className={`absolute -bottom-2 h-4 w-4 rotate-45 rounded-sm bg-[#171717] ${arrowClass}`} />
+            <div className="relative overflow-hidden rounded-lg border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)]">
+                <div className="px-5 py-4 border-b border-white/10">
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <h4 className="text-base font-black leading-tight">{supplierName} · Customer ratings</h4>
+                            <p className="mt-1 text-sm font-medium leading-snug text-white/75">Based on {reviewText} from post-trip surveys for this location.</p>
+                        </div>
+                        {rating ? (
+                            <div className="shrink-0 rounded-md border border-[#48a868] bg-white px-3 py-1.5 text-lg font-black leading-none text-[#22854a]">
+                                {rating.toFixed(1)}
                             </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#008009] rounded-lg">
-                            <Star className="w-2.5 h-2.5 fill-white text-white" />
-                            <span className="text-xs font-black text-white">{(averageRating / 20).toFixed(1)}</span>
-                        </div>
+                        ) : null}
                     </div>
                 </div>
 
-                <div className="p-4 space-y-3">
+                <div className="grid grid-cols-1 gap-x-8 gap-y-4 p-5 sm:grid-cols-2">
                     {ratingItems.map((item, index) => (
                         <div key={item.key} className="group/item">
-                            <div className="flex justify-between items-center mb-1.5">
-                                <div className="flex items-center gap-2">
-                                    <item.icon className="w-3 h-3 text-slate-400 group-hover/item:text-[#008009] transition-colors" />
-                                    <span className="text-[10px] font-bold text-slate-500 group-hover/item:text-slate-900 transition-colors uppercase tracking-tight">{item.label}</span>
-                                </div>
-                                <span className="text-[10px] font-black text-slate-900">{ratings[item.key] || 0}%</span>
+                            <div className="mb-2 flex items-center justify-between gap-3">
+                                <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white/90">
+                                    <item.icon className="h-3.5 w-3.5 shrink-0 text-white/45" />
+                                    <span className="truncate">{item.label}</span>
+                                </span>
+                                <span className="shrink-0 text-sm font-black text-white">{scoreFromPercent(ratings[item.key])}</span>
                             </div>
-                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden relative">
+                            <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-white/10">
                                 <div 
-                                    className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1) ${getProgressBarColor(ratings[item.key] || 0)}`}
+                                    className={`absolute left-0 top-0 h-full rounded-full transition-all duration-700 ${getProgressBarColor(ratings[item.key] || 0)}`}
                                     style={{ 
-                                        width: visible ? `${ratings[item.key] || 0}%` : '0%',
+                                        width: visible ? `${clampPercent(ratings[item.key])}%` : '0%',
                                         transitionDelay: visible ? `${index * 50}ms` : '0ms'
                                     }}
                                 />
@@ -84,9 +90,8 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
                     ))}
                 </div>
 
-                {/* Compact Footer */}
-                <div className="px-4 py-2.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-center">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Updated Hourly</p>
+                <div className="border-t border-white/10 px-5 py-3">
+                    <p className="text-xs font-medium leading-relaxed text-white/65">Ratings are based on recent customer reviews from this supplier's location. Reviews older than 12 months are archived to keep scores relevant.</p>
                 </div>
             </div>
         </div>

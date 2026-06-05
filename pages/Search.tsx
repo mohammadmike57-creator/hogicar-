@@ -14,6 +14,11 @@ import SearchWidget from '../components/SearchWidget';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
 
+const ratingToPercent = (rating: number | undefined) => {
+    const safeRating = Number(rating || 4.5);
+    return Math.round(Math.max(0, Math.min(100, safeRating > 5 ? safeRating * 10 : safeRating * 20)));
+};
+
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
     const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
@@ -22,6 +27,16 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         id: apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
         name: apiCar.supplier?.name ?? 'Unknown Supplier',
         rating: apiCar.supplier?.rating || 4.5,
+        ratingReviewCount: apiCar.supplier?.ratingReviewCount,
+        detailedRatings: {
+            cleanliness: apiCar.supplier?.ratingCleanliness ?? ratingToPercent(apiCar.supplier?.rating),
+            condition: apiCar.supplier?.ratingCondition ?? ratingToPercent(apiCar.supplier?.rating),
+            valueForMoney: apiCar.supplier?.ratingValueForMoney ?? ratingToPercent(apiCar.supplier?.rating),
+            pickupSpeed: apiCar.supplier?.ratingPickupSpeed ?? ratingToPercent(apiCar.supplier?.rating),
+            dropoffSpeed: apiCar.supplier?.ratingDropoffSpeed ?? ratingToPercent(apiCar.supplier?.rating),
+            staffService: apiCar.supplier?.ratingStaffService ?? ratingToPercent(apiCar.supplier?.rating),
+            easeOfLocating: apiCar.supplier?.ratingEaseOfLocating ?? ratingToPercent(apiCar.supplier?.rating),
+        },
         logo: apiCar.supplier?.logoUrl || '',
         commissionType: CommissionType.PAY_AT_DESK,
         commissionValue: 0,
@@ -90,13 +105,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         locationDetail: apiCar.locationDetail || 'In Terminal',
         unlimitedMileage: apiCar.unlimitedMileage || true,
         tags: ["Online Deal"],
-        detailedRatings: {
-            cleanliness: 90,
-            condition: 90,
-            valueForMoney: 90,
-            pickupSpeed: 90,
-            staffService: 90,
-        },
+        detailedRatings: mappedSupplier.detailedRatings,
         hasFinalPriceFromApi: hasFinalPrice,
         supplierId: apiCar.supplierId,
         currency: apiCar.currency,

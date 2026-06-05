@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName } from '../utils/ratings';
+import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -376,29 +376,23 @@ const CarCard: React.FC<CarCardProps> = ({
   const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
   const displayRatings = React.useMemo(() => {
     if (car.detailedRatings) return car.detailedRatings;
+    if (car.supplier.detailedRatings) return car.supplier.detailedRatings;
     
-    // Fallback based on supplier rating to make it look realistic and unique to each supplier
-    const base = car.supplier.rating * 10;
+    const base = normalizeRatingScore(car.supplier.rating) * 10;
     return {
-      cleanliness: Math.min(Math.round(base + (Math.random() * 4 - 2)), 100),
-      condition: Math.min(Math.round(base + (Math.random() * 4 - 2)), 100),
-      valueForMoney: Math.min(Math.round(base + (Math.random() * 4 - 2)), 100),
-      pickupSpeed: Math.min(Math.round(base + (Math.random() * 4 - 2)), 100),
-      staffService: Math.min(Math.round(base + (Math.random() * 4 - 2)), 100),
+      cleanliness: Math.min(Math.round(base), 100),
+      condition: Math.min(Math.round(base), 100),
+      valueForMoney: Math.min(Math.round(base), 100),
+      pickupSpeed: Math.min(Math.round(base), 100),
+      dropoffSpeed: Math.min(Math.round(base), 100),
+      staffService: Math.min(Math.round(base), 100),
+      easeOfLocating: Math.min(Math.round(base), 100),
     };
-  }, [car.detailedRatings, car.supplier.rating]);
+  }, [car.detailedRatings, car.supplier.detailedRatings, car.supplier.rating]);
 
   const ratingToDisplay = React.useMemo(() => {
-    // If we have real detailed ratings, use them to calculate the average
-    // to ensure the main rating reflects any changes in detailed ratings
-    if (car.detailedRatings) {
-      const values = Object.values(car.detailedRatings);
-      const avg = values.reduce((a, b) => a + b, 0) / values.length;
-      return parseFloat((avg / 20).toFixed(1));
-    }
-    // Fallback to the supplier's main rating
-    return car.supplier.rating;
-  }, [car.detailedRatings, car.supplier.rating]);
+    return parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
+  }, [car.supplier.rating]);
 
   const pickupType = car.supplier?.pickupType;
   const pickupTypeLabel =
@@ -514,9 +508,8 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                         aria-label="Show supplier rating details"
                       >
-                          <div className={`relative flex h-9 w-9 items-center justify-center rounded-xl ${getRatingColor(ratingToDisplay)} text-base font-black text-white shadow-lg shadow-slate-200/50 overflow-hidden ring-2 ring-white`}>
-                              <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-50" />
-                              <span className="relative z-10">{ratingToDisplay}</span>
+                          <div className={`flex h-10 min-w-12 items-center justify-center rounded-md border-2 bg-white px-2 text-lg font-black leading-none shadow-sm ${getRatingBorderColor(ratingToDisplay)}`}>
+                              {ratingToDisplay.toFixed(1)}
                           </div>
                           <div className="flex flex-col">
                               <div className="flex items-center gap-1.5 mb-0.5">
@@ -530,6 +523,15 @@ const CarCard: React.FC<CarCardProps> = ({
                                   Trusted Supplier
                               </p>
                           </div>
+                          <DetailedRatingsTooltip 
+                            ratings={displayRatings} 
+                            visible={showRatingsTooltip} 
+                            align="left"
+                            supplierName={car.supplier.name}
+                            rating={ratingToDisplay}
+                            reviewCount={car.supplier.ratingReviewCount}
+                            className="md:hidden fixed inset-x-4 bottom-24 w-auto mb-0"
+                          />
                       </button>
                   </div>
                   <div className="text-right">
@@ -587,7 +589,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
-                        className="flex items-center gap-2 group/rating relative cursor-pointer z-30 bg-gradient-to-br from-slate-50 to-white hover:from-white hover:to-white p-1.5 pr-2.5 rounded-2xl border border-slate-200/60 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                        className="group/rating relative z-30 flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white p-1.5 pr-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg active:scale-[0.98]"
                         onMouseEnter={() => setShowRatingsTooltip(true)}
                         onMouseLeave={() => setShowRatingsTooltip(false)}
                         onClick={(e) => {
@@ -596,9 +598,8 @@ const CarCard: React.FC<CarCardProps> = ({
                           setShowRatingsTooltip(!showRatingsTooltip);
                         }}
                       >
-                          <div className={`relative ${getRatingColor(ratingToDisplay)} text-white text-sm font-black w-8 h-8 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden ring-2 ring-white shrink-0 transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
-                              <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                              <span className="relative z-10">{ratingToDisplay}</span>
+                          <div className={`flex h-9 min-w-11 shrink-0 items-center justify-center rounded-md border-2 bg-white px-2 text-lg font-black leading-none ${getRatingBorderColor(ratingToDisplay)}`}>
+                              {ratingToDisplay.toFixed(1)}
                           </div>
                           <div className="flex flex-col">
                             <div className="flex items-center gap-1.5 mb-0.5">
@@ -619,6 +620,9 @@ const CarCard: React.FC<CarCardProps> = ({
                             ratings={displayRatings} 
                             visible={showRatingsTooltip} 
                             align="right"
+                            supplierName={car.supplier.name}
+                            rating={ratingToDisplay}
+                            reviewCount={car.supplier.ratingReviewCount}
                             className="hidden md:block"
                           />
                       </div>

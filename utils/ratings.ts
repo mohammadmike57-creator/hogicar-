@@ -1,29 +1,44 @@
+export const normalizeRatingScore = (rating: number): number => {
+    const safeRating = Number.isFinite(rating) ? rating : 0;
+    return safeRating > 5 ? safeRating : safeRating * 2;
+};
+
 export const getRatingDescription = (rating: number): string => {
-    if (rating >= 4.8) return 'Exceptional';
-    if (rating >= 4.5) return 'Fabulous';
-    if (rating >= 4.0) return 'Very Good';
-    if (rating >= 3.5) return 'Good';
-    if (rating >= 3.0) return 'Average';
-    if (rating >= 2.0) return 'Below Average';
+    const score = normalizeRatingScore(rating);
+    if (score >= 9.2) return 'Exceptional';
+    if (score >= 8.5) return 'Fabulous';
+    if (score >= 7.0) return 'Very good';
+    if (score >= 6.0) return 'Good';
+    if (score >= 5.0) return 'Average';
+    if (score >= 3.5) return 'Below Average';
     return 'Poor';
 };
 
 export const getRatingColor = (rating: number): string => {
-    if (rating >= 4.5) return 'bg-[#008009]'; // Dark Green for Exceptional/Fabulous
-    if (rating >= 4.0) return 'bg-emerald-600'; // Emerald for Very Good
-    if (rating >= 3.5) return 'bg-lime-600'; // Lime for Good
-    if (rating >= 3.0) return 'bg-amber-500'; // Amber for Average
-    if (rating >= 2.0) return 'bg-orange-500'; // Orange for Below Average
-    return 'bg-red-600'; // Red for Poor
+    const score = normalizeRatingScore(rating);
+    if (score >= 8.5) return 'bg-[#008009]';
+    if (score >= 7.0) return 'bg-emerald-600';
+    if (score >= 6.0) return 'bg-lime-600';
+    if (score >= 5.0) return 'bg-amber-500';
+    if (score >= 3.5) return 'bg-orange-500';
+    return 'bg-red-600';
 };
 
 export const getRatingTextColor = (rating: number): string => {
-    if (rating >= 4.5) return 'text-[#008009]';
-    if (rating >= 4.0) return 'text-emerald-600';
-    if (rating >= 3.5) return 'text-lime-600';
-    if (rating >= 3.0) return 'text-amber-600';
-    if (rating >= 2.0) return 'text-orange-600';
+    const score = normalizeRatingScore(rating);
+    if (score >= 8.5) return 'text-[#008009]';
+    if (score >= 7.0) return 'text-emerald-700';
+    if (score >= 6.0) return 'text-lime-700';
+    if (score >= 5.0) return 'text-amber-700';
+    if (score >= 3.5) return 'text-orange-700';
     return 'text-red-600';
+};
+
+export const getRatingBorderColor = (rating: number): string => {
+    const score = normalizeRatingScore(rating);
+    if (score >= 7.0) return 'border-[#2f9b67] text-[#268454]';
+    if (score >= 5.0) return 'border-[#d97706] text-[#b45309]';
+    return 'border-[#dc2626] text-[#b91c1c]';
 };
 
 export const formatCategoryName = (category: string): string => {

@@ -578,6 +578,21 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
 };
 
 // ==================== Edit Supplier Modal (with location picker) ====================
+const supplierRatingMetrics = [
+  { field: 'ratingStaffService', label: 'Staff helpfulness' },
+  { field: 'ratingCondition', label: 'Car condition' },
+  { field: 'ratingEaseOfLocating', label: 'Ease of locating' },
+  { field: 'ratingValueForMoney', label: 'Value for money' },
+  { field: 'ratingDropoffSpeed', label: 'Drop-off speed' },
+  { field: 'ratingPickupSpeed', label: 'Pick-up speed' },
+  { field: 'ratingCleanliness', label: 'Car cleanliness' }
+] as const;
+
+const ratingToDefaultPercent = (rating: number | undefined) => {
+  const score = Number(rating || 4.5);
+  return Math.round(Math.max(0, Math.min(100, score > 5 ? score * 10 : score * 20)));
+};
+
 const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) => {
   const [editedSupplier, setEditedSupplier] = useState<Partial<Supplier>>({});
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
@@ -675,7 +690,16 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
       logoScale: editedSupplier.logoScale || 100,
       logoScaleMobile: editedSupplier.logoScaleMobile || 100,
       oneWayFee: editedSupplier.oneWayFee || 0,
-      connectionType: editedSupplier.connectionType || "manual"
+      connectionType: editedSupplier.connectionType || "manual",
+      rating: editedSupplier.rating || 4.5,
+      ratingReviewCount: editedSupplier.ratingReviewCount || 0,
+      ratingCleanliness: editedSupplier.ratingCleanliness ?? ratingToDefaultPercent(editedSupplier.rating),
+      ratingCondition: editedSupplier.ratingCondition ?? ratingToDefaultPercent(editedSupplier.rating),
+      ratingValueForMoney: editedSupplier.ratingValueForMoney ?? ratingToDefaultPercent(editedSupplier.rating),
+      ratingPickupSpeed: editedSupplier.ratingPickupSpeed ?? ratingToDefaultPercent(editedSupplier.rating),
+      ratingDropoffSpeed: editedSupplier.ratingDropoffSpeed ?? ratingToDefaultPercent(editedSupplier.rating),
+      ratingStaffService: editedSupplier.ratingStaffService ?? ratingToDefaultPercent(editedSupplier.rating),
+      ratingEaseOfLocating: editedSupplier.ratingEaseOfLocating ?? ratingToDefaultPercent(editedSupplier.rating)
     };
     if (!finalSupplier.id) finalSupplier.status = "active";
     if (!finalSupplier.password) finalSupplier.password = "changeMe123!";
@@ -717,17 +741,56 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                 { value: "SHUTTLE_BUS", label: "Shuttle Bus" }
               ]} />
               <div className="bg-white px-3 py-1.5 rounded-xl border border-gray-200">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Supplier Rating (1-5)</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Supplier Rating (1-10)</label>
                 <div className="flex items-center gap-3 mt-1">
                   <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                   <input 
-                    type="range" min="1" max="5" step="0.1" 
+                    type="range" min="1" max="10" step="0.1" 
                     value={editedSupplier.rating || 4.5} 
                     onChange={e => handleChange("rating", parseFloat(e.target.value))}
                     className="flex-grow h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
                   />
                   <span className="text-sm font-black text-gray-700 min-w-[2rem]">{editedSupplier.rating || 4.5}</span>
                 </div>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-4">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.16em] text-gray-800">Customer rating details</h3>
+                  <p className="mt-1 text-[11px] font-medium text-gray-400">Controls the dark rating pop-up bars on search cards.</p>
+                </div>
+                <div className="w-full sm:w-40">
+                  <InputField
+                    label="Review Count"
+                    type="number"
+                    min="0"
+                    value={editedSupplier.ratingReviewCount ?? 0}
+                    onChange={e => handleChange("ratingReviewCount", parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {supplierRatingMetrics.map(metric => {
+                  const metricValue = Number((editedSupplier as any)[metric.field] ?? ratingToDefaultPercent(editedSupplier.rating));
+                  return (
+                    <div key={metric.field} className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <label className="text-[11px] font-black uppercase tracking-wide text-gray-500">{metric.label}</label>
+                        <span className="text-xs font-black text-gray-900">{metricValue}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={metricValue}
+                        onChange={e => handleChange(metric.field, parseInt(e.target.value) || 0)}
+                        className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#5fd018]"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <InputField 
@@ -3157,6 +3220,14 @@ export const AdminDashboard: React.FC = () => {
         minBookingLeadTime: updatedSupplier.minBookingLeadTime || 0,
         connectionType: updatedSupplier.connectionType || 'manual',
         rating: updatedSupplier.rating || 5.0,
+        ratingReviewCount: updatedSupplier.ratingReviewCount || 0,
+        ratingCleanliness: updatedSupplier.ratingCleanliness ?? ratingToDefaultPercent(updatedSupplier.rating),
+        ratingCondition: updatedSupplier.ratingCondition ?? ratingToDefaultPercent(updatedSupplier.rating),
+        ratingValueForMoney: updatedSupplier.ratingValueForMoney ?? ratingToDefaultPercent(updatedSupplier.rating),
+        ratingPickupSpeed: updatedSupplier.ratingPickupSpeed ?? ratingToDefaultPercent(updatedSupplier.rating),
+        ratingDropoffSpeed: updatedSupplier.ratingDropoffSpeed ?? ratingToDefaultPercent(updatedSupplier.rating),
+        ratingStaffService: updatedSupplier.ratingStaffService ?? ratingToDefaultPercent(updatedSupplier.rating),
+        ratingEaseOfLocating: updatedSupplier.ratingEaseOfLocating ?? ratingToDefaultPercent(updatedSupplier.rating),
         pickupType: updatedSupplier.pickupType,
         minRentalDays: updatedSupplier.minRentalDays,
         maxRentalDays: updatedSupplier.maxRentalDays,

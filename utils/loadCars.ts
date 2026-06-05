@@ -52,7 +52,16 @@ export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[
                     name: car.supplierName ?? "",
                     logoUrl: car.supplierLogoUrl ?? "",
                     terms: car.supplierTerms ?? "",
-                    gracePeriodDays: car.supplierGracePeriodDays ?? 0
+                    gracePeriodDays: car.supplierGracePeriodDays ?? 0,
+                    rating: car.supplierRating ?? undefined,
+                    ratingReviewCount: car.ratingReviewCount ?? undefined,
+                    ratingCleanliness: car.ratingCleanliness ?? undefined,
+                    ratingCondition: car.ratingCondition ?? undefined,
+                    ratingValueForMoney: car.ratingValueForMoney ?? undefined,
+                    ratingPickupSpeed: car.ratingPickupSpeed ?? undefined,
+                    ratingDropoffSpeed: car.ratingDropoffSpeed ?? undefined,
+                    ratingStaffService: car.ratingStaffService ?? undefined,
+                    ratingEaseOfLocating: car.ratingEaseOfLocating ?? undefined
                 };
             }
             

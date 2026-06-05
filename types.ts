@@ -110,6 +110,15 @@ export interface Supplier {
   id: string;
   name: string;
   rating: number;
+  ratingReviewCount?: number;
+  detailedRatings?: CarRatings;
+  ratingCleanliness?: number;
+  ratingCondition?: number;
+  ratingValueForMoney?: number;
+  ratingPickupSpeed?: number;
+  ratingDropoffSpeed?: number;
+  ratingStaffService?: number;
+  ratingEaseOfLocating?: number;
   logo: string;
   logoUrl?: string;
   commissionType: CommissionType;
@@ -167,6 +176,8 @@ export interface CarRatings {
   valueForMoney: number; // 0-100
   pickupSpeed: number; // 0-100
   staffService: number; // 0-100
+  dropoffSpeed?: number; // 0-100
+  easeOfLocating?: number; // 0-100
 }
 
 export interface Car {
@@ -262,6 +273,14 @@ export interface ApiSearchResult {
     terms: string;
     gracePeriodDays: number;
     rating?: number;
+    ratingReviewCount?: number;
+    ratingCleanliness?: number;
+    ratingCondition?: number;
+    ratingValueForMoney?: number;
+    ratingPickupSpeed?: number;
+    ratingDropoffSpeed?: number;
+    ratingStaffService?: number;
+    ratingEaseOfLocating?: number;
     pickupType?: string;
   } | null;
 }
