@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchPublicSuppliers, fetchSearchingLogos } from '../api';
+import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
 import SEOMetadata from '../components/SEOMetadata';
 import { Check, Gift, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -78,11 +78,25 @@ const Searching: React.FC = () => {
   const [searchParams] = useSearchParams();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
-  const duration = 6000; // ms
+  const [duration, setDuration] = React.useState(5000); // default ms
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+  React.useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const settings = await fetchSiteSettings();
+        if (settings && settings.searchingScreenDuration) {
+          setDuration(settings.searchingScreenDuration);
+        }
+      } catch (err) {
+        console.error("Failed to load settings in Searching page:", err);
+      }
+    };
+    loadSettings();
+  }, []);
 
   React.useEffect(() => {
     const loadSuppliers = async () => {
