@@ -76,7 +76,7 @@ const Home: React.FC = () => {
   const [dropoffName, setDropoffName] = React.useState<string>('');
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
-  const [homepageContent, setHomepageContent] = React.useState<any>(null);
+  const [homepageContent, setHomepageContent] = React.useState<any>(normalizeHomepageContent(null));
   
   React.useEffect(() => {
     const loadSettings = async () => {

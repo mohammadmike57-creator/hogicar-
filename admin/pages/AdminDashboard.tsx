@@ -46,7 +46,12 @@ const MOCK_PAGES: any[] = [];
 const updatePage = (p: any) => {};
 const MOCK_SEO_CONFIGS: any[] = [];
 const updateSeoConfig = (c: any) => {};
-const MOCK_HOMEPAGE_CONTENT: any = null;
+const MOCK_HOMEPAGE_CONTENT: any = {
+  hero: { title: '', subtitle: '', backgroundImage: '' },
+  howItWorks: { title: '', steps: [] },
+  faqs: { title: '', items: [] },
+  popularDestinations: { title: '', destinations: [] }
+};
 const MOCK_APP_CONFIG = { searchingScreenDuration: 5000, commissionPercent: 15 };
 const updateAppConfig = (c: any) => {};
 const MOCK_CAR_LIBRARY: any[] = [];
