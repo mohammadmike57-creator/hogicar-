@@ -34,7 +34,15 @@ import {
 } from '../../types';
 
 // Mock data stubs (Real mock data removed)
-const ADMIN_STATS = { totalRevenue: 0, totalBookings: 0, activeSuppliers: 0, activeCars: 0, revenueGrowth: 0, bookingsGrowth: 0 };
+const ADMIN_STATS = [
+  { name: 'Mon', revenue: 4000 },
+  { name: 'Tue', revenue: 3000 },
+  { name: 'Wed', revenue: 2000 },
+  { name: 'Thu', revenue: 2780 },
+  { name: 'Fri', revenue: 1890 },
+  { name: 'Sat', revenue: 2390 },
+  { name: 'Sun', revenue: 3490 },
+];
 const SUPPLIERS: Supplier[] = [];
 const MOCK_BOOKINGS: Booking[] = [];
 const addMockSupplier = (s: any) => {};
