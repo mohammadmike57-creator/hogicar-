@@ -506,7 +506,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       />
                       <button
                         type="button"
-                        className="group/rating relative flex items-center gap-3 text-left bg-slate-50 hover:bg-white p-2 pr-3 -m-2 rounded-2xl transition-all active:scale-[0.98] border border-transparent hover:border-slate-200"
+                        className="group/rating relative flex items-center gap-2 text-left bg-slate-50 hover:bg-white p-1.5 pr-2.5 -m-1.5 rounded-2xl transition-all active:scale-[0.98] border border-transparent hover:border-slate-200"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -514,18 +514,18 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                         aria-label="Show supplier rating details"
                       >
-                          <div className={`relative flex h-11 w-11 items-center justify-center rounded-xl ${getRatingColor(ratingToDisplay)} text-lg font-black text-white shadow-lg shadow-slate-200/50 overflow-hidden ring-2 ring-white`}>
+                          <div className={`relative flex h-9 w-9 items-center justify-center rounded-xl ${getRatingColor(ratingToDisplay)} text-base font-black text-white shadow-lg shadow-slate-200/50 overflow-hidden ring-2 ring-white`}>
                               <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-50" />
                               <span className="relative z-10">{ratingToDisplay}</span>
                           </div>
                           <div className="flex flex-col">
                               <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className={`text-base font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
+                                  <span className={`text-[13px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
                                       {getRatingDescription(ratingToDisplay)}
                                   </span>
-                                  <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
+                                  <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                               </div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
                                   <Check className="w-2.5 h-2.5 text-[#008009]" />
                                   Trusted Supplier
                               </p>
@@ -587,7 +587,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           className="h-8 w-auto object-contain max-w-[105px]"
                       />
                       <div
-                        className="flex items-center gap-3 group/rating relative cursor-pointer z-30 bg-gradient-to-br from-slate-50 to-white hover:from-white hover:to-white p-2 pr-3 rounded-2xl border border-slate-200/60 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                        className="flex items-center gap-2 group/rating relative cursor-pointer z-30 bg-gradient-to-br from-slate-50 to-white hover:from-white hover:to-white p-1.5 pr-2.5 rounded-2xl border border-slate-200/60 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
                         onMouseEnter={() => setShowRatingsTooltip(true)}
                         onMouseLeave={() => setShowRatingsTooltip(false)}
                         onClick={(e) => {
@@ -596,19 +596,19 @@ const CarCard: React.FC<CarCardProps> = ({
                           setShowRatingsTooltip(!showRatingsTooltip);
                         }}
                       >
-                          <div className={`relative ${getRatingColor(ratingToDisplay)} text-white text-base font-black w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden ring-2 ring-white shrink-0 transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
+                          <div className={`relative ${getRatingColor(ratingToDisplay)} text-white text-sm font-black w-8 h-8 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden ring-2 ring-white shrink-0 transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
                               <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
                               <span className="relative z-10">{ratingToDisplay}</span>
                           </div>
                           <div className="flex flex-col">
                             <div className="flex items-center gap-1.5 mb-0.5">
-                                <span className={`text-[13px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
+                                <span className={`text-[11px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
                                   {getRatingDescription(ratingToDisplay)}
                                 </span>
-                                <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
+                                <Info className="w-2.5 h-2.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="text-[10px] font-black text-slate-400 whitespace-nowrap uppercase tracking-[0.12em]">
+                                <span className="text-[8px] font-black text-slate-400 whitespace-nowrap uppercase tracking-[0.12em]">
                                   Supplier Score
                                 </span>
                             </div>
