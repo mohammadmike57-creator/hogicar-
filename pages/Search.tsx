@@ -596,9 +596,9 @@ export const Search: React.FC = () => {
                 <div>
                   <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight flex items-center gap-3">
                       <CarIcon className="w-7 h-7 text-[#008009]"/> 
-                      Popular Categories
+                      Car Categories
                   </h2>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Compare the best deals across various car classes.</p>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Select your preferred vehicle type to filter results.</p>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Sort by:</span>
@@ -629,31 +629,31 @@ export const Search: React.FC = () => {
                             <button
                                 key={category}
                                 onClick={() => handleCategoryToggle(category)}
-                                className={`flex-shrink-0 w-[100px] sm:w-[120px] md:w-[130px] lg:w-[140px] flex flex-col p-2 sm:p-3 rounded-2xl transition-all duration-300 relative border-2 group snap-start
+                                className={`flex-shrink-0 w-[105px] sm:w-[125px] md:w-[135px] lg:w-[145px] flex flex-col p-2.5 sm:p-3.5 rounded-[24px] transition-all duration-500 relative border group snap-start
                                     ${isActive
-                                        ? 'bg-[#008009]/5 border-[#008009] shadow-md shadow-emerald-100 ring-4 ring-[#008009]/5'
-                                        : 'bg-white border-slate-100 hover:border-[#008009]/30 hover:bg-slate-50/50 hover:shadow-lg hover:-translate-y-1'}`}
+                                        ? 'bg-[#008009] border-[#008009] shadow-[0_15px_30px_-10px_rgba(0,128,9,0.3)] ring-4 ring-[#008009]/10 -translate-y-1'
+                                        : 'bg-white border-slate-200 hover:border-[#008009]/40 hover:bg-white hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-1.5'}`}
                             >
-                                <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-slate-50 border border-slate-100/50 relative">
+                                <div className={`w-full aspect-[4/3] rounded-[18px] overflow-hidden mb-3 relative transition-transform duration-500 ${isActive ? 'scale-[1.02]' : 'group-hover:scale-[1.04]'}`}>
                                     <img 
                                       src={categoryImage} 
                                       alt={category} 
-                                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                      className="w-full h-full object-cover" 
                                       loading="lazy"
                                     />
-                                    {!isActive && <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors duration-300" />}
+                                    {!isActive && <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/5 transition-colors duration-300" />}
                                 </div>
                                 <div className="text-center px-1">
-                                    <span className={`block text-[11px] sm:text-xs font-bold tracking-tight transition-colors duration-300 truncate ${isActive ? 'text-[#008009]' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                    <span className={`block text-[11px] sm:text-[13px] font-black tracking-tight transition-colors duration-300 truncate ${isActive ? 'text-white' : 'text-slate-800 group-hover:text-[#008009]'}`}>
                                         {formatCategoryName(category)}
                                     </span>
-                                    <span className={`block text-[9px] font-bold mt-0.5 transition-colors duration-300 ${isActive ? 'text-[#008009]/70' : 'text-slate-400'}`}>
-                                        {count} {count === 1 ? 'vehicle' : 'vehicles'}
+                                    <span className={`block text-[9px] sm:text-[10px] font-bold mt-0.5 transition-colors duration-300 ${isActive ? 'text-white/80' : 'text-slate-400'}`}>
+                                        {count} {count === 1 ? 'option' : 'options'}
                                     </span>
                                 </div>
                                 {isActive && (
-                                  <div className="absolute -top-2 -right-2 bg-[#008009] text-white rounded-full p-1 shadow-lg border-2 border-white z-10 animate-in zoom-in-50 duration-300">
-                                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                  <div className="absolute -top-1.5 -right-1.5 bg-white text-[#008009] rounded-full p-1.5 shadow-xl border-2 border-[#008009] z-10 animate-in zoom-in-50 duration-500">
+                                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3px]" />
                                   </div>
                                 )}
                             </button>
@@ -782,7 +782,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Vehicle Category</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
@@ -794,16 +794,16 @@ export const Search: React.FC = () => {
                                       <button 
                                           key={type} 
                                           onClick={() => handleCategoryToggle(type)}
-                                          className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all duration-200 ${
+                                          className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border transition-all duration-300 ${
                                               isActive 
-                                                  ? 'bg-[#008009]/5 border-[#008009] ring-2 ring-[#008009]/5' 
+                                                  ? 'bg-[#008009] border-[#008009] shadow-lg shadow-emerald-100' 
                                                   : 'bg-white border-slate-200 hover:border-[#008009]/40 hover:bg-slate-50'
                                           }`}
                                       >
-                                          <span className={`text-[10px] font-bold text-center leading-tight transition-colors ${isActive ? 'text-[#008009]' : 'text-slate-600'}`}>
+                                          <span className={`text-[10px] font-black text-center leading-tight transition-colors ${isActive ? 'text-white' : 'text-slate-700'}`}>
                                               {formatCategoryName(type)}
                                           </span>
-                                          <span className={`text-[9px] font-medium mt-1 ${isActive ? 'text-[#008009]/60' : 'text-slate-400'}`}>
+                                          <span className={`text-[9px] font-bold mt-1 transition-colors ${isActive ? 'text-white/70' : 'text-slate-400'}`}>
                                               ({count})
                                           </span>
                                       </button>
