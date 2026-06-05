@@ -10,6 +10,7 @@ interface DetailedRatingsTooltipProps {
     supplierName?: string;
     rating?: number;
     reviewCount?: number;
+    compact?: boolean;
 }
 
 const getProgressBarColor = (value: number) => {
@@ -23,7 +24,7 @@ const getProgressBarColor = (value: number) => {
 const clampPercent = (value: number | undefined) => Math.max(0, Math.min(100, Number(value || 0)));
 const scoreFromPercent = (value: number | undefined) => (clampPercent(value) / 10).toFixed(1);
 
-export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '', align = 'right', supplierName = 'Supplier', rating, reviewCount }) => {
+export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ ratings, visible, className = '', align = 'right', supplierName = 'Supplier', rating, reviewCount, compact = false }) => {
     const ratingItems: { key: keyof CarRatings, label: string, icon: any }[] = [
         { key: 'staffService', label: 'Staff helpfulness', icon: Users },
         { key: 'condition', label: 'Car condition', icon: ShieldCheck },
@@ -49,35 +50,35 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
 
     return (
         <div 
-            className={`absolute bottom-full ${alignClass} mb-3 w-[min(34rem,calc(100vw-2rem))] transition-all duration-300 z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-[0.98] pointer-events-none'} ${className}`}
+            className={`absolute bottom-full ${alignClass} mb-3 ${compact ? 'w-[min(20rem,calc(100vw-1.5rem))]' : 'w-[min(34rem,calc(100vw-2rem))]'} transition-all duration-300 z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-[0.98] pointer-events-none'} ${className}`}
         >
             <div className={`absolute -bottom-2 h-4 w-4 rotate-45 rounded-sm bg-[#171717] ${arrowClass}`} />
             <div className="relative overflow-hidden rounded-lg border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)]">
-                <div className="px-5 py-4 border-b border-white/10">
+                <div className={`${compact ? 'px-3 py-3' : 'px-5 py-4'} border-b border-white/10`}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h4 className="text-base font-black leading-tight">{supplierName} · Customer ratings</h4>
-                            <p className="mt-1 text-sm font-medium leading-snug text-white/75">Based on {reviewText} from post-trip surveys for this location.</p>
+                            <h4 className={`${compact ? 'text-sm' : 'text-base'} font-black leading-tight`}>{supplierName} · Customer ratings</h4>
+                            <p className={`mt-1 ${compact ? 'text-xs' : 'text-sm'} font-medium leading-snug text-white/75`}>Based on {reviewText} from post-trip surveys for this location.</p>
                         </div>
                         {rating ? (
-                            <div className="shrink-0 rounded-md border border-[#48a868] bg-white px-3 py-1.5 text-lg font-black leading-none text-[#22854a]">
+                            <div className={`shrink-0 rounded-md border border-[#48a868] bg-white ${compact ? 'px-2 py-1 text-sm' : 'px-3 py-1.5 text-lg'} font-black leading-none text-[#22854a]`}>
                                 {rating.toFixed(1)}
                             </div>
                         ) : null}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-x-8 gap-y-4 p-5 sm:grid-cols-2">
+                <div className={`grid grid-cols-1 ${compact ? 'gap-y-2.5 p-3' : 'gap-x-8 gap-y-4 p-5 sm:grid-cols-2'}`}>
                     {ratingItems.map((item, index) => (
                         <div key={item.key} className="group/item">
-                            <div className="mb-2 flex items-center justify-between gap-3">
-                                <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white/90">
+                            <div className={`${compact ? 'mb-1' : 'mb-2'} flex items-center justify-between gap-3`}>
+                                <span className={`flex min-w-0 items-center gap-2 ${compact ? 'text-xs' : 'text-sm'} font-semibold text-white/90`}>
                                     <item.icon className="h-3.5 w-3.5 shrink-0 text-white/45" />
                                     <span className="truncate">{item.label}</span>
                                 </span>
-                                <span className="shrink-0 text-sm font-black text-white">{scoreFromPercent(ratings[item.key])}</span>
+                                <span className={`shrink-0 ${compact ? 'text-xs' : 'text-sm'} font-black text-white`}>{scoreFromPercent(ratings[item.key])}</span>
                             </div>
-                            <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+                            <div className={`relative ${compact ? 'h-1.5' : 'h-2.5'} w-full overflow-hidden rounded-full bg-white/10`}>
                                 <div 
                                     className={`absolute left-0 top-0 h-full rounded-full transition-all duration-700 ${getProgressBarColor(ratings[item.key] || 0)}`}
                                     style={{ 
@@ -90,8 +91,8 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
                     ))}
                 </div>
 
-                <div className="border-t border-white/10 px-5 py-3">
-                    <p className="text-xs font-medium leading-relaxed text-white/65">Ratings are based on recent customer reviews from this supplier's location. Reviews older than 12 months are archived to keep scores relevant.</p>
+                <div className={`border-t border-white/10 ${compact ? 'px-3 py-2' : 'px-5 py-3'}`}>
+                    <p className={`${compact ? 'text-[10px]' : 'text-xs'} font-medium leading-relaxed text-white/65`}>Ratings are based on recent customer reviews from this supplier's location. Reviews older than 12 months are archived to keep scores relevant.</p>
                 </div>
             </div>
         </div>

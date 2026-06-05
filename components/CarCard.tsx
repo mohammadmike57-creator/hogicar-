@@ -523,15 +523,6 @@ const CarCard: React.FC<CarCardProps> = ({
                                   Trusted Supplier
                               </p>
                           </div>
-                          <DetailedRatingsTooltip 
-                            ratings={displayRatings} 
-                            visible={showRatingsTooltip} 
-                            align="left"
-                            supplierName={car.supplier.name}
-                            rating={ratingToDisplay}
-                            reviewCount={car.supplier.ratingReviewCount}
-                            className="md:hidden fixed inset-x-4 bottom-24 w-auto mb-0"
-                          />
                       </button>
                   </div>
                   <div className="text-right">
@@ -809,63 +800,42 @@ const CarCard: React.FC<CarCardProps> = ({
               </div>
           </div>
 
-          {showRatingsTooltip && (
-            <div 
-              className="md:hidden absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex flex-col items-center justify-end animate-fadeIn overflow-hidden rounded-2xl"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowRatingsTooltip(false);
-              }}
-            >
-              <div 
-                className="w-full bg-white rounded-t-[2.5rem] shadow-[0_-15px_40px_-10px_rgba(0,0,0,0.3)] transform transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] animate-slideUp overflow-hidden max-h-[90%]"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Visual Handle */}
-                <div className="w-full flex justify-center pt-3 pb-1">
-                  <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
-                </div>
-
-                <div className="relative px-4 pb-6 pt-2 overflow-y-auto custom-scrollbar max-h-[calc(100%-2rem)]">
-                  <div className="flex items-center justify-between mb-4 px-2">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Supplier Reliability</h3>
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowRatingsTooltip(false);
-                      }}
-                      className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 transition-colors"
-                    >
-                      <X className="w-4 h-4 text-slate-600" />
-                    </button>
-                  </div>
-                  
-                  <DetailedRatingsTooltip 
-                    ratings={displayRatings} 
-                    visible={true} 
-                    className="!static !opacity-100 !scale-100 !translate-y-0 !w-full !mb-0 !shadow-none !border-none !bg-transparent" 
-                  />
-
-                  <div className="mt-4 px-2">
-                    <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100/50">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-[#008009] flex items-center justify-center shadow-lg shadow-[#008009]/20">
-                          <Check className="w-4 h-4 text-white stroke-[3px]" />
-                        </div>
-                        <p className="text-xs font-black text-[#008009] uppercase tracking-wide">Trusted Partner</p>
-                      </div>
-                      <p className="text-[10px] font-bold text-emerald-800/70 leading-relaxed">
-                        This supplier consistently delivers high-quality service and has been verified by our quality assurance team.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
+        {showRatingsTooltip && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/20 px-3 pb-4 backdrop-blur-[2px] md:hidden"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowRatingsTooltip(false);
+            }}
+          >
+            <div className="relative w-full max-w-[320px]" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowRatingsTooltip(false);
+                }}
+                className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-700 shadow-lg"
+                aria-label="Close rating details"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <DetailedRatingsTooltip
+                ratings={displayRatings}
+                visible={true}
+                align="center"
+                supplierName={car.supplier.name}
+                rating={ratingToDisplay}
+                reviewCount={car.supplier.ratingReviewCount}
+                compact
+                className="!static !mb-0 !w-full !translate-x-0 !translate-y-0 !scale-100 !opacity-100"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
