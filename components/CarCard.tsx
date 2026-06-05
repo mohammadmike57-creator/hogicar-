@@ -100,7 +100,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
     );
 
     return (
-        <div className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 bg-slate-950/70 z-[9999] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn">
             <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden">
                 {/* Header */}
                 <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
