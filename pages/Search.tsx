@@ -12,6 +12,7 @@ import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { API_BASE_URL } from '../lib/config';
+import { formatCategoryName } from '../utils/ratings';
 
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
@@ -615,49 +616,53 @@ export const Search: React.FC = () => {
                     </div>
                 </div>
               </div>
-              <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-4 sm:gap-6 -mx-4 px-4 md:mx-0 md:px-0 pb-2">
-                  {categoryOrder.map(category => {
-                      const isActive = selectedCategories.includes(category);
-                      const count = filterCounts.category.get(category) || 0;
-                      const isDisabled = false;
-                      const categoryImage =
-                        categoryImages[category] ||
-                        categoryImages[category.toUpperCase()] ||
-                        (MOCK_CATEGORY_IMAGES as Record<string, string>)[category];
-                      return (
-                          <button
-                              key={category}
-                              onClick={() => handleCategoryToggle(category)}
-                              disabled={isDisabled}
-                              className={`flex-shrink-0 w-24 sm:w-28 md:w-32 lg:w-36 flex flex-col p-2.5 rounded-2xl transition-all duration-300 relative border-2 group
-                                  ${isActive
-                                      ? 'bg-[#008009]/5 border-[#008009] shadow-md shadow-emerald-100'
-                                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/30 hover:shadow-sm hover:-translate-y-1'}`}
-                          >
-                              <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-2.5 bg-slate-50 border border-slate-50">
-                                  <img 
-                                    src={categoryImage} 
-                                    alt={category} 
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                                    width="100" height="100" 
-                                  />
-                              </div>
-                              <div className="text-center">
-                                  <span className={`block text-[11px] sm:text-xs font-bold tracking-tight transition-colors duration-300 ${isActive ? 'text-[#008009]' : 'text-slate-700 group-hover:text-slate-900'}`}>
-                                      {category.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}
-                                  </span>
-                                  <span className={`block text-[9px] font-bold mt-0.5 ${isActive ? 'text-[#008009]/70' : 'text-slate-400'}`}>
-                                      {count} vehicles
-                                  </span>
-                              </div>
-                              {isActive && (
-                                <div className="absolute -top-1.5 -right-1.5 bg-[#008009] text-white rounded-full p-0.5 shadow-lg border-2 border-white z-10">
-                                  <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <div className="relative">
+                <div className="flex overflow-x-auto no-scrollbar md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 md:gap-5 -mx-4 px-4 md:mx-0 md:px-0 pb-4 snap-x">
+                    {categoryOrder.map(category => {
+                        const isActive = selectedCategories.includes(category);
+                        const count = filterCounts.category.get(category) || 0;
+                        const categoryImage =
+                          categoryImages[category] ||
+                          categoryImages[category.toUpperCase()] ||
+                          (MOCK_CATEGORY_IMAGES as Record<string, string>)[category];
+                        return (
+                            <button
+                                key={category}
+                                onClick={() => handleCategoryToggle(category)}
+                                className={`flex-shrink-0 w-[100px] sm:w-[120px] md:w-[130px] lg:w-[140px] flex flex-col p-2 sm:p-3 rounded-2xl transition-all duration-300 relative border-2 group snap-start
+                                    ${isActive
+                                        ? 'bg-[#008009]/5 border-[#008009] shadow-md shadow-emerald-100 ring-4 ring-[#008009]/5'
+                                        : 'bg-white border-slate-100 hover:border-[#008009]/30 hover:bg-slate-50/50 hover:shadow-lg hover:-translate-y-1'}`}
+                            >
+                                <div className="w-full aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-slate-50 border border-slate-100/50 relative">
+                                    <img 
+                                      src={categoryImage} 
+                                      alt={category} 
+                                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                      loading="lazy"
+                                    />
+                                    {!isActive && <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors duration-300" />}
                                 </div>
-                              )}
-                          </button>
-                      )
-                  })}
+                                <div className="text-center px-1">
+                                    <span className={`block text-[11px] sm:text-xs font-bold tracking-tight transition-colors duration-300 truncate ${isActive ? 'text-[#008009]' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                        {formatCategoryName(category)}
+                                    </span>
+                                    <span className={`block text-[9px] font-bold mt-0.5 transition-colors duration-300 ${isActive ? 'text-[#008009]/70' : 'text-slate-400'}`}>
+                                        {count} {count === 1 ? 'vehicle' : 'vehicles'}
+                                    </span>
+                                </div>
+                                {isActive && (
+                                  <div className="absolute -top-2 -right-2 bg-[#008009] text-white rounded-full p-1 shadow-lg border-2 border-white z-10 animate-in zoom-in-50 duration-300">
+                                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                  </div>
+                                )}
+                            </button>
+                        )
+                    })}
+                </div>
+                {/* Scroll Indicators */}
+                <div className="absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-white to-transparent pointer-events-none md:hidden opacity-0" />
+                <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden" />
               </div>
           </div>
       </div>
@@ -777,25 +782,33 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-bold text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Vehicle Category</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Vehicle Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
-                          <div className="mt-2 space-y-1.5">
-                              {allCategories.map((type) => (
-                                  <label key={type} className={`flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1`}>
-                                      <input 
-                                          type="checkbox" 
-                                          checked={selectedCategories.includes(type)}
-                                          onChange={() => handleCategoryToggle(type)}
-                                          className="rounded border-gray-300 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50 w-4 h-4" 
-                                      />
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">
-                                          {type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}
-                                      </span>
-                                      <span className="ml-auto text-[10px] text-slate-400">({filterCounts.category.get(type) || 0})</span>
-                                  </label>
-                              ))}
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                              {allCategories.map((type) => {
+                                  const isActive = selectedCategories.includes(type);
+                                  const count = filterCounts.category.get(type) || 0;
+                                  return (
+                                      <button 
+                                          key={type} 
+                                          onClick={() => handleCategoryToggle(type)}
+                                          className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all duration-200 ${
+                                              isActive 
+                                                  ? 'bg-[#008009]/5 border-[#008009] ring-2 ring-[#008009]/5' 
+                                                  : 'bg-white border-slate-200 hover:border-[#008009]/40 hover:bg-slate-50'
+                                          }`}
+                                      >
+                                          <span className={`text-[10px] font-bold text-center leading-tight transition-colors ${isActive ? 'text-[#008009]' : 'text-slate-600'}`}>
+                                              {formatCategoryName(type)}
+                                          </span>
+                                          <span className={`text-[9px] font-medium mt-1 ${isActive ? 'text-[#008009]/60' : 'text-slate-400'}`}>
+                                              ({count})
+                                          </span>
+                                      </button>
+                                  );
+                              })}
                           </div>
                       )}
                   </div>
