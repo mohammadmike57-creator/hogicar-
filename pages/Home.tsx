@@ -25,6 +25,7 @@ const normalizeHomepageContent = (content: any) => {
   };
 
   const hasDestinationsArray = Array.isArray(safePopular.destinations);
+  const hasFeaturesArray = Array.isArray(safeContent.features);
 
   const destinations = hasDestinationsArray
     ? safePopular.destinations
@@ -38,8 +39,19 @@ const normalizeHomepageContent = (content: any) => {
         .filter((destination: any) => destination.name || destination.country || destination.image || destination.price > 0)
     : [];
 
+  const features = hasFeaturesArray
+    ? safeContent.features
+        .map((f: any, index: number) => ({
+          id: f?.id || `f${index + 1}`,
+          icon: f?.icon || 'CheckCircle',
+          title: f?.title || '',
+          description: f?.description || ''
+        }))
+    : [];
+
   return {
     ...safeContent,
+    features,
     hero: {
       title: 'Car Hire – Search, Compare & Save',
       subtitle: 'Free cancellations on most bookings',

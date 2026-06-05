@@ -48,6 +48,7 @@ const MOCK_SEO_CONFIGS: any[] = [];
 const updateSeoConfig = (c: any) => {};
 const MOCK_HOMEPAGE_CONTENT: any = {
   hero: { title: '', subtitle: '', backgroundImage: '' },
+  features: [],
   howItWorks: { title: '', steps: [] },
   faqs: { title: '', items: [] },
   popularDestinations: { title: '', destinations: [] }
