@@ -73,9 +73,10 @@ const FullFooter = () => (
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Company</h3>
             <ul className="space-y-3 text-sm text-white">
-               <li><Link to="/about" className="hover:text-blue-200 transition-colors">About Us</Link></li>
+               <li><Link to="/about-us" className="hover:text-blue-200 transition-colors">About Us</Link></li>
                <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
                <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
+               <li><Link to="/careers" className="hover:text-blue-200 transition-colors">Careers</Link></li>
             </ul>
           </div>
           <div>
@@ -83,14 +84,15 @@ const FullFooter = () => (
             <ul className="space-y-3 text-sm text-white">
               <li><Link to="/help" className="hover:text-blue-200 transition-colors">Help Center</Link></li>
               <li><Link to="/contact" className="hover:text-blue-200 transition-colors">Contact Us</Link></li>
+              <li><Link to="/cancellation-policy" className="hover:text-blue-200 transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Legal</h3>
             <ul className="space-y-3 text-sm text-white">
-              <li><Link to="/terms" className="hover:text-blue-200 transition-colors">Terms of Service</Link></li>
-              <li><Link to="/privacy" className="hover:text-blue-200 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cookies" className="hover:text-blue-200 transition-colors">Cookie Policy</Link></li>
+              <li><Link to="/terms-and-conditions" className="hover:text-blue-200 transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-blue-200 transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/cookies-policy" className="hover:text-blue-200 transition-colors">Cookies Policy</Link></li>
             </ul>
           </div>
           <div>
@@ -276,8 +278,8 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* Footer – only on home page */}
-      {isHomePage && !isSearchingPage && <FullFooter />}
+      {/* Footer – shown on all pages except searching */}
+      {!isSearchingPage && <FullFooter />}
     </div>
   );
 };

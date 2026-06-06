@@ -230,7 +230,7 @@ const BecomeSupplier: React.FC = () => {
                                   <button type="submit" className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold py-4 rounded-lg shadow-md transition-transform active:scale-[0.99] flex items-center justify-center gap-2 text-lg">
                                       Submit Application <ArrowRight className="w-5 h-5"/>
                                   </button>
-                                  <p className="text-center text-xs text-slate-400 mt-4">By submitting this form, you agree to our B2B Terms of Service.</p>
+                                  <p className="text-center text-xs text-slate-400 mt-4">By submitting this form, you agree to our <a href="/terms-and-conditions" className="text-blue-600 hover:underline font-medium">Terms & Conditions</a>.</p>
                               </div>
                           </form>
                       )}

@@ -22,9 +22,10 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li><a href="/" className="text-gray-400 hover:text-white">Home</a></li>
-              <li><a href="/cars" className="text-gray-400 hover:text-white">Cars</a></li>
-              <li><a href="/my-bookings" className="text-gray-400 hover:text-white">My Bookings</a></li>
+              <li><a href="/about-us" className="text-gray-400 hover:text-white">About Us</a></li>
               <li><a href="/affiliate-program" className="text-gray-400 hover:text-white">Affiliate Program</a></li>
+              <li><a href="/become-supplier" className="text-gray-400 hover:text-white">Become a Partner</a></li>
+              <li><a href="/careers" className="text-gray-400 hover:text-white">Careers</a></li>
             </ul>
           </div>
 
@@ -32,10 +33,11 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li><a href="/help" className="text-gray-400 hover:text-white">Help Center</a></li>
-              <li><a href="/faq" className="text-gray-400 hover:text-white">FAQ</a></li>
               <li><a href="/contact" className="text-gray-400 hover:text-white">Contact Us</a></li>
-              <li><a href="/privacy" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
-              <li><a href="/terms" className="text-gray-400 hover:text-white">Terms of Service</a></li>
+              <li><a href="/cancellation-policy" className="text-gray-400 hover:text-white">Cancellation Policy</a></li>
+              <li><a href="/privacy-policy" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
+              <li><a href="/terms-and-conditions" className="text-gray-400 hover:text-white">Terms & Conditions</a></li>
+              <li><a href="/cookies-policy" className="text-gray-400 hover:text-white">Cookies Policy</a></li>
             </ul>
           </div>
 
