@@ -76,7 +76,6 @@ const FullFooter = () => (
                <li><Link to="/about-us" className="hover:text-blue-200 transition-colors">About Us</Link></li>
                <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
                <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
-               <li><Link to="/careers" className="hover:text-blue-200 transition-colors">Careers</Link></li>
             </ul>
           </div>
           <div>
