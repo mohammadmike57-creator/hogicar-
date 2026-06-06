@@ -1468,22 +1468,11 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 <InputField
-                  label="Name"
+                  label="Name (Search Query)"
                   value={destination?.name || ''}
                   onChange={e => updateDestinationField(index, 'name', e.target.value)}
-                />
-                <InputField
-                  label="Country"
-                  value={destination?.country || ''}
-                  onChange={e => updateDestinationField(index, 'country', e.target.value)}
-                />
-                <InputField
-                  label="Starting Price"
-                  value={destination?.price ?? 0}
-                  onChange={e => updateDestinationField(index, 'price', e.target.value)}
-                  type="number"
                 />
               </div>
 

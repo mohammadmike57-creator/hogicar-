@@ -407,23 +407,9 @@ const Home: React.FC = () => {
                    <Link 
                        to={`/search?location=${encodeURIComponent(dest.name)}`} 
                        key={dest.name} 
-                       className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block text-white aspect-[4/3]"
+                       className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3]"
                    >
                        <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-                       <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                           <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                               <h4 className="font-bold text-white tracking-tight text-lg">{dest.name}</h4>
-                               <p className="text-blue-200 text-xs mb-2 flex items-center gap-1 font-medium">
-                                   <MapPin className="w-3 h-3" /> {dest.country}
-                               </p>
-                               <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-xl px-2 py-1 rounded-lg text-white font-medium border border-white/20 shadow-inner">
-                                   <span className="text-slate-300 text-[10px]">From</span>
-                                   <span className="font-bold text-sm">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</span>
-                                   <span className="text-slate-300 text-[10px]">/d</span>
-                               </div>
-                           </div>
-                       </div>
                    </Link>
                ))}
            </div>
