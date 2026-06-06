@@ -2096,13 +2096,13 @@ const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div class
 
 // ==================== Modals ====================
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API settings</div></Modal>;
-const PageEditorModal = ({ page, isOpen, onClose }: any) => {
+const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   const [title, setTitle] = useState(page?.title || '');
   const [content, setContent] = useState(page?.content || '');
   useEffect(() => { if (page) { setTitle(page.title); setContent(page.content); } }, [page]);
-  const handleSave = () => { updatePage(page.slug, { title, content }); onClose(); };
+  const handleSave = () => { onSave(page.slug, { title, content }); onClose(); };
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page.slug}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+  return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   const [route, setRoute] = useState(config?.route || '');
@@ -3009,6 +3009,8 @@ export const AdminDashboard: React.FC = () => {
   const [approvingApplication, setApprovingApplication] = useState<any>(null);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
   const [apiPartners, setApiPartners] = useState(MOCK_API_PARTNERS);
+  const [pages, setPages] = useState<any[]>([]);
+  const [loadingPages, setLoadingPages] = useState(false);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<any>(null);
   const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
@@ -3104,6 +3106,18 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchPages = async () => {
+    setLoadingPages(true);
+    try {
+      const res = await adminFetch('/api/admin/cms/pages');
+      setPages(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('Failed to fetch pages', e);
+    } finally {
+      setLoadingPages(false);
+    }
+  };
+
   const fetchBookings = async (supplierId?: string | null) => {
     setLoadingBookings(true);
     try {
@@ -3188,6 +3202,12 @@ export const AdminDashboard: React.FC = () => {
     fetchBookings(selectedSupplierId);
     fetchFleet(selectedSupplierId);
   }, [selectedSupplierId]);
+
+  useEffect(() => {
+    if (activeSection === 'cms') {
+      fetchPages();
+    }
+  }, [activeSection]);
 
   useEffect(() => {
     if (activeSection === 'homepage') {
@@ -3349,6 +3369,18 @@ export const AdminDashboard: React.FC = () => {
   };
   const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
   const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
+  const handleSavePage = async (slug: string, data: any) => {
+    try {
+      await adminFetch(`/api/admin/cms/pages/${slug}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
+      showToast("Page updated successfully");
+      fetchPages();
+    } catch (e: any) {
+      alert("Failed to save page: " + e.message);
+    }
+  };
   const handleNewSeo = () => { setEditingSeoConfig({}); setIsSeoEditorOpen(true); };
   const handleEditSeo = (config: any) => { setEditingSeoConfig(config); setIsSeoEditorOpen(true); };
   const handleSaveHomepage = async (content: any, images: Record<string, string>) => {
@@ -3382,7 +3414,7 @@ export const AdminDashboard: React.FC = () => {
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
       case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
-      case 'cms': return <CmsContent pages={MOCK_PAGES} onEditPage={handleEditPage} />;
+      case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
       case 'seo': return <SeoContent configs={MOCK_SEO_CONFIGS} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} />;
       case 'homepage':
         if (loadingHomepageEditor) {
@@ -3402,7 +3434,7 @@ export const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
-      {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} />}
+      {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} onSave={handleSavePage} />}
       {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
