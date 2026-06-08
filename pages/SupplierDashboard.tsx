@@ -2941,42 +2941,42 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
                             label="Min Lead Time (Hrs)" 
                             type="number" 
                             icon={Clock}
-                            value={localConfig.minBookingLeadTime || ''} 
+                            value={localConfig.minBookingLeadTime} 
                             onChange={(e: any) => setLocalConfig({...localConfig, minBookingLeadTime: parseInt(e.target.value) || 0})} 
                         />
                         <InputField 
                             label="Grace Period (Hrs)" 
                             type="number" 
                             icon={RefreshCw}
-                            value={localConfig.gracePeriodHours || ''} 
+                            value={localConfig.gracePeriodHours} 
                             onChange={(e: any) => setLocalConfig({...localConfig, gracePeriodHours: parseInt(e.target.value) || 0})} 
                         />
                         <InputField 
                             label="One Way Fee" 
                             type="number" 
                             prefix={localConfig.currency}
-                            value={localConfig.oneWayFee || ''} 
+                            value={localConfig.oneWayFee} 
                             onChange={(e: any) => setLocalConfig({...localConfig, oneWayFee: parseFloat(e.target.value) || 0})} 
                         />
                         <InputField 
                             label="Min. Duration (Days)" 
                             type="number" 
                             icon={Calendar}
-                            value={localConfig.minRentalDays || ''} 
+                            value={localConfig.minRentalDays} 
                             onChange={(e: any) => setLocalConfig({...localConfig, minRentalDays: parseInt(e.target.value) || 0})} 
                         />
                         <InputField 
                             label="Max. Duration (Days)" 
                             type="number" 
                             icon={Calendar}
-                            value={localConfig.maxRentalDays || ''} 
+                            value={localConfig.maxRentalDays} 
                             onChange={(e: any) => setLocalConfig({...localConfig, maxRentalDays: parseInt(e.target.value) || 0})} 
                         />
                         <InputField 
                             label="Max. Lead Time (Days)" 
                             type="number" 
                             icon={Zap}
-                            value={localConfig.maxBookingLeadTimeDays || ''} 
+                            value={localConfig.maxBookingLeadTimeDays} 
                             onChange={(e: any) => setLocalConfig({...localConfig, maxBookingLeadTimeDays: parseInt(e.target.value) || 0})} 
                         />
                     </div>

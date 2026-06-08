@@ -471,7 +471,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
         <nav className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
           <div className="px-4 mb-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Operations</div>
           <NavItem section="dashboard" label="Performance" icon={LayoutDashboard} />
-          <NavItem section="suppliers" label="Supply Partners" icon={Building} />
+          <NavItem section="suppliers" label="Manage Suppliers" icon={Building} />
           <NavItem section="supplierrequests" label="Requests" icon={MailQuestion} count={countSupplierRequests} />
           <NavItem section="bookings" label="Reservations" icon={Calendar} />
           <NavItem section="fleet" label="Active Fleet" icon={Car} />
@@ -868,7 +868,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           <div className="bg-white p-3 rounded-xl border">
             <label className="text-[10px] font-bold text-gray-400">Min Duration (days)</label>
             <input type="number" value={editedSupplier.minRentalDays ?? 1} onChange={e => handleChange("minRentalDays", parseInt(e.target.value) || 1)} className="w-full border rounded-lg p-2 mt-1" />
@@ -888,6 +888,10 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
           <div className="bg-white p-3 rounded-xl border">
             <label className="text-[10px] font-bold text-gray-400">Max Lead Time (days)</label>
             <input type="number" value={editedSupplier.maxBookingLeadTimeDays ?? 365} onChange={e => handleChange("maxBookingLeadTimeDays", parseInt(e.target.value) || 365)} className="w-full border rounded-lg p-2 mt-1" />
+          </div>
+          <div className="bg-white p-3 rounded-xl border">
+            <label className="text-[10px] font-bold text-gray-400">One Way Fee</label>
+            <input type="number" value={editedSupplier.oneWayFee ?? 0} onChange={e => handleChange("oneWayFee", parseFloat(e.target.value) || 0)} className="w-full border rounded-lg p-2 mt-1" />
           </div>
         </div>
 
@@ -1786,7 +1790,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
     <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div className="flex-1">
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Supply Partners</h2>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Manage Suppliers</h2>
             <p className="text-sm text-gray-500 font-medium mb-4">Manage your global car rental provider network</p>
             
             <div className="relative max-w-md">
