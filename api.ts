@@ -308,6 +308,8 @@ export const supplierApi = {
     supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/history`),
   restoreFromHistory: (historyId: number) =>
     supplierAxios.post(`${API_BASE_URL}/api/supplier/rates/history/${historyId}/restore`),
+  deleteExcelHistory: (historyId: number) =>
+    supplierAxios.delete(`${API_BASE_URL}/api/supplier/rates/history/${historyId}`),
   downloadTemplate: (locationCode?: string) => 
     supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template${locationCode ? `?locationCode=${locationCode}` : ''}`, { responseType: 'blob' }),
   downloadBookingReport: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/report`, { responseType: 'blob' }),

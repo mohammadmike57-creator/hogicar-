@@ -985,10 +985,11 @@ const FleetSection = ({
 
 // ==================== History Section ====================
 
-const HistorySection = ({ history, onRestore, onDownload }: { 
+const HistorySection = ({ history, onRestore, onDownload, onDelete }: { 
     history: ExcelDownloadHistory[], 
     onRestore: (id: number) => void, 
-    onDownload: (locationCode?: string) => void 
+    onDownload: (locationCode?: string) => void,
+    onDelete: (id: number) => void
 }) => {
     return (
         <div className="space-y-6">
@@ -1038,6 +1039,13 @@ const HistorySection = ({ history, onRestore, onDownload }: {
                                                 title="Download Template with these settings"
                                             >
                                                 <Download className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                onClick={() => onDelete(item.id)}
+                                                className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
+                                                title="Delete this history record"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
@@ -1804,6 +1812,16 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
         } catch (e) { alert("Delete failed"); }
     };
 
+    const handleDeleteHistory = async (historyId: number) => {
+        if (!confirm("Delete this history record permanently?")) return;
+        try {
+            await supplierApi.deleteExcelHistory(historyId);
+            await fetchHistory();
+        } catch (e) {
+            alert("Delete failed");
+        }
+    };
+
     return (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -2174,6 +2192,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                         if (loc) setSelectedLocation(loc);
                         handleDownload();
                     }} 
+                    onDelete={handleDeleteHistory}
                 />
             )}
 
