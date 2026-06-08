@@ -33,12 +33,13 @@ export const calculatePrice = (car: Car, days: number, startDate?: string) => {
     }
     
     // If final price is from API, it's already the gross daily rate.
-    if (car.hasFinalPriceFromApi) {
-        const correctNetTotal = (car.netPrice || 0) * days;
+    if (car.hasFinalPriceFromApi || car.supplierId) {
+        // For API cars, netDailyRate was set to the total price in apiCarToCar mapping
+        const total = netDailyRate;
         return {
-            dailyRate: netDailyRate,
-            total: netDailyRate * days,
-            netTotal: correctNetTotal,
+            dailyRate: total / days,
+            total: total,
+            netTotal: car.netPrice || 0,
             promotionLabel,
             tierName
         };

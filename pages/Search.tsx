@@ -401,6 +401,54 @@ export const Search: React.FC = () => {
 
   const categoryOrder = [CarCategory.MINI, CarCategory.ECONOMY, CarCategory.COMPACT, CarCategory.MIDSIZE, CarCategory.FULLSIZE, CarCategory.SUV, CarCategory.LUXURY, CarCategory.PEOPLE_CARRIER];
 
+  const filteredCarsExceptCategory = React.useMemo(() => {
+    return baseFilteredCars.filter(car => {
+      const basePrice = getCarDailyPrice(car);
+      if (basePrice > priceRange) return false;
+      if (selectedSuppliers.length > 0 && !selectedSuppliers.includes(car.supplier.name)) return false;
+      if (selectedTransmissions.length > 0 && !selectedTransmissions.includes(car.transmission)) return false;
+      if (selectedFuelPolicies.length > 0 && !selectedFuelPolicies.includes(car.fuelPolicy)) return false;
+      if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
+      if (selectedPaymentTypes.length > 0 && !selectedPaymentTypes.includes(car.supplier.commissionType)) return false;
+      if (maxDeposit > 0 && car.deposit > maxDeposit) return false;
+      if (specialOffersOnly && !(car.promotionAmount || car.promotionPercent || car.hogicarChoice)) return false;
+      if (selectedLocationTypes.length > 0) {
+          const pt = car.supplier?.pickupType;
+          let carMatch = false;
+          if (pt === 'IN_TERMINAL' && selectedLocationTypes.includes('In Terminal')) carMatch = true;
+          else if (pt === 'MEET_AND_GREET' && selectedLocationTypes.includes('Meet & Greet')) carMatch = true;
+          else if (pt === 'SHUTTLE_BUS' && selectedLocationTypes.includes('Shuttle Bus')) carMatch = true;
+          else {
+              carMatch = selectedLocationTypes.some(locType => car.locationDetail.toLowerCase().includes(locType.toLowerCase()));
+          }
+          if (!carMatch) return false;
+      }
+      return true;
+    });
+  }, [baseFilteredCars, priceRange, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly, days, startDate]);
+
+  const categorySummaries = React.useMemo(() => {
+    const summaries = new Map<string, { count: number; fromTotal: number | null; passengers: number | null; bags: number | null }>();
+
+    categoryOrder.forEach(category => {
+      const carsInCategory = filteredCarsExceptCategory.filter(car => car.category === category && car.isAvailable !== false);
+      if (carsInCategory.length === 0) {
+        summaries.set(category, { count: 0, fromTotal: null, passengers: null, bags: null });
+        return;
+      }
+
+      const cheapest = [...carsInCategory].sort((a, b) => calculatePrice(a, days, startDate).total - calculatePrice(b, days, startDate).total)[0];
+      summaries.set(category, {
+        count: carsInCategory.length,
+        fromTotal: calculatePrice(cheapest, days, startDate).total,
+        passengers: cheapest.passengers || null,
+        bags: cheapest.bags || null,
+      });
+    });
+
+    return summaries;
+  }, [filteredCarsExceptCategory, days, startDate]);
+
   const filterCounts = React.useMemo(() => {
     const counts = {
       category: new Map<string, number>(),
@@ -411,8 +459,12 @@ export const Search: React.FC = () => {
       locationType: new Map<string, number>(),
     };
 
-    baseFilteredCars.forEach(car => {
+    // Use filteredCarsExceptCategory for category counts to show what WOULD be available
+    filteredCarsExceptCategory.forEach(car => {
         counts.category.set(car.category, (counts.category.get(car.category) || 0) + 1);
+    });
+
+    baseFilteredCars.forEach(car => {
         counts.supplier.set(car.supplier.name, (counts.supplier.get(car.supplier.name) || 0) + 1);
         counts.transmission.set(car.transmission, (counts.transmission.get(car.transmission) || 0) + 1);
         counts.fuelPolicy.set(car.fuelPolicy, (counts.fuelPolicy.get(car.fuelPolicy) || 0) + 1);
@@ -433,29 +485,7 @@ export const Search: React.FC = () => {
         }
     });
     return counts;
-  }, [baseFilteredCars]);
-
-  const categorySummaries = React.useMemo(() => {
-    const summaries = new Map<string, { count: number; fromTotal: number | null; passengers: number | null; bags: number | null }>();
-
-    categoryOrder.forEach(category => {
-      const carsInCategory = baseFilteredCars.filter(car => car.category === category && car.isAvailable !== false);
-      if (carsInCategory.length === 0) {
-        summaries.set(category, { count: 0, fromTotal: null, passengers: null, bags: null });
-        return;
-      }
-
-      const cheapest = [...carsInCategory].sort((a, b) => calculatePrice(a, days, startDate).total - calculatePrice(b, days, startDate).total)[0];
-      summaries.set(category, {
-        count: carsInCategory.length,
-        fromTotal: calculatePrice(cheapest, days, startDate).total,
-        passengers: cheapest.passengers || null,
-        bags: cheapest.bags || null,
-      });
-    });
-
-    return summaries;
-  }, [baseFilteredCars, days, startDate]);
+  }, [baseFilteredCars, filteredCarsExceptCategory]);
 
   const sortedAndFilteredCars = React.useMemo(() => {
     const filtered = baseFilteredCars.filter(car => {
