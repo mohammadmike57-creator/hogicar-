@@ -304,8 +304,10 @@ export const supplierApi = {
   getTemplateConfig: (locationCode?: string) => 
     supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template-config${locationCode ? `?locationCode=${locationCode}` : ''}`),
   saveTemplateConfig: (config: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/rates/template-config`, config),
-  getRateHistory: () => 
-    supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/rates/history`),
+  getExcelHistory: () => 
+    supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/history`),
+  restoreFromHistory: (historyId: number) =>
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/rates/history/${historyId}/restore`),
   downloadTemplate: (locationCode?: string) => 
     supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template${locationCode ? `?locationCode=${locationCode}` : ''}`, { responseType: 'blob' }),
   downloadBookingReport: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/report`, { responseType: 'blob' }),

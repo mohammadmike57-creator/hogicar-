@@ -575,6 +575,16 @@ export interface TemplateConfig {
   maxBookingLeadTimeDays?: number;
 }
 
+export interface ExcelDownloadHistory {
+  id: number;
+  fileName: string;
+  fileType: string;
+  locationCode?: string;
+  downloadedAt: string;
+  metadata?: string;
+  configJson?: string;
+}
+
 export interface RateHistoryEntry {
   id: number;
   periodName?: string;

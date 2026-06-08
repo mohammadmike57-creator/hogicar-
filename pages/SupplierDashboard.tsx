@@ -18,7 +18,8 @@ import { supplierApi, getPublicLocations, API_BASE_URL } from '../api';
 import { CURRENCIES } from '../contexts/CurrencyContext';
 import { 
   Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 
-  BookingMode, TemplateConfig, Extra, RateTier, CarModel, CarRateTier
+  BookingMode, TemplateConfig, Extra, RateTier, CarModel, CarRateTier,
+  ExcelDownloadHistory
 } from '../types';
 import { Logo } from '../components/Logo';
 
@@ -982,6 +983,84 @@ const FleetSection = ({
   );
 };
 
+// ==================== History Section ====================
+
+const HistorySection = ({ history, onRestore, onDownload }: { 
+    history: ExcelDownloadHistory[], 
+    onRestore: (id: number) => void, 
+    onDownload: (locationCode?: string) => void 
+}) => {
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <History className="w-5 h-5 text-blue-700" />
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Excel Download History</h3>
+            </div>
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[600px]">
+                        <thead>
+                            <tr className="bg-gray-50/50 border-b border-gray-100">
+                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date & Time</th>
+                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">File Type</th>
+                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Location</th>
+                                <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {history.map((item) => (
+                                <tr key={item.id} className="hover:bg-gray-50/30 transition-colors group">
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                                                <Clock className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-xs font-bold text-gray-900">{format(parseISO(item.downloadedAt), 'MMM d, yyyy HH:mm')}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <Badge variant="info">{item.fileType}</Badge>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <span className="text-xs font-medium text-gray-600 uppercase">{item.locationCode || 'All Locations'}</span>
+                                    </td>
+                                    <td className="px-8 py-5 text-right">
+                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button 
+                                                onClick={() => onRestore(item.id)}
+                                                className="px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all flex items-center gap-2 whitespace-nowrap"
+                                            >
+                                                <RefreshCw className="w-3 h-3" /> Restore Config
+                                            </button>
+                                            <button 
+                                                onClick={() => onDownload(item.locationCode)}
+                                                className="p-2 bg-gray-900 text-white rounded-xl hover:bg-blue-700 transition-all"
+                                                title="Download Template with these settings"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {history.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-8 py-20 text-center">
+                                        <div className="flex flex-col items-center justify-center text-gray-400">
+                                            <History className="w-12 h-12 mb-4 opacity-10" />
+                                            <p className="text-[10px] font-black uppercase tracking-widest">No download history available</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // ==================== Manual Pricing Section ====================
 const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBack, activeLocation }: { config: TemplateConfig, cars: CarType[], existingTiers?: CarRateTier[], onUpdate: () => void, onBack: () => void, activeLocation: string }) => {
     const [targetType, setTargetType] = useState<'car' | 'category' | 'sipp'>('car');
@@ -1625,6 +1704,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<string>('');
     const [isManualPricingActive, setIsManualPricingActive] = useState(false);
+    const [history, setHistory] = useState<ExcelDownloadHistory[]>([]);
 
     const supplierLocationOptions = useMemo(() => (
         (supplier.locations || [])
@@ -1662,7 +1742,32 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
         finally { setIsLoading(false); }
     };
 
-    useEffect(() => { fetchConfig(); }, [selectedLocation]);
+    const fetchHistory = async () => {
+        try {
+            const res = await supplierApi.getExcelHistory();
+            setHistory(res.data);
+        } catch (e) { console.error("History fetch failed", e); }
+    };
+
+    useEffect(() => { 
+        fetchConfig(); 
+        fetchHistory();
+    }, [selectedLocation]);
+
+    const handleRestore = async (historyId: number) => {
+        if (!confirm("Are you sure you want to restore this configuration? It will overwrite your current settings for the template.")) return;
+        try {
+            setIsSaving(true);
+            await supplierApi.restoreFromHistory(historyId);
+            await fetchConfig();
+            await fetchHistory();
+            alert("Configuration restored successfully!");
+        } catch (e) {
+            alert("Restore failed");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleDownload = async () => {
         try {
@@ -1995,7 +2100,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                     {existingTiers
                                         .filter(tier => {
                                             const car = cars.find(c => Number(c.id) === Number(tier.carId));
-                                            return !selectedLocation || car?.locationCode === selectedLocation;
+                                            return !selectedLocation || car?.location === selectedLocation;
                                         })
                                         .map((tier) => {
                                             const car = cars.find(c => Number(c.id) === Number(tier.carId));
@@ -2008,7 +2113,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                                             </div>
                                                             <div>
                                                                 <p className="text-xs font-black text-gray-900 uppercase tracking-tight">{car?.make} {car?.model}</p>
-                                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{car?.sippCode || car?.category} • {car?.locationCode}</p>
+                                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{car?.sippCode || car?.category} • {car?.location}</p>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -2059,6 +2164,17 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                     </div>
                 )}
             </div>
+            )}
+
+            {!isManualPricingActive && (
+                <HistorySection 
+                    history={history} 
+                    onRestore={handleRestore} 
+                    onDownload={(loc) => {
+                        if (loc) setSelectedLocation(loc);
+                        handleDownload();
+                    }} 
+                />
             )}
 
             <TemplateConfigModal 
