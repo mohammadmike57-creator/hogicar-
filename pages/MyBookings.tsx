@@ -266,6 +266,8 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     const isPast = new Date(booking.dropoffDate) < new Date();
     const canCancel = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
     const canModify = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
+    const isCancelled = booking.status === 'cancelled';
+    const isCompleted = booking.status === 'completed';
 
     const handleModifyClick = async () => {
         setIsFetchingCar(true);
@@ -319,10 +321,6 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
         }
     };
 
-    const isPast = new Date(booking.dropoffDate) < new Date();
-    const canCancel = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
-    const isCancelled = booking.status === 'cancelled';
-    const isCompleted = booking.status === 'completed';
 
     return (
         <div className="max-w-4xl mx-auto">
