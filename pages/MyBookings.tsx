@@ -109,7 +109,11 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                                     <p className="text-sm text-slate-500 mb-4">Rental Vehicle</p>
                                 )}
                                 <div className="flex items-center gap-4">
-                                    {car && <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-auto object-contain max-w-[120px]" />}
+                                    {car && (car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
+                                        <Logo className="h-8 w-auto max-w-[120px]" />
+                                    ) : (
+                                        <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-auto object-contain max-w-[120px]" />
+                                    ))}
                                     <div className="flex flex-col">
                                         <span className="text-xs text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Service Provider</span>
                                         <span className="text-sm font-black text-slate-800 uppercase tracking-wide leading-none">{booking.supplierName}</span>

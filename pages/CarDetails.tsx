@@ -17,6 +17,7 @@ import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategor
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
+import { Logo } from '../components/Logo';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { supplierApi } from '../lib/api';
 import { persistSelectedCar } from '../utils/storage';
@@ -135,7 +136,13 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
             ) : (
               <>
                 <div className="flex h-14 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-sm">
-                  {supplierLogo ? <img src={supplierLogo} alt={supplier.name} className="max-h-10 max-w-full object-contain" /> : <Building className="h-7 w-7 text-slate-400" />}
+                  {supplierLogo === 'HOGICAR_CHOICE_LOGO' ? (
+                    <Logo className="h-8 w-auto max-w-[150px]" />
+                  ) : supplierLogo ? (
+                    <img src={supplierLogo} alt={supplier.name} className="max-h-10 max-w-full object-contain" />
+                  ) : (
+                    <Building className="h-7 w-7 text-slate-400" />
+                  )}
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#008009]">Rental conditions</p>
@@ -496,7 +503,11 @@ const CarDetails: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-start sm:items-end">
-                      {supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-10 max-w-[140px] object-contain" />}
+                      {supplierLogo === 'HOGICAR_CHOICE_LOGO' ? (
+                        <Logo className="h-8 w-auto max-w-[140px]" />
+                      ) : (
+                        supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-10 max-w-[140px] object-contain" />
+                      )}
                       {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
                         <div className="bg-emerald-50 px-3 py-2 rounded-xl flex items-center gap-2 border border-[#008009]/10 shadow-sm">
                           <Zap className="w-4 h-4 text-[#008009] fill-[#008009]/20" />
@@ -636,9 +647,13 @@ const CarDetails: React.FC = () => {
               {/* Supplier Info with trust badges */}
               <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
                 <h2 className="text-xl font-black mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 text-[#008009]" /> {!car.hogicarChoice ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
-                {!car.hogicarChoice ? (
+                {!car.hogicarChoice || car.supplier.name === 'Hogi Car Choice' ? (
                   <div className="flex flex-wrap items-center gap-6">
-                    <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 w-auto object-contain max-w-[150px]" />
+                    {car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
+                      <Logo className="h-12 w-auto max-w-[150px]" />
+                    ) : (
+                      <img src={car.supplier.logo} alt={car.supplier.name} className="h-16 w-auto object-contain max-w-[150px]" />
+                    )}
                     <div className="flex items-center gap-4">
                         <div>
                             <div className="font-black text-xl text-slate-900 tracking-tight">{car.supplier.name}</div>

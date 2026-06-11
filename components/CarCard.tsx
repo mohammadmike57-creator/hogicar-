@@ -321,6 +321,8 @@ const getRecentBookingInfo = (car: CarType): { isRecent: boolean; message: strin
 };
 
 
+import { Logo } from './Logo';
+
 interface CarCardProps {
   car: CarType;
   cars: CarType[];
@@ -486,11 +488,15 @@ const CarCard: React.FC<CarCardProps> = ({
 
               <div className="mt-5 grid grid-cols-[1fr_auto] items-end gap-4">
                   <div className="min-w-0">
-                      <img
-                          src={car.supplier.logo || (car.supplier as any).logoUrl}
-                          alt={car.supplier.name}
-                          className="mb-3 h-10 max-w-[135px] object-contain"
-                      />
+                      {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
+                          <Logo className="mb-3 h-7 w-auto max-w-[135px]" />
+                      ) : (
+                          <img
+                              src={car.supplier.logo || (car.supplier as any).logoUrl}
+                              alt={car.supplier.name}
+                              className="mb-3 h-10 max-w-[135px] object-contain"
+                          />
+                      )}
                       <button
                         type="button"
                         className="group/rating relative flex items-center gap-2 text-left bg-slate-50 hover:bg-white p-1.5 pr-2.5 -m-1.5 rounded-2xl transition-all active:scale-[0.98] border border-transparent hover:border-slate-200"
@@ -567,11 +573,15 @@ const CarCard: React.FC<CarCardProps> = ({
 
                   {/* Supplier & Rating Block */}
                   <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 mt-auto w-full">
-                      <img
-                          src={car.supplier.logo || (car.supplier as any).logoUrl}
-                          alt={car.supplier.name}
-                          className="h-8 w-auto object-contain max-w-[105px]"
-                      />
+                      {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
+                          <Logo className="h-6 w-auto max-w-[105px]" />
+                      ) : (
+                          <img
+                              src={car.supplier.logo || (car.supplier as any).logoUrl}
+                              alt={car.supplier.name}
+                              className="h-8 w-auto object-contain max-w-[105px]"
+                          />
+                      )}
                       <div
                         className="group/rating relative z-30 flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white p-1.5 pr-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg active:scale-[0.98]"
                         onMouseEnter={() => setShowRatingsTooltip(true)}

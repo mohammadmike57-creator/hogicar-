@@ -6,6 +6,7 @@ import { CheckCircle, Printer, ArrowRight, User, CreditCard, FileText, MapPin, C
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
+import { Logo } from '../components/Logo';
 import { api } from '../api';
 
 const Confirmation: React.FC = () => {
@@ -162,11 +163,15 @@ const Confirmation: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                {!booking.hogicarChoice ? (
+                {!booking.hogicarChoice || booking.supplierName === 'Hogi Car Choice' ? (
                   <div>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Rental Provider</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{booking.supplierName === 'Hogi Car Choice' ? 'Service Level' : 'Rental Provider'}</h3>
                     <div className="flex items-center gap-3">
-                       {car && <img src={car.supplier.logo} alt={car.supplier.name} className="h-8 w-auto object-contain" />}
+                       {car && (car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
+                          <Logo className="h-6 w-auto max-w-[100px]" />
+                        ) : (
+                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-8 w-auto object-contain" />
+                        ))}
                        <p className="font-semibold text-slate-700">{booking.supplierName}</p>
                     </div>
                   </div>

@@ -10,6 +10,7 @@ import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
+import { Logo } from '../components/Logo';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { api } from '../api';
 
@@ -491,10 +492,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     {transmissionLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {fuelPolicyLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location || 'Airport'}
                   </p>
                   
-                  {!car.hogicarChoice ? (
+                  {!car.hogicarChoice || car.supplier.name === 'Hogi Car Choice' ? (
                     <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
                         <div className="bg-white border border-slate-200 p-2.5 sm:p-3 rounded-xl shadow-sm">
-                          {supplierLogo ? (
+                          {supplierLogo === 'HOGICAR_CHOICE_LOGO' ? (
+                            <Logo className="h-10 sm:h-12 w-auto max-w-[140px]" />
+                          ) : supplierLogo ? (
                             <img src={supplierLogo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
                           ) : (
                             <div className="h-12 sm:h-16 w-24 bg-slate-50 flex items-center justify-center rounded-lg border border-dashed border-slate-200">

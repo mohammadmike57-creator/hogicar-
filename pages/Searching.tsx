@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
 import SEOMetadata from '../components/SEOMetadata';
+import { Logo } from '../components/Logo';
 import { Check, Gift, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -418,16 +419,20 @@ const Searching: React.FC = () => {
                     animationDelay: `${index * 40}ms`
                   }}
                 >
-                  <img
-                    src={supplier.logoUrl || supplier.logo}
-                    alt={supplier.name}
-                    className="w-full h-full object-contain transition-all duration-1000"
-                    style={{ 
-                        opacity: isChecked ? 1 : 0.6,
-                        filter: isChecked ? 'brightness(1)' : 'brightness(0.9) blur(0.3px)',
-                        transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                    } as any}
-                  />
+                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                    <Logo className="w-full h-full object-contain transition-all duration-1000" />
+                  ) : (
+                    <img
+                      src={supplier.logoUrl || supplier.logo}
+                      alt={supplier.name}
+                      className="w-full h-full object-contain transition-all duration-1000"
+                      style={{ 
+                          opacity: isChecked ? 1 : 0.6,
+                          filter: isChecked ? 'brightness(1)' : 'brightness(0.9) blur(0.3px)',
+                          transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
+                      } as any}
+                    />
+                  )}
                   {isChecking && (
                     <div
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-2xl"

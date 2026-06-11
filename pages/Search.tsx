@@ -11,6 +11,7 @@ import { calculatePrice } from '../utils/bookingUtils';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
+import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
 
@@ -25,7 +26,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     
     const mappedSupplier: Supplier = {
         id: apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
-        name: apiCar.supplier?.name ?? 'Unknown Supplier',
+        name: apiCar.supplier?.name || apiCar.name || 'Unknown Supplier',
         rating: apiCar.supplier?.rating || 4.5,
         ratingReviewCount: apiCar.supplier?.ratingReviewCount,
         detailedRatings: {
@@ -1013,10 +1014,12 @@ export const Search: React.FC = () => {
                               {allSuppliers.map((name) => (
                                   <label key={name} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
                                       <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-[#008009]" />
-                                      {supplierLogos.get(name) && (
-                                         <img src={supplierLogos.get(name)} alt={name} className="w-10 h-8 ml-2 object-contain" width="40" height="32" />
-                                     )}
-                                      <span className="ml-2 text-xs text-slate-600 font-medium">{name}</span>
+                                      {supplierLogos.get(name) === 'HOGICAR_CHOICE_LOGO' ? (
+                                          <Logo className="w-10 h-6 ml-2" />
+                                      ) : supplierLogos.get(name) ? (
+                                          <img src={supplierLogos.get(name)} alt={name} className="w-10 h-8 ml-2 object-contain" width="40" height="32" />
+                                      ) : null}
+                                       <span className="ml-2 text-xs text-slate-600 font-medium">{name}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.supplier.get(name) || 0})</span>
                                   </label>
                               ))}
