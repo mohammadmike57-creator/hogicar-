@@ -1800,7 +1800,10 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             alert("Rates imported successfully!");
             setUploadFile(null);
             fetchConfig();
-        } catch (e) { alert("Import failed. Check template format."); }
+        } catch (e: any) {
+            const errorMsg = e.response?.data?.message || e.message || "Import failed. Check template format.";
+            alert("Import failed: " + errorMsg);
+        }
         finally { setIsSaving(false); }
     };
 
