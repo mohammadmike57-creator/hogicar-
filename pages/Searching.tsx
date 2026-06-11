@@ -113,6 +113,17 @@ const Searching: React.FC = () => {
         
         let results: any[] = [];
         
+        // Ensure Hogi Car Choice is always shown in the scanning animation
+        const choiceSupplier = {
+            id: 'hogicar-choice-brand',
+            name: 'Hogi Car Choice',
+            logoUrl: 'HOGICAR_CHOICE_LOGO',
+            scale: 100,
+            mobileScale: 100,
+            isLocal: true
+        };
+        results.push(choiceSupplier);
+        
         // 1. Add admin-managed searching logos for this location (or global ones)
         if (searchingLogos && searchingLogos.length > 0) {
             searchingLogos.forEach(l => {

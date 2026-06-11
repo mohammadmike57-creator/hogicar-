@@ -503,7 +503,7 @@ const CarDetails: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-start sm:items-end">
-                      {supplierLogo === 'HOGICAR_CHOICE_LOGO' ? (
+                      {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
                         <Logo className="h-8 w-auto max-w-[140px]" />
                       ) : (
                         supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-10 max-w-[140px] object-contain" />

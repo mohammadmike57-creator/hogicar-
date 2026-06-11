@@ -161,7 +161,22 @@ export const Search: React.FC = () => {
                 dropoffDate: endDate,
             });
             const mappedCars = data.map(apiCarToCar);
-            setApiCars(mappedCars);
+            
+            // Duplicate cars for "Hogi Car Choice" branding in the frontend
+            const finalCars: Car[] = [];
+            mappedCars.forEach(car => {
+                finalCars.push(car);
+                if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
+                    // Create a duplicated entry with Hogi Car Choice branding
+                    const choiceCar = JSON.parse(JSON.stringify(car));
+                    choiceCar.id = `choice-${car.id}`;
+                    choiceCar.supplier.name = 'Hogi Car Choice';
+                    choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
+                    finalCars.push(choiceCar);
+                }
+            });
+            
+            setApiCars(finalCars);
         } catch (err) {
             console.error("Failed to fetch search results:", err);
             setError("We couldn't retrieve car results at the moment. Please try again later.");
