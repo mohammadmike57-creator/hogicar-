@@ -48,6 +48,7 @@ const LeaveReview: React.FC = () => {
     const [valueForMoney, setValueForMoney] = React.useState(0);
     const [pickupSpeed, setPickupSpeed] = React.useState(0);
     const [staffService, setStaffService] = React.useState(0);
+    const [reservationRating, setReservationRating] = React.useState(0);
     const [comment, setComment] = React.useState('');
     
     const [submitted, setSubmitted] = React.useState(false);
@@ -56,7 +57,7 @@ const LeaveReview: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!cleanliness || !condition || !valueForMoney || !pickupSpeed || !staffService) {
+        if (!cleanliness || !condition || !valueForMoney || !pickupSpeed || !staffService || !reservationRating) {
             setError('Please provide a rating for all categories.');
             return;
         }
@@ -75,6 +76,7 @@ const LeaveReview: React.FC = () => {
                 valueForMoney, 
                 pickupSpeed,
                 staffService,
+                reservationRating,
                 comment
             });
             
@@ -128,7 +130,8 @@ const LeaveReview: React.FC = () => {
                                           {label: "Condition", sub: "Was the car well-maintained?", rating: condition, setRating: setCondition},
                                           {label: "Value", sub: "Did the price match the quality?", rating: valueForMoney, setRating: setValueForMoney},
                                           {label: "Pick-up Speed", sub: "How fast was the collection?", rating: pickupSpeed, setRating: setPickupSpeed},
-                                          {label: "Staff Service", sub: "Were the staff helpful?", rating: staffService, setRating: setStaffService}
+                                          {label: "Staff Service", sub: "Were the staff helpful?", rating: staffService, setRating: setStaffService},
+                                          {label: "Reservation Experience", sub: "How easy was the booking process?", rating: reservationRating, setRating: setReservationRating}
                                         ].map(cat => (
                                             <div key={cat.label} className="flex flex-col gap-2 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
                                                 <div className="flex justify-between items-center">

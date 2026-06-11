@@ -15,18 +15,12 @@ import { Logo } from '../components/Logo';
 
 // Re-using a customer-facing version of the voucher modal
 const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose: () => void }) => {
-    // In real app, we might need to fetch the car if it's not in mock
-    const car = null; // Mock data removed
-    
-    // Fallback info if car is not found in mock data
-    const carMake = car?.make || (booking.carName ? booking.carName.split(' ')[0] : 'Vehicle');
-    const carModel = car?.model || (booking.carName ? booking.carName.split(' ').slice(1).join(' ') : '');
-    const displayCarName = car ? `${car.make} ${car.model}` : (booking.carName || 'Vehicle');
-    
     const { convertPrice, getCurrencySymbol } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
-    const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
-    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+    
+    // Use booking info directly
+    const displayCarName = booking.carName || 'Vehicle';
+    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
 
     if (!booking) return null;
 
@@ -95,7 +89,7 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                         <div className="flex items-start gap-6">
                             <img 
                                 src={displayImage} 
-                                alt={carMake} 
+                                alt={displayCarName} 
                                 onError={() => setImageError(true)}
                                 referrerPolicy="no-referrer"
                                 loading="eager"
@@ -103,56 +97,24 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                             />
                             <div className="flex-grow">
                                 <h3 className="text-xl font-bold text-slate-900">{displayCarName}</h3>
-                                {car ? (
-                                    <p className="text-sm text-slate-500 mb-4">or similar {car.category} class</p>
-                                ) : (
-                                    <p className="text-sm text-slate-500 mb-4">Rental Vehicle</p>
-                                )}
+                                <p className="text-sm text-slate-500 mb-4">Rental Vehicle</p>
                                 <div className="flex items-center gap-4">
-                                    {(booking.isHogicarChoiceBranded || booking.supplierName === 'Hogi Car Choice') ? (
-                                        <Logo className="h-8 w-auto max-w-[120px]" />
-                                    ) : car && car.supplier.logo ? (
-                                        <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 w-auto object-contain max-w-[120px]" />
-                                    ) : (
-                                        <div className="h-10 w-24 bg-slate-50 flex items-center justify-center rounded-lg border border-dashed border-slate-200">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.supplierName}</span>
+                                    {(booking.isHogicarChoiceBranded || booking.supplierName === 'Hogi Car Choice') && (
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Recommended By</span>
+                                            <Logo className="h-8 w-auto max-w-[100px]" />
                                         </div>
                                     )}
-                                    <div className="flex flex-col">
-                                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Service Provider</span>
-                                        <span className="text-sm font-black text-slate-800 uppercase tracking-wide leading-none">{booking.supplierName}</span>
-                                    </div>
-                                    {car && (
-                                        <div 
-                                          className="flex items-center gap-3 bg-white p-2 pr-3 rounded-2xl border border-slate-200 ml-auto group/rating relative cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all active:scale-[0.98]"
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setShowRatingsTooltip(!showRatingsTooltip);
-                                          }}
-                                        >
-                                            <div className={`relative ${getRatingColor(car.supplier.rating)} text-white text-xs font-black w-8 h-8 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
-                                                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                                <span className="relative z-10">{car.supplier.rating}</span>
-                                            </div>
-                                            <div className="hidden sm:flex flex-col">
-                                                <div className="flex items-center gap-1.5 mb-0.5">
-                                                    <span className={`text-[11px] font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
-                                                    <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
-                                                </div>
-                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
-                                                  <BadgeCheck className="w-2.5 h-2.5 text-[#008009]" />
-                                                  Verified
-                                                </span>
-                                            </div>
-                                            {car.detailedRatings && (
-                                              <DetailedRatingsTooltip 
-                                                ratings={car.detailedRatings} 
-                                                visible={showRatingsTooltip} 
-                                                align="right" 
-                                                className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
-                                              />
-                                            )}
+                                    {booking.supplierLogoUrl ? (
+                                        <div className="flex flex-col items-center border-l border-slate-200 pl-4 ml-2">
+                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Service Provider</span>
+                                            <img src={booking.supplierLogoUrl} alt={booking.supplierName} className="h-8 w-auto object-contain max-w-[100px]" />
+                                            <span className="text-[9px] font-black text-slate-800 uppercase tracking-wide mt-0.5">{booking.supplierName}</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col">
+                                            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Service Provider</span>
+                                            <span className="text-sm font-black text-slate-800 uppercase tracking-wide">{booking.supplierName}</span>
                                         </div>
                                     )}
                                 </div>
@@ -293,19 +255,68 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
     const { convertPrice, getCurrencySymbol } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
-    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
     const [isCancelling, setIsCancelling] = React.useState(false);
     const [showVoucher, setShowVoucher] = React.useState(false);
     // Note: Modify Logic would need significant backend support for real updates. Keeping mock for now or disabling if preferred.
     const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
-    
-    // For this demo, only allow modify if we have the car object fully
-    const canModify = !!MOCK_CARS.find(c => c.id === booking.carId);
+    const [fullCar, setFullCar] = React.useState<any>(null);
+    const [isFetchingCar, setIsFetchingCar] = React.useState(false);
 
-    const handleSaveModification = (modifications: Partial<Booking>) => {
-        // This part would need a real API endpoint for update.
-        alert("Modification feature requires full API implementation. Currently read-only for API bookings.");
-        setIsModifyModalOpen(false);
+    const isPast = new Date(booking.dropoffDate) < new Date();
+    const canCancel = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
+    const canModify = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
+
+    const handleModifyClick = async () => {
+        setIsFetchingCar(true);
+        try {
+            const searchResults = await loadCars({
+                pickupCode: booking.pickupCode || "AMM",
+                dropoffCode: booking.dropoffCode || "AMM",
+                pickupDate: booking.pickupDate || "",
+                dropoffDate: booking.dropoffDate || ""
+            });
+            const found = searchResults.find(c => String(c.id).replace('choice-', '') === String(booking.carId));
+            if (found) {
+                setFullCar(found);
+                setIsModifyModalOpen(true);
+            } else {
+                alert("This vehicle is no longer available for modification. Please contact support.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Failed to load vehicle details for modification.");
+        } finally {
+            setIsFetchingCar(false);
+        }
+    };
+
+    const handleSaveModification = async (modifications: any) => {
+        try {
+            const result = await api.requestModification(Number(booking.id), {
+                pickupDate: modifications.startDate,
+                dropoffDate: modifications.endDate,
+                startTime: modifications.startTime,
+                endTime: modifications.endTime,
+                phone: modifications.customerPhone,
+                flightNumber: modifications.flightNumber
+            });
+
+            if (result.clientSecret) {
+                alert(`Extra payment of ${result.modificationExtraCharge} ${booking.currency} is required. For this demo, we will confirm it automatically.`);
+                await api.confirmModification(Number(booking.id));
+            } else {
+                await api.confirmModification(Number(booking.id));
+            }
+
+            const updated = await api.getBooking(Number(booking.id));
+            onBookingModified(updated);
+            setIsModifyModalOpen(false);
+            alert("Booking updated successfully!");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update booking. Please try again.");
+        }
     };
 
     const isPast = new Date(booking.dropoffDate) < new Date();
@@ -316,7 +327,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     return (
         <div className="max-w-4xl mx-auto">
              {showVoucher && <CustomerVoucherModal booking={booking} onClose={() => setShowVoucher(false)} />}
-             {canModify && isModifyModalOpen && <ModifyBookingModal booking={booking} car={car} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
+             {fullCar && isModifyModalOpen && <ModifyBookingModal booking={booking} car={fullCar} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
              
              <button onClick={onBack} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
                  <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> Back to Search
@@ -442,17 +453,25 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                              </button>
 
                              {canModify && (
-                                 <button onClick={() => setIsModifyModalOpen(true)} className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                                     <div className="flex items-center gap-3">
-                                         <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-blue-600"/>
-                                         <div className="text-left">
-                                             <span className="block font-bold text-slate-700 text-sm group-hover:text-blue-700">Modify Booking</span>
-                                             <span className="block text-[10px] text-slate-500">Subject to availability</span>
-                                         </div>
-                                     </div>
-                                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500"/>
-                                 </button>
-                             )}
+                                <button 
+                                    onClick={handleModifyClick}
+                                    disabled={isFetchingCar}
+                                    className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group disabled:opacity-50"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {isFetchingCar ? (
+                                            <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-blue-600"/>
+                                        )}
+                                        <div className="text-left">
+                                            <span className="block font-bold text-slate-700 text-sm group-hover:text-blue-700">Modify Booking</span>
+                                            <span className="block text-[10px] text-slate-500">Dates, flight, or phone</span>
+                                        </div>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500"/>
+                                </button>
+                            )}
                          </div>
                      </div>
 

@@ -345,6 +345,8 @@ export interface Booking {
   commissionPercent?: number;
   commissionAmount?: number;
   hogicarChoice?: boolean;
+  carImage?: string;
+  supplierLogoUrl?: string;
 }
 
 export interface StatsData {
