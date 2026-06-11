@@ -225,6 +225,7 @@ export interface Car {
   supplierId?: number | null;
   currency?: string;
   hogicarChoice?: boolean;
+  isHogicarChoiceBranded?: boolean;
   promotionAmount?: number;
   promotionPercent?: number;
 }
@@ -287,6 +288,7 @@ export interface ApiSearchResult {
 
 
 export interface Booking {
+  isHogicarChoiceBranded?: boolean;
   id: string | number;
   // FIX: Add optional 'bookingRef' property to align with API response and fix type errors.
   bookingRef?: string;

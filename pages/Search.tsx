@@ -165,13 +165,17 @@ export const Search: React.FC = () => {
             // Duplicate cars for "Hogi Car Choice" branding in the frontend
             const finalCars: Car[] = [];
             mappedCars.forEach(car => {
-                finalCars.push(car);
+                // The original car should NOT be branded as Hogi Car Choice in the UI
+                const originalCar = { ...car, isHogicarChoiceBranded: false };
+                finalCars.push(originalCar);
+                
                 if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
                     // Create a duplicated entry with Hogi Car Choice branding
                     const choiceCar = JSON.parse(JSON.stringify(car));
                     choiceCar.id = `choice-${car.id}`;
                     choiceCar.supplier.name = 'Hogi Car Choice';
                     choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
+                    choiceCar.isHogicarChoiceBranded = true;
                     finalCars.push(choiceCar);
                 }
             });

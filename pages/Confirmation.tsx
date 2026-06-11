@@ -163,7 +163,7 @@ const Confirmation: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                {!booking.hogicarChoice || booking.supplierName === 'Hogi Car Choice' ? (
+                {!booking.isHogicarChoiceBranded || booking.supplierName === 'Hogi Car Choice' ? (
                   <div>
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{booking.supplierName === 'Hogi Car Choice' ? 'Service Level' : 'Rental Provider'}</h3>
                     <div className="flex items-center gap-3">

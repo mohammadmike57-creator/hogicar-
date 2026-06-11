@@ -122,7 +122,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
       <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
           <div className="flex min-w-0 items-center gap-4">
-            {(supplier as any).hogicarChoice ? (
+            {(car as any).isHogicarChoiceBranded ? (
               <>
                 <div className="w-14 h-14 bg-slate-900 rounded-xl flex shrink-0 items-center justify-center shadow-lg border border-amber-500/30">
                   <Award className="w-8 h-8 text-amber-400" />
@@ -415,7 +415,7 @@ const CarDetails: React.FC = () => {
 
   return (
     <>
-      <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={car.hogicarChoice ? `Book ${car.make} ${car.model} from our exclusive verified fleet. Best price guaranteed.` : `Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
+      <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={car.isHogicarChoiceBranded ? `Book ${car.make} ${car.model} from our exclusive verified fleet. Best price guaranteed.` : `Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
@@ -448,7 +448,7 @@ const CarDetails: React.FC = () => {
                   </div>
 
                   <div className="p-5 sm:p-6">
-                  {car.hogicarChoice && (
+                  {car.isHogicarChoiceBranded && (
                     <div className="inline-flex items-center gap-2 bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-xl mb-4 shadow-xl border border-amber-400/50">
                         <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
                         <span className="tracking-[0.2em] uppercase italic font-black text-amber-400">Hogicar Choice Exclusive Verified</span>
@@ -461,7 +461,7 @@ const CarDetails: React.FC = () => {
                       <p className="text-slate-500 text-sm font-bold mt-1">or similar · {car.year} · {car.sippCode}</p>
                       <div className="flex flex-wrap gap-3 mt-4">
                         <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                            {!car.hogicarChoice ? (
+                            {!car.isHogicarChoiceBranded ? (
                                 <div 
                                   className="flex items-center gap-4 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 hover:from-white hover:to-white p-2.5 pr-4 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
                                   onClick={(e) => {
@@ -646,8 +646,8 @@ const CarDetails: React.FC = () => {
 
               {/* Supplier Info with trust badges */}
               <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                <h2 className="text-xl font-black mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 text-[#008009]" /> {!car.hogicarChoice ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
-                {!car.hogicarChoice || car.supplier.name === 'Hogi Car Choice' ? (
+                <h2 className="text-xl font-black mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 text-[#008009]" /> {!car.isHogicarChoiceBranded ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
+                {!car.isHogicarChoiceBranded || car.supplier.name === 'Hogi Car Choice' ? (
                   <div className="flex flex-wrap items-center gap-6">
                     {car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
                       <Logo className="h-12 w-auto max-w-[150px]" />

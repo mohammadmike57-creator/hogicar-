@@ -243,6 +243,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         payNow: priceDetails.payNow,
         payAtDesk: priceDetails.payAtDesk,
         flightNumber,
+        isHogicarChoiceBranded: car.isHogicarChoiceBranded,
         selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
     };
   };
@@ -492,7 +493,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     {transmissionLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {fuelPolicyLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location || 'Airport'}
                   </p>
                   
-                  {!car.hogicarChoice || car.supplier.name !== 'Hogi Car Choice' ? (
+                  {!car.isHogicarChoiceBranded || car.supplier.name !== 'Hogi Car Choice' ? (
                     <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
                         <div className="bg-white border border-slate-200 p-2.5 sm:p-3 rounded-xl shadow-sm">
                           {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (

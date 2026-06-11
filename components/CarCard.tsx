@@ -105,7 +105,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                 {/* Header */}
                 <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
                     <div className="flex min-w-0 items-center gap-4">
-                        {!car.hogicarChoice ? (
+                        {!car.isHogicarChoiceBranded ? (
                             <>
                                 <div className="flex h-14 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-sm">
                                     {supplierLogo ? (
@@ -416,7 +416,7 @@ const CarCard: React.FC<CarCardProps> = ({
       <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50] ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
         <div className="relative flex flex-col h-full w-full rounded-2xl">
           {/* Header Badge */}
-          {car.hogicarChoice && (
+          {car.isHogicarChoiceBranded && (
             <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
                 <Award className="w-4 h-4 text-white fill-white/20" />
                 <span className="text-xs font-black uppercase tracking-widest">Hogicar Recommended</span>
@@ -426,7 +426,7 @@ const CarCard: React.FC<CarCardProps> = ({
           <div className="p-4 md:hidden">
               <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                      {car.hogicarChoice && (
+                      {car.isHogicarChoiceBranded && (
                         <span className="mb-2 inline-flex rounded-md bg-blue-900 px-2.5 py-1 text-xs font-bold text-white">Recommended</span>
                       )}
                       <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
