@@ -1897,20 +1897,20 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             </div>
                             <h3 className="text-xl font-black text-gray-900 tracking-tight mb-3">Bulk Rate Import</h3>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-8 max-w-sm">
-                                Upload your completed XLSX template to update pricing instantly.
+                                Upload your completed Excel template to update pricing instantly.
                             </p>
                             <div className="w-full space-y-4">
                                 <div className="relative group">
                                     <input 
                                         type="file" 
-                                        accept=".xlsx"
+                                        accept=".xlsx,.xls"
                                         onChange={e => setUploadFile(e.target.files?.[0] || null)}
                                         className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                     />
                                     <div className={`w-full py-4 border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 transition-all ${uploadFile ? 'border-green-500 bg-green-50/50' : 'border-gray-100 bg-gray-50/30 group-hover:border-blue-500'}`}>
                                         <FileText className={`w-5 h-5 ${uploadFile ? 'text-green-600' : 'text-gray-300'}`} />
                                         <span className={`text-[10px] font-black uppercase tracking-widest ${uploadFile ? 'text-green-900' : 'text-gray-400'}`}>
-                                            {uploadFile ? uploadFile.name : 'Choose XLSX File'}
+                                            {uploadFile ? uploadFile.name : 'Choose Excel File'}
                                         </span>
                                     </div>
                                 </div>
