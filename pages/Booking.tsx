@@ -214,8 +214,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
   const buildBookingPayload = () => {
     if (!car) return null;
-    const carId = Number(car.id);
-    const supplierId = Number(car.supplierId ?? car.supplier?.id);
+    // Strip "choice-" prefix from carId if present (from Hogi Car Choice duplication)
+    const carId = Number(String(car.id).replace('choice-', ''));
+    const supplierId = Number(String(car.supplierId ?? car.supplier?.id).replace('choice-', ''));
+    
     if (!Number.isFinite(carId) || carId <= 0) {
       throw new Error('Invalid car id. Please go back to search and select the car again.');
     }
@@ -243,6 +245,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         payNow: priceDetails.payNow,
         payAtDesk: priceDetails.payAtDesk,
         flightNumber,
+        hogicarChoice: car.hogicarChoice,
         isHogicarChoiceBranded: car.isHogicarChoiceBranded,
         selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
     };

@@ -307,7 +307,7 @@ const CarDetails: React.FC = () => {
             pickupDate: startDate,
             dropoffDate: endDate,
           });
-          const refreshedCar = refreshedCars.find(c => String(c.id) === String(id));
+          const refreshedCar = refreshedCars.find(c => String(c.id) === String(id).replace('choice-', ''));
           if (refreshedCar?.image) {
             foundCar = {
               ...foundCar,
