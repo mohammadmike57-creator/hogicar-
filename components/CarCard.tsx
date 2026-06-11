@@ -413,7 +413,13 @@ const CarCard: React.FC<CarCardProps> = ({
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className={`bg-white rounded-2xl shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)] border-2 transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50] ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : 'border-[#008009]/45 hover:border-[#008009]'}`}>
+      <div className={`rounded-2xl transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50] 
+        ${car.isHogicarChoiceBranded 
+          ? 'bg-emerald-50/40 border-[#008009] shadow-[0_20px_50px_-20px_rgba(0,128,9,0.35)]' 
+          : 'bg-white border-[#008009]/45 hover:border-[#008009] shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)]'
+        } 
+        border-2 
+        ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : ''}`}>
         <div className="relative flex flex-col h-full w-full rounded-2xl">
           {/* Header Badge */}
           {car.isHogicarChoiceBranded && (
@@ -553,7 +559,7 @@ const CarCard: React.FC<CarCardProps> = ({
 
           <div className="hidden md:flex md:flex-row flex-grow">
               {/* Car Image Area */}
-              <div className={`relative md:w-[28%] bg-gradient-to-br from-slate-50 to-white border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
+              <div className={`relative md:w-[28%] ${car.isHogicarChoiceBranded ? 'bg-gradient-to-br from-emerald-50 to-white' : 'bg-gradient-to-br from-slate-50 to-white'} border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.35/1] flex items-center justify-center mb-2 group/img-link">
                       <img
                         src={displayImage}
