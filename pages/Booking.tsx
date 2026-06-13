@@ -369,6 +369,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           });
 
           if (paymentResult.error) {
+            console.error('[Stripe Error Detail]', paymentResult.error);
             const errorMsg = paymentResult.error.message || 'Payment confirmation failed.';
             if (errorMsg.includes('No such payment_intent')) {
                 console.error('Stripe Account Mismatch detected. Clearing draft.');
@@ -795,7 +796,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                     {stripeEnabled ? (
                       <div className="rounded-xl border border-slate-200 px-4 sm:px-6 py-4 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] bg-white transition-all">
                         <CardElement options={{ 
-                            hidePostalCode: true,
+                            hidePostalCode: false,
                             style: {
                                 base: {
                                     fontSize: '18px',
