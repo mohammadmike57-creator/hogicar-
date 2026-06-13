@@ -37,9 +37,11 @@ type BookingPageContentProps = {
   stripeConfigLoading: boolean;
   stripeInstance: ReturnType<typeof useStripe>;
   elementsInstance: ReturnType<typeof useElements>;
+  currentKey: string | null;
+  onStripeKeyChange: (key: string) => void;
 };
 
-const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance }) => {
+const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance, currentKey, onStripeKeyChange }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -293,6 +295,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
   const ensureBookingDraft = async () => {
     if (bookingDraft?.clientSecret || (bookingDraft && priceDetails.payNow <= 0)) {
+      if (bookingDraft.publishableKey && currentKey && bookingDraft.publishableKey !== currentKey) {
+        console.warn(`[Stripe] Stale draft detected. Draft expects ${bookingDraft.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
+        onStripeKeyChange(bookingDraft.publishableKey);
+      }
       return bookingDraft;
     }
     const payload = buildBookingPayload();
@@ -300,6 +306,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       throw new Error('Booking details are not available. Please select the vehicle again.');
     }
     const booking = await api.createBooking(payload);
+    
+    if (booking.publishableKey && currentKey && booking.publishableKey !== currentKey) {
+        console.warn(`[Stripe] Mismatch detected on booking creation. Booking expects ${booking.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
+        sessionStorage.setItem('hogicar_last_stripe_key', booking.publishableKey);
+        onStripeKeyChange(booking.publishableKey);
+    }
+
     setBookingDraft(booking);
     sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
     return booking;
@@ -1024,24 +1037,24 @@ const BookingPage: React.FC = () => {
   }, []);
 
   if (stripeConfigLoading) {
-    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} />;
+    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} />;
   }
 
   if (!dynamicStripePromise || !currentKey) {
-    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} />;
+    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} />;
   }
 
   return (
     <Elements stripe={dynamicStripePromise} key={currentKey}>
-      <BookingPageWithStripe stripeConfigLoading={false} />
+      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} />
     </Elements>
   );
 };
 
-const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean }> = ({ stripeConfigLoading }) => {
+const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean; currentKey: string | null; onStripeKeyChange: (key: string) => void }> = ({ stripeConfigLoading, currentKey, onStripeKeyChange }) => {
   const stripe = useStripe();
   const elements = useElements();
-  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} />;
+  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} currentKey={currentKey} onStripeKeyChange={onStripeKeyChange} />;
 };
 
 export default BookingPage;

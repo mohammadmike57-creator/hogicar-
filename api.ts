@@ -40,6 +40,8 @@ export interface Booking {
   supplierConfirmationNumber?: string;
   createdAt: string;
   updatedAt: string;
+  clientSecret?: string;
+  publishableKey?: string;
 }
 
 // Create axios instances with interceptors for auth
