@@ -297,7 +297,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     if (bookingDraft?.clientSecret || (bookingDraft && priceDetails.payNow <= 0)) {
       if (bookingDraft.publishableKey && currentKey && bookingDraft.publishableKey !== currentKey) {
         console.warn(`[Stripe] Stale draft detected. Draft expects ${bookingDraft.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
+        sessionStorage.removeItem('hogicar_pending_booking');
+        setBookingDraft(null);
         onStripeKeyChange(bookingDraft.publishableKey);
+        throw new Error('STRIPE_ACCOUNT_MISMATCH');
       }
       return bookingDraft;
     }
@@ -310,7 +313,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     if (booking.publishableKey && currentKey && booking.publishableKey !== currentKey) {
         console.warn(`[Stripe] Mismatch detected on booking creation. Booking expects ${booking.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
         sessionStorage.setItem('hogicar_last_stripe_key', booking.publishableKey);
+        sessionStorage.removeItem('hogicar_pending_booking');
+        setBookingDraft(null);
         onStripeKeyChange(booking.publishableKey);
+        throw new Error('STRIPE_ACCOUNT_MISMATCH');
     }
 
     setBookingDraft(booking);
@@ -372,6 +378,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           storeBookingAndGoToConfirmation(completedBooking);
     } catch (error: any) {
         console.error("Payment submission error:", error);
+        
+        if (error.message === 'STRIPE_ACCOUNT_MISMATCH') {
+            console.log('Stripe account mismatch handled. Component will remount.');
+            setPaymentError('Adjusting secure payment settings. Please try clicking confirm again in a moment.');
+            return;
+        }
+
         const serverMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data;
         const message = (typeof serverMessage === 'string' && serverMessage) || error.message || 'An unknown error occurred.';
         
@@ -984,6 +997,15 @@ const BookingPage: React.FC = () => {
   const [currentKey, setCurrentKey] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    if (currentKey) {
+      console.log(`[Stripe] Initializing loadStripe with key: ${currentKey.substring(0, 10)}...`);
+      setDynamicStripePromise(loadStripe(currentKey));
+    } else {
+      setDynamicStripePromise(null);
+    }
+  }, [currentKey]);
+
+  React.useEffect(() => {
     let cancelled = false;
     const loadStripeConfig = async () => {
       try {
@@ -1006,7 +1028,6 @@ const BookingPage: React.FC = () => {
 
         if (!cancelled) {
           if (key) {
-            setDynamicStripePromise(loadStripe(key));
             setCurrentKey(key);
           } else {
             console.warn('[Stripe] No publishable key found');
@@ -1018,7 +1039,6 @@ const BookingPage: React.FC = () => {
         if (!cancelled) {
           const fallbackKey = stripePublishableKey.trim();
           if (fallbackKey) {
-            setDynamicStripePromise(loadStripe(fallbackKey));
             setCurrentKey(fallbackKey);
           } else {
             setCurrentKey('');
