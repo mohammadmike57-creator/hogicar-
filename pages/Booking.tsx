@@ -366,10 +366,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             console.warn('Stale payment intent detected in catch. Clearing draft...');
             sessionStorage.removeItem('hogicar_pending_booking');
             setBookingDraft(null);
+            setPaymentError('Your payment session has expired or the payment gateway has been updated. Please try again.');
+            alert('Your payment session has expired or the gateway has been updated. Please try confirming your booking again.');
+        } else {
+            setPaymentError(message);
+            alert(`Payment failed: ${message}`);
         }
-        
-        setPaymentError(message);
-        alert(`Payment failed: ${message}`);
     } finally {
         setIsSubmitting(false);
     }
@@ -966,6 +968,7 @@ const BookingPage: React.FC = () => {
     null
   );
   const [stripeConfigLoading, setStripeConfigLoading] = React.useState(true);
+  const [currentKey, setCurrentKey] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -973,23 +976,40 @@ const BookingPage: React.FC = () => {
       try {
         const config = await api.fetchStripeConfig();
         const key = (config?.publishableKey || stripePublishableKey || '').trim();
+        const mode = (config as any)?.mode || (key.startsWith('pk_test') ? 'test' : (key.startsWith('pk_live') ? 'live' : 'unknown'));
+        
+        console.log(`[Stripe] Configuration fetched. Mode: ${mode.toUpperCase()}`);
         
         const lastKey = sessionStorage.getItem('hogicar_last_stripe_key');
-        if (lastKey !== key) {
-          if (sessionStorage.getItem('hogicar_pending_booking')) {
-            console.warn('Stripe key changed or untracked, clearing pending booking draft');
+        if (lastKey && lastKey !== key) {
+          console.warn(`[Stripe] Account changed from ${lastKey.substring(0, 10)}... to ${key.substring(0, 10)}... Clearing stale session.`);
+          sessionStorage.removeItem('hogicar_pending_booking');
+        } else if (!lastKey && key) {
+            // First time seeing a key, also clear any untracked drafts to be safe
             sessionStorage.removeItem('hogicar_pending_booking');
-          }
         }
+        
         sessionStorage.setItem('hogicar_last_stripe_key', key);
 
-        if (!cancelled && key) {
-          setDynamicStripePromise(loadStripe(key));
+        if (!cancelled) {
+          if (key) {
+            setDynamicStripePromise(loadStripe(key));
+            setCurrentKey(key);
+          } else {
+            console.warn('[Stripe] No publishable key found');
+            setCurrentKey('');
+          }
         }
       } catch (error) {
         console.error('Failed to fetch Stripe config from backend:', error);
-        if (!cancelled && stripePublishableKey) {
-          setDynamicStripePromise(loadStripe(stripePublishableKey));
+        if (!cancelled) {
+          const fallbackKey = stripePublishableKey.trim();
+          if (fallbackKey) {
+            setDynamicStripePromise(loadStripe(fallbackKey));
+            setCurrentKey(fallbackKey);
+          } else {
+            setCurrentKey('');
+          }
         }
       } finally {
         if (!cancelled) {
@@ -1003,11 +1023,16 @@ const BookingPage: React.FC = () => {
     };
   }, []);
 
-  if (!dynamicStripePromise) {
-    return <BookingPageContent stripeEnabled={false} stripeConfigLoading={stripeConfigLoading} stripeInstance={null} elementsInstance={null} />;
+  if (stripeConfigLoading) {
+    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} />;
   }
+
+  if (!dynamicStripePromise || !currentKey) {
+    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} />;
+  }
+
   return (
-    <Elements stripe={dynamicStripePromise}>
+    <Elements stripe={dynamicStripePromise} key={currentKey}>
       <BookingPageWithStripe stripeConfigLoading={false} />
     </Elements>
   );
