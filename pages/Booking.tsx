@@ -361,6 +361,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
         console.error("Payment submission error:", error);
         const serverMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data;
         const message = (typeof serverMessage === 'string' && serverMessage) || error.message || 'An unknown error occurred.';
+        
+        if (message.includes('No such payment_intent')) {
+            console.warn('Stale payment intent detected in catch. Clearing draft...');
+            sessionStorage.removeItem('hogicar_pending_booking');
+            setBookingDraft(null);
+        }
+        
         setPaymentError(message);
         alert(`Payment failed: ${message}`);
     } finally {
@@ -968,9 +975,11 @@ const BookingPage: React.FC = () => {
         const key = (config?.publishableKey || stripePublishableKey || '').trim();
         
         const lastKey = sessionStorage.getItem('hogicar_last_stripe_key');
-        if (lastKey && lastKey !== key) {
-          console.warn('Stripe key changed, clearing pending booking draft');
-          sessionStorage.removeItem('hogicar_pending_booking');
+        if (lastKey !== key) {
+          if (sessionStorage.getItem('hogicar_pending_booking')) {
+            console.warn('Stripe key changed or untracked, clearing pending booking draft');
+            sessionStorage.removeItem('hogicar_pending_booking');
+          }
         }
         sessionStorage.setItem('hogicar_last_stripe_key', key);
 

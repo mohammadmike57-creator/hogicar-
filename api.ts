@@ -187,7 +187,7 @@ export const markBookingPaymentComplete = async (id: number, paymentIntentId: st
 };
 
 export const fetchStripeConfig = async (): Promise<{ publishableKey: string }> => {
-  const response = await publicAxios.get(`${API_BASE_URL}/api/public/stripe/config`);
+  const response = await publicAxios.get(`${API_BASE_URL}/api/public/stripe/config?t=${Date.now()}`);
   return response.data || { publishableKey: '' };
 };
 
