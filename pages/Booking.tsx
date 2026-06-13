@@ -39,9 +39,10 @@ type BookingPageContentProps = {
   elementsInstance: ReturnType<typeof useElements>;
   currentKey: string | null;
   onStripeKeyChange: (key: string) => void;
+  configMismatch: boolean;
 };
 
-const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance, currentKey, onStripeKeyChange }) => {
+const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance, currentKey, onStripeKeyChange, configMismatch }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -109,6 +110,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const [cardholderName, setCardholderName] = React.useState('');
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (configMismatch) {
+        setPaymentError("Critical System Configuration Error: Stripe Secret Key and Publishable Key mismatch in the backend. Please check your environment variables.");
+    }
+  }, [configMismatch]);
   const routeStep: 'details' | 'payment' = location.pathname.endsWith('/payment') ? 'payment' : 'details';
   const [bookingDraft, setBookingDraft] = React.useState<(any & { clientSecret?: string }) | null>(null);
   const [createAccount, setCreateAccount] = React.useState(true);
@@ -995,6 +1002,7 @@ const BookingPage: React.FC = () => {
   );
   const [stripeConfigLoading, setStripeConfigLoading] = React.useState(true);
   const [currentKey, setCurrentKey] = React.useState<string | null>(null);
+  const [configMismatch, setConfigMismatch] = React.useState(false);
 
   React.useEffect(() => {
     if (currentKey) {
@@ -1012,8 +1020,13 @@ const BookingPage: React.FC = () => {
         const config = await api.fetchStripeConfig();
         const key = (config?.publishableKey || stripePublishableKey || '').trim();
         const mode = (config as any)?.mode || (key.startsWith('pk_test') ? 'test' : (key.startsWith('pk_live') ? 'live' : 'unknown'));
+        const mismatch = (config as any)?.mismatch === 'true';
         
-        console.log(`[Stripe] Configuration fetched. Mode: ${mode.toUpperCase()}`);
+        console.log(`[Stripe] Configuration fetched. Mode: ${mode.toUpperCase()}${mismatch ? ' (MISMATCH DETECTED!)' : ''}`);
+        
+        if (mismatch) {
+          setConfigMismatch(true);
+        }
         
         const lastKey = sessionStorage.getItem('hogicar_last_stripe_key');
         if (lastKey && lastKey !== key) {
@@ -1057,24 +1070,24 @@ const BookingPage: React.FC = () => {
   }, []);
 
   if (stripeConfigLoading) {
-    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} />;
+    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} />;
   }
 
   if (!dynamicStripePromise || !currentKey) {
-    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} />;
+    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} />;
   }
 
   return (
     <Elements stripe={dynamicStripePromise} key={currentKey}>
-      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} />
+      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} />
     </Elements>
   );
 };
 
-const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean; currentKey: string | null; onStripeKeyChange: (key: string) => void }> = ({ stripeConfigLoading, currentKey, onStripeKeyChange }) => {
+const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean; currentKey: string | null; onStripeKeyChange: (key: string) => void; configMismatch: boolean }> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch }) => {
   const stripe = useStripe();
   const elements = useElements();
-  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} currentKey={currentKey} onStripeKeyChange={onStripeKeyChange} />;
+  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} currentKey={currentKey} onStripeKeyChange={onStripeKeyChange} configMismatch={configMismatch} />;
 };
 
 export default BookingPage;
