@@ -343,7 +343,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
           });
 
           if (paymentResult.error) {
-            throw new Error(paymentResult.error.message || 'Payment confirmation failed.');
+            const errorMsg = paymentResult.error.message || 'Payment confirmation failed.';
+            if (errorMsg.includes('No such payment_intent')) {
+                console.error('Stripe Account Mismatch detected. Clearing draft.');
+                sessionStorage.removeItem('hogicar_pending_booking');
+                setBookingDraft(null);
+            }
+            throw new Error(errorMsg);
           }
 
           const paymentIntentId = paymentResult.paymentIntent?.id;
@@ -960,6 +966,14 @@ const BookingPage: React.FC = () => {
       try {
         const config = await api.fetchStripeConfig();
         const key = (config?.publishableKey || stripePublishableKey || '').trim();
+        
+        const lastKey = sessionStorage.getItem('hogicar_last_stripe_key');
+        if (lastKey && lastKey !== key) {
+          console.warn('Stripe key changed, clearing pending booking draft');
+          sessionStorage.removeItem('hogicar_pending_booking');
+        }
+        sessionStorage.setItem('hogicar_last_stripe_key', key);
+
         if (!cancelled && key) {
           setDynamicStripePromise(loadStripe(key));
         }
