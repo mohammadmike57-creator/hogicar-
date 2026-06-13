@@ -123,6 +123,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const [profileHydrated, setProfileHydrated] = React.useState(false);
   const [isAdvancingToPayment, setIsAdvancingToPayment] = React.useState(false);
   const bookingQuery = location.search || '';
+  const paymentSubmitInFlightRef = React.useRef(false);
 
   React.useEffect(() => {
     if (initialPromoCode) {
@@ -265,6 +266,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     sessionStorage.setItem("allowConfirmationRef", bookingRef.toString());
     sessionStorage.setItem("hogicar_booking", JSON.stringify(booking));
     sessionStorage.setItem("hogicar_car", JSON.stringify(car));
+    sessionStorage.removeItem("hogicar_pending_booking");
     navigate(`/confirmation?bookingRef=${bookingRef}`);
   };
 
@@ -332,11 +334,15 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   };
 
   const handlePaymentSubmit = async () => {
+    if (paymentSubmitInFlightRef.current) {
+      return;
+    }
     if (!firstName || !lastName || !email || !phoneNumber) {
       alert("Please complete the customer details page first.");
       navigate(`/book/${id}/details${bookingQuery}`);
       return;
     }
+    paymentSubmitInFlightRef.current = true;
     setIsSubmitting(true);
     setPaymentError(null);
     try {
@@ -370,6 +376,42 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
           if (paymentResult.error) {
             console.error('[Stripe Error Detail]', paymentResult.error);
+            const stripeError = paymentResult.error as any;
+            const stripeErrorCode = stripeError.code || '';
+            const paymentIntent = stripeError.payment_intent || stripeError.paymentIntent;
+            const paymentIntentStatus = paymentIntent?.status || '';
+
+            if (paymentIntent?.id && paymentIntentStatus === 'succeeded') {
+              const completedBooking = await api.markBookingPaymentComplete(activeBooking.id, paymentIntent.id);
+              storeBookingAndGoToConfirmation(completedBooking);
+              return;
+            }
+
+            if (stripeErrorCode === 'payment_intent_unexpected_state') {
+              if (paymentIntentStatus === 'processing' || paymentIntentStatus === 'requires_capture') {
+                const waitMessage = 'Your payment is still being processed. Please wait a moment before trying again.';
+                setPaymentError(waitMessage);
+                alert(waitMessage);
+                return;
+              }
+
+              const refreshedBooking = await api.refreshBookingPaymentIntent(activeBooking.id);
+              if (refreshedBooking.publishableKey && currentKey && refreshedBooking.publishableKey !== currentKey) {
+                sessionStorage.setItem('hogicar_last_stripe_key', refreshedBooking.publishableKey);
+                sessionStorage.removeItem('hogicar_pending_booking');
+                setBookingDraft(null);
+                onStripeKeyChange(refreshedBooking.publishableKey);
+                throw new Error('STRIPE_ACCOUNT_MISMATCH');
+              }
+
+              setBookingDraft(refreshedBooking);
+              sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(refreshedBooking));
+              const refreshMessage = 'Your secure payment session was refreshed. Please click confirm again.';
+              setPaymentError(refreshMessage);
+              alert(refreshMessage);
+              return;
+            }
+
             const errorMsg = paymentResult.error.message || 'Payment confirmation failed.';
             if (errorMsg.includes('No such payment_intent')) {
                 console.error('Stripe Account Mismatch detected. Clearing draft.');
@@ -407,6 +449,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             alert(`Payment failed: ${message}`);
         }
     } finally {
+        paymentSubmitInFlightRef.current = false;
         setIsSubmitting(false);
     }
   };

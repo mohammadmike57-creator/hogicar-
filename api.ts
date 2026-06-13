@@ -195,6 +195,11 @@ export const markBookingPaymentComplete = async (id: number, paymentIntentId: st
   return response.data;
 };
 
+export const refreshBookingPaymentIntent = async (id: number): Promise<Booking & { clientSecret?: string }> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/payment-intent/refresh`);
+  return response.data;
+};
+
 export const fetchStripeConfig = async (): Promise<{ publishableKey: string }> => {
   const response = await publicAxios.get(`${API_BASE_URL}/api/public/stripe/config?t=${Date.now()}`);
   return response.data || { publishableKey: '' };
@@ -296,6 +301,7 @@ export const api = {
   submitReview,
   createBooking,
   markBookingPaymentComplete,
+  refreshBookingPaymentIntent,
   fetchStripeConfig,
   fetchPublicSuppliers,
   fetchHomepageLogos,
