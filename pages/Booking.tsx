@@ -582,8 +582,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-visible group">
-               <div className="bg-gradient-to-b from-slate-50 to-white p-4 sm:p-6 rounded-2xl border border-slate-200 flex-shrink-0 relative overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-5 sm:p-6 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-visible group">
+               <div className="bg-gradient-to-b from-slate-50 to-white p-6 sm:p-7 rounded-2xl border border-slate-200 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center">
                    <img 
                     src={displayImage} 
                     alt={car.model} 
@@ -635,7 +635,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
                                  <span className="relative z-10 text-[11px] sm:text-base font-black tracking-tight">{car.supplier.rating}</span>
                              </div>
-                             <div className="hidden sm:flex flex-col">
+                             <div className="flex flex-col">
                                  <div className="flex items-center gap-1.5 mb-0.5">
                                      <span className={`text-xs font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
                                      <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
@@ -699,7 +699,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                   <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Driver information</h2>
                   <p className="mt-2 max-w-2xl text-sm text-slate-600 leading-relaxed">Please ensure the details below match the driver's official documents to ensure a smooth pick-up experience at the desk.</p>
                 </div>
-                <div className="hidden sm:block rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 shadow-sm">
+                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 shadow-sm">
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-800 flex items-center gap-2"><Check className="w-3 h-3"/> Required for booking</p>
                   <p className="mt-1 text-sm font-black text-slate-950">Name, email & mobile</p>
                  </div>
@@ -742,7 +742,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                </label>
                {createAccount && (
                   <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Create password <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Create account password</label>
                     <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
                     <p className="text-sm text-slate-600 mt-3 font-medium flex items-center gap-2"><Info className="w-4 h-4 text-[#008009]"/> If you skip this now, you can still access the booking by email and reference number.</p>
                   </div>
@@ -826,7 +826,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                      <p className="text-[10px] font-black text-[#008009] uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
                      <p className="text-3xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                   </div>
-                  <div className="text-right hidden sm:block">
+                  <div className="text-right">
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
                      <p className="text-xs font-bold text-slate-500">Total Rental Value: {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
                   </div>
@@ -1040,7 +1040,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                    
                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 mt-5 flex gap-3 items-start">
                      <Info className="w-4 h-4 text-[#008009] flex-shrink-0 mt-0.5 opacity-80" />
-                     <p className="text-xs text-emerald-900 leading-relaxed font-medium opacity-90">By confirming this booking, you agree to our <a href="#" className="underline hover:text-emerald-950 transition-colors">Global Terms</a> and <a href="#" className="underline hover:text-emerald-950 transition-colors">Privacy Policy</a>.</p>
+                     <p className="text-xs text-emerald-900 leading-relaxed font-medium opacity-90">By confirming this booking, you agree to our Global Terms and Privacy Policy.</p>
                    </div>
                 </div>
 
