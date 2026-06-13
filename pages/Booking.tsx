@@ -308,10 +308,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     }));
     setIsAdvancingToPayment(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Start pre-fetching the booking draft (with PaymentIntent) immediately
+    ensureBookingDraft().catch(err => {
+        console.warn("[Stripe] Pre-fetch draft failed:", err);
+    });
+
     window.setTimeout(() => {
       navigate(`/book/${id}/payment${bookingQuery}`);
       setIsAdvancingToPayment(false);
-    }, 3000);
+    }, 1200);
   };
 
   const ensureBookingDraft = async () => {
@@ -844,41 +850,57 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                  </div>
                </div>
                <div className="space-y-6">
-                  <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Cardholder name</label>
-                    <FormInput 
-                      icon={User} 
-                      type="text" 
-                      placeholder="As shown on card" 
-                      value={cardholderName} 
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} 
-                      required={priceDetails.payNow > 0} 
-                    />
+                  <div className="bg-slate-50/50 rounded-2xl border border-slate-200/60 p-5 sm:p-6 space-y-6">
+                    <div className="group/input">
+                      <label className="block text-sm font-bold text-slate-800 mb-2 ml-1 group-focus-within/input:text-[#008009] transition-colors">Cardholder Full Name</label>
+                      <FormInput 
+                        icon={User} 
+                        type="text" 
+                        placeholder="As shown on card" 
+                        value={cardholderName} 
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} 
+                        required={priceDetails.payNow > 0} 
+                      />
+                    </div>
+                    
+                    <div className="group/payment">
+                      <label className="block text-sm font-bold text-slate-800 mb-2 ml-1 group-focus-within/payment:text-[#008009] transition-colors">Payment Secure Gateway</label>
+                      {stripeEnabled && bookingDraft?.clientSecret ? (
+                        <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] transition-all">
+                          <div className="px-3 py-4 sm:px-5">
+                            <PaymentElement options={{ 
+                                layout: {
+                                  type: 'accordion',
+                                  defaultCollapsed: false,
+                                  radios: true,
+                                  spacedAccordionItems: false
+                                }
+                            }} />
+                          </div>
+                        </div>
+                      ) : stripeConfigLoading || (stripeEnabled && !bookingDraft?.clientSecret && priceDetails.payNow > 0) ? (
+                        <div className="rounded-xl border border-blue-100 bg-blue-50/40 px-4 sm:px-6 py-6 sm:py-8 text-sm font-bold text-blue-800 flex flex-col items-center justify-center gap-4 shadow-inner text-center">
+                          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                          <div className="space-y-1">
+                             <p className="uppercase tracking-widest text-[10px] text-blue-600/60">Encrypted link</p>
+                             <p>Establishing Secure Connection...</p>
+                          </div>
+                        </div>
+                      ) : !stripeEnabled ? (
+                        <div className="rounded-xl border border-red-100 bg-red-50/40 px-4 sm:px-6 py-4 text-sm font-semibold text-red-700 shadow-inner">
+                          Security gateway is currently unavailable.
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-slate-100 bg-slate-50/50 px-4 sm:px-6 py-4 text-sm font-semibold text-slate-500 shadow-inner text-center">
+                          Complete driver details to enable secure payment.
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Payment details</label>
-                    {stripeEnabled && bookingDraft?.clientSecret ? (
-                      <div className="rounded-xl border border-slate-200 px-4 sm:px-6 py-4 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] bg-white transition-all">
-                        <PaymentElement options={{ 
-                            layout: 'tabs',
-                        }} />
-                      </div>
-                    ) : stripeConfigLoading || (stripeEnabled && !bookingDraft?.clientSecret && priceDetails.payNow > 0) ? (
-                      <div className="rounded-xl sm:rounded-2xl border border-blue-100 bg-blue-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-blue-800 flex items-center gap-3 shadow-inner">
-                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                        Establishing Secure Connection...
-                      </div>
-                    ) : !stripeEnabled ? (
-                      <div className="rounded-xl sm:rounded-2xl border border-red-100 bg-red-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-red-700 shadow-inner">
-                        Security gateway is currently unavailable.
-                      </div>
-                    ) : (
-                      <div className="rounded-xl sm:rounded-2xl border border-slate-100 bg-slate-50/50 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-slate-500 shadow-inner">
-                        Select a vehicle and provide driver details to enable payment.
-                      </div>
-                    )}
-                    <p className="mt-3 text-sm text-slate-600">Your payment is processed securely via Stripe. We support Credit Cards, Apple Pay, and Google Pay.</p>
-                  </div>
+                  <p className="mt-3 text-[11px] sm:text-xs font-medium text-slate-500 flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    Your payment is processed securely via Stripe. We support Credit Cards, Apple Pay, and Google Pay.
+                  </p>
                   {paymentError && (
                     <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5 text-sm font-semibold text-red-700 flex items-center gap-3">
                       <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
