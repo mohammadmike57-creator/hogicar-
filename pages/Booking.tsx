@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
-import { PaymentElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
@@ -62,7 +62,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const stripe = stripeInstance;
   const elements = elementsInstance;
   
-  // Get car object from persisted search results
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [routeStep]);
+
   const { car } = React.useMemo(() => {
     const carsFromState = location.state?.cars;
     let carsFromStorage: Car[] | null = null;
@@ -317,7 +320,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     window.setTimeout(() => {
       navigate(`/book/${id}/payment${bookingQuery}`);
       setIsAdvancingToPayment(false);
-    }, 1200);
+    }, 500);
   };
 
   const ensureBookingDraft = async () => {
@@ -376,19 +379,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             throw new Error('Payment session was not created. Please try again.');
           }
 
-          const paymentResult = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-              return_url: `${window.location.origin}/#/confirmation?bookingRef=${activeBooking.bookingRef}`,
-              payment_method_data: {
-                billing_details: {
-                  name: cardholderName || `${firstName} ${lastName}`.trim(),
-                  email,
-                  phone: phoneNumber,
-                },
+          const cardElement = elements.getElement(CardElement);
+          if (!cardElement) {
+            throw new Error('Payment form is not ready. Please try again.');
+          }
+
+          const paymentResult = await stripe.confirmCardPayment(activeBooking.clientSecret, {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                name: cardholderName || `${firstName} ${lastName}`.trim(),
+                email,
+                phone: phoneNumber,
               },
             },
-            redirect: 'if_required',
           });
 
           if (paymentResult.error) {
@@ -516,7 +520,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-slate-50 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="bg-slate-50 min-h-screen py-4 sm:py-6 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
            <div className="w-full max-w-[320px] sm:max-w-md px-6">
@@ -534,30 +538,30 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
            </div>
         </div>
       )}
-      <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10">
-        <div className="mb-6 sm:mb-10">
+      <div className="max-w-[1400px] mx-auto px-2 sm:px-4 lg:px-8">
+        <div className="mb-4 sm:mb-6">
             <BookingStepper currentStep={4} />
         </div>
 
-        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_22px_60px_-42px_rgba(15,23,42,0.75)]">
+        <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_15px_45px_-35px_rgba(15,23,42,0.6)]">
           <div className="h-1.5 bg-slate-100">
             <div className={`h-full rounded-r-full bg-[#008009] transition-all duration-700 ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
           </div>
-          <div className="p-4 sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="p-3 sm:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
-              <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
-              <p className="mt-2 max-w-2xl text-sm sm:text-base font-medium leading-relaxed text-slate-600">{pageDescription}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
+              <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
+              <p className="mt-1.5 max-w-2xl text-xs sm:text-sm font-medium leading-relaxed text-slate-600">{pageDescription}</p>
             </div>
-            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5 sm:min-w-[360px]">
-              <div className={`rounded-xl px-3 py-3 text-center ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-500'}`}>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em]">Step 1</p>
-                <p className="mt-1 text-xs sm:text-sm font-black">Driver details</p>
+            <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1 sm:min-w-[320px]">
+              <div className={`rounded-lg px-2 py-2 text-center ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-500'}`}>
+                <p className="text-[9px] font-black uppercase tracking-[0.18em]">Step 1</p>
+                <p className="mt-0.5 text-[11px] sm:text-xs font-black">Driver details</p>
               </div>
-              <div className={`rounded-xl px-3 py-3 text-center ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-sm' : 'text-slate-500'}`}>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em]">Step 2</p>
-                <p className="mt-1 text-xs sm:text-sm font-black">Payment</p>
+              <div className={`rounded-lg px-2 py-2 text-center ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-sm' : 'text-slate-500'}`}>
+                <p className="text-[9px] font-black uppercase tracking-[0.18em]">Step 2</p>
+                <p className="mt-0.5 text-[11px] sm:text-xs font-black">Payment</p>
               </div>
             </div>
           </div>
@@ -824,7 +828,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                <div className="bg-emerald-50/50 border-t border-slate-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                      <p className="text-[10px] font-black text-[#008009] uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
-                     <p className="text-3xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                     <p className="text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                   </div>
                   <div className="text-right">
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
@@ -850,52 +854,41 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                  </div>
                </div>
                <div className="space-y-6">
-                  <div className="bg-slate-50/50 rounded-2xl border border-slate-200/60 p-5 sm:p-6 space-y-6">
-                    <div className="group/input">
-                      <label className="block text-sm font-bold text-slate-800 mb-2 ml-1 group-focus-within/input:text-[#008009] transition-colors">Cardholder Full Name</label>
-                      <FormInput 
-                        icon={User} 
-                        type="text" 
-                        placeholder="As shown on card" 
-                        value={cardholderName} 
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} 
-                        required={priceDetails.payNow > 0} 
-                      />
-                    </div>
-                    
-                    <div className="group/payment">
-                      <label className="block text-sm font-bold text-slate-800 mb-2 ml-1 group-focus-within/payment:text-[#008009] transition-colors">Payment Secure Gateway</label>
-                      {stripeEnabled && bookingDraft?.clientSecret ? (
-                        <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] transition-all">
-                          <div className="px-3 py-4 sm:px-5">
-                            <PaymentElement options={{ 
-                                layout: {
-                                  type: 'accordion',
-                                  defaultCollapsed: false,
-                                  radios: true,
-                                  spacedAccordionItems: false
-                                }
-                            }} />
-                          </div>
-                        </div>
-                      ) : stripeConfigLoading || (stripeEnabled && !bookingDraft?.clientSecret && priceDetails.payNow > 0) ? (
-                        <div className="rounded-xl border border-blue-100 bg-blue-50/40 px-4 sm:px-6 py-6 sm:py-8 text-sm font-bold text-blue-800 flex flex-col items-center justify-center gap-4 shadow-inner text-center">
-                          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                          <div className="space-y-1">
-                             <p className="uppercase tracking-widest text-[10px] text-blue-600/60">Encrypted link</p>
-                             <p>Establishing Secure Connection...</p>
-                          </div>
-                        </div>
-                      ) : !stripeEnabled ? (
-                        <div className="rounded-xl border border-red-100 bg-red-50/40 px-4 sm:px-6 py-4 text-sm font-semibold text-red-700 shadow-inner">
-                          Security gateway is currently unavailable.
-                        </div>
-                      ) : (
-                        <div className="rounded-xl border border-slate-100 bg-slate-50/50 px-4 sm:px-6 py-4 text-sm font-semibold text-slate-500 shadow-inner text-center">
-                          Complete driver details to enable secure payment.
-                        </div>
-                      )}
-                    </div>
+                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Card information</label>
+                    {stripeEnabled ? (
+                      <div className="rounded-xl border border-slate-200 px-4 sm:px-6 py-4 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] bg-white transition-all">
+                        <CardElement options={{ 
+                            hidePostalCode: false,
+                            style: {
+                                base: {
+                                    fontSize: '18px',
+                                    color: '#0f172a',
+                                    fontWeight: '500',
+                                    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                                    letterSpacing: '0.01em',
+                                    '::placeholder': {
+                                        color: '#94a3b8',
+                                        fontSize: '14px',
+                                        letterSpacing: '0.01em',
+                                        fontWeight: '400'
+                                    },
+                                },
+                            }
+                        }} />
+                      </div>
+                    ) : stripeConfigLoading ? (
+                      <div className="rounded-xl sm:rounded-2xl border border-blue-100 bg-blue-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-blue-800 flex items-center gap-3 shadow-inner">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        Establishing Secure Connection...
+                      </div>
+                    ) : (
+                      <div className="rounded-xl sm:rounded-2xl border border-red-100 bg-red-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-red-700 shadow-inner">
+                        Security gateway is currently unavailable.
+                      </div>
+                    )}
+                    <p className="mt-3 text-sm text-slate-600">Your card details are encrypted and processed securely by Stripe.</p>
                   </div>
                   <p className="mt-3 text-[11px] sm:text-xs font-medium text-slate-500 flex items-center gap-2">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />

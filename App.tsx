@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import { Search } from './pages/Search';
@@ -19,6 +19,14 @@ import SupplierConfirmation from './pages/SupplierConfirmation';
 import Careers from './pages/Careers';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import LeaveReview from './pages/LeaveReview';
+
+const ScrollToTop: React.FC = () => {
+  const { pathname, hash } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+};
 
 // Admin imports
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
@@ -59,6 +67,7 @@ else if (pathname === "/supplier-login" || pathname === "/supplier-login/") {
 const App: React.FC = () => {
   return (
     <CurrencyProvider>
+      <ScrollToTop />
       <Routes>
         {/* Public Admin and Supplier login routes */}
         <Route path="/admin-login" element={<AdminLogin />} />
