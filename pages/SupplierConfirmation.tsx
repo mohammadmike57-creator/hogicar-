@@ -1,44 +1,59 @@
 
 import * as React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 const MOCK_CARS: any[] = [];
 import { Booking, Car as CarType } from '../types';
-import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle } from 'lucide-react';
+import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle, XCircle } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 import { Logo } from '../components/Logo';
 
 const SupplierConfirmation: React.FC = () => {
     const { bookingId } = useParams<{ bookingId: string }>();
+    const location = useLocation();
+    
+    // Parse query params for token and action
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get('token');
+    const action = queryParams.get('action');
+
     const [booking, setBooking] = React.useState<Booking | null>(null);
     const [car, setCar] = React.useState<CarType | null>(null);
     const [confirmationNumber, setConfirmationNumber] = React.useState('');
     const [isConfirmed, setIsConfirmed] = React.useState(false);
+    const [isRejected, setIsRejected] = React.useState(false);
+    const [rejectionReason, setRejectionReason] = React.useState('');
     const [error, setError] = React.useState('');
     const [isLoading, setIsLoading] = React.useState(true);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     React.useEffect(() => {
         const loadData = async () => {
-            if (!bookingId) {
-                setError('No booking ID provided');
+            if (!bookingId && !token) {
+                setError('No booking ID or token provided');
                 setIsLoading(false);
                 return;
             }
 
             try {
-                // Fetch booking details using the ID (which might be the Reference or numeric ID)
-                // Assuming route uses Ref, we use getBookingByRef. 
-                const fetchedBooking = await api.getBookingByRef(bookingId);
+                let fetchedBooking: any;
+                if (token) {
+                    fetchedBooking = await api.getBookingByToken(token);
+                } else if (bookingId) {
+                    fetchedBooking = await api.getBookingByRef(bookingId);
+                }
+                
                 setBooking(fetchedBooking);
                 
                 // Try to find the car from mock data for display purposes
                 const foundCar = MOCK_CARS.find(c => c.id === fetchedBooking.carId);
                 setCar(foundCar || null);
 
-                if (fetchedBooking.status === 'confirmed') {
+                if (fetchedBooking.status === 'confirmed' || fetchedBooking.status === 'CONFIRMED') {
                     setIsConfirmed(true);
                     setConfirmationNumber(fetchedBooking.supplierConfirmationNumber || 'N/A');
+                } else if (fetchedBooking.status === 'cancelled' || fetchedBooking.status === 'CANCELLED') {
+                    setIsRejected(true);
                 }
             } catch (err: any) {
                 console.error("Failed to load booking:", err);
@@ -49,7 +64,7 @@ const SupplierConfirmation: React.FC = () => {
         };
 
         loadData();
-    }, [bookingId]);
+    }, [bookingId, token]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,17 +72,41 @@ const SupplierConfirmation: React.FC = () => {
             setError('Please enter a confirmation number.');
             return;
         }
-        if (!bookingId) return;
 
         setIsSubmitting(true);
         setError('');
 
         try {
-            await api.supplierConfirm(bookingId, confirmationNumber);
+            if (token) {
+                await api.confirmBookingByToken(token, confirmationNumber);
+            } else if (bookingId) {
+                await api.supplierConfirm(bookingId, confirmationNumber);
+            }
             setIsConfirmed(true);
         } catch (err: any) {
             console.error(err);
             setError(err.message || 'Could not confirm booking. It may have been cancelled or already confirmed.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleReject = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!token) {
+            setError('Token is required to decline a booking via this page.');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError('');
+
+        try {
+            await api.rejectBookingByToken(token, rejectionReason || 'Declined by supplier');
+            setIsRejected(true);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || 'Could not decline booking.');
         } finally {
             setIsSubmitting(false);
         }
@@ -92,13 +131,15 @@ const SupplierConfirmation: React.FC = () => {
     const displayCar = car || {
         make: "Vehicle",
         model: booking?.carName || "Rental",
-        image: "https://placehold.co/600x400?text=Car+Image",
+        image: booking?.carImage || "https://placehold.co/600x400?text=Car+Image",
         category: "Standard",
         sippCode: "????",
         transmission: "Automatic"
     } as any;
 
     if (!booking) return null;
+
+    const isRejectAction = action === 'reject';
 
     return (
         <div className="min-h-screen bg-slate-100 font-sans">
@@ -108,7 +149,7 @@ const SupplierConfirmation: React.FC = () => {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-2">
                     <Logo className="h-12 w-auto" variant="dark" />
                     <span className="text-slate-400 font-light text-xl mx-2">|</span>
-                    <span className="text-sm font-semibold text-slate-500">Supplier Confirmation</span>
+                    <span className="text-sm font-semibold text-slate-500">Supplier Dashboard</span>
                 </div>
             </header>
             
@@ -116,7 +157,7 @@ const SupplierConfirmation: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-lg border border-slate-200">
                     <div className="p-8 border-b border-slate-100">
                         <h1 className="text-2xl font-bold text-slate-800">Rental Request Voucher</h1>
-                        <p className="text-sm text-slate-500 mt-1">Please review the details below and provide your confirmation number to finalize this booking.</p>
+                        <p className="text-sm text-slate-500 mt-1">Please review the details below and take action to finalize this booking.</p>
                     </div>
 
                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -132,8 +173,8 @@ const SupplierConfirmation: React.FC = () => {
                              <div>
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rental Period</h3>
                                 <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Pick-up:</span> <strong>{booking.pickupDate}</strong></p>
-                                    <p className="flex justify-between"><span>Drop-off:</span> <strong>{booking.dropoffDate}</strong></p>
+                                    <p className="flex justify-between"><span>Pick-up:</span> <strong>{booking.pickupDate} at {booking.startTime}</strong></p>
+                                    <p className="flex justify-between"><span>Drop-off:</span> <strong>{booking.dropoffDate} at {booking.endTime}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -159,35 +200,103 @@ const SupplierConfirmation: React.FC = () => {
                                 <strong className="font-mono bg-green-100 p-1 rounded ml-1">{confirmationNumber}</strong>.
                             </p>
                         </div>
+                    ) : isRejected ? (
+                        <div className="p-8 bg-red-50 border-t border-red-200 rounded-b-xl text-center">
+                            <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                            <h2 className="text-xl font-bold text-red-800">Booking Declined</h2>
+                            <p className="text-sm text-red-700 mt-2">
+                                This booking request has been declined. The customer has been notified.
+                            </p>
+                        </div>
                     ) : (
-                        <div className="p-8 bg-blue-50 border-t border-blue-200 rounded-b-xl">
-                            <h2 className="text-lg font-bold text-blue-900 mb-4">Action Required</h2>
-                            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-end gap-4">
-                                <div className="flex-grow w-full">
-                                    <label htmlFor="confirmationNumber" className="block text-sm font-bold text-slate-700 mb-2">Your Confirmation Number</label>
-                                    <div className="relative">
-                                        <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                        <input
-                                            id="confirmationNumber"
-                                            type="text"
-                                            value={confirmationNumber}
-                                            onChange={e => setConfirmationNumber(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase"
-                                            placeholder="Enter your system's ID"
-                                            required
-                                        />
-                                    </div>
-                                    {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+                        <div className="p-8 bg-slate-50 border-t border-slate-200 rounded-b-xl">
+                            {isRejectAction ? (
+                                <div className="space-y-4">
+                                    <h2 className="text-lg font-bold text-red-900 mb-2">Decline Booking Request</h2>
+                                    <p className="text-sm text-slate-600">Are you sure you want to decline this booking? This action cannot be undone.</p>
+                                    <form onSubmit={handleReject} className="flex flex-col gap-4">
+                                        <div>
+                                            <label htmlFor="reason" className="block text-sm font-bold text-slate-700 mb-2">Reason (Optional)</label>
+                                            <textarea
+                                                id="reason"
+                                                value={rejectionReason}
+                                                onChange={e => setRejectionReason(e.target.value)}
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
+                                                placeholder="e.g., Vehicle unavailable"
+                                                rows={2}
+                                            />
+                                        </div>
+                                        {error && <p className="text-red-600 text-xs">{error}</p>}
+                                        <div className="flex gap-4">
+                                            <button 
+                                                type="submit" 
+                                                disabled={isSubmitting}
+                                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                                            >
+                                                {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <XCircle className="w-5 h-5"/>}
+                                                Decline Booking
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                onClick={() => {
+                                                    const url = new URL(window.location.href);
+                                                    url.searchParams.delete('action');
+                                                    window.history.pushState({}, '', url.toString());
+                                                    window.location.reload();
+                                                }}
+                                                className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-8 rounded-lg transition-all"
+                                            >
+                                                Back to Confirm
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <button 
-                                    type="submit" 
-                                    disabled={isSubmitting}
-                                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
-                                >
-                                    {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
-                                    {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
-                                </button>
-                            </form>
+                            ) : (
+                                <div>
+                                    <h2 className="text-lg font-bold text-blue-900 mb-4">Action Required</h2>
+                                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-end gap-4">
+                                        <div className="flex-grow w-full">
+                                            <label htmlFor="confirmationNumber" className="block text-sm font-bold text-slate-700 mb-2">Your Confirmation Number</label>
+                                            <div className="relative">
+                                                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                                <input
+                                                    id="confirmationNumber"
+                                                    type="text"
+                                                    value={confirmationNumber}
+                                                    onChange={e => setConfirmationNumber(e.target.value)}
+                                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase"
+                                                    placeholder="Enter your system's ID"
+                                                    required
+                                                />
+                                            </div>
+                                            {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+                                        </div>
+                                        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                            <button 
+                                                type="submit" 
+                                                disabled={isSubmitting}
+                                                className="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
+                                            >
+                                                {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
+                                                Confirm Booking
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                onClick={() => {
+                                                    const url = new URL(window.location.href);
+                                                    url.searchParams.set('action', 'reject');
+                                                    window.history.pushState({}, '', url.toString());
+                                                    window.location.reload();
+                                                }}
+                                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <XCircle className="w-5 h-5"/>
+                                                Decline
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

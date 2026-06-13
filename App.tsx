@@ -71,6 +71,7 @@ const App: React.FC = () => {
         
         <Route path="/supplier" element={<SupplierDashboard />} />
         <Route path="/supplier-confirmation/:bookingId" element={<SupplierConfirmation />} />
+        <Route path="/supplier-confirmation" element={<SupplierConfirmation />} />
 
         {/* Customer-facing application with main Layout */}
         <Route element={<Layout />}>

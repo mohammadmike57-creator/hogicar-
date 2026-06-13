@@ -15,7 +15,7 @@ interface LoadCarsParams {
     dropoffDate: string;
 }
 
-export async function loadCars(params: LoadCarsParams): Promise<ApiSearchResult[]> {
+export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[]> => {
     const { locationsOptions, pickupCode, dropoffCode, pickupDate, dropoffDate } = params;
 
     const defaultCode = locationsOptions?.[0]?.value || "AMM";

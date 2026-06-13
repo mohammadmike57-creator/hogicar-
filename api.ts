@@ -42,6 +42,8 @@ export interface Booking {
   updatedAt: string;
   clientSecret?: string;
   publishableKey?: string;
+  carImage?: string;
+  supplierLogoUrl?: string;
 }
 
 // Create axios instances with interceptors for auth
@@ -158,6 +160,11 @@ export const getBooking = async (id: number): Promise<Booking> => {
   return response.data;
 };
 
+export const getBookingByRef = async (bookingRef: string): Promise<Booking> => {
+  const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/ref/${encodeURIComponent(bookingRef)}`);
+  return response.data;
+};
+
 export const cancelBooking = async (id: number): Promise<Booking> => {
   const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/cancel`);
   return response.data;
@@ -258,12 +265,31 @@ export const submitPartnerApplication = async (data: any): Promise<any> => {
   return response.data;
 };
 
+export const getBookingByToken = async (token: string): Promise<any> => {
+  const response = await publicAxios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${token}`);
+  return response.data;
+};
+
+export const confirmBookingByToken = async (token: string, confirmationNumber: string): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${token}&confirmationNumber=${confirmationNumber}`);
+  return response.data;
+};
+
+export const rejectBookingByToken = async (token: string, reason: string): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${token}&reason=${encodeURIComponent(reason)}`);
+  return response.data;
+};
+
 // ---------- Backward‑compatible api object ----------
 export const api = {
   fetchLocations,
   getPublicLocations,
   lookupBooking,
   getBooking,
+  getBookingByRef,
+  getBookingByToken,
+  confirmBookingByToken,
+  rejectBookingByToken,
   cancelBooking,
   requestModification,
   confirmModification,
