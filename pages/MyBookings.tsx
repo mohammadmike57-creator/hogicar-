@@ -10,6 +10,7 @@ import ModifyBookingModal from '../components/ModifyBookingModal';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { Logo } from '../components/Logo';
+import { loadCars } from '../utils/loadCars';
 
 // --- SUB-COMPONENTS ---
 
