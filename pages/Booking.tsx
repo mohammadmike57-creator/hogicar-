@@ -950,24 +950,24 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
 
 const BookingPage: React.FC = () => {
   const [dynamicStripePromise, setDynamicStripePromise] = React.useState<ReturnType<typeof loadStripe> | null>(
-    stripePublishableKey ? loadStripe(stripePublishableKey) : null
+    null
   );
-  const [stripeConfigLoading, setStripeConfigLoading] = React.useState(!stripePublishableKey);
+  const [stripeConfigLoading, setStripeConfigLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (stripePublishableKey) {
-      return;
-    }
     let cancelled = false;
     const loadStripeConfig = async () => {
       try {
         const config = await api.fetchStripeConfig();
-        const key = (config?.publishableKey || '').trim();
+        const key = (config?.publishableKey || stripePublishableKey || '').trim();
         if (!cancelled && key) {
           setDynamicStripePromise(loadStripe(key));
         }
       } catch (error) {
         console.error('Failed to fetch Stripe config from backend:', error);
+        if (!cancelled && stripePublishableKey) {
+          setDynamicStripePromise(loadStripe(stripePublishableKey));
+        }
       } finally {
         if (!cancelled) {
           setStripeConfigLoading(false);
