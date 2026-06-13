@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
-import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
+import { PaymentElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
@@ -40,9 +40,21 @@ type BookingPageContentProps = {
   currentKey: string | null;
   onStripeKeyChange: (key: string) => void;
   configMismatch: boolean;
+  bookingDraft: any | null;
+  setBookingDraft: React.Dispatch<React.SetStateAction<any | null>>;
 };
 
-const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance, currentKey, onStripeKeyChange, configMismatch }) => {
+const BookingPageContent: React.FC<BookingPageContentProps> = ({ 
+  stripeEnabled, 
+  stripeConfigLoading, 
+  stripeInstance, 
+  elementsInstance, 
+  currentKey, 
+  onStripeKeyChange, 
+  configMismatch,
+  bookingDraft,
+  setBookingDraft
+}) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -51,7 +63,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   const elements = elementsInstance;
   
   // Get car object from persisted search results
-  const { car, cars } = React.useMemo(() => {
+  const { car } = React.useMemo(() => {
     const carsFromState = location.state?.cars;
     let carsFromStorage: Car[] | null = null;
     try {
@@ -89,7 +101,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
       ? selectedCarFromStorage
       : (foundCarInList || selectedCarFromStorage);
     
-    return { car: foundCar || null, cars: allCars };
+    return { car: foundCar || null };
   }, [id, location.state]);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
@@ -117,7 +129,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     }
   }, [configMismatch]);
   const routeStep: 'details' | 'payment' = location.pathname.endsWith('/payment') ? 'payment' : 'details';
-  const [bookingDraft, setBookingDraft] = React.useState<(any & { clientSecret?: string }) | null>(null);
   const [createAccount, setCreateAccount] = React.useState(true);
   const [accountPassword, setAccountPassword] = React.useState('');
   const [profileHydrated, setProfileHydrated] = React.useState(false);
@@ -135,14 +146,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
   }, [initialPromoCode]);
 
   React.useEffect(() => {
-    const storedBookingRaw = sessionStorage.getItem("hogicar_pending_booking");
-    if (storedBookingRaw) {
-      try {
-        setBookingDraft(JSON.parse(storedBookingRaw));
-      } catch {
-        sessionStorage.removeItem("hogicar_pending_booking");
-      }
-    }
+    // No-op here, moved to parent
   }, []);
 
   React.useEffect(() => {
@@ -193,6 +197,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
     window.addEventListener('click', handleGlobalClick);
     return () => window.removeEventListener('click', handleGlobalClick);
   }, [showRatingsTooltip]);
+
+  React.useEffect(() => {
+    if (routeStep === 'payment' && !bookingDraft && firstName && lastName && email && phoneNumber) {
+        ensureBookingDraft().catch(err => {
+            console.error("Auto-creation of booking draft failed:", err);
+        });
+    }
+  }, [routeStep, firstName, lastName, email, phoneNumber]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -358,20 +370,19 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
             throw new Error('Payment session was not created. Please try again.');
           }
 
-          const cardElement = elements.getElement(CardElement);
-          if (!cardElement) {
-            throw new Error('Payment form is not ready. Please try again.');
-          }
-
-          const paymentResult = await stripe.confirmCardPayment(activeBooking.clientSecret, {
-            payment_method: {
-              card: cardElement,
-              billing_details: {
-                name: cardholderName || `${firstName} ${lastName}`.trim(),
-                email,
-                phone: phoneNumber,
+          const paymentResult = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+              return_url: `${window.location.origin}/#/confirmation?bookingRef=${activeBooking.bookingRef}`,
+              payment_method_data: {
+                billing_details: {
+                  name: cardholderName || `${firstName} ${lastName}`.trim(),
+                  email,
+                  phone: phoneNumber,
+                },
               },
             },
+            redirect: 'if_required',
           });
 
           if (paymentResult.error) {
@@ -833,41 +844,40 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, 
                  </div>
                </div>
                <div className="space-y-6">
-                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Card information</label>
-                    {stripeEnabled ? (
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Cardholder name</label>
+                    <FormInput 
+                      icon={User} 
+                      type="text" 
+                      placeholder="As shown on card" 
+                      value={cardholderName} 
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} 
+                      required={priceDetails.payNow > 0} 
+                    />
+                  </div>
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Payment details</label>
+                    {stripeEnabled && bookingDraft?.clientSecret ? (
                       <div className="rounded-xl border border-slate-200 px-4 sm:px-6 py-4 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] bg-white transition-all">
-                        <CardElement options={{ 
-                            hidePostalCode: false,
-                            style: {
-                                base: {
-                                    fontSize: '18px',
-                                    color: '#0f172a',
-                                    fontWeight: '500',
-                                    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                                    letterSpacing: '0.01em',
-                                    '::placeholder': {
-                                        color: '#94a3b8',
-                                        fontSize: '14px',
-                                        letterSpacing: '0.01em',
-                                        fontWeight: '400'
-                                    },
-                                },
-                            }
+                        <PaymentElement options={{ 
+                            layout: 'tabs',
                         }} />
                       </div>
-                    ) : stripeConfigLoading ? (
+                    ) : stripeConfigLoading || (stripeEnabled && !bookingDraft?.clientSecret && priceDetails.payNow > 0) ? (
                       <div className="rounded-xl sm:rounded-2xl border border-blue-100 bg-blue-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-blue-800 flex items-center gap-3 shadow-inner">
                         <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                         Establishing Secure Connection...
                       </div>
-                    ) : (
+                    ) : !stripeEnabled ? (
                       <div className="rounded-xl sm:rounded-2xl border border-red-100 bg-red-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-red-700 shadow-inner">
                         Security gateway is currently unavailable.
                       </div>
+                    ) : (
+                      <div className="rounded-xl sm:rounded-2xl border border-slate-100 bg-slate-50/50 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-slate-500 shadow-inner">
+                        Select a vehicle and provide driver details to enable payment.
+                      </div>
                     )}
-                    <p className="mt-3 text-sm text-slate-600">Your card details are encrypted and processed securely by Stripe.</p>
+                    <p className="mt-3 text-sm text-slate-600">Your payment is processed securely via Stripe. We support Credit Cards, Apple Pay, and Google Pay.</p>
                   </div>
                   {paymentError && (
                     <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5 text-sm font-semibold text-red-700 flex items-center gap-3">
@@ -1047,6 +1057,18 @@ const BookingPage: React.FC = () => {
   const [stripeConfigLoading, setStripeConfigLoading] = React.useState(true);
   const [currentKey, setCurrentKey] = React.useState<string | null>(null);
   const [configMismatch, setConfigMismatch] = React.useState(false);
+  const [bookingDraft, setBookingDraft] = React.useState<any | null>(null);
+
+  React.useEffect(() => {
+    const storedBookingRaw = sessionStorage.getItem("hogicar_pending_booking");
+    if (storedBookingRaw) {
+      try {
+        setBookingDraft(JSON.parse(storedBookingRaw));
+      } catch {
+        sessionStorage.removeItem("hogicar_pending_booking");
+      }
+    }
+  }, []);
 
   React.useEffect(() => {
     if (currentKey) {
@@ -1076,9 +1098,11 @@ const BookingPage: React.FC = () => {
         if (lastKey && lastKey !== key) {
           console.warn(`[Stripe] Account changed from ${lastKey.substring(0, 10)}... to ${key.substring(0, 10)}... Clearing stale session.`);
           sessionStorage.removeItem('hogicar_pending_booking');
+          setBookingDraft(null);
         } else if (!lastKey && key) {
             // First time seeing a key, also clear any untracked drafts to be safe
             sessionStorage.removeItem('hogicar_pending_booking');
+            setBookingDraft(null);
         }
         
         sessionStorage.setItem('hogicar_last_stripe_key', key);
@@ -1114,24 +1138,51 @@ const BookingPage: React.FC = () => {
   }, []);
 
   if (stripeConfigLoading) {
-    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} />;
+    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} bookingDraft={null} setBookingDraft={() => {}} />;
   }
 
   if (!dynamicStripePromise || !currentKey) {
-    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} />;
+    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={null} setBookingDraft={() => {}} />;
   }
 
+  const elementsOptions = bookingDraft?.clientSecret ? {
+    clientSecret: bookingDraft.clientSecret,
+    appearance: {
+        theme: 'stripe' as const,
+        variables: {
+            colorPrimary: '#008009',
+        },
+    },
+  } : undefined;
+
   return (
-    <Elements stripe={dynamicStripePromise} key={currentKey}>
-      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} />
+    <Elements stripe={dynamicStripePromise} key={currentKey + (bookingDraft?.clientSecret || '')} options={elementsOptions}>
+      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={bookingDraft} setBookingDraft={setBookingDraft} />
     </Elements>
   );
 };
 
-const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean; currentKey: string | null; onStripeKeyChange: (key: string) => void; configMismatch: boolean }> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch }) => {
+const BookingPageWithStripe: React.FC<{ 
+  stripeConfigLoading: boolean; 
+  currentKey: string | null; 
+  onStripeKeyChange: (key: string) => void; 
+  configMismatch: boolean;
+  bookingDraft: any | null;
+  setBookingDraft: React.Dispatch<React.SetStateAction<any | null>>;
+}> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch, bookingDraft, setBookingDraft }) => {
   const stripe = useStripe();
   const elements = useElements();
-  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} currentKey={currentKey} onStripeKeyChange={onStripeKeyChange} configMismatch={configMismatch} />;
+  return <BookingPageContent 
+    stripeEnabled={true} 
+    stripeConfigLoading={stripeConfigLoading} 
+    stripeInstance={stripe} 
+    elementsInstance={elements} 
+    currentKey={currentKey} 
+    onStripeKeyChange={onStripeKeyChange} 
+    configMismatch={configMismatch}
+    bookingDraft={bookingDraft}
+    setBookingDraft={setBookingDraft}
+  />;
 };
 
 export default BookingPage;
