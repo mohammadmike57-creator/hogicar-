@@ -40,21 +40,9 @@ type BookingPageContentProps = {
   currentKey: string | null;
   onStripeKeyChange: (key: string) => void;
   configMismatch: boolean;
-  bookingDraft: any | null;
-  setBookingDraft: React.Dispatch<React.SetStateAction<any | null>>;
 };
 
-const BookingPageContent: React.FC<BookingPageContentProps> = ({ 
-  stripeEnabled, 
-  stripeConfigLoading, 
-  stripeInstance, 
-  elementsInstance, 
-  currentKey, 
-  onStripeKeyChange, 
-  configMismatch,
-  bookingDraft,
-  setBookingDraft
-}) => {
+const BookingPageContent: React.FC<BookingPageContentProps> = ({ stripeEnabled, stripeConfigLoading, stripeInstance, elementsInstance, currentKey, onStripeKeyChange, configMismatch }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -62,13 +50,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const stripe = stripeInstance;
   const elements = elementsInstance;
   
-  const routeStep: 'details' | 'payment' = location.pathname.endsWith('/payment') ? 'payment' : 'details';
-
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [routeStep]);
-
-  const { car } = React.useMemo(() => {
+  // Get car object from persisted search results
+  const { car, cars } = React.useMemo(() => {
     const carsFromState = location.state?.cars;
     let carsFromStorage: Car[] | null = null;
     try {
@@ -106,7 +89,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
       ? selectedCarFromStorage
       : (foundCarInList || selectedCarFromStorage);
     
-    return { car: foundCar || null };
+    return { car: foundCar || null, cars: allCars };
   }, [id, location.state]);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
@@ -134,6 +117,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     }
   }, [configMismatch]);
   const routeStep: 'details' | 'payment' = location.pathname.endsWith('/payment') ? 'payment' : 'details';
+  const [bookingDraft, setBookingDraft] = React.useState<(any & { clientSecret?: string }) | null>(null);
   const [createAccount, setCreateAccount] = React.useState(true);
   const [accountPassword, setAccountPassword] = React.useState('');
   const [profileHydrated, setProfileHydrated] = React.useState(false);
@@ -151,7 +135,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   }, [initialPromoCode]);
 
   React.useEffect(() => {
-    // No-op here, moved to parent
+    const storedBookingRaw = sessionStorage.getItem("hogicar_pending_booking");
+    if (storedBookingRaw) {
+      try {
+        setBookingDraft(JSON.parse(storedBookingRaw));
+      } catch {
+        sessionStorage.removeItem("hogicar_pending_booking");
+      }
+    }
   }, []);
 
   React.useEffect(() => {
@@ -202,14 +193,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     window.addEventListener('click', handleGlobalClick);
     return () => window.removeEventListener('click', handleGlobalClick);
   }, [showRatingsTooltip]);
-
-  React.useEffect(() => {
-    if (routeStep === 'payment' && !bookingDraft && firstName && lastName && email && phoneNumber) {
-        ensureBookingDraft().catch(err => {
-            console.error("Auto-creation of booking draft failed:", err);
-        });
-    }
-  }, [routeStep, firstName, lastName, email, phoneNumber]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -313,16 +296,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     }));
     setIsAdvancingToPayment(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Start pre-fetching the booking draft (with PaymentIntent) immediately
-    ensureBookingDraft().catch(err => {
-        console.warn("[Stripe] Pre-fetch draft failed:", err);
-    });
-
     window.setTimeout(() => {
       navigate(`/book/${id}/payment${bookingQuery}`);
       setIsAdvancingToPayment(false);
-    }, 500);
+    }, 3000);
   };
 
   const ensureBookingDraft = async () => {
@@ -522,7 +499,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-slate-50 min-h-screen py-4 sm:py-6 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="bg-slate-50 min-h-screen py-6 sm:py-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
            <div className="w-full max-w-[320px] sm:max-w-md px-6">
@@ -540,30 +517,30 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
            </div>
         </div>
       )}
-      <div className="max-w-[1400px] mx-auto px-2 sm:px-4 lg:px-8">
-        <div className="mb-4 sm:mb-6">
+      <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10">
+        <div className="mb-6 sm:mb-10">
             <BookingStepper currentStep={4} />
         </div>
 
-        <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_15px_45px_-35px_rgba(15,23,42,0.6)]">
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_22px_60px_-42px_rgba(15,23,42,0.75)]">
           <div className="h-1.5 bg-slate-100">
             <div className={`h-full rounded-r-full bg-[#008009] transition-all duration-700 ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
           </div>
-          <div className="p-3 sm:p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="p-4 sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
-              <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
-              <p className="mt-1.5 max-w-2xl text-xs sm:text-sm font-medium leading-relaxed text-slate-600">{pageDescription}</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
+              <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
+              <p className="mt-2 max-w-2xl text-sm sm:text-base font-medium leading-relaxed text-slate-600">{pageDescription}</p>
             </div>
-            <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1 sm:min-w-[320px]">
-              <div className={`rounded-lg px-2 py-2 text-center ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-500'}`}>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em]">Step 1</p>
-                <p className="mt-0.5 text-[11px] sm:text-xs font-black">Driver details</p>
+            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5 sm:min-w-[360px]">
+              <div className={`rounded-xl px-3 py-3 text-center ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-500'}`}>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em]">Step 1</p>
+                <p className="mt-1 text-xs sm:text-sm font-black">Driver details</p>
               </div>
-              <div className={`rounded-lg px-2 py-2 text-center ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-sm' : 'text-slate-500'}`}>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em]">Step 2</p>
-                <p className="mt-0.5 text-[11px] sm:text-xs font-black">Payment</p>
+              <div className={`rounded-xl px-3 py-3 text-center ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-sm' : 'text-slate-500'}`}>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em]">Step 2</p>
+                <p className="mt-1 text-xs sm:text-sm font-black">Payment</p>
               </div>
             </div>
           </div>
@@ -588,8 +565,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-5 sm:p-6 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-visible group">
-               <div className="bg-gradient-to-b from-slate-50 to-white p-6 sm:p-7 rounded-2xl border border-slate-200 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center">
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-visible group">
+               <div className="bg-gradient-to-b from-slate-50 to-white p-4 sm:p-6 rounded-2xl border border-slate-200 flex-shrink-0 relative overflow-hidden">
                    <img 
                     src={displayImage} 
                     alt={car.model} 
@@ -641,7 +618,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
                                  <span className="relative z-10 text-[11px] sm:text-base font-black tracking-tight">{car.supplier.rating}</span>
                              </div>
-                             <div className="flex flex-col">
+                             <div className="hidden sm:flex flex-col">
                                  <div className="flex items-center gap-1.5 mb-0.5">
                                      <span className={`text-xs font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
                                      <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
@@ -705,7 +682,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                   <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Driver information</h2>
                   <p className="mt-2 max-w-2xl text-sm text-slate-600 leading-relaxed">Please ensure the details below match the driver's official documents to ensure a smooth pick-up experience at the desk.</p>
                 </div>
-                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 shadow-sm">
+                <div className="hidden sm:block rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 shadow-sm">
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-800 flex items-center gap-2"><Check className="w-3 h-3"/> Required for booking</p>
                   <p className="mt-1 text-sm font-black text-slate-950">Name, email & mobile</p>
                  </div>
@@ -748,7 +725,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                </label>
                {createAccount && (
                   <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Create account password</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Create password <span className="text-xs text-slate-500 ml-2">(Optional)</span></label>
                     <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
                     <p className="text-sm text-slate-600 mt-3 font-medium flex items-center gap-2"><Info className="w-4 h-4 text-[#008009]"/> If you skip this now, you can still access the booking by email and reference number.</p>
                   </div>
@@ -830,9 +807,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                <div className="bg-emerald-50/50 border-t border-slate-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                      <p className="text-[10px] font-black text-[#008009] uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
-                     <p className="text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                     <p className="text-3xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right hidden sm:block">
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
                      <p className="text-xs font-bold text-slate-500">Total Rental Value: {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
                   </div>
@@ -892,10 +869,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     )}
                     <p className="mt-3 text-sm text-slate-600">Your card details are encrypted and processed securely by Stripe.</p>
                   </div>
-                  <p className="mt-3 text-[11px] sm:text-xs font-medium text-slate-500 flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    Your payment is processed securely via Stripe. We support Credit Cards, Apple Pay, and Google Pay.
-                  </p>
                   {paymentError && (
                     <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5 text-sm font-semibold text-red-700 flex items-center gap-3">
                       <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
@@ -1035,7 +1008,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                    
                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 mt-5 flex gap-3 items-start">
                      <Info className="w-4 h-4 text-[#008009] flex-shrink-0 mt-0.5 opacity-80" />
-                     <p className="text-xs text-emerald-900 leading-relaxed font-medium opacity-90">By confirming this booking, you agree to our Global Terms and Privacy Policy.</p>
+                     <p className="text-xs text-emerald-900 leading-relaxed font-medium opacity-90">By confirming this booking, you agree to our <a href="#" className="underline hover:text-emerald-950 transition-colors">Global Terms</a> and <a href="#" className="underline hover:text-emerald-950 transition-colors">Privacy Policy</a>.</p>
                    </div>
                 </div>
 
@@ -1067,29 +1040,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   );
 };
 
-const BookingPageWithStripe: React.FC<{ 
-  stripeConfigLoading: boolean; 
-  currentKey: string | null; 
-  onStripeKeyChange: (key: string) => void; 
-  configMismatch: boolean;
-  bookingDraft: any | null;
-  setBookingDraft: React.Dispatch<React.SetStateAction<any | null>>;
-}> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch, bookingDraft, setBookingDraft }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  return <BookingPageContent 
-    stripeEnabled={true} 
-    stripeConfigLoading={stripeConfigLoading} 
-    stripeInstance={stripe} 
-    elementsInstance={elements} 
-    currentKey={currentKey} 
-    onStripeKeyChange={onStripeKeyChange} 
-    configMismatch={configMismatch}
-    bookingDraft={bookingDraft}
-    setBookingDraft={setBookingDraft}
-  />;
-};
-
 const BookingPage: React.FC = () => {
   const [dynamicStripePromise, setDynamicStripePromise] = React.useState<ReturnType<typeof loadStripe> | null>(
     null
@@ -1097,18 +1047,6 @@ const BookingPage: React.FC = () => {
   const [stripeConfigLoading, setStripeConfigLoading] = React.useState(true);
   const [currentKey, setCurrentKey] = React.useState<string | null>(null);
   const [configMismatch, setConfigMismatch] = React.useState(false);
-  const [bookingDraft, setBookingDraft] = React.useState<any | null>(null);
-
-  React.useEffect(() => {
-    const storedBookingRaw = sessionStorage.getItem("hogicar_pending_booking");
-    if (storedBookingRaw) {
-      try {
-        setBookingDraft(JSON.parse(storedBookingRaw));
-      } catch {
-        sessionStorage.removeItem("hogicar_pending_booking");
-      }
-    }
-  }, []);
 
   React.useEffect(() => {
     if (currentKey) {
@@ -1138,11 +1076,9 @@ const BookingPage: React.FC = () => {
         if (lastKey && lastKey !== key) {
           console.warn(`[Stripe] Account changed from ${lastKey.substring(0, 10)}... to ${key.substring(0, 10)}... Clearing stale session.`);
           sessionStorage.removeItem('hogicar_pending_booking');
-          setBookingDraft(null);
         } else if (!lastKey && key) {
             // First time seeing a key, also clear any untracked drafts to be safe
             sessionStorage.removeItem('hogicar_pending_booking');
-            setBookingDraft(null);
         }
         
         sessionStorage.setItem('hogicar_last_stripe_key', key);
@@ -1178,28 +1114,24 @@ const BookingPage: React.FC = () => {
   }, []);
 
   if (stripeConfigLoading) {
-    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} bookingDraft={null} setBookingDraft={() => {}} />;
+    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} />;
   }
 
   if (!dynamicStripePromise || !currentKey) {
-    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={null} setBookingDraft={() => {}} />;
+    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} />;
   }
 
-  const elementsOptions = bookingDraft?.clientSecret ? {
-    clientSecret: bookingDraft.clientSecret,
-    appearance: {
-        theme: 'stripe' as const,
-        variables: {
-            colorPrimary: '#008009',
-        },
-    },
-  } : undefined;
-
   return (
-    <Elements stripe={dynamicStripePromise} key={currentKey + (bookingDraft?.clientSecret || '')} options={elementsOptions}>
-      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={bookingDraft} setBookingDraft={setBookingDraft} />
+    <Elements stripe={dynamicStripePromise} key={currentKey}>
+      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} />
     </Elements>
   );
+};
+
+const BookingPageWithStripe: React.FC<{ stripeConfigLoading: boolean; currentKey: string | null; onStripeKeyChange: (key: string) => void; configMismatch: boolean }> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  return <BookingPageContent stripeEnabled={true} stripeConfigLoading={stripeConfigLoading} stripeInstance={stripe} elementsInstance={elements} currentKey={currentKey} onStripeKeyChange={onStripeKeyChange} configMismatch={configMismatch} />;
 };
 
 export default BookingPage;

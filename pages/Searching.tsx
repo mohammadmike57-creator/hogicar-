@@ -336,51 +336,51 @@ const Searching: React.FC = () => {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-20" />
         
         <div className="relative z-10 w-full max-w-7xl text-center">
-          <div className="mb-4 animate-fade-in">
-            <h1 className="text-[10px] sm:text-xs font-bold tracking-[0.4em] text-blue-300/80 uppercase mb-2">
+          <div className="mb-3 animate-fade-in">
+            <h1 className="text-[9px] sm:text-[10px] font-black tracking-[0.4em] text-blue-300/60 uppercase mb-1.5">
               Searching for the best deals in
             </h1>
             
-            <div className="flex flex-col items-center justify-center gap-1.5 relative">
-              <div className="flex items-center gap-2.5 bg-white/5 px-6 py-2 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl relative overflow-hidden group">
+            <div className="flex flex-col items-center justify-center gap-1 relative">
+              <div className="flex items-center gap-2 bg-white/5 px-5 py-1.5 rounded-xl backdrop-blur-md border border-white/10 shadow-xl relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse" />
-                <MapPin className="w-4 h-4 text-amber-400 relative z-10" />
-                <span className="text-xl sm:text-2xl font-bold text-white tracking-tight uppercase relative z-10 drop-shadow-sm">
+                <MapPin className="w-3.5 h-3.5 text-amber-400 relative z-10" />
+                <span className="text-lg sm:text-xl font-black text-white tracking-tight uppercase relative z-10 drop-shadow-sm">
                   {pickupName}
                 </span>
                 {pickupIata && (
-                  <span className="bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-lg text-[10px] font-black tracking-tighter relative z-10 shadow-md">
+                  <span className="bg-amber-400 text-slate-900 px-2 py-0.5 rounded-lg text-[9px] font-black tracking-tighter relative z-10 shadow-md">
                     {pickupIata.toUpperCase()}
                   </span>
                 )}
               </div>
-              <div className="absolute -inset-1 bg-blue-400/10 blur-xl rounded-full animate-pulse -z-10" />
+              <div className="absolute -inset-1 bg-blue-400/5 blur-xl rounded-full animate-pulse -z-10" />
             </div>
           </div>
 
-          <div className="h-10 mt-1">
-             <p className="text-lg sm:text-xl font-bold text-blue-100/90 transition-all duration-500 bg-white/5 inline-block px-5 py-1.5 rounded-xl backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
+          <div className="h-8 mt-1">
+             <p className="text-base sm:text-lg font-bold text-blue-100/80 transition-all duration-500 bg-white/5 inline-block px-4 py-1 rounded-xl backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
                 {searchMessages[currentMessageIndex]}
              </p>
           </div>
           
-          <div className="mt-6 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-3 px-6 rounded-xl max-w-lg mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[70px]">
-            <Check className="w-6 h-6 flex-shrink-0 text-green-400" />
+          <div className="mt-4 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-2.5 px-5 rounded-xl max-w-md mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[60px]">
+            <Check className="w-5 h-5 flex-shrink-0 text-green-400" />
             <div className="text-left overflow-hidden">
-                <p className="text-[10px] font-black text-blue-300/60 uppercase tracking-widest mb-1">Expert Tip</p>
+                <p className="text-[9px] font-black text-blue-300/50 uppercase tracking-widest mb-0.5">Expert Tip</p>
                 <motion.p 
                     key={currentTipIndex}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="leading-tight text-white font-bold"
+                    className="leading-tight text-white font-bold text-xs"
                 >
                     {tips[currentTipIndex]}
                 </motion.p>
             </div>
           </div>
           
-          <div className="w-full max-w-md mx-auto mt-6">
-            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden border border-white/20 shadow-inner">
+          <div className="w-full max-w-sm mx-auto mt-5">
+            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden border border-white/20 shadow-inner">
               <div
                 className="bg-green-400 h-full rounded-full relative"
                 style={{ width: `${progress * 100}%` }}
@@ -393,24 +393,24 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-center gap-6 bg-white/5 py-3 px-8 rounded-2xl backdrop-blur-sm border border-white/5 shadow-2xl">
+          <div className="mt-5 flex items-center justify-center gap-5 bg-white/5 py-2.5 px-6 rounded-2xl backdrop-blur-sm border border-white/5 shadow-2xl">
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Security</span>
-              <span className="text-xs font-black text-green-400 tracking-tighter uppercase">Verified</span>
+              <span className="text-[8px] font-black text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Security</span>
+              <span className="text-[10px] font-black text-green-400 tracking-tighter uppercase">Verified</span>
             </div>
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-6 bg-white/10" />
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Scanning</span>
-              <span className="text-xs font-black text-white tracking-tighter uppercase">{Math.floor(progress * 100)}%</span>
+              <span className="text-[8px] font-black text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Scanning</span>
+              <span className="text-[10px] font-black text-white tracking-tighter uppercase">{Math.floor(progress * 100)}%</span>
             </div>
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-6 bg-white/10" />
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-blue-300/40 uppercase tracking-[0.2em] mb-1">Results</span>
-              <span className="text-xs font-black text-amber-400 tracking-tighter uppercase">{suppliersScanned} Found</span>
+              <span className="text-[8px] font-black text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Results</span>
+              <span className="text-[10px] font-black text-amber-400 tracking-tighter uppercase">{suppliersScanned} Found</span>
             </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 gap-1.5 sm:gap-2 max-w-7xl mx-auto px-2">
+          <div className="mt-8 grid grid-cols-6 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-14 xl:grid-cols-16 gap-1.5 max-w-7xl mx-auto px-2">
             {suppliers.map((supplier, index) => {
               const isChecked = progress * totalSuppliers > index + 0.5;
               const isChecking = progress * totalSuppliers > index && !isChecked;

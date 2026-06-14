@@ -5,7 +5,7 @@ interface LogoProps {
   variant?: 'dark' | 'light';
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'dark' }) => {
+export function Logo({ className = '', variant = 'dark' }: LogoProps) {
   const primaryColor = variant === 'dark' ? '#123C69' : '#FFFFFF';
   const accentColor = '#F57C00';
   const circleColor = '#123C69';
@@ -28,4 +28,4 @@ export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'dark' }) 
       </text>
     </svg>
   );
-};
+}

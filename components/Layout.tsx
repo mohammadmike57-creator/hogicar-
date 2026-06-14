@@ -42,67 +42,67 @@ const PciDssIcon = () => (
 );
 
 const FullFooter = () => (
-    <footer className="bg-[#003580] text-white pt-8 pb-6">
+    <footer className="bg-[#003580] text-white pt-6 pb-4">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10 pb-10 border-b border-blue-800">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6 pb-6 border-b border-blue-800">
             <div>
-                <div className="flex items-center gap-2 mb-4">
-                   <Logo className="h-12 w-auto" variant="light" />
+                <div className="flex items-center gap-2 mb-2">
+                   <Logo className="h-10 w-auto" variant="light" />
                 </div>
-                <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
+                <p className="text-blue-100 text-xs leading-relaxed max-w-xs opacity-80">
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
                 </p>
             </div>
-            <div className="bg-blue-900/50 p-4 rounded-lg border border-blue-700 w-full md:w-auto flex-shrink-0">
-                <p className="font-bold text-sm mb-2 text-blue-100">Rated on Trustpilot</p>
+            <div className="bg-blue-900/50 p-3 rounded-lg border border-blue-700 w-full md:w-auto flex-shrink-0">
+                <p className="font-bold text-xs mb-1.5 text-blue-100">Rated on Trustpilot</p>
                 <div className="flex items-center gap-2">
-                    <div className="flex bg-white p-1 rounded-sm">
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
+                    <div className="flex bg-white p-1 rounded-sm scale-90 origin-left">
+                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
+                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
+                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
+                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
+                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
                     </div>
-                    <p className="font-bold text-lg">Excellent</p>
+                    <p className="font-bold text-base">Excellent</p>
                 </div>
-                <p className="text-xs text-blue-300 mt-1">Based on <strong>12,000+</strong> reviews</p>
+                <p className="text-[10px] text-blue-300 mt-0.5">Based on <strong>12,000+</strong> reviews</p>
             </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Company</h3>
-            <ul className="space-y-3 text-sm text-white">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Company</h3>
+            <ul className="space-y-2 text-xs text-white opacity-90">
                <li><Link to="/about-us" className="hover:text-blue-200 transition-colors">About Us</Link></li>
                <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
                <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Support</h3>
-            <ul className="space-y-3 text-sm text-white">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Support</h3>
+            <ul className="space-y-2 text-xs text-white opacity-90">
               <li><Link to="/help" className="hover:text-blue-200 transition-colors">Help Center</Link></li>
               <li><Link to="/contact" className="hover:text-blue-200 transition-colors">Contact Us</Link></li>
               <li><Link to="/cancellation-policy" className="hover:text-blue-200 transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Legal</h3>
-            <ul className="space-y-3 text-sm text-white">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Legal</h3>
+            <ul className="space-y-2 text-xs text-white opacity-90">
               <li><Link to="/terms-and-conditions" className="hover:text-blue-200 transition-colors">Terms & Conditions</Link></li>
               <li><Link to="/privacy-policy" className="hover:text-blue-200 transition-colors">Privacy Policy</Link></li>
               <li><Link to="/cookies-policy" className="hover:text-blue-200 transition-colors">Cookies Policy</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">Security</h3>
-            <div className="flex items-center gap-3 bg-blue-900/40 p-3 rounded-lg border border-blue-800/50 w-max">
-                <div className="bg-green-500/20 p-2 rounded-full">
-                    <Lock className="w-5 h-5 text-green-400" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Security</h3>
+            <div className="flex items-center gap-2.5 bg-blue-900/40 p-2.5 rounded-lg border border-blue-800/50 w-max">
+                <div className="bg-green-500/20 p-1.5 rounded-full">
+                    <Lock className="w-4 h-4 text-green-400" />
                 </div>
                 <div>
-                    <p className="text-sm font-bold text-white leading-tight">SSL Secure</p>
-                    <p className="text-[10px] text-blue-200">256-bit Encryption</p>
+                    <p className="text-xs font-bold text-white leading-tight">SSL Secure</p>
+                    <p className="text-[9px] text-blue-200">256-bit Encryption</p>
                 </div>
             </div>
           </div>
@@ -168,12 +168,12 @@ const Layout: React.FC = () => {
       {/* HEADER */}
       <header className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
         isHomePage 
-          ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-1' : 'bg-transparent border-b border-transparent py-4') 
-          : 'bg-[#003580] shadow-md py-2 border-b border-[#002a66]'
+          ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-0.5' : 'bg-transparent border-b border-transparent py-3') 
+          : 'bg-[#003580] shadow-md py-1 border-b border-[#002a66]'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500">
+          <Link to="/" className="flex items-center max-w-[120px] lg:max-w-[140px] overflow-hidden transition-all duration-500">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 

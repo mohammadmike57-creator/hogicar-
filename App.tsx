@@ -19,6 +19,8 @@ import SupplierConfirmation from './pages/SupplierConfirmation';
 import Careers from './pages/Careers';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import LeaveReview from './pages/LeaveReview';
+import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
+import { AdminDashboard } from './admin/pages/AdminDashboard';
 
 const ScrollToTop: React.FC = () => {
   const { pathname, hash } = useLocation();
@@ -27,10 +29,6 @@ const ScrollToTop: React.FC = () => {
   }, [pathname, hash]);
   return null;
 };
-
-// Admin imports
-import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
-import { AdminDashboard } from './admin/pages/AdminDashboard';
 
 // --- SUBDOMAIN REDIRECT LOGIC ---
 const host = window.location.hostname.toLowerCase();
