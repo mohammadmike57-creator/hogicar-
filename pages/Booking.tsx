@@ -133,7 +133,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         setPaymentError("Critical System Configuration Error: Stripe Secret Key and Publishable Key mismatch in the backend. Please check your environment variables.");
     }
   }, [configMismatch]);
-  const routeStep: 'details' | 'payment' = location.pathname.endsWith('/payment') ? 'payment' : 'details';
+  
   const [createAccount, setCreateAccount] = React.useState(true);
   const [accountPassword, setAccountPassword] = React.useState('');
   const [profileHydrated, setProfileHydrated] = React.useState(false);
