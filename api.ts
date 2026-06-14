@@ -44,6 +44,15 @@ export interface Booking {
   publishableKey?: string;
   carImage?: string;
   supplierLogoUrl?: string;
+  carMake?: string;
+  carModel?: string;
+  carCategory?: string;
+  carTransmission?: string;
+  carFuelPolicy?: string;
+  carPassengers?: number;
+  carBags?: number;
+  carDoors?: number;
+  carAirConditioning?: boolean;
 }
 
 // Create axios instances with interceptors for auth

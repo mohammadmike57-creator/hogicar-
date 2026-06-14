@@ -114,7 +114,28 @@ const Confirmation: React.FC = () => {
     );
   }
 
-  const car = storedCar; // Use the car data we stored locally, as API mostly returns booking info. Ideally API returns full car details too.
+  // Use car details from booking object (which we just added to backend)
+  const carDisplay = {
+    make: booking.carMake || storedCar?.make || "Vehicle",
+    model: booking.carModel || booking.carName || storedCar?.model || "Rental",
+    category: booking.carCategory || storedCar?.category || "Standard",
+    image: booking.carImage || storedCar?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle',
+    location: storedCar?.location || booking.pickupCode || "Airport"
+  };
+
+  // Helper to display price in booking currency or convert if needed
+  const renderPrice = (amount: number) => {
+    // If booking currency matches selected, just show it. 
+    // Otherwise, we might need a more complex conversion logic.
+    // For now, let's keep it simple: if it's the same currency, don't convert.
+    if (booking.currency === selectedCurrency) {
+      return `${getCurrencySymbol()}${amount.toFixed(2)}`;
+    }
+    // If different, we'd need to convert FROM booking.currency TO selectedCurrency.
+    // The current convertPrice assumes input is USD.
+    // Let's just show the booking currency for now to be "Professional" and accurate.
+    return `${booking.currency} ${amount.toFixed(2)}`;
+  };
 
   return (
     <>
@@ -148,10 +169,10 @@ const Confirmation: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Details</h3>
                   <div className="flex items-center gap-4">
-                    {car && <img src={car.image} alt={car.model} className="w-32 h-20 object-cover rounded-lg" />}
+                    <img src={carDisplay.image} alt={carDisplay.model} className="w-32 h-20 object-cover rounded-lg" />
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-slate-800">{car?.make} {car?.model || booking.carName || "Car"}</p>
+                        <p className="font-bold text-slate-800">{carDisplay.make} {carDisplay.model}</p>
                         {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
                           <div className="flex items-center gap-1 bg-emerald-50 text-[#008009] px-2 py-0.5 rounded text-[10px] font-black uppercase border border-emerald-100 shadow-sm">
                              <Zap className="w-2.5 h-2.5 fill-[#008009]/20" />
@@ -159,7 +180,7 @@ const Confirmation: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <p className="text-sm text-slate-500">{car?.category}</p>
+                      <p className="text-sm text-slate-500">{carDisplay.category}</p>
                     </div>
                   </div>
                 </div>
@@ -167,11 +188,11 @@ const Confirmation: React.FC = () => {
                   <div>
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{booking.supplierName === 'Hogi Car Choice' ? 'Service Level' : 'Rental Provider'}</h3>
                     <div className="flex items-center gap-3">
-                       {car && (car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
+                       {booking.supplierLogoUrl === 'HOGICAR_CHOICE_LOGO' ? (
                           <Logo className="h-6 w-auto max-w-[100px]" />
-                        ) : (
-                          <img src={car.supplier.logo} alt={car.supplier.name} className="h-8 w-auto object-contain" />
-                        ))}
+                        ) : booking.supplierLogoUrl ? (
+                          <img src={booking.supplierLogoUrl} alt={booking.supplierName} className="h-8 w-auto object-contain" />
+                        ) : null}
                        <p className="font-semibold text-slate-700">{booking.supplierName}</p>
                     </div>
                   </div>
@@ -194,7 +215,7 @@ const Confirmation: React.FC = () => {
                     <div className="bg-blue-50 p-2 rounded text-blue-600"><Calendar className="w-5 h-5" /></div>
                     <div>
                       <p className="font-bold text-slate-900">{new Date(booking.pickupDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.startTime || '10:00'}</p>
-                      {car && <p className="text-sm text-slate-600 mt-1">{car.location}</p>}
+                      <p className="text-sm text-slate-600 mt-1">{carDisplay.location}</p>
                     </div>
                   </div>
                 </div>
@@ -204,7 +225,7 @@ const Confirmation: React.FC = () => {
                     <div className="bg-blue-50 p-2 rounded text-blue-600"><Calendar className="w-5 h-5" /></div>
                     <div>
                       <p className="font-bold text-slate-900">{new Date(booking.dropoffDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.endTime || '10:00'}</p>
-                      {car && <p className="text-sm text-slate-600 mt-1">{car.location}</p>}
+                      <p className="text-sm text-slate-600 mt-1">{carDisplay.location}</p>
                     </div>
                   </div>
                 </div>
@@ -216,11 +237,11 @@ const Confirmation: React.FC = () => {
               <div>
                 <h3 className="text-lg font-bold text-slate-800 mb-4">Payment Summary</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-slate-600">Paid Online:</span> <span className="font-bold text-green-600">{getCurrencySymbol()}{convertPrice(booking.payNow).toFixed(2)}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-600">Due at Rental Desk:</span> <span className="font-bold text-slate-800">{getCurrencySymbol()}{convertPrice(booking.payAtDesk).toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-600">Paid Online:</span> <span className="font-bold text-green-600">{renderPrice(booking.payNow)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-600">Due at Rental Desk:</span> <span className="font-bold text-slate-800">{renderPrice(booking.payAtDesk)}</span></div>
                   <div className="flex justify-between pt-2 mt-2 border-t border-dashed">
                     <span className="font-bold text-slate-800">Total Price:</span>
-                    <span className="font-extrabold text-slate-900">{getCurrencySymbol()}{convertPrice(booking.finalPrice).toFixed(2)}</span>
+                    <span className="font-extrabold text-slate-900">{renderPrice(booking.finalPrice)}</span>
                   </div>
                 </div>
               </div>

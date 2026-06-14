@@ -16,12 +16,19 @@ import { loadCars } from '../utils/loadCars';
 
 // Re-using a customer-facing version of the voucher modal
 const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose: () => void }) => {
-    const { convertPrice, getCurrencySymbol } = useCurrency();
+    const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
     
     // Use booking info directly
     const displayCarName = booking.carName || 'Vehicle';
     const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+
+    const renderPrice = (amount: number) => {
+        if (booking.currency === selectedCurrency) {
+            return `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
+        }
+        return `${booking.currency} ${amount.toFixed(2)}`;
+    };
 
     if (!booking) return null;
 
@@ -152,8 +159,8 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                             <p className="text-xs text-slate-500 mt-1 print:text-slate-400">Excludes security deposit.</p>
                         </div>
                         <div className="text-right">
-                            <span className="text-3xl font-extrabold tracking-tight">{getCurrencySymbol()}{convertPrice(booking.payAtDesk).toFixed(2)}</span>
-                            <span className="text-sm text-slate-400 ml-1">(Approx. ${booking.payAtDesk.toFixed(2)} USD)</span>
+                            <span className="text-3xl font-extrabold tracking-tight">{renderPrice(booking.payAtDesk)}</span>
+                            {booking.currency === 'USD' ? null : <span className="text-sm text-slate-400 ml-1">(Approx. ${booking.payAtDesk.toFixed(2)} USD)</span>}
                         </div>
                     </div>
                 </div>
@@ -244,13 +251,13 @@ const MOCK_CARS: any[] = [];
 const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string | number) => void, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
     // Attempt to find detailed car info from mock if available, otherwise fallback to basic info
     const car = MOCK_CARS.find(c => c.id === booking.carId) || {
-        make: "Vehicle",
-        model: booking.carName || "Rental",
-        image: "https://placehold.co/600x400?text=Car+Image",
-        category: "Standard",
-        transmission: "Automatic",
-        fuelPolicy: "Full to Full",
-        airCon: true,
+        make: booking.carMake || "Vehicle",
+        model: booking.carModel || booking.carName || "Rental",
+        image: booking.carImage || "https://placehold.co/600x400?text=Car+Image",
+        category: booking.carCategory || "Standard",
+        transmission: booking.carTransmission || "Automatic",
+        fuelPolicy: booking.carFuelPolicy || "Full to Full",
+        airCon: booking.carAirConditioning ?? true,
         location: booking.pickupCode || "Airport"
     } as any;
 
@@ -258,7 +265,12 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     const [imageError, setImageError] = React.useState(false);
     const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
     const [isCancelling, setIsCancelling] = React.useState(false);
-    const [showVoucher, setShowVoucher] = React.useState(false);
+    const renderPrice = (amount: number) => {
+        if (booking.currency === useCurrency().selectedCurrency) {
+            return `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
+        }
+        return `${booking.currency} ${amount.toFixed(2)}`;
+    };
     // Note: Modify Logic would need significant backend support for real updates. Keeping mock for now or disabling if preferred.
     const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
     const [fullCar, setFullCar] = React.useState<any>(null);
@@ -284,7 +296,9 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                 setFullCar(found);
                 setIsModifyModalOpen(true);
             } else {
-                alert("This vehicle is no longer available for modification. Please contact support.");
+                // FALLBACK: Use car info from booking if search doesn't return it
+                setFullCar(car);
+                setIsModifyModalOpen(true);
             }
         } catch (error) {
             console.error(error);
@@ -414,8 +428,8 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                          </div>
                          <div className="text-right">
                              <p className="text-xs text-slate-500 mb-1">Total Cost</p>
-                             <p className="text-xl font-extrabold text-slate-900">{getCurrencySymbol()}{convertPrice(booking.finalPrice).toFixed(2)}</p>
-                              <p className="text-xs text-slate-400 mt-1">(Approx. ${booking.finalPrice.toFixed(2)} USD)</p>
+                             <p className="text-xl font-extrabold text-slate-900">{renderPrice(booking.finalPrice)}</p>
+                              {booking.currency === 'USD' ? null : <p className="text-xs text-slate-400 mt-1">(Approx. ${booking.finalPrice.toFixed(2)} USD)</p>}
                          </div>
                      </div>
 
