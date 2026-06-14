@@ -326,7 +326,7 @@ const Searching: React.FC = () => {
         noIndex={true}
       />
       <div 
-        className="relative flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-4 font-sans text-white overflow-hidden"
+        className="relative flex flex-col items-center justify-center min-h-[calc(100vh-48px)] p-2 font-sans text-white overflow-hidden"
         style={{
           backgroundSize: '200% 200%',
           backgroundImage: `linear-gradient(160deg, #0c152b 0%, #1e40af 100%)`,

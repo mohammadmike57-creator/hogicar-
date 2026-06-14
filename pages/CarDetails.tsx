@@ -419,11 +419,11 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-slate-50 min-h-screen pb-32 lg:pb-12 text-slate-800">
-        <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10 py-6">
+      <div className="bg-slate-50 min-h-screen pb-16 lg:pb-8 text-slate-800">
+        <div className="max-w-[1500px] mx-auto px-2 sm:px-4 lg:px-6 py-3">
           <BookingStepper currentStep={3} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 xl:gap-6 mt-4">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-5 sm:space-y-6">
               {/* Hero Section */}

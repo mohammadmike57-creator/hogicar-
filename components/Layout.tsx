@@ -42,12 +42,12 @@ const PciDssIcon = () => (
 );
 
 const FullFooter = () => (
-    <footer className="bg-[#003580] text-white pt-6 pb-4">
+    <footer className="bg-[#003580] text-white pt-4 pb-2">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6 pb-6 border-b border-blue-800">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4 pb-4 border-b border-blue-800">
             <div>
                 <div className="flex items-center gap-2 mb-2">
-                   <Logo className="h-10 w-auto" variant="light" />
+                   <Logo className="h-8 w-auto" variant="light" />
                 </div>
                 <p className="text-blue-100 text-xs leading-relaxed max-w-xs opacity-80">
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
@@ -69,7 +69,7 @@ const FullFooter = () => (
             </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Company</h3>
             <ul className="space-y-2 text-xs text-white opacity-90">
@@ -171,9 +171,9 @@ const Layout: React.FC = () => {
           ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-0.5' : 'bg-transparent border-b border-transparent py-3') 
           : 'bg-[#003580] shadow-md py-1 border-b border-[#002a66]'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 transition-all duration-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-12 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[120px] lg:max-w-[140px] overflow-hidden transition-all duration-500">
+          <Link to="/" className="flex items-center max-w-[110px] lg:max-w-[130px] overflow-hidden transition-all duration-500">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 

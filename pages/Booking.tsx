@@ -444,11 +444,18 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             throw new Error(errorMsg);
           }
 
-          const paymentIntentId = paymentResult.paymentIntent?.id;
-          const completedBooking = paymentIntentId
-            ? await api.markBookingPaymentComplete(activeBooking.id, paymentIntentId)
-            : activeBooking;
-          storeBookingAndGoToConfirmation(completedBooking);
+          const paymentIntent = paymentResult.paymentIntent;
+          if (paymentIntent && paymentIntent.status === 'succeeded') {
+              const completedBooking = await api.markBookingPaymentComplete(activeBooking.id, paymentIntent.id);
+              storeBookingAndGoToConfirmation(completedBooking);
+          } else {
+              // This is the CRITICAL FIX for the reported "bypass" issue.
+              // If we reach here, it means confirmCardPayment didn't return an error, 
+              // but it also didn't result in a 'succeeded' payment.
+              const status = paymentIntent?.status || 'incomplete';
+              console.warn(`Payment did not succeed. Status: ${status}`, paymentResult);
+              throw new Error(`Payment was not successful (Status: ${status}). Please check your card details and try again.`);
+          }
     } catch (error: any) {
         console.error("Payment submission error:", error);
         
@@ -522,7 +529,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-slate-50 min-h-screen py-4 sm:py-6 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="bg-slate-50 min-h-screen py-2 sm:py-3 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
            <div className="w-full max-w-[320px] sm:max-w-md px-6">
@@ -540,8 +547,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
            </div>
         </div>
       )}
-      <div className="max-w-[1400px] mx-auto px-2 sm:px-4 lg:px-8">
-        <div className="mb-4 sm:mb-6">
+        <div className="max-w-[1400px] mx-auto px-1 sm:px-3 lg:px-6">
+        <div className="mb-2 sm:mb-4">
             <BookingStepper currentStep={4} />
         </div>
 
