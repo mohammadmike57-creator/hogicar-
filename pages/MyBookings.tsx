@@ -273,6 +273,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     };
     // Note: Modify Logic would need significant backend support for real updates. Keeping mock for now or disabling if preferred.
     const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
+    const [showVoucher, setShowVoucher] = React.useState(false);
     const [fullCar, setFullCar] = React.useState<any>(null);
     const [isFetchingCar, setIsFetchingCar] = React.useState(false);
 
