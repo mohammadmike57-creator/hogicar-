@@ -190,7 +190,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
                  <div className="grid grid-cols-3 gap-4 text-center">
                      <div>
                         <p className="text-xs text-slate-500">Original Total</p>
-                        <p className="font-bold text-slate-600 line-through">{getCurrencySymbol()}{convertPrice(booking.totalPrice).toFixed(2)}</p>
+                        <p className="font-bold text-slate-600 line-through">{getCurrencySymbol()}{convertPrice(booking.totalPrice || 0).toFixed(2)}</p>
                      </div>
                      <div>
                         <p className="text-xs text-slate-500">New Total</p>

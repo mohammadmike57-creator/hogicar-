@@ -24,10 +24,11 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
     const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
 
     const renderPrice = (amount: number) => {
+        const safeAmount = amount || 0;
         if (booking.currency === selectedCurrency) {
-            return `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
+            return `${getCurrencySymbol()}${convertPrice(safeAmount).toFixed(2)}`;
         }
-        return `${booking.currency} ${amount.toFixed(2)}`;
+        return `${booking.currency} ${safeAmount.toFixed(2)}`;
     };
 
     if (!booking) return null;
@@ -160,7 +161,7 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                         </div>
                         <div className="text-right">
                             <span className="text-3xl font-extrabold tracking-tight">{renderPrice(booking.payAtDesk)}</span>
-                            {booking.currency === 'USD' ? null : <span className="text-sm text-slate-400 ml-1">(Approx. ${booking.payAtDesk.toFixed(2)} USD)</span>}
+                            {booking.currency === 'USD' ? null : <span className="text-sm text-slate-400 ml-1">(Approx. ${(booking.payAtDesk || 0).toFixed(2)} USD)</span>}
                         </div>
                     </div>
                 </div>
@@ -266,10 +267,11 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
     const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
     const [isCancelling, setIsCancelling] = React.useState(false);
     const renderPrice = (amount: number) => {
+        const safeAmount = amount || 0;
         if (booking.currency === selectedCurrency) {
-            return `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
+            return `${getCurrencySymbol()}${convertPrice(safeAmount).toFixed(2)}`;
         }
-        return `${booking.currency} ${amount.toFixed(2)}`;
+        return `${booking.currency} ${safeAmount.toFixed(2)}`;
     };
     // Note: Modify Logic would need significant backend support for real updates. Keeping mock for now or disabling if preferred.
     const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
@@ -430,7 +432,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                          <div className="text-right">
                              <p className="text-xs text-slate-500 mb-1">Total Cost</p>
                              <p className="text-xl font-extrabold text-slate-900">{renderPrice(booking.finalPrice)}</p>
-                              {booking.currency === 'USD' ? null : <p className="text-xs text-slate-400 mt-1">(Approx. ${booking.finalPrice.toFixed(2)} USD)</p>}
+                              {booking.currency === 'USD' ? null : <p className="text-xs text-slate-400 mt-1">(Approx. ${(booking.finalPrice || 0).toFixed(2)} USD)</p>}
                          </div>
                      </div>
 

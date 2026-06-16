@@ -125,16 +125,17 @@ const Confirmation: React.FC = () => {
 
   // Helper to display price in booking currency or convert if needed
   const renderPrice = (amount: number) => {
+    const safeAmount = amount || 0;
     // If booking currency matches selected, just show it. 
     // Otherwise, we might need a more complex conversion logic.
     // For now, let's keep it simple: if it's the same currency, don't convert.
     if (booking.currency === selectedCurrency) {
-      return `${getCurrencySymbol()}${amount.toFixed(2)}`;
+      return `${getCurrencySymbol()}${safeAmount.toFixed(2)}`;
     }
     // If different, we'd need to convert FROM booking.currency TO selectedCurrency.
     // The current convertPrice assumes input is USD.
     // Let's just show the booking currency for now to be "Professional" and accurate.
-    return `${booking.currency} ${amount.toFixed(2)}`;
+    return `${booking.currency} ${safeAmount.toFixed(2)}`;
   };
 
   return (
