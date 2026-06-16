@@ -129,12 +129,12 @@ const SupplierConfirmation: React.FC = () => {
     
     // Fallback for car visual if not found in MOCK_CARS
     const displayCar = car || {
-        make: "Vehicle",
-        model: booking?.carName || "Rental",
+        make: booking?.carMake || "Vehicle",
+        model: booking?.carModel || "Rental",
         image: booking?.carImage || "https://placehold.co/600x400?text=Car+Image",
-        category: "Standard",
+        category: booking?.carCategory || "Standard",
         sippCode: "????",
-        transmission: "Automatic"
+        transmission: booking?.carTransmission || "Automatic"
     } as any;
 
     if (!booking) return null;
@@ -175,6 +175,13 @@ const SupplierConfirmation: React.FC = () => {
                                 <div className="space-y-2 text-sm">
                                     <p className="flex justify-between"><span>Pick-up:</span> <strong>{booking.pickupDate} at {booking.startTime}</strong></p>
                                     <p className="flex justify-between"><span>Drop-off:</span> <strong>{booking.dropoffDate} at {booking.endTime}</strong></p>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Price Details</h3>
+                                <div className="space-y-2 text-sm">
+                                    <p className="flex justify-between"><span>Supplier Net:</span> <strong>{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
+                                    <p className="flex justify-between text-blue-600"><span>Total Rental Value:</span> <strong>{booking.currency} {booking.finalPrice?.toFixed(2)}</strong></p>
                                 </div>
                             </div>
                         </div>
