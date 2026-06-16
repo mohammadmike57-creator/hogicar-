@@ -261,12 +261,12 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
         location: booking.pickupCode || "Airport"
     } as any;
 
-    const { convertPrice, getCurrencySymbol } = useCurrency();
+    const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
     const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
     const [isCancelling, setIsCancelling] = React.useState(false);
     const renderPrice = (amount: number) => {
-        if (booking.currency === useCurrency().selectedCurrency) {
+        if (booking.currency === selectedCurrency) {
             return `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
         }
         return `${booking.currency} ${amount.toFixed(2)}`;

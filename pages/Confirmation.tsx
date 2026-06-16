@@ -12,7 +12,7 @@ import { api } from '../api';
 const Confirmation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { convertPrice, getCurrencySymbol } = useCurrency();
+  const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
   
   const [booking, setBooking] = React.useState<any | null>(null);
   const [storedCar, setStoredCar] = React.useState<Car | null>(null);
