@@ -206,7 +206,7 @@ const Home: React.FC = () => {
       />
       
       {/* HERO – professional centered layout with background image */}
-      <section className="relative pt-20 pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden">
+      <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -223,14 +223,14 @@ const Home: React.FC = () => {
         </div>
         
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-[2.25rem] sm:text-4xl lg:text-6xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
+          <h1 className="text-[2rem] sm:text-4xl lg:text-6xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
             {content.hero.title || 'Search, Compare & Save on Car Rentals'}
           </h1>
-          <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg font-medium leading-relaxed px-2">
+          <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-2xl mx-auto text-[13px] sm:text-base lg:text-lg font-medium leading-relaxed px-2">
             {content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.'}
           </p>
           
-          <div className="relative z-20 mt-2 lg:mt-0">
+          <div className="relative z-20 mt-1 lg:mt-0">
             <SearchWidget
               onSearch={handleSearch}
               showTitle={false}

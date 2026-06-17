@@ -1218,18 +1218,17 @@ const BookingPage: React.FC = () => {
     return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={null} setBookingDraft={() => {}} />;
   }
 
-  const elementsOptions = bookingDraft?.clientSecret ? {
-    clientSecret: bookingDraft.clientSecret,
+  const elementsOptions = React.useMemo(() => ({
     appearance: {
         theme: 'stripe' as const,
         variables: {
             colorPrimary: '#008009',
         },
     },
-  } : undefined;
+  }), []);
 
   return (
-    <Elements stripe={dynamicStripePromise} key={currentKey + (bookingDraft?.clientSecret || '')} options={elementsOptions}>
+    <Elements stripe={dynamicStripePromise} key={currentKey || 'stripe'} options={elementsOptions}>
       <BookingPageWithStripe 
         stripeConfigLoading={false} 
         currentKey={currentKey} 
