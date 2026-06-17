@@ -9,7 +9,7 @@ import {
   Navigation, Baby, PlusCircle, Star, Sparkles, MapPin, CheckCircle, GaugeCircle, Hash, X,
   ArrowRight, Shield, Wifi, Wind, Thermometer, Smartphone, Battery, Coffee, Gift, Award,
   Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2,
-  DollarSign, Zap, ThumbsUp, Globe, Headphones
+  DollarSign, Zap, ThumbsUp, Globe, Headphones, Plane
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
@@ -244,9 +244,25 @@ const CarDetails: React.FC = () => {
   // Extract search params
   const startDate = searchParams.get('startDate') || new Date().toISOString().split('T')[0];
   const endDate = searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const startTime = searchParams.get('startTime') || '10:00';
+  const endTime = searchParams.get('endTime') || '10:00';
   const pickupCode = searchParams.get('pickup');
   const dropoffCode = searchParams.get('dropoff');
+  const pickupName = searchParams.get('pickupName') || pickupCode || '';
+  const dropoffName = searchParams.get('dropoffName') || dropoffCode || pickupName || '';
   const days = rentalDays(startDate, endDate);
+
+  const timeUntilPickup = React.useMemo(() => {
+    const pickupDateTime = new Date(`${startDate}T${startTime}`);
+    const now = new Date();
+    const diffMs = pickupDateTime.getTime() - now.getTime();
+    if (diffMs <= 0) return "In progress";
+    const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+    if (d > 0) return `${d}d ${h}h remaining`;
+    if (h > 0) return `${h}h ${Math.floor((diffMs / (1000 * 60)) % 60)}m remaining`;
+    return "Starting soon";
+  }, [startDate, startTime]);
 
   // Load car from sessionStorage / state / API
   React.useEffect(() => {
@@ -550,23 +566,93 @@ const CarDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-black mb-4 flex items-center gap-2 text-slate-950"><Calendar className="w-5 h-5 text-[#008009]" /> Trip at a glance</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 mb-2">Pick-up</p>
-                    <p className="font-semibold text-slate-900">{pickupCode || car.location}</p>
-                    <p className="text-slate-600 mt-1">{pickupDisplay}</p>
+              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-6 overflow-hidden relative group/journey">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-xl font-black flex items-center gap-2 text-slate-950">
+                        <Navigation className="w-5 h-5 text-[#008009]" /> 
+                        Rental Journey Itinerary
+                    </h2>
+                    <p className="text-[11px] font-bold text-slate-500 mt-1 uppercase tracking-widest ml-7">Door-to-door schedule</p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 mb-2">Drop-off</p>
-                    <p className="font-semibold text-slate-900">{dropoffCode || pickupCode || car.location}</p>
-                    <p className="text-slate-600 mt-1">{dropoffDisplay}</p>
+                  <div className="flex items-center gap-2 bg-slate-900 px-4 py-2 rounded-xl shadow-xl transition-transform group-hover/journey:scale-105">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Live Status</span>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 mb-2">Rental plan</p>
-                    <p className="font-semibold text-slate-900">{days} day{days > 1 ? 's' : ''}</p>
-                    <p className="text-slate-600 mt-1">Deposit: {depositDisplay}</p>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_auto_1.8fr_auto_1.2fr] items-center gap-4 relative">
+                  {/* STEP 1: NOW */}
+                  <div className="flex flex-col items-center lg:items-start order-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Point A: Now</span>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 shadow-inner">
+                           <Clock className="w-5 h-5 text-blue-600 animate-pulse" />
+                        </div>
+                        <div>
+                            <div className="text-xl font-black text-slate-900 leading-none">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
+                            <div className="text-[10px] font-black text-blue-600 mt-1 uppercase tracking-tighter">{timeUntilPickup}</div>
+                        </div>
+                    </div>
+                  </div>
+
+                  {/* Connector 1 */}
+                  <div className="hidden lg:flex flex-col items-center justify-center order-2 px-2 opacity-30">
+                    <div className="h-6 w-[2px] bg-slate-200" />
+                    <ArrowRight className="w-4 h-4 text-slate-400" />
+                    <div className="h-6 w-[2px] bg-slate-200" />
+                  </div>
+
+                  {/* STEP 2: PICKUP (Airport style) */}
+                  <div className="flex flex-col items-center lg:items-start order-3 bg-slate-50/50 p-5 rounded-3xl border border-slate-100 w-full relative group/pickup hover:bg-slate-50 transition-colors">
+                    <div className="absolute -top-3 left-6 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">
+                        <span className="text-[9px] font-black text-[#008009] uppercase tracking-widest flex items-center gap-1.5">
+                            <MapPin className="w-3 h-3" /> Pick-up Point
+                        </span>
+                    </div>
+                    <div className="flex items-end justify-between w-full mb-3 mt-1">
+                        <span className="text-4xl font-black text-slate-950 tracking-tighter">{startTime}</span>
+                        <div className="text-right">
+                            <span className="text-2xl font-black text-[#003580] block leading-none">{pickupCode}</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase">{pickupDisplay}</span>
+                        </div>
+                    </div>
+                    <div className="w-full h-[1px] bg-slate-200 mb-3" />
+                    <p className="text-xs font-bold text-slate-600 truncate w-full">{pickupName || car.locationDetail}</p>
+                  </div>
+
+                  {/* Connector 2: Flight Path Style */}
+                  <div className="flex flex-col items-center justify-center order-4 px-6 w-full lg:w-auto my-6 lg:my-0">
+                     <div className="relative w-full lg:w-28 h-[2px] bg-slate-200 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#008009] via-[#008009] to-slate-200" />
+                        <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-white p-1.5 rounded-full border-2 border-[#008009] shadow-md z-10 scale-110">
+                           <CarIcon className="w-5 h-5 text-[#008009]" />
+                        </div>
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{days} Days Flow</span>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* STEP 3: DROPOFF */}
+                  <div className="flex flex-col items-center lg:items-end order-5 text-center lg:text-right bg-slate-900 p-5 rounded-3xl border border-slate-800 w-full relative group/dropoff shadow-2xl">
+                    <div className="absolute -top-3 right-6 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full shadow-sm">
+                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+                            <Navigation className="w-3 h-3" /> Drop-off Point
+                        </span>
+                    </div>
+                    <div className="flex items-end justify-between lg:flex-row-reverse w-full mb-3 mt-1">
+                        <span className="text-4xl font-black text-white tracking-tighter">{endTime}</span>
+                        <div className="lg:text-left">
+                            <span className="text-2xl font-black text-blue-400 block leading-none">{dropoffCode || pickupCode}</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase">{dropoffDisplay}</span>
+                        </div>
+                    </div>
+                    <div className="w-full h-[1px] bg-slate-800 mb-3" />
+                    <p className="text-xs font-bold text-slate-400 truncate w-full">{dropoffName || pickupName || car.locationDetail}</p>
                   </div>
                 </div>
               </div>
