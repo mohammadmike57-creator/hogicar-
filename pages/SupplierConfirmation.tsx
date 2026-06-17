@@ -1,7 +1,6 @@
 
 import * as React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-const MOCK_CARS: any[] = [];
 import { Booking, Car as CarType } from '../types';
 import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle, XCircle } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
@@ -18,7 +17,6 @@ const SupplierConfirmation: React.FC = () => {
     const action = queryParams.get('action');
 
     const [booking, setBooking] = React.useState<Booking | null>(null);
-    const [car, setCar] = React.useState<CarType | null>(null);
     const [confirmationNumber, setConfirmationNumber] = React.useState('');
     const [isConfirmed, setIsConfirmed] = React.useState(false);
     const [isRejected, setIsRejected] = React.useState(false);
@@ -45,10 +43,6 @@ const SupplierConfirmation: React.FC = () => {
                 
                 setBooking(fetchedBooking);
                 
-                // Try to find the car from mock data for display purposes
-                const foundCar = MOCK_CARS.find(c => c.id === fetchedBooking.carId);
-                setCar(foundCar || null);
-
                 if (fetchedBooking.status === 'confirmed' || fetchedBooking.status === 'CONFIRMED') {
                     setIsConfirmed(true);
                     setConfirmationNumber(fetchedBooking.supplierConfirmationNumber || 'N/A');
@@ -127,13 +121,12 @@ const SupplierConfirmation: React.FC = () => {
         );
     }
     
-    // Fallback for car visual if not found in MOCK_CARS
-    const displayCar = car || {
+    // Fallback for car visual
+    const displayCar = {
         make: booking?.carMake || "Vehicle",
         model: booking?.carModel || "Rental",
-        image: booking?.carImage || "https://placehold.co/600x400?text=Car+Image",
         category: booking?.carCategory || "Standard",
-        sippCode: "????",
+        sippCode: booking?.carSippCode || "????",
         transmission: booking?.carTransmission || "Automatic"
     } as any;
 
@@ -142,19 +135,27 @@ const SupplierConfirmation: React.FC = () => {
     const isRejectAction = action === 'reject';
 
     return (
-        <div className="min-h-screen bg-slate-100 font-sans">
+        <div className="min-h-screen bg-slate-100 font-sans print:bg-white">
             <SEOMetadata title="Confirm Booking Request" description="Supplier confirmation page for Hogicar rental request." noIndex={true} />
             
-            <header className="bg-white shadow-sm">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-2">
-                    <Logo className="h-12 w-auto" variant="dark" />
-                    <span className="text-slate-400 font-light text-xl mx-2">|</span>
-                    <span className="text-sm font-semibold text-slate-500">Supplier Dashboard</span>
+            <header className="bg-white shadow-sm print:hidden">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Logo className="h-12 w-auto" variant="dark" />
+                        <span className="text-slate-400 font-light text-xl mx-2">|</span>
+                        <span className="text-sm font-semibold text-slate-500">Supplier Dashboard</span>
+                    </div>
+                    <button 
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                    >
+                        <Printer className="w-4 h-4" /> Print
+                    </button>
                 </div>
             </header>
             
-            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-0 print:px-0">
+                <div className="bg-white rounded-xl shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
                     <div className="p-8 border-b border-slate-100">
                         <h1 className="text-2xl font-bold text-slate-800">Rental Request Voucher</h1>
                         <p className="text-sm text-slate-500 mt-1">Please review the details below and take action to finalize this booking.</p>
@@ -168,6 +169,8 @@ const SupplierConfirmation: React.FC = () => {
                                 <div className="space-y-2 text-sm">
                                     <p className="flex justify-between"><span>Hogicar Reference:</span> <strong className="font-mono">{booking.bookingRef || booking.id}</strong></p>
                                     <p className="flex justify-between"><span>Customer Name:</span> <strong>{booking.firstName} {booking.lastName}</strong></p>
+                                    <p className="flex justify-between"><span>Customer Email:</span> <strong>{booking.email}</strong></p>
+                                    <p className="flex justify-between"><span>Customer Phone:</span> <strong>{booking.phone}</strong></p>
                                 </div>
                             </div>
                              <div>
@@ -175,26 +178,32 @@ const SupplierConfirmation: React.FC = () => {
                                 <div className="space-y-2 text-sm">
                                     <p className="flex justify-between"><span>Pick-up:</span> <strong>{booking.pickupDate} at {booking.startTime}</strong></p>
                                     <p className="flex justify-between"><span>Drop-off:</span> <strong>{booking.dropoffDate} at {booking.endTime}</strong></p>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Price Details</h3>
-                                <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Supplier Net:</span> <strong>{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
-                                    <p className="flex justify-between text-blue-600"><span>Total Rental Value:</span> <strong>{booking.currency} {booking.finalPrice?.toFixed(2)}</strong></p>
+                                    <p className="flex justify-between"><span>Pick-up Location:</span> <strong>{booking.pickupLocationName || booking.pickupCode}</strong></p>
+                                    <p className="flex justify-between"><span>Drop-off Location:</span> <strong>{booking.dropoffLocationName || booking.dropoffCode}</strong></p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column: Car Details */}
-                        <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
-                            <img src={displayCar.image} alt={displayCar.model} className="w-full h-32 object-contain mb-4" />
-                            <h3 className="text-lg font-bold text-slate-900">{displayCar.make} {displayCar.model}</h3>
-                            <p className="text-xs text-slate-500">or similar {displayCar.category}</p>
-                            <div className="mt-3 pt-3 border-t border-slate-200 text-xs space-y-1">
-                                <p className="flex justify-between"><span>SIPP Code:</span> <span className="font-mono font-bold text-blue-600">{booking.carSippCode || displayCar.sippCode}</span></p>
-                                <p className="flex justify-between"><span>Transmission:</span> <span>{booking.carTransmission || displayCar.transmission}</span></p>
-                                <p className="flex justify-between"><span>Fuel Policy:</span> <span>{booking.carFuelPolicy || 'N/A'}</span></p>
+                        {/* Right Column: Car Details & Price */}
+                        <div className="space-y-6">
+                            <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Specifications</h3>
+                                <div className="space-y-3 text-sm">
+                                    <p className="text-lg font-black text-slate-900 uppercase">{displayCar.make} {displayCar.model}</p>
+                                    <div className="grid grid-cols-2 gap-y-2 mt-2">
+                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-blue-600 uppercase">{displayCar.sippCode}</span></p>
+                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Transmission</span> <span className="font-bold">{displayCar.transmission}</span></p>
+                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Category</span> <span className="font-bold">{displayCar.category}</span></p>
+                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Fuel Policy</span> <span className="font-bold">{booking.carFuelPolicy || 'N/A'}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Financial Breakdown</h3>
+                                <div className="space-y-2 text-sm">
+                                    <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-blue-700">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
+                                    <p className="text-[10px] text-blue-400 italic">This is the amount you will receive for this rental.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

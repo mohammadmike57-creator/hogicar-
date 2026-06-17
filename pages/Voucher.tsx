@@ -79,9 +79,17 @@ const Voucher: React.FC = () => {
         {/* Header */}
         <div className="bg-[#0f172a] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-6 print:bg-white print:text-slate-900 print:border-b-2 print:border-slate-200">
           <Logo className="h-10 w-auto" variant="light" />
-          <div className="text-center sm:text-right">
-            <h1 className="text-white text-xl font-black uppercase tracking-widest print:text-slate-900">Official Rental Voucher</h1>
-            <p className="text-blue-300 text-sm font-bold print:text-slate-500">Reference: {booking.bookingRef}</p>
+          <div className="flex flex-col items-center sm:items-end gap-3">
+            <div className="text-center sm:text-right">
+              <h1 className="text-white text-xl font-black uppercase tracking-widest print:text-slate-900">Official Rental Voucher</h1>
+              <p className="text-blue-300 text-sm font-bold print:text-slate-500">Reference: {booking.bookingRef}</p>
+            </div>
+            <button 
+              onClick={() => window.print()}
+              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all print:hidden"
+            >
+              <Printer className="w-4 h-4" /> Download PDF / Print
+            </button>
           </div>
         </div>
 
@@ -134,7 +142,7 @@ const Voucher: React.FC = () => {
                
                <div className="relative z-10">
                  <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                    <img src={booking.carImage} alt={booking.carModel} className="w-full sm:w-48 h-32 object-contain" />
+                    {/* Car Image removed per user request for professional look */}
                     <div>
                       <div className="bg-blue-600 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
                         {booking.carCategory || 'Standard Class'}
@@ -235,6 +243,16 @@ const Voucher: React.FC = () => {
                 <div className="mt-6 pt-4 border-t border-white/5 text-[9px] text-blue-200/40 text-center uppercase tracking-tighter print:text-slate-400">
                   Prices include all mandatory taxes & local fees.
                 </div>
+             </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-slate-100">
+             <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                   <ShieldCheck className="w-4 h-4 text-[#008009]" /> Hogicar Quality Guarantee
+                </h3>
+                <p className="text-[11px] text-slate-500 leading-relaxed uppercase tracking-tighter">
+                   This rental voucher is a legal agreement between the customer and the rental provider. Hogicar ensures all providers adhere to our strict quality standards. Please ensure you have all required documentation listed above to avoid delays at the rental desk. Safe travels!
+                </p>
              </div>
           </div>
         </div>

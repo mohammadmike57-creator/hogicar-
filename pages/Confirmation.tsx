@@ -175,10 +175,10 @@ const Confirmation: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Details</h3>
                   <div className="flex items-center gap-4">
-                    <img src={carDisplay.image} alt={carDisplay.model} className="w-32 h-20 object-cover rounded-lg" />
+                    {/* Car image removed per user request */}
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-slate-800">{carDisplay.make} {carDisplay.model}</p>
+                        <p className="font-bold text-slate-800 text-lg uppercase">{carDisplay.make} {carDisplay.model}</p>
                         {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
                           <div className="flex items-center gap-1 bg-emerald-50 text-[#008009] px-2 py-0.5 rounded text-[10px] font-black uppercase border border-emerald-100 shadow-sm">
                              <Zap className="w-2.5 h-2.5 fill-[#008009]/20" />
@@ -186,20 +186,20 @@ const Confirmation: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <p className="text-sm text-slate-500">{carDisplay.category}</p>
+                      <p className="text-sm text-slate-500 uppercase font-medium">{carDisplay.category}</p>
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
                         {carDisplay.sippCode && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded uppercase">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded uppercase tracking-tighter">
                             SIPP: {carDisplay.sippCode}
                           </span>
                         )}
-                        <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
-                          <User className="w-3 h-3" /> {carDisplay.passengers}
+                        <span className="text-[10px] font-black text-slate-500 flex items-center gap-1 uppercase">
+                          <User className="w-3 h-3" /> {carDisplay.passengers} Seats
                         </span>
-                        <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
-                          <FileText className="w-3 h-3" /> {carDisplay.bags}
+                        <span className="text-[10px] font-black text-slate-500 flex items-center gap-1 uppercase">
+                          <FileText className="w-3 h-3" /> {carDisplay.bags} Bags
                         </span>
-                        <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                        <span className="text-[10px] font-black text-slate-500 flex items-center gap-1 uppercase">
                           <Zap className="w-3 h-3" /> {carDisplay.transmission}
                         </span>
                       </div>
