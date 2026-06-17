@@ -95,7 +95,7 @@ export const persistSelectedCar = (car: Car, cars?: Car[]) => {
     ...cars
       .filter(item => String(item.id) !== String(car.id))
       .slice(0, MAX_STORED_CARS - 1)
-      .map(item => compactCarForStorage(item)),
+      .map(item => compactCarForStorage(item, { preservePrimaryImage: true })),
   ];
 
   safeSessionStorageSetItem(CARS_KEY, JSON.stringify(compactCars));

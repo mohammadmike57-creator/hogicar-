@@ -375,7 +375,7 @@ const CarCard: React.FC<CarCardProps> = ({
   
   const [imageError, setImageError] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
-  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car.image || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (car.image || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');
   const displayRatings = React.useMemo(() => getCarRatings(car), [car]);
 
   const ratingToDisplay = React.useMemo(() => {

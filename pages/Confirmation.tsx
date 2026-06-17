@@ -119,7 +119,7 @@ const Confirmation: React.FC = () => {
     make: booking.carMake || storedCar?.make || "Vehicle",
     model: booking.carModel || booking.carName || storedCar?.model || "Rental",
     category: booking.carCategory || storedCar?.category || "Standard",
-    image: booking.carImage || storedCar?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle',
+    image: booking.carImage || storedCar?.image || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle',
     location: storedCar?.location || booking.pickupCode || "Airport",
     sippCode: booking.carSippCode || (storedCar as any)?.sippCode,
     passengers: booking.carPassengers || storedCar?.passengers || 5,
@@ -181,6 +181,12 @@ const Confirmation: React.FC = () => {
                         alt={`${carDisplay.make} ${carDisplay.model}`} 
                         className="max-w-full max-h-full object-contain"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (!target.src.includes('placehold.co')) {
+                            target.src = 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle';
+                          }
+                        }}
                       />
                     </div>
                     <div className="flex flex-col">

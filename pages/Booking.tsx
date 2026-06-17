@@ -236,7 +236,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
   
   const [imageError, setImageError] = React.useState(false);
-  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');
   const supplierLogo = car?.supplier?.logo || car?.supplier?.logoUrl;
   const transmissionLabel = car?.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual';
   const fuelPolicyLabel = car?.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car?.fuelPolicy?.replace(/_/g, ' ') || 'Full to full';

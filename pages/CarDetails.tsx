@@ -323,6 +323,14 @@ const CarDetails: React.FC = () => {
             pickupDate: startDate,
             dropoffDate: endDate,
           });
+
+          // If foundCars was empty, populate it from refreshedCars
+          if (foundCars.length === 0 && refreshedCars.length > 0) {
+            // Map ApiSearchResult to something closer to Car if needed, 
+            // but loadCars already normalizes most fields.
+            foundCars = refreshedCars as any[];
+          }
+
           const refreshedCar = refreshedCars.find(c => String(c.id) === String(id).replace('choice-', ''));
           if (refreshedCar?.image) {
             foundCar = {
@@ -340,6 +348,16 @@ const CarDetails: React.FC = () => {
       if (!foundCar && id) {
         const mockCar = null; // Mock data removed
         if (mockCar) foundCar = mockCar as any;
+      }
+
+      // Ensure all foundCars have images if they are missing
+      if (foundCars.length > 0) {
+        foundCars = foundCars.map(c => {
+          if (!c.image && (c as any).imageUrl) {
+            return { ...c, image: (c as any).imageUrl };
+          }
+          return c;
+        });
       }
 
       if (foundCar) {
@@ -401,7 +419,7 @@ const CarDetails: React.FC = () => {
   const bookingParams = new URLSearchParams({ startDate, endDate, ...(pickupCode && { pickup: pickupCode }), ...(dropoffCode && { dropoff: dropoffCode }), ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), ...(appliedPromo && { promo: appliedPromo.code }) }).toString();
 
   const [imageError, setImageError] = React.useState(false);
-  const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+  const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');
   const pickupDisplay = new Date(startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const dropoffDisplay = new Date(endDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const supplierLogo = car?.supplier.logo || (car?.supplier as any)?.logoUrl;
@@ -814,9 +832,15 @@ const CarDetails: React.FC = () => {
                       >
                         <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden bg-white p-4">
                           <img 
-                            src={similar.image || similar.imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
+                            src={similar.image || similar.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'} 
                             alt={similar.displayName} 
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (!target.src.includes('placehold.co')) {
+                                target.src = 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle';
+                              }
+                            }}
                             className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105" 
                           />
                           <div className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#008009] shadow-sm ring-1 ring-slate-200">

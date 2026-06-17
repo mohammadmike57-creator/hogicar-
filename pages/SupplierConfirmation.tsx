@@ -229,10 +229,16 @@ const SupplierConfirmation: React.FC = () => {
                                 <div className="flex flex-col sm:flex-row gap-6 items-center mb-4">
                                     <div className="w-full sm:w-40 h-28 bg-white rounded-lg border border-slate-100 p-2 flex items-center justify-center shrink-0">
                                         <img 
-                                            src={booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
+                                            src={booking.carImage || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'} 
                                             alt={`${displayCar.make} ${displayCar.model}`} 
                                             className="max-w-full max-h-full object-contain"
                                             referrerPolicy="no-referrer"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                if (!target.src.includes('placehold.co')) {
+                                                    target.src = 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle';
+                                                }
+                                            }}
                                         />
                                     </div>
                                     <div className="flex-grow">

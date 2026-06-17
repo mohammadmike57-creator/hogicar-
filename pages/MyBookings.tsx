@@ -101,7 +101,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
     const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
     const [imageError, setImageError] = React.useState(false);
-    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
+    const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');
     const [isCancelling, setIsCancelling] = React.useState(false);
     const renderPrice = (amount: number) => {
         const safeAmount = amount || 0;
