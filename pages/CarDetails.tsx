@@ -436,7 +436,7 @@ const CarDetails: React.FC = () => {
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="h-auto max-h-[280px] w-full max-w-full object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-700 sm:max-h-[340px] lg:max-h-[460px]"
+                      className="h-auto max-h-[280px] w-full max-w-full object-contain drop-shadow-2xl transition-transform duration-700 sm:max-h-[340px] lg:max-h-[460px]"
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                       <span className="hidden md:inline-block bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">

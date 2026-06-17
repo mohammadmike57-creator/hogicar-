@@ -626,7 +626,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     onError={() => setImageError(true)}
                     referrerPolicy="no-referrer"
                     loading="eager"
-                    className="w-36 sm:w-44 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-105 transition-transform duration-700 mix-blend-multiply"
+                    className="w-36 sm:w-44 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-105 transition-transform duration-700"
                    />
                </div>
                <div className="flex-grow text-center md:text-left relative z-10">

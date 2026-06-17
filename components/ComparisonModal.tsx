@@ -199,7 +199,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                 </button>
                 <div className="flex gap-3 sm:gap-4">
                     <div className="flex h-20 w-32 shrink-0 items-center justify-center bg-transparent p-0 sm:h-28 sm:w-44">
-                        <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-2xl mix-blend-multiply" />
+                        <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-2xl" />
                     </div>
                     <div className="min-w-0 pr-8">
                         <div className="mb-2 flex flex-wrap gap-1.5">
@@ -235,7 +235,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start gap-3">
                 <div className="flex h-16 w-32 shrink-0 items-center justify-center bg-transparent p-0">
-                    <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-2xl mix-blend-multiply" />
+                    <img src={car.image || car.imageUrl} alt={getVehicleName(car)} className="max-h-full max-w-full object-contain drop-shadow-2xl" />
                 </div>
                 <div className="min-w-0">
                     <h3 className="text-sm font-black uppercase leading-tight text-slate-950">{getVehicleName(car)}</h3>

@@ -134,7 +134,7 @@ const Voucher: React.FC = () => {
                
                <div className="relative z-10">
                  <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                    <img src={booking.carImage} alt={booking.carModel} className="w-full sm:w-48 h-32 object-contain mix-blend-multiply" />
+                    <img src={booking.carImage} alt={booking.carModel} className="w-full sm:w-48 h-32 object-contain" />
                     <div>
                       <div className="bg-blue-600 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
                         {booking.carCategory || 'Standard Class'}

@@ -485,7 +485,7 @@ const CarCard: React.FC<CarCardProps> = ({
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
-                        className="w-full h-auto object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-500 ease-out"
+                        className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-500 ease-out"
                       />
                   </Link>
               </div>
@@ -567,7 +567,7 @@ const CarCard: React.FC<CarCardProps> = ({
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
                         loading="eager"
-                        className="w-full h-full object-contain drop-shadow-2xl mix-blend-multiply transition-transform duration-500 ease-out z-10"
+                        className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 ease-out z-10"
                       />
 
                       {promotionLabel && (
