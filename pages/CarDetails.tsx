@@ -566,91 +566,71 @@ const CarDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative group/journey transition-all hover:shadow-md">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
                   <div>
-                    <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
-                        <Navigation className="w-4 h-4 text-[#008009]" /> 
-                        Rental Journey Itinerary
+                    <h2 className="text-base sm:text-lg font-black flex items-center gap-2 text-slate-950">
+                      <Navigation className="w-4 h-4 text-[#008009]" />
+                      Rental Journey Itinerary
                     </h2>
-                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest ml-6">Door-to-door schedule</p>
+                    <p className="text-xs font-semibold text-slate-500 mt-1">Pickup and return schedule for this booking.</p>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                    </span>
-                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider">Live Journey</span>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#008009]" />
+                    <span className="text-[10px] font-black text-[#008009] uppercase tracking-wider">{timeUntilPickup}</span>
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1.4fr_auto_1fr] items-center gap-3 relative">
-                  {/* STEP 1: NOW */}
-                  <div className="flex flex-col items-center lg:items-start order-1 bg-slate-50/30 p-3 rounded-2xl border border-dashed border-slate-200">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Current Status</span>
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
-                           <Clock className="w-4 h-4 text-blue-600 animate-pulse" />
-                        </div>
-                        <div>
-                            <div className="text-lg font-bold text-slate-900 leading-none">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
-                            <div className="text-[9px] font-bold text-blue-600 mt-1 uppercase tracking-tight">{timeUntilPickup}</div>
-                        </div>
+
+                <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#008009] ring-1 ring-slate-200">
+                        <MapPin className="w-3 h-3" />
+                        Pick-up
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{pickupCode}</span>
+                    </div>
+                    <div className="flex items-end justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{pickupDisplay}</p>
+                        <p className="mt-1 text-lg font-black text-slate-950 leading-none">{startTime}</p>
+                      </div>
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#008009]/10 text-[#008009]">
+                        <CarIcon className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <p className="mt-3 truncate text-xs font-semibold text-slate-600">{pickupName || car.locationDetail}</p>
+                  </div>
+
+                  <div className="flex items-center justify-center">
+                    <div className="flex w-full items-center gap-2 lg:w-auto lg:flex-col">
+                      <div className="h-px flex-1 bg-slate-200 lg:h-10 lg:w-px" />
+                      <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                        <ArrowRight className="hidden w-3.5 h-3.5 text-slate-400 lg:block" />
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{days} days</span>
+                      </div>
+                      <div className="h-px flex-1 bg-slate-200 lg:h-10 lg:w-px" />
                     </div>
                   </div>
 
-                  {/* Connector 1 */}
-                  <div className="hidden lg:flex flex-col items-center justify-center order-2 px-1 opacity-20">
-                    <ArrowRight className="w-3 h-3 text-slate-400" />
-                  </div>
-
-                  {/* STEP 2: PICKUP */}
-                  <div className="flex flex-col items-center lg:items-start order-3 bg-white p-4 rounded-2xl border border-slate-200 w-full relative group/pickup hover:border-[#008009]/30 transition-colors shadow-sm">
-                    <div className="absolute -top-2.5 left-4 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full shadow-sm">
-                        <span className="text-[8px] font-bold text-[#008009] uppercase tracking-widest flex items-center gap-1">
-                            <MapPin className="w-2.5 h-2.5" /> Pick-up
-                        </span>
+                  <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-white">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-100 ring-1 ring-white/10">
+                        <Navigation className="w-3 h-3" />
+                        Drop-off
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{dropoffCode || pickupCode}</span>
                     </div>
-                    <div className="flex items-end justify-between w-full mb-2 mt-0.5">
-                        <span className="text-2xl font-bold text-slate-950 tracking-tight">{startTime}</span>
-                        <div className="text-right">
-                            <span className="text-lg font-bold text-[#003580] block leading-none">{pickupCode}</span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase">{pickupDisplay}</span>
-                        </div>
+                    <div className="flex items-end justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{dropoffDisplay}</p>
+                        <p className="mt-1 text-lg font-black leading-none">{endTime}</p>
+                      </div>
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-emerald-300">
+                        <CheckCircle className="w-4 h-4" />
+                      </div>
                     </div>
-                    <div className="w-full h-px bg-slate-100 mb-2" />
-                    <p className="text-[10px] font-medium text-slate-500 truncate w-full">{pickupName || car.locationDetail}</p>
-                  </div>
-
-                  {/* Connector 2 */}
-                  <div className="flex flex-col items-center justify-center order-4 px-2 w-full lg:w-auto my-4 lg:my-0">
-                     <div className="relative w-full lg:w-20 h-px bg-slate-100 flex items-center justify-center">
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#008009]/20 to-slate-100" />
-                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-white p-1 rounded-full border border-slate-200 shadow-sm z-10">
-                           <CarIcon className="w-3.5 h-3.5 text-[#008009]" />
-                        </div>
-                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{days} Days</span>
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* STEP 3: DROPOFF */}
-                  <div className="flex flex-col items-center lg:items-end order-5 text-center lg:text-right bg-slate-900 p-4 rounded-2xl border border-slate-800 w-full relative group/dropoff shadow-lg shadow-slate-200">
-                    <div className="absolute -top-2.5 right-4 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full shadow-sm">
-                        <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1">
-                            <Navigation className="w-2.5 h-2.5" /> Drop-off
-                        </span>
-                    </div>
-                    <div className="flex items-end justify-between lg:flex-row-reverse w-full mb-2 mt-0.5">
-                        <span className="text-2xl font-bold text-white tracking-tight">{endTime}</span>
-                        <div className="lg:text-left">
-                            <span className="text-lg font-bold text-blue-400 block leading-none">{dropoffCode || pickupCode}</span>
-                            <span className="text-[9px] font-bold text-slate-500 uppercase">{dropoffDisplay}</span>
-                        </div>
-                    </div>
-                    <div className="w-full h-px bg-slate-800 mb-2" />
-                    <p className="text-[10px] font-medium text-slate-400 truncate w-full">{dropoffName || pickupName || car.locationDetail}</p>
+                    <p className="mt-3 truncate text-xs font-semibold text-slate-400">{dropoffName || pickupName || car.locationDetail}</p>
                   </div>
                 </div>
               </div>
@@ -802,18 +782,19 @@ const CarDetails: React.FC = () => {
 
               {/* Upgrade / Other models from same supplier */}
               {cars && cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).length > 0 && (
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 transition-all hover:shadow-md">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
                     <div>
-                      <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
-                        <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500/10" />
-                        Upgrade your ride
+                      <h2 className="text-lg font-black flex items-center gap-2 text-slate-950">
+                        <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500/10" />
+                        Upgrade options
                       </h2>
-                      <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest ml-7">Better models from same supplier</p>
+                      <p className="text-xs font-semibold text-slate-500 mt-1">Available vehicles from {car.supplier.name} for the same journey.</p>
                     </div>
+                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500">Same supplier</span>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).slice(0, 4).map(similar => (
                       <button 
                         key={similar.id} 
@@ -822,39 +803,54 @@ const CarDetails: React.FC = () => {
                           navigate(`/car/${similar.id}?${bookingParams}`, { replace: true });
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="group flex items-center gap-4 p-3 border border-slate-100 bg-slate-50/50 rounded-2xl hover:bg-white hover:border-[#008009]/30 hover:shadow-xl hover:shadow-slate-100 transition-all text-left w-full overflow-hidden"
+                        className="group flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50 text-left transition-all hover:-translate-y-0.5 hover:border-[#008009]/30 hover:bg-white hover:shadow-[0_18px_42px_-32px_rgba(15,23,42,0.65)]"
                       >
-                        <div className="relative w-28 h-20 bg-white rounded-xl border border-slate-100 p-1 shrink-0 flex items-center justify-center overflow-hidden">
-                           <img 
+                        <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden bg-white p-4">
+                          <img 
                             src={similar.image || (similar as any).imageUrl} 
                             alt={similar.displayName} 
-                            className="w-full h-full object-contain transition-transform group-hover:scale-110 duration-500" 
-                           />
+                            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105" 
+                          />
+                          <div className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#008009] shadow-sm ring-1 ring-slate-200">
+                            {formatCategoryName(similar.category)}
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col h-full justify-between">
-                            <div>
-                              <div className="text-[9px] font-black text-[#008009] uppercase tracking-widest mb-0.5">{formatCategoryName(similar.category)}</div>
-                              <div className="font-bold text-slate-900 truncate text-sm">{similar.displayName}</div>
-                              <div className="flex items-center gap-3 mt-1.5 opacity-60">
-                                <div className="flex items-center gap-1">
+                        <div className="flex flex-1 flex-col p-4">
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-black text-slate-950">{similar.displayName}</div>
+                            <div className="mt-2 grid grid-cols-3 gap-2">
+                              <div className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                                <div className="flex items-center gap-1 text-slate-500">
                                   <User className="w-3 h-3" />
-                                  <span className="text-[10px] font-bold">{similar.passengers}</span>
+                                  <span className="text-[10px] font-bold uppercase">Seats</span>
                                 </div>
-                                <div className="flex items-center gap-1">
+                                <p className="text-xs font-black text-slate-900">{similar.passengers}</p>
+                              </div>
+                              <div className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                                <div className="flex items-center gap-1 text-slate-500">
                                   <Briefcase className="w-3 h-3" />
-                                  <span className="text-[10px] font-bold">{similar.bags}</span>
+                                  <span className="text-[10px] font-bold uppercase">Bags</span>
                                 </div>
-                                <div className="flex items-center gap-1">
+                                <p className="text-xs font-black text-slate-900">{similar.bags}</p>
+                              </div>
+                              <div className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                                <div className="flex items-center gap-1 text-slate-500">
                                   <AutomaticIcon className="w-3 h-3" />
-                                  <span className="text-[10px] font-bold uppercase">{similar.transmission === 'AUTOMATIC' ? 'Auto' : 'Man'}</span>
+                                  <span className="text-[10px] font-bold uppercase">Gear</span>
                                 </div>
+                                <p className="text-xs font-black text-slate-900">{similar.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}</p>
                               </div>
                             </div>
-                            <div className="mt-2.5 flex items-center justify-between">
-                               <div className="text-xs font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)}</div>
-                               <div className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Total Price</div>
+                          </div>
+                          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-200 pt-3">
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Total price</p>
+                              <p className="text-base font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)}</p>
                             </div>
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-slate-950 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white transition-colors group-hover:bg-[#008009]">
+                              View
+                              <ArrowRight className="w-3 h-3" />
+                            </span>
                           </div>
                         </div>
                       </button>
