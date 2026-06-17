@@ -62,8 +62,8 @@ const CarDoorIcon = () => (
   </svg>
 );
 
-const AutomaticIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+const AutomaticIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className || "w-5 h-5"}>
     <path d="M12 2v2.34"/><path d="M12 10.32v1.34"/><path d="M7.11 4.41 8 6.1"/><path d="M16 6.1l.89-1.69"/><path d="M4.41 16.89l1.69-.89"/><path d="M17.9 16l1.69.89"/><path d="M2 12h2.34"/><path d="M19.66 12H22"/><path d="M12 14.66V16"/><path d="M12 22v-2.34"/><path d="m15 12-3-3-3 3"/><path d="M12 9v13"/>
   </svg>
 );
@@ -566,93 +566,91 @@ const CarDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-6 overflow-hidden relative group/journey">
-                <div className="flex items-center justify-between mb-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative group/journey transition-all hover:shadow-md">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-xl font-black flex items-center gap-2 text-slate-950">
-                        <Navigation className="w-5 h-5 text-[#008009]" /> 
+                    <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
+                        <Navigation className="w-4 h-4 text-[#008009]" /> 
                         Rental Journey Itinerary
                     </h2>
-                    <p className="text-[11px] font-bold text-slate-500 mt-1 uppercase tracking-widest ml-7">Door-to-door schedule</p>
+                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest ml-6">Door-to-door schedule</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-slate-900 px-4 py-2 rounded-xl shadow-xl transition-transform group-hover/journey:scale-105">
-                    <span className="relative flex h-2 w-2">
+                  <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                    <span className="relative flex h-1.5 w-1.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                     </span>
-                    <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Live Status</span>
+                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider">Live Journey</span>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_auto_1.8fr_auto_1.2fr] items-center gap-4 relative">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1.4fr_auto_1fr] items-center gap-3 relative">
                   {/* STEP 1: NOW */}
-                  <div className="flex flex-col items-center lg:items-start order-1">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Point A: Now</span>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 shadow-inner">
-                           <Clock className="w-5 h-5 text-blue-600 animate-pulse" />
+                  <div className="flex flex-col items-center lg:items-start order-1 bg-slate-50/30 p-3 rounded-2xl border border-dashed border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Current Status</span>
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                           <Clock className="w-4 h-4 text-blue-600 animate-pulse" />
                         </div>
                         <div>
-                            <div className="text-xl font-black text-slate-900 leading-none">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
-                            <div className="text-[10px] font-black text-blue-600 mt-1 uppercase tracking-tighter">{timeUntilPickup}</div>
+                            <div className="text-lg font-bold text-slate-900 leading-none">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
+                            <div className="text-[9px] font-bold text-blue-600 mt-1 uppercase tracking-tight">{timeUntilPickup}</div>
                         </div>
                     </div>
                   </div>
 
                   {/* Connector 1 */}
-                  <div className="hidden lg:flex flex-col items-center justify-center order-2 px-2 opacity-30">
-                    <div className="h-6 w-[2px] bg-slate-200" />
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                    <div className="h-6 w-[2px] bg-slate-200" />
+                  <div className="hidden lg:flex flex-col items-center justify-center order-2 px-1 opacity-20">
+                    <ArrowRight className="w-3 h-3 text-slate-400" />
                   </div>
 
-                  {/* STEP 2: PICKUP (Airport style) */}
-                  <div className="flex flex-col items-center lg:items-start order-3 bg-slate-50/50 p-5 rounded-3xl border border-slate-100 w-full relative group/pickup hover:bg-slate-50 transition-colors">
-                    <div className="absolute -top-3 left-6 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">
-                        <span className="text-[9px] font-black text-[#008009] uppercase tracking-widest flex items-center gap-1.5">
-                            <MapPin className="w-3 h-3" /> Pick-up Point
+                  {/* STEP 2: PICKUP */}
+                  <div className="flex flex-col items-center lg:items-start order-3 bg-white p-4 rounded-2xl border border-slate-200 w-full relative group/pickup hover:border-[#008009]/30 transition-colors shadow-sm">
+                    <div className="absolute -top-2.5 left-4 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full shadow-sm">
+                        <span className="text-[8px] font-bold text-[#008009] uppercase tracking-widest flex items-center gap-1">
+                            <MapPin className="w-2.5 h-2.5" /> Pick-up
                         </span>
                     </div>
-                    <div className="flex items-end justify-between w-full mb-3 mt-1">
-                        <span className="text-4xl font-black text-slate-950 tracking-tighter">{startTime}</span>
+                    <div className="flex items-end justify-between w-full mb-2 mt-0.5">
+                        <span className="text-2xl font-bold text-slate-950 tracking-tight">{startTime}</span>
                         <div className="text-right">
-                            <span className="text-2xl font-black text-[#003580] block leading-none">{pickupCode}</span>
-                            <span className="text-[10px] font-black text-slate-400 uppercase">{pickupDisplay}</span>
+                            <span className="text-lg font-bold text-[#003580] block leading-none">{pickupCode}</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase">{pickupDisplay}</span>
                         </div>
                     </div>
-                    <div className="w-full h-[1px] bg-slate-200 mb-3" />
-                    <p className="text-xs font-bold text-slate-600 truncate w-full">{pickupName || car.locationDetail}</p>
+                    <div className="w-full h-px bg-slate-100 mb-2" />
+                    <p className="text-[10px] font-medium text-slate-500 truncate w-full">{pickupName || car.locationDetail}</p>
                   </div>
 
-                  {/* Connector 2: Flight Path Style */}
-                  <div className="flex flex-col items-center justify-center order-4 px-6 w-full lg:w-auto my-6 lg:my-0">
-                     <div className="relative w-full lg:w-28 h-[2px] bg-slate-200 flex items-center justify-center">
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#008009] via-[#008009] to-slate-200" />
-                        <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-white p-1.5 rounded-full border-2 border-[#008009] shadow-md z-10 scale-110">
-                           <CarIcon className="w-5 h-5 text-[#008009]" />
+                  {/* Connector 2 */}
+                  <div className="flex flex-col items-center justify-center order-4 px-2 w-full lg:w-auto my-4 lg:my-0">
+                     <div className="relative w-full lg:w-20 h-px bg-slate-100 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#008009]/20 to-slate-100" />
+                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-white p-1 rounded-full border border-slate-200 shadow-sm z-10">
+                           <CarIcon className="w-3.5 h-3.5 text-[#008009]" />
                         </div>
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{days} Days Flow</span>
+                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{days} Days</span>
                         </div>
                      </div>
                   </div>
 
                   {/* STEP 3: DROPOFF */}
-                  <div className="flex flex-col items-center lg:items-end order-5 text-center lg:text-right bg-slate-900 p-5 rounded-3xl border border-slate-800 w-full relative group/dropoff shadow-2xl">
-                    <div className="absolute -top-3 right-6 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full shadow-sm">
-                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-                            <Navigation className="w-3 h-3" /> Drop-off Point
+                  <div className="flex flex-col items-center lg:items-end order-5 text-center lg:text-right bg-slate-900 p-4 rounded-2xl border border-slate-800 w-full relative group/dropoff shadow-lg shadow-slate-200">
+                    <div className="absolute -top-2.5 right-4 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full shadow-sm">
+                        <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1">
+                            <Navigation className="w-2.5 h-2.5" /> Drop-off
                         </span>
                     </div>
-                    <div className="flex items-end justify-between lg:flex-row-reverse w-full mb-3 mt-1">
-                        <span className="text-4xl font-black text-white tracking-tighter">{endTime}</span>
+                    <div className="flex items-end justify-between lg:flex-row-reverse w-full mb-2 mt-0.5">
+                        <span className="text-2xl font-bold text-white tracking-tight">{endTime}</span>
                         <div className="lg:text-left">
-                            <span className="text-2xl font-black text-blue-400 block leading-none">{dropoffCode || pickupCode}</span>
-                            <span className="text-[10px] font-black text-slate-500 uppercase">{dropoffDisplay}</span>
+                            <span className="text-lg font-bold text-blue-400 block leading-none">{dropoffCode || pickupCode}</span>
+                            <span className="text-[9px] font-bold text-slate-500 uppercase">{dropoffDisplay}</span>
                         </div>
                     </div>
-                    <div className="w-full h-[1px] bg-slate-800 mb-3" />
-                    <p className="text-xs font-bold text-slate-400 truncate w-full">{dropoffName || pickupName || car.locationDetail}</p>
+                    <div className="w-full h-px bg-slate-800 mb-2" />
+                    <p className="text-[10px] font-medium text-slate-400 truncate w-full">{dropoffName || pickupName || car.locationDetail}</p>
                   </div>
                 </div>
               </div>
@@ -804,11 +802,17 @@ const CarDetails: React.FC = () => {
 
               {/* Upgrade / Other models from same supplier */}
               {cars && cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).length > 0 && (
-                <div className="bg-[#f3f6fb] rounded-2xl shadow-lg shadow-slate-400/20 border border-slate-300/70 p-5 sm:p-6">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-500" />
-                    Upgrade your ride
-                  </h2>
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 transition-all hover:shadow-md">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
+                        <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500/10" />
+                        Upgrade your ride
+                      </h2>
+                      <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest ml-7">Better models from same supplier</p>
+                    </div>
+                  </div>
+                  
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id).slice(0, 4).map(similar => (
                       <button 
@@ -818,13 +822,40 @@ const CarDetails: React.FC = () => {
                           navigate(`/car/${similar.id}?${bookingParams}`, { replace: true });
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="flex text-left gap-4 p-4 border border-slate-300/70 bg-slate-100/80 rounded-xl hover:shadow-lg transition-all hover:border-blue-400 w-full"
+                        className="group flex items-center gap-4 p-3 border border-slate-100 bg-slate-50/50 rounded-2xl hover:bg-white hover:border-[#008009]/30 hover:shadow-xl hover:shadow-slate-100 transition-all text-left w-full overflow-hidden"
                       >
-                        <img src={similar.image || (similar as any).imageUrl} alt={similar.displayName} className="w-24 h-24 object-contain mix-blend-multiply drop-shadow-lg" />
-                        <div className="flex-1">
-                          <div className="font-semibold">{similar.displayName}</div>
-                          <div className="text-sm text-slate-500">{similar.category}</div>
-                          <div className="font-bold text-blue-600 mt-2">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)} total</div>
+                        <div className="relative w-28 h-20 bg-white rounded-xl border border-slate-100 p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                           <img 
+                            src={similar.image || (similar as any).imageUrl} 
+                            alt={similar.displayName} 
+                            className="w-full h-full object-contain transition-transform group-hover:scale-110 duration-500" 
+                           />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col h-full justify-between">
+                            <div>
+                              <div className="text-[9px] font-black text-[#008009] uppercase tracking-widest mb-0.5">{formatCategoryName(similar.category)}</div>
+                              <div className="font-bold text-slate-900 truncate text-sm">{similar.displayName}</div>
+                              <div className="flex items-center gap-3 mt-1.5 opacity-60">
+                                <div className="flex items-center gap-1">
+                                  <User className="w-3 h-3" />
+                                  <span className="text-[10px] font-bold">{similar.passengers}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Briefcase className="w-3 h-3" />
+                                  <span className="text-[10px] font-bold">{similar.bags}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <AutomaticIcon className="w-3 h-3" />
+                                  <span className="text-[10px] font-bold uppercase">{similar.transmission === 'AUTOMATIC' ? 'Auto' : 'Man'}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mt-2.5 flex items-center justify-between">
+                               <div className="text-xs font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)}</div>
+                               <div className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Total Price</div>
+                            </div>
+                          </div>
                         </div>
                       </button>
                     ))}
