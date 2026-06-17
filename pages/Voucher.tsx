@@ -98,7 +98,7 @@ const Voucher: React.FC = () => {
             {/* Column 1: Customer & Supplier */}
             <div className="space-y-8">
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <User className="w-3 h-3" /> Main Driver
                 </h3>
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
@@ -109,7 +109,7 @@ const Voucher: React.FC = () => {
               </section>
 
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <Award className="w-3 h-3" /> Rental Provider
                 </h3>
                 <div className="flex items-center gap-4">
@@ -118,7 +118,7 @@ const Voucher: React.FC = () => {
                   )}
                   <div>
                     <p className="font-black text-slate-800 uppercase">{booking.supplierName}</p>
-                    <div className="mt-1 inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded border border-emerald-100">
+                    <div className="mt-1 inline-block bg-emerald-50 text-emerald-700 text-xs font-black px-2 py-1 rounded border border-emerald-100">
                       CONFIRMATION #: {booking.supplierConfirmationNumber || 'PENDING'}
                     </div>
                   </div>
@@ -136,7 +136,7 @@ const Voucher: React.FC = () => {
                  <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                     <img src={booking.carImage} alt={booking.carModel} className="w-full sm:w-48 h-32 object-contain mix-blend-multiply" />
                     <div>
-                      <div className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter inline-block mb-1">
+                      <div className="bg-blue-600 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
                         {booking.carCategory || 'Standard Class'}
                       </div>
                       <h2 className="text-2xl font-black text-slate-900 leading-tight uppercase">
@@ -223,10 +223,10 @@ const Voucher: React.FC = () => {
                     <span className="text-blue-200/60 print:text-slate-500">PAID ONLINE</span>
                     <span className="font-mono font-bold text-emerald-400 print:text-emerald-700">{renderPrice(booking.payNow)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-blue-200/60 print:text-slate-500">DUE AT DESK</span>
-                    <span className="font-mono font-bold">{renderPrice(booking.payAtDesk)}</span>
-                  </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-blue-200/60 print:text-slate-500 uppercase">Pay at desk (Net Rate)</span>
+                  <span className="font-mono font-bold">{renderPrice(booking.payAtDesk || booking.netPrice)}</span>
+                </div>
                   <div className="pt-4 border-t border-white/10 flex justify-between items-center print:border-slate-200">
                     <span className="text-xs font-black tracking-widest uppercase">Total Price</span>
                     <span className="text-2xl font-black">{renderPrice(booking.finalPrice)}</span>

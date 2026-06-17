@@ -725,9 +725,9 @@ const CarCard: React.FC<CarCardProps> = ({
                           {/* Pricing Info */}
                           <div className="flex flex-col mb-2.5">
                               <div className="flex items-start justify-between gap-2 mb-1.5">
-                                <p className="text-[10px] md:text-[9px] text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
+                                <p className="text-xs md:text-xs text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
                                 {ratingToDisplay >= 4.5 && (
-                                    <div className="flex shrink-0 items-center gap-1 text-[9px] md:text-[10px] font-black text-[#008009] uppercase bg-[#008009]/10 px-2 py-1 rounded-md">
+                                    <div className="flex shrink-0 items-center gap-1 text-xs md:text-xs font-black text-[#008009] uppercase bg-[#008009]/10 px-2 py-1 rounded-md">
                                         <Award className="w-3 h-3" /> <span>Best Value</span>
                                     </div>
                                 )}
@@ -742,14 +742,14 @@ const CarCard: React.FC<CarCardProps> = ({
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
-                              <p className="text-[9px] text-slate-500 font-bold mt-1 flex items-center gap-1">
+                              <p className="text-xs text-slate-500 font-bold mt-1 flex items-center gap-1">
                                   <Shield className="w-2.5 h-2.5" /> All taxes included
                               </p>
                           </div>
 
                           <div className="mb-3 grid grid-cols-2 gap-1.5">
                               <div className="p-2 bg-white rounded-xl border border-[#008009]/15 shadow-sm">
-                                  <p className="text-[8px] text-emerald-700 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
+                                  <p className="text-[10px] text-emerald-700 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
                                       <CreditCardIcon className="w-3 h-3" /> Pay now
                                   </p>
                                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -759,7 +759,7 @@ const CarCard: React.FC<CarCardProps> = ({
                                   </div>
                               </div>
                               <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm">
-                                  <p className="text-[8px] text-slate-500 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
+                                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
                                       <Building className="w-3 h-3" /> At pickup
                                   </p>
                                   <span className="text-sm font-black text-slate-900 tracking-tight">

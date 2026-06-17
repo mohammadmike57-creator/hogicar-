@@ -260,7 +260,7 @@ const Confirmation: React.FC = () => {
                 <h3 className="text-lg font-bold text-slate-800 mb-4">Payment Summary</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between"><span className="text-slate-600">Paid Online:</span> <span className="font-bold text-green-600">{renderPrice(booking.payNow)}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-600">Due at Rental Desk:</span> <span className="font-bold text-slate-800">{renderPrice(booking.payAtDesk)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-600 uppercase font-black text-[10px] tracking-tight">Due at Desk (Net Rate):</span> <span className="font-bold text-slate-800">{renderPrice(booking.payAtDesk || booking.netPrice)}</span></div>
                   <div className="flex justify-between pt-2 mt-2 border-t border-dashed">
                     <span className="font-bold text-slate-800">Total Price:</span>
                     <span className="font-extrabold text-slate-900">{renderPrice(booking.finalPrice)}</span>

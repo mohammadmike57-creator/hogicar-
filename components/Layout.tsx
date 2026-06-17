@@ -164,16 +164,16 @@ const Layout: React.FC = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-sm font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-base font-sans">
       {/* HEADER */}
       <header className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
         isHomePage 
           ? (isScrolled ? 'bg-[#003580]/95 backdrop-blur-md shadow-xl border-b border-white/10 py-0.5' : 'bg-transparent border-b border-transparent py-3') 
           : 'bg-[#003580] shadow-md py-1 border-b border-[#002a66]'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-12 transition-all duration-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[110px] lg:max-w-[130px] overflow-hidden transition-all duration-500">
+          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 
