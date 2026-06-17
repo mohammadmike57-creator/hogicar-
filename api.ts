@@ -20,6 +20,8 @@ export interface Booking {
   supplierName: string;
   pickupCode: string;
   dropoffCode: string;
+  pickupLocationName?: string;
+  dropoffLocationName?: string;
   pickupDate: string;
   dropoffDate: string;
   startTime: string;
@@ -340,7 +342,7 @@ export const supplierApi = {
   updateMe: (payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/me`, payload),
   getMyLocations: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/locations`),
   requestLocation: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/locations/request`, payload),
-  getBookings: () => supplierAxios.get(`${API_BASE_URL}/api/bookings`),
+  getBookings: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/bookings`),
   confirmBookingBySupplier: (id: number, confirmationNumber: string) => 
     supplierAxios.post(`${API_BASE_URL}/api/bookings/${id}/supplier-confirm`, { supplierConfirmationNumber: confirmationNumber }),
   
@@ -398,4 +400,7 @@ export const adminApi = {
   
   getPartnerApplications: () => adminAxios.get(`${API_BASE_URL}/api/partner-applications/admin/all`),
   deletePartnerApplication: (id: number | string) => adminAxios.delete(`${API_BASE_URL}/api/partner-applications/admin/${id}`),
+  
+  getBookings: () => adminAxios.get(`${API_BASE_URL}/api/admin/bookings`),
+  getDashboardSummary: () => adminAxios.get(`${API_BASE_URL}/api/admin/dashboard/summary`),
 };

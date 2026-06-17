@@ -42,6 +42,7 @@ type BookingPageContentProps = {
   configMismatch: boolean;
   bookingDraft: any | null;
   setBookingDraft: React.Dispatch<React.SetStateAction<any | null>>;
+  creationInProgressRef: React.MutableRefObject<boolean>;
 };
 
 const BookingPageContent: React.FC<BookingPageContentProps> = ({ 
@@ -53,7 +54,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   onStripeKeyChange, 
   configMismatch,
   bookingDraft,
-  setBookingDraft
+  setBookingDraft,
+  creationInProgressRef
 }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -336,24 +338,42 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
       }
       return bookingDraft;
     }
-    const payload = buildBookingPayload();
-    if (!payload) {
-      throw new Error('Booking details are not available. Please select the vehicle again.');
-    }
-    const booking = await api.createBooking(payload);
     
-    if (booking.publishableKey && currentKey && booking.publishableKey !== currentKey) {
-        console.warn(`[Stripe] Mismatch detected on booking creation. Booking expects ${booking.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
-        sessionStorage.setItem('hogicar_last_stripe_key', booking.publishableKey);
-        sessionStorage.removeItem('hogicar_pending_booking');
-        setBookingDraft(null);
-        onStripeKeyChange(booking.publishableKey);
-        throw new Error('STRIPE_ACCOUNT_MISMATCH');
+    if (creationInProgressRef.current) {
+        // Wait for existing creation to finish
+        let attempts = 0;
+        while (creationInProgressRef.current && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+            // If it finished and we have a draft, return it
+            const stored = sessionStorage.getItem("hogicar_pending_booking");
+            if (stored) return JSON.parse(stored);
+        }
     }
 
-    setBookingDraft(booking);
-    sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
-    return booking;
+    creationInProgressRef.current = true;
+    try {
+        const payload = buildBookingPayload();
+        if (!payload) {
+          throw new Error('Booking details are not available. Please select the vehicle again.');
+        }
+        const booking = await api.createBooking(payload);
+        
+        if (booking.publishableKey && currentKey && booking.publishableKey !== currentKey) {
+            console.warn(`[Stripe] Mismatch detected on booking creation. Booking expects ${booking.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
+            sessionStorage.setItem('hogicar_last_stripe_key', booking.publishableKey);
+            sessionStorage.removeItem('hogicar_pending_booking');
+            setBookingDraft(null);
+            onStripeKeyChange(booking.publishableKey);
+            throw new Error('STRIPE_ACCOUNT_MISMATCH');
+        }
+
+        setBookingDraft(booking);
+        sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
+        return booking;
+    } finally {
+        creationInProgressRef.current = false;
+    }
   };
 
   const handlePaymentSubmit = async () => {
@@ -1081,7 +1101,8 @@ const BookingPageWithStripe: React.FC<{
   configMismatch: boolean;
   bookingDraft: any | null;
   setBookingDraft: React.Dispatch<React.SetStateAction<any | null>>;
-}> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch, bookingDraft, setBookingDraft }) => {
+  creationInProgressRef: React.MutableRefObject<boolean>;
+}> = ({ stripeConfigLoading, currentKey, onStripeKeyChange, configMismatch, bookingDraft, setBookingDraft, creationInProgressRef }) => {
   const stripe = useStripe();
   const elements = useElements();
   return <BookingPageContent 
@@ -1094,6 +1115,7 @@ const BookingPageWithStripe: React.FC<{
     configMismatch={configMismatch}
     bookingDraft={bookingDraft}
     setBookingDraft={setBookingDraft}
+    creationInProgressRef={creationInProgressRef}
   />;
 };
 
@@ -1105,6 +1127,7 @@ const BookingPage: React.FC = () => {
   const [currentKey, setCurrentKey] = React.useState<string | null>(null);
   const [configMismatch, setConfigMismatch] = React.useState(false);
   const [bookingDraft, setBookingDraft] = React.useState<any | null>(null);
+  const creationInProgressRef = React.useRef(false);
 
   React.useEffect(() => {
     const storedBookingRaw = sessionStorage.getItem("hogicar_pending_booking");
@@ -1204,7 +1227,15 @@ const BookingPage: React.FC = () => {
 
   return (
     <Elements stripe={dynamicStripePromise} key={currentKey + (bookingDraft?.clientSecret || '')} options={elementsOptions}>
-      <BookingPageWithStripe stripeConfigLoading={false} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={bookingDraft} setBookingDraft={setBookingDraft} />
+      <BookingPageWithStripe 
+        stripeConfigLoading={false} 
+        currentKey={currentKey} 
+        onStripeKeyChange={setCurrentKey} 
+        configMismatch={configMismatch} 
+        bookingDraft={bookingDraft} 
+        setBookingDraft={setBookingDraft} 
+        creationInProgressRef={creationInProgressRef}
+      />
     </Elements>
   );
 };
