@@ -100,6 +100,25 @@ const Searching: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
+    const prefetchCars = async () => {
+      try {
+        console.log("Searching: Pre-fetching car results while animating...");
+        const data = await loadCars({
+          pickupCode: pickupIata,
+          dropoffCode: searchParams.get('dropoff') || pickupIata,
+          pickupDate: searchParams.get('pickupDate') || '',
+          dropoffDate: searchParams.get('dropoffDate') || '',
+        });
+        sessionStorage.setItem('hogicar_prefetched_results', JSON.stringify(data));
+        console.log("Searching: Pre-fetch complete. Results cached.");
+      } catch (err) {
+        console.warn("Searching: Pre-fetch failed:", err);
+      }
+    };
+    if (pickupIata) prefetchCars();
+  }, [pickupIata, searchParams]);
+
+  React.useEffect(() => {
     const loadSuppliers = async () => {
       try {
         console.log("Searching: Loading suppliers and logos for location:", pickupIata);
@@ -112,17 +131,6 @@ const Searching: React.FC = () => {
         console.log("Searching: Searching logos found:", searchingLogos?.length);
         
         let results: any[] = [];
-        
-        // Ensure Hogi Car Choice is always shown in the scanning animation
-        const choiceSupplier = {
-            id: 'hogicar-choice-brand',
-            name: 'Hogi Car Choice',
-            logoUrl: 'HOGICAR_CHOICE_LOGO',
-            scale: 100,
-            mobileScale: 100,
-            isLocal: true
-        };
-        results.push(choiceSupplier);
         
         // 1. Add admin-managed searching logos for this location (or global ones)
         if (searchingLogos && searchingLogos.length > 0) {

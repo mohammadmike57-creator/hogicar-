@@ -150,6 +150,39 @@ export const Search: React.FC = () => {
   
   React.useEffect(() => {
     const fetchApiCars = async () => {
+        // Check for pre-fetched results from Searching page to prevent redundant buffering
+        const prefetched = sessionStorage.getItem('hogicar_prefetched_results');
+        if (prefetched) {
+            try {
+                const data = JSON.parse(prefetched);
+                // Consume and clear the cache
+                sessionStorage.removeItem('hogicar_prefetched_results');
+                
+                if (data && Array.isArray(data) && data.length > 0) {
+                    console.log("Search: Using pre-fetched results from session storage.");
+                    const mappedCars = data.map(apiCarToCar);
+                    const finalCars: Car[] = [];
+                    mappedCars.forEach(car => {
+                        const originalCar = { ...car, isHogicarChoiceBranded: false };
+                        finalCars.push(originalCar);
+                        if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
+                            const choiceCar = JSON.parse(JSON.stringify(car));
+                            choiceCar.id = `choice-${car.id}`;
+                            choiceCar.supplier.name = 'Hogi Car Choice';
+                            choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
+                            choiceCar.isHogicarChoiceBranded = true;
+                            finalCars.push(choiceCar);
+                        }
+                    });
+                    setApiCars(finalCars);
+                    setLoading(false);
+                    return;
+                }
+            } catch (e) {
+                console.warn("Search: Failed to parse prefetched results", e);
+            }
+        }
+
         setLoading(true);
         setError(null);
         try {

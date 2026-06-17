@@ -328,7 +328,10 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   };
 
   const ensureBookingDraft = async () => {
-    if (bookingDraft?.clientSecret || (bookingDraft && priceDetails.payNow <= 0)) {
+    // If we have a draft with a bookingRef, we already have a persistent booking in the DB.
+    // If payNow > 0 but we don't have a clientSecret yet, we should allow the API call
+    // to "createBooking" which our improved backend now handles by reusing the existing record.
+    if (bookingDraft?.bookingRef && (priceDetails.payNow <= 0 || bookingDraft.clientSecret)) {
       if (bookingDraft.publishableKey && currentKey && bookingDraft.publishableKey !== currentKey) {
         console.warn(`[Stripe] Stale draft detected. Draft expects ${bookingDraft.publishableKey.substring(0, 10)}... but current is ${currentKey.substring(0, 10)}...`);
         sessionStorage.removeItem('hogicar_pending_booking');
