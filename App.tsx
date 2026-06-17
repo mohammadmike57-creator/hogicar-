@@ -9,6 +9,7 @@ import MyBookings from './pages/MyBookings';
 import Searching from './pages/Searching';
 import BookingPage from './pages/Booking';
 import Confirmation from './pages/Confirmation';
+import Voucher from './pages/Voucher';
 import AdminLogin from './pages/AdminLogin';
 import SupplierLogin from './pages/SupplierLogin';
 import Contact from './pages/Contact';
@@ -92,6 +93,7 @@ const App: React.FC = () => {
           <Route path="/book/:id/details" element={<BookingPage />} />
           <Route path="/book/:id/payment" element={<BookingPage />} />
           <Route path="/confirmation" element={<Confirmation />} />
+          <Route path="/voucher" element={<Voucher />} />
           <Route path="/affiliate-program" element={<AffiliateProgram />} />
           <Route path="/become-supplier" element={<BecomeSupplier />} />
           <Route path="/careers" element={<Careers />} />

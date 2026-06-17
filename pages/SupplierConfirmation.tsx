@@ -192,8 +192,9 @@ const SupplierConfirmation: React.FC = () => {
                             <h3 className="text-lg font-bold text-slate-900">{displayCar.make} {displayCar.model}</h3>
                             <p className="text-xs text-slate-500">or similar {displayCar.category}</p>
                             <div className="mt-3 pt-3 border-t border-slate-200 text-xs space-y-1">
-                                <p className="flex justify-between"><span>SIPP Code:</span> <span className="font-mono">{displayCar.sippCode}</span></p>
-                                <p className="flex justify-between"><span>Transmission:</span> <span>{displayCar.transmission}</span></p>
+                                <p className="flex justify-between"><span>SIPP Code:</span> <span className="font-mono font-bold text-blue-600">{booking.carSippCode || displayCar.sippCode}</span></p>
+                                <p className="flex justify-between"><span>Transmission:</span> <span>{booking.carTransmission || displayCar.transmission}</span></p>
+                                <p className="flex justify-between"><span>Fuel Policy:</span> <span>{booking.carFuelPolicy || 'N/A'}</span></p>
                             </div>
                         </div>
                     </div>
@@ -223,14 +224,15 @@ const SupplierConfirmation: React.FC = () => {
                                     <p className="text-sm text-slate-600">Are you sure you want to decline this booking? This action cannot be undone.</p>
                                     <form onSubmit={handleReject} className="flex flex-col gap-4">
                                         <div>
-                                            <label htmlFor="reason" className="block text-sm font-bold text-slate-700 mb-2">Reason (Optional)</label>
+                                            <label htmlFor="reason" className="block text-sm font-bold text-slate-700 mb-2">Reason for Declining</label>
                                             <textarea
                                                 id="reason"
                                                 value={rejectionReason}
                                                 onChange={e => setRejectionReason(e.target.value)}
-                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
-                                                placeholder="e.g., Vehicle unavailable"
-                                                rows={2}
+                                                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm"
+                                                placeholder="Please explain why this request is being declined (e.g., Vehicle out of stock, maintenance issue)"
+                                                rows={3}
+                                                required
                                             />
                                         </div>
                                         {error && <p className="text-red-600 text-xs">{error}</p>}

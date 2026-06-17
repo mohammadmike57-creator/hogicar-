@@ -14,188 +14,6 @@ import { loadCars } from '../utils/loadCars';
 
 // --- SUB-COMPONENTS ---
 
-// Re-using a customer-facing version of the voucher modal
-const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose: () => void }) => {
-    const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
-    const [imageError, setImageError] = React.useState(false);
-    
-    // Use booking info directly
-    const displayCarName = booking.carName || 'Vehicle';
-    const displayImage = imageError ? 'https://placehold.co/400x250/orange/white?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle');
-
-    const renderPrice = (amount: number) => {
-        const safeAmount = amount || 0;
-        if (booking.currency === selectedCurrency) {
-            return `${getCurrencySymbol()}${convertPrice(safeAmount).toFixed(2)}`;
-        }
-        return `${booking.currency} ${safeAmount.toFixed(2)}`;
-    };
-
-    if (!booking) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 print:p-0 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto print:shadow-none print:w-full print:max-w-none print:h-full print:rounded-none flex flex-col font-sans">
-                {/* Header (Hidden in Print) */}
-                <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50 print:hidden sticky top-0 z-10">
-                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-blue-600"/> Booking Voucher
-                    </h3>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"><X className="w-5 h-5"/></button>
-                </div>
-
-                {/* Printable Voucher Content */}
-                <div className="p-10 print:p-0 flex-grow bg-white text-slate-900" id="voucher-content">
-                    
-                    {/* Header */}
-                    <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-8">
-                        <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <Logo className="h-12 w-auto" variant="dark" />
-                            </div>
-                            <h1 className="text-3xl font-extrabold text-slate-900 uppercase tracking-tight">Rental Voucher</h1>
-                            <p className="text-sm text-slate-500 font-medium mt-1">Present this at the counter</p>
-                        </div>
-                        <div className="text-right">
-                            <div className="mb-2">
-                                <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Booking Reference</span>
-                                <span className="font-mono text-xl font-bold text-slate-900">{booking.id}</span>
-                            </div>
-                            <div className={`inline-block px-3 py-1 rounded border text-xs font-bold uppercase ${booking.status === 'confirmed' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
-                                {booking.status}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Driver & Flight Info */}
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-6 mb-8">
-                        <div>
-                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Main Driver</h4>
-                            <p className="text-lg font-bold text-slate-900">{booking.firstName} {booking.lastName}</p>
-                            {booking.phone && (
-                                <p className="text-sm text-slate-600 mt-1 flex items-center gap-2">
-                                    <Phone className="w-3 h-3 text-slate-400"/> {booking.phone}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Flight Details</h4>
-                            {booking.flightNumber ? (
-                                <p className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                                    <Plane className="w-4 h-4 text-slate-400"/> {booking.flightNumber}
-                                </p>
-                            ) : (
-                                <p className="text-sm text-slate-400 italic">Not provided</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Vehicle Details */}
-                    <div className="bg-slate-50 rounded-lg border border-slate-200 p-6 mb-8">
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                            <Car className="w-4 h-4"/> Vehicle Information
-                        </h4>
-                        <div className="flex items-start gap-6">
-                            <img 
-                                src={displayImage} 
-                                alt={displayCarName} 
-                                onError={() => setImageError(true)}
-                                referrerPolicy="no-referrer"
-                                loading="eager"
-                                className="w-40 h-28 object-contain bg-white rounded border border-slate-200 p-2"
-                            />
-                            <div className="flex-grow">
-                                <h3 className="text-xl font-bold text-slate-900">{displayCarName}</h3>
-                                <div className="flex flex-wrap items-center gap-2 mt-1 mb-3">
-                                    <span className="text-xs font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded uppercase">{booking.carCategory || 'Car'}</span>
-                                    {booking.carSippCode && <span className="text-xs font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded uppercase">SIPP: {booking.carSippCode}</span>}
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-y-2 gap-x-4 mb-4">
-                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                        <Users className="w-3 h-3 text-slate-400"/> {booking.carPassengers || 5} Passengers
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                        <Briefcase className="w-3 h-3 text-slate-400"/> {booking.carBags || 2} Large Bags
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                        <Zap className="w-3 h-3 text-slate-400"/> {booking.carTransmission || 'Automatic'}
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                        <Wind className="w-3 h-3 text-slate-400"/> {booking.carAirConditioning ? 'A/C' : 'No A/C'}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
-                                    {(booking.isHogicarChoiceBranded || booking.supplierName === 'Hogi Car Choice') && (
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Recommended By</span>
-                                            <Logo className="h-8 w-auto max-w-[100px]" />
-                                        </div>
-                                    )}
-                                    {booking.supplierLogoUrl ? (
-                                        <div className="flex flex-col items-center border-l border-slate-200 pl-4 ml-2">
-                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Service Provider</span>
-                                            <img src={booking.supplierLogoUrl} alt={booking.supplierName} className="h-8 w-auto object-contain max-w-[100px]" />
-                                            <span className="text-[9px] font-black text-slate-800 uppercase tracking-wide mt-0.5">{booking.supplierName}</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col">
-                                            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Service Provider</span>
-                                            <span className="text-sm font-black text-slate-800 uppercase tracking-wide">{booking.supplierName}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Itinerary */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-8">
-                        <div className="border border-slate-200 rounded-lg p-5">
-                            <div className="flex items-center gap-2 mb-3 text-green-700">
-                                <div className="w-2 h-2 rounded-full bg-green-600"></div>
-                                <h4 className="text-sm font-bold uppercase tracking-wide">Pick-up</h4>
-                            </div>
-                            <p className="text-xl font-bold text-slate-900 mb-1">{booking.pickupDate}</p>
-                            <p className="text-sm font-medium text-slate-700 mb-2">{booking.startTime || '10:00'}</p>
-                            <p className="text-xs text-slate-500 border-t border-slate-100 pt-2 mt-2">{booking.pickupCode}</p>
-                        </div>
-                        <div className="border border-slate-200 rounded-lg p-5">
-                            <div className="flex items-center gap-2 mb-3 text-red-700">
-                                <div className="w-2 h-2 rounded-full bg-red-600"></div>
-                                <h4 className="text-sm font-bold uppercase tracking-wide">Drop-off</h4>
-                            </div>
-                            <p className="text-xl font-bold text-slate-900 mb-1">{booking.dropoffDate}</p>
-                            <p className="text-sm font-medium text-slate-700 mb-2">{booking.endTime || '10:00'}</p>
-                            <p className="text-xs text-slate-500 border-t border-slate-100 pt-2 mt-2">{booking.dropoffCode}</p>
-                        </div>
-                    </div>
-
-                    {/* Payment Info */}
-                    <div className="bg-slate-900 text-white rounded-lg p-6 flex justify-between items-center print:bg-slate-100 print:text-slate-900 print:border print:border-slate-300">
-                        <div>
-                            <h4 className="text-sm font-bold uppercase tracking-wide text-slate-400 print:text-slate-500">Payment Due at Desk</h4>
-                            <p className="text-xs text-slate-500 mt-1 print:text-slate-400">Excludes security deposit.</p>
-                        </div>
-                        <div className="text-right">
-                            <span className="text-3xl font-extrabold tracking-tight">{renderPrice(booking.payAtDesk)}</span>
-                            {booking.currency === 'USD' ? null : <span className="text-sm text-slate-400 ml-1">(Approx. ${(booking.payAtDesk || 0).toFixed(2)} USD)</span>}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Actions (Hidden in Print) */}
-                <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 print:hidden rounded-b-xl">
-                    <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 shadow-sm transition-transform active:scale-95 flex items-center gap-2">
-                        <Printer className="w-4 h-4"/> Print / PDF
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
 const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, ref: string) => void, error: string, isLoading: boolean }) => {
     const [email, setEmail] = React.useState('');
     const [bookingRef, setBookingRef] = React.useState('');
@@ -292,9 +110,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
         }
         return `${booking.currency} ${safeAmount.toFixed(2)}`;
     };
-    // Note: Modify Logic would need significant backend support for real updates. Keeping mock for now or disabling if preferred.
     const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
-    const [showVoucher, setShowVoucher] = React.useState(false);
     const [fullCar, setFullCar] = React.useState<any>(null);
     const [isFetchingCar, setIsFetchingCar] = React.useState(false);
 
@@ -361,7 +177,6 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
     return (
         <div className="max-w-4xl mx-auto">
-             {showVoucher && <CustomerVoucherModal booking={booking} onClose={() => setShowVoucher(false)} />}
              {fullCar && isModifyModalOpen && <ModifyBookingModal booking={booking} car={fullCar} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
              
              <button onClick={onBack} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
@@ -476,16 +291,19 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                                  </Link>
                              )}
 
-                             <button onClick={() => setShowVoucher(true)} className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                             <Link 
+                                 to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`}
+                                 className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                             >
                                  <div className="flex items-center gap-3">
-                                     <Download className="w-5 h-5 text-slate-400 group-hover:text-blue-600"/>
+                                     <FileText className="w-5 h-5 text-slate-400 group-hover:text-blue-600"/>
                                      <div className="text-left">
-                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-blue-700">Download Voucher</span>
-                                         <span className="block text-[10px] text-slate-500">PDF Format</span>
+                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-blue-700">Digital Voucher</span>
+                                         <span className="block text-[10px] text-slate-500">Official Confirmation</span>
                                      </div>
                                  </div>
                                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500"/>
-                             </button>
+                             </Link>
 
                              {canModify && (
                                 <button 
