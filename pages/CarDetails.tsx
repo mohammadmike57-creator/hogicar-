@@ -9,7 +9,7 @@ import {
   Navigation, Baby, PlusCircle, Star, Sparkles, MapPin, CheckCircle, GaugeCircle, Hash, X,
   ArrowRight, Shield, Wifi, Wind, Thermometer, Smartphone, Battery, Coffee, Gift, Award,
   Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2,
-  DollarSign, Zap, ThumbsUp, Globe, Headphones, Plane
+  DollarSign, Zap, ThumbsUp, Globe, Headphones, Plane, PlaneLanding, PlaneTakeoff
 } from 'lucide-react';
 import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
@@ -566,71 +566,78 @@ const CarDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_46px_-34px_rgba(15,23,42,0.65)]">
+                <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:px-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-base sm:text-lg font-black flex items-center gap-2 text-slate-950">
-                      <Navigation className="w-4 h-4 text-[#008009]" />
+                    <h2 className="text-sm sm:text-base font-black flex items-center gap-2 text-slate-950">
+                      <Plane className="w-4 h-4 text-[#008009]" />
                       Rental Journey Itinerary
                     </h2>
-                    <p className="text-xs font-semibold text-slate-500 mt-1">Pickup and return schedule for this booking.</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">A clear pickup and return schedule for this reservation.</p>
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-white px-3 py-1.5 shadow-sm">
                     <Clock className="w-3.5 h-3.5 text-[#008009]" />
                     <span className="text-[10px] font-black text-[#008009] uppercase tracking-wider">{timeUntilPickup}</span>
                   </div>
+                  </div>
                 </div>
 
-                <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#008009] ring-1 ring-slate-200">
-                        <MapPin className="w-3 h-3" />
-                        Pick-up
+                <div className="p-5 sm:p-6">
+                  <div className="grid gap-4 lg:grid-cols-[1fr_96px_1fr] lg:items-stretch">
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-start justify-between gap-3">
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#008009] ring-1 ring-emerald-100">
+                        <PlaneLanding className="w-5 h-5" />
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{pickupCode}</span>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#008009]">Landing / pick-up</p>
+                        <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">{pickupCode}</p>
+                      </div>
                     </div>
-                    <div className="flex items-end justify-between gap-3">
+                    <div className="flex items-end justify-between gap-4">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{pickupDisplay}</p>
-                        <p className="mt-1 text-lg font-black text-slate-950 leading-none">{startTime}</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">Start time</p>
+                        <p className="mt-1 text-xl font-black text-slate-950 leading-none">{startTime}</p>
                       </div>
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#008009]/10 text-[#008009]">
-                        <CarIcon className="w-4 h-4" />
+                      <div className="min-w-0 text-right">
+                        <p className="text-xs font-black text-slate-900 truncate">{pickupDisplay}</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-500 truncate">{pickupName || car.locationDetail}</p>
                       </div>
                     </div>
-                    <p className="mt-3 truncate text-xs font-semibold text-slate-600">{pickupName || car.locationDetail}</p>
                   </div>
 
                   <div className="flex items-center justify-center">
-                    <div className="flex w-full items-center gap-2 lg:w-auto lg:flex-col">
-                      <div className="h-px flex-1 bg-slate-200 lg:h-10 lg:w-px" />
-                      <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                        <ArrowRight className="hidden w-3.5 h-3.5 text-slate-400 lg:block" />
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{days} days</span>
+                    <div className="relative flex w-full items-center justify-center lg:h-full">
+                      <div className="absolute h-px w-full bg-slate-200 lg:h-full lg:w-px" />
+                      <div className="relative z-10 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                        <CarIcon className="w-3.5 h-3.5 text-[#008009]" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{days} days</span>
                       </div>
-                      <div className="h-px flex-1 bg-slate-200 lg:h-10 lg:w-px" />
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-white">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-100 ring-1 ring-white/10">
-                        <Navigation className="w-3 h-3" />
-                        Drop-off
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-start justify-between gap-3">
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-[#003580] ring-1 ring-sky-100">
+                        <PlaneTakeoff className="w-5 h-5" />
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{dropoffCode || pickupCode}</span>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#003580]">Take-off / drop-off</p>
+                        <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">{dropoffCode || pickupCode}</p>
+                      </div>
                     </div>
-                    <div className="flex items-end justify-between gap-3">
+                    <div className="flex items-end justify-between gap-4">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{dropoffDisplay}</p>
-                        <p className="mt-1 text-lg font-black leading-none">{endTime}</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">Return time</p>
+                        <p className="mt-1 text-xl font-black text-slate-950 leading-none">{endTime}</p>
                       </div>
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-emerald-300">
-                        <CheckCircle className="w-4 h-4" />
+                      <div className="min-w-0 text-right">
+                        <p className="text-xs font-black text-slate-900 truncate">{dropoffDisplay}</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-500 truncate">{dropoffName || pickupName || car.locationDetail}</p>
                       </div>
                     </div>
-                    <p className="mt-3 truncate text-xs font-semibold text-slate-400">{dropoffName || pickupName || car.locationDetail}</p>
+                  </div>
                   </div>
                 </div>
               </div>
