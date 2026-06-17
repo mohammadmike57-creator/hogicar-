@@ -174,8 +174,15 @@ const Confirmation: React.FC = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Details</h3>
-                  <div className="flex items-center gap-4">
-                    {/* Car image removed per user request */}
+                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                    <div className="w-full sm:w-48 h-32 bg-slate-50 rounded-xl border border-slate-100 p-2 flex items-center justify-center shrink-0">
+                      <img 
+                        src={carDisplay.image} 
+                        alt={`${carDisplay.make} ${carDisplay.model}`} 
+                        className="max-w-full max-h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
                         <p className="font-bold text-slate-800 text-lg uppercase">{carDisplay.make} {carDisplay.model}</p>

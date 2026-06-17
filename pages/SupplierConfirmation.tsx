@@ -226,9 +226,22 @@ const SupplierConfirmation: React.FC = () => {
                         <div className="space-y-6">
                             <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Specifications</h3>
+                                <div className="flex flex-col sm:flex-row gap-6 items-center mb-4">
+                                    <div className="w-full sm:w-40 h-28 bg-white rounded-lg border border-slate-100 p-2 flex items-center justify-center shrink-0">
+                                        <img 
+                                            src={booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
+                                            alt={`${displayCar.make} ${displayCar.model}`} 
+                                            className="max-w-full max-h-full object-contain"
+                                            referrerPolicy="no-referrer"
+                                        />
+                                    </div>
+                                    <div className="flex-grow">
+                                        <p className="text-lg font-black text-slate-900 uppercase">{displayCar.make} {displayCar.model}</p>
+                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{displayCar.category} or similar</p>
+                                    </div>
+                                </div>
                                 <div className="space-y-3 text-sm">
-                                    <p className="text-lg font-black text-slate-900 uppercase">{displayCar.make} {displayCar.model}</p>
-                                    <div className="grid grid-cols-2 gap-y-2 mt-2">
+                                    <div className="grid grid-cols-2 gap-y-2 mt-2 border-t border-slate-100 pt-3">
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-blue-600 uppercase">{displayCar.sippCode}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Transmission</span> <span className="font-bold">{displayCar.transmission}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Category</span> <span className="font-bold">{displayCar.category}</span></p>

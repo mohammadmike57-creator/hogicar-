@@ -142,7 +142,14 @@ const Voucher: React.FC = () => {
                
                <div className="relative z-10">
                  <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                    {/* Car Image removed per user request for professional look */}
+                    <div className="w-full sm:w-48 h-32 bg-white rounded-xl border border-slate-200 p-2 flex items-center justify-center shrink-0">
+                      <img 
+                        src={booking.carImage || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
+                        alt={`${booking.carMake} ${booking.carModel}`} 
+                        className="max-w-full max-h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                     <div>
                       <div className="bg-blue-600 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
                         {booking.carCategory || 'Standard Class'}

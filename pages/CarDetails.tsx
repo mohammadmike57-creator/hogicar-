@@ -814,8 +814,9 @@ const CarDetails: React.FC = () => {
                       >
                         <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden bg-white p-4">
                           <img 
-                            src={similar.image || (similar as any).imageUrl} 
+                            src={similar.image || similar.imageUrl || 'https://placehold.co/400x250/orange/white?text=Vehicle'} 
                             alt={similar.displayName} 
+                            referrerPolicy="no-referrer"
                             className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105" 
                           />
                           <div className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#008009] shadow-sm ring-1 ring-slate-200">
