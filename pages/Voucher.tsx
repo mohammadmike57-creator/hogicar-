@@ -166,35 +166,69 @@ const Voucher: React.FC = () => {
 
           </div>
 
-          {/* Itinerary Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 mt-12 border border-slate-200 rounded-2xl overflow-hidden">
-             <div className="p-8 border-b md:border-b-0 md:border-r border-slate-200 bg-white">
-                <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Pick-up Info
-                </h3>
-                <p className="text-xl font-black text-slate-800 mb-1 uppercase">{booking.pickupDate}</p>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-tighter mb-4 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> Scheduled Time: {booking.startTime || '10:00'}
-                </p>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.pickupLocationName || booking.pickupCode}</p>
-                  <p className="text-xs text-slate-400 mt-2 italic flex items-center gap-1.5">
-                    <Info className="w-3 h-3" /> Representative will be waiting at the arrivals terminal.
-                  </p>
-                </div>
-             </div>
+          {/* Itinerary Section (Airplane style) */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8 mt-12">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative">
+                  {/* Pickup */}
+                  <div className="flex-1 w-full md:w-auto">
+                    <div className="flex flex-col items-start">
+                      <span className="text-3xl font-black text-slate-950 mb-1">{booking.startTime || '10:00'}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl font-black text-[#003580] tracking-tight">{booking.pickupCode}</span>
+                        <div className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{booking.pickupLocationName?.split(',')[0]}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{booking.pickupDate}</span>
+                    </div>
+                  </div>
 
-             <div className="p-8 bg-slate-50/50">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Drop-off Info
-                </h3>
-                <p className="text-xl font-black text-slate-800 mb-1 uppercase">{booking.dropoffDate}</p>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-tighter mb-4 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> Scheduled Time: {booking.endTime || '10:00'}
-                </p>
-                <div className="bg-white p-4 rounded-xl border border-slate-200">
-                  <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.dropoffLocationName || booking.dropoffCode}</p>
+                  {/* Timeline */}
+                  <div className="flex-[1.5] w-full flex flex-col items-center justify-center py-4 md:py-0">
+                    <div className="relative w-full flex items-center justify-center">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t-2 border-dashed border-slate-200" />
+                      </div>
+                      <div className="relative z-10 bg-white px-4 flex flex-col items-center">
+                        <div className="bg-slate-50 p-2 rounded-full border border-slate-100 shadow-sm mb-1">
+                          <Plane className="w-5 h-5 text-[#008009] rotate-90 md:rotate-0" />
+                        </div>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] bg-white px-2">
+                           Rental Itinerary
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Drop-off */}
+                  <div className="flex-1 w-full md:w-auto">
+                    <div className="flex flex-col items-end text-right">
+                      <span className="text-3xl font-black text-slate-950 mb-1">{booking.endTime || '10:00'}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</span>
+                        <div className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="text-xl font-black text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{booking.dropoffDate}</span>
+                    </div>
+                  </div>
                 </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+             <div className="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5" /> Pick-up Location
+                </h3>
+                <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.pickupLocationName || booking.pickupCode}</p>
+                <p className="text-[10px] text-slate-400 mt-2 italic flex items-center gap-1.5">
+                  <Info className="w-3 h-3" /> Representative will be waiting at the arrivals terminal.
+                </p>
+             </div>
+             <div className="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5" /> Drop-off Location
+                </h3>
+                <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.dropoffLocationName || booking.dropoffCode}</p>
              </div>
           </div>
 

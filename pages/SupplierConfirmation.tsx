@@ -173,13 +173,51 @@ const SupplierConfirmation: React.FC = () => {
                                     <p className="flex justify-between"><span>Customer Phone:</span> <strong>{booking.phone}</strong></p>
                                 </div>
                             </div>
-                             <div>
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rental Period</h3>
-                                <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Pick-up:</span> <strong>{booking.pickupDate} at {booking.startTime}</strong></p>
-                                    <p className="flex justify-between"><span>Drop-off:</span> <strong>{booking.dropoffDate} at {booking.endTime}</strong></p>
-                                    <p className="flex justify-between"><span>Pick-up Location:</span> <strong>{booking.pickupLocationName || booking.pickupCode}</strong></p>
-                                    <p className="flex justify-between"><span>Drop-off Location:</span> <strong>{booking.dropoffLocationName || booking.dropoffCode}</strong></p>
+                            {/* Rental Itinerary (Airplane Style) */}
+                            <div className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8 mt-4">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative">
+                                    {/* Pickup */}
+                                    <div className="flex-1 w-full md:w-auto">
+                                        <div className="flex flex-col items-start">
+                                            <span className="text-3xl font-black text-slate-950 mb-1">{booking.startTime || '10:00'}</span>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xl font-black text-[#003580] tracking-tight">{booking.pickupCode}</span>
+                                                <div className="h-1 w-1 rounded-full bg-slate-300" />
+                                                <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{booking.pickupLocationName?.split(',')[0]}</span>
+                                            </div>
+                                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{booking.pickupDate}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Timeline */}
+                                    <div className="flex-[1.5] w-full flex flex-col items-center justify-center py-4 md:py-0">
+                                        <div className="relative w-full flex items-center justify-center">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <div className="w-full border-t-2 border-dashed border-slate-200" />
+                                            </div>
+                                            <div className="relative z-10 bg-white px-4 flex flex-col items-center text-center">
+                                                <div className="bg-slate-50 p-2 rounded-full border border-slate-100 shadow-sm mb-1">
+                                                    <Hash className="w-5 h-5 text-[#008009]" />
+                                                </div>
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] bg-white px-2">
+                                                    Reservation Request
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Drop-off */}
+                                    <div className="flex-1 w-full md:w-auto">
+                                        <div className="flex flex-col items-end text-right">
+                                            <span className="text-3xl font-black text-slate-950 mb-1">{booking.endTime || '10:00'}</span>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</span>
+                                                <div className="h-1 w-1 rounded-full bg-slate-300" />
+                                                <span className="text-xl font-black text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
+                                            </div>
+                                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{booking.dropoffDate}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -704,16 +704,60 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-5 sm:p-8 mb-6">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative">
+                  {/* Pickup */}
+                  <div className="flex-1 w-full md:w-auto">
+                    <div className="flex flex-col items-start">
+                      <span className="text-3xl font-black text-slate-950 mb-1">{startTime}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl font-black text-[#003580] tracking-tight">{search.pickupCode}</span>
+                        <div className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{pickupLabel.split(',')[0]}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{startDate}</span>
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="flex-[1.5] w-full flex flex-col items-center justify-center py-4 md:py-0">
+                    <div className="relative w-full flex items-center justify-center">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t-2 border-dashed border-slate-200" />
+                      </div>
+                      <div className="relative z-10 bg-white px-4 flex flex-col items-center">
+                        <div className="bg-slate-50 p-2 rounded-full border border-slate-100 shadow-sm mb-1">
+                          <Plane className="w-5 h-5 text-[#008009] rotate-90 md:rotate-0" />
+                        </div>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] bg-white px-2 text-center">
+                          {days} day{days > 1 ? 's' : ''} rental
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Drop-off */}
+                  <div className="flex-1 w-full md:w-auto">
+                    <div className="flex flex-col items-end text-right">
+                      <span className="text-3xl font-black text-slate-950 mb-1">{endTime}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{dropoffLabel.split(',')[0]}</span>
+                        <div className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="text-xl font-black text-[#003580] tracking-tight">{search.dropoffCode || search.pickupCode}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{endDate}</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Pick-up</p>
-                <p className="text-sm sm:text-base font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-[#008009] mt-0.5" /> <span>{pickupLabel}</span></p>
-                <p className="text-sm text-slate-600 mt-2 flex items-center gap-2"><CalendarDays className="w-4 h-4 text-slate-400" /> {startDate} · {startTime}</p>
-              </div>
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Drop-off</p>
-                <p className="text-sm sm:text-base font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-[#008009] mt-0.5" /> <span>{dropoffLabel}</span></p>
-                <p className="text-sm text-slate-600 mt-2 flex items-center gap-2"><CalendarDays className="w-4 h-4 text-slate-400" /> {endDate} · {endTime}</p>
+                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Location Details</p>
+                <div className="space-y-3">
+                   <p className="text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-[#008009] mt-0.5" /> <span><strong>Pick-up:</strong> {pickupLabel}</span></p>
+                   <p className="text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-slate-400 mt-0.5" /> <span><strong>Drop-off:</strong> {dropoffLabel}</span></p>
+                </div>
               </div>
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
                 <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Booking benefits</p>
