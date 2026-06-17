@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { Calendar, Tag, Car, Building, ArrowRight, Lock, Mail, Search, AlertCircle, CheckCircle, XCircle, Edit2, AlertTriangle, ChevronRight, Download, Printer, Phone, Plane, FileText, X, Star, LoaderCircle, Zap } from 'lucide-react';
+import { Calendar, Tag, Car, Building, ArrowRight, Lock, Mail, Search, AlertCircle, CheckCircle, XCircle, Edit2, AlertTriangle, ChevronRight, Download, Printer, Phone, Plane, FileText, X, Star, LoaderCircle, Zap, Users, Briefcase, Wind } from 'lucide-react';
 import { Booking, Extra } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
@@ -106,8 +106,27 @@ const CustomerVoucherModal = ({ booking, onClose }: { booking: Booking; onClose:
                             />
                             <div className="flex-grow">
                                 <h3 className="text-xl font-bold text-slate-900">{displayCarName}</h3>
-                                <p className="text-sm text-slate-500 mb-4">Rental Vehicle</p>
-                                <div className="flex items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-2 mt-1 mb-3">
+                                    <span className="text-xs font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded uppercase">{booking.carCategory || 'Car'}</span>
+                                    {booking.carSippCode && <span className="text-xs font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded uppercase">SIPP: {booking.carSippCode}</span>}
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-y-2 gap-x-4 mb-4">
+                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                        <Users className="w-3 h-3 text-slate-400"/> {booking.carPassengers || 5} Passengers
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                        <Briefcase className="w-3 h-3 text-slate-400"/> {booking.carBags || 2} Large Bags
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                        <Zap className="w-3 h-3 text-slate-400"/> {booking.carTransmission || 'Automatic'}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                        <Wind className="w-3 h-3 text-slate-400"/> {booking.carAirConditioning ? 'A/C' : 'No A/C'}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
                                     {(booking.isHogicarChoiceBranded || booking.supplierName === 'Hogi Car Choice') && (
                                         <div className="flex flex-col items-center">
                                             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Recommended By</span>

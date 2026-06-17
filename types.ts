@@ -347,6 +347,16 @@ export interface Booking {
   hogicarChoice?: boolean;
   carImage?: string;
   supplierLogoUrl?: string;
+  carMake?: string;
+  carModel?: string;
+  carCategory?: string;
+  carTransmission?: string;
+  carFuelPolicy?: string;
+  carSippCode?: string;
+  carPassengers?: number;
+  carBags?: number;
+  carDoors?: number;
+  carAirConditioning?: boolean;
 }
 
 export interface StatsData {

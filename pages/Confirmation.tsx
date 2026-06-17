@@ -120,7 +120,12 @@ const Confirmation: React.FC = () => {
     model: booking.carModel || booking.carName || storedCar?.model || "Rental",
     category: booking.carCategory || storedCar?.category || "Standard",
     image: booking.carImage || storedCar?.image || 'https://placehold.co/400x250/orange/white?text=Vehicle',
-    location: storedCar?.location || booking.pickupCode || "Airport"
+    location: storedCar?.location || booking.pickupCode || "Airport",
+    sippCode: booking.carSippCode || (storedCar as any)?.sippCode,
+    passengers: booking.carPassengers || storedCar?.passengers || 5,
+    bags: booking.carBags || storedCar?.bags || 2,
+    transmission: booking.carTransmission || (storedCar?.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual') || 'Automatic',
+    airCon: booking.carAirConditioning ?? storedCar?.airCon
   };
 
   // Helper to display price in booking currency or convert if needed
@@ -182,6 +187,22 @@ const Confirmation: React.FC = () => {
                         )}
                       </div>
                       <p className="text-sm text-slate-500">{carDisplay.category}</p>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+                        {carDisplay.sippCode && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded uppercase">
+                            SIPP: {carDisplay.sippCode}
+                          </span>
+                        )}
+                        <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                          <User className="w-3 h-3" /> {carDisplay.passengers}
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                          <FileText className="w-3 h-3" /> {carDisplay.bags}
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                          <Zap className="w-3 h-3" /> {carDisplay.transmission}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
