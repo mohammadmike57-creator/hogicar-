@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { Booking, Car as CarType } from '../types';
-import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle, XCircle } from 'lucide-react';
+import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle, XCircle, Printer } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 import { Logo } from '../components/Logo';
@@ -156,9 +156,21 @@ const SupplierConfirmation: React.FC = () => {
             
             <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-0 print:px-0">
                 <div className="bg-white rounded-xl shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
-                    <div className="p-8 border-b border-slate-100">
+                    <div className="p-8 border-b border-slate-100 print:hidden">
                         <h1 className="text-2xl font-bold text-slate-800">Rental Request Voucher</h1>
                         <p className="text-sm text-slate-500 mt-1">Please review the details below and take action to finalize this booking.</p>
+                    </div>
+
+                    {/* Print-only Header */}
+                    <div className="hidden print:flex items-center justify-between border-b-2 border-slate-200 p-8 mb-4">
+                        <Logo className="h-12 w-auto" variant="dark" />
+                        <div className="text-right">
+                            <h1 className="text-xl font-black uppercase tracking-widest text-slate-900">Rental Request Voucher</h1>
+                            <p className="text-slate-500 font-bold text-sm">Reference: {booking.bookingRef}</p>
+                            <div className="mt-2 inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
+                                {isConfirmed ? 'CONFIRMED' : (isRejected ? 'CANCELLED' : 'ACTION REQUIRED')}
+                            </div>
+                        </div>
                     </div>
 
                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -266,13 +278,57 @@ const SupplierConfirmation: React.FC = () => {
                     </div>
 
                     {isConfirmed ? (
-                        <div className="p-8 bg-green-50 border-t border-green-200 rounded-b-xl text-center">
-                            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                            <h2 className="text-xl font-bold text-green-800">Booking Confirmed!</h2>
-                            <p className="text-sm text-green-700 mt-2">
-                                The customer has been notified and sent the updated voucher with your confirmation number: 
-                                <strong className="font-mono bg-green-100 p-1 rounded ml-1">{confirmationNumber}</strong>.
-                            </p>
+                        <div className="p-8 bg-green-50 border-t border-green-200 rounded-b-xl">
+                            <div className="text-center mb-6">
+                                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                                <h2 className="text-xl font-bold text-green-800">Booking Confirmed!</h2>
+                                <p className="text-sm text-green-700 mt-2">
+                                    The customer has been notified and sent the updated voucher.
+                                </p>
+                            </div>
+                            
+                            {(!booking.supplierConfirmationNumber || booking.supplierConfirmationNumber === 'PENDING' || booking.supplierConfirmationNumber === 'N/A') && (
+                                <div className="max-w-md mx-auto bg-white p-6 rounded-xl border border-green-200 shadow-sm print:hidden">
+                                    <h3 className="text-sm font-bold text-slate-700 mb-4 text-center uppercase tracking-wider">Provide Your Confirmation Number</h3>
+                                    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                                        <div className="relative">
+                                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input
+                                                type="text"
+                                                value={confirmationNumber === 'N/A' ? '' : confirmationNumber}
+                                                onChange={e => setConfirmationNumber(e.target.value)}
+                                                className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase text-sm"
+                                                placeholder="Your System ID"
+                                                required
+                                            />
+                                        </div>
+                                        <button 
+                                            type="submit" 
+                                            disabled={isSubmitting}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                                        >
+                                            {isSubmitting ? <LoaderCircle className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
+                                            Update Confirmation #
+                                        </button>
+                                        {error && <p className="text-red-600 text-center text-xs">{error}</p>}
+                                    </form>
+                                </div>
+                            )}
+                            
+                            {(booking.supplierConfirmationNumber && booking.supplierConfirmationNumber !== 'PENDING' && booking.supplierConfirmationNumber !== 'N/A') && (
+                                <div className="text-center">
+                                    <p className="text-sm text-green-700">
+                                        Supplier Confirmation Number: 
+                                        <strong className="font-mono bg-green-100 p-1 rounded ml-1 text-lg">{booking.supplierConfirmationNumber}</strong>
+                                    </p>
+                                    <button 
+                                        onClick={() => window.print()} 
+                                        className="mt-6 flex items-center gap-2 mx-auto bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all print:hidden"
+                                    >
+                                        <Printer className="w-4 h-4" /> Print Updated Voucher
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : isRejected ? (
                         <div className="p-8 bg-red-50 border-t border-red-200 rounded-b-xl text-center">
