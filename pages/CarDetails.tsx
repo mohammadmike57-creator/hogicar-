@@ -359,7 +359,43 @@ const CarDetails: React.FC = () => {
         }
       }
 
-      // 3. fallback to mock data
+      // 3. Re-fetch from API if not found in storage/state
+      if (!foundCar && id) {
+        try {
+          console.log("CarDetails: Car not found in storage, attempting API re-fetch for ID:", id);
+          const refreshedCars = await loadCars({
+            locationsOptions: [],
+            pickupCode: pickupCode || undefined,
+            dropoffCode: dropoffCode || pickupCode || undefined,
+            pickupDate: startDate,
+            dropoffDate: endDate,
+          });
+
+          const normalizedId = String(id).replace('choice-', '');
+          const refreshedCar = refreshedCars.find(c => String(c.id) === normalizedId);
+          
+          if (refreshedCar) {
+            foundCar = refreshedCar as Car;
+            if (String(id).startsWith('choice-')) {
+               foundCar = {
+                 ...foundCar,
+                 id: `choice-${foundCar.id}`,
+                 supplier: {
+                   ...foundCar.supplier,
+                   name: 'Hogi Car Choice',
+                   logo: 'HOGICAR_CHOICE_LOGO'
+                 },
+                 isHogicarChoiceBranded: true
+               } as Car;
+            }
+            if (!foundCars.length) foundCars = refreshedCars as any[];
+          }
+        } catch (fetchError) {
+          console.error('CarDetails: API re-fetch failed', fetchError);
+        }
+      }
+
+      // 4. fallback to mock data
       if (!foundCar && id) {
         const mockCar = null; // Mock data removed
         if (mockCar) foundCar = mockCar as any;

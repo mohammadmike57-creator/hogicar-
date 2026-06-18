@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
-import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus, Users } from 'lucide-react';
+import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus, Users, Briefcase } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings } from '../utils/ratings';

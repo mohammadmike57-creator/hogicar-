@@ -81,7 +81,7 @@ const Searching: React.FC = () => {
   const [searchParams] = useSearchParams();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
-  const [duration, setDuration] = React.useState(3000); // default ms
+  const [duration, setDuration] = React.useState(4000); // Increased default to 4s for better UX
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
@@ -299,10 +299,19 @@ const Searching: React.FC = () => {
     const MAX_WAIT_TIME = 10000; // 10 seconds max
 
     const tryNavigate = () => {
-      if ((isDataReady || Date.now() - (start || Date.now()) > MAX_WAIT_TIME) && isAnimationMinTimePassed && !isNavigated) {
+      // Ensure we only navigate once
+      if (isNavigated) return;
+
+      const isDataWaitFinished = isDataReady || Date.now() - (start || Date.now()) > MAX_WAIT_TIME;
+      const isMinTimeFinished = isAnimationMinTimePassed;
+
+      if (isDataWaitFinished && isMinTimeFinished) {
         isNavigated = true;
-        const forwardParams = new URLSearchParams(searchParams);
-        navigate(`/search?${forwardParams.toString()}`);
+        // Small delay to let the 100% state be visible
+        setTimeout(() => {
+          const forwardParams = new URLSearchParams(searchParams);
+          navigate(`/search?${forwardParams.toString()}`);
+        }, 300);
       }
     };
 

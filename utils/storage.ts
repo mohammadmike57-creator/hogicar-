@@ -4,9 +4,9 @@ const SELECTED_CAR_KEY = 'hogicar_selectedCar';
 const SELECTED_CAR_ID_KEY = 'hogicar_selectedCarId';
 const CARS_KEY = 'hogicar_cars';
 const MAX_EMBEDDED_IMAGE_LENGTH = 120_000;
-const MAX_STORED_CARS = 30;
+const MAX_STORED_CARS = 15;
 export const PREFETCHED_RESULTS_KEY = 'hogicar_prefetched_results';
-const MAX_PREFETCHED_RESULTS = 80;
+const MAX_PREFETCHED_RESULTS = 50;
 
 const isQuotaError = (error: unknown) => (
   error instanceof DOMException &&
@@ -76,18 +76,23 @@ export const safeSessionStorageSetItem = (key: string, value: string) => {
       return false;
     }
 
-    console.warn(`sessionStorage quota exceeded for key: ${key}. Recovering with compact booking storage.`);
-    sessionStorage.removeItem(CARS_KEY);
-    sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
-
-    if (key === CARS_KEY) return false;
-    if (key === PREFETCHED_RESULTS_KEY) return false;
+    console.warn(`sessionStorage quota exceeded for key: ${key}. Clearing all hogicar_* keys to recover.`);
+    
+    // Aggressively clear all our keys
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i);
+      if (k && k.startsWith('hogicar_')) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach(k => sessionStorage.removeItem(k));
 
     try {
       sessionStorage.setItem(key, value);
       return true;
     } catch (retryError) {
-      console.error(`Storage recovery failed for ${key}`, retryError);
+      console.error(`Storage recovery failed even after clearing for ${key}`, retryError);
       return false;
     }
   }
