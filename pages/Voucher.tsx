@@ -44,6 +44,13 @@ const Voucher: React.FC = () => {
     loadVoucher();
   }, [searchParams, navigate]);
 
+  React.useEffect(() => {
+    if (!loading && booking && searchParams.get('print') === '1') {
+      const timer = window.setTimeout(() => window.print(), 650);
+      return () => window.clearTimeout(timer);
+    }
+  }, [loading, booking, searchParams]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
@@ -68,14 +75,46 @@ const Voucher: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-100 min-h-screen py-4 sm:py-10 print:bg-white print:py-0">
+    <div className="voucher-page bg-slate-100 min-h-screen py-4 sm:py-10 print:bg-white print:py-0">
       <SEOMetadata 
         title={`Rental Voucher - ${booking.bookingRef}`} 
         description="Official Rental Voucher for Hogicar" 
         noIndex={true} 
       />
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 7mm; }
+          html, body, #root { background: #ffffff !important; }
+          body * { visibility: hidden; }
+          .voucher-print-area, .voucher-print-area * { visibility: visible; }
+          .voucher-print-area {
+            position: absolute !important;
+            inset: 0 auto auto 0 !important;
+            width: 100% !important;
+            min-height: auto !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
+          }
+          .voucher-print-body { padding: 4mm !important; }
+          .voucher-print-hide { display: none !important; }
+          .voucher-print-compact { gap: 3mm !important; }
+          .voucher-print-area h1 { font-size: 15pt !important; }
+          .voucher-print-area h2 { font-size: 14pt !important; }
+          .voucher-print-area h3 { font-size: 7.5pt !important; margin-bottom: 2mm !important; }
+          .voucher-print-area p, .voucher-print-area span, .voucher-print-area div { line-height: 1.25 !important; }
+          .voucher-print-area .print-card { padding: 3mm !important; border-radius: 5px !important; }
+          .voucher-print-area .print-car-image { height: 24mm !important; }
+          .voucher-print-area .print-section-gap { margin-top: 3mm !important; }
+          .voucher-print-area .print-two-cols { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 3mm !important; }
+          .voucher-print-area .print-three-cols { display: grid !important; grid-template-columns: 1fr 1.25fr !important; gap: 4mm !important; }
+          .voucher-print-area .print-terms-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 2mm !important; }
+        }
+      `}</style>
       
-      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-200 print:shadow-none print:border-none print:rounded-none">
+      <div className="voucher-print-area max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-200 print:shadow-none print:border-none print:rounded-none">
         {/* Header */}
         <div className="bg-[#0f172a] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-6 print:bg-white print:text-slate-900 print:border-b-2 print:border-slate-200">
           <Logo className="h-10 w-auto" variant="light" />
@@ -86,9 +125,9 @@ const Voucher: React.FC = () => {
             </div>
             <button 
               onClick={() => window.print()}
-              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all print:hidden"
+              className="voucher-print-hide bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all print:hidden"
             >
-              <Printer className="w-4 h-4" /> Download PDF / Print
+              <Printer className="w-4 h-4" /> Save PDF / Print
             </button>
           </div>
         </div>
@@ -99,9 +138,9 @@ const Voucher: React.FC = () => {
           <span className="font-black uppercase tracking-wider">Confirmed & Secured</span>
         </div>
 
-        <div className="p-6 sm:p-10">
+        <div className="voucher-print-body p-6 sm:p-10">
           {/* Main Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="print-three-cols grid grid-cols-1 md:grid-cols-3 gap-8 voucher-print-compact">
             
             {/* Column 1: Customer & Supplier */}
             <div className="space-y-8">
@@ -109,7 +148,7 @@ const Voucher: React.FC = () => {
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <User className="w-3 h-3" /> Main Driver
                 </h3>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div className="print-card bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <p className="text-lg font-black text-slate-800 uppercase">{booking.firstName} {booking.lastName}</p>
                   <p className="text-sm text-slate-500 mt-1">{booking.email}</p>
                   <p className="text-sm text-slate-500">{booking.phone}</p>
@@ -135,14 +174,14 @@ const Voucher: React.FC = () => {
             </div>
 
             {/* Column 2: Vehicle */}
-            <div className="md:col-span-2 bg-slate-50 rounded-2xl p-6 border border-slate-200 relative overflow-hidden">
+            <div className="print-card md:col-span-2 bg-slate-50 rounded-2xl p-6 border border-slate-200 relative overflow-hidden">
                <div className="absolute top-0 right-0 p-4 opacity-5">
                   <CarIcon className="w-32 h-32" />
                </div>
                
                <div className="relative z-10">
                  <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                    <div className="w-full sm:w-48 h-32 bg-white rounded-xl border border-slate-200 p-2 flex items-center justify-center shrink-0">
+                    <div className="print-car-image w-full sm:w-48 h-32 bg-white rounded-xl border border-slate-200 p-2 flex items-center justify-center shrink-0">
                       <img 
                         src={booking.carImage || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'} 
                         alt={`${booking.carMake} ${booking.carModel}`} 
@@ -180,7 +219,7 @@ const Voucher: React.FC = () => {
           </div>
 
           {/* Itinerary Section (Modern Style) */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-12">
+          <div className="print-card print-section-gap bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-12">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative">
                   {/* Pickup */}
                   <div className="flex-1 w-full md:w-auto">
@@ -227,8 +266,8 @@ const Voucher: React.FC = () => {
                 </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-             <div className="p-5 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="print-two-cols grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 print-section-gap">
+             <div className="print-card p-5 bg-slate-50 rounded-xl border border-slate-200">
                 <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5" /> Pick-up Location
                 </h3>
@@ -237,7 +276,7 @@ const Voucher: React.FC = () => {
                   <Info className="w-3 h-3" /> Representative will be waiting at the arrivals terminal.
                 </p>
              </div>
-             <div className="p-5 bg-slate-50 rounded-xl border border-slate-200">
+             <div className="print-card p-5 bg-slate-50 rounded-xl border border-slate-200">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5" /> Drop-off Location
                 </h3>
@@ -246,11 +285,11 @@ const Voucher: React.FC = () => {
           </div>
 
           {/* Payment & Footer */}
-          <div className="mt-12 flex flex-col md:flex-row gap-8 items-start">
+          <div className="print-section-gap mt-12 flex flex-col md:flex-row gap-8 items-start voucher-print-compact">
              <div className="flex-1 w-full space-y-6">
                 <section>
                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Terms & Pickup Requirements</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px] font-bold text-slate-500 uppercase tracking-tighter">
+                  <div className="print-terms-grid grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px] font-bold text-slate-500 uppercase tracking-tighter">
                     <div className="flex items-start gap-2 p-3 bg-white border border-slate-200 rounded-lg">
                       <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                       <span>Original Driving License (min. 1 year held)</span>
@@ -271,7 +310,7 @@ const Voucher: React.FC = () => {
                 </section>
              </div>
 
-             <div className="w-full md:w-80 bg-[#0f172a] rounded-2xl p-6 text-white shadow-xl print:text-slate-900 print:bg-white print:border print:shadow-none">
+             <div className="print-card w-full md:w-80 bg-[#0f172a] rounded-2xl p-6 text-white shadow-xl print:text-slate-900 print:bg-white print:border print:shadow-none">
                 <h3 className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 print:text-slate-500 print:border-slate-200">Financial Summary</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
@@ -292,7 +331,7 @@ const Voucher: React.FC = () => {
                 </div>
              </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-slate-100">
+          <div className="voucher-print-hide mt-12 pt-8 border-t border-slate-100 print:hidden">
              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
                 <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
                    <ShieldCheck className="w-4 h-4 text-[#008009]" /> Hogicar Quality Guarantee
@@ -305,9 +344,9 @@ const Voucher: React.FC = () => {
         </div>
 
         {/* Print Footer */}
-        <div className="p-8 bg-slate-50 border-t border-slate-200 flex justify-center gap-4 print:hidden">
+        <div className="voucher-print-hide p-8 bg-slate-50 border-t border-slate-200 flex justify-center gap-4 print:hidden">
           <button onClick={() => window.print()} className="flex items-center gap-2 bg-[#008009] hover:bg-[#006607] text-white font-black py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95 uppercase tracking-widest text-xs">
-            <Printer className="w-5 h-5"/> Print Voucher
+            <Printer className="w-5 h-5"/> Save PDF / Print
           </button>
           <Link to="/" className="flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3 px-8 rounded-xl transition-all uppercase tracking-widest text-xs">
             Return to Site
@@ -315,7 +354,7 @@ const Voucher: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto mt-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] print:hidden">
+      <div className="voucher-print-hide max-w-4xl mx-auto mt-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] print:hidden">
          Hogicar.com &bull; Support: support@hogicar.com &bull; Amman, Jordan
       </div>
     </div>

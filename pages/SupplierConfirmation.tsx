@@ -15,6 +15,7 @@ const SupplierConfirmation: React.FC = () => {
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get('token');
     const action = queryParams.get('action');
+    const shouldAutoPrint = queryParams.get('print') === '1';
 
     const [booking, setBooking] = React.useState<Booking | null>(null);
     const [confirmationNumber, setConfirmationNumber] = React.useState('');
@@ -59,6 +60,13 @@ const SupplierConfirmation: React.FC = () => {
 
         loadData();
     }, [bookingId, token]);
+
+    React.useEffect(() => {
+        if (!isLoading && booking && shouldAutoPrint) {
+            const timer = window.setTimeout(() => window.print(), 650);
+            return () => window.clearTimeout(timer);
+        }
+    }, [isLoading, booking, shouldAutoPrint]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -135,10 +143,38 @@ const SupplierConfirmation: React.FC = () => {
     const isRejectAction = action === 'reject';
 
     return (
-        <div className="min-h-screen bg-slate-100 font-sans print:bg-white">
+        <div className="supplier-print-page min-h-screen bg-slate-100 font-sans print:bg-white">
             <SEOMetadata title="Confirm Booking Request" description="Supplier confirmation page for Hogicar rental request." noIndex={true} />
+            <style>{`
+                @media print {
+                    @page { size: A4; margin: 7mm; }
+                    html, body, #root { background: #ffffff !important; }
+                    body * { visibility: hidden; }
+                    .supplier-print-area, .supplier-print-area * { visibility: visible; }
+                    .supplier-print-area {
+                        position: absolute !important;
+                        inset: 0 auto auto 0 !important;
+                        width: 100% !important;
+                        margin: 0 !important;
+                        box-shadow: none !important;
+                        border: 0 !important;
+                        border-radius: 0 !important;
+                        overflow: hidden !important;
+                    }
+                    .supplier-print-hide { display: none !important; }
+                    .supplier-print-body { padding: 4mm !important; }
+                    .supplier-print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 4mm !important; }
+                    .supplier-print-card { padding: 3mm !important; border-radius: 5px !important; }
+                    .supplier-print-area h1 { font-size: 15pt !important; }
+                    .supplier-print-area h2 { font-size: 13pt !important; }
+                    .supplier-print-area h3 { font-size: 7.5pt !important; margin-bottom: 2mm !important; }
+                    .supplier-print-area p, .supplier-print-area span, .supplier-print-area strong, .supplier-print-area div { line-height: 1.25 !important; }
+                    .supplier-print-area .supplier-print-car-image { height: 24mm !important; }
+                    .supplier-print-area .supplier-print-status { display: block !important; padding: 3mm !important; margin-top: 3mm !important; }
+                }
+            `}</style>
             
-            <header className="bg-white shadow-sm print:hidden">
+            <header className="supplier-print-hide bg-white shadow-sm print:hidden">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Logo className="h-12 w-auto" variant="dark" />
@@ -155,17 +191,17 @@ const SupplierConfirmation: React.FC = () => {
             </header>
             
             <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-0 print:px-0">
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
-                    <div className="p-8 border-b border-slate-100 print:hidden">
+                <div className="supplier-print-area bg-white rounded-xl shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
+                    <div className="supplier-print-hide p-8 border-b border-slate-100 print:hidden">
                         <h1 className="text-2xl font-bold text-slate-800">Rental Request Voucher</h1>
                         <p className="text-sm text-slate-500 mt-1">Please review the details below and take action to finalize this booking.</p>
                     </div>
 
                     {/* Print-only Header */}
-                    <div className="hidden print:flex items-center justify-between border-b-2 border-slate-200 p-8 mb-4">
+                    <div className="hidden print:flex items-center justify-between border-b-2 border-slate-200 p-4 mb-2">
                         <Logo className="h-12 w-auto" variant="dark" />
                         <div className="text-right">
-                            <h1 className="text-xl font-black uppercase tracking-widest text-slate-900">Rental Request Voucher</h1>
+                            <h1 className="text-xl font-black uppercase tracking-widest text-slate-900">Supplier Reservation</h1>
                             <p className="text-slate-500 font-bold text-sm">Reference: {booking.bookingRef}</p>
                             <div className="mt-2 inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
                                 {isConfirmed ? 'CONFIRMED' : (isRejected ? 'CANCELLED' : 'ACTION REQUIRED')}
@@ -173,12 +209,12 @@ const SupplierConfirmation: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="supplier-print-body p-8 supplier-print-grid grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Left Column: Booking Details */}
                         <div className="space-y-6">
                             <div>
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Booking Details</h3>
-                                <div className="space-y-2 text-sm">
+                                <div className="supplier-print-card bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-sm">
                                     <p className="flex justify-between"><span>Hogicar Reference:</span> <strong className="font-mono">{booking.bookingRef || booking.id}</strong></p>
                                     <p className="flex justify-between"><span>Customer Name:</span> <strong>{booking.firstName} {booking.lastName}</strong></p>
                                     <p className="flex justify-between"><span>Customer Email:</span> <strong>{booking.email}</strong></p>
@@ -186,7 +222,7 @@ const SupplierConfirmation: React.FC = () => {
                                 </div>
                             </div>
                             {/* Rental Itinerary (Modern Style) */}
-                            <div className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-4">
+                            <div className="supplier-print-card md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-4">
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative">
                                     {/* Pickup */}
                                     <div className="flex-1 w-full md:w-auto">
@@ -236,10 +272,10 @@ const SupplierConfirmation: React.FC = () => {
 
                         {/* Right Column: Car Details & Price */}
                         <div className="space-y-6">
-                            <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                            <div className="supplier-print-card bg-slate-50 p-6 rounded-lg border border-slate-200">
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Specifications</h3>
                                 <div className="flex flex-col sm:flex-row gap-6 items-center mb-4">
-                                    <div className="w-full sm:w-40 h-28 bg-white rounded-lg border border-slate-100 p-2 flex items-center justify-center shrink-0">
+                                    <div className="supplier-print-car-image w-full sm:w-40 h-28 bg-white rounded-lg border border-slate-100 p-2 flex items-center justify-center shrink-0">
                                         <img 
                                             src={booking.carImage || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'} 
                                             alt={`${displayCar.make} ${displayCar.model}`} 
@@ -267,7 +303,7 @@ const SupplierConfirmation: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                            <div className="supplier-print-card bg-blue-50 p-6 rounded-lg border border-blue-100">
                                 <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Financial Breakdown</h3>
                                 <div className="space-y-2 text-sm">
                                     <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-blue-700">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
@@ -278,7 +314,7 @@ const SupplierConfirmation: React.FC = () => {
                     </div>
 
                     {isConfirmed ? (
-                        <div className="p-8 bg-green-50 border-t border-green-200 rounded-b-xl">
+                        <div className="supplier-print-status p-8 bg-green-50 border-t border-green-200 rounded-b-xl">
                             <div className="text-center mb-6">
                                 <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
                                 <h2 className="text-xl font-bold text-green-800">Booking Confirmed!</h2>
@@ -288,7 +324,7 @@ const SupplierConfirmation: React.FC = () => {
                             </div>
                             
                             {(!booking.supplierConfirmationNumber || booking.supplierConfirmationNumber === 'PENDING' || booking.supplierConfirmationNumber === 'N/A') && (
-                                <div className="max-w-md mx-auto bg-white p-6 rounded-xl border border-green-200 shadow-sm print:hidden">
+                                <div className="supplier-print-hide max-w-md mx-auto bg-white p-6 rounded-xl border border-green-200 shadow-sm print:hidden">
                                     <h3 className="text-sm font-bold text-slate-700 mb-4 text-center uppercase tracking-wider">Provide Your Confirmation Number</h3>
                                     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                                         <div className="relative">
@@ -323,7 +359,7 @@ const SupplierConfirmation: React.FC = () => {
                                     </p>
                                     <button 
                                         onClick={() => window.print()} 
-                                        className="mt-6 flex items-center gap-2 mx-auto bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all print:hidden"
+                                        className="supplier-print-hide mt-6 flex items-center gap-2 mx-auto bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all print:hidden"
                                     >
                                         <Printer className="w-4 h-4" /> Print Updated Voucher
                                     </button>
@@ -331,7 +367,7 @@ const SupplierConfirmation: React.FC = () => {
                             )}
                         </div>
                     ) : isRejected ? (
-                        <div className="p-8 bg-red-50 border-t border-red-200 rounded-b-xl text-center">
+                        <div className="supplier-print-status p-8 bg-red-50 border-t border-red-200 rounded-b-xl text-center">
                             <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
                             <h2 className="text-xl font-bold text-red-800">Booking Declined</h2>
                             <p className="text-sm text-red-700 mt-2">
@@ -339,7 +375,7 @@ const SupplierConfirmation: React.FC = () => {
                             </p>
                         </div>
                     ) : (
-                        <div className="p-8 bg-slate-50 border-t border-slate-200 rounded-b-xl">
+                        <div className="supplier-print-hide p-8 bg-slate-50 border-t border-slate-200 rounded-b-xl print:hidden">
                             {isRejectAction ? (
                                 <div className="space-y-4">
                                     <h2 className="text-lg font-bold text-red-900 mb-2">Decline Booking Request</h2>
