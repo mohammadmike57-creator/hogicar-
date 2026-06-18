@@ -69,9 +69,12 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
             const rawImage = car.imageUrl || car.image || "";
             normalizedCar.image = rawImage;
             
-            // Add a cache-busting parameter for external images to ensure mobile devices get fresh versions
-            // This helps bypass potentially stale "expired" images cached on mobile browsers
-            if (rawImage && (rawImage.startsWith('http') || rawImage.startsWith('//')) && !rawImage.includes('unsplash.com')) {
+            // Add a cache-busting parameter for external images only if not already containing complex params
+            // This helps bypass potentially stale "expired" images while avoiding breaking signed URLs
+            if (rawImage && (rawImage.startsWith('http') || rawImage.startsWith('//')) && 
+                !rawImage.includes('unsplash.com') && 
+                !rawImage.includes('Signature=') && 
+                !rawImage.includes('Expires=')) {
                 const separator = rawImage.includes('?') ? '&' : '?';
                 // Use a timestamp that changes every minute to ensure fresh images while allowing some caching
                 const cacheBuster = Math.floor(Date.now() / (60 * 1000));

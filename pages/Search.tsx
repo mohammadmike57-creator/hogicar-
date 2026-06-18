@@ -183,13 +183,16 @@ export const Search: React.FC = () => {
   
   React.useEffect(() => {
     const fetchApiCars = async () => {
+        // Use a ref to prevent double execution in Strict Mode if we already have cars from prefetch
+        if (apiCars.length > 0 && !loading) {
+            return;
+        }
+
         // Check for pre-fetched results from Searching page to prevent redundant buffering
         const prefetched = sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
         if (prefetched) {
             try {
                 const data = JSON.parse(prefetched);
-                // Consume and clear the cache
-                sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
                 
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("Search: Using pre-fetched results from session storage.");
@@ -209,11 +212,17 @@ export const Search: React.FC = () => {
                     });
                     setApiCars(finalCars);
                     setLoading(false);
+                    
+                    // Delay removal to allow React Strict Mode to run twice and still find the data
+                    // Or just let it be, it will be overwritten by next search anyway
+                    // But to be safe and clean:
+                    setTimeout(() => {
+                        sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
+                    }, 2000);
                     return;
                 }
             } catch (e) {
                 console.warn("Search: Failed to parse prefetched results", e);
-                sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
             }
         }
 

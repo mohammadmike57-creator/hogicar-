@@ -81,7 +81,7 @@ const Searching: React.FC = () => {
   const [searchParams] = useSearchParams();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
-  const [duration, setDuration] = React.useState(4000); // Increased default to 4s for better UX
+  const [duration, setDuration] = React.useState(5000); // Increased default to 5s for better UX
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);

@@ -4,9 +4,9 @@ const SELECTED_CAR_KEY = 'hogicar_selectedCar';
 const SELECTED_CAR_ID_KEY = 'hogicar_selectedCarId';
 const CARS_KEY = 'hogicar_cars';
 const MAX_EMBEDDED_IMAGE_LENGTH = 120_000;
-const MAX_STORED_CARS = 15;
+const MAX_STORED_CARS = 20;
 export const PREFETCHED_RESULTS_KEY = 'hogicar_prefetched_results';
-const MAX_PREFETCHED_RESULTS = 50;
+const MAX_PREFETCHED_RESULTS = 200;
 
 const isQuotaError = (error: unknown) => (
   error instanceof DOMException &&
@@ -59,7 +59,7 @@ export const compactStorageValue = <T,>(value: T): T => (
 export const compactPrefetchedResults = <T,>(results: T[]): T[] => (
   results
     .slice(0, MAX_PREFETCHED_RESULTS)
-    .map(item => compactStorageValue(item))
+    .map(item => stripLargeDataUrls(item, new WeakSet<object>(), { preservePrimaryImage: true }) as T)
 );
 
 export const compactCarForStorage = (car: Car, options: { preservePrimaryImage?: boolean } = {}): Car => (
