@@ -1167,6 +1167,15 @@ const BookingPageWithStripe: React.FC<{
 };
 
 const BookingPage: React.FC = () => {
+  const elementsOptions = React.useMemo(() => ({
+    appearance: {
+        theme: 'stripe' as const,
+        variables: {
+            colorPrimary: '#008009',
+        },
+    },
+  }), []);
+
   const [dynamicStripePromise, setDynamicStripePromise] = React.useState<ReturnType<typeof loadStripe> | null>(
     null
   );
@@ -1255,21 +1264,12 @@ const BookingPage: React.FC = () => {
   }, []);
 
   if (stripeConfigLoading) {
-    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} bookingDraft={null} setBookingDraft={() => {}} />;
+    return <BookingPageContent key="loading" stripeEnabled={false} stripeConfigLoading={true} stripeInstance={null} elementsInstance={null} currentKey={null} onStripeKeyChange={() => {}} configMismatch={false} bookingDraft={null} setBookingDraft={() => {}} creationInProgressRef={creationInProgressRef} />;
   }
 
   if (!dynamicStripePromise || !currentKey) {
-    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={null} setBookingDraft={() => {}} />;
+    return <BookingPageContent key={currentKey || 'disabled'} stripeEnabled={false} stripeConfigLoading={false} stripeInstance={null} elementsInstance={null} currentKey={currentKey} onStripeKeyChange={setCurrentKey} configMismatch={configMismatch} bookingDraft={null} setBookingDraft={() => {}} creationInProgressRef={creationInProgressRef} />;
   }
-
-  const elementsOptions = React.useMemo(() => ({
-    appearance: {
-        theme: 'stripe' as const,
-        variables: {
-            colorPrimary: '#008009',
-        },
-    },
-  }), []);
 
   return (
     <Elements stripe={dynamicStripePromise} key={currentKey || 'stripe'} options={elementsOptions}>
