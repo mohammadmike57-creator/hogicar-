@@ -119,7 +119,7 @@ const Confirmation: React.FC = () => {
     make: booking.carMake || storedCar?.make || "Vehicle",
     model: booking.carModel || booking.carName || storedCar?.model || "Rental",
     category: booking.carCategory || storedCar?.category || "Standard",
-    image: booking.carImage || storedCar?.image || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle',
+    image: booking.carImage || storedCar?.image || (storedCar as any)?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle',
     location: storedCar?.location || booking.pickupCode || "Airport",
     sippCode: booking.carSippCode || (storedCar as any)?.sippCode,
     passengers: booking.carPassengers || storedCar?.passengers || 5,

@@ -180,21 +180,6 @@ const Voucher: React.FC = () => {
                </div>
                
                <div className="relative z-10">
-                 <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                    <div className="print-car-image w-full sm:w-48 h-32 bg-white rounded-xl border border-slate-200 p-2 flex items-center justify-center shrink-0">
-                      <img 
-                        src={booking.carImage || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'} 
-                        alt={`${booking.carMake} ${booking.carModel}`} 
-                        className="max-w-full max-h-full object-contain"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (!target.src.includes('placehold.co')) {
-                            target.src = 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle';
-                          }
-                        }}
-                      />
-                    </div>
                     <div>
                       <div className="bg-blue-600 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
                         {booking.carCategory || 'Standard Class'}
@@ -212,7 +197,6 @@ const Voucher: React.FC = () => {
                         <span className="flex items-center gap-1.5 font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">SIPP: {booking.carSippCode}</span>
                       </div>
                     </div>
-                 </div>
                </div>
             </div>
 

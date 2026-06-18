@@ -282,6 +282,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         payNow: priceDetails.payNow,
         payAtDesk: priceDetails.payAtDesk,
         flightNumber,
+        carImage: car.image || car.imageUrl,
         hogicarChoice: car.hogicarChoice,
         isHogicarChoiceBranded: car.isHogicarChoiceBranded,
         selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
