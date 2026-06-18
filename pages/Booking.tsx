@@ -13,6 +13,7 @@ import BookingStepper from '../components/BookingStepper';
 import { Logo } from '../components/Logo';
 import { calcPricing, rentalDays } from '../utils/pricing';
 import { api } from '../api';
+import { compactCarForStorage, safeSessionStorageSetItem } from '../utils/storage';
 
 const getPromoCode = (code: string): PromoCode | undefined => {
     return undefined; // Mock data removed
@@ -283,8 +284,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const storeBookingAndGoToConfirmation = (booking: any) => {
     const bookingRef = (booking as any).bookingRef || booking.id;
     sessionStorage.setItem("allowConfirmationRef", bookingRef.toString());
-    sessionStorage.setItem("hogicar_booking", JSON.stringify(booking));
-    sessionStorage.setItem("hogicar_car", JSON.stringify(car));
+    safeSessionStorageSetItem("hogicar_booking", JSON.stringify(booking));
+    safeSessionStorageSetItem("hogicar_car", JSON.stringify(compactCarForStorage(car, { preservePrimaryImage: true })));
     sessionStorage.removeItem("hogicar_pending_booking");
     navigate(`/confirmation?bookingRef=${bookingRef}`);
   };
@@ -372,7 +373,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         }
 
         setBookingDraft(booking);
-        sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(booking));
+        safeSessionStorageSetItem("hogicar_pending_booking", JSON.stringify(booking));
         return booking;
     } finally {
         creationInProgressRef.current = false;
@@ -451,7 +452,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
               }
 
               setBookingDraft(refreshedBooking);
-              sessionStorage.setItem("hogicar_pending_booking", JSON.stringify(refreshedBooking));
+              safeSessionStorageSetItem("hogicar_pending_booking", JSON.stringify(refreshedBooking));
               const refreshMessage = 'Your secure payment session was refreshed. Please click confirm again.';
               setPaymentError(refreshMessage);
               alert(refreshMessage);
@@ -931,38 +932,64 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
             {/* Payment Details */}
             {routeStep === 'payment' && (
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_28px_60px_-34px_rgba(15,23,42,0.55)]">
+               <div className="border-b border-slate-100 bg-slate-50/70 p-5 sm:p-7">
+               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                  <div>
                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Protected checkout</p>
                    <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><CreditCard className="w-5 h-5 text-[#008009]"/> Secure payment details</h2>
                    <p className="mt-2 max-w-2xl text-sm text-slate-600">Your payment is processed through an encrypted gateway. The supplier receives the reservation only after the secure confirmation step.</p>
                  </div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                 <div className="rounded-2xl border border-emerald-100 bg-white px-5 py-4 shadow-sm">
                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Due now</p>
-                   <p className="mt-1 text-xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                   <p className="mt-1 text-2xl font-black tracking-tight text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                  </div>
                </div>
-               <div className="space-y-6">
+               </div>
+               <div className="space-y-6 p-5 sm:p-7">
+                  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Payment method</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-600">Credit/debit card, Apple Pay, and Google Pay via Stripe.</p>
+                        </div>
+                        <ShieldCheck className="h-6 w-6 text-[#008009]" />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-black uppercase tracking-wider text-slate-600">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Visa</div>
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Mastercard</div>
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Amex</div>
+                      </div>
+                    </div>
+                    <div className="rounded-2xl bg-slate-950 p-5 text-white shadow-xl">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Secure reservation</p>
+                      <p className="mt-2 text-lg font-black">Encrypted payment session</p>
+                      <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
+                        <div><span className="block text-slate-400">Pay now</span><strong className="text-emerald-300">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</strong></div>
+                        <div><span className="block text-slate-400">At desk</span><strong>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</strong></div>
+                      </div>
+                    </div>
+                  </div>
                   <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
                     <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors">Card information</label>
                     {stripeEnabled ? (
-                      <div className="rounded-xl border border-slate-200 px-4 sm:px-6 py-4 shadow-sm focus-within:ring-4 focus-within:ring-[#008009]/10 focus-within:border-[#008009] bg-white transition-all">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all focus-within:border-[#008009] focus-within:ring-4 focus-within:ring-[#008009]/10 sm:px-6">
                         <CardElement options={{ 
                             hidePostalCode: false,
                             style: {
                                 base: {
-                                    fontSize: '18px',
+                                    fontSize: '16px',
                                     color: '#0f172a',
-                                    fontWeight: '500',
+                                    fontWeight: '600',
                                     fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                                    letterSpacing: '0.01em',
+                                    letterSpacing: '0',
                                     '::placeholder': {
                                         color: '#94a3b8',
                                         fontSize: '14px',
-                                        letterSpacing: '0.01em',
-                                        fontWeight: '400'
+                                        letterSpacing: '0',
+                                        fontWeight: '500'
                                     },
                                 },
                             }

@@ -14,6 +14,7 @@ import SearchWidget from '../components/SearchWidget';
 import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
+import { PREFETCHED_RESULTS_KEY } from '../utils/storage';
 
 const ratingToPercent = (rating: number | undefined) => {
     const safeRating = Number(rating || 4.5);
@@ -131,7 +132,7 @@ export const Search: React.FC = () => {
   
   const [apiCars, setApiCars] = React.useState<Car[]>(() => {
     if (typeof window === 'undefined') return [];
-    const prefetched = sessionStorage.getItem('hogicar_prefetched_results');
+    const prefetched = sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
     if (prefetched) {
       try {
         const data = JSON.parse(prefetched);
@@ -153,6 +154,7 @@ export const Search: React.FC = () => {
         }
       } catch (e) {
         console.warn("Search: Initializer failed to parse prefetched results", e);
+        sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
       }
     }
     return [];
@@ -160,7 +162,7 @@ export const Search: React.FC = () => {
 
   const [loading, setLoading] = React.useState(() => {
     if (typeof window === 'undefined') return true;
-    return !sessionStorage.getItem('hogicar_prefetched_results');
+    return !sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
   });
   const [error, setError] = React.useState<string | null>(null);
 
@@ -182,12 +184,12 @@ export const Search: React.FC = () => {
   React.useEffect(() => {
     const fetchApiCars = async () => {
         // Check for pre-fetched results from Searching page to prevent redundant buffering
-        const prefetched = sessionStorage.getItem('hogicar_prefetched_results');
+        const prefetched = sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
         if (prefetched) {
             try {
                 const data = JSON.parse(prefetched);
                 // Consume and clear the cache
-                sessionStorage.removeItem('hogicar_prefetched_results');
+                sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
                 
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("Search: Using pre-fetched results from session storage.");
@@ -211,6 +213,7 @@ export const Search: React.FC = () => {
                 }
             } catch (e) {
                 console.warn("Search: Failed to parse prefetched results", e);
+                sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
             }
         }
 

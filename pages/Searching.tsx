@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
 import { loadCars } from '../utils/loadCars';
+import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from '../utils/storage';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import { Check, Gift, MapPin } from 'lucide-react';
@@ -110,8 +111,8 @@ const Searching: React.FC = () => {
           pickupDate: searchParams.get('pickupDate') || '',
           dropoffDate: searchParams.get('dropoffDate') || '',
         });
-        sessionStorage.setItem('hogicar_prefetched_results', JSON.stringify(data));
-        console.log("Searching: Pre-fetch complete. Results cached.");
+        const stored = safeSessionStorageSetItem(PREFETCHED_RESULTS_KEY, JSON.stringify(compactPrefetchedResults(data)));
+        console.log(stored ? "Searching: Pre-fetch complete. Results cached." : "Searching: Pre-fetch complete. Cache skipped to protect browser storage.");
       } catch (err) {
         console.warn("Searching: Pre-fetch failed:", err);
       }

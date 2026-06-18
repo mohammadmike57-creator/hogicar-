@@ -5,6 +5,8 @@ const SELECTED_CAR_ID_KEY = 'hogicar_selectedCarId';
 const CARS_KEY = 'hogicar_cars';
 const MAX_EMBEDDED_IMAGE_LENGTH = 120_000;
 const MAX_STORED_CARS = 30;
+export const PREFETCHED_RESULTS_KEY = 'hogicar_prefetched_results';
+const MAX_PREFETCHED_RESULTS = 80;
 
 const isQuotaError = (error: unknown) => (
   error instanceof DOMException &&
@@ -50,6 +52,16 @@ const stripLargeDataUrls = (
   }, {} as Record<string, any>);
 };
 
+export const compactStorageValue = <T,>(value: T): T => (
+  stripLargeDataUrls(value, new WeakSet<object>()) as T
+);
+
+export const compactPrefetchedResults = <T,>(results: T[]): T[] => (
+  results
+    .slice(0, MAX_PREFETCHED_RESULTS)
+    .map(item => compactStorageValue(item))
+);
+
 export const compactCarForStorage = (car: Car, options: { preservePrimaryImage?: boolean } = {}): Car => (
   stripLargeDataUrls(car, new WeakSet<object>(), options) as Car
 );
@@ -66,8 +78,10 @@ export const safeSessionStorageSetItem = (key: string, value: string) => {
 
     console.warn(`sessionStorage quota exceeded for key: ${key}. Recovering with compact booking storage.`);
     sessionStorage.removeItem(CARS_KEY);
+    sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
 
     if (key === CARS_KEY) return false;
+    if (key === PREFETCHED_RESULTS_KEY) return false;
 
     try {
       sessionStorage.setItem(key, value);

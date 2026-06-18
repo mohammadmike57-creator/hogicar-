@@ -943,33 +943,58 @@ const CarDetails: React.FC = () => {
                       <Clock className="w-6 h-6 text-emerald-400" />
                     </div>
                   </div>
-                  <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pay now</p>
-                        <p className="text-xl font-black text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                  <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">Pay now</p>
+                        <p className="mt-1 text-2xl font-black tracking-tight text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">At desk</p>
-                        <p className="text-xs font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
+                      <div className="rounded-xl bg-white p-3 text-right ring-1 ring-slate-200">
+                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">At counter</p>
+                        <p className="mt-1 text-lg font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-[11px] font-bold text-emerald-800 ring-1 ring-emerald-100">
+                      <ShieldCheck className="h-4 w-4 text-[#008009]" />
+                      Includes mandatory taxes, supplier fees, and booking support.
+                    </div>
+                  </div>
+                  <div className="mb-5">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Price breakdown</p>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-slate-500">{days} days</span>
+                    </div>
+                    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+                      <div className="flex justify-between gap-4 text-sm font-semibold"><span className="text-slate-600">Vehicle rental</span><span className="text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
+                      {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4 text-sm font-semibold"><span className="text-slate-600">Protection</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
+                      {priceDetails.extrasCost > 0 && <div className="flex justify-between gap-4 text-sm font-semibold"><span className="text-slate-600">Selected extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
+                      {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-700"><span>Promo discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
+                      {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 rounded-xl bg-indigo-50 px-3 py-2 text-sm font-black text-indigo-700"><span>Secret deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
+                      <div className="border-t border-dashed border-slate-200 pt-3">
+                        <div className="flex items-end justify-between gap-4"><span className="text-sm font-black text-slate-900">Total price</span><span className="text-2xl font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
                       </div>
                     </div>
                   </div>
-                  {/* Price breakdown */}
-                  <div className="space-y-2 mb-3">
-                    <div className="flex justify-between text-xs"><span className="text-slate-600">Rental ({days} days)</span><span className="font-medium">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between text-xs"><span>Insurance</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                    {priceDetails.extrasCost > 0 && <div className="flex justify-between text-xs"><span>Extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                    {priceDetails.discountAmount > 0 && <div className="flex justify-between text-xs text-green-600"><span>Discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
-                    {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between text-xs text-green-700 font-bold"><span>Secret Deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
-                    <div className="border-t pt-2 mt-2"><div className="flex justify-between font-black text-base"><span>Total</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div><div className="text-[11px] text-slate-600 text-right">Taxes & fees included</div></div>
+                  <div className="mb-5">
+                    <div className="flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2">
+                      <input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 bg-transparent px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none placeholder:text-slate-400" />
+                      <button onClick={handleApplyPromo} className="rounded-xl bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-[#008009]">Apply</button>
+                    </div>
+                    {promoError && <p className="mt-2 text-xs font-bold text-red-600">{promoError}</p>}
+                    {appliedPromo && <p className="mt-2 text-xs font-bold text-green-700">✓ {appliedPromo.code} applied</p>}
                   </div>
-                  {/* Promo code */}
-                  <div className="mb-3"><div className="flex gap-2"><input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#008009]/30 focus:border-[#008009] outline-none" /><button onClick={handleApplyPromo} className="bg-slate-950 text-white px-3 py-2 rounded-lg text-xs font-black hover:bg-[#008009] transition">Apply</button></div>{promoError && <p className="text-red-600 text-xs mt-1">{promoError}</p>}{appliedPromo && <p className="text-green-700 text-xs mt-1">✓ {appliedPromo.code} applied</p>}</div>
-                  {/* Insurance selection */}
-                  <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-2.5"><label className="flex items-center gap-2 mb-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /> <span className="text-xs font-medium">Basic Insurance included</span></label><label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /> <span className="text-xs font-medium">Full Protection (+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)})</span></label></div>
-                  <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="block w-full bg-[#008009] hover:bg-[#006607] text-white text-center font-black py-3 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-[0.98] uppercase tracking-widest text-xs">Continue to book</Link>
-                  <div className="mt-3 flex justify-center gap-2 opacity-70"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
+                  <div className="mb-5 grid gap-2">
+                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'basic' ? 'border-[#008009]/30 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
+                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /><span><span className="block text-sm font-black text-slate-950">Basic cover included</span><span className="text-[11px] font-semibold text-slate-500">Standard supplier coverage</span></span></span>
+                      <span className="text-xs font-black text-[#008009]">Included</span>
+                    </label>
+                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'full' ? 'border-[#008009]/30 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
+                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /><span><span className="block text-sm font-black text-slate-950">Full protection</span><span className="text-[11px] font-semibold text-slate-500">Extra peace of mind</span></span></span>
+                      <span className="text-xs font-black text-slate-950">+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)}</span>
+                    </label>
+                  </div>
+                  <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="block w-full rounded-2xl bg-[#008009] py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(0,128,9,0.75)] transition hover:-translate-y-0.5 hover:bg-[#006607] active:scale-[0.98]">Continue to book</Link>
+                  <div className="mt-4 flex items-center justify-center gap-2 opacity-75"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
                 <div className="grid grid-cols-2 gap-2">
@@ -990,8 +1015,15 @@ const CarDetails: React.FC = () => {
         </div>
 
         {/* Mobile Floating CTA */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#f3f6fb] border-t border-slate-300/80 shadow-lg p-4 z-40">
-          <div className="flex justify-between items-center"><div><div className="text-sm text-slate-600">Total price</div><div className="text-xl font-bold">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div></div><Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="bg-[#008009] text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-sm shadow-lg shadow-green-100 transition-all active:scale-95">Book Now</Link></div>
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-18px_40px_-24px_rgba(15,23,42,0.65)] backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Total price</div>
+              <div className="text-xl font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div>
+              <div className="text-[10px] font-bold text-[#008009]">Pay now {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</div>
+            </div>
+            <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="shrink-0 rounded-2xl bg-[#008009] px-6 py-3.5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_-16px_rgba(0,128,9,0.8)] transition active:scale-95">Book now</Link>
+          </div>
         </div>
       </div>
     </>
