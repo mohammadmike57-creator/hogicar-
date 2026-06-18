@@ -129,8 +129,39 @@ export const Search: React.FC = () => {
   const dropoffIata = searchParams.get('dropoff');
   const dropoffName = searchParams.get('dropoffName');
   
-  const [apiCars, setApiCars] = React.useState<Car[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [apiCars, setApiCars] = React.useState<Car[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const prefetched = sessionStorage.getItem('hogicar_prefetched_results');
+    if (prefetched) {
+      try {
+        const data = JSON.parse(prefetched);
+        if (data && Array.isArray(data) && data.length > 0) {
+          const mappedCars = data.map(apiCarToCar);
+          const finalCars: Car[] = [];
+          mappedCars.forEach(car => {
+            finalCars.push({ ...car, isHogicarChoiceBranded: false });
+            if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
+              const choiceCar = JSON.parse(JSON.stringify(car));
+              choiceCar.id = `choice-${car.id}`;
+              choiceCar.supplier.name = 'Hogi Car Choice';
+              choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
+              choiceCar.isHogicarChoiceBranded = true;
+              finalCars.push(choiceCar);
+            }
+          });
+          return finalCars;
+        }
+      } catch (e) {
+        console.warn("Search: Initializer failed to parse prefetched results", e);
+      }
+    }
+    return [];
+  });
+
+  const [loading, setLoading] = React.useState(() => {
+    if (typeof window === 'undefined') return true;
+    return !sessionStorage.getItem('hogicar_prefetched_results');
+  });
   const [error, setError] = React.useState<string | null>(null);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
@@ -239,7 +270,7 @@ export const Search: React.FC = () => {
   const [selectedTransmissions, setSelectedTransmissions] = React.useState<string[]>([]);
   const [selectedFuelPolicies, setSelectedFuelPolicies] = React.useState<string[]>([]);
   const [passengerCapacity, setPassengerCapacity] = React.useState<number>(0);
-  const [sortBy, setSortBy] = React.useState('Recommended');
+  const [sortBy, setSortBy] = React.useState('Price: Low to High');
   const [openFilters, setOpenFilters] = React.useState<string[]>([
     'Price',
     'Category',
