@@ -575,41 +575,42 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             <BookingStepper currentStep={4} />
         </div>
 
-        <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_15px_45px_-35px_rgba(15,23,42,0.6)]">
+        <div className="mb-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.1)]">
           <div className="h-1.5 bg-slate-100">
-            <div className={`h-full rounded-r-full bg-[#008009] transition-all duration-700 ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
+            <div className={`h-full rounded-r-full bg-[#008009] transition-all duration-1000 ease-out ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
           </div>
-          <div className="p-3 sm:p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="p-4 sm:p-6 lg:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#008009]">Checkout</p>
-              <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
-              <p className="mt-1.5 max-w-2xl text-xs sm:text-sm font-medium leading-relaxed text-slate-600">{pageDescription}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1 sm:min-w-[320px]">
-              <div className={`rounded-lg px-2 py-2 text-center ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-500'}`}>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em]">Step 1</p>
-                <p className="mt-0.5 text-[11px] sm:text-xs font-black">Driver details</p>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-2 w-2 rounded-full bg-[#008009] animate-pulse"></div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#008009]">Secure Checkout</p>
               </div>
-              <div className={`rounded-lg px-2 py-2 text-center ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-sm' : 'text-slate-500'}`}>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em]">Step 2</p>
-                <p className="mt-0.5 text-[11px] sm:text-xs font-black">Payment</p>
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
+              <p className="mt-2 max-w-2xl text-xs sm:text-base font-medium leading-relaxed text-slate-500">{pageDescription}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-1.5 sm:min-w-[360px] shadow-inner border border-slate-100">
+              <div className={`rounded-xl px-4 py-3 text-center transition-all duration-500 ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Step 01</p>
+                <p className="text-xs sm:text-sm font-black">Driver Details</p>
+              </div>
+              <div className={`rounded-xl px-4 py-3 text-center transition-all duration-500 ${routeStep === 'payment' ? 'bg-[#008009] text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Step 02</p>
+                <p className="text-xs sm:text-sm font-black">Payment</p>
               </div>
             </div>
           </div>
-          <div className="mt-5 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-3">
-            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3">
-              <ShieldCheck className="h-4 w-4 text-[#008009]" />
-              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-700">Secure checkout</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3">
-              <BadgeCheck className="h-4 w-4 text-blue-600" />
-              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-700">Verified supplier</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3">
-              <Headphones className="h-4 w-4 text-indigo-600" />
-              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-700">Booking support</span>
-            </div>
+          <div className="mt-8 grid grid-cols-1 gap-4 border-t border-slate-50 pt-6 sm:grid-cols-3">
+            {[
+              { icon: ShieldCheck, label: "Bank-Level Security", color: "text-[#008009]", bg: "bg-emerald-50" },
+              { icon: BadgeCheck, label: "Verified Inventory", color: "text-blue-600", bg: "bg-blue-50" },
+              { icon: Headphones, label: "24/7 Priority Support", color: "text-indigo-600", bg: "bg-indigo-50" }
+            ].map((item, i) => (
+              <div key={i} className={`flex items-center gap-4 rounded-2xl ${item.bg} px-5 py-4 transition-transform hover:scale-[1.02]`}>
+                <item.icon className={`h-5 w-5 ${item.color}`} />
+                <span className="text-xs font-black uppercase tracking-[0.15em] text-slate-700">{item.label}</span>
+              </div>
+            ))}
           </div>
           </div>
         </div>
@@ -618,89 +619,85 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-5 sm:p-6 flex flex-col md:flex-row items-center gap-5 sm:gap-6 relative overflow-visible group">
-               <div className="bg-gradient-to-b from-slate-50 to-white p-6 sm:p-7 rounded-2xl border border-slate-200 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center">
+            <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
+               
+               <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 p-8 rounded-3xl border border-slate-100 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center shadow-inner group-hover:shadow-md transition-all duration-500">
                    <img 
                     src={displayImage} 
                     alt={car.model} 
                     onError={() => setImageError(true)}
                     referrerPolicy="no-referrer"
                     loading="eager"
-                    className="w-36 sm:w-44 h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.1)] transform group-hover:scale-105 transition-transform duration-700"
+                    className="w-40 sm:w-52 h-auto object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] transform group-hover:scale-110 transition-transform duration-700"
                    />
                </div>
+               
                <div className="flex-grow text-center md:text-left relative z-10">
-                  <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
-                      <span className="bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg border border-white/10">
+                  <div className="flex items-center justify-center md:justify-start gap-3 mb-4 flex-wrap">
+                      <span className="bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-xl border border-white/10">
                         {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
                       </span>
-                      <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] border border-emerald-100">Ready for Pick-up</span>
+                      <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] border border-emerald-100 shadow-sm">Verified Deal</span>
                   </div>
-                  <h1 className="text-[1.35rem] sm:text-3xl font-black text-slate-950 leading-tight tracking-tight mb-3">{car.displayName || `${car.make} ${car.model}`}</h1>
-                  <p className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-[0.14em] sm:tracking-[0.22em] flex items-center justify-center md:justify-start gap-2 sm:gap-3 flex-wrap">
-                    {transmissionLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {fuelPolicyLabel} <span className="w-1 h-1 bg-slate-200 rounded-full"></span> {car.location || 'Airport'}
-                  </p>
+                  <h1 className="text-2xl sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-4">{car.displayName || `${car.make} ${car.model}`}</h1>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6">
+                    {[
+                      { icon: Users, label: car.passengers, unit: "Seats" },
+                      { icon: Briefcase, label: car.bags, unit: "Bags" },
+                      { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', unit: "Gear" }
+                    ].map((spec, i) => (
+                      <div key={i} className="flex items-center gap-2.5">
+                        <div className="p-1.5 bg-slate-50 rounded-lg"><spec.icon className="w-4 h-4 text-slate-400" /></div>
+                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{spec.label} {spec.unit}</span>
+                      </div>
+                    ))}
+                  </div>
                   
-                  {!car.isHogicarChoiceBranded || car.supplier.name !== 'Hogi Car Choice' ? (
-                    <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
-                        <div className="bg-white border border-slate-200 p-2.5 sm:p-3 rounded-xl shadow-sm">
-                          {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
-                            <Logo className="h-10 sm:h-12 w-auto max-w-[140px]" />
-                          ) : supplierLogo ? (
-                            <img src={supplierLogo} alt={car.supplier.name} className="h-12 sm:h-16 w-auto object-contain" />
-                          ) : (
-                            <div className="h-12 sm:h-16 w-24 bg-slate-50 flex items-center justify-center rounded-lg border border-dashed border-slate-200">
-                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{car.supplier.name}</span>
+                  <div className="flex items-center justify-center md:justify-start gap-6 mt-8 pt-8 border-t border-slate-100">
+                      {!car.isHogicarChoiceBranded ? (
+                        <div className="flex items-center gap-5">
+                            <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                              {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
+                                <Logo className="h-10 w-auto max-w-[140px]" />
+                              ) : supplierLogo ? (
+                                <img src={supplierLogo} alt={car.supplier.name} className="h-10 w-auto object-contain" />
+                              ) : (
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{car.supplier.name}</span>
+                              )}
                             </div>
-                          )}
+                            <div
+                              className="flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl shadow-inner border border-slate-100 group/rating relative cursor-pointer hover:bg-white hover:shadow-xl transition-all"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setShowRatingsTooltip(!showRatingsTooltip);
+                              }}
+                            >
+                               <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
+                                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
+                                   <span className="relative z-10 text-base font-black tracking-tight">{car.supplier.rating}</span>
+                               </div>
+                               <div className="flex flex-col">
+                                   <span className={`text-sm font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight mb-1`}>{getRatingDescription(car.supplier.rating)}</span>
+                                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                     <BadgeCheck className="w-3 h-3 text-[#008009]" /> Verified Supplier
+                                   </span>
+                               </div>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-4 sm:gap-5">
-                          <div>
-                            <p className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-[0.18em] sm:tracking-[0.2em] leading-none mb-2">Service Provider</p>
-                            <p className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-[0.12em] sm:tracking-[0.15em]">{car.supplier.name}</p>
-                          </div>
-                          <div
-                            className="flex items-center gap-3 bg-white px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-2xl shadow-sm border border-slate-200 ml-1 group/rating relative cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setShowRatingsTooltip(!showRatingsTooltip);
-                            }}
-                          >
-                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
-                                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                 <span className="relative z-10 text-[11px] sm:text-base font-black tracking-tight">{car.supplier.rating}</span>
-                             </div>
-                             <div className="flex flex-col">
-                                 <div className="flex items-center gap-1.5 mb-0.5">
-                                     <span className={`text-xs font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>{getRatingDescription(car.supplier.rating)}</span>
-                                     <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
-                                 </div>
-                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
-                                   <BadgeCheck className="w-2.5 h-2.5 text-[#008009]" />
-                                   Verified
-                                 </span>
-                             </div>
-                             <DetailedRatingsTooltip
-                               ratings={getCarRatings(car)}
-                               visible={showRatingsTooltip}
-                                align="left"
-                                className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
-                             />
-                          </div>
+                      ) : (
+                        <div className="flex items-center gap-5">
+                           <div className="bg-slate-950 p-3.5 rounded-2xl shadow-xl flex items-center justify-center border border-amber-400/30">
+                              <Award className="w-8 h-8 text-amber-400 fill-amber-400/20" />
+                           </div>
+                           <div>
+                             <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1 italic">Hogicar Choice</p>
+                             <p className="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase">Premium Fleet</p>
+                           </div>
                         </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center md:justify-start gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200/70">
-                       <div className="bg-[#003580] border-2 border-amber-400 p-3 sm:p-4 rounded-2xl shadow-xl flex items-center justify-center">
-                          <Award className="w-8 h-8 text-amber-400 fill-amber-400/20" />
-                       </div>
-                       <div>
-                         <p className="text-[11px] sm:text-xs font-black text-amber-600 uppercase tracking-[0.25em] mb-1 italic">Hogicar Choice</p>
-                         <p className="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase">Exclusive Verified Fleet</p>
-                       </div>
-                    </div>
-                  )}
+                      )}
+                  </div>
                </div>
             </div>
             
@@ -772,41 +769,58 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             {routeStep === 'details' ? (
             <>
             {/* Customer Details */}
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-6 sm:p-10">
+               <div className="mb-10 flex flex-col gap-6 border-b border-slate-100 pb-8 sm:flex-row sm:items-center sm:justify-between">
                  <div>
-                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#008009]">Main driver profile</p>
-                  <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><User className="w-5 h-5 text-[#008009]"/> Driver information</h2>
-                  <p className="mt-2 max-w-2xl text-sm text-slate-600 leading-relaxed">Please ensure the details below match the driver's official documents to ensure a smooth pick-up experience at the desk.</p>
+                   <p className="text-[11px] font-black uppercase tracking-[0.3em] text-[#008009] mb-2">Main Driver Information</p>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-950 flex items-center gap-3">Driver Profile</h2>
+                  <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500 leading-relaxed">Ensure these details match your official documents (Passport/ID) for a seamless vehicle pick-up.</p>
                 </div>
-                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 shadow-sm">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-800 flex items-center gap-2"><Check className="w-3 h-3"/> Required for booking</p>
-                  <p className="mt-1 text-sm font-black text-slate-950">Name, email & mobile</p>
+                 <div className="rounded-2xl border border-[#008009]/10 bg-emerald-50/50 px-5 py-4 shadow-inner">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#008009] flex items-center gap-2 mb-1"><Check className="w-3.5 h-3.5"/> Verification Req.</p>
+                  <p className="text-sm font-black text-slate-900 tracking-tight">Identity & Contact details</p>
                  </div>
                </div>
-               <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_280px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+
+               <div className="grid grid-cols-1 gap-10 xl:grid-cols-[1fr_300px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-[0.15em]">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-[0.15em]">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-[0.15em]">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-[0.15em]">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
                     <div className="md:col-span-2 group pt-2">
-                      <label className="block text-[13px] font-bold text-slate-600 mb-2 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-wide">Flight number <span className="text-[10px] text-slate-400 ml-2">(Highly Recommended)</span></label>
+                      <label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-[#008009] transition-colors uppercase tracking-[0.15em]">Flight number <span className="text-[10px] text-slate-300 ml-2 font-bold">(Highly Recommended)</span></label>
                       <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
-                      <p className="text-sm text-slate-500 mt-4 font-medium flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100"><Info className="w-5 h-5 text-[#008009] mt-0.5 flex-shrink-0"/> <span>Providing your flight number helps the rental provider monitor your arrival and hold your vehicle in case of delays.</span></p>
+                      <div className="mt-5 p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4 transition-all hover:bg-white hover:shadow-md">
+                        <div className="bg-white p-2 rounded-xl shadow-sm"><Info className="w-5 h-5 text-[#008009] flex-shrink-0"/></div>
+                        <p className="text-[13px] text-slate-600 font-medium leading-relaxed">Providing your flight number allows the provider to monitor your arrival and hold your vehicle during potential flight delays.</p>
+                      </div>
                     </div>
-                 </div>
-                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
-                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 mb-4 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Checklist for pick-up</p>
-                   <div className="space-y-4 text-sm font-bold text-slate-700">
-                     <p className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><Check className="h-4 w-4 text-[#008009]" /> Valid driving license</p>
-                     <p className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><Check className="h-4 w-4 text-[#008009]" /> Passport or ID</p>
-                     <p className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><Check className="h-4 w-4 text-[#008009]" /> Driver's credit card</p>
-                   </div>
-                   <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
-                     <p className="text-[11px] font-bold leading-relaxed text-blue-700">These details will be used for your rental agreement and secure payment record.</p>
-                   </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="rounded-3xl border border-slate-100 bg-slate-50/50 p-6 shadow-inner">
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-6 flex items-center gap-2.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                      Pick-up Checklist
+                    </p>
+                    <div className="space-y-4">
+                      {[
+                        { text: "Valid Driving License", icon: Check },
+                        { text: "Passport or Photo ID", icon: Check },
+                        { text: "Driver's Credit Card", icon: Check }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.03]">
+                          <item.icon className="h-4 w-4 text-[#008009]" />
+                          <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{item.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-slate-200/50">
+                      <p className="text-[10px] font-bold leading-relaxed text-slate-400 uppercase tracking-wider">Required for legal agreement & secure record.</p>
+                    </div>
                   </div>
+                </div>
                </div>
             </div>
 
@@ -1003,18 +1017,23 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
           {/* Sidebar / Booking Summary */}
           <div className="lg:col-span-1">
-             <div className="sticky top-6 sm:top-10 space-y-5 sm:space-y-6">
-                <div className="bg-white rounded-2xl shadow-[0_22px_55px_-34px_rgba(15,23,42,0.65)] border border-slate-200 p-5 sm:p-6 transition-all duration-500">
-                  <div className="mb-5 p-4 rounded-2xl bg-slate-950 text-white flex items-center justify-between shadow-xl shadow-slate-900/20 relative overflow-hidden group/timer gap-4">
-                      <div className="absolute inset-0 bg-[#008009] opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
+             <div className="sticky top-10 space-y-6">
+                <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-6 sm:p-8 transition-all duration-500 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#008009] to-emerald-400"></div>
+                  
+                  <div className="mb-8 p-5 rounded-2xl bg-slate-950 text-white flex items-center justify-between shadow-2xl shadow-slate-950/20 relative overflow-hidden group/timer gap-4">
+                      <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
                       <div>
-                          <p className="text-xs font-black text-slate-200 uppercase tracking-[0.25em] mb-1">Session expires</p>
-                          <p className="text-sm font-black text-emerald-300 uppercase tracking-[0.15em] flex items-center gap-2"><Clock className="w-3.5 h-3.5"/> Complete now</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1.5 leading-none">Price Locked</p>
+                          <p className="text-xs font-black text-emerald-400 uppercase tracking-[0.1em] flex items-center gap-2 leading-none"><Clock className="w-3.5 h-3.5"/> Session Active</p>
                       </div>
-                      <p className="text-2xl sm:text-3xl font-mono font-black text-white tracking-tighter drop-shadow-lg">{formatTime(timeLeft)}</p>
+                      <p className="text-3xl font-mono font-black text-white tracking-tighter drop-shadow-[0_4px_12px_rgba(255,255,255,0.2)]">{formatTime(timeLeft)}</p>
                   </div>
 
-                   <h3 className="text-base font-black text-slate-950 mb-5 flex items-center gap-3">Reservation details <div className="h-px flex-grow bg-slate-200"></div></h3>
+                   <div className="flex items-center gap-3 mb-6">
+                      <h3 className="text-lg font-black text-slate-950 tracking-tight">Your Reservation</h3>
+                      <div className="h-px flex-grow bg-slate-100"></div>
+                   </div>
                    <div className="space-y-3 mb-5">
                      <div className="flex justify-between text-sm font-semibold text-slate-700 gap-4 group">
                         <span>Vehicle Hire <span className="text-xs text-slate-500 ml-1">({days}d)</span></span>

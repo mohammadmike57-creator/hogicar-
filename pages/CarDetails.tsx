@@ -459,52 +459,59 @@ const CarDetails: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 xl:gap-6 mt-4">
             {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-5 sm:space-y-6">
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               {/* Hero Section */}
-              <div className="overflow-visible bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200">
-                <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
-                  <div className="relative flex min-h-[300px] items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4 sm:p-6 lg:min-h-[420px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none">
+              <div className="overflow-visible bg-white rounded-3xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.3)] border border-slate-200">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+                  <div className="relative flex min-h-[300px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-8 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none group">
                     <img
                       src={displayImage}
                       alt={`${car.make} ${car.model}`}
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="h-auto max-h-[280px] w-full max-w-full object-contain drop-shadow-2xl transition-transform duration-700 sm:max-h-[340px] lg:max-h-[460px]"
+                      className="h-auto max-h-[280px] w-full max-w-full object-contain drop-shadow-[0_32px_64px_rgba(15,23,42,0.15)] transition-all duration-700 sm:max-h-[340px] lg:max-h-[460px] group-hover:scale-105"
                     />
-                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                      <span className="hidden md:inline-block bg-slate-950 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
+                    <div className="absolute top-6 left-6 flex flex-wrap gap-2.5">
+                      <span className="hidden md:inline-block bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg">
                         {formatCategoryName(car.category)}
                       </span>
-                      {car.tags?.[0] && <span className="bg-[#008009] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">{car.tags[0]}</span>}
+                      {car.tags?.[0] && <span className="bg-[#008009] text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-[#008009]/20">{car.tags[0]}</span>}
                     </div>
-                    <button className="absolute top-4 right-4 bg-white/95 p-2 rounded-full shadow-md border border-slate-100 hover:bg-slate-50 transition-colors"><Heart className="w-5 h-5 text-slate-600" /></button>
+                    <button className="absolute top-6 right-6 bg-white/95 p-2.5 rounded-full shadow-xl border border-slate-100 hover:bg-slate-50 transition-all hover:scale-110 active:scale-95"><Heart className="w-5 h-5 text-slate-400" /></button>
                   </div>
 
-                  <div className="p-5 sm:p-6">
+                  <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
                   {car.isHogicarChoiceBranded && (
-                    <div className="inline-flex items-center gap-2 bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-xl mb-4 shadow-xl border border-amber-400/50">
+                    <div className="inline-flex items-center gap-3 bg-slate-950 text-white text-[10px] font-black px-5 py-2.5 rounded-2xl mb-6 shadow-2xl border border-amber-400/30">
                         <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
-                        <span className="tracking-[0.2em] uppercase italic font-black text-amber-400">Hogicar Choice Exclusive Verified</span>
+                        <span className="tracking-[0.25em] uppercase italic font-black text-amber-400">Hogicar Choice Exclusive Verified</span>
                     </div>
                   )}
-                  <div className="flex flex-wrap justify-between items-start gap-5">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#008009] mb-1">Rental deal details</p>
-                      <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
-                      <p className="text-slate-500 text-sm font-bold mt-1">or similar · {car.year} · {car.sippCode}</p>
-                      <div className="flex flex-wrap gap-3 mt-4">
+                  <div className="flex flex-wrap justify-between items-start gap-6">
+                    <div className="flex-1 min-w-[240px]">
+                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#008009] mb-2">Reserved for you</p>
+                      <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight leading-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
+                      <p className="text-slate-500 text-sm font-bold mt-2 flex items-center gap-2">
+                        <span className="text-slate-900">or similar</span> 
+                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                        {car.year} 
+                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                        {car.sippCode}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-4 mt-6">
                         <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
                             {!car.isHogicarChoiceBranded ? (
                                 <div 
-                                  className="flex items-center gap-4 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 hover:from-white hover:to-white p-2.5 pr-4 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                                  className="flex items-center gap-4 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-white hover:border-[#008009]/30 p-3 pr-5 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     setShowRatingsTooltip(!showRatingsTooltip);
                                   }}
                                 >
-                                    <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
+                                    <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
                                         <span className="relative z-10 text-xl font-black">{car.supplier.rating}</span>
                                     </div> 
@@ -515,7 +522,7 @@ const CarDetails: React.FC = () => {
                                             </span>
                                             <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                         </div>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-1.5">
                                             <CheckCircle className="w-3 h-3 text-[#008009]" />
                                             Verified Supplier
                                         </span>
@@ -528,35 +535,36 @@ const CarDetails: React.FC = () => {
                                      />
                                 </div>
                             ) : (
-                                <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-black text-amber-800 uppercase tracking-wider flex items-center gap-2">
-                                    <Award className="w-4 h-4 fill-amber-500/20" /> Premium Choice · Top Rated
+                                <span className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 font-black text-amber-800 uppercase tracking-wider flex items-center gap-3 shadow-sm">
+                                    <Award className="w-5 h-5 fill-amber-500/20" /> Premium Choice · Top Rated
                                 </span>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700"><MapPin className="w-4 h-4 text-slate-400" /> {car.locationDetail}</div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 items-start sm:items-end">
-                      {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
-                        <Logo className="h-8 w-auto max-w-[140px]" />
-                      ) : (
-                        supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-10 max-w-[140px] object-contain" />
-                      )}
+                    <div className="flex flex-col gap-3 items-start sm:items-end">
+                      <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                        {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
+                          <Logo className="h-10 w-auto max-w-[150px]" />
+                        ) : (
+                          supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-12 max-w-[150px] object-contain" />
+                        )}
+                      </div>
                       {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
-                        <div className="bg-emerald-50 px-3 py-2 rounded-xl flex items-center gap-2 border border-[#008009]/10 shadow-sm">
+                        <div className="bg-emerald-50 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 border border-[#008009]/10 shadow-sm">
                           <Zap className="w-4 h-4 text-[#008009] fill-[#008009]/20" />
-                          <span className="text-xs font-black text-[#008009] uppercase tracking-wider">Instant confirmation</span>
+                          <span className="text-[10px] font-black text-[#008009] uppercase tracking-[0.2em]">Instant confirmation</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
                     {[
                       { icon: Users, label: `${car.passengers}`, desc: 'Seats' },
                       { icon: Briefcase, label: `${car.bags}`, desc: 'Bags' },
-                      { icon: car.transmission === 'AUTOMATIC' ? AutomaticIcon : AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', desc: 'Gearbox' },
-                      { icon: Wind, label: car.airCon ? 'A/C' : 'Climate', desc: 'Comfort' },
+                      { icon: car.transmission === 'AUTOMATIC' ? AutomaticIcon : AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', desc: 'Gear' },
+                      { icon: Snowflake, label: 'A/C', desc: 'Climate' },
                     ].map(item => (
                       <div key={item.desc} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <item.icon className="w-4 h-4 text-[#008009] mb-2" />
@@ -584,75 +592,87 @@ const CarDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_46px_-34px_rgba(15,23,42,0.65)]">
-                <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:px-6">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)]">
+                <div className="border-b border-slate-100 bg-slate-50/50 px-6 py-5 sm:px-8">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-sm sm:text-base font-black flex items-center gap-2 text-slate-950">
-                      <Plane className="w-4 h-4 text-[#008009]" />
+                    <h2 className="text-lg font-black flex items-center gap-3 text-slate-950 tracking-tight">
+                      <div className="bg-[#008009]/10 p-2 rounded-xl">
+                        <Plane className="w-5 h-5 text-[#008009]" />
+                      </div>
                       Rental Journey Itinerary
                     </h2>
-                    <p className="mt-1 text-xs font-semibold text-slate-500">A clear pickup and return schedule for this reservation.</p>
+                    <p className="mt-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest">Schedule & Locations</p>
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-white px-3 py-1.5 shadow-sm">
-                    <Clock className="w-3.5 h-3.5 text-[#008009]" />
-                    <span className="text-[10px] font-black text-[#008009] uppercase tracking-wider">{timeUntilPickup}</span>
+                  <div className="inline-flex items-center gap-2.5 rounded-2xl border border-[#008009]/20 bg-emerald-50/50 px-4 py-2 shadow-sm backdrop-blur-sm">
+                    <Clock className="w-4 h-4 text-[#008009]" />
+                    <span className="text-xs font-black text-[#008009] uppercase tracking-[0.1em]">{timeUntilPickup}</span>
                   </div>
                   </div>
                 </div>
 
-                <div className="p-5 sm:p-6">
-                  <div className="grid gap-4 lg:grid-cols-[1fr_96px_1fr] lg:items-stretch">
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#008009] ring-1 ring-emerald-100">
-                        <PlaneLanding className="w-5 h-5" />
+                <div className="p-6 sm:p-8 lg:p-10">
+                  <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center relative">
+                  {/* Decorative line for desktop */}
+                  <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-px bg-slate-100 z-0"></div>
+                  
+                  <div className="relative z-10 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+                    <div className="mb-6 flex items-start justify-between gap-4">
+                      <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#008009]/5 text-[#008009] ring-1 ring-[#008009]/10">
+                        <PlaneLanding className="w-6 h-6" />
                       </span>
                       <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#008009]">Landing / pick-up</p>
-                        <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">{pickupCode}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#008009]">Pick-up Location</p>
+                        <p className="mt-1 text-sm font-black text-slate-900">{pickupCode}</p>
                       </div>
                     </div>
-                    <div className="flex items-end justify-between gap-4">
+                    <div className="space-y-4">
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">Start time</p>
-                        <p className="mt-1 text-xl font-black text-slate-950 leading-none">{startTime}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Date & Time</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <p className="text-2xl font-black text-slate-950 tracking-tighter">{startTime}</p>
+                          <div className="h-4 w-px bg-slate-200"></div>
+                          <p className="text-sm font-black text-slate-900">{pickupDisplay}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0 text-right">
-                        <p className="text-xs font-black text-slate-900 truncate">{pickupDisplay}</p>
-                        <p className="mt-1 text-xs font-semibold text-slate-500 truncate">{pickupName || car.locationDetail}</p>
+                      <div className="pt-4 border-t border-slate-50">
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Exact address</p>
+                        <p className="mt-1 text-xs font-bold text-slate-600 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-slate-400" /> {pickupName || car.locationDetail}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center">
-                    <div className="relative flex w-full items-center justify-center lg:h-full">
-                      <div className="absolute h-px w-full bg-slate-200 lg:h-full lg:w-px" />
-                      <div className="relative z-10 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
-                        <CarIcon className="w-3.5 h-3.5 text-[#008009]" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{days} days</span>
-                      </div>
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-slate-950 text-white flex items-center justify-center shadow-2xl ring-4 ring-white">
+                      <CarIcon className="w-5 h-5" />
+                    </div>
+                    <div className="bg-slate-100 px-4 py-1.5 rounded-full border border-slate-200">
+                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600">{days} days rental</span>
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-[#003580] ring-1 ring-sky-100">
-                        <PlaneTakeoff className="w-5 h-5" />
+                  <div className="relative z-10 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+                    <div className="mb-6 flex items-start justify-between gap-4">
+                      <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#003580]/5 text-[#003580] ring-1 ring-[#003580]/10">
+                        <PlaneTakeoff className="w-6 h-6" />
                       </span>
                       <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#003580]">Take-off / drop-off</p>
-                        <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">{dropoffCode || pickupCode}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#003580]">Drop-off Location</p>
+                        <p className="mt-1 text-sm font-black text-slate-900">{dropoffCode || pickupCode}</p>
                       </div>
                     </div>
-                    <div className="flex items-end justify-between gap-4">
+                    <div className="space-y-4">
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">Return time</p>
-                        <p className="mt-1 text-xl font-black text-slate-950 leading-none">{endTime}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Date & Time</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <p className="text-2xl font-black text-slate-950 tracking-tighter">{endTime}</p>
+                          <div className="h-4 w-px bg-slate-200"></div>
+                          <p className="text-sm font-black text-slate-900">{dropoffDisplay}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0 text-right">
-                        <p className="text-xs font-black text-slate-900 truncate">{dropoffDisplay}</p>
-                        <p className="mt-1 text-xs font-semibold text-slate-500 truncate">{dropoffName || pickupName || car.locationDetail}</p>
+                      <div className="pt-4 border-t border-slate-50">
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Exact address</p>
+                        <p className="mt-1 text-xs font-bold text-slate-600 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-slate-400" /> {dropoffName || pickupName || car.locationDetail}</p>
                       </div>
                     </div>
                   </div>
@@ -894,12 +914,19 @@ const CarDetails: React.FC = () => {
 
             {/* Right Column - Booking Sidebar (professional) */}
             <div className="lg:col-span-1">
-              <div className="sticky top-20 space-y-2.5">
-                <div className="bg-white rounded-2xl shadow-[0_20px_50px_-34px_rgba(15,23,42,0.65)] p-4 border border-slate-200">
+              <div className="sticky top-20 space-y-4">
+                <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] p-6 border border-slate-200 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#008009] to-emerald-400"></div>
+                  
                   {/* Price lock timer */}
-                  <div className="bg-slate-950 text-white p-3 rounded-xl mb-3 flex justify-between items-center">
-                    <div><div className="text-[9px] font-black uppercase tracking-widest text-slate-400">Price locked</div><div className="font-mono font-black text-xl">{formatTime(timeLeft)}</div></div>
-                    <Clock className="w-6 h-6 opacity-50" />
+                  <div className="bg-slate-950 text-white p-4 rounded-2xl mb-6 flex justify-between items-center shadow-lg">
+                    <div>
+                      <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Session Price Lock</div>
+                      <div className="font-mono font-black text-2xl tracking-tighter mt-0.5">{formatTime(timeLeft)}</div>
+                    </div>
+                    <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-md">
+                      <Clock className="w-6 h-6 text-emerald-400" />
+                    </div>
                   </div>
                   <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <div className="flex items-start justify-between gap-3">
