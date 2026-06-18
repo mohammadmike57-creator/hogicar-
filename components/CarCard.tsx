@@ -27,8 +27,8 @@ const CarDoorIcon = () => (
 );
 
 // A custom icon component for Automatic Transmission to match the design
-const AutomaticIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-500">
+const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M12 2v2.34"/><path d="M12 10.32v1.34"/><path d="M7.11 4.41 8 6.1"/><path d="M16 6.1l.89-1.69"/><path d="M4.41 16.89l1.69-.89"/><path d="M17.9 16l1.69.89"/><path d="M2 12h2.34"/><path d="M19.66 12H22"/><path d="M12 14.66V16"/><path d="M12 22v-2.34"/><path d="m15 12-3-3-3 3"/><path d="M12 9v13"/>
   </svg>
 );
@@ -467,15 +467,15 @@ const CarCard: React.FC<CarCardProps> = ({
               <div className="grid grid-cols-[1fr_45%] items-center gap-3">
                   <div className="space-y-3 text-slate-950">
                       <div className="flex items-center gap-3 text-lg font-semibold">
-                          <Users className="h-6 w-6 stroke-[1.8px]" />
+                          <Users className="h-6 w-6 stroke-[1.8px] text-blue-600" />
                           <span>{car.passengers} seats</span>
                       </div>
                       <div className="flex items-center gap-3 text-lg font-semibold">
-                          <div className="scale-125"><AutomaticIcon /></div>
+                          <AutomaticIcon className="w-6 h-6 text-[#008009] stroke-[1.8px]" />
                           <span>{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
                       </div>
                       <div className="flex items-center gap-3 text-lg font-semibold">
-                          <GaugeCircle className="h-6 w-6 stroke-[1.8px]" />
+                          <GaugeCircle className="h-6 w-6 stroke-[1.8px] text-amber-600" />
                           <span>{car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</span>
                       </div>
                   </div>

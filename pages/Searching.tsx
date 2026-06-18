@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
+import { loadCars } from '../utils/loadCars';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import { Check, Gift, MapPin } from 'lucide-react';

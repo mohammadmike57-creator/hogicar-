@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
-import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus } from 'lucide-react';
+import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus, Users } from 'lucide-react';
 import { Car, PromoCode } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings } from '../utils/ratings';
@@ -643,13 +643,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                   <h1 className="text-2xl sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-4">{car.displayName || `${car.make} ${car.model}`}</h1>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6">
                     {[
-                      { icon: Users, label: car.passengers, unit: "Seats" },
-                      { icon: Briefcase, label: car.bags, unit: "Bags" },
-                      { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', unit: "Gear" }
+                      { icon: Users, label: car.passengers, unit: "Seats", color: "text-blue-600", bg: "bg-blue-50" },
+                      { icon: Briefcase, label: car.bags, unit: "Bags", color: "text-amber-600", bg: "bg-amber-50" },
+                      { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', unit: "Gear", color: "text-[#008009]", bg: "bg-emerald-50" }
                     ].map((spec, i) => (
                       <div key={i} className="flex items-center gap-2.5">
-                        <div className="p-1.5 bg-slate-50 rounded-lg"><spec.icon className="w-4 h-4 text-slate-400" /></div>
-                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{spec.label} {spec.unit}</span>
+                        <div className={`p-2 ${spec.bg} rounded-xl shadow-sm border border-black/5`}><spec.icon className={`w-4 h-4 ${spec.color} stroke-[2.5px]`} /></div>
+                        <span className="text-xs font-black text-slate-900 uppercase tracking-widest leading-none">{spec.label} {spec.unit}</span>
                       </div>
                     ))}
                   </div>
@@ -1010,9 +1010,57 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         <p className="text-lg font-semibold text-slate-900">{endTime}</p>
                      </div>
                   </div>
+
+                  <div className="pt-8 mt-4 border-t border-slate-100 lg:hidden">
+                    <button
+                      type="submit"
+                      disabled={creationInProgressRef.current}
+                      className="w-full h-16 rounded-2xl bg-[#008009] text-white font-black uppercase tracking-[0.15em] shadow-[0_15px_30px_-10px_rgba(0,128,9,0.4)] hover:bg-[#006607] hover:translate-y-[-2px] active:translate-y-[1px] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                    >
+                      {creationInProgressRef.current ? (
+                        <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : routeStep === 'details' ? (
+                        <>Continue to Payment <ArrowRight className="w-5 h-5" /></>
+                      ) : (
+                        <>Confirm & Secure Booking <ShieldCheck className="w-5 h-5" /></>
+                      )}
+                    </button>
+                  </div>
                </div>
             </div>
             )}
+            
+            {/* Primary Action Button - Desktop Content Bottom */}
+            <div className="hidden lg:block mt-4">
+               <button
+                  type="submit"
+                  disabled={creationInProgressRef.current}
+                  className="w-full h-20 rounded-3xl bg-slate-950 text-white font-black text-xl uppercase tracking-[0.2em] shadow-[0_25px_50px_-15px_rgba(15,23,42,0.4)] hover:bg-[#008009] hover:translate-y-[-4px] active:translate-y-[1px] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-4 group/main-btn overflow-hidden relative"
+               >
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-white/10 to-emerald-500/0 -translate-x-full group-hover/main-btn:animate-[shimmer_2s_infinite]"></div>
+                  {creationInProgressRef.current ? (
+                     <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+                  ) : routeStep === 'details' ? (
+                     <>
+                       Continue to final step
+                       <ArrowRight className="w-6 h-6 group-hover/main-btn:translate-x-1.5 transition-transform" />
+                     </>
+                  ) : (
+                     <>
+                       <ShieldCheck className="w-7 h-7 text-emerald-400" />
+                       Confirm reservation & Pay
+                       <div className="bg-white/20 px-3 py-1 rounded-lg ml-2 text-sm">
+                         {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}
+                       </div>
+                     </>
+                  )}
+               </button>
+               <p className="mt-6 text-center text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-3">
+                 <Shield className="w-4 h-4 text-[#008009]" />
+                 Secure 256-bit encrypted checkout
+                 <Shield className="w-4 h-4 text-[#008009]" />
+               </p>
+            </div>
           </div>
 
           {/* Sidebar / Booking Summary */}
