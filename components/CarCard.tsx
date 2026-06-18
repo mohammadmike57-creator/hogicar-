@@ -487,6 +487,17 @@ const CarCard: React.FC<CarCardProps> = ({
                         referrerPolicy="no-referrer"
                         className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-500 ease-out"
                       />
+                      <div className="absolute top-0 right-0 flex flex-col items-end gap-1 z-20">
+                          <div className="bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md flex items-center gap-1 border border-emerald-400">
+                              <CalendarCheck className="w-3 h-3" />
+                              <span>Free Cancellation</span>
+                          </div>
+                          {promotionLabel && (
+                              <div className="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md flex items-center gap-1 border border-red-500">
+                                  <Tag className="w-3 h-3 fill-white/20"/> {promotionLabel}
+                              </div>
+                          )}
+                      </div>
                   </Link>
               </div>
 
@@ -540,9 +551,9 @@ const CarCard: React.FC<CarCardProps> = ({
                           e.stopPropagation();
                           setIsConditionsModalOpen(true);
                         }}
-                        className="mt-2 text-right text-lg font-medium text-green-700 underline-offset-4 active:scale-[0.98]"
+                        className="mt-2 text-right text-lg font-medium text-green-700 underline underline-offset-4 active:scale-[0.98]"
                       >
-                          Free cancellation · Rental terms
+                          Rental terms
                       </button>
                   </div>
               </div>
