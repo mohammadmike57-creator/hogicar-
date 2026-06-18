@@ -11,7 +11,7 @@ import {
   Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2,
   DollarSign, Zap, ThumbsUp, Globe, Headphones, Plane, PlaneLanding, PlaneTakeoff
 } from 'lucide-react';
-import { Car, CommissionType, Supplier, PromoCode, Extra } from '../types';
+import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
