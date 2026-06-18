@@ -487,7 +487,7 @@ const CarCard: React.FC<CarCardProps> = ({
                         referrerPolicy="no-referrer"
                         className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-500 ease-out"
                       />
-                      <div className="absolute top-[-8px] right-0 flex flex-col items-end gap-1 z-20">
+                      <div className="absolute top-[-18px] right-0 flex flex-col items-end gap-1 z-20">
                           <div className="bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md flex items-center gap-1 border border-emerald-400">
                               <CalendarCheck className="w-3 h-3" />
                               <span>Free Cancellation</span>

@@ -291,6 +291,19 @@ const Searching: React.FC = () => {
     document.head.appendChild(styleSheet);
 
     let start: number | null = null;
+    let isDataReady = false;
+    let isAnimationMinTimePassed = false;
+    let isNavigated = false;
+    const MAX_WAIT_TIME = 10000; // 10 seconds max
+
+    const tryNavigate = () => {
+      if ((isDataReady || Date.now() - (start || Date.now()) > MAX_WAIT_TIME) && isAnimationMinTimePassed && !isNavigated) {
+        isNavigated = true;
+        const forwardParams = new URLSearchParams(searchParams);
+        navigate(`/search?${forwardParams.toString()}`);
+      }
+    };
+
     const animate = (timestamp: number) => {
       if (!start) start = timestamp;
       const elapsed = timestamp - start;
@@ -298,6 +311,9 @@ const Searching: React.FC = () => {
       setProgress(newProgress);
       if (elapsed < duration) {
         requestAnimationFrame(animate);
+      } else {
+        isAnimationMinTimePassed = true;
+        tryNavigate();
       }
     };
     requestAnimationFrame(animate);
@@ -306,18 +322,17 @@ const Searching: React.FC = () => {
       setCurrentMessageIndex(prev => (prev + 1) % searchMessages.length);
     }, duration / searchMessages.length);
 
-    const navigationTimeout = setTimeout(() => {
-      // Create a new URLSearchParams object from the current page's search params.
-      // This will correctly forward ALL parameters it received from the home page.
-      const forwardParams = new URLSearchParams(searchParams);
-      
-      // Navigate to the search results page with the preserved parameters.
-      navigate(`/search?${forwardParams.toString()}`);
-    }, duration);
+    // Monitoring for data readiness
+    const checkDataInterval = setInterval(() => {
+      if (sessionStorage.getItem('hogicar_prefetched_results')) {
+        isDataReady = true;
+        tryNavigate();
+      }
+    }, 100);
 
     return () => {
-      clearTimeout(navigationTimeout);
       clearInterval(messageInterval);
+      clearInterval(checkDataInterval);
       if (document.head.contains(styleSheet)) {
         document.head.removeChild(styleSheet);
       }
