@@ -403,7 +403,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     try {
           const activeBooking = await ensureBookingDraft();
           if (priceDetails.payNow <= 0) {
-            storeBookingAndGoToConfirmation(activeBooking);
+            // For unpaid bookings, we still "finalize" it to trigger emails and update status
+            const finalized = await api.markBookingPaymentComplete(activeBooking.id, 'pay_at_desk');
+            storeBookingAndGoToConfirmation(finalized);
             return;
           }
           if (!stripeEnabled || !stripe || !elements) {
