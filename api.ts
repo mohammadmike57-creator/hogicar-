@@ -319,6 +319,7 @@ export const api = {
   fetchHomepageContent,
   fetchSearchingLogos,
   submitPartnerApplication,
+  fetchSeoConfig: (route: string) => publicAxios.get(`${API_BASE_URL}/api/seo/config?route=${encodeURIComponent(route)}`),
 };
 
 // ---------- Supplier API ----------
@@ -403,4 +404,7 @@ export const adminApi = {
   
   getBookings: () => adminAxios.get(`${API_BASE_URL}/api/admin/bookings`),
   getDashboardSummary: () => adminAxios.get(`${API_BASE_URL}/api/admin/dashboard/summary`),
+  getSeoConfigs: () => adminAxios.get(`${API_BASE_URL}/api/admin/seo`),
+  saveSeoConfig: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/seo`, payload),
+  deleteSeoConfig: (route: string) => adminAxios.delete(`${API_BASE_URL}/api/admin/seo/${encodeURIComponent(route)}`),
 };

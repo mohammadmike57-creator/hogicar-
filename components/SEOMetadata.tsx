@@ -1,7 +1,8 @@
 
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-const MOCK_SEO_CONFIGS: any[] = [];
+import { api } from '../api';
 
 interface SEOMetadataProps {
   title: string;
@@ -9,19 +10,35 @@ interface SEOMetadataProps {
   noIndex?: boolean;
 }
 
-const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, description: defaultDescription, noIndex }) => {
+const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, description: defaultDescription, noIndex: defaultNoIndex }) => {
   const location = useLocation();
+  const [config, setConfig] = useState<any>(null);
 
-  // Find override configuration in mock data based on current pathname
-  // In a real app, this would be fetched from an API or context
-  const overrideConfig = MOCK_SEO_CONFIGS.find(c => c.route === location.pathname);
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await api.fetchSeoConfig(location.pathname);
+        if (res.data) {
+          setConfig(res.data);
+        } else {
+          setConfig(null);
+        }
+      } catch (e) {
+        console.error('Failed to fetch SEO config for', location.pathname);
+        setConfig(null);
+      }
+    };
+    fetchConfig();
+  }, [location.pathname]);
 
-  const title = overrideConfig?.title || defaultTitle;
-  const description = overrideConfig?.description || defaultDescription;
-  const keywords = overrideConfig?.keywords || 'car rental, cheap car hire, auto rental, travel';
-  const ogImage = overrideConfig?.ogImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
+  const title = config?.title || defaultTitle;
+  const description = config?.description || defaultDescription;
+  const keywords = config?.keywords || 'car rental, cheap car hire, auto rental, travel';
+  const ogImage = config?.ogImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
+  const canonical = config?.canonicalUrl || (window.location.origin + location.pathname);
+  const isNoIndex = config ? (config.indexable === false) : defaultNoIndex;
 
-  React.useEffect(() => {
+  useEffect(() => {
     // 1. Set Page Title
     document.title = title;
 
@@ -40,7 +57,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, descript
     setMetaTag('description', description);
     setMetaTag('keywords', keywords);
 
-    // 3. Open Graph Tags (Facebook, LinkedIn, etc)
+    // 3. Open Graph Tags
     setMetaTag('og:title', title, 'property');
     setMetaTag('og:description', description, 'property');
     setMetaTag('og:image', ogImage, 'property');
@@ -60,26 +77,20 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, descript
       canonicalTag.setAttribute('rel', 'canonical');
       document.head.appendChild(canonicalTag);
     }
-    canonicalTag.setAttribute('href', window.location.origin + location.pathname);
+    canonicalTag.setAttribute('href', canonical);
 
     // 6. Handle Robots tag (noindex)
-    if (noIndex) {
+    if (isNoIndex) {
       setMetaTag('robots', 'noindex, nofollow');
     } else {
-      // Ensure robots tag allows indexing if it was previously set to noindex
       const robotsTag = document.querySelector('meta[name="robots"]');
       if (robotsTag) {
         robotsTag.setAttribute('content', 'index, follow');
       }
     }
+  }, [title, description, keywords, ogImage, isNoIndex, canonical, location]);
 
-    // Cleanup function
-    return () => {
-      // Optional: Reset title or remove tags on unmount
-    };
-  }, [title, description, keywords, ogImage, noIndex, location]);
-
-  return null; // This component doesn't render visual UI
+  return null;
 };
 
 export default SEOMetadata;

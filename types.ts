@@ -394,11 +394,14 @@ export interface Affiliate {
 }
 
 export interface SEOConfig {
+  id?: number;
   route: string; // e.g., "/", "/about", "/search"
   title: string;
   description: string;
   keywords?: string;
   ogImage?: string;
+  canonicalUrl?: string;
+  indexable: boolean;
 }
 
 // --- Homepage Content Management ---

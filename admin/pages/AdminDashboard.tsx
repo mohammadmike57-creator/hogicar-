@@ -52,8 +52,6 @@ const updateApiPartnerStatus = (id: string, s: string) => {};
 const MOCK_CARS: any[] = [];
 const MOCK_PAGES: any[] = [];
 const updatePage = (p: any) => {};
-const MOCK_SEO_CONFIGS: any[] = [];
-const updateSeoConfig = (c: any) => {};
 const MOCK_HOMEPAGE_CONTENT: any = {
   hero: { title: '', subtitle: '', backgroundImage: '' },
   features: [],
@@ -1149,19 +1147,123 @@ const CmsContent = ({ pages, onEditPage }: any) => (
 );
 
 // ==================== SEO ====================
-const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => (
-  <div className="bg-white rounded-card shadow-lg p-6">
-    <div className="flex justify-between"><SectionHeader title="SEO" icon={Globe} /><button onClick={onNewSeo} className="bg-[#007ac2] text-white px-3 py-1 rounded text-sm">New Route</button></div>
-    <div className="space-y-2 mt-4">
-      {configs.map((c: any) => (
-        <div key={c.route} className="p-2 border rounded flex justify-between items-center">
-          <div><p className="font-mono text-sm text-[#007ac2]">{c.route}</p><p className="text-xs">{c.title}</p></div>
-          <button onClick={() => onEditSeo(c)}><Edit className="w-4 h-4"/></button>
+const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any) => {
+  const getScore = (c: any) => {
+    let score = 0;
+    if (c.title && c.title.length >= 30 && c.title.length <= 60) score += 40;
+    if (c.description && c.description.length >= 120 && c.description.length <= 160) score += 40;
+    if (c.keywords) score += 20;
+    return score;
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-emerald-500 bg-emerald-50 border-emerald-100';
+    if (score >= 50) return 'text-amber-500 bg-amber-50 border-amber-100';
+    return 'text-rose-500 bg-rose-50 border-rose-100';
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center bg-white p-6 rounded-card shadow-sm border border-slate-200">
+        <div>
+          <SectionHeader title="SEO Management" icon={Globe} />
+          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Optimize your pages for search engines</p>
         </div>
-      ))}
+        <button 
+          onClick={onNewSeo} 
+          className="flex items-center gap-2 bg-[#007ac2] hover:bg-[#00619a] text-white px-4 py-2 rounded-card font-extrabold text-sm transition-all shadow-md active:scale-95"
+        >
+          <Plus className="w-4 h-4" />
+          Add SEO Route
+        </button>
+      </div>
+
+      <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
+        {loading ? (
+          <div className="p-12 text-center flex flex-col items-center gap-4">
+            <LoaderCircle className="w-8 h-8 text-[#007ac2] animate-spin" />
+            <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Fetching configs...</span>
+          </div>
+        ) : configs.length === 0 ? (
+          <div className="p-12 text-center text-slate-400">
+            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+              <Globe className="w-8 h-8 text-slate-200" />
+            </div>
+            <p className="font-extrabold uppercase tracking-widest text-xs">No SEO configurations found</p>
+            <p className="text-[10px] mt-1">Start by adding a new route to optimize.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Route & Title</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">SEO Score</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {configs.map((c: any) => {
+                  const score = getScore(c);
+                  return (
+                    <tr key={c.route} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-mono text-xs font-bold text-[#007ac2] bg-blue-50 px-2 py-0.5 rounded-full w-fit mb-1">{c.route}</span>
+                          <span className="text-sm font-extrabold text-slate-900 truncate max-w-md">{c.title || 'Untitled'}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {c.indexable !== false ? (
+                            <span className="flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 uppercase tracking-wider">
+                              <CheckCircle className="w-3 h-3" />
+                              Index
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1.5 text-[10px] font-extrabold text-rose-500 bg-rose-50 px-2 py-1 rounded-full border border-rose-100 uppercase tracking-wider">
+                              <XCircle className="w-3 h-3" />
+                              NoIndex
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className={`flex items-center gap-2 w-fit px-2 py-1 rounded border text-[10px] font-extrabold uppercase tracking-widest ${getScoreColor(score)}`}>
+                          <Activity className="w-3 h-3" />
+                          {score}%
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => onEditSeo(c)}
+                            className="p-2 text-slate-400 hover:text-[#007ac2] hover:bg-blue-50 rounded-card transition-all"
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => onDeleteSeo(c.route)}
+                            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-card transition-all"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ==================== Homepage ====================
 const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: any) => {
@@ -2097,15 +2199,179 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   if (!isOpen) return null;
   return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
-const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
+const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
   const [description, setDescription] = useState(config?.description || '');
   const [keywords, setKeywords] = useState(config?.keywords || '');
-  useEffect(() => { if (config) { setRoute(config.route); setTitle(config.title); setDescription(config.description); setKeywords(config.keywords || ''); } }, [config]);
-  const handleSave = () => { updateSeoConfig({ route, title, description, keywords }); onClose(); };
+  const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
+  const [indexable, setIndexable] = useState(config?.indexable !== false);
+
+  useEffect(() => {
+    if (config) {
+      setRoute(config.route || '');
+      setTitle(config.title || '');
+      setDescription(config.description || '');
+      setKeywords(config.keywords || '');
+      setCanonicalUrl(config.canonicalUrl || '');
+      setIndexable(config.indexable !== false);
+    } else {
+        setRoute('');
+        setTitle('');
+        setDescription('');
+        setKeywords('');
+        setCanonicalUrl('');
+        setIndexable(true);
+    }
+  }, [config, isOpen]);
+
+  const handleSave = () => {
+    if (!route || !title || !description) {
+      alert("Route, Title, and Description are required.");
+      return;
+    }
+    if (title.length > 60) return alert("Title must not exceed 60 characters.");
+    if (description.length > 160) return alert("Description must not exceed 160 characters.");
+    
+    onSave({ route, title, description, keywords, canonicalUrl, indexable });
+  };
+
+  const getScore = () => {
+    let score = 0;
+    if (title.length >= 30 && title.length <= 60) score += 40;
+    if (description.length >= 120 && description.length <= 160) score += 40;
+    if (keywords.split(',').filter(k => k.trim()).length >= 3) score += 20;
+    return score;
+  };
+
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={config?.id ? 'Edit SEO Optimization' : 'Optimize New Route'}>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <InputField 
+              label="Route (e.g. /amman)" 
+              value={route} 
+              onChange={(e: any) => setRoute(e.target.value)} 
+              disabled={!!config?.id}
+              placeholder="/your-custom-route"
+            />
+            
+            <div className="space-y-1">
+              <div className="flex justify-between items-end">
+                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Page Title</label>
+                <span className={`text-[9px] font-bold ${title.length > 60 ? 'text-rose-500' : 'text-slate-400'}`}>
+                  {title.length}/60
+                </span>
+              </div>
+              <input 
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-bold ${title.length > 60 ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'}`}
+                placeholder="Car Rental in Amman, Jordan | Hogicar"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between items-end">
+                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Meta Description</label>
+                <span className={`text-[9px] font-bold ${description.length > 160 ? 'text-rose-500' : 'text-slate-400'}`}>
+                  {description.length}/160
+                </span>
+              </div>
+              <textarea 
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className={`w-full px-3 py-2 border rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium ${description.length > 160 ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'}`}
+                placeholder="Enter a compelling description that encourages clicks from Google search results."
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <InputField 
+              label="Keywords (comma separated)" 
+              value={keywords} 
+              onChange={(e: any) => setKeywords(e.target.value)} 
+              placeholder="car rental amman, cheap car hire jordan"
+            />
+            <InputField 
+              label="Canonical URL" 
+              value={canonicalUrl} 
+              onChange={(e: any) => setCanonicalUrl(e.target.value)} 
+              placeholder="https://www.hogicar.com/your-route"
+            />
+            
+            <div className="p-4 bg-slate-50 rounded-card border border-slate-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">Indexing Toggle</h4>
+                  <p className="text-[9px] text-slate-400 mt-0.5">Allow Google to index this page?</p>
+                </div>
+                <button 
+                  onClick={() => setIndexable(!indexable)}
+                  className={`w-12 h-6 rounded-full transition-all relative ${indexable ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${indexable ? 'left-7' : 'left-1'}`} />
+                </button>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">SEO Score</span>
+                  <span className={`text-xs font-black ${getScore() >= 80 ? 'text-emerald-500' : getScore() >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                    {getScore()}%
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div className={`h-full transition-all duration-500 ${getScore() >= 80 ? 'bg-emerald-500' : getScore() >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${getScore()}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 bg-slate-50 rounded-card border border-slate-200 space-y-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Search className="w-3 h-3 text-slate-400" />
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Google Search Preview</span>
+          </div>
+          <div className="bg-white p-4 rounded border border-slate-200 shadow-sm max-w-xl">
+            <div className="text-[14px] text-blue-800 hover:underline cursor-pointer font-medium mb-1 truncate">
+              {title || 'Your Page Title Goes Here'}
+            </div>
+            <div className="flex items-center gap-1 text-[12px] text-emerald-800 mb-1">
+              <span>https://www.hogicar.com</span>
+              <span className="text-slate-400 font-bold">{route || '/example'}</span>
+            </div>
+            <div className="text-[13px] text-slate-600 line-clamp-2">
+              {description || 'Provide a meta description to see how your page will look in Google search results. Make it attractive to get more clicks!'}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <button 
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-extrabold text-slate-500 hover:text-slate-700 transition-colors uppercase tracking-widest"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            className="bg-[#007ac2] hover:bg-[#00619a] text-white px-8 py-2 rounded-card font-extrabold text-sm transition-all shadow-lg active:scale-95 flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            Save Optimization
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
 };
 const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
   const [model, setModel] = useState<any>({ 
@@ -3008,6 +3274,8 @@ export const AdminDashboard: React.FC = () => {
   const [editingPage, setEditingPage] = useState<any>(null);
   const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
   const [editingSeoConfig, setEditingSeoConfig] = useState<any>(null);
+  const [seoConfigs, setSeoConfigs] = useState<SEOConfig[]>([]);
+  const [loadingSeo, setLoadingSeo] = useState(false);
   const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
   const [editingCarModel, setEditingCarModel] = useState<any>(null);
   const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
@@ -3111,6 +3379,18 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchSeoConfigs = async () => {
+    setLoadingSeo(true);
+    try {
+      const res = await adminFetch('/api/admin/seo');
+      setSeoConfigs(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('Failed to fetch SEO configs', e);
+    } finally {
+      setLoadingSeo(false);
+    }
+  };
+
   const fetchBookings = async (supplierId?: string | null) => {
     setLoadingBookings(true);
     try {
@@ -3199,6 +3479,9 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     if (activeSection === 'cms') {
       fetchPages();
+    }
+    if (activeSection === 'seo') {
+      fetchSeoConfigs();
     }
   }, [activeSection]);
 
@@ -3360,6 +3643,32 @@ export const AdminDashboard: React.FC = () => {
       }
     }
   };
+
+  const handleSaveSeoConfig = async (config: any) => {
+    try {
+        await adminFetch('/api/admin/seo', {
+            method: 'POST',
+            body: JSON.stringify(config)
+        });
+        showToast("SEO config saved successfully");
+        fetchSeoConfigs();
+        setIsSeoEditorOpen(false);
+        setEditingSeoConfig(null);
+    } catch (e: any) {
+        alert(`Failed to save SEO config: ${e.message}`);
+    }
+  };
+
+  const handleDeleteSeoConfig = async (route: string) => {
+    if (!confirm(`Are you sure you want to delete SEO config for route: ${route}?`)) return;
+    try {
+        await adminFetch(`/api/admin/seo/${encodeURIComponent(route)}`, { method: 'DELETE' });
+        showToast("SEO config deleted");
+        fetchSeoConfigs();
+    } catch (e: any) {
+        alert(`Delete failed: ${e.message}`);
+    }
+  };
   const handleApproveApplication = (newSupplier: any, app: any) => { setApprovingApplication(app); setEditingSupplier(newSupplier); };
   const handleEditPage = (page: any) => { setEditingPage(page); setIsPageEditorOpen(true); };
   const handleSavePage = async (slug: string, data: any) => {
@@ -3408,7 +3717,7 @@ export const AdminDashboard: React.FC = () => {
       case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
-      case 'seo': return <SeoContent configs={MOCK_SEO_CONFIGS} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} />;
+      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} />;
       case 'homepage':
         if (loadingHomepageEditor) {
           return <div className="p-8 text-center text-slate-500 font-extrabold uppercase tracking-widest text-xs">Loading Homepage Editor...</div>;
@@ -3428,7 +3737,7 @@ export const AdminDashboard: React.FC = () => {
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} onSave={handleSavePage} />}
-      {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} />}
+      {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} onSave={handleSaveSeoConfig} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       
