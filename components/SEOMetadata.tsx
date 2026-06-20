@@ -53,7 +53,16 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, descript
     setMetaTag('twitter:description', description);
     setMetaTag('twitter:image', ogImage);
 
-    // 5. Handle Robots tag (noindex)
+    // 5. Canonical URL
+    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (!canonicalTag) {
+      canonicalTag = document.createElement('link');
+      canonicalTag.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalTag);
+    }
+    canonicalTag.setAttribute('href', window.location.origin + location.pathname);
+
+    // 6. Handle Robots tag (noindex)
     if (noIndex) {
       setMetaTag('robots', 'noindex, nofollow');
     } else {

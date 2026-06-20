@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle } from 'lucide-react';
+import SEOMetadata from '../components/SEOMetadata';
 
 const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -25,6 +26,10 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-white py-12 lg:py-20">
+      <SEOMetadata 
+        title="Contact Us | Hogicar Support" 
+        description="Have questions about your car rental? Reach out to Hogicar's 24/7 customer support team for help with bookings, partnerships, and technical issues."
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">Contact Us</h1>
