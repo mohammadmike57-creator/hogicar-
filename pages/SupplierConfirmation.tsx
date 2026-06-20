@@ -115,7 +115,7 @@ const SupplierConfirmation: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen bg-white flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-blue-600"/></div>;
+        return <div className="min-h-screen bg-white flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-accent"/></div>;
     }
 
     if (error && !booking) {
@@ -124,7 +124,7 @@ const SupplierConfirmation: React.FC = () => {
                 <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
                 <h1 className="text-xl font-bold text-slate-800">Error</h1>
                 <p className="text-slate-500">{error}</p>
-                <Link to="/" className="mt-6 text-sm text-blue-600 hover:underline">Return to Hogicar Home</Link>
+                <Link to="/" className="mt-6 text-sm text-accent hover:underline">Return to Hogicar Home</Link>
             </div>
         );
     }
@@ -203,7 +203,7 @@ const SupplierConfirmation: React.FC = () => {
                         <div className="text-right">
                             <h1 className="text-xl font-black uppercase tracking-widest text-slate-900">Supplier Reservation</h1>
                             <p className="text-slate-500 font-bold text-sm">Reference: {booking.bookingRef}</p>
-                            <div className="mt-2 inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
+                            <div className="mt-2 inline-block bg-accent/5 text-accent text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
                                 {isConfirmed ? 'CONFIRMED' : (isRejected ? 'CANCELLED' : 'ACTION REQUIRED')}
                             </div>
                         </div>
@@ -245,7 +245,7 @@ const SupplierConfirmation: React.FC = () => {
                                             </div>
                                             <div className="relative z-10 bg-white px-4 flex flex-col items-center text-center">
                                                 <div className="bg-slate-50 p-1.5 rounded-full border border-slate-100 shadow-sm mb-1">
-                                                    <Hash className="w-4 h-4 text-[#008009]" />
+                                                    <Hash className="w-4 h-4 text-accent" />
                                                 </div>
                                                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] bg-white px-2">
                                                     Reservation Request
@@ -282,18 +282,18 @@ const SupplierConfirmation: React.FC = () => {
                                 </div>
                                 <div className="space-y-3 text-sm">
                                     <div className="grid grid-cols-2 gap-y-2 mt-2 border-t border-slate-100 pt-3">
-                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-blue-600 uppercase">{displayCar.sippCode}</span></p>
+                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-accent uppercase">{displayCar.sippCode}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Transmission</span> <span className="font-bold">{displayCar.transmission}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Category</span> <span className="font-bold">{displayCar.category}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Fuel Policy</span> <span className="font-bold">{booking.carFuelPolicy || 'N/A'}</span></p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="supplier-print-card bg-blue-50 p-6 rounded-lg border border-blue-100">
-                                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Financial Breakdown</h3>
+                            <div className="supplier-print-card bg-accent/5 p-6 rounded-lg border border-accent/10">
+                                <h3 className="text-xs font-bold text-accent-800 uppercase tracking-wider mb-2">Financial Breakdown</h3>
                                 <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-blue-700">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
-                                    <p className="text-[10px] text-blue-400 italic">This is the amount you will receive for this rental.</p>
+                                    <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-accent">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
+                                    <p className="text-[10px] text-accent-400 italic">This is the amount you will receive for this rental.</p>
                                 </div>
                             </div>
                         </div>
@@ -327,7 +327,7 @@ const SupplierConfirmation: React.FC = () => {
                                         <button 
                                             type="submit" 
                                             disabled={isSubmitting}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                                            className="bg-accent hover:bg-accent-700 text-white font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                                         >
                                             {isSubmitting ? <LoaderCircle className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                                             Update Confirmation #
@@ -406,7 +406,7 @@ const SupplierConfirmation: React.FC = () => {
                                 </div>
                             ) : (
                                 <div>
-                                    <h2 className="text-lg font-bold text-blue-900 mb-4">Action Required</h2>
+                                    <h2 className="text-lg font-bold text-accent-900 mb-4">Action Required</h2>
                                     <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-end gap-4">
                                         <div className="flex-grow w-full">
                                             <label htmlFor="confirmationNumber" className="block text-sm font-bold text-slate-700 mb-2">Your Confirmation Number</label>
@@ -417,7 +417,7 @@ const SupplierConfirmation: React.FC = () => {
                                                     type="text"
                                                     value={confirmationNumber}
                                                     onChange={e => setConfirmationNumber(e.target.value)}
-                                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase"
+                                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all uppercase"
                                                     placeholder="Enter your system's ID"
                                                     required
                                                 />
@@ -428,7 +428,7 @@ const SupplierConfirmation: React.FC = () => {
                                             <button 
                                                 type="submit" 
                                                 disabled={isSubmitting}
-                                                className="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
+                                                className="flex-grow bg-accent hover:bg-accent-700 text-white font-bold py-3 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
                                             >
                                                 {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
                                                 Confirm Booking

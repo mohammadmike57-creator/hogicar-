@@ -219,7 +219,7 @@ const Layout: React.FC = () => {
                                 <span className="text-xl">{currency.flag}</span>
                                 <span>{currency.code} - {currency.name}</span>
                             </div>
-                            {selectedCurrency === currency.code && <Check className="w-4 h-4 text-[#007ac2]" />}
+                            {selectedCurrency === currency.code && <Check className="w-4 h-4 text-accent" />}
                           </div>
                         </button>
                       ))}

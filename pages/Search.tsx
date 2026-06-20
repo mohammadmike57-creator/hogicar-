@@ -652,14 +652,14 @@ export const Search: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#008009] px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-md shadow-[#008009]/20 active:scale-[0.98]"
+                    className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-md shadow-accent/20 active:scale-[0.98]"
                   >
                     <Edit className="h-3 w-3" />
                     <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
                   </button>
                 </div>
                 <div className="mt-2 flex items-center gap-2 overflow-hidden rounded-lg border border-slate-700 bg-slate-800/70 px-2.5 py-1.5">
-                  <Calendar className="h-3.5 w-3.5 shrink-0 text-[#00a30b]" />
+                  <Calendar className="h-3.5 w-3.5 shrink-0 text-accent" />
                   <p className="min-w-0 truncate text-[10px] font-black text-white">
                     {startDateTimeDisplay} - {endDateTimeDisplay}
                   </p>
@@ -668,8 +668,8 @@ export const Search: React.FC = () => {
 
               <div className="hidden flex-col gap-1.5 md:flex lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex min-w-0 items-center gap-2">
-                  <div className="bg-[#008009]/15 p-1.5 sm:p-2 rounded-lg flex-shrink-0 border border-[#008009]/25">
-                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00a30b]" />
+                  <div className="bg-accent/15 p-1.5 sm:p-2 rounded-lg flex-shrink-0 border border-accent/25">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm sm:text-base font-black text-white truncate">{location || 'Select Location'}</p>
@@ -683,14 +683,14 @@ export const Search: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-1.5 lg:flex lg:min-w-0 lg:flex-1 lg:justify-center">
                   <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
-                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent shrink-0" />
                     <div className="min-w-0">
                       <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Pickup</p>
                       <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{startDateTimeDisplay}</p>
                     </div>
                   </div>
                   <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2 py-1.5 md:px-2.5 md:py-1.5">
-                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00a30b] shrink-0" />
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent shrink-0" />
                     <div className="min-w-0">
                       <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Return</p>
                       <p className="text-[10px] sm:text-[11px] font-black text-white truncate">{endDateTimeDisplay}</p>
@@ -714,7 +714,7 @@ export const Search: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="h-full flex items-center justify-center gap-1.5 text-white font-black text-[10px] sm:text-xs px-3 sm:px-4 rounded-lg bg-[#008009] hover:bg-[#006607] transition-all shadow-md shadow-[#008009]/20 active:scale-[0.98] whitespace-nowrap"
+                    className="h-full flex items-center justify-center gap-1.5 text-white font-black text-[10px] sm:text-xs px-3 sm:px-4 rounded-lg bg-accent hover:bg-accent-700 transition-all shadow-md shadow-accent/20 active:scale-[0.98] whitespace-nowrap"
                   >
                     <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
@@ -750,7 +750,7 @@ export const Search: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
                 <div>
                   <h2 className="text-lg sm:text-2xl font-black text-slate-950 tracking-tight flex items-center gap-2">
-                      <CarIcon className="w-5 h-5 text-[#008009]"/>
+                      <CarIcon className="w-5 h-5 text-accent"/>
                       Car Categories
                   </h2>
                   <p className="text-xs font-semibold text-slate-500 mt-1">Prices show the lowest total for {days} day{days > 1 ? 's' : ''}.</p>
@@ -767,7 +767,7 @@ export const Search: React.FC = () => {
                             <option>Price: Low to High</option>
                             <option>Price: High to Low</option>
                         </select>
-                        <ArrowUpDown className="w-3.5 h-3.5 text-[#008009] absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <ArrowUpDown className="w-3.5 h-3.5 text-accent absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                 </div>
               </div>
@@ -789,13 +789,13 @@ export const Search: React.FC = () => {
                                 disabled={!hasCars}
                                 className={`flex-shrink-0 w-[118px] sm:w-[150px] md:w-[162px] flex flex-col rounded-lg transition-all duration-300 relative border group snap-start overflow-hidden
                                     ${isActive
-                                        ? 'bg-white border-[#008009] shadow-[0_16px_34px_-18px_rgba(0,128,9,0.65)] ring-2 ring-[#008009]/10'
+                                        ? 'bg-white border-accent shadow-[0_16px_34px_-18px_rgba(0,122,194,0.65)] ring-2 ring-accent/10'
                                         : hasCars
-                                          ? 'bg-white border-slate-200 hover:border-[#008009]/50 hover:shadow-[0_16px_32px_-22px_rgba(15,23,42,0.7)]'
+                                          ? 'bg-white border-slate-200 hover:border-accent/50 hover:shadow-[0_16px_32px_-22px_rgba(15,23,42,0.7)]'
                                           : 'bg-slate-50 border-slate-200 opacity-55 cursor-not-allowed'}`}
                             >
                                 <div className="px-2.5 pt-2.5 sm:px-3 sm:pt-3 text-center">
-                                    <span className={`block truncate text-xs sm:text-sm font-black tracking-tight ${isActive ? 'text-[#008009]' : 'text-slate-900'}`}>
+                                    <span className={`block truncate text-xs sm:text-sm font-black tracking-tight ${isActive ? 'text-accent' : 'text-slate-900'}`}>
                                         {formatCategoryName(category)}
                                     </span>
                                     <div className="mt-1.5 sm:mt-2 flex items-center justify-center gap-2.5 sm:gap-3 text-slate-600">
@@ -821,7 +821,7 @@ export const Search: React.FC = () => {
                                     <span className="block text-[9px] sm:text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
                                         {hasCars ? `${count} available` : 'No cars'}
                                     </span>
-                                    <span className={`mt-0.5 block text-[11px] sm:text-[12px] font-semibold ${isActive ? 'text-[#008009]' : 'text-slate-700'}`}>
+                                    <span className={`mt-0.5 block text-[11px] sm:text-[12px] font-semibold ${isActive ? 'text-accent' : 'text-slate-700'}`}>
                                         {summary?.fromTotal != null ? (
                                           <>from <strong className="text-sm sm:text-base font-black text-slate-950">{getCurrencySymbol()}{convertPrice(summary.fromTotal).toFixed(0)}</strong></>
                                         ) : (
@@ -830,7 +830,7 @@ export const Search: React.FC = () => {
                                     </span>
                                 </div>
                                 {isActive && (
-                                  <div className="absolute right-2 top-2 bg-[#008009] text-white rounded-full p-1 shadow-lg z-10 animate-in zoom-in-50 duration-300">
+                                  <div className="absolute right-2 top-2 bg-accent text-white rounded-full p-1 shadow-lg z-10 animate-in zoom-in-50 duration-300">
                                     <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3px]" />
                                   </div>
                                 )}
@@ -856,10 +856,10 @@ export const Search: React.FC = () => {
                 }}
                 className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-lg font-black text-[11px] shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50"
             >
-                <SlidersHorizontal className="w-4 h-4 text-[#008009]" />
+                <SlidersHorizontal className="w-4 h-4 text-accent" />
                 <span>Filters</span>
                 { activeFilterCount > 0 && (
-                    <span className="bg-[#008009] text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
+                    <span className="bg-accent text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
                         {activeFilterCount}
                     </span>
                 )}
@@ -872,9 +872,9 @@ export const Search: React.FC = () => {
                 className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-lg font-black text-[11px] shadow-sm active:scale-[0.98] transition-all hover:bg-slate-50 min-w-0"
             >
                 {sortBy === 'Recommended' ? (
-                    <Gem className="w-4 h-4 text-[#008009]" />
+                    <Gem className="w-4 h-4 text-accent" />
                 ) : (
-                    <ArrowUpDown className="w-4 h-4 text-[#008009]" />
+                    <ArrowUpDown className="w-4 h-4 text-accent" />
                 )}
                 <span className="truncate">{sortBy}</span>
             </button>
@@ -902,10 +902,10 @@ export const Search: React.FC = () => {
               <div className="flex items-center justify-between p-5 md:p-4 border-b border-slate-100 md:bg-slate-950 md:text-white md:rounded-t-2xl">
                 <div className="flex items-center gap-2">
                     <h3 className="font-black text-slate-800 md:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-                      <SlidersHorizontal className="w-4 h-4 text-[#008009]" /> Filters
+                      <SlidersHorizontal className="w-4 h-4 text-accent" /> Filters
                     </h3>
                     {showMobileFilters && (
-                        <span className="md:hidden bg-emerald-50 text-[#008009] text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        <span className="md:hidden bg-accent-50 text-accent text-[10px] px-2 py-0.5 rounded-full font-bold">
                             {activeFilterCount} active
                         </span>
                     )}
@@ -913,7 +913,7 @@ export const Search: React.FC = () => {
                 <div className="flex items-center gap-4">
                     <button 
                       onClick={handleResetFilters}
-                      className="text-[10px] text-[#008009] md:text-emerald-300 font-black hover:underline uppercase tracking-widest"
+                      className="text-[10px] text-accent md:text-accent-300 font-black hover:underline uppercase tracking-widest"
                     >
                       Reset
                     </button>
@@ -927,9 +927,9 @@ export const Search: React.FC = () => {
               </div>
 
               <div className="divide-y divide-slate-100 overflow-y-auto md:overflow-visible flex-1 md:flex-none custom-scrollbar pb-24 md:pb-0">
-                  <div className="p-4 md:p-3 bg-emerald-50/60 md:bg-white">
-                      <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-slate-50 p-2 rounded-xl -ml-1 border border-emerald-100 md:border-transparent">
-                          <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-[#008009] shadow-sm focus:border-[#008009] focus:ring focus:ring-[#008009] focus:ring-opacity-50" />
+                  <div className="p-4 md:p-3 bg-accent-50/60 md:bg-white">
+                      <label className="flex items-center cursor-pointer hover:bg-white md:hover:bg-slate-50 p-2 rounded-xl -ml-1 border border-accent-100 md:border-transparent">
+                          <input type="checkbox" checked={specialOffersOnly} onChange={(e) => setSpecialOffersOnly(e.target.checked)} className="rounded w-4 h-4 text-accent shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50" />
                           <span className="ml-2 text-xs text-slate-600 font-medium">Special Offers Only</span>
                           <Gift className="w-4 h-4 text-red-500 ml-auto" />
                       </label>
@@ -937,7 +937,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Price')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Price per Day</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Price per Day</span>
                           {openFilters.includes('Price') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Price') && (
@@ -952,7 +952,7 @@ export const Search: React.FC = () => {
                                   max="5000" 
                                   value={priceRange} 
                                   onChange={(e) => setPriceRange(Number(e.target.value))}
-                                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#008009]"
+                                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-accent"
                               />
                           </div>
                       )}
@@ -960,7 +960,7 @@ export const Search: React.FC = () => {
 
                   <div className="hidden md:block p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Category')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Car Category</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Car Category</span>
                           {openFilters.includes('Category') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Category') && (
@@ -974,8 +974,8 @@ export const Search: React.FC = () => {
                                           onClick={() => handleCategoryToggle(type)}
                                           className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border transition-all duration-300 ${
                                               isActive 
-                                                  ? 'bg-[#008009] border-[#008009] shadow-lg shadow-emerald-100' 
-                                                  : 'bg-white border-slate-200 hover:border-[#008009]/40 hover:bg-slate-50'
+                                                  ? 'bg-accent border-accent shadow-lg shadow-accent-100' 
+                                                  : 'bg-white border-slate-200 hover:border-accent/40 hover:bg-slate-50'
                                           }`}
                                       >
                                           <span className={`text-[10px] font-black text-center leading-tight transition-colors ${isActive ? 'text-white' : 'text-slate-700'}`}>
@@ -993,13 +993,13 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Passengers')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Number of seats</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Number of seats</span>
                           {openFilters.includes('Passengers') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Passengers') && (
                           <div className="mt-2 grid grid-cols-4 gap-2">
                               {[2, 4, 5, 7].map(num => (
-                                  <button key={num} onClick={() => setPassengerCapacity(passengerCapacity === num ? 0 : num)} className={`p-2 border rounded-md text-xs font-bold transition-colors ${passengerCapacity === num ? 'bg-[#008009] text-white border-[#008009]' : 'bg-white text-slate-700 border-slate-200 hover:border-[#008009]'}`}>
+                                  <button key={num} onClick={() => setPassengerCapacity(passengerCapacity === num ? 0 : num)} className={`p-2 border rounded-md text-xs font-bold transition-colors ${passengerCapacity === num ? 'bg-accent text-white border-accent' : 'bg-white text-slate-700 border-slate-200 hover:border-accent'}`}>
                                       {num}{num === 7 ? '+' : ''}
                                   </button>
                               ))}
@@ -1009,14 +1009,14 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Payment')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Payment Type</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Payment Type</span>
                           {openFilters.includes('Payment') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Payment') && (
                           <div className="mt-2 space-y-1.5">
                               {allPaymentTypes.map((type) => (
                                   <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedPaymentTypes.includes(type)} onChange={() => handlePaymentTypeChange(type)} className="rounded w-4 h-4 text-[#008009]" />
+                                      <input type="checkbox" checked={selectedPaymentTypes.includes(type)} onChange={() => handlePaymentTypeChange(type)} className="rounded w-4 h-4 text-accent" />
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{paymentTypeMapping[type as CommissionType]}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.paymentType.get(type) || 0})</span>
                                   </label>
@@ -1027,14 +1027,14 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Deposit')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Refundable Security Deposit</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Refundable Security Deposit</span>
                           {openFilters.includes('Deposit') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Deposit') && (
                           <div className="mt-2 space-y-1.5">
                               {[0, 300, 500].map((amount) => (
                                   <label key={amount} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="radio" name="deposit" checked={maxDeposit === amount} onChange={() => setMaxDeposit(amount)} className="w-4 h-4 text-[#008009] focus:ring-[#008009]" />
+                                      <input type="radio" name="deposit" checked={maxDeposit === amount} onChange={() => setMaxDeposit(amount)} className="w-4 h-4 text-accent focus:ring-accent" />
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{amount === 0 ? 'Any amount' : `Less than ${getCurrencySymbol()}${convertPrice(amount).toFixed(0)}`}</span>
                                   </label>
                               ))}
@@ -1044,14 +1044,14 @@ export const Search: React.FC = () => {
                   
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('LocationType')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Location Type</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Location Type</span>
                           {openFilters.includes('LocationType') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('LocationType') && (
                           <div className="mt-2 space-y-1.5">
                               {allLocationTypes.map((type) => (
                                   <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedLocationTypes.includes(type)} onChange={() => handleLocationTypeChange(type)} className="rounded w-4 h-4 text-[#008009]" />
+                                      <input type="checkbox" checked={selectedLocationTypes.includes(type)} onChange={() => handleLocationTypeChange(type)} className="rounded w-4 h-4 text-accent" />
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{type}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.locationType.get(type) || 0})</span>
                                   </label>
@@ -1062,14 +1062,14 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Transmission')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Transmission</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Transmission</span>
                           {openFilters.includes('Transmission') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Transmission') && (
                           <div className="mt-2 space-y-1.5">
                               {allTransmissions.map((type) => (
                                   <label key={type} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedTransmissions.includes(type)} onChange={() => handleTransmissionChange(type)} className="rounded w-4 h-4 text-[#008009]" />
+                                      <input type="checkbox" checked={selectedTransmissions.includes(type)} onChange={() => handleTransmissionChange(type)} className="rounded w-4 h-4 text-accent" />
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{type}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.transmission.get(type) || 0})</span>
                                   </label>
@@ -1080,14 +1080,14 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Fuel')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Fuel Policy</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Fuel Policy</span>
                           {openFilters.includes('Fuel') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Fuel') && (
                           <div className="mt-2 space-y-1.5">
                               {allFuelPolicies.map((policy) => (
                                   <label key={policy} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedFuelPolicies.includes(policy)} onChange={() => handleFuelPolicyChange(policy)} className="rounded w-4 h-4 text-[#008009]" />
+                                      <input type="checkbox" checked={selectedFuelPolicies.includes(policy)} onChange={() => handleFuelPolicyChange(policy)} className="rounded w-4 h-4 text-accent" />
                                       <span className="ml-2 text-xs text-slate-600 font-medium">{policy}</span>
                                        <span className="ml-auto text-[10px] text-slate-400">({filterCounts.fuelPolicy.get(policy) || 0})</span>
                                   </label>
@@ -1098,7 +1098,7 @@ export const Search: React.FC = () => {
 
                   <div className="p-4 md:p-3">
                       <button onClick={() => toggleFilterSection('Supplier')} className="w-full flex justify-between items-center text-left group">
-                          <span className="text-xs font-black text-slate-800 group-hover:text-[#008009] uppercase tracking-wide">Suppliers in {pickupIata || location}</span>
+                          <span className="text-xs font-black text-slate-800 group-hover:text-accent uppercase tracking-wide">Suppliers in {pickupIata || location}</span>
                           {openFilters.includes('Supplier') ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </button>
                       {openFilters.includes('Supplier') && (
@@ -1108,7 +1108,7 @@ export const Search: React.FC = () => {
                               )}
                               {allSuppliers.map((name) => (
                                   <label key={name} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded -ml-1">
-                                      <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-[#008009]" />
+                                      <input type="checkbox" checked={selectedSuppliers.includes(name)} onChange={() => handleSupplierChange(name)} className="rounded w-4 h-4 text-accent" />
                                       {supplierLogos.get(name) === 'HOGICAR_CHOICE_LOGO' ? (
                                           <Logo className="w-10 h-6 ml-2" />
                                       ) : supplierLogos.get(name) ? (
@@ -1126,7 +1126,7 @@ export const Search: React.FC = () => {
               <div className="p-4 border-t border-slate-100 md:hidden bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] absolute bottom-0 left-0 right-0 z-10">
                   <button 
                     onClick={() => setShowMobileFilters(false)}
-                    className="w-full bg-[#008009] text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-[#008009]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-accent text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-accent/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                   >
                     Show {sortedAndFilteredCars.length} results
                   </button>
@@ -1152,7 +1152,7 @@ export const Search: React.FC = () => {
             `}>
               <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
-                  <ArrowUpDown className="w-4 h-4 text-[#008009]" /> Sort By
+                  <ArrowUpDown className="w-4 h-4 text-accent" /> Sort By
                 </h3>
                 <button 
                   onClick={() => setShowMobileSort(false)}
@@ -1161,7 +1161,6 @@ export const Search: React.FC = () => {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               <div className="p-4 space-y-3 pb-12">
                 {[
                   { label: 'Recommended', icon: <Gem className="w-4 h-4" /> },
@@ -1176,19 +1175,19 @@ export const Search: React.FC = () => {
                     }}
                     className={`w-full flex items-center justify-between p-5 rounded-2xl transition-all ${
                       sortBy === option.label 
-                        ? 'bg-[#008009] border-2 border-[#008009] text-white shadow-lg shadow-emerald-200' 
+                        ? 'bg-accent border-2 border-accent text-white shadow-lg shadow-accent-200' 
                         : 'bg-slate-50 border-2 border-transparent text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-lg ${sortBy === option.label ? 'bg-white/20' : 'bg-white shadow-sm'}`}>
                             {React.cloneElement(option.icon as React.ReactElement<any>, { 
-                                className: `w-4 h-4 ${sortBy === option.label ? 'text-white' : 'text-[#008009]'}` 
+                                className: `w-4 h-4 ${sortBy === option.label ? 'text-white' : 'text-accent'}` 
                             })}
                         </div>
                         <span className="font-bold text-sm">{option.label}</span>
                     </div>
-                    {sortBy === option.label && <div className="bg-white rounded-full p-1"><Check className="w-3 h-3 text-[#008009]" /></div>}
+                    {sortBy === option.label && <div className="bg-white rounded-full p-1"><Check className="w-3 h-3 text-accent" /></div>}
                   </button>
                 ))}
               </div>
@@ -1199,7 +1198,7 @@ export const Search: React.FC = () => {
           <main className="flex-grow w-full">
             {loading ? (
               <div className="text-center py-20 px-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
                 <p className="mt-4 font-semibold text-slate-700">Finding the best deals for you...</p>
               </div>
             ) : error ? (
@@ -1213,14 +1212,14 @@ export const Search: React.FC = () => {
                 <div className="flex items-center justify-between gap-3 mb-4 bg-white border border-slate-200 rounded-2xl shadow-sm p-4 md:p-4">
                     <div className="min-w-0">
                       <p className="text-base md:text-sm text-slate-900 font-black uppercase tracking-tight md:tracking-wide">
-                          <span className="text-[#008009]">{sortedAndFilteredCars.length}</span> cars available
+                          <span className="text-accent">{sortedAndFilteredCars.length}</span> cars available
                       </p>
                       <p className="text-[11px] text-slate-500 font-bold mt-1">
                         {pickupIata || location || 'Selected location'} • {days} day{days > 1 ? 's' : ''} • {sortBy}
                       </p>
                     </div>
-                    <div className="flex max-[420px]:hidden items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest text-right rounded-full bg-emerald-50 px-3 py-1.5">
-                        <Check className="w-3 h-3 text-[#008009]" /> Taxes & fees included
+                    <div className="flex max-[420px]:hidden items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest text-right rounded-full bg-accent-50 px-3 py-1.5">
+                        <Check className="w-3 h-3 text-accent" /> Taxes & fees included
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:gap-3 px-0">
@@ -1271,7 +1270,7 @@ export const Search: React.FC = () => {
                         <p className="mt-1 text-sm font-medium text-slate-600 sm:text-base">Compare prices, specs, ratings and more</p>
                     </div>
                 </div>
-                <span className={`relative flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition-colors ${isCompareMode ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                <span className={`relative flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition-colors ${isCompareMode ? 'bg-accent' : 'bg-slate-300'}`}>
                     <span className={`h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${isCompareMode ? 'translate-x-6' : 'translate-x-0'}`} />
                 </span>
             </button>
@@ -1283,13 +1282,13 @@ export const Search: React.FC = () => {
         <div className="fixed bottom-4 left-1/2 z-[100] w-[94%] max-w-5xl -translate-x-1/2 animate-in slide-in-from-bottom-8 duration-700 sm:bottom-6">
             <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-3 text-slate-950 shadow-[0_26px_70px_-28px_rgba(15,23,42,0.65)] ring-1 ring-slate-900/5 backdrop-blur-2xl sm:rounded-3xl sm:p-4">
                 <div 
-                    className="absolute bottom-0 left-0 h-1 bg-[#008009] transition-all duration-500 ease-out"
+                    className="absolute bottom-0 left-0 h-1 bg-accent transition-all duration-500 ease-out"
                     style={{ width: `${(selectedCompareCars.length / 4) * 100}%` }}
                 />
               
                 <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                        <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#008009] text-white shadow-[0_16px_32px_-18px_rgba(0,128,9,0.9)] sm:flex">
+                        <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-white shadow-[0_16px_32px_-18px_rgba(0,122,194,0.9)] sm:flex">
                             <ArrowLeftRight className="h-5 w-5 stroke-[2.5px]" />
                         </div>
                         <div className="min-w-0">
@@ -1298,7 +1297,7 @@ export const Search: React.FC = () => {
                             <div className="mt-2 flex items-center gap-2 sm:mt-2.5">
                                 <div className="flex gap-1.5">
                                     {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className={`h-1.5 w-5 rounded-full transition-colors ${i <= selectedCompareCars.length ? 'bg-[#008009]' : 'bg-slate-200'}`} />
+                                        <div key={i} className={`h-1.5 w-5 rounded-full transition-colors ${i <= selectedCompareCars.length ? 'bg-accent' : 'bg-slate-200'}`} />
                                     ))}
                                 </div>
                                 <span className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{selectedCompareCars.length}/4 choices</span>
@@ -1310,7 +1309,7 @@ export const Search: React.FC = () => {
                         <div className="flex min-w-0 -space-x-2 sm:-space-x-3">
                             {selectedCompareCars.map(car => (
                                 <div key={car.id} className="relative group/comp">
-                                    <div className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-slate-50 p-1.5 shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:ring-[#008009]/40 sm:h-14 sm:w-14 md:h-16 md:w-16">
+                                    <div className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-slate-50 p-1.5 shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:ring-accent/40 sm:h-14 sm:w-14 md:h-16 md:w-16">
                                         <img src={car.image} alt={car.model} className="w-full h-full object-contain drop-shadow-md" />
                                     </div>
                                     <button 
@@ -1335,7 +1334,7 @@ export const Search: React.FC = () => {
                             className={`
                                 relative group/btn min-h-12 shrink-0 overflow-hidden rounded-xl px-5 py-3 text-xs font-black uppercase tracking-[0.16em] transition-all duration-300 sm:rounded-2xl sm:px-7 md:px-9
                                 ${selectedCompareCars.length >= 2 
-                                    ? 'bg-[#008009] text-white shadow-[0_18px_38px_-18px_rgba(0,128,9,0.8)] hover:bg-slate-950 active:scale-95' 
+                                    ? 'bg-accent text-white shadow-[0_18px_38px_-18px_rgba(0,122,194,0.8)] hover:bg-slate-950 active:scale-95' 
                                     : 'cursor-not-allowed bg-slate-100 text-slate-400'}
                             `}
                         >

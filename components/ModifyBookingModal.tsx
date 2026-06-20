@@ -173,7 +173,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
                                         <p className="font-semibold text-sm text-slate-800">{extra.name}</p>
                                         <p className="text-xs text-slate-500">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)} / {extra.type === 'per_day' ? 'day' : 'rental'}</p>
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${isSelected ? 'bg-[#007ac2] border-blue-600' : 'border-slate-300'}`}>
+                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${isSelected ? 'bg-accent border-accent' : 'border-slate-300'}`}>
                                         {isSelected && <Check className="w-3 h-3 text-white"/>}
                                     </div>
                                 </div>

@@ -407,7 +407,7 @@ const Home: React.FC = () => {
                    <Link 
                        to={`/search?location=${encodeURIComponent(dest.name)}`} 
                        key={dest.name} 
-                       className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3]"
+                       className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3] border-2 border-transparent hover:border-accent"
                    >
                        <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
                    </Link>
@@ -451,7 +451,7 @@ const Home: React.FC = () => {
                 </div>
                 <button 
                   type="submit" 
-                  className="bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold py-4 px-8 rounded-card transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 active:scale-[0.98] whitespace-nowrap text-sm"
+                  className="bg-accent hover:bg-accent-700 text-white font-bold py-4 px-8 rounded-card transition-all duration-300 shadow-lg shadow-accent/25 hover:shadow-accent/40 active:scale-[0.98] whitespace-nowrap text-sm"
                 >
                   Join the Club
                 </button>

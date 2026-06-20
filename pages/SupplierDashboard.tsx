@@ -27,7 +27,7 @@ import { Logo } from '../components/Logo';
 
 const StatCard = ({ icon: Icon, title, value, change, color = "blue", onClick }: any) => {
   const colors: any = {
-    blue: "bg-blue-50 text-[#007ac2] ring-blue-100",
+    blue: "bg-accent-50 text-accent ring-accent-100",
     green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
     amber: "bg-amber-50 text-amber-700 ring-amber-100",
     violet: "bg-violet-50 text-violet-700 ring-violet-100",
@@ -39,7 +39,7 @@ const StatCard = ({ icon: Icon, title, value, change, color = "blue", onClick }:
       onClick={onClick}
       className={`bg-white p-5 rounded-card shadow-sm border border-slate-200/80 flex flex-col justify-between group relative overflow-hidden transition-all ${onClick ? 'cursor-pointer hover:border-blue-300 hover:shadow-lg hover:shadow-slate-200/60' : ''}`}
     >
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-slate-800 to-emerald-500 opacity-90" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-slate-800 to-emerald-500 opacity-90" />
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div className={`p-3 rounded-card ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
           <Icon className="w-5 h-5" />
@@ -76,7 +76,7 @@ const Badge = ({ children, variant = "default", className = "" }: any) => {
         success: "bg-emerald-50 text-emerald-700",
         warning: "bg-amber-50 text-amber-700",
         error: "bg-red-50 text-red-700",
-        info: "bg-blue-50 text-[#007ac2]",
+        info: "bg-accent-50 text-accent",
         purple: "bg-violet-50 text-violet-700",
     };
     return (
@@ -1425,7 +1425,7 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                     onClick={() => togglePeriod(idx)}
                                                     className={`w-full p-3 rounded-card text-left border transition-all flex items-center justify-between group ${
                                                         isSelected 
-                                                        ? 'bg-[#007ac2] border-blue-600 text-white shadow-lg shadow-blue-200' 
+                                                        ? 'bg-accent border-accent text-white shadow-lg shadow-accent-200'
                                                         : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200 hover:bg-blue-50'
                                                     }`}
                                                 >

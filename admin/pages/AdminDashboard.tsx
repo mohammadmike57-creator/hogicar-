@@ -214,7 +214,7 @@ const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="bg-white rounded-card p-5 shadow-sm hover:shadow-xl hover:shadow-slate-200/70 border border-slate-200 flex flex-col justify-between relative overflow-hidden group transition-all">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-slate-800 to-emerald-500" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-slate-800 to-emerald-500" />
       <div className="flex items-center justify-between mb-5 relative z-10">
         <div className={`w-11 h-11 rounded-card flex items-center justify-center ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
           <Icon className="w-5 h-5" />
@@ -1982,22 +1982,22 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 flex flex-col">
-            <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center justify-between mb-8">
                 <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
-                    <History className="w-5 h-5 text-[#007ac2]" />
+                    <History className="w-5 h-5 text-accent" />
                     Latest Activity
                 </h3>
-                <span className="text-[10px] font-extrabold bg-blue-50 text-[#007ac2] px-2 py-1 rounded-card uppercase">Live</span>
+                <span className="text-[10px] font-extrabold bg-accent-50 text-accent px-2 py-1 rounded-card uppercase">Live</span>
             </div>
             <div className="space-y-6 flex-1">
                 {bookings.slice(0, 5).map((b: any) => (
                     <div key={b.id} className="flex items-center justify-between group cursor-pointer">
                         <div className="flex items-center gap-4">
-                            <div className="w-11 h-11 rounded-card bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-extrabold text-xs group-hover:bg-[#007ac2] group-hover:text-white group-hover:border-blue-600 transition-all">
+                            <div className="w-11 h-11 rounded-card bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-extrabold text-xs group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all">
                                 {b.firstName?.[0]}{b.lastName?.[0]}
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-gray-900 group-hover:text-[#007ac2] transition-colors">{b.firstName} {b.lastName}</div>
+                                <div className="text-sm font-bold text-gray-900 group-hover:text-accent transition-colors">{b.firstName} {b.lastName}</div>
                                 <div className="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">{b.bookingRef} • {b.supplierName}</div>
                             </div>
                         </div>

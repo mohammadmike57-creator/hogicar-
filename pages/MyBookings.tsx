@@ -46,7 +46,7 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
                                 required
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-base"
+                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all text-base"
                                 placeholder="e.g. name@example.com"
                             />
                         </div>
@@ -60,7 +60,7 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
                                 required
                                 value={bookingRef}
                                 onChange={e => setBookingRef(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase text-base"
+                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all uppercase text-base"
                                 placeholder="e.g. H1001"
                             />
                         </div>
@@ -69,7 +69,7 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
                     <button 
                         type="submit" 
                         disabled={isLoading}
-                        className="w-full bg-[#007ac2] hover:bg-[#006607] text-white font-bold py-3.5 rounded-card shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-accent hover:bg-accent-700 text-white font-bold py-3.5 rounded-card shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <>Find My Booking <ArrowRight className="w-5 h-5" /></>}
                     </button>
@@ -293,36 +293,36 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
                              <Link 
                                  to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`}
-                                 className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                                 className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-accent hover:bg-accent-50 transition-all group"
                              >
                                  <div className="flex items-center gap-3">
-                                     <FileText className="w-5 h-5 text-slate-400 group-hover:text-[#007ac2]"/>
+                                     <FileText className="w-5 h-5 text-slate-400 group-hover:text-accent"/>
                                      <div className="text-left">
-                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-[#007ac2]">Digital Voucher</span>
+                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-accent">Digital Voucher</span>
                                          <span className="block text-[10px] text-slate-500">Official Confirmation</span>
                                      </div>
                                  </div>
-                                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500"/>
+                                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-accent"/>
                              </Link>
-
+ 
                              {canModify && (
                                 <button 
                                     onClick={handleModifyClick}
                                     disabled={isFetchingCar}
-                                    className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group disabled:opacity-50"
+                                    className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-accent hover:bg-accent-50 transition-all group disabled:opacity-50"
                                 >
                                     <div className="flex items-center gap-3">
                                         {isFetchingCar ? (
-                                            <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                                         ) : (
-                                            <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-[#007ac2]"/>
+                                            <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-accent"/>
                                         )}
                                         <div className="text-left">
-                                            <span className="block font-bold text-slate-700 text-sm group-hover:text-[#007ac2]">Modify Booking</span>
+                                            <span className="block font-bold text-slate-700 text-sm group-hover:text-accent">Modify Booking</span>
                                             <span className="block text-[10px] text-slate-500">Dates, flight, or phone</span>
                                         </div>
                                     </div>
-                                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500"/>
+                                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-accent"/>
                                 </button>
                             )}
                          </div>
@@ -349,10 +349,10 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                          </div>
                      )}
                      
-                     <div className="bg-blue-50 p-4 rounded-card border border-blue-100">
-                         <h4 className="font-bold text-blue-800 text-sm mb-1">Need Help?</h4>
-                         <p className="text-xs text-[#007ac2] mb-2">Our agents are available 24/7.</p>
-                         <p className="text-sm font-bold text-blue-900">+1 (555) 123-4567</p>
+                     <div className="bg-accent-50 p-4 rounded-card border border-accent-100">
+                         <h4 className="font-bold text-accent-800 text-sm mb-1">Need Help?</h4>
+                         <p className="text-xs text-accent-600 mb-2">Our agents are available 24/7.</p>
+                         <p className="text-sm font-bold text-accent-900">+1 (555) 123-4567</p>
                      </div>
 
                  </div>
@@ -437,7 +437,7 @@ const MyBookings: React.FC = () => {
                  ) : (
                      <div className="text-center">
                          <h2 className="text-xl font-bold">No booking loaded</h2>
-                         <button onClick={handleLogout} className="text-[#007ac2] underline mt-2">Go Back</button>
+                         <button onClick={handleLogout} className="text-accent underline mt-2">Go Back</button>
                      </div>
                  )}
             </div>

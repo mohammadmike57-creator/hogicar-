@@ -85,7 +85,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
     const ConditionCard = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
         <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h4 className="mb-3 flex items-center gap-2 text-sm font-black text-slate-900">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#008009]/10 text-[#008009]">{icon}</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">{icon}</span>
                 {title}
             </h4>
             {children}
@@ -95,7 +95,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
     const PolicyRow = ({ label, value, tone = 'default' }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn' }) => (
         <div className="flex items-start justify-between gap-3 border-b border-slate-100 py-2.5 last:border-b-0">
             <span className="text-xs font-bold text-slate-500">{label}</span>
-            <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-[#008009]' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
+            <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-accent' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
         </div>
     );
 
@@ -115,7 +115,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#008009]">Rental conditions</p>
+                                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-accent">Rental conditions</p>
                                    <h3 className="text-lg font-black text-slate-950 truncate">{supplierName}</h3>
                                    <p className="text-xs font-bold text-slate-500 truncate">{car.displayName || `${car.make} ${car.model}`}</p>
                                 </div>
@@ -172,17 +172,17 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                             <ConditionCard icon={<Users className="h-4 w-4" />} title="Required at pick-up">
                                 <div className="grid gap-2 sm:grid-cols-3">
                                     <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                                        <Shield className="mb-2 h-4 w-4 text-[#008009]" />
+                                        <Shield className="mb-2 h-4 w-4 text-accent" />
                                         <p className="text-xs font-black text-slate-900">Driving license</p>
                                         <p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Held for at least 1 year. International permit may be required.</p>
                                     </div>
                                     <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                                        <Users className="mb-2 h-4 w-4 text-[#008009]" />
+                                        <Users className="mb-2 h-4 w-4 text-accent" />
                                         <p className="text-xs font-black text-slate-900">Passport or ID</p>
                                         <p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">A valid photo ID matching the main driver details.</p>
                                     </div>
                                     <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                                        <CreditCardIcon className="mb-2 h-4 w-4 text-[#008009]" />
+                                        <CreditCardIcon className="mb-2 h-4 w-4 text-accent" />
                                         <p className="text-xs font-black text-slate-900">Credit card</p>
                                         <p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Must have enough available funds for the deposit.</p>
                                     </div>
@@ -191,16 +191,16 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
 
                             <ConditionCard icon={<Shield className="h-4 w-4" />} title="Insurance and protection included">
                                 <div className="grid gap-2 sm:grid-cols-2">
-                                    <div className={`rounded-lg border p-3 ${supplier.includesCDW ? 'border-emerald-100 bg-emerald-50' : 'border-slate-100 bg-slate-50'}`}>
+                                    <div className={`rounded-lg border p-3 ${supplier.includesCDW ? 'border-accent/10 bg-accent/5' : 'border-slate-100 bg-slate-50'}`}>
                                         <div className="flex items-center gap-2">
-                                            <Check className={`h-4 w-4 ${supplier.includesCDW ? 'text-[#008009]' : 'text-slate-400'}`} />
+                                            <Check className={`h-4 w-4 ${supplier.includesCDW ? 'text-accent' : 'text-slate-400'}`} />
                                             <p className="text-xs font-black text-slate-900">Collision Damage Waiver</p>
                                         </div>
                                         <p className="mt-1 text-[11px] font-semibold text-slate-500">{supplier.includesCDW ? 'Included by this supplier.' : 'Check supplier terms for availability.'}</p>
                                     </div>
-                                    <div className={`rounded-lg border p-3 ${supplier.includesTP ? 'border-emerald-100 bg-emerald-50' : 'border-slate-100 bg-slate-50'}`}>
+                                    <div className={`rounded-lg border p-3 ${supplier.includesTP ? 'border-accent/10 bg-accent/5' : 'border-slate-100 bg-slate-50'}`}>
                                         <div className="flex items-center gap-2">
-                                            <Check className={`h-4 w-4 ${supplier.includesTP ? 'text-[#008009]' : 'text-slate-400'}`} />
+                                            <Check className={`h-4 w-4 ${supplier.includesTP ? 'text-accent' : 'text-slate-400'}`} />
                                             <p className="text-xs font-black text-slate-900">Theft Protection</p>
                                         </div>
                                         <p className="mt-1 text-[11px] font-semibold text-slate-500">{supplier.includesTP ? 'Included by this supplier.' : 'Check supplier terms for availability.'}</p>
@@ -264,10 +264,10 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                                 )}
                             </ConditionCard>
 
-                            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                            <div className="rounded-xl border border-accent/10 bg-accent/5 p-4">
                                 <div className="flex items-start gap-2">
-                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#008009]" />
-                                    <p className="text-xs font-bold leading-relaxed text-emerald-800">
+                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                                    <p className="text-xs font-bold leading-relaxed text-accent-800">
                                         Review these conditions before booking. Final acceptance depends on presenting the required documents and card at pickup.
                                     </p>
                                 </div>
@@ -278,7 +278,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                  {/* Footer */}
                 <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <p className="text-xs font-semibold text-slate-500">These conditions are provided by the supplier and may be checked again at pickup.</p>
-                    <button onClick={onClose} className="bg-[#008009] text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-[#006607] shadow-sm transition-transform active:scale-95">
+                    <button onClick={onClose} className="bg-accent text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-accent-700 shadow-sm transition-transform active:scale-95">
                         Got it
                     </button>
                 </div>
@@ -415,15 +415,15 @@ const CarCard: React.FC<CarCardProps> = ({
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
       <div className={`rounded-2xl transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50] 
         ${car.isHogicarChoiceBranded 
-          ? 'bg-emerald-50/40 border-[#008009] shadow-[0_20px_50px_-20px_rgba(0,128,9,0.35)]' 
-          : 'bg-white border-[#008009]/45 hover:border-[#008009] shadow-[0_10px_28px_-22px_rgba(0,128,9,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,128,9,0.45)]'
+          ? 'bg-accent/5 border-accent shadow-[0_20px_50px_-20px_rgba(0,122,194,0.35)]' 
+          : 'bg-white border-accent/45 hover:border-accent shadow-[0_10px_28px_-22px_rgba(0,122,194,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,122,194,0.45)]'
         } 
         border-2 
-        ${isComparing ? 'border-[#008009] ring-4 ring-emerald-50 shadow-[0_18px_42px_-20px_rgba(0,128,9,0.85)]' : ''}`}>
+        ${isComparing ? 'border-accent ring-4 ring-accent/5 shadow-[0_18px_42px_-20px_rgba(0,122,194,0.85)]' : ''}`}>
         <div className="relative flex flex-col h-full w-full rounded-2xl">
           {/* Header Badge */}
           {car.isHogicarChoiceBranded && (
-            <div className="bg-gradient-to-r from-[#008009] via-[#00a30b] to-[#008009] text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
+            <div className="bg-gradient-to-r from-accent via-accent-400 to-accent text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
                 <Award className="w-4 h-4 text-white fill-white/20" />
                 <span className="text-xs font-black uppercase tracking-widest">Hogicar Recommended</span>
             </div>
@@ -440,7 +440,7 @@ const CarCard: React.FC<CarCardProps> = ({
                               {car.displayName || `${car.make} ${car.model}`}
                           </h3>
                       </Link>
-                      <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-blue-600">
+                      <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-accent">
                           or similar {car.category.toString().toLowerCase()} car <Info className="h-4 w-4" />
                       </p>
                   </div>
@@ -457,7 +457,7 @@ const CarCard: React.FC<CarCardProps> = ({
                       className="flex shrink-0 items-center gap-2 pt-1 text-base font-semibold text-slate-900"
                     >
                         <span>Compare</span>
-                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-blue-600 shadow-[0_8px_18px_-10px_rgba(37,99,235,0.8)]' : 'bg-slate-300'}`}>
+                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-accent shadow-[0_8px_18px_-10px_rgba(0,122,194,0.8)]' : 'bg-slate-300'}`}>
                             <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
                         </span>
                     </button>
@@ -467,11 +467,11 @@ const CarCard: React.FC<CarCardProps> = ({
               <div className="grid grid-cols-[1fr_45%] items-center gap-3">
                   <div className="space-y-3 text-slate-950">
                       <div className="flex items-center gap-3 text-lg font-semibold">
-                          <Users className="h-6 w-6 stroke-[1.8px] text-blue-600" />
+                          <Users className="h-6 w-6 stroke-[1.8px] text-accent" />
                           <span>{car.passengers} seats</span>
                       </div>
                       <div className="flex items-center gap-3 text-lg font-semibold">
-                          <AutomaticIcon className="w-6 h-6 text-[#008009] stroke-[1.8px]" />
+                          <AutomaticIcon className="w-6 h-6 text-accent stroke-[1.8px]" />
                           <span>{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
                       </div>
                       <div className="flex items-center gap-3 text-lg font-semibold">
@@ -535,7 +535,7 @@ const CarCard: React.FC<CarCardProps> = ({
                                   <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                               </div>
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
-                                  <Check className="w-2.5 h-2.5 text-[#008009]" />
+                                  <Check className="w-2.5 h-2.5 text-accent" />
                                   Trusted Supplier
                               </p>
                           </div>
@@ -562,7 +562,7 @@ const CarCard: React.FC<CarCardProps> = ({
                 to={`/car/${car.id}?${searchParams}`}
                 state={{ cars: cars }}
                 onClick={handleSelectCar}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#008009] px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-lg active:scale-[0.98]"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-lg active:scale-[0.98]"
               >
                   View deal <ChevronRight className="h-5 w-5" />
               </Link>
@@ -654,7 +654,7 @@ const CarCard: React.FC<CarCardProps> = ({
                               </span>
                           </div>
                           <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                              <h3 className="text-[0.95rem] font-black text-slate-900 leading-snug hover:text-[#008009] transition-colors uppercase tracking-tight line-clamp-1">
+                              <h3 className="text-[0.95rem] font-black text-slate-900 leading-snug hover:text-accent transition-colors uppercase tracking-tight line-clamp-1">
                                   {car.displayName}
                               </h3>
                           </Link>
@@ -687,27 +687,27 @@ const CarCard: React.FC<CarCardProps> = ({
 
                       {/* Included Features checklist */}
                       <div className="grid grid-cols-2 gap-1.5 mb-2.5">
-                          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[9px] font-bold text-[#008009] border border-emerald-100">
+                          <div className="flex items-center gap-1.5 rounded-lg bg-accent/5 px-2.5 py-1.5 text-[9px] font-bold text-accent border border-accent/10">
                               <CalendarCheck className="w-3 h-3 stroke-[2.5px] shrink-0" />
                               <span className="truncate">Free cancellation</span>
                           </div>
                           <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[9px] font-bold text-slate-700 border border-slate-100">
-                              <Fuel className="w-3 h-3 text-[#008009] stroke-[2.5px] shrink-0" />
+                              <Fuel className="w-3 h-3 text-accent stroke-[2.5px] shrink-0" />
                               <span className="truncate">{car.fuelPolicy === 'FULL_TO_FULL' ? 'Fair fuel' : car.fuelPolicy}</span>
                           </div>
                           <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[9px] font-bold text-slate-700 border border-slate-100">
-                              <GaugeCircle className="w-3 h-3 text-[#008009] stroke-[2.5px] shrink-0" />
+                              <GaugeCircle className="w-3 h-3 text-accent stroke-[2.5px] shrink-0" />
                               <span className="truncate">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[9px] font-bold text-blue-600 border border-blue-100">
-                              <Zap className="w-3 h-3 fill-blue-600/20 shrink-0" />
+                          <div className="flex items-center gap-1.5 rounded-lg bg-accent/5 px-2.5 py-1.5 text-[9px] font-bold text-accent border border-accent/10">
+                              <Zap className="w-3 h-3 fill-accent/20 shrink-0" />
                               <span className="truncate">Instant Confirmation</span>
                           </div>
                       </div>
 
                       <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-2.5 py-1.5">
                           <div className="flex min-w-0 items-center gap-2">
-                              <DesktopPickupIcon className="h-3.5 w-3.5 shrink-0 text-[#008009]" />
+                              <DesktopPickupIcon className="h-3.5 w-3.5 shrink-0 text-accent" />
                               <div className="min-w-0">
                                   <p className="truncate text-[9px] font-black uppercase tracking-wide text-slate-900">{desktopPickupTypeLabel}</p>
                                   <p className="truncate text-[9px] font-semibold text-slate-500">{car.locationDetail || car.location || 'Pickup location'}</p>
@@ -715,7 +715,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           </div>
                           <button
                             onClick={() => setIsConditionsModalOpen(true)}
-                            className="shrink-0 text-[9px] font-black uppercase tracking-wide text-[#008009] hover:text-slate-950"
+                            className="shrink-0 text-[9px] font-black uppercase tracking-wide text-accent hover:text-slate-950"
                           >
                               Rental terms
                           </button>
@@ -723,9 +723,9 @@ const CarCard: React.FC<CarCardProps> = ({
 
                       {/* Social Proof Message */}
                       {recentBookingInfo.isRecent && (
-                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg mt-3 md:mt-2">
-                           <Clock className="w-4 h-4 md:w-3 md:h-3 text-[#008009]" />
-                           <span className="text-xs md:text-[10px] font-black text-[#008009] uppercase tracking-wide">{recentBookingInfo.message}</span>
+                        <div className="flex items-center gap-2 bg-accent/5 border border-accent/10 p-2.5 rounded-lg mt-3 md:mt-2">
+                           <Clock className="w-4 h-4 md:w-3 md:h-3 text-accent" />
+                           <span className="text-xs md:text-[10px] font-black text-accent uppercase tracking-wide">{recentBookingInfo.message}</span>
                         </div>
                       )}
                   </div>
@@ -738,7 +738,7 @@ const CarCard: React.FC<CarCardProps> = ({
                               <div className="flex items-start justify-between gap-2 mb-1.5">
                                 <p className="text-xs md:text-xs text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
                                 {ratingToDisplay >= 4.5 && (
-                                    <div className="flex shrink-0 items-center gap-1 text-xs md:text-xs font-black text-[#008009] uppercase bg-[#008009]/10 px-2 py-1 rounded-md">
+                                    <div className="flex shrink-0 items-center gap-1 text-xs md:text-xs font-black text-accent uppercase bg-accent/10 px-2 py-1 rounded-md">
                                         <Award className="w-3 h-3" /> <span>Best Value</span>
                                     </div>
                                 )}
@@ -759,12 +759,12 @@ const CarCard: React.FC<CarCardProps> = ({
                           </div>
 
                           <div className="mb-3 grid grid-cols-2 gap-1.5">
-                              <div className="p-2 bg-white rounded-xl border border-[#008009]/15 shadow-sm">
-                                  <p className="text-[10px] text-emerald-700 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
+                              <div className="p-2 bg-white rounded-xl border border-accent/15 shadow-sm">
+                                  <p className="text-[10px] text-accent font-black uppercase tracking-wide mb-1 flex items-center gap-1">
                                       <CreditCardIcon className="w-3 h-3" /> Pay now
                                   </p>
                                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                      <span className="text-sm font-black text-[#008009] tracking-tight">
+                                      <span className="text-sm font-black text-accent tracking-tight">
                                           {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
                                       </span>
                                   </div>
@@ -792,12 +792,12 @@ const CarCard: React.FC<CarCardProps> = ({
                               aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
                               className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-[9px] font-black uppercase tracking-[0.14em] transition-all active:scale-[0.98] ${
                                   isComparing
-                                    ? 'border-[#008009] bg-emerald-50 text-[#008009]'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:border-[#008009] hover:text-[#008009]'
+                                    ? 'border-accent bg-accent/5 text-accent'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:border-accent hover:text-accent'
                               }`}
                             >
                                 <span>Compare this car</span>
-                                <span className={`relative flex h-[18px] w-8 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-[#008009]' : 'bg-slate-200'}`}>
+                                <span className={`relative flex h-[18px] w-8 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-accent' : 'bg-slate-300'}`}>
                                     <span className={`h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-3.5' : 'translate-x-0'}`} />
                                 </span>
                             </button>
@@ -807,7 +807,7 @@ const CarCard: React.FC<CarCardProps> = ({
                             to={`/car/${car.id}?${searchParams}`}
                             state={{ cars: cars }}
                             onClick={handleSelectCar}
-                            className="group/btn block w-full bg-[#008009] hover:bg-[#006607] text-white font-black py-2.5 rounded-xl shadow-[0_8px_18px_-7px_rgba(0,128,9,0.55)] hover:shadow-xl transition-all active:scale-[0.97] text-center text-[10px] uppercase tracking-wider relative overflow-hidden"
+                            className="group/btn block w-full bg-accent hover:bg-accent-700 text-white font-black py-2.5 rounded-xl shadow-[0_8px_18px_-7px_rgba(0,122,194,0.55)] hover:shadow-xl transition-all active:scale-[0.97] text-center text-[10px] uppercase tracking-wider relative overflow-hidden"
                           >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                               <span className="relative z-10 flex items-center justify-center gap-2">

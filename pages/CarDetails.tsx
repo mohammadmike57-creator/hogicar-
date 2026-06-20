@@ -103,14 +103,14 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
   const PolicyRow = ({ label, value, tone = 'default' }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn' }) => (
     <div className="flex items-start justify-between gap-3 border-b border-slate-100 py-2.5 last:border-b-0">
       <span className="text-xs font-bold text-slate-500">{label}</span>
-      <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-[#008009]' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
+      <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-accent' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
     </div>
   );
 
   const ConditionCard = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
     <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <h4 className="mb-3 flex items-center gap-2 text-sm font-black text-slate-900">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#008009]/10 text-[#008009]">{icon}</span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">{icon}</span>
         {title}
       </h4>
       {children}
@@ -145,7 +145,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#008009]">Rental conditions</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-accent">Rental conditions</p>
                   <h3 className="text-lg font-black text-slate-950 truncate">{supplier.name}</h3>
                   <p className="text-xs font-bold text-slate-500 truncate">{car.displayName || `${car.make} ${car.model}`}</p>
                 </div>
@@ -174,9 +174,9 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
 
               <ConditionCard icon={<Users className="h-4 w-4" />} title="Required at pick-up">
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Shield className="mb-2 h-4 w-4 text-[#008009]" /><p className="text-xs font-black text-slate-900">Driving license</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Held for at least 1 year. International permit may be required.</p></div>
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Users className="mb-2 h-4 w-4 text-[#008009]" /><p className="text-xs font-black text-slate-900">Passport or ID</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">A valid photo ID matching the main driver details.</p></div>
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><CreditCardIcon className="mb-2 h-4 w-4 text-[#008009]" /><p className="text-xs font-black text-slate-900">Credit card</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Must have enough available funds for the deposit.</p></div>
+                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Shield className="mb-2 h-4 w-4 text-accent" /><p className="text-xs font-black text-slate-900">Driving license</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Held for at least 1 year. International permit may be required.</p></div>
+                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Users className="mb-2 h-4 w-4 text-accent" /><p className="text-xs font-black text-slate-900">Passport or ID</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">A valid photo ID matching the main driver details.</p></div>
+                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><CreditCardIcon className="mb-2 h-4 w-4 text-accent" /><p className="text-xs font-black text-slate-900">Credit card</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Must have enough available funds for the deposit.</p></div>
                 </div>
               </ConditionCard>
 
@@ -220,7 +220,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
         </div>
         <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <p className="text-xs font-semibold text-slate-500">Final acceptance depends on presenting the required documents and card at pickup.</p>
-          <button onClick={onClose} className="bg-[#008009] text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-[#006607] shadow-sm transition-transform active:scale-95">Got it</button>
+          <button onClick={onClose} className="bg-accent text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-accent-700 shadow-sm transition-transform active:scale-95">Got it</button>
         </div>
       </div>
     </div>
@@ -480,7 +480,7 @@ const CarDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto" /><p className="mt-4 text-slate-600">Loading car details...</p></div>
+        <div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-accent mx-auto" /><p className="mt-4 text-slate-600">Loading car details...</p></div>
       </div>
     );
   }
@@ -492,7 +492,7 @@ const CarDetails: React.FC = () => {
           <CarIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-800">Car Not Found</h1>
           <p className="text-slate-500 mt-2">{error || 'Please go back to search results.'}</p>
-          <button onClick={() => navigate(-1)} className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700">Back to Search</button>
+          <button onClick={() => navigate(-1)} className="mt-6 bg-accent text-white px-6 py-2 rounded-lg font-bold hover:bg-accent-700">Back to Search</button>
         </div>
       </div>
     );
@@ -527,7 +527,7 @@ const CarDetails: React.FC = () => {
                       <span className="hidden md:inline-block bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg">
                         {formatCategoryName(car.category)}
                       </span>
-                      {car.tags?.[0] && <span className="bg-[#008009] text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-[#008009]/20">{car.tags[0]}</span>}
+                      {car.tags?.[0] && <span className="bg-accent text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-accent/20">{car.tags[0]}</span>}
                     </div>
                     <button className="absolute top-6 right-6 bg-white/95 p-2.5 rounded-full shadow-xl border border-slate-100 hover:bg-slate-50 transition-all hover:scale-110 active:scale-95"><Heart className="w-5 h-5 text-slate-400" /></button>
                   </div>
@@ -541,7 +541,7 @@ const CarDetails: React.FC = () => {
                   )}
                   <div className="flex flex-wrap justify-between items-start gap-6">
                     <div className="flex-1 min-w-[240px]">
-                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#008009] mb-2">Reserved for you</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-accent mb-2">Reserved for you</p>
                       <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight leading-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
                       <p className="text-slate-500 text-sm font-bold mt-2 flex items-center gap-2">
                         <span className="text-slate-900">or similar</span> 
@@ -555,7 +555,7 @@ const CarDetails: React.FC = () => {
                         <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
                             {!car.isHogicarChoiceBranded ? (
                                 <div 
-                                  className="flex items-center gap-4 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-white hover:border-[#008009]/30 p-3 pr-5 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                                  className="flex items-center gap-4 group/rating relative cursor-pointer rounded-2xl border border-slate-200 bg-white hover:border-accent/30 p-3 pr-5 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -574,7 +574,7 @@ const CarDetails: React.FC = () => {
                                             <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                         </div>
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-1.5">
-                                            <CheckCircle className="w-3 h-3 text-[#008009]" />
+                                            <CheckCircle className="w-3 h-3 text-accent" />
                                             Verified Supplier
                                         </span>
                                     </div>
@@ -602,9 +602,9 @@ const CarDetails: React.FC = () => {
                         )}
                       </div>
                       {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
-                        <div className="bg-emerald-50 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 border border-[#008009]/10 shadow-sm">
-                          <Zap className="w-4 h-4 text-[#008009] fill-[#008009]/20" />
-                          <span className="text-[10px] font-black text-[#008009] uppercase tracking-[0.2em]">Instant confirmation</span>
+                        <div className="bg-accent-50 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 border border-accent/10 shadow-sm">
+                          <Zap className="w-4 h-4 text-accent fill-accent/20" />
+                          <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">Instant confirmation</span>
                         </div>
                       )}
                     </div>
@@ -612,9 +612,9 @@ const CarDetails: React.FC = () => {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
                     {[
-                      { icon: Users, label: `${car.passengers}`, desc: 'Seats', color: 'text-blue-600', bg: 'bg-blue-50' },
+                      { icon: Users, label: `${car.passengers}`, desc: 'Seats', color: 'text-accent', bg: 'bg-accent-50' },
                       { icon: Briefcase, label: `${car.bags}`, desc: 'Bags', color: 'text-amber-600', bg: 'bg-amber-50' },
-                      { icon: car.transmission === 'AUTOMATIC' ? AutomaticIcon : AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', desc: 'Gear', color: 'text-[#008009]', bg: 'bg-emerald-50' },
+                      { icon: car.transmission === 'AUTOMATIC' ? AutomaticIcon : AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', desc: 'Gear', color: 'text-accent', bg: 'bg-accent-50' },
                       { icon: Snowflake, label: 'A/C', desc: 'Climate', color: 'text-cyan-600', bg: 'bg-cyan-50' },
                     ].map(item => (
                       <div key={item.desc} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:shadow-md hover:border-slate-300">
@@ -628,16 +628,16 @@ const CarDetails: React.FC = () => {
                   </div>
 
                   <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                    <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3">
-                      <p className="text-xs font-black text-[#008009] flex items-center gap-2"><CheckCircle className="w-4 h-4" /> Free cancellation</p>
-                      <p className="text-[11px] text-emerald-800 font-semibold mt-1">Flexible booking before pickup.</p>
+                    <div className="rounded-xl bg-accent-50 border border-accent-100 p-3">
+                      <p className="text-xs font-black text-accent flex items-center gap-2"><CheckCircle className="w-4 h-4" /> Free cancellation</p>
+                      <p className="text-[11px] text-accent-800 font-semibold mt-1">Flexible booking before pickup.</p>
                     </div>
                     <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
-                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><GaugeCircle className="w-4 h-4 text-[#008009]" /> {car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</p>
+                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><GaugeCircle className="w-4 h-4 text-accent" /> {car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</p>
                       <p className="text-[11px] text-slate-500 font-semibold mt-1">Mileage policy shown before checkout.</p>
                     </div>
                     <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
-                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><Fuel className="w-4 h-4 text-[#008009]" /> {car.fuelPolicy.replace(/_/g, ' ')}</p>
+                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><Fuel className="w-4 h-4 text-accent" /> {car.fuelPolicy.replace(/_/g, ' ')}</p>
                       <p className="text-[11px] text-slate-500 font-semibold mt-1">Fuel condition from supplier.</p>
                     </div>
                   </div>
@@ -650,16 +650,16 @@ const CarDetails: React.FC = () => {
                   <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <h2 className="text-lg font-black flex items-center gap-3 text-slate-950 tracking-tight">
-                      <div className="bg-[#008009]/10 p-2 rounded-xl">
-                        <Plane className="w-5 h-5 text-[#008009]" />
+                      <div className="bg-accent/10 p-2 rounded-xl">
+                        <Plane className="w-5 h-5 text-accent" />
                       </div>
                       Rental Journey Itinerary
                     </h2>
                     <p className="mt-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest">Schedule & Locations</p>
                   </div>
-                  <div className="inline-flex items-center gap-2.5 rounded-2xl border border-[#008009]/20 bg-emerald-50/50 px-4 py-2 shadow-sm backdrop-blur-sm">
-                    <Clock className="w-4 h-4 text-[#008009]" />
-                    <span className="text-xs font-black text-[#008009] uppercase tracking-[0.1em]">{timeUntilPickup}</span>
+                  <div className="inline-flex items-center gap-2.5 rounded-2xl border border-accent/20 bg-accent-50/50 px-4 py-2 shadow-sm backdrop-blur-sm">
+                    <Clock className="w-4 h-4 text-accent" />
+                    <span className="text-xs font-black text-accent uppercase tracking-[0.1em]">{timeUntilPickup}</span>
                   </div>
                   </div>
                 </div>
@@ -671,11 +671,11 @@ const CarDetails: React.FC = () => {
                   
                   <div className="relative z-10 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
                     <div className="mb-6 flex items-start justify-between gap-4">
-                      <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#008009]/5 text-[#008009] ring-1 ring-[#008009]/10">
+                      <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/5 text-accent ring-1 ring-accent/10">
                         <PlaneLanding className="w-6 h-6" />
                       </span>
                       <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#008009]">Pick-up Location</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Pick-up Location</p>
                         <p className="mt-1 text-sm font-black text-slate-900">{pickupCode}</p>
                       </div>
                     </div>
@@ -737,7 +737,7 @@ const CarDetails: React.FC = () => {
               <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div>
-                    <h2 className="text-xl font-black flex items-center gap-2 text-slate-950"><GaugeCircle className="w-5 h-5 text-[#008009]" /> Vehicle details</h2>
+                    <h2 className="text-xl font-black flex items-center gap-2 text-slate-950"><GaugeCircle className="w-5 h-5 text-accent" /> Vehicle details</h2>
                     <p className="text-sm font-semibold text-slate-500 mt-1">The most important specs for this rental class.</p>
                   </div>
                   <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{formatCategoryName(car.category)}</span>
@@ -754,13 +754,13 @@ const CarDetails: React.FC = () => {
                     { icon: Hash, label: car.sippCode, desc: 'Vehicle code' }
                   ].map(spec => (
                     <div key={spec.label} className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-xl hover:shadow-sm transition">
-                      <spec.icon className="w-5 h-5 text-[#008009] mb-2" />
+                      <spec.icon className="w-5 h-5 text-accent mb-2" />
                       <span className="text-sm font-black text-slate-900 leading-tight">{spec.label}</span>
                       <span className="text-[11px] font-semibold text-slate-500">{spec.desc}</span>
                     </div>
                   ))}
                 </div>
-                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-5 text-[#008009] text-sm font-black flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
+                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-5 text-accent text-sm font-black flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
                 {showFullSpecs && (
                   <div className="mt-5 p-5 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div><span className="font-semibold">Fuel Policy:</span> {car.fuelPolicy}</div>
@@ -778,17 +778,17 @@ const CarDetails: React.FC = () => {
               {/* Extras Section - modern cards */}
               {car.extras && car.extras.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                  <h2 className="text-xl font-black mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-[#008009]" /> Optional extras</h2>
+                  <h2 className="text-xl font-black mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-accent" /> Optional extras</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {car.extras.map(extra => (
-                      <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-[#008009] bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
+                      <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-accent bg-accent-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-slate-100 rounded-lg"><PlusCircle className="w-5 h-5 text-slate-600" /></div>
                           <div><div className="font-semibold">{extra.name}</div><div className="text-sm text-slate-700">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="font-bold">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</div>
-                          {selectedExtraIds.includes(extra.id) && <Check className="w-5 h-5 text-green-600" />}
+                          {selectedExtraIds.includes(extra.id) && <Check className="w-5 h-5 text-accent" />}
                         </div>
                       </div>
                     ))}
@@ -797,18 +797,18 @@ const CarDetails: React.FC = () => {
               )}
 
               <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-slate-950"><ShieldCheck className="w-5 h-5 text-[#008009]" /> Included in your rate</h2>
+                <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-slate-950"><ShieldCheck className="w-5 h-5 text-accent" /> Included in your rate</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-700">
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-600" /> Supplier base rental and local taxes</p>
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-600" /> Transparent pay-now / pay-at-counter split</p>
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-600" /> Dedicated confirmation support</p>
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-600" /> Secure booking record and invoice trail</p>
+                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Supplier base rental and local taxes</p>
+                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Transparent pay-now / pay-at-counter split</p>
+                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Dedicated confirmation support</p>
+                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Secure booking record and invoice trail</p>
                 </div>
               </div>
 
               {/* Supplier Info with trust badges */}
               <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                <h2 className="text-xl font-black mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 text-[#008009]" /> {!car.isHogicarChoiceBranded ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
+                <h2 className="text-xl font-black mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 text-accent" /> {!car.isHogicarChoiceBranded ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
                 {!car.isHogicarChoiceBranded || car.supplier.name === 'Hogi Car Choice' ? (
                   <div className="flex flex-wrap items-center gap-6">
                     {car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
@@ -841,9 +841,9 @@ const CarDetails: React.FC = () => {
                                      <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                  </div>
                                  <span className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-[0.15em] flex items-center gap-1.5">
-                                     <CheckCircle className="w-3 h-3 text-[#008009]" />
-                                     Verified Rating
-                                 </span>
+                                    <CheckCircle className="w-3 h-3 text-accent" />
+                                    Verified Rating
+                                </span>
                              </div>
                              <DetailedRatingsTooltip
                                ratings={getCarRatings(car)}
@@ -866,12 +866,12 @@ const CarDetails: React.FC = () => {
                   </div>
                 )}
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Shield className="w-6 h-6 text-[#008009] mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Shield className="w-6 h-6 text-accent mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
                   <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Headphones className="w-6 h-6 text-blue-500 mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
+                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Headphones className="w-6 h-6 text-accent mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
                   <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
                 </div>
-                <button onClick={() => setIsConditionsModalOpen(true)} className="mt-8 flex items-center gap-2 text-[#008009] hover:text-[#006607] text-base font-black uppercase tracking-[0.1em] transition-colors group/cond">
+                <button onClick={() => setIsConditionsModalOpen(true)} className="mt-8 flex items-center gap-2 text-accent hover:text-accent-700 text-base font-black uppercase tracking-[0.1em] transition-colors group/cond">
                     <FileText className="w-6 h-6 group-hover/cond:scale-110 transition-transform" />
                     <span>View Full Rental Conditions</span>
                     <ArrowRight className="w-5 h-5 ml-1 group-hover/cond:translate-x-1 transition-transform" />
@@ -892,7 +892,7 @@ const CarDetails: React.FC = () => {
                       <p className="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Experience a superior category</p>
                     </div>
                     <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-2">
-                        <div className="w-2 h-2 rounded-full bg-[#008009] animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
                         <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Available Now</span>
                     </div>
                   </div>
@@ -908,7 +908,7 @@ const CarDetails: React.FC = () => {
                           navigate(`/car/${similar.id}?${bookingParams}`, { replace: true });
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left transition-all hover:-translate-y-1 hover:border-[#008009]/40 hover:shadow-[0_25px_50px_-12px_rgba(15,23,42,0.25)]"
+                        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_25px_50px_-12px_rgba(15,23,42,0.25)]"
                       >
                         <div className="relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden bg-slate-50 p-6">
                           <img 
@@ -923,7 +923,7 @@ const CarDetails: React.FC = () => {
                             }}
                             className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110" 
                           />
-                          <div className="absolute left-4 top-4 rounded-xl bg-white/95 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#008009] shadow-sm ring-1 ring-slate-200 backdrop-blur-md">
+                          <div className="absolute left-4 top-4 rounded-xl bg-white/95 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-accent shadow-sm ring-1 ring-slate-200 backdrop-blur-md">
                             {formatCategoryName(similar.category)}
                           </div>
                         </div>
@@ -931,16 +931,16 @@ const CarDetails: React.FC = () => {
                           <div className="min-w-0">
                             <div className="truncate text-lg font-black text-slate-950 tracking-tight">{similar.displayName}</div>
                             <div className="mt-4 grid grid-cols-3 gap-2.5">
-                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-emerald-50/50 group-hover:border-emerald-100">
-                                 <Users className="w-4 h-4 text-[#008009] mx-auto mb-1.5" />
+                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-accent-50/50 group-hover:border-accent-100">
+                                 <Users className="w-4 h-4 text-accent mx-auto mb-1.5" />
                                  <p className="text-xs font-black text-slate-900 leading-none">{similar.passengers}</p>
                               </div>
-                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-emerald-50/50 group-hover:border-emerald-100">
-                                 <Briefcase className="w-4 h-4 text-[#008009] mx-auto mb-1.5" />
+                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-accent-50/50 group-hover:border-accent-100">
+                                 <Briefcase className="w-4 h-4 text-accent mx-auto mb-1.5" />
                                  <p className="text-xs font-black text-slate-900 leading-none">{similar.bags}</p>
                               </div>
-                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-emerald-50/50 group-hover:border-emerald-100">
-                                 <AutomaticIcon className="w-4 h-4 text-[#008009] mx-auto mb-1.5" />
+                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-accent-50/50 group-hover:border-accent-100">
+                                 <AutomaticIcon className="w-4 h-4 text-accent mx-auto mb-1.5" />
                                  <p className="text-xs font-black text-slate-900 leading-none">{similar.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}</p>
                               </div>
                             </div>
@@ -950,7 +950,7 @@ const CarDetails: React.FC = () => {
                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total</p>
                               <p className="text-xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)}</p>
                             </div>
-                            <span className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-5 text-[11px] font-black uppercase tracking-widest text-white transition-all group-hover:bg-[#008009] group-hover:shadow-lg group-hover:shadow-[#008009]/20">
+                            <span className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-5 text-[11px] font-black uppercase tracking-widest text-white transition-all group-hover:bg-accent group-hover:shadow-lg group-hover:shadow-accent/20">
                               Choose
                               <ArrowRight className="w-3.5 h-3.5" />
                             </span>
@@ -967,7 +967,7 @@ const CarDetails: React.FC = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-20 space-y-4">
                 <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] p-6 border border-slate-200 relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#008009] to-emerald-400"></div>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-accent-400"></div>
                   
                   {/* Price lock timer */}
                   <div className="bg-slate-950 text-white p-4 rounded-2xl mb-6 flex justify-between items-center shadow-lg">
@@ -976,22 +976,22 @@ const CarDetails: React.FC = () => {
                       <div className="font-mono font-black text-2xl tracking-tighter mt-0.5">{formatTime(timeLeft)}</div>
                     </div>
                     <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-md">
-                      <Clock className="w-6 h-6 text-emerald-400" />
+                      <Clock className="w-6 h-6 text-accent" />
                     </div>
                   </div>
                   <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
                         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">Pay now</p>
-                        <p className="mt-1 text-2xl font-black tracking-tight text-[#008009]">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                        <p className="mt-1 text-2xl font-black tracking-tight text-accent">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                       </div>
                       <div className="rounded-xl bg-white p-3 text-right ring-1 ring-slate-200">
                         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">At counter</p>
                         <p className="mt-1 text-lg font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
                       </div>
                     </div>
-                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-[11px] font-bold text-emerald-800 ring-1 ring-emerald-100">
-                      <ShieldCheck className="h-4 w-4 text-[#008009]" />
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-accent-50 px-3 py-2 text-[11px] font-bold text-accent-800 ring-1 ring-accent-100">
+                      <ShieldCheck className="h-4 w-4 text-accent" />
                       Includes mandatory taxes, supplier fees, and booking support.
                     </div>
                   </div>
@@ -1014,28 +1014,28 @@ const CarDetails: React.FC = () => {
                   <div className="mb-5">
                     <div className="flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2">
                       <input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 bg-transparent px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none placeholder:text-slate-400" />
-                      <button onClick={handleApplyPromo} className="rounded-xl bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-[#008009]">Apply</button>
+                      <button onClick={handleApplyPromo} className="rounded-xl bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-accent">Apply</button>
                     </div>
                     {promoError && <p className="mt-2 text-xs font-bold text-red-600">{promoError}</p>}
                     {appliedPromo && <p className="mt-2 text-xs font-bold text-green-700">✓ {appliedPromo.code} applied</p>}
                   </div>
                   <div className="mb-5 grid gap-2">
-                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'basic' ? 'border-[#008009]/30 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
-                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-[#008009]" /><span><span className="block text-sm font-black text-slate-950">Basic cover included</span><span className="text-[11px] font-semibold text-slate-500">Standard supplier coverage</span></span></span>
-                      <span className="text-xs font-black text-[#008009]">Included</span>
+                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'basic' ? 'border-accent/30 bg-accent-50' : 'border-slate-200 bg-white'}`}>
+                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-accent" /><span><span className="block text-sm font-black text-slate-950">Basic cover included</span><span className="text-[11px] font-semibold text-slate-500">Standard supplier coverage</span></span></span>
+                      <span className="text-xs font-black text-accent">Included</span>
                     </label>
-                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'full' ? 'border-[#008009]/30 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
-                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-[#008009]" /><span><span className="block text-sm font-black text-slate-950">Full protection</span><span className="text-[11px] font-semibold text-slate-500">Extra peace of mind</span></span></span>
+                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'full' ? 'border-accent/30 bg-accent-50' : 'border-slate-200 bg-white'}`}>
+                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-accent" /><span><span className="block text-sm font-black text-slate-950">Full protection</span><span className="text-[11px] font-semibold text-slate-500">Extra peace of mind</span></span></span>
                       <span className="text-xs font-black text-slate-950">+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)}</span>
                     </label>
                   </div>
-                  <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="block w-full rounded-2xl bg-[#008009] py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(0,128,9,0.75)] transition hover:-translate-y-0.5 hover:bg-[#006607] active:scale-[0.98]">Continue to book</Link>
+                  <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="block w-full rounded-2xl bg-accent py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(0,122,194,0.75)] transition hover:-translate-y-0.5 hover:bg-accent-700 active:scale-[0.98]">Continue to book</Link>
                   <div className="mt-4 flex items-center justify-center gap-2 opacity-75"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-[#eaf7ef] rounded-xl p-3 border border-green-200/80"><div className="flex gap-2"><ShieldCheck className="w-5 h-5 text-green-600 shrink-0" /><div><div className="text-xs font-black">Free cancellation</div><div className="text-[11px] text-slate-700">Before pickup</div></div></div></div>
-                  <div className="bg-white rounded-xl p-3 border border-slate-200"><div className="flex gap-2"><Headphones className="w-5 h-5 text-blue-600 shrink-0" /><div><div className="text-xs font-black">24/7 support</div><div className="text-[11px] text-slate-700">Anytime help</div></div></div></div>
+                  <div className="bg-white rounded-xl p-3 border border-slate-200"><div className="flex gap-2"><Headphones className="w-5 h-5 text-accent shrink-0" /><div><div className="text-xs font-black">24/7 support</div><div className="text-[11px] text-slate-700">Anytime help</div></div></div></div>
                 </div>
                 <div className="bg-white rounded-xl p-3 border border-slate-200">
                   <h4 className="text-xs font-black text-slate-900 mb-2">Booking checklist</h4>
@@ -1056,9 +1056,9 @@ const CarDetails: React.FC = () => {
             <div className="min-w-0">
               <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Total price</div>
               <div className="text-xl font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div>
-              <div className="text-[10px] font-bold text-[#008009]">Pay now {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</div>
+              <div className="text-[10px] font-bold text-accent">Pay now {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</div>
             </div>
-            <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="shrink-0 rounded-2xl bg-[#008009] px-6 py-3.5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_-16px_rgba(0,128,9,0.8)] transition active:scale-95">Book now</Link>
+            <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="shrink-0 rounded-2xl bg-accent px-6 py-3.5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_-16px_rgba(0,122,194,0.8)] transition active:scale-95">Book now</Link>
           </div>
         </div>
       </div>

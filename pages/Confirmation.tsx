@@ -89,7 +89,7 @@ const Confirmation: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-white">
         <div className="text-center p-4 flex flex-col items-center gap-4">
-          <LoaderCircle className="w-12 h-12 text-blue-600 animate-spin" />
+          <LoaderCircle className="w-12 h-12 text-accent animate-spin" />
           <h2 className="text-xl font-bold text-slate-800">Loading Your Confirmation...</h2>
         </div>
       </div>
@@ -108,7 +108,7 @@ const Confirmation: React.FC = () => {
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4"/>
           <h2 className="text-xl font-bold text-slate-800">{apiError || 'Booking Not Found'}</h2>
           <p className="mt-2 text-slate-500">The booking reference may be invalid or has expired.</p>
-          <Link to="/" className="mt-6 inline-block bg-blue-600 text-white font-bold px-4 py-2 rounded-lg">Return to Home</Link>
+          <Link to="/" className="mt-6 inline-block bg-accent text-white font-bold px-4 py-2 rounded-lg">Return to Home</Link>
         </div>
       </div>
     );
@@ -165,7 +165,7 @@ const Confirmation: React.FC = () => {
               <p className="text-slate-600 mt-2">A confirmation email has been sent to <strong className="text-slate-800">{booking.email}</strong>.</p>
               <div className="mt-4 inline-block">
                 <p className="text-sm text-slate-500">Your Booking Reference:</p>
-                <p className="font-mono text-xl font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-md px-4 py-2 mt-1">{booking.bookingRef || booking.id}</p>
+                <p className="font-mono text-xl font-bold text-accent bg-accent/5 border border-accent/20 rounded-md px-4 py-2 mt-1">{booking.bookingRef || booking.id}</p>
               </div>
             </div>
 
@@ -193,8 +193,8 @@ const Confirmation: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <p className="font-bold text-slate-800 text-lg uppercase">{carDisplay.make} {carDisplay.model}</p>
                         {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
-                          <div className="flex items-center gap-1 bg-emerald-50 text-[#008009] px-2 py-0.5 rounded text-[10px] font-black uppercase border border-emerald-100 shadow-sm">
-                             <Zap className="w-2.5 h-2.5 fill-[#008009]/20" />
+                          <div className="flex items-center gap-1 bg-accent/5 text-accent px-2 py-0.5 rounded text-[10px] font-black uppercase border border-accent/10 shadow-sm">
+                             <Zap className="w-2.5 h-2.5 fill-accent/20" />
                              Instant
                           </div>
                         )}
@@ -202,7 +202,7 @@ const Confirmation: React.FC = () => {
                       <p className="text-sm text-slate-500 uppercase font-medium">{carDisplay.category}</p>
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
                         {carDisplay.sippCode && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded uppercase tracking-tighter">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-accent/5 text-accent border border-accent/10 rounded uppercase tracking-tighter">
                             SIPP: {carDisplay.sippCode}
                           </span>
                         )}
@@ -247,7 +247,7 @@ const Confirmation: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pick-up</h3>
                   <div className="flex items-start gap-3">
-                    <div className="bg-blue-50 p-2 rounded text-blue-600"><Calendar className="w-5 h-5" /></div>
+                    <div className="bg-accent/5 p-2 rounded text-accent"><Calendar className="w-5 h-5" /></div>
                     <div>
                       <p className="font-bold text-slate-900">{new Date(booking.pickupDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.startTime || '10:00'}</p>
                       <p className="text-sm text-slate-600 mt-1">{carDisplay.location}</p>
@@ -257,7 +257,7 @@ const Confirmation: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Drop-off</h3>
                   <div className="flex items-start gap-3">
-                    <div className="bg-blue-50 p-2 rounded text-blue-600"><Calendar className="w-5 h-5" /></div>
+                    <div className="bg-accent/5 p-2 rounded text-accent"><Calendar className="w-5 h-5" /></div>
                     <div>
                       <p className="font-bold text-slate-900">{new Date(booking.dropoffDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.endTime || '10:00'}</p>
                       <p className="text-sm text-slate-600 mt-1">{carDisplay.location}</p>
@@ -293,7 +293,7 @@ const Confirmation: React.FC = () => {
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#008009] hover:bg-[#006607] text-white font-black py-3.5 px-8 rounded-xl shadow-lg shadow-green-100 transition-all active:scale-95 uppercase tracking-widest text-sm">
+              <Link to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-accent hover:bg-accent-700 text-white font-black py-3.5 px-8 rounded-xl shadow-lg shadow-accent/10 transition-all active:scale-95 uppercase tracking-widest text-sm">
                 <FileText className="w-5 h-5"/> View Full Voucher
               </Link>
               <Link to="/my-bookings" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3.5 px-8 rounded-xl shadow-sm transition-colors text-sm uppercase tracking-widest">

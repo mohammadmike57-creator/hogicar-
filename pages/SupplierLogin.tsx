@@ -84,7 +84,7 @@ const SupplierLogin: React.FC = () => {
                 />
                 <div className="absolute inset-y-0 left-0 hidden lg:block w-[62%] border-r border-white/10" />
                 <div className="absolute inset-y-0 right-0 hidden lg:block w-[38%] bg-white" />
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-600 via-emerald-500 to-slate-950" />
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-accent via-emerald-500 to-slate-950" />
                 <div className="absolute left-8 bottom-8 hidden lg:flex items-center gap-3 text-white/10">
                     <Car className="w-48 h-48" />
                     <div className="h-px w-72 bg-white/10" />
@@ -133,7 +133,7 @@ const SupplierLogin: React.FC = () => {
                                 className="group cursor-default"
                             >
                                 <div className="p-5 rounded-card bg-white/10 border border-white/15 shadow-sm group-hover:bg-white/[0.14] transition-all duration-500">
-                                    <div className="w-10 h-10 rounded-card bg-white/10 flex items-center justify-center text-blue-200 mb-4 transition-all">
+                                    <div className="w-10 h-10 rounded-card bg-white/10 flex items-center justify-center text-accent-200 mb-4 transition-all">
                                         <feature.icon className="w-5 h-5" />
                                     </div>
                                     <h3 className="text-white font-extrabold text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
@@ -180,7 +180,7 @@ const SupplierLogin: React.FC = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-extrabold"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all text-xs font-extrabold"
                                     placeholder="Username or Email"
                                     disabled={isLoading}
                                 />
@@ -201,7 +201,7 @@ const SupplierLogin: React.FC = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-extrabold"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all text-xs font-extrabold"
                                     placeholder="••••••••"
                                     disabled={isLoading}
                                 />
@@ -249,7 +249,7 @@ const SupplierLogin: React.FC = () => {
                     <div className="mt-8 text-center">
                         <p className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
                             New partner?{' '}
-                            <Link to="/apply" className="text-[#007ac2] hover:text-slate-900 transition-colors ml-1 border-b-2 border-blue-100 hover:border-slate-900 pb-0.5">Application Form</Link>
+                            <Link to="/apply" className="text-accent hover:text-slate-900 transition-colors ml-1 border-b-2 border-accent/20 hover:border-slate-900 pb-0.5">Application Form</Link>
                         </p>
                     </div>
                 </motion.div>

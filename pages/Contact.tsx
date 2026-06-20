@@ -59,7 +59,7 @@ const Contact = () => {
             <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100">
               {isSubmitted ? (
                 <div className="text-center py-12">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 text-green-600 rounded-full mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mb-6">
                     <CheckCircle className="w-8 h-8" />
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
@@ -68,7 +68,7 @@ const Contact = () => {
                   </p>
                   <button 
                     onClick={() => setIsSubmitted(false)}
-                    className="px-6 py-3 bg-[#007ac2] text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors"
+                    className="px-6 py-3 bg-accent text-white font-bold rounded-full hover:bg-accent transition-colors"
                   >
                     Send Another Message
                   </button>
@@ -87,7 +87,7 @@ const Contact = () => {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
+                        className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none"
                         placeholder="John Doe"
                       />
                     </div>
@@ -102,7 +102,7 @@ const Contact = () => {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
+                        className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none"
                         placeholder="john@example.com"
                       />
                     </div>
@@ -118,7 +118,7 @@ const Contact = () => {
                       required
                       value={formData.reason}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none bg-white"
+                      className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none bg-white"
                     >
                       <option value="" disabled>Select a reason...</option>
                       <option value="booking_issue">Issue with a Booking</option>
@@ -141,14 +141,14 @@ const Contact = () => {
                       rows={5}
                       value={formData.message}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none resize-y"
+                      className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none resize-y"
                       placeholder="Please provide details about your inquiry..."
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white font-bold rounded-card hover:bg-[#007ac2] transition-colors shadow-md hover:shadow-lg"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white font-bold rounded-card hover:bg-accent transition-colors shadow-md hover:shadow-lg"
                   >
                     <Send className="w-5 h-5" />
                     Send Message

@@ -54,7 +54,7 @@ const Voucher: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <LoaderCircle className="w-10 h-10 text-blue-600 animate-spin" />
+        <LoaderCircle className="w-10 h-10 text-accent animate-spin" />
       </div>
     );
   }
@@ -64,7 +64,7 @@ const Voucher: React.FC = () => {
       <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
         <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
         <h1 className="text-2xl font-bold text-slate-800">{error || "Booking Not Found"}</h1>
-        <Link to="/" className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Return Home</Link>
+        <Link to="/" className="mt-6 bg-accent text-white px-6 py-2 rounded-lg font-bold">Return Home</Link>
       </div>
     );
   }
@@ -121,7 +121,7 @@ const Voucher: React.FC = () => {
           <div className="flex flex-col items-center sm:items-end gap-3">
             <div className="text-center sm:text-right">
               <h1 className="text-white text-xl font-black uppercase tracking-widest print:text-slate-900">Official Rental Voucher</h1>
-              <p className="text-blue-300 text-sm font-bold print:text-slate-500">Reference: {booking.bookingRef}</p>
+              <p className="text-accent-300 text-sm font-bold print:text-slate-500">Reference: {booking.bookingRef}</p>
             </div>
             <button 
               onClick={() => window.print()}
@@ -181,7 +181,7 @@ const Voucher: React.FC = () => {
                
                <div className="relative z-10">
                     <div>
-                      <div className="bg-blue-600 text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
+                      <div className="bg-accent text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
                         {booking.carCategory || 'Standard Class'}
                       </div>
                       <h2 className="text-2xl font-black text-slate-900 leading-tight uppercase">
@@ -192,9 +192,9 @@ const Voucher: React.FC = () => {
                       </p>
                       
                       <div className="flex flex-wrap gap-4 mt-4 text-[11px] font-bold text-slate-600">
-                        <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-blue-500" /> {booking.carPassengers} seats</span>
-                        <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-blue-500" /> {booking.carBags} bags</span>
-                        <span className="flex items-center gap-1.5 font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">SIPP: {booking.carSippCode}</span>
+                        <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-accent" /> {booking.carPassengers} seats</span>
+                        <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-accent" /> {booking.carBags} bags</span>
+                        <span className="flex items-center gap-1.5 font-mono bg-accent/10 text-accent px-2 py-0.5 rounded uppercase">SIPP: {booking.carSippCode}</span>
                       </div>
                     </div>
                </div>
@@ -226,7 +226,7 @@ const Voucher: React.FC = () => {
                       </div>
                       <div className="relative z-10 bg-white px-4 flex flex-col items-center">
                         <div className="bg-slate-50 p-1.5 rounded-full border border-slate-100 shadow-sm mb-1">
-                          <CarIcon className="w-4 h-4 text-[#008009] rotate-90 md:rotate-0" />
+                          <CarIcon className="w-4 h-4 text-accent rotate-90 md:rotate-0" />
                         </div>
                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] bg-white px-2">
                            Rental Journey
@@ -252,7 +252,7 @@ const Voucher: React.FC = () => {
 
           <div className="print-two-cols grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 print-section-gap">
              <div className="print-card p-5 bg-slate-50 rounded-xl border border-slate-200">
-                <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                <h3 className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5" /> Pick-up Location
                 </h3>
                 <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.pickupLocationName || booking.pickupCode}</p>
@@ -295,14 +295,14 @@ const Voucher: React.FC = () => {
              </div>
 
              <div className="print-card w-full md:w-80 bg-[#0f172a] rounded-2xl p-6 text-white shadow-xl print:text-slate-900 print:bg-white print:border print:shadow-none">
-                <h3 className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 print:text-slate-500 print:border-slate-200">Financial Summary</h3>
+                <h3 className="text-[10px] font-black text-accent-300 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 print:text-slate-500 print:border-slate-200">Financial Summary</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-blue-200/60 print:text-slate-500">PAID ONLINE</span>
-                    <span className="font-mono font-bold text-emerald-400 print:text-emerald-700">{renderPrice(booking.payNow)}</span>
+                    <span className="text-accent-200/60 print:text-slate-500">PAID ONLINE</span>
+                    <span className="font-mono font-bold text-accent-400 print:text-emerald-700">{renderPrice(booking.payNow)}</span>
                   </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-blue-200/60 print:text-slate-500 uppercase">Pay at desk (Net Rate)</span>
+                  <span className="text-accent-200/60 print:text-slate-500 uppercase">Pay at desk (Net Rate)</span>
                   <span className="font-mono font-bold">{renderPrice(booking.payAtDesk || booking.netPrice)}</span>
                 </div>
                   <div className="pt-4 border-t border-white/10 flex justify-between items-center print:border-slate-200">
@@ -310,7 +310,7 @@ const Voucher: React.FC = () => {
                     <span className="text-2xl font-black">{renderPrice(booking.finalPrice)}</span>
                   </div>
                 </div>
-                <div className="mt-6 pt-4 border-t border-white/5 text-[9px] text-blue-200/40 text-center uppercase tracking-tighter print:text-slate-400">
+                <div className="mt-6 pt-4 border-t border-white/5 text-[9px] text-accent-200/40 text-center uppercase tracking-tighter print:text-slate-400">
                   Prices include all mandatory taxes & local fees.
                 </div>
              </div>
@@ -318,7 +318,7 @@ const Voucher: React.FC = () => {
           <div className="voucher-print-hide mt-12 pt-8 border-t border-slate-100 print:hidden">
              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
                 <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
-                   <ShieldCheck className="w-4 h-4 text-[#008009]" /> Hogicar Quality Guarantee
+                   <ShieldCheck className="w-4 h-4 text-accent" /> Hogicar Quality Guarantee
                 </h3>
                 <p className="text-[11px] text-slate-500 leading-relaxed uppercase tracking-tighter">
                    This rental voucher is a legal agreement between the customer and the rental provider. Hogicar ensures all providers adhere to our strict quality standards. Please ensure you have all required documentation listed above to avoid delays at the rental desk. Safe travels!
@@ -329,7 +329,7 @@ const Voucher: React.FC = () => {
 
         {/* Print Footer */}
         <div className="voucher-print-hide p-8 bg-slate-50 border-t border-slate-200 flex justify-center gap-4 print:hidden">
-          <button onClick={() => window.print()} className="flex items-center gap-2 bg-[#008009] hover:bg-[#006607] text-white font-black py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95 uppercase tracking-widest text-xs">
+          <button onClick={() => window.print()} className="flex items-center gap-2 bg-accent hover:bg-accent-700 text-white font-black py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95 uppercase tracking-widest text-xs">
             <Printer className="w-5 h-5"/> Save PDF / Print
           </button>
           <Link to="/" className="flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3 px-8 rounded-xl transition-all uppercase tracking-widest text-xs">
