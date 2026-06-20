@@ -34,7 +34,7 @@ export const getRatingDescription = (rating: number): string => {
 
 export const getRatingColor = (rating: number): string => {
     const score = normalizeRatingScore(rating);
-    if (score >= 8.5) return 'bg-[#008009]';
+    if (score >= 8.5) return 'bg-[#007ac2]';
     if (score >= 7.0) return 'bg-emerald-600';
     if (score >= 6.0) return 'bg-lime-600';
     if (score >= 5.0) return 'bg-amber-500';
@@ -44,7 +44,7 @@ export const getRatingColor = (rating: number): string => {
 
 export const getRatingTextColor = (rating: number): string => {
     const score = normalizeRatingScore(rating);
-    if (score >= 8.5) return 'text-[#008009]';
+    if (score >= 8.5) return 'text-[#007ac2]';
     if (score >= 7.0) return 'text-emerald-700';
     if (score >= 6.0) return 'text-lime-700';
     if (score >= 5.0) return 'text-amber-700';

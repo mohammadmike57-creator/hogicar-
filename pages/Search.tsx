@@ -636,7 +636,7 @@ export const Search: React.FC = () => {
         title={`Car Hire in ${location || 'Top Destinations'} | Hogicar`}
         description={`Find the best car rental deals in ${location}. Compare prices from top suppliers like Hertz, Avis, and more.`}
     />
-    <div className="bg-slate-50 min-h-screen pb-12">
+    <div className="bg-white min-h-screen pb-12">
       {/* Search Header */}
       <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
         <div className="max-w-[1600px] mx-auto px-2 py-1.5 sm:px-6 sm:py-2.5 lg:px-8">

@@ -206,29 +206,29 @@ type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fl
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => {
   const colors: any = { 
-    blue: 'bg-blue-50 text-blue-700 ring-blue-100',
+    blue: 'bg-blue-50 text-[#007ac2] ring-blue-100',
     green: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
     orange: 'bg-amber-50 text-amber-700 ring-amber-100',
     purple: 'bg-violet-50 text-violet-700 ring-violet-100'
   };
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl hover:shadow-slate-200/70 border border-slate-200 flex flex-col justify-between relative overflow-hidden group transition-all">
+      className="bg-white rounded-card p-5 shadow-sm hover:shadow-xl hover:shadow-slate-200/70 border border-slate-200 flex flex-col justify-between relative overflow-hidden group transition-all">
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-slate-800 to-emerald-500" />
       <div className="flex items-center justify-between mb-5 relative z-10">
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
+        <div className={`w-11 h-11 rounded-card flex items-center justify-center ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
           <Icon className="w-5 h-5" />
         </div>
         {change && (
-          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${change.startsWith('+') ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-red-700 bg-red-50 border-red-100'}`}>
+          <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${change.startsWith('+') ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-red-700 bg-red-50 border-red-100'}`}>
             {change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             {change}
           </span>
         )}
       </div>
       <div className="relative z-10">
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.18em] mb-2">{title}</p>
-        <p className="text-3xl font-black text-slate-950 tracking-tight">{value}</p>
+        <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-[0.18em] mb-2">{title}</p>
+        <p className="text-3xl font-extrabold text-slate-950 tracking-tight">{value}</p>
       </div>
     </motion.div>
   );
@@ -237,9 +237,9 @@ const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => 
 const SectionHeader = ({ title, subtitle, icon: Icon, action }: any) => (
   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
     <div className="flex items-center gap-4">
-      {Icon && <div className="w-10 h-10 rounded-xl bg-slate-950 text-white flex items-center justify-center border border-slate-800 shadow-sm"><Icon className="w-5 h-5" /></div>}
+      {Icon && <div className="w-10 h-10 rounded-card bg-slate-950 text-white flex items-center justify-center border border-slate-800 shadow-sm"><Icon className="w-5 h-5" /></div>}
       <div>
-        <h2 className="text-xl font-black text-slate-950 tracking-tight">{title}</h2>
+        <h2 className="text-xl font-extrabold text-slate-950 tracking-tight">{title}</h2>
         {subtitle && <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">{subtitle}</p>}
       </div>
     </div>
@@ -250,7 +250,7 @@ const SectionHeader = ({ title, subtitle, icon: Icon, action }: any) => (
 const InputField = ({ label, error, helperText, ...props }: any) => (
   <div className="space-y-1">
     <label className="block text-xs font-medium text-gray-600">{label}</label>
-    <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500`} />
+    <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500`} />
     {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
     {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
   </div>
@@ -259,7 +259,7 @@ const InputField = ({ label, error, helperText, ...props }: any) => (
 const SelectField = ({ label, options, error, ...props }: any) => (
   <div className="space-y-1">
     <label className="block text-xs font-medium text-gray-600">{label}</label>
-    <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white`}>
+    <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white`}>
       {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
     {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
@@ -267,7 +267,7 @@ const SelectField = ({ label, options, error, ...props }: any) => (
 );
 
 const TextAreaField = ({ label, ...props }: any) => (
-  <div className="space-y-1"><label className="block text-xs font-medium text-gray-600">{label}</label><textarea {...props} className="w-full px-3 py-2 border border-gray-200 rounded-xl" /></div>
+  <div className="space-y-1"><label className="block text-xs font-medium text-gray-600">{label}</label><textarea {...props} className="w-full px-3 py-2 border border-gray-200 rounded-card" /></div>
 );
 
 const GlobalLocationsContent = () => {
@@ -340,13 +340,13 @@ const GlobalLocationsContent = () => {
           <div className="flex items-center gap-3 mb-4">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by code, city or name..." className="w-full pl-9 pr-3 py-2 border rounded-xl" />
+              <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by code, city or name..." className="w-full pl-9 pr-3 py-2 border rounded-card" />
             </div>
-            <button onClick={() => load(filter)} className="px-3 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
+            <button onClick={() => load(filter)} className="px-3 py-2 rounded-card bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh
             </button>
           </div>
-          <div className="overflow-auto rounded-2xl border">
+          <div className="overflow-auto rounded-card border">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50">
                 <tr>
@@ -364,11 +364,11 @@ const GlobalLocationsContent = () => {
                     <td className="p-3 font-mono text-xs">{l.iataCode || "-"}</td>
                     <td className="p-3">{l.name}</td>
                     <td className="p-3">{l.municipality}</td>
-                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === "Airport" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-600"}`}>{l.type || "City"}</span></td>
+                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === "Airport" ? "bg-blue-50 text-[#007ac2]" : "bg-slate-100 text-slate-600"}`}>{l.type || "City"}</span></td>
                     <td className="p-3">{l.countryCode}</td>
                     <td className="p-3 text-right">
-                      <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-lg bg-blue-50 text-blue-800 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
-                      <button onClick={() => handleDelete(l.id)} className="px-3 py-1.5 text-xs rounded-lg bg-red-50 text-red-700 font-bold"><Trash2 className="w-3 h-3 inline mr-1"/> Delete</button>
+                      <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-card bg-blue-50 text-blue-800 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
+                      <button onClick={() => handleDelete(l.id)} className="px-3 py-1.5 text-xs rounded-card bg-red-50 text-red-700 font-bold"><Trash2 className="w-3 h-3 inline mr-1"/> Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -381,8 +381,8 @@ const GlobalLocationsContent = () => {
             </table>
           </div>
         </div>
-        <div className="bg-slate-50/50 rounded-2xl p-4 border">
-          <h3 className="font-black mb-3 text-slate-900">{editingId ? "Edit Location" : "Add New Location"}</h3>
+        <div className="bg-slate-50/50 rounded-card p-4 border">
+          <h3 className="font-extrabold mb-3 text-slate-900">{editingId ? "Edit Location" : "Add New Location"}</h3>
           <div className="space-y-3">
             <SelectField label="Type" value={form.type} onChange={(e: any) => setForm({ ...form, type: e.target.value })} options={[{value: "Airport", label: "Airport"}, {value: "city", label: "Down Town / City"}]} />
             <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} placeholder={form.type === "Airport" ? "e.g. AMM" : "Optional (e.g. AMMAN_DT)"} />
@@ -390,8 +390,8 @@ const GlobalLocationsContent = () => {
             <InputField label="City" value={form.municipality} onChange={(e: any) => setForm({ ...form, municipality: e.target.value })} />
             <InputField label="Country Code" value={form.countryCode} onChange={(e: any) => setForm({ ...form, countryCode: e.target.value })} />
             <div className="flex gap-2 pt-2">
-              <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-2 rounded-xl bg-blue-700 text-white font-bold text-sm disabled:opacity-50"><Save className="w-4 h-4 inline mr-1" /> Save</button>
-              <button onClick={resetForm} className="px-4 py-2 rounded-xl bg-white border font-bold text-sm">Reset</button>
+              <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-2 rounded-card bg-[#007ac2] text-white font-bold text-sm disabled:opacity-50"><Save className="w-4 h-4 inline mr-1" /> Save</button>
+              <button onClick={resetForm} className="px-4 py-2 rounded-card bg-white border font-bold text-sm">Reset</button>
             </div>
           </div>
         </div>
@@ -401,7 +401,7 @@ const GlobalLocationsContent = () => {
 };
 
 const Badge = ({ status }: { status: string }) => {
-  const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-blue-100 text-blue-800', approved: 'bg-blue-100 text-blue-700', rejected: 'bg-red-100 text-red-700' };
+  const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-blue-100 text-blue-800', approved: 'bg-blue-100 text-[#007ac2]', rejected: 'bg-red-100 text-red-700' };
   return <span className={`px-2 py-1 text-xs font-bold rounded-full border ${colors[status] || 'bg-gray-100'}`}>{status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}</span>;
 };
 
@@ -412,7 +412,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
-        className={`bg-white rounded-2xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] flex flex-col`} onClick={e => e.stopPropagation()}>
+        className={`bg-white rounded-card shadow-2xl w-full ${sizes[size]} max-h-[90vh] flex flex-col`} onClick={e => e.stopPropagation()}>
         <div className="p-6 border-b flex justify-between items-center"><h2 className="text-xl font-bold">{title}</h2><button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full"><X className="w-5 h-5" /></button></div>
         <div className="flex-grow overflow-y-auto p-6">{children}</div>
       </motion.div>
@@ -430,19 +430,19 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
         whileHover={{ x: 4 }} 
         whileTap={{ scale: 0.98 }}
         onClick={() => { setActiveSection(section); setIsOpen(false); }}
-        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-300 group ${active ? 'bg-white text-slate-950 shadow-lg shadow-black/20' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+        className={`flex items-center justify-between w-full px-4 py-3 rounded-card transition-all duration-300 group ${active ? 'bg-white text-slate-950 shadow-lg shadow-black/20' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
       >
         <div className="flex items-center gap-3.5">
-            <div className={`p-2 rounded-lg transition-all duration-300 ${active ? 'bg-blue-50' : 'bg-white/5 group-hover:bg-white/10'}`}>
-                <Icon className={`w-4 h-4 transition-colors ${active ? 'text-blue-700' : 'text-slate-500 group-hover:text-white'}`} />
+            <div className={`p-2 rounded-card transition-all duration-300 ${active ? 'bg-blue-50' : 'bg-white/5 group-hover:bg-white/10'}`}>
+                <Icon className={`w-4 h-4 transition-colors ${active ? 'text-[#007ac2]' : 'text-slate-500 group-hover:text-white'}`} />
             </div>
-            <span className={`text-[13px] font-black tracking-tight ${active ? 'text-slate-950' : 'text-slate-300 group-hover:text-white'}`}>{label}</span>
+            <span className={`text-[13px] font-extrabold tracking-tight ${active ? 'text-slate-950' : 'text-slate-300 group-hover:text-white'}`}>{label}</span>
         </div>
         {count !== undefined && count > 0 && (
             <motion.span 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className={`text-[10px] font-black px-2 py-1 rounded-full ${active ? 'bg-blue-50 text-blue-700' : 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'}`}
+                className={`text-[10px] font-extrabold px-2 py-1 rounded-full ${active ? 'bg-blue-50 text-[#007ac2]' : 'bg-[#007ac2] text-white shadow-lg shadow-blue-900/20'}`}
             >
                 {count}
             </motion.span>
@@ -456,33 +456,33 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
       <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40" onClick={() => setIsOpen(false)} />}</AnimatePresence>
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800 transform transition-all duration-300 ease-in-out p-5 flex flex-col shadow-2xl shadow-slate-950/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="mb-6 px-2 flex items-center gap-3.5 py-5 border-b border-white/10 relative group cursor-pointer">
-            <div className="bg-white p-2.5 rounded-xl shadow-lg shadow-black/20 transition-transform duration-300">
+            <div className="bg-white p-2.5 rounded-card shadow-lg shadow-black/20 transition-transform duration-300">
                 <Shield className="w-6 h-6 text-slate-950" />
             </div>
             <div>
-                <h1 className="font-black text-white text-xl tracking-tighter leading-none">HogiCar</h1>
+                <h1 className="font-extrabold text-white text-xl tracking-tighter leading-none">HogiCar</h1>
                 <div className="flex items-center gap-1.5 mt-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.45)]"></span>
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Admin Command</span>
+                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Admin Command</span>
                 </div>
             </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
-          <div className="px-4 mb-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Operations</div>
+          <div className="px-4 mb-3 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">Operations</div>
           <NavItem section="dashboard" label="Performance" icon={LayoutDashboard} />
           <NavItem section="suppliers" label="Manage Suppliers" icon={Building} />
           <NavItem section="supplierrequests" label="Requests" icon={MailQuestion} count={countSupplierRequests} />
           <NavItem section="bookings" label="Reservations" icon={Calendar} />
           <NavItem section="fleet" label="Active Fleet" icon={Car} />
 
-          <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Inventory</div>
+          <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">Inventory</div>
           <NavItem section="promotions" label="Smart Offers" icon={Tag} />
           <NavItem section="carlibrary" label="Global Library" icon={Car} />
           <NavItem section="apipartners" label="Integrations" icon={Share2} />
           <NavItem section="affiliates" label="Affiliate Hub" icon={DollarSign} />
 
-          <div className="px-4 mb-3 mt-8 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">System</div>
+          <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">System</div>
           <NavItem section="cms" label="Pages" icon={FileText} />
           <NavItem section="seo" label="SEO" icon={Globe} />
           <NavItem section="homepage" label="Assets" icon={ImageIcon} />
@@ -492,13 +492,13 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <NavItem section="searchinglogos" label="Searching Logos" icon={Search} />
         </nav>
 
-        <div className="mt-5 rounded-2xl bg-white/[0.06] border border-white/10 p-4">
+        <div className="mt-5 rounded-card bg-white/[0.06] border border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-400/10 text-emerald-300 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-card bg-emerald-400/10 text-emerald-300 flex items-center justify-center">
               <Lock className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-[10px] font-black text-white uppercase tracking-[0.16em]">Root access</p>
+              <p className="text-[10px] font-extrabold text-white uppercase tracking-[0.16em]">Root access</p>
               <p className="text-[10px] text-slate-400 font-bold mt-0.5">Enterprise control plane</p>
             </div>
           </div>
@@ -508,7 +508,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <motion.button 
             whileHover={{ x: 4 }} 
             onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} 
-            className="flex items-center w-full px-4 py-4 text-slate-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all group font-black text-sm uppercase tracking-widest"
+            className="flex items-center w-full px-4 py-4 text-slate-400 hover:bg-red-500/10 hover:text-red-300 rounded-card transition-all group font-extrabold text-sm uppercase tracking-widest"
           >
             <LogOut className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
             <span>Sign Out</span>
@@ -555,11 +555,11 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-card focus:ring-2 focus:ring-blue-500 outline-none"
         />
       </div>
       {isOpen && (
-        <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-20 w-full mt-1 bg-white border rounded-card shadow-lg max-h-60 overflow-y-auto">
           {loading ? (
             <div className="p-3 text-center"><RefreshCw className="w-4 h-4 animate-spin inline" /> Loading...</div>
           ) : (
@@ -569,7 +569,7 @@ const LocationPicker = ({ onSelect, placeholder = "Search location..." }: any) =
                 onClick={() => handleSelect(loc)}
                 className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b last:border-0 transition-colors flex items-center gap-3"
               >
-                <div className={`p-1.5 rounded-lg ${loc.type === 'airport' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'}`}>
+                <div className={`p-1.5 rounded-card ${loc.type === 'airport' ? 'bg-blue-50 text-[#007ac2]' : 'bg-slate-50 text-slate-600'}`}>
                   {loc.type === 'airport' ? <Globe className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
                 </div>
                 <div>
@@ -720,17 +720,17 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     <Modal isOpen={isOpen} onClose={onClose} title={supplier?.id ? "Edit Supplier" : "Add Supplier"} size="lg">
       <div className="space-y-6">
         {/* Logo section */}
-        <div className="flex gap-6 p-6 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100/50">
+        <div className="flex gap-6 p-6 bg-gradient-to-br from-blue-50 to-white rounded-card border border-blue-100/50">
           <div className="flex flex-col items-center">
             <div className="relative group w-48 h-32">
               {editedSupplier.logo || editedSupplier.logoUrl ? (
-                <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-2xl object-contain bg-white shadow-xl border-4 border-white" alt="Logo" />
+                <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-card object-contain bg-white shadow-xl border-4 border-white" alt="Logo" />
               ) : (
-                <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-200">
+                <div className="w-full h-full bg-white rounded-card flex items-center justify-center border-2 border-dashed border-gray-200">
                   <Building className="w-10 h-10 text-gray-300" />
                 </div>
               )}
-              <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer">
+              <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-card cursor-pointer">
                 <ImageIcon className="w-6 h-6 text-white" />
                 <input type="file" className="hidden" accept="image/*" onChange={handleLogo} />
               </label>
@@ -748,7 +748,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                 { value: "MEET_AND_GREET", label: "Meet & Greet" },
                 { value: "SHUTTLE_BUS", label: "Shuttle Bus" }
               ]} />
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+              <div className="bg-white px-3 py-1.5 rounded-card border border-gray-200">
                 <label className="text-[10px] font-bold text-gray-400 uppercase">Supplier Rating (1-10)</label>
                 <div className="flex items-center gap-3 mt-1">
                   <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
@@ -756,16 +756,16 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                     type="range" min="1" max="10" step="0.1" 
                     value={editedSupplier.rating || 4.5} 
                     onChange={e => handleChange("rating", parseFloat(e.target.value))}
-                    className="flex-grow h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                    className="flex-grow h-1.5 bg-gray-200 rounded-card appearance-none cursor-pointer accent-amber-500"
                   />
-                  <span className="text-sm font-black text-gray-700 min-w-[2rem]">{editedSupplier.rating || 4.5}</span>
+                  <span className="text-sm font-extrabold text-gray-700 min-w-[2rem]">{editedSupplier.rating || 4.5}</span>
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="rounded-card border border-gray-200 bg-white p-4">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.16em] text-gray-800">Customer rating details</h3>
+                  <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-800">Customer rating details</h3>
                   <p className="mt-1 text-[11px] font-medium text-gray-400">Controls the dark rating pop-up bars on search cards.</p>
                 </div>
                 <div className="w-full sm:w-40">
@@ -782,10 +782,10 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                 {supplierRatingMetrics.map(metric => {
                   const metricValue = Number((editedSupplier as any)[metric.field] ?? ratingToDefaultPercent(editedSupplier.rating));
                   return (
-                    <div key={metric.field} className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5">
+                    <div key={metric.field} className="rounded-card border border-gray-100 bg-gray-50 px-3 py-2.5">
                       <div className="mb-2 flex items-center justify-between gap-3">
-                        <label className="text-[11px] font-black uppercase tracking-wide text-gray-500">{metric.label}</label>
-                        <span className="text-xs font-black text-gray-900">{metricValue}%</span>
+                        <label className="text-[11px] font-extrabold uppercase tracking-wide text-gray-500">{metric.label}</label>
+                        <span className="text-xs font-extrabold text-gray-900">{metricValue}%</span>
                       </div>
                       <input
                         type="range"
@@ -794,7 +794,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                         step="1"
                         value={metricValue}
                         onChange={e => handleChange(metric.field, parseInt(e.target.value) || 0)}
-                        className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#5fd018]"
+                        className="h-2 w-full cursor-pointer appearance-none rounded-card bg-gray-200 accent-[#5fd018]"
                       />
                     </div>
                   );
@@ -817,8 +817,8 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
         {/* Locations */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-700" /><h3 className="text-sm font-bold">Service Locations</h3></div>
-          <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#007ac2]" /><h3 className="text-sm font-bold">Service Locations</h3></div>
+          <div className="bg-white p-4 rounded-card border border-gray-100 shadow-sm space-y-4">
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase">Add New Location</label>
               <LocationPicker onSelect={handleLocSelect} />
@@ -826,7 +826,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
             {selectedLocations.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedLocations.map(loc => (
-                  <div key={loc.value} className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-xl">
+                  <div key={loc.value} className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-card">
                     <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
                     <button onClick={() => removeLocation(loc.value)}><X className="w-3.5 h-3.5" /></button>
                   </div>
@@ -836,9 +836,9 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
             <div className="border-t pt-4">
               <label className="text-[10px] font-bold text-gray-400 uppercase block text-center">Or create custom location</label>
               <div className="flex gap-2 mt-2">
-                <input placeholder="City Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border rounded-xl text-sm" />
-                <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-16 px-3 py-2 border rounded-xl text-sm" />
-                <button onClick={handleCreateCustom} className="p-2 bg-gray-800 text-white rounded-xl hover:bg-gray-700"><Plus className="w-4 h-4" /></button>
+                <input placeholder="City Name" value={newLocName} onChange={e => setNewLocName(e.target.value)} className="flex-1 px-3 py-2 border rounded-card text-sm" />
+                <input placeholder="Code" value={newLocCode} onChange={e => setNewLocCode(e.target.value.toUpperCase())} className="w-16 px-3 py-2 border rounded-card text-sm" />
+                <button onClick={handleCreateCustom} className="p-2 bg-gray-800 text-white rounded-card hover:bg-gray-700"><Plus className="w-4 h-4" /></button>
               </div>
             </div>
           </div>
@@ -846,7 +846,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
         {/* Commission & Business Model */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-4 rounded-2xl border border-gray-100">
+          <div className="bg-white p-4 rounded-card border border-gray-100">
             <h4 className="text-xs font-bold mb-2">Commission</h4>
             <SelectField label="Type" value={editedSupplier.commissionType || "PARTIAL_PREPAID"} onChange={e => handleChange("commissionType", e.target.value)} options={[
               { value: "FULL_PREPAID", label: "Full Prepaid" },
@@ -855,7 +855,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
             ]} />
             <InputField label="Commission %" type="number" step="0.01" value={editedSupplier.commissionPercent || 0} onChange={e => handleChange("commissionPercent", parseFloat(e.target.value))} />
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-gray-100">
+          <div className="bg-white p-4 rounded-card border border-gray-100">
             <h4 className="text-xs font-bold mb-2">Booking Policy</h4>
             <SelectField label="Mode" value={editedSupplier.bookingMode || "FREE_SALE"} onChange={e => handleChange("bookingMode", e.target.value)} options={[
               { value: "FREE_SALE", label: "Free Sale (Instant)" },
@@ -869,37 +869,37 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <div className="bg-white p-3 rounded-xl border">
+          <div className="bg-white p-3 rounded-card border">
             <label className="text-[10px] font-bold text-gray-400">Min Duration (days)</label>
-            <input type="number" value={editedSupplier.minRentalDays ?? 1} onChange={e => handleChange("minRentalDays", parseInt(e.target.value) || 1)} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.minRentalDays ?? 1} onChange={e => handleChange("minRentalDays", parseInt(e.target.value) || 1)} className="w-full border rounded-card p-2 mt-1" />
           </div>
-          <div className="bg-white p-3 rounded-xl border">
+          <div className="bg-white p-3 rounded-card border">
             <label className="text-[10px] font-bold text-gray-400">Max Duration (days)</label>
-            <input type="number" value={editedSupplier.maxRentalDays ?? 30} onChange={e => handleChange("maxRentalDays", parseInt(e.target.value) || 30)} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.maxRentalDays ?? 30} onChange={e => handleChange("maxRentalDays", parseInt(e.target.value) || 30)} className="w-full border rounded-card p-2 mt-1" />
           </div>
-          <div className="bg-white p-3 rounded-xl border">
+          <div className="bg-white p-3 rounded-card border">
             <label className="text-[10px] font-bold text-gray-400">Grace Period (hrs)</label>
-            <input type="number" value={editedSupplier.gracePeriodHours ?? 0} onChange={e => handleChange("gracePeriodHours", parseInt(e.target.value) || 0)} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.gracePeriodHours ?? 0} onChange={e => handleChange("gracePeriodHours", parseInt(e.target.value) || 0)} className="w-full border rounded-card p-2 mt-1" />
           </div>
-          <div className="bg-white p-3 rounded-xl border">
+          <div className="bg-white p-3 rounded-card border">
             <label className="text-[10px] font-bold text-gray-400">Min Lead Time (hrs)</label>
-            <input type="number" value={editedSupplier.minBookingLeadTime ?? 0} onChange={e => handleChange("minBookingLeadTime", parseInt(e.target.value) || 0)} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.minBookingLeadTime ?? 0} onChange={e => handleChange("minBookingLeadTime", parseInt(e.target.value) || 0)} className="w-full border rounded-card p-2 mt-1" />
           </div>
-          <div className="bg-white p-3 rounded-xl border">
+          <div className="bg-white p-3 rounded-card border">
             <label className="text-[10px] font-bold text-gray-400">Max Lead Time (days)</label>
-            <input type="number" value={editedSupplier.maxBookingLeadTimeDays ?? 365} onChange={e => handleChange("maxBookingLeadTimeDays", parseInt(e.target.value) || 365)} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.maxBookingLeadTimeDays ?? 365} onChange={e => handleChange("maxBookingLeadTimeDays", parseInt(e.target.value) || 365)} className="w-full border rounded-card p-2 mt-1" />
           </div>
-          <div className="bg-white p-3 rounded-xl border">
+          <div className="bg-white p-3 rounded-card border">
             <label className="text-[10px] font-bold text-gray-400">One Way Fee</label>
-            <input type="number" value={editedSupplier.oneWayFee ?? 0} onChange={e => handleChange("oneWayFee", parseFloat(e.target.value) || 0)} className="w-full border rounded-lg p-2 mt-1" />
+            <input type="number" value={editedSupplier.oneWayFee ?? 0} onChange={e => handleChange("oneWayFee", parseFloat(e.target.value) || 0)} className="w-full border rounded-card p-2 mt-1" />
           </div>
         </div>
 
         {/* Security */}
-        <div className="bg-white rounded-2xl p-6 border">
+        <div className="bg-white rounded-card p-6 border">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2"><Lock className="w-5 h-5 text-gray-600" /><span className="font-bold">Access Credentials</span></div>
-            <button onClick={handleGenerateCredentials} disabled={isGenerating} className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg">Auto-generate</button>
+            <button onClick={handleGenerateCredentials} disabled={isGenerating} className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-card">Auto-generate</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField label="Login Email" value={editedSupplier.email || editedSupplier.contactEmail || ""} onChange={e => handleChange("email", e.target.value)} />
@@ -908,7 +908,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <div className="absolute right-3 top-[34px] flex items-center gap-2">
                 <button 
                   onClick={() => onCopy(editedSupplier.password || "", "edit-modal", "Password")} 
-                  className="text-gray-400 hover:text-blue-700 transition-colors"
+                  className="text-gray-400 hover:text-[#007ac2] transition-colors"
                   title="Copy Password"
                   type="button"
                 >
@@ -930,7 +930,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                 type="checkbox" 
                 checked={editedSupplier.enableSocialProof || false} 
                 onChange={e => handleChange("enableSocialProof", e.target.checked)} 
-                className="w-4 h-4 rounded border-slate-300 text-blue-700 focus:ring-blue-500"
+                className="w-4 h-4 rounded border-slate-300 text-[#007ac2] focus:ring-blue-500"
               /> 
               <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Enable Social Proof</span>
             </label>
@@ -952,7 +952,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
         <div className="flex justify-end gap-3">
           <button onClick={onClose} className="px-6 py-2 text-sm font-bold text-gray-500">Cancel</button>
-          <button onClick={handleSave} className="px-8 py-2 bg-blue-700 text-white rounded-xl font-bold">Save Supplier</button>
+          <button onClick={handleSave} className="px-8 py-2 bg-[#007ac2] text-white rounded-card font-bold">Save Supplier</button>
         </div>
       </div>
     </Modal>
@@ -985,10 +985,10 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-card shadow-lg border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
           <SectionHeader title="Supplier Requests" icon={MailQuestion} subtitle="New partner applications for review" />
-          <button onClick={onRefresh} className="p-2 hover:bg-white rounded-xl border border-gray-200 transition-colors shadow-sm">
+          <button onClick={onRefresh} className="p-2 hover:bg-white rounded-card border border-gray-200 transition-colors shadow-sm">
               <RefreshCw className="w-4 h-4 text-gray-600" />
           </button>
       </div>
@@ -998,13 +998,13 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
             <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
                 <MailQuestion className="w-8 h-8" />
             </div>
-            <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No pending requests</p>
+            <p className="text-sm font-extrabold text-slate-400 uppercase tracking-widest">No pending requests</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50/50 border-b border-slate-100">
-              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+              <tr className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em]">
                 <th className="px-6 py-4">Company</th>
                 <th className="px-6 py-4">Contact</th>
                 <th className="px-6 py-4 text-center">Fleet</th>
@@ -1017,20 +1017,20 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
               {apps.map((app: any) => (
                 <tr key={app.id} className="hover:bg-blue-50/30 transition-colors group">
                   <td className="px-6 py-4">
-                    <div className="font-black text-slate-900 text-[13px]">{app.companyName}</div>
+                    <div className="font-extrabold text-slate-900 text-[13px]">{app.companyName}</div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">{app.primaryLocation}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-[12px] font-bold text-slate-700">{app.contactName}</div>
-                    <div className="text-[11px] text-blue-600 font-medium lowercase mt-0.5">{app.email}</div>
+                    <div className="text-[11px] text-[#007ac2] font-medium lowercase mt-0.5">{app.email}</div>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className="text-[10px] font-black bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
+                    <span className="text-[10px] font-extrabold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
                         {app.fleetSize}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${app.integrationType === 'api' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <span className={`text-[9px] font-extrabold px-2 py-1 rounded-md uppercase tracking-widest ${app.integrationType === 'api' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-[#007ac2]'}`}>
                         {app.integrationType}
                     </span>
                   </td>
@@ -1042,7 +1042,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
                       <motion.button 
                         whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                         onClick={() => handleApprove(app)} 
-                        className="p-2 bg-green-500 text-white rounded-lg shadow-md shadow-green-100 hover:bg-green-600 transition-colors"
+                        className="p-2 bg-green-500 text-white rounded-card shadow-md shadow-green-100 hover:bg-green-600 transition-colors"
                         title="Approve & Setup Account"
                       >
                         <CheckCircle className="w-4 h-4"/>
@@ -1050,7 +1050,7 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
                       <motion.button 
                         whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                         onClick={() => onReject(app.id)} 
-                        className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                        className="p-2 bg-red-100 text-red-600 rounded-card hover:bg-red-200 transition-colors"
                         title="Reject Application"
                       >
                         <XCircle className="w-4 h-4"/>
@@ -1069,17 +1069,17 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
 
 // ==================== Bookings ====================
 const BookingsContent = ({ bookings, onRefresh }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+  <div className="bg-white rounded-card shadow-lg border border-gray-100 overflow-hidden">
     <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
         <SectionHeader title="Bookings" icon={Calendar} subtitle="Monitor all car rental reservations" />
-        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-xl border border-gray-200 transition-colors shadow-sm">
+        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-card border border-gray-200 transition-colors shadow-sm">
             <RefreshCw className="w-4 h-4 text-gray-600" />
         </button>
     </div>
     <div className="overflow-x-auto">
       <table className="w-full text-left">
         <thead className="bg-slate-50/50 border-b border-slate-100">
-          <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+          <tr className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em]">
             <th className="px-6 py-4">Reference</th>
             <th className="px-6 py-4">Customer</th>
             <th className="px-6 py-4">Supplier</th>
@@ -1092,19 +1092,19 @@ const BookingsContent = ({ bookings, onRefresh }: any) => (
           {Array.isArray(bookings) && bookings.map((b: any) => (
             <tr key={b.id} className="hover:bg-blue-50/30 transition-colors group">
               <td className="px-6 py-4">
-                <span className="font-mono text-[11px] font-black text-blue-700 bg-blue-50/50 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                <span className="font-mono text-[11px] font-extrabold text-[#007ac2] bg-blue-50/50 px-2 py-1 rounded-card group-hover:bg-white transition-colors">
                     {b.bookingRef}
                 </span>
               </td>
-              <td className="px-6 py-4 text-[13px] font-black text-slate-900">
+              <td className="px-6 py-4 text-[13px] font-extrabold text-slate-900">
                 {b.firstName} {b.lastName}
               </td>
               <td className="px-6 py-4 text-[12px] font-bold text-slate-500">
                 {b.supplierName || 'N/A'}
               </td>
               <td className="px-6 py-4">
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase">
-                    <span className="text-blue-600 bg-blue-50/50 px-1.5 py-0.5 rounded-md border border-blue-100/50">{b.pickupCode}</span>
+                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase">
+                    <span className="text-[#007ac2] bg-blue-50/50 px-1.5 py-0.5 rounded-md border border-blue-100/50">{b.pickupCode}</span>
                     <span className="text-slate-300">→</span>
                     <span className="text-purple-600 bg-purple-50/50 px-1.5 py-0.5 rounded-md border border-purple-100/50">{b.dropoffCode}</span>
                 </div>
@@ -1132,11 +1132,11 @@ const BookingsContent = ({ bookings, onRefresh }: any) => (
 
 // ==================== CMS ====================
 const CmsContent = ({ pages, onEditPage }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg p-6">
+  <div className="bg-white rounded-card shadow-lg p-6">
     <SectionHeader title="CMS" icon={FileText} />
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {pages.map((page: any) => (
-        <div key={page.slug} className="p-3 border rounded-xl">
+        <div key={page.slug} className="p-3 border rounded-card">
           <div className="flex justify-between">
             <div><h3 className="font-bold">{page.title}</h3><p className="text-xs text-gray-500">/{page.slug}</p></div>
             <button onClick={() => onEditPage(page)}><Edit className="w-4 h-4"/></button>
@@ -1150,12 +1150,12 @@ const CmsContent = ({ pages, onEditPage }: any) => (
 
 // ==================== SEO ====================
 const SeoContent = ({ configs, onEditSeo, onNewSeo }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg p-6">
-    <div className="flex justify-between"><SectionHeader title="SEO" icon={Globe} /><button onClick={onNewSeo} className="bg-blue-700 text-white px-3 py-1 rounded text-sm">New Route</button></div>
+  <div className="bg-white rounded-card shadow-lg p-6">
+    <div className="flex justify-between"><SectionHeader title="SEO" icon={Globe} /><button onClick={onNewSeo} className="bg-[#007ac2] text-white px-3 py-1 rounded text-sm">New Route</button></div>
     <div className="space-y-2 mt-4">
       {configs.map((c: any) => (
         <div key={c.route} className="p-2 border rounded flex justify-between items-center">
-          <div><p className="font-mono text-sm text-blue-700">{c.route}</p><p className="text-xs">{c.title}</p></div>
+          <div><p className="font-mono text-sm text-[#007ac2]">{c.route}</p><p className="text-xs">{c.title}</p></div>
           <button onClick={() => onEditSeo(c)}><Edit className="w-4 h-4"/></button>
         </div>
       ))}
@@ -1345,7 +1345,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-white rounded-card shadow-lg p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
         <h2 className="text-xl font-bold text-slate-900">Homepage Editor</h2>
         <div className="flex items-center gap-3">
@@ -1353,7 +1353,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm disabled:opacity-60"
+            className="bg-[#007ac2] text-white px-4 py-2 rounded-card font-bold text-sm disabled:opacity-60"
           >
             {isSaving ? 'Saving...' : 'Save'}
           </button>
@@ -1368,7 +1368,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
       </div>
 
       <div className="mt-8 pt-6 border-t border-slate-100">
-        <h3 className="text-base font-black text-slate-900 mb-1">Category Filter Images</h3>
+        <h3 className="text-base font-extrabold text-slate-900 mb-1">Category Filter Images</h3>
         <p className="text-xs text-slate-500 mb-4">Upload an image per category to display in the category filter section.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1377,13 +1377,13 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
             const fileInputId = `homepage-category-image-${category}`;
 
             return (
-              <div key={category} className="border border-slate-200 rounded-2xl p-4 space-y-3 bg-slate-50/40">
+              <div key={category} className="border border-slate-200 rounded-card p-4 space-y-3 bg-slate-50/40">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-black text-slate-800">{formatCategoryLabel(category)}</div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{category}</span>
+                  <div className="text-sm font-extrabold text-slate-800">{formatCategoryLabel(category)}</div>
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{category}</span>
                 </div>
 
-                <div className="h-24 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+                <div className="h-24 rounded-card border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
                   {imageUrl ? (
                     <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width="320" height="210" loading="lazy" />
                   ) : (
@@ -1404,14 +1404,14 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   />
                   <label
                     htmlFor={fileInputId}
-                    className="flex-1 text-center bg-white border border-blue-200 text-blue-700 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
+                    className="flex-1 text-center bg-white border border-blue-200 text-[#007ac2] rounded-card px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
                   >
                     Upload Image
                   </label>
                   <button
                     type="button"
                     onClick={() => setLocalCategoryImages(prev => ({ ...prev, [category]: '' }))}
-                    className="px-3 py-2 rounded-xl border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
+                    className="px-3 py-2 rounded-card border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
                   >
                     Clear
                   </button>
@@ -1422,7 +1422,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   value={imageUrl}
                   onChange={(e) => setLocalCategoryImages(prev => ({ ...prev, [category]: e.target.value }))}
                   placeholder="Or paste image URL"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700"
+                  className="w-full bg-white border border-slate-200 rounded-card px-3 py-2 text-xs text-slate-700"
                 />
               </div>
             );
@@ -1433,13 +1433,13 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
       <div className="mt-8 pt-6 border-t border-slate-100">
         <div className="flex items-center justify-between mb-3 gap-3">
           <div>
-            <h3 className="text-base font-black text-slate-900">Popular Destinations</h3>
+            <h3 className="text-base font-extrabold text-slate-900">Popular Destinations</h3>
             <p className="text-xs text-slate-500">Manage destination cards shown on the home page.</p>
           </div>
           <button
             type="button"
             onClick={addDestination}
-            className="px-3 py-2 rounded-xl bg-blue-700 text-white text-xs font-black hover:bg-blue-800 transition-colors"
+            className="px-3 py-2 rounded-card bg-[#007ac2] text-white text-xs font-extrabold hover:bg-blue-800 transition-colors"
           >
             Add Destination
           </button>
@@ -1460,13 +1460,13 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 
         <div className="space-y-3">
           {currentDestinations.map((destination: any, index: number) => (
-            <div key={destination?.id || `destination-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+            <div key={destination?.id || `destination-${index}`} className="rounded-card border border-slate-200 bg-slate-50/50 p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-black text-slate-800">Destination #{index + 1}</p>
+                <p className="text-sm font-extrabold text-slate-800">Destination #{index + 1}</p>
                 <button
                   type="button"
                   onClick={() => removeDestination(index)}
-                  className="px-2.5 py-1.5 rounded-lg border border-red-100 text-red-500 text-[11px] font-black hover:bg-red-50"
+                  className="px-2.5 py-1.5 rounded-card border border-red-100 text-red-500 text-[11px] font-extrabold hover:bg-red-50"
                 >
                   Remove
                 </button>
@@ -1481,8 +1481,8 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
               </div>
 
               <div className="mt-3 space-y-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Destination Image</label>
-                <div className="h-28 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Destination Image</label>
+                <div className="h-28 rounded-card border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
                   {destination?.image ? (
                     <img
                       src={destination.image}
@@ -1510,14 +1510,14 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   />
                   <label
                     htmlFor={`popular-destination-image-${index}`}
-                    className="flex-1 text-center bg-white border border-blue-200 text-blue-700 rounded-xl px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
+                    className="flex-1 text-center bg-white border border-blue-200 text-[#007ac2] rounded-card px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
                   >
                     Upload Image
                   </label>
                   <button
                     type="button"
                     onClick={() => updateDestinationField(index, 'image', '')}
-                    className="px-3 py-2 rounded-xl border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
+                    className="px-3 py-2 rounded-card border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
                   >
                     Clear
                   </button>
@@ -1533,7 +1533,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           ))}
 
           {currentDestinations.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs font-bold text-slate-500">
+            <div className="rounded-card border border-dashed border-slate-300 bg-slate-50 p-4 text-xs font-bold text-slate-500">
               No destinations yet. Click <span className="text-slate-700">Add Destination</span> to create one.
             </div>
           )}
@@ -1579,7 +1579,7 @@ const SiteSettingsContent = () => {
     .catch(err => alert('Failed to save settings: ' + err.message));
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-500 font-black uppercase tracking-widest text-xs">Loading Settings...</div>;
+  if (loading) return <div className="p-8 text-center text-slate-500 font-extrabold uppercase tracking-widest text-xs">Loading Settings...</div>;
 
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
@@ -1588,30 +1588,30 @@ const SiteSettingsContent = () => {
       </div>
       <div className="p-8 space-y-6">
         <div>
-          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Searching Screen Duration (seconds)</label>
+          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Searching Screen Duration (seconds)</label>
           <input 
             type="number" 
             value={duration} 
             onChange={e => setDuration(Number(e.target.value))} 
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
+            className="w-full bg-slate-50 border border-slate-100 rounded-card p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
           />
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Homepage Hero Background Image URL</label>
+          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Homepage Hero Background Image URL</label>
           <input 
             type="text" 
             value={heroImageUrl} 
             onChange={e => setHeroImageUrl(e.target.value)} 
             placeholder="https://example.com/image.jpg"
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono" 
+            className="w-full bg-slate-50 border border-slate-100 rounded-card p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono" 
           />
           <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
         </div>
         
         {heroImageUrl && (
           <div className="mt-4">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Preview</label>
-            <div className="relative aspect-video rounded-2xl overflow-hidden border border-slate-100 bg-slate-50">
+            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Preview</label>
+            <div className="relative aspect-video rounded-card overflow-hidden border border-slate-100 bg-slate-50">
               <img src={heroImageUrl} alt="Hero Preview" className="w-full h-full object-cover" />
             </div>
           </div>
@@ -1620,13 +1620,13 @@ const SiteSettingsContent = () => {
         <div className="pt-4 flex items-center gap-4">
           <button 
             onClick={handleSave} 
-            className="bg-blue-700 text-white px-8 py-3 rounded-2xl font-black text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all active:scale-95 flex items-center gap-2"
+            className="bg-[#007ac2] text-white px-8 py-3 rounded-card font-extrabold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all active:scale-95 flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             Save Configuration
           </button>
           {saved && (
-            <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-green-600 font-black text-xs uppercase tracking-widest flex items-center gap-1">
+            <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-green-600 font-extrabold text-xs uppercase tracking-widest flex items-center gap-1">
               <CheckCircle className="w-4 h-4" />
               Settings Saved Successfully
             </motion.span>
@@ -1642,10 +1642,10 @@ const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editi
   const EditModal = ({ affiliate, isOpen, onClose, onSave }: any) => {
     const [rate, setRate] = useState(affiliate?.commissionRate || 0);
     if (!isOpen) return null;
-    return (<Modal isOpen={isOpen} onClose={onClose} title="Edit Commission"><InputField label="Rate (decimal)" type="number" step="0.01" value={rate} onChange={e => setRate(parseFloat(e.target.value))} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={() => onSave(affiliate.id, rate)} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+    return (<Modal isOpen={isOpen} onClose={onClose} title="Edit Commission"><InputField label="Rate (decimal)" type="number" step="0.01" value={rate} onChange={e => setRate(parseFloat(e.target.value))} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={() => onSave(affiliate.id, rate)} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
   };
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-white rounded-card shadow-lg p-6">
       <SectionHeader title="Affiliates" icon={DollarSign} />
       <EditModal affiliate={editingAffiliate} isOpen={!!editingAffiliate} onClose={() => setEditingAffiliate(null)} onSave={onSaveCommission} />
       <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Name</th><th>Status</th><th>Commission</th><th>Clicks</th><th>Conversions</th><th>Earnings</th><th></th></tr></thead><tbody>{affiliates.map((aff: any) => (<tr key={aff.id} className="hover:bg-blue-50"><td className="p-2"><div className="font-bold">{aff.name}</div><div className="text-xs">{aff.email}</div></td><td className="p-2"><Badge status={aff.status}/></td><td className="p-2">{aff.commissionRate*100}%</td><td className="p-2">{aff.clicks}</td><td className="p-2">{aff.conversions}</td><td className="p-2">${aff.totalEarnings}</td><td className="p-2 text-right"><div className="flex gap-1">{aff.status === 'pending' && <><button onClick={() => onUpdateStatus(aff.id, 'active')} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button><button onClick={() => onUpdateStatus(aff.id, 'rejected')} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button></>}<button onClick={() => setEditingAffiliate(aff)} className="bg-gray-100 p-1 rounded"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
@@ -1662,9 +1662,9 @@ const PromotionsContent = () => {
   const handleToggle = (id: string, status: string) => { updatePromoCodeStatus(id, status); setPromos([...MOCK_PROMO_CODES]); };
   const handleDelete = (id: string) => { if(confirm('Delete?')) { deletePromoCode(id); setPromos([...MOCK_PROMO_CODES]); } };
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-white rounded-card shadow-lg p-6">
       <SectionHeader title="Promotions" icon={Tag} />
-      <form onSubmit={handleAdd} className="flex gap-2 mb-4"><input type="text" placeholder="Code" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="border rounded p-1" /><input type="number" placeholder="%" value={newDiscount} onChange={e => setNewDiscount(parseInt(e.target.value))} className="border rounded p-1 w-16" /><button type="submit" className="bg-blue-700 text-white px-3 py-1 rounded">Add</button></form>
+      <form onSubmit={handleAdd} className="flex gap-2 mb-4"><input type="text" placeholder="Code" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="border rounded p-1" /><input type="number" placeholder="%" value={newDiscount} onChange={e => setNewDiscount(parseInt(e.target.value))} className="border rounded p-1 w-16" /><button type="submit" className="bg-[#007ac2] text-white px-3 py-1 rounded">Add</button></form>
       <div className="overflow-x-auto"><table className="w-full"><thead><tr className="text-xs"><th>Code</th><th>Discount</th><th>Status</th><th></th></tr></thead><tbody>{promos.map(p => (<tr key={p.id}><td className="p-2 font-mono">{p.code}</td><td className="p-2">{p.discount*100}%</td><td className="p-2"><Badge status={p.status}/></td><td className="p-2 text-right"><button onClick={() => handleToggle(p.id, p.status === 'active' ? 'inactive' : 'active')} className="p-1 bg-gray-100 rounded mr-1">{p.status === 'active' ? <PowerOff className="w-4 h-4"/> : <Power className="w-4 h-4"/>}</button><button onClick={() => handleDelete(p.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></td></tr>))}</tbody></table></div>
     </div>
   );
@@ -1695,7 +1695,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
       <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div className="flex-1">
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Global Car Library</h2>
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Global Car Library</h2>
             <p className="text-sm text-gray-500 font-medium mb-4">Define models available for all supply partners</p>
             
             <div className="relative max-w-md">
@@ -1703,13 +1703,13 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
                 <input 
                     type="text" 
                     placeholder="Search by make or model..." 
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
         </div>
-        <button onClick={() => onEdit(null)} className="bg-blue-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
+        <button onClick={() => onEdit(null)} className="bg-[#007ac2] text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
             <PlusCircle className="w-5 h-5" />
             Add New Model
         </button>
@@ -1718,43 +1718,43 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50">
-              <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Visual</th>
-              <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Vehicle Details</th>
-              <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Year</th>
-              <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Category</th>
-              <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Body Type</th>
-              <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Visual</th>
+              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Vehicle Details</th>
+              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Year</th>
+              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Category</th>
+              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Body Type</th>
+              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {Array.isArray(filteredLibrary) && filteredLibrary.map((m: any) => (
               <tr key={m.id} className="hover:bg-blue-50/30 transition-colors group">
                 <td className="px-8 py-4">
-                  <div className="w-16 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-blue-200 transition-colors">
+                  <div className="w-16 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-blue-200 transition-colors">
                     <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width="400" height="250" referrerPolicy="no-referrer" loading="lazy" />
                   </div>
                 </td>
                 <td className="px-8 py-4">
-                  <div className="text-[13px] font-black text-slate-900">{m.make}</div>
+                  <div className="text-[13px] font-extrabold text-slate-900">{m.make}</div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{m.model}</div>
                 </td>
-                <td className="px-8 py-4 text-xs font-black text-slate-500">{m.year}</td>
+                <td className="px-8 py-4 text-xs font-extrabold text-slate-500">{m.year}</td>
                 <td className="px-8 py-4">
-                  <span className="px-2 py-1 text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-700 rounded-lg border border-blue-100/50">
+                  <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest bg-blue-50 text-[#007ac2] rounded-card border border-blue-100/50">
                     {formatEnum(m.category)}
                   </span>
                 </td>
                 <td className="px-8 py-4">
-                  <span className="px-2 py-1 text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-600 rounded-lg border border-blue-100/50">
+                  <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest bg-blue-50 text-[#007ac2] rounded-card border border-blue-100/50">
                     {formatEnum(m.type)}
                   </span>
                 </td>
                 <td className="px-8 py-4 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => onEdit(m)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-700 hover:border-blue-100 transition-all shadow-sm">
+                    <button onClick={() => onEdit(m)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm">
                       <Edit className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => onDelete(m.id)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm">
+                    <button onClick={() => onDelete(m.id)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -1790,7 +1790,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
     <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div className="flex-1">
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Manage Suppliers</h2>
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Manage Suppliers</h2>
             <p className="text-sm text-gray-500 font-medium mb-4">Manage your global car rental provider network</p>
             
             <div className="relative max-w-md">
@@ -1798,27 +1798,27 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                 <input 
                     type="text" 
                     placeholder="Search by name, email or location..." 
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
         </div>
         <div className="flex gap-3">
-            <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-blue-50 border border-blue-200 rounded-2xl text-blue-700 hover:bg-blue-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
+            <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-blue-50 border border-blue-200 rounded-card text-[#007ac2] hover:bg-blue-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
                 <ShieldCheck className="w-5 h-5" /> Fix
             </button>
-            <button onClick={onRefresh} className="p-2.5 bg-white border border-gray-200 rounded-2xl text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
+            <button onClick={onRefresh} className="p-2.5 bg-white border border-gray-200 rounded-card text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
                 <RefreshCw className="w-5 h-5" />
             </button>
-            <button onClick={onAddSupplier} className="bg-gray-900 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-xl hover:bg-black transition-all flex items-center gap-2">
+            <button onClick={onAddSupplier} className="bg-gray-900 text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-xl hover:bg-black transition-all flex items-center gap-2">
                 <PlusCircle className="w-5 h-5" />
                 Add New Partner
             </button>
         </div>
     </div>
     {fetchError && (
-        <div className="mx-8 mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 flex items-start gap-3">
+        <div className="mx-8 mt-6 rounded-card border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 flex items-start gap-3">
             <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <div className="text-xs font-bold">
                 Supplier data could not be refreshed right now. Showing the last saved list.
@@ -1829,12 +1829,12 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
         <table className="w-full text-left border-collapse">
             <thead>
                 <tr className="bg-slate-50/50">
-                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Provider Details</th>
-                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Credentials</th>
-                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Status</th>
-                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Connectivity</th>
-                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
-                    <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Provider Details</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Credentials</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Operational Status</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Connectivity</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
                 </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -1842,11 +1842,11 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                     <tr key={s.id} className="hover:bg-blue-50/30 transition-colors group">
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
+                                <div className="w-10 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
                                     <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width="40" height="40"/>
                                 </div>
                                 <div>
-                                    <div className="text-[13px] font-black text-slate-900 group-hover:text-blue-700 transition-colors leading-tight">{s.name}</div>
+                                    <div className="text-[13px] font-extrabold text-slate-900 group-hover:text-[#007ac2] transition-colors leading-tight">{s.name}</div>
                                     <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{s.email || s.contactEmail}</div>
                                     <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
                                         <MapPin className="w-2.5 h-2.5" /> 
@@ -1875,7 +1875,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                     <div className="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center border border-blue-100 group-hover/pass:border-blue-200 transition-colors">
                                         <Key className="w-2.5 h-2.5 text-blue-400" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-blue-700 transition-colors">
+                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-[#007ac2] transition-colors">
                                         {revealedPasswords.has(`table-${s.id}`) ? (s.password || 'N/A') : '••••••••'}
                                     </span>
                                     {revealedPasswords.has(`table-${s.id}`) 
@@ -1891,7 +1891,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-2">
                                 <div className={`w-1.5 h-1.5 rounded-full ${s.connectionType === 'api' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'}`} />
-                                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                                <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">
                                     {s.connectionType === 'api' ? 'Active API' : 'Manual'}
                                 </span>
                             </div>
@@ -1899,28 +1899,28 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                                 <div className="text-center">
-                                    <div className="text-xs font-black text-slate-900">{(s as any).carCount ?? 0}</div>
-                                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Fleet</div>
+                                    <div className="text-xs font-extrabold text-slate-900">{(s as any).carCount ?? 0}</div>
+                                    <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-tighter">Fleet</div>
                                 </div>
                                 <div className="w-px h-6 bg-slate-100" />
                                 <div className="text-center">
-                                    <div className="text-xs font-black text-slate-900">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</div>
-                                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Bookings</div>
+                                    <div className="text-xs font-extrabold text-slate-900">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</div>
+                                    <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-tighter">Bookings</div>
                                 </div>
                             </div>
                         </td>
                         <td className="px-8 py-5 text-right">
                             <div className="flex justify-end gap-2">
-                                <button onClick={() => onManageFleet(s)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm" title="Fleet & Hogicar Choice">
+                                <button onClick={() => onManageFleet(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm" title="Fleet & Hogicar Choice">
                                     <Zap className="w-3.5 h-3.5" />
                                 </button>
-                                <button onClick={() => onManageApi(s)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm" title="API Settings">
+                                <button onClick={() => onManageApi(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm" title="API Settings">
                                     <Rss className="w-3.5 h-3.5" />
                                 </button>
-                                <button onClick={() => onEdit(s)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-700 hover:border-blue-100 transition-all shadow-sm" title="Edit Profile">
+                                <button onClick={() => onEdit(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm" title="Edit Profile">
                                     <Edit className="w-3.5 h-3.5" />
                                 </button>
-                                <button onClick={() => onDelete(s.id)} className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm" title="Terminate Partner">
+                                <button onClick={() => onDelete(s.id)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm" title="Terminate Partner">
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
@@ -1948,13 +1948,13 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
         <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h3 className="font-black text-gray-900 text-lg flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-700" />
+                    <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-[#007ac2]" />
                         Financial Overview
                     </h3>
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Real-time revenue stream</p>
                 </div>
-                <select className="text-xs font-bold border border-gray-100 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
+                <select className="text-xs font-bold border border-gray-100 rounded-card px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                     <option>Last 30 Days</option>
                     <option>Quarterly</option>
                 </select>
@@ -1983,34 +1983,34 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
 
         <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 flex flex-col">
             <div className="flex items-center justify-between mb-8">
-                <h3 className="font-black text-gray-900 text-lg flex items-center gap-2">
-                    <History className="w-5 h-5 text-blue-600" />
+                <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
+                    <History className="w-5 h-5 text-[#007ac2]" />
                     Latest Activity
                 </h3>
-                <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-1 rounded-lg uppercase">Live</span>
+                <span className="text-[10px] font-extrabold bg-blue-50 text-[#007ac2] px-2 py-1 rounded-card uppercase">Live</span>
             </div>
             <div className="space-y-6 flex-1">
                 {bookings.slice(0, 5).map((b: any) => (
                     <div key={b.id} className="flex items-center justify-between group cursor-pointer">
                         <div className="flex items-center gap-4">
-                            <div className="w-11 h-11 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-black text-xs group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
+                            <div className="w-11 h-11 rounded-card bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-extrabold text-xs group-hover:bg-[#007ac2] group-hover:text-white group-hover:border-blue-600 transition-all">
                                 {b.firstName?.[0]}{b.lastName?.[0]}
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{b.firstName} {b.lastName}</div>
+                                <div className="text-sm font-bold text-gray-900 group-hover:text-[#007ac2] transition-colors">{b.firstName} {b.lastName}</div>
                                 <div className="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">{b.bookingRef} • {b.supplierName}</div>
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-sm font-black text-gray-900">${b.finalPrice}</div>
-                            <div className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-700'}`}>
+                            <div className="text-sm font-extrabold text-gray-900">${b.finalPrice}</div>
+                            <div className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-[#007ac2]'}`}>
                                 {b.status}
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-            <button className="w-full mt-8 py-3.5 text-xs font-black text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-2xl border border-dashed border-gray-200 transition-all uppercase tracking-widest">
+            <button className="w-full mt-8 py-3.5 text-xs font-extrabold text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-card border border-dashed border-gray-200 transition-all uppercase tracking-widest">
                 Explore All Transactions
             </button>
         </div>
@@ -2020,10 +2020,10 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
 
 // ==================== Fleet ====================
 const FleetContent = ({ cars, onRefresh }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+  <div className="bg-white rounded-card shadow-lg border border-gray-100 overflow-hidden">
     <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
         <SectionHeader title="Global Fleet" icon={Car} subtitle="Fleet availability across all suppliers" />
-        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-xl border border-gray-200 transition-colors shadow-sm">
+        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-card border border-gray-200 transition-colors shadow-sm">
             <RefreshCw className="w-4 h-4 text-gray-600" />
         </button>
     </div>
@@ -2062,7 +2062,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
               <td className="px-6 py-4 text-xs font-medium text-gray-500">
                 {c.location}
               </td>
-              <td className="px-6 py-4 font-mono text-xs text-blue-700 font-bold">
+              <td className="px-6 py-4 font-mono text-xs text-[#007ac2] font-bold">
                 {c.sippCode}
               </td>
               <td className="px-6 py-4">
@@ -2085,7 +2085,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
     </div>
   </div>
 );
-const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-2xl shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
+const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-card shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
 
 // ==================== Modals ====================
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API settings</div></Modal>;
@@ -2095,7 +2095,7 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   useEffect(() => { if (page) { setTitle(page.title); setContent(page.content); } }, [page]);
   const handleSave = () => { onSave(page.slug, { title, content }); onClose(); };
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+  return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   const [route, setRoute] = useState(config?.route || '');
@@ -2105,7 +2105,7 @@ const SEOEditorModal = ({ config, isOpen, onClose }: any) => {
   useEffect(() => { if (config) { setRoute(config.route); setTitle(config.title); setDescription(config.description); setKeywords(config.keywords || ''); } }, [config]);
   const handleSave = () => { updateSeoConfig({ route, title, description, keywords }); onClose(); };
   if (!isOpen) return null;
-  return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-blue-700 text-white px-3 py-1 rounded">Save</button></div></Modal>);
+  return (<Modal isOpen={isOpen} onClose={onClose} title={config ? 'Edit SEO' : 'New SEO'}><InputField label="Route" value={route} onChange={e => setRoute(e.target.value)} disabled={!!config} /><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Description" value={description} onChange={e => setDescription(e.target.value)} /><InputField label="Keywords" value={keywords} onChange={e => setKeywords(e.target.value)} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
   const [model, setModel] = useState<any>({ 
@@ -2175,10 +2175,10 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
         <InputField label="Doors" type="number" value={model.doors} onChange={(e: any) => handleChange('doors', parseInt(e.target.value))} />
       </div>
 
-      <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image)</label>
+      <div className="mt-6 p-4 bg-gray-50 rounded-card border border-gray-100">
+        <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image)</label>
         <div className="flex gap-4 items-start">
-          <div className="w-40 h-28 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
+          <div className="w-40 h-28 rounded-card bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
               <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width="400" height="250" referrerPolicy="no-referrer" />
             ) : (
@@ -2187,12 +2187,12 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
           </div>
           <div className="flex-grow space-y-4">
             <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload Photo (Target: {targetWidth}x{targetHeight})</label>
+                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Upload Photo (Target: {targetWidth}x{targetHeight})</label>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                     <div className="space-y-1">
                         <div className="flex justify-between items-center">
                             <label className="text-[9px] text-gray-400 uppercase font-bold">Max Width</label>
-                            <span className="text-[7px] bg-blue-100 text-blue-700 px-1 rounded font-black">8K</span>
+                            <span className="text-[7px] bg-blue-100 text-[#007ac2] px-1 rounded font-extrabold">8K</span>
                         </div>
                         <input 
                             type="number" 
@@ -2236,7 +2236,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                     />
                     <label 
                         htmlFor="car-model-image-upload"
-                        className="flex-grow flex items-center justify-center gap-2 px-4 py-2 bg-white text-blue-700 rounded-xl border border-blue-100 font-bold text-xs cursor-pointer hover:bg-blue-50 transition-colors shadow-sm"
+                        className="flex-grow flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#007ac2] rounded-card border border-blue-100 font-bold text-xs cursor-pointer hover:bg-blue-50 transition-colors shadow-sm"
                     >
                         <PlusCircle className="w-4 h-4" />
                         Choose File
@@ -2245,7 +2245,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                         <button 
                             type="button" 
                             onClick={() => handleChange('imageUrl', '')}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-xl border border-red-100 transition-all bg-white shadow-sm"
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-card border border-red-100 transition-all bg-white shadow-sm"
                             title="Clear image"
                         >
                             <Trash2 className="w-4 h-4" />
@@ -2268,13 +2268,13 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
       <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
         <button 
           onClick={onClose}
-          className="px-6 py-2.5 rounded-2xl font-bold text-sm text-gray-500 hover:bg-gray-50 transition-all"
+          className="px-6 py-2.5 rounded-card font-bold text-sm text-gray-500 hover:bg-gray-50 transition-all"
         >
           Cancel
         </button>
         <button 
           onClick={handleSave} 
-          className="bg-blue-700 text-white px-8 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-blue-200 hover:bg-blue-800 transition-all"
+          className="bg-[#007ac2] text-white px-8 py-2.5 rounded-card font-bold text-sm shadow-xl shadow-blue-200 hover:bg-blue-800 transition-all"
         >
           {carModel ? 'Save Changes' : 'Create Model'}
         </button>
@@ -2342,11 +2342,11 @@ const HomepageLogosContent = () => {
             <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 tracking-tight text-left">Homepage Branding</h2>
+                        <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight text-left">Homepage Branding</h2>
                         <p className="text-sm text-gray-500 font-medium text-left">Control global brands and trusted partners displayed on the landing page</p>
                     </div>
                     <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, scale: 100, mobileScale: 100, spacing: 24, active: true })} 
-                        className="bg-blue-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
+                        className="bg-[#007ac2] text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
                         <PlusCircle className="w-5 h-5" />
                         Add New Brand
                     </button>
@@ -2355,11 +2355,11 @@ const HomepageLogosContent = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50">
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Preview</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Brand Name</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Order</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Preview</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Brand Name</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Order</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -2370,7 +2370,7 @@ const HomepageLogosContent = () => {
                             ) : logos.map((l: any) => (
                                 <tr key={l.id} className="hover:bg-blue-50/30 transition-colors group">
                                     <td className="px-8 py-4">
-                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
+                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-card flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
                                                 <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
                                             ) : (
@@ -2378,13 +2378,13 @@ const HomepageLogosContent = () => {
                                             )}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-4"><span className="text-sm font-black text-slate-900">{l.name}</span></td>
+                                    <td className="px-8 py-4"><span className="text-sm font-extrabold text-slate-900">{l.name}</span></td>
                                     <td className="px-8 py-4"><span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{l.displayOrder}</span></td>
                                     <td className="px-8 py-4"><Badge status={l.active ? 'active' : 'inactive'} /></td>
                                     <td className="px-8 py-4 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-xl transition-all"><Edit className="w-4 h-4"/></button>
-                                            <button onClick={() => handleDelete(l.id)} className="p-2 bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-xl transition-all"><Trash2 className="w-4 h-4"/></button>
+                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#007ac2] rounded-card transition-all"><Edit className="w-4 h-4"/></button>
+                                            <button onClick={() => handleDelete(l.id)} className="p-2 bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-card transition-all"><Trash2 className="w-4 h-4"/></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -2472,15 +2472,15 @@ const SearchingLogosContent = () => {
             <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 tracking-tight text-left">Searching Page Branding</h2>
+                        <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight text-left">Searching Page Branding</h2>
                         <p className="text-sm text-gray-500 font-medium text-left">Manage logos displayed during the scanning animation for specific locations</p>
                     </div>
                     <div className="flex gap-3">
-                        <button onClick={fetchLogos} disabled={loading} className="p-2.5 rounded-2xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm">
+                        <button onClick={fetchLogos} disabled={loading} className="p-2.5 rounded-card bg-white border border-gray-200 text-gray-500 hover:text-[#007ac2] hover:border-blue-200 transition-all shadow-sm">
                             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
                         </button>
                         <button onClick={() => setEditingLogo({ name: '', logoUrl: '', locationCodes: [], displayOrder: logos.length + 1, scale: 100, mobileScale: 100, spacing: 24, active: true })} 
-                            className="bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2">
+                            className="bg-[#007ac2] text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-lg shadow-blue-200 hover:bg-[#007ac2] transition-all flex items-center gap-2">
                             <PlusCircle className="w-5 h-5" />
                             Add New Searching Logo
                         </button>
@@ -2490,12 +2490,12 @@ const SearchingLogosContent = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50">
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Preview</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Name</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Location</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Order</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Preview</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Name</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Location</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Order</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -2506,7 +2506,7 @@ const SearchingLogosContent = () => {
                             ) : logos.map((l: any) => (
                                 <tr key={l.id} className="hover:bg-blue-50/30 transition-colors group">
                                     <td className="px-8 py-4">
-                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-lg flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
+                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-card flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
                                                 <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
                                             ) : (
@@ -2514,12 +2514,12 @@ const SearchingLogosContent = () => {
                                             )}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-4"><span className="text-sm font-black text-slate-900">{l.name}</span></td>
+                                    <td className="px-8 py-4"><span className="text-sm font-extrabold text-slate-900">{l.name}</span></td>
                                     <td className="px-8 py-4">
                                         <div className="flex flex-wrap gap-1 max-w-[150px]">
                                             {Array.isArray(l.locationCodes) && l.locationCodes.length > 0 ? (
                                                 l.locationCodes.map((code: string) => (
-                                                    <span key={code} className="text-[9px] font-mono font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">
+                                                    <span key={code} className="text-[9px] font-mono font-bold text-[#007ac2] bg-blue-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">
                                                         {code}
                                                     </span>
                                                 ))
@@ -2532,8 +2532,8 @@ const SearchingLogosContent = () => {
                                     <td className="px-8 py-4"><Badge status={l.active ? 'active' : 'inactive'} /></td>
                                     <td className="px-8 py-4 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-600 rounded-xl transition-all"><Edit className="w-4 h-4"/></button>
-                                            <button onClick={() => handleDelete(l.id)} className="p-2 bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-xl transition-all"><Trash2 className="w-4 h-4"/></button>
+                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#007ac2] rounded-card transition-all"><Edit className="w-4 h-4"/></button>
+                                            <button onClick={() => handleDelete(l.id)} className="p-2 bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-card transition-all"><Trash2 className="w-4 h-4"/></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -2572,25 +2572,25 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                 <InputField label="Name / Brand" value={formData.name} onChange={(e: any) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g., Local Jordan Partner" />
                 
                 <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Logo Image</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Logo Image</label>
                     <div className="flex gap-4 items-start">
                         <div className="flex-1 space-y-3">
                             <InputField value={formData.logoUrl} onChange={(e: any) => setFormData({ ...formData, logoUrl: e.target.value })} placeholder="Paste direct image URL or upload →" />
                         </div>
                         <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
-                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-2xl transition-colors flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-200">
+                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-card transition-colors flex items-center justify-center text-slate-400 hover:text-[#007ac2] hover:border-blue-200">
                             <ImageIcon className="w-6 h-6" />
                         </button>
                     </div>
                     {formData.logoUrl && (
-                        <div className="mt-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50 flex items-center justify-center">
+                        <div className="mt-4 p-4 border border-slate-100 rounded-card bg-slate-50/50 flex items-center justify-center">
                             <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
                         </div>
                     )}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Target Locations (IATA/City)</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Target Locations (IATA/City)</label>
                     <LocationPicker 
                         onChange={(loc: any) => {
                             if (!loc) return;
@@ -2604,14 +2604,14 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                     />
                     <div className="flex flex-wrap gap-1.5 mt-2 min-h-[32px] items-center">
                         {(!Array.isArray(formData.locationCodes) || formData.locationCodes.length === 0) && (
-                            <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-slate-100">Global (All Locations)</span>
+                            <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-card uppercase tracking-wider border border-slate-100">Global (All Locations)</span>
                         )}
                         {Array.isArray(formData.locationCodes) && formData.locationCodes.map((code: string) => (
-                            <span key={code} className="bg-blue-50 text-blue-700 pl-3 pr-2 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 border border-blue-100 group">
+                            <span key={code} className="bg-blue-50 text-[#007ac2] pl-3 pr-2 py-1.5 rounded-card text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-2 border border-blue-100 group">
                                 {code}
                                 <button 
                                     onClick={() => setFormData({ ...formData, locationCodes: formData.locationCodes.filter((c: string) => c !== code) })} 
-                                    className="p-1 rounded-lg hover:bg-blue-200/50 text-blue-400 hover:text-blue-800 transition-all"
+                                    className="p-1 rounded-card hover:bg-blue-200/50 text-blue-400 hover:text-blue-800 transition-all"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
@@ -2632,9 +2632,9 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Status</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Status</label>
                     <select 
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                        className="w-full bg-white border border-slate-200 rounded-card px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                         value={formData.active ? 'true' : 'false'}
                         onChange={(e) => setFormData({ ...formData, active: e.target.value === 'true' })}
                     >
@@ -2644,7 +2644,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                    <button onClick={onClose} type="button" className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
+                    <button onClick={onClose} type="button" className="flex-1 py-4 rounded-card font-extrabold text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
                     <button 
                         onClick={() => { 
                             if (!formData.name?.trim()) { alert('Please provide a name/brand'); return; }
@@ -2662,7 +2662,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                         }} 
                         type="button"
                         disabled={loading}
-                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white transition-all ${loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 shadow-lg shadow-blue-200 hover:bg-blue-700'}`}
+                        className={`flex-1 py-4 rounded-card font-extrabold text-xs uppercase tracking-widest text-white transition-all ${loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#007ac2] shadow-lg shadow-blue-200 hover:bg-[#007ac2]'}`}
                     >
                         {loading ? 'Processing...' : (logo?.id ? 'Update Branding' : 'Add Branding')}
                     </button>
@@ -2698,7 +2698,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 <InputField label="Brand Name" value={formData.name} onChange={(e: any) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g., Hertz, Avis, Local Partner" />
                 
                 <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Brand Logo</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Brand Logo</label>
                     <div className="flex gap-4 items-start">
                         <div className="flex-1 space-y-3">
                             <InputField value={formData.logoUrl} onChange={(e: any) => setFormData({ ...formData, logoUrl: e.target.value })} placeholder="Paste direct image URL or upload →" />
@@ -2708,12 +2708,12 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                             </div>
                         </div>
                         <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
-                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-2xl transition-colors flex items-center justify-center text-slate-400 hover:text-blue-700 hover:border-blue-200">
+                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-card transition-colors flex items-center justify-center text-slate-400 hover:text-[#007ac2] hover:border-blue-200">
                             <ImageIcon className="w-6 h-6" />
                         </button>
                     </div>
                     {formData.logoUrl && (
-                        <div className="mt-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50 flex items-center justify-center">
+                        <div className="mt-4 p-4 border border-slate-100 rounded-card bg-slate-50/50 flex items-center justify-center">
                             <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
                         </div>
                     )}
@@ -2730,9 +2730,9 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">Status</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Status</label>
                     <select 
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                        className="w-full bg-white border border-slate-200 rounded-card px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                         value={formData.active ? 'true' : 'false'}
                         onChange={(e) => setFormData({ ...formData, active: e.target.value === 'true' })}
                     >
@@ -2742,8 +2742,8 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                    <button onClick={onClose} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onSave(formData)} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-700 shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all">Save Changes</button>
+                    <button onClick={onClose} className="flex-1 py-4 rounded-card font-extrabold text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
+                    <button onClick={() => onSave(formData)} className="flex-1 py-4 rounded-card font-extrabold text-xs uppercase tracking-widest text-white bg-[#007ac2] shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all">Save Changes</button>
                 </div>
             </div>
         </Modal>
@@ -2777,10 +2777,10 @@ const RatesModal = ({ car, supplier, onClose }: any) => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[32px] w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
                 <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-black text-slate-900">Active Rates</h2>
+                        <h2 className="text-lg font-extrabold text-slate-900">Active Rates</h2>
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{car.make} {car.model} • {car.locationCode}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-900 border border-slate-100 shadow-sm">
+                    <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-card transition-colors text-slate-400 hover:text-slate-900 border border-slate-100 shadow-sm">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -2792,19 +2792,19 @@ const RatesModal = ({ car, supplier, onClose }: any) => {
                     ) : (
                         <div className="space-y-4">
                             {rates.map((tier: any) => (
-                                <div key={tier.id} className="p-6 rounded-2xl border border-slate-100 bg-slate-50/30">
+                                <div key={tier.id} className="p-6 rounded-card border border-slate-100 bg-slate-50/30">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h4 className="font-black text-slate-900 text-sm">{tier.name}</h4>
+                                            <h4 className="font-extrabold text-slate-900 text-sm">{tier.name}</h4>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{tier.startDate} — {tier.endDate}</p>
                                         </div>
-                                        <div className="px-2 py-1 bg-white rounded-lg border border-slate-200 text-[10px] font-black text-indigo-600 uppercase">{tier.currency}</div>
+                                        <div className="px-2 py-1 bg-white rounded-card border border-slate-200 text-[10px] font-extrabold text-indigo-600 uppercase">{tier.currency}</div>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {tier.bands?.map((band: any, idx: number) => (
-                                            <div key={idx} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">{band.minDays}-{band.maxDays === 9999 ? '∞' : band.maxDays} Days</p>
-                                                <p className="text-xs font-black text-slate-900 tracking-tight">{tier.currency} {band.dailyRate}</p>
+                                            <div key={idx} className="bg-white p-3 rounded-card border border-slate-100 shadow-sm">
+                                                <p className="text-[8px] font-extrabold text-slate-400 uppercase mb-1">{band.minDays}-{band.maxDays === 9999 ? '∞' : band.maxDays} Days</p>
+                                                <p className="text-xs font-extrabold text-slate-900 tracking-tight">{tier.currency} {band.dailyRate}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -2875,11 +2875,11 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
           <div>
             <div className="flex items-center gap-3 mb-1">
               <Car className="w-5 h-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-900">Fleet Management</h2>
+              <h2 className="text-xl font-extrabold text-slate-900">Fleet Management</h2>
             </div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{supplier.name} • Choice & Promotions</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white rounded-xl transition-colors text-slate-400 hover:text-slate-900 border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md">
+          <button onClick={onClose} className="p-2 hover:bg-white rounded-card transition-colors text-slate-400 hover:text-slate-900 border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -2888,10 +2888,10 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <LoaderCircle className="w-10 h-10 text-indigo-600 animate-spin" />
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Accessing Fleet Inventory...</p>
+              <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Accessing Fleet Inventory...</p>
             </div>
           ) : error ? (
-            <div className="p-6 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-4 text-red-600">
+            <div className="p-6 bg-red-50 rounded-card border border-red-100 flex items-center gap-4 text-red-600">
               <AlertCircle className="w-6 h-6" />
               <p className="font-bold">{error}</p>
             </div>
@@ -2901,15 +2901,15 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
                <p className="text-slate-400 font-bold uppercase tracking-widest">No vehicles found for this partner</p>
             </div>
           ) : (
-            <div className="overflow-hidden border border-slate-100 rounded-2xl bg-white shadow-sm">
+            <div className="overflow-hidden border border-slate-100 rounded-card bg-white shadow-sm">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/80 border-b border-slate-100">
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Location</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Rates</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Hogicar Choice</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Commission Promo</th>
+                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Vehicle</th>
+                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Location</th>
+                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Rates</th>
+                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Hogicar Choice</th>
+                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Commission Promo</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -2917,24 +2917,24 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
                     <tr key={car.id} className="hover:bg-slate-50/30 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-10 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 overflow-hidden">
+                          <div className="w-16 h-10 rounded-card bg-slate-50 flex items-center justify-center border border-slate-100 overflow-hidden">
                             {car.imageUrl ? <img src={car.imageUrl} className="w-full h-full object-contain" /> : <Car className="w-5 h-5 text-slate-200" />}
                           </div>
                           <div>
-                            <div className="text-xs font-black text-slate-900">{car.make} {car.model}</div>
+                            <div className="text-xs font-extrabold text-slate-900">{car.make} {car.model}</div>
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{car.sippCode} • {car.category}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-600 border border-slate-200">
+                        <span className="px-2 py-1 bg-slate-100 rounded-card text-[10px] font-extrabold text-slate-600 border border-slate-200">
                           {car.locationCode || 'N/A'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button 
                           onClick={() => onShowRates(car)}
-                          className="p-2 hover:bg-white rounded-xl transition-all text-slate-400 hover:text-indigo-600 border border-transparent hover:border-indigo-100 shadow-sm"
+                          className="p-2 hover:bg-white rounded-card transition-all text-slate-400 hover:text-indigo-600 border border-transparent hover:border-indigo-100 shadow-sm"
                         >
                           <FileText className="w-4 h-4" />
                         </button>
@@ -2958,7 +2958,7 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
                                  type="number"
                                  defaultValue={car.hogicarPromotion || 0}
                                  onBlur={(e) => handleUpdatePromo(car.id, parseFloat(e.target.value) || 0)}
-                                 className="w-20 pl-6 pr-2 py-1.5 bg-indigo-50/30 border border-indigo-100 rounded-lg text-xs font-black text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                 className="w-20 pl-6 pr-2 py-1.5 bg-indigo-50/30 border border-indigo-100 rounded-card text-xs font-extrabold text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500/20"
                                />
                                <Percent className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-indigo-400" />
                              </div>
@@ -3411,7 +3411,7 @@ export const AdminDashboard: React.FC = () => {
       case 'seo': return <SeoContent configs={MOCK_SEO_CONFIGS} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} />;
       case 'homepage':
         if (loadingHomepageEditor) {
-          return <div className="p-8 text-center text-slate-500 font-black uppercase tracking-widest text-xs">Loading Homepage Editor...</div>;
+          return <div className="p-8 text-center text-slate-500 font-extrabold uppercase tracking-widest text-xs">Loading Homepage Editor...</div>;
         }
         return <HomepageContentSection content={homepageContent} categoryImages={categoryImages} onSave={handleSaveHomepage} isSaving={savingHomepageEditor} />;
       case 'sitesettings': return <SiteSettingsContent />;
@@ -3438,7 +3438,7 @@ export const AdminDashboard: React.FC = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-6 py-3 rounded-card shadow-2xl flex items-center gap-3 border border-slate-800"
           >
             {toast.type === 'success' ? <CheckCircle className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
             <span className="text-sm font-bold tracking-tight">{toast.message}</span>
@@ -3448,15 +3448,15 @@ export const AdminDashboard: React.FC = () => {
 
       <div className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 px-4 py-3 flex justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-2">
-            <div className="bg-slate-950 p-2 rounded-xl shadow-lg">
+            <div className="bg-slate-950 p-2 rounded-card shadow-lg">
                 <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="block font-black text-slate-950 tracking-tight uppercase leading-none">Admin Portal</span>
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.18em]">Control plane</span>
+              <span className="block font-extrabold text-slate-950 tracking-tight uppercase leading-none">Admin Portal</span>
+              <span className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.18em]">Control plane</span>
             </div>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors">
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-card transition-colors">
             {isSidebarOpen ? <X className="w-6 h-6 text-slate-700" /> : <Menu className="w-6 h-6 text-slate-700" />}
         </button>
       </div>
@@ -3465,11 +3465,11 @@ export const AdminDashboard: React.FC = () => {
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
         
         <main className="flex-grow min-w-0 max-w-[1600px] mx-auto">
-          <header className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 lg:mb-8 gap-5 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
+          <header className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 lg:mb-8 gap-5 bg-white p-4 sm:p-5 rounded-card shadow-sm border border-slate-200">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-                className="hidden lg:flex p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all duration-300 group shadow-sm"
+                className="hidden lg:flex p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-card transition-all duration-300 group shadow-sm"
                 title={isSidebarOpen ? "Close Menu" : "Open Menu"}
               >
                 {isSidebarOpen ? (
@@ -3479,11 +3479,11 @@ export const AdminDashboard: React.FC = () => {
                 )}
               </button>
               <div>
-                <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">
+                <div className="flex items-center gap-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.3em] mb-1">
                   <LayoutDashboard className="w-3 h-3" />
                   <span>System / {activeSection}</span>
                 </div>
-                <h1 className="text-2xl font-black text-slate-900 capitalize tracking-tight leading-none">
+                <h1 className="text-2xl font-extrabold text-slate-900 capitalize tracking-tight leading-none">
                   {activeSection === 'dashboard' ? 'Market Overview' : activeSection}
                 </h1>
               </div>
@@ -3491,14 +3491,14 @@ export const AdminDashboard: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 lg:gap-4 w-full xl:w-auto">
               {['dashboard', 'bookings', 'fleet', 'suppliers'].includes(activeSection) && (
-                <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 w-full sm:w-auto">
-                  <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-blue-700 border border-slate-100">
+                <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-card border border-slate-200 hover:border-blue-200 transition-all duration-300 w-full sm:w-auto">
+                  <div className="w-8 h-8 rounded-card bg-white shadow-sm flex items-center justify-center text-[#007ac2] border border-slate-100">
                     <Building className="w-4 h-4" />
                   </div>
                   <div className="flex flex-col pr-3 min-w-0 flex-1">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">Supplier Node</span>
+                    <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Supplier Node</span>
                     <select 
-                        className="bg-transparent text-xs font-black text-slate-900 outline-none cursor-pointer min-w-0"
+                        className="bg-transparent text-xs font-extrabold text-slate-900 outline-none cursor-pointer min-w-0"
                         value={selectedSupplierId || ''}
                         onChange={(e) => setSelectedSupplierId(e.target.value || null)}
                     >
@@ -3512,15 +3512,15 @@ export const AdminDashboard: React.FC = () => {
               )}
 
               {selectedSupplierId && (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 bg-blue-700 px-4 py-2 rounded-xl text-white shadow-lg shadow-blue-200 w-full sm:w-auto">
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 bg-[#007ac2] px-4 py-2 rounded-card text-white shadow-lg shadow-blue-200 w-full sm:w-auto">
                     <div className="flex flex-col border-r border-blue-500 pr-3 min-w-0">
-                        <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Login Identity</span>
+                        <span className="text-[7px] font-extrabold uppercase tracking-[0.2em] opacity-70">Login Identity</span>
                         <span className="text-[10px] font-bold truncate max-w-[120px]">
                             {suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.email || 'N/A'}
                         </span>
                     </div>
                     <div className="flex flex-col pl-1">
-                        <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-70">Access Key</span>
+                        <span className="text-[7px] font-extrabold uppercase tracking-[0.2em] opacity-70">Access Key</span>
                         <div 
                             className="flex items-center gap-2 cursor-pointer group/pass"
                             onClick={() => {
@@ -3545,15 +3545,15 @@ export const AdminDashboard: React.FC = () => {
               <div className="hidden sm:flex items-center gap-3.5 sm:pl-4 sm:border-l border-slate-100">
                  <motion.div 
                     whileHover={{ scale: 1.05 }}
-                    className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg font-black text-sm cursor-pointer"
+                    className="w-10 h-10 rounded-card bg-slate-900 flex items-center justify-center text-white shadow-lg font-extrabold text-sm cursor-pointer"
                  >
                     AD
                  </motion.div>
                  <div className="hidden xl:block">
-                    <p className="text-xs font-black text-slate-900 leading-none">Root Auth</p>
+                    <p className="text-xs font-extrabold text-slate-900 leading-none">Root Auth</p>
                     <div className="flex items-center gap-1 mt-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></span>
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Security Tier 1</p>
+                        <p className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Security Tier 1</p>
                     </div>
                  </div>
               </div>
@@ -3574,7 +3574,7 @@ export const AdminDashboard: React.FC = () => {
           </AnimatePresence>
 
           <footer className="mt-16 py-8 border-t border-gray-100 text-center">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
+            <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-[0.3em]">
                 &copy; {new Date().getFullYear()} Hogicar Global Infrastructure. All Systems Operational.
             </p>
           </footer>

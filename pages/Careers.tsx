@@ -81,7 +81,7 @@ const Careers: React.FC = () => {
                 {/* Job Listings Column */}
                 <div className="lg:col-span-2" id="open-positions">
                     <div className="flex items-center gap-3 mb-8">
-                        <Briefcase className="w-6 h-6 text-blue-600"/>
+                        <Briefcase className="w-6 h-6 text-[#007ac2]"/>
                         <h2 className="text-2xl font-bold text-slate-900">Open Positions</h2>
                     </div>
 
@@ -89,13 +89,13 @@ const Careers: React.FC = () => {
                         {OPEN_POSITIONS.map(job => (
                             <div 
                                 key={job.id} 
-                                className={`bg-white p-6 rounded-xl border transition-all cursor-pointer ${selectedJob === job.id ? 'border-blue-500 ring-2 ring-blue-100 shadow-md' : 'border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md'}`}
+                                className={`bg-white p-6 rounded-card border transition-all cursor-pointer ${selectedJob === job.id ? 'border-blue-500 ring-2 ring-blue-100 shadow-md' : 'border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md'}`}
                                 onClick={() => { setSelectedJob(job.id); setApplicationSent(false); }}
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
                                         <h3 className="text-lg font-bold text-slate-800">{job.title}</h3>
-                                        <p className="text-sm text-blue-600 font-medium">{job.department}</p>
+                                        <p className="text-sm text-[#007ac2] font-medium">{job.department}</p>
                                     </div>
                                     <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded uppercase">{job.type}</span>
                                 </div>
@@ -108,16 +108,16 @@ const Careers: React.FC = () => {
                         ))}
                     </div>
 
-                    <div className="mt-8 bg-blue-50 border border-blue-100 p-6 rounded-xl text-center">
+                    <div className="mt-8 bg-blue-50 border border-blue-100 p-6 rounded-card text-center">
                         <h3 className="font-bold text-blue-900 mb-2">Don't see the right role?</h3>
-                        <p className="text-sm text-blue-700 mb-4">We are always looking for talent. Submit a general application below.</p>
-                        <button onClick={() => { setSelectedJob(null); setApplicationSent(false); }} className="text-sm font-bold text-blue-600 underline hover:text-blue-800">Apply generally</button>
+                        <p className="text-sm text-[#007ac2] mb-4">We are always looking for talent. Submit a general application below.</p>
+                        <button onClick={() => { setSelectedJob(null); setApplicationSent(false); }} className="text-sm font-bold text-[#007ac2] underline hover:text-blue-800">Apply generally</button>
                     </div>
                 </div>
 
                 {/* Application Form Column */}
                 <div className="lg:col-span-1">
-                    <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200 sticky top-24">
+                    <div className="bg-white p-6 rounded-card shadow-lg border border-slate-200 sticky top-24">
                         {applicationSent ? (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -125,7 +125,7 @@ const Careers: React.FC = () => {
                                 </div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-2">Application Received!</h3>
                                 <p className="text-slate-500 text-sm">Thanks for applying to Hogicar. We'll be in touch shortly.</p>
-                                <button onClick={() => setApplicationSent(false)} className="mt-6 text-blue-600 text-sm font-bold hover:underline">Submit another application</button>
+                                <button onClick={() => setApplicationSent(false)} className="mt-6 text-[#007ac2] text-sm font-bold hover:underline">Submit another application</button>
                             </div>
                         ) : (
                             <>
@@ -169,7 +169,7 @@ const Careers: React.FC = () => {
                                             <div className="space-y-1 text-center pointer-events-none">
                                                 <Upload className="mx-auto h-8 w-8 text-slate-400" />
                                                 <div className="flex text-sm text-slate-600">
-                                                    <span className="relative rounded-md font-medium text-blue-600 hover:text-blue-500">
+                                                    <span className="relative rounded-md font-medium text-[#007ac2] hover:text-blue-500">
                                                         {resume ? resume.name : 'Upload a file'}
                                                     </span>
                                                 </div>
@@ -189,7 +189,7 @@ const Careers: React.FC = () => {
                                         ></textarea>
                                     </div>
 
-                                    <button type="submit" className="w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
+                                    <button type="submit" className="w-full flex justify-center items-center gap-2 bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold py-3 rounded-card shadow-sm transition-transform active:scale-95 text-sm">
                                         Submit Application <ArrowRight className="w-4 h-4"/>
                                     </button>
                                 </form>

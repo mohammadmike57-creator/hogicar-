@@ -53,7 +53,7 @@ const FullFooter = () => (
                   Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
                 </p>
             </div>
-            <div className="bg-blue-900/50 p-3 rounded-lg border border-blue-700 w-full md:w-auto flex-shrink-0">
+            <div className="bg-blue-900/50 p-3 rounded-card border border-blue-700 w-full md:w-auto flex-shrink-0">
                 <p className="font-bold text-xs mb-1.5 text-blue-100">Rated on Trustpilot</p>
                 <div className="flex items-center gap-2">
                     <div className="flex bg-white p-1 rounded-sm scale-90 origin-left">
@@ -96,7 +96,7 @@ const FullFooter = () => (
           </div>
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Security</h3>
-            <div className="flex items-center gap-2.5 bg-blue-900/40 p-2.5 rounded-lg border border-blue-800/50 w-max">
+            <div className="flex items-center gap-2.5 bg-blue-900/40 p-2.5 rounded-card border border-blue-800/50 w-max">
                 <div className="bg-green-500/20 p-1.5 rounded-full">
                     <Lock className="w-4 h-4 text-green-400" />
                 </div>
@@ -116,7 +116,7 @@ const FullFooter = () => (
               <VisaIcon />
               <MastercardIcon />
               <AmexIcon />
-              <div className="w-px h-6 bg-blue-700 mx-1"></div>
+              <div className="w-px h-6 bg-[#007ac2] mx-1"></div>
               <PciDssIcon />
           </div>
           
@@ -203,7 +203,7 @@ const Layout: React.FC = () => {
                   {/* Backdrop */}
                   <div className="fixed inset-0 z-40" onClick={() => setIsCurrencyOpen(false)}></div>
                   {/* Dropdown panel */}
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
                       <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
                     </div>
@@ -212,14 +212,14 @@ const Layout: React.FC = () => {
                         <button 
                           key={currency.code} 
                           onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
-                          className={`block w-full text-left px-4 py-3 text-sm rounded-xl transition-colors ${selectedCurrency === currency.code ? 'text-blue-700 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                          className={`block w-full text-left px-4 py-3 text-sm rounded-card transition-colors ${selectedCurrency === currency.code ? 'text-[#007ac2] font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                         >
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
                                 <span className="text-xl">{currency.flag}</span>
                                 <span>{currency.code} - {currency.name}</span>
                             </div>
-                            {selectedCurrency === currency.code && <Check className="w-4 h-4 text-blue-600" />}
+                            {selectedCurrency === currency.code && <Check className="w-4 h-4 text-[#007ac2]" />}
                           </div>
                         </button>
                       ))}
@@ -234,7 +234,7 @@ const Layout: React.FC = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-white hover:text-blue-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors"
+              className="inline-flex items-center justify-center p-2 rounded-card text-white hover:text-blue-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
@@ -259,7 +259,7 @@ const Layout: React.FC = () => {
                     <button 
                       key={curr.code} 
                       onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} 
-                      className={`flex flex-col items-center justify-center gap-1 text-[10px] font-black p-3 rounded-xl border transition-all ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}
+                      className={`flex flex-col items-center justify-center gap-1 text-[10px] font-extrabold p-3 rounded-card border transition-all ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}
                     >
                       <span className="text-lg">{curr.flag}</span>
                       <span>{curr.code}</span>

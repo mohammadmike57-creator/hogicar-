@@ -54,15 +54,15 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
             className={`absolute bottom-full ${alignClass} mb-3 ${compact ? 'w-[min(20rem,calc(100vw-1.5rem))]' : 'w-[min(34rem,calc(100vw-2rem))]'} transition-all duration-300 z-[1000] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-[0.98] pointer-events-none'} ${className}`}
         >
             <div className={`absolute -bottom-2 h-4 w-4 rotate-45 rounded-sm bg-[#171717] ${arrowClass}`} />
-            <div className="relative overflow-hidden rounded-lg border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)]">
+            <div className="relative overflow-hidden rounded-card border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)]">
                 <div className={`${compact ? 'px-3 py-3' : 'px-5 py-4'} border-b border-white/10`}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h4 className={`${compact ? 'text-sm' : 'text-base'} font-black leading-tight`}>{supplierName} · Customer ratings</h4>
+                            <h4 className={`${compact ? 'text-sm' : 'text-base'} font-extrabold leading-tight`}>{supplierName} · Customer ratings</h4>
                             <p className={`mt-1 ${compact ? 'text-xs' : 'text-sm'} font-medium leading-snug text-white/75`}>Based on {reviewText} from post-trip surveys for this location.</p>
                         </div>
                         {rating ? (
-                            <div className={`shrink-0 rounded-md border border-[#48a868] bg-white ${compact ? 'px-2 py-1 text-sm' : 'px-3 py-1.5 text-lg'} font-black leading-none text-[#22854a]`}>
+                            <div className={`shrink-0 rounded-md border border-[#48a868] bg-white ${compact ? 'px-2 py-1 text-sm' : 'px-3 py-1.5 text-lg'} font-extrabold leading-none text-[#22854a]`}>
                                 {rating.toFixed(1)}
                             </div>
                         ) : null}
@@ -77,7 +77,7 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
                                     <item.icon className="h-3.5 w-3.5 shrink-0 text-white/45" />
                                     <span className="truncate">{item.label}</span>
                                 </span>
-                                <span className={`shrink-0 ${compact ? 'text-xs' : 'text-sm'} font-black text-white`}>{scoreFromPercent(ratings[item.key])}</span>
+                                <span className={`shrink-0 ${compact ? 'text-xs' : 'text-sm'} font-extrabold text-white`}>{scoreFromPercent(ratings[item.key])}</span>
                             </div>
                             <div className={`relative ${compact ? 'h-1.5' : 'h-2.5'} w-full overflow-hidden rounded-full bg-white/10`}>
                                 <div 

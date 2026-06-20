@@ -74,10 +74,10 @@ const AffiliateProgram: React.FC = () => {
                             <LayoutDashboard className="w-8 h-8 text-blue-300"/>
                             <div>
                                 <h1 className="text-2xl font-bold">{currentUser.name}</h1>
-                                <p className="text-blue-200 text-sm">Affiliate Partner ID: <span className="font-mono bg-blue-700/50 px-2 py-0.5 rounded">{currentUser.id}</span></p>
+                                <p className="text-blue-200 text-sm">Affiliate Partner ID: <span className="font-mono bg-[#007ac2]/50 px-2 py-0.5 rounded">{currentUser.id}</span></p>
                             </div>
                         </div>
-                        <button onClick={() => { setView('landing'); setSubmitted(false); }} className="text-sm bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded flex items-center gap-2">
+                        <button onClick={() => { setView('landing'); setSubmitted(false); }} className="text-sm bg-[#007ac2] hover:bg-[#007ac2] px-4 py-2 rounded flex items-center gap-2">
                             <LogOut className="w-4 h-4"/> Sign Out
                         </button>
                     </div>
@@ -85,9 +85,9 @@ const AffiliateProgram: React.FC = () => {
 
                 <div className="max-w-6xl mx-auto px-4 py-8">
                     {/* Unique Link Section - Prominent for new users */}
-                    <div className="bg-white p-8 rounded-xl shadow-lg border-2 border-blue-100 mb-8 transform transition-all hover:scale-[1.01]">
+                    <div className="bg-white p-8 rounded-card shadow-lg border-2 border-blue-100 mb-8 transform transition-all hover:scale-[1.01]">
                         <h2 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <Link2 className="w-6 h-6 text-blue-600"/> Your Unique Tracking Link
+                            <Link2 className="w-6 h-6 text-[#007ac2]"/> Your Unique Tracking Link
                         </h2>
                         <p className="text-sm text-slate-600 mb-6">
                             Start earning immediately! Copy the link below and share it on your website, blog, or social media. 
@@ -100,11 +100,11 @@ const AffiliateProgram: React.FC = () => {
                                     type="text" 
                                     readOnly 
                                     value={trackingLink} 
-                                    className="w-full bg-slate-50 border border-slate-300 text-slate-700 px-4 py-4 rounded-lg font-mono text-base focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-slate-50 border border-slate-300 text-slate-700 px-4 py-4 rounded-card font-mono text-base focus:ring-2 focus:ring-blue-500 outline-none"
                                 />
                             </div>
                             <button 
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg text-sm flex items-center justify-center gap-2 shadow-md transition-colors" 
+                                className="bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold px-8 py-3 rounded-card text-sm flex items-center justify-center gap-2 shadow-md transition-colors" 
                                 onClick={() => {
                                     navigator.clipboard.writeText(trackingLink);
                                     alert('Link copied to clipboard!');
@@ -121,33 +121,33 @@ const AffiliateProgram: React.FC = () => {
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div onClick={() => setActiveStat(activeStat === 'earnings' ? null : 'earnings')} className={`bg-white p-6 rounded-xl shadow-sm border cursor-pointer transition-all ${activeStat === 'earnings' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
+                        <div onClick={() => setActiveStat(activeStat === 'earnings' ? null : 'earnings')} className={`bg-white p-6 rounded-card shadow-sm border cursor-pointer transition-all ${activeStat === 'earnings' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Earnings</p>
                                     <h3 className="text-3xl font-extrabold text-slate-900 mt-1">${currentUser.totalEarnings.toFixed(2)}</h3>
                                 </div>
-                                <div className="p-3 bg-green-100 rounded-lg text-green-600"><DollarSign className="w-6 h-6"/></div>
+                                <div className="p-3 bg-green-100 rounded-card text-green-600"><DollarSign className="w-6 h-6"/></div>
                             </div>
                             <p className="text-xs text-slate-500">Commission Rate: {(currentUser.commissionRate * 100)}%</p>
                         </div>
-                        <div onClick={() => setActiveStat(activeStat === 'clicks' ? null : 'clicks')} className={`bg-white p-6 rounded-xl shadow-sm border cursor-pointer transition-all ${activeStat === 'clicks' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
+                        <div onClick={() => setActiveStat(activeStat === 'clicks' ? null : 'clicks')} className={`bg-white p-6 rounded-card shadow-sm border cursor-pointer transition-all ${activeStat === 'clicks' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Link Clicks</p>
                                     <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{currentUser.clicks}</h3>
                                 </div>
-                                <div className="p-3 bg-blue-100 rounded-lg text-blue-600"><MousePointer className="w-6 h-6"/></div>
+                                <div className="p-3 bg-blue-100 rounded-card text-[#007ac2]"><MousePointer className="w-6 h-6"/></div>
                             </div>
                             <p className="text-xs text-slate-500">Unique visitors from your link</p>
                         </div>
-                        <div onClick={() => setActiveStat(activeStat === 'conversions' ? null : 'conversions')} className={`bg-white p-6 rounded-xl shadow-sm border cursor-pointer transition-all ${activeStat === 'conversions' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
+                        <div onClick={() => setActiveStat(activeStat === 'conversions' ? null : 'conversions')} className={`bg-white p-6 rounded-card shadow-sm border cursor-pointer transition-all ${activeStat === 'conversions' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Conversions</p>
                                     <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{currentUser.conversions}</h3>
                                 </div>
-                                <div className="p-3 bg-purple-100 rounded-lg text-purple-600"><CheckCircle className="w-6 h-6"/></div>
+                                <div className="p-3 bg-purple-100 rounded-card text-purple-600"><CheckCircle className="w-6 h-6"/></div>
                             </div>
                             <p className="text-xs text-slate-500">Completed bookings</p>
                         </div>
@@ -155,7 +155,7 @@ const AffiliateProgram: React.FC = () => {
 
                     {/* Detailed Report Expanded Section */}
                     {activeStat && (
-                        <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mb-8 animate-fadeIn">
+                        <div className="bg-white p-6 rounded-card shadow-lg border border-slate-200 mb-8 animate-fadeIn">
                             <div className="flex justify-between items-center mb-6">
                                 <div>
                                     <h3 className="text-lg font-bold text-slate-800 capitalize">{activeStat} Report</h3>
@@ -228,21 +228,21 @@ const AffiliateProgram: React.FC = () => {
                         <p className="text-slate-500 mt-2">We provide the tools you need to succeed.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
-                            <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
+                            <div className="w-16 h-16 bg-blue-100 text-[#007ac2] rounded-full flex items-center justify-center mx-auto mb-6">
                                 <DollarSign className="w-8 h-8"/>
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 mb-3">High Commissions</h3>
                             <p className="text-slate-600 text-sm leading-relaxed">Earn competitive rates starting at 5% and going up to 7% based on volume. Get paid monthly.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
+                        <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
                             <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <PieChart className="w-8 h-8"/>
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 mb-3">Real-Time Reporting</h3>
                             <p className="text-slate-600 text-sm leading-relaxed">Track clicks, conversions, and earnings in real-time through our intuitive dashboard.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
+                        <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
                             <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Globe className="w-8 h-8"/>
                             </div>
@@ -260,7 +260,7 @@ const AffiliateProgram: React.FC = () => {
                         
                         {/* Registration Form */}
                         <div id="join-form">
-                            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200">
+                            <div className="bg-slate-50 p-8 rounded-card border border-slate-200">
                                 <h2 className="text-2xl font-bold text-slate-900 mb-6">Join the Network</h2>
                                 {submitted ? (
                                     <div className="text-center py-12">
@@ -274,29 +274,29 @@ const AffiliateProgram: React.FC = () => {
                                     <form onSubmit={handleRegister} className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-1">Company / Name</label>
-                                            <input type="text" required className="w-full border-slate-300 rounded-lg p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Travel Bloggers LLC" value={regName} onChange={e => setRegName(e.target.value)} />
+                                            <input type="text" required className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Travel Bloggers LLC" value={regName} onChange={e => setRegName(e.target.value)} />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-1">Website URL <span className="text-slate-400 font-normal text-xs">(Optional)</span></label>
-                                            <input type="url" className="w-full border-slate-300 rounded-lg p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://www.example.com" value={regWebsite} onChange={e => setRegWebsite(e.target.value)} />
+                                            <input type="url" className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://www.example.com" value={regWebsite} onChange={e => setRegWebsite(e.target.value)} />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
-                                            <input type="email" required className="w-full border-slate-300 rounded-lg p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="partner@example.com" value={regEmail} onChange={e => setRegEmail(e.target.value)} />
+                                            <input type="email" required className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="partner@example.com" value={regEmail} onChange={e => setRegEmail(e.target.value)} />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-1">Password</label>
                                             <input 
                                                 type="password" 
                                                 required 
-                                                className="w-full border-slate-300 rounded-lg p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
+                                                className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
                                                 placeholder="Create a secure password" 
                                                 value={regPassword} 
                                                 onChange={e => setRegPassword(e.target.value)} 
                                                 minLength={8}
                                             />
                                         </div>
-                                        <button type="submit" className="w-full bg-[#003580] hover:bg-blue-900 text-white font-bold py-4 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2">
+                                        <button type="submit" className="w-full bg-[#003580] hover:bg-blue-900 text-white font-bold py-4 rounded-card shadow-md transition-colors flex items-center justify-center gap-2">
                                             Apply Now <ArrowRight className="w-4 h-4"/>
                                         </button>
                                         <p className="text-xs text-slate-400 text-center mt-4">By applying, you agree to our Affiliate Terms & Conditions.</p>
@@ -316,7 +316,7 @@ const AffiliateProgram: React.FC = () => {
                                         <input 
                                             type="email" 
                                             required 
-                                            className="w-full border-slate-300 rounded-lg p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
+                                            className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
                                             placeholder="Enter your registered email"
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
@@ -327,17 +327,17 @@ const AffiliateProgram: React.FC = () => {
                                         <input 
                                             type="password" 
                                             required 
-                                            className="w-full border-slate-300 rounded-lg p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
+                                            className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                         />
                                     </div>
-                                    <button type="submit" className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-lg transition-colors">
+                                    <button type="submit" className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-card transition-colors">
                                         Log In
                                     </button>
                                 </form>
-                                <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                                <div className="mt-8 p-4 bg-blue-50 rounded-card border border-blue-100">
                                     <p className="text-xs text-blue-800 font-medium"><strong>Tip for Demo:</strong> Use <span className="font-mono">partners@travelbloggers.com</span> and password <span className="font-mono">password123</span> to log in.</p>
                                 </div>
                             </div>

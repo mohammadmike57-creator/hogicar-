@@ -24,7 +24,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 lg:py-20">
+    <div className="min-h-screen bg-white py-12 lg:py-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">Contact Us</h1>
@@ -36,12 +36,12 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Contact Information - Only Email */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div className="bg-white p-6 rounded-card shadow-sm border border-slate-100">
               <h3 className="text-xl font-bold text-slate-900 mb-6">Get in Touch</h3>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 text-[#007ac2] rounded-full flex items-center justify-center">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
@@ -56,7 +56,7 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+            <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100">
               {isSubmitted ? (
                 <div className="text-center py-12">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 text-green-600 rounded-full mb-6">
@@ -68,7 +68,7 @@ const Contact = () => {
                   </p>
                   <button 
                     onClick={() => setIsSubmitted(false)}
-                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors"
+                    className="px-6 py-3 bg-[#007ac2] text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors"
                   >
                     Send Another Message
                   </button>
@@ -87,7 +87,7 @@ const Contact = () => {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
+                        className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
                         placeholder="John Doe"
                       />
                     </div>
@@ -102,7 +102,7 @@ const Contact = () => {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
+                        className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
                         placeholder="john@example.com"
                       />
                     </div>
@@ -118,7 +118,7 @@ const Contact = () => {
                       required
                       value={formData.reason}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none bg-white"
+                      className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none bg-white"
                     >
                       <option value="" disabled>Select a reason...</option>
                       <option value="booking_issue">Issue with a Booking</option>
@@ -141,14 +141,14 @@ const Contact = () => {
                       rows={5}
                       value={formData.message}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none resize-y"
+                      className="w-full px-4 py-3 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none resize-y"
                       placeholder="Please provide details about your inquiry..."
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white font-bold rounded-card hover:bg-[#007ac2] transition-colors shadow-md hover:shadow-lg"
                   >
                     <Send className="w-5 h-5" />
                     Send Message

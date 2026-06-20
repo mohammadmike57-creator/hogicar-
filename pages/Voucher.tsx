@@ -53,7 +53,7 @@ const Voucher: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <LoaderCircle className="w-10 h-10 text-blue-600 animate-spin" />
       </div>
     );
@@ -61,7 +61,7 @@ const Voucher: React.FC = () => {
 
   if (error || !booking) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
         <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
         <h1 className="text-2xl font-bold text-slate-800">{error || "Booking Not Found"}</h1>
         <Link to="/" className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Return Home</Link>
@@ -75,7 +75,7 @@ const Voucher: React.FC = () => {
   };
 
   return (
-    <div className="voucher-page bg-slate-100 min-h-screen py-4 sm:py-10 print:bg-white print:py-0">
+    <div className="voucher-page bg-white min-h-screen py-4 sm:py-10 print:bg-white print:py-0">
       <SEOMetadata 
         title={`Rental Voucher - ${booking.bookingRef}`} 
         description="Official Rental Voucher for Hogicar" 

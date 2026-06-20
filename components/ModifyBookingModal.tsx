@@ -110,9 +110,9 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col font-sans">
+        <div className="bg-white rounded-card shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col font-sans">
             {/* Header */}
-            <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+            <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-card">
                 <h3 className="font-bold text-lg text-slate-800">Modify Your Booking</h3>
                 <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"><X className="w-5 h-5"/></button>
             </div>
@@ -121,7 +121,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
             <div className="flex-grow p-6 space-y-6 overflow-y-auto">
                 {/* Dates & Times */}
                 <div>
-                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-600"/> Rental Period</h4>
+                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Calendar className="w-4 h-4 text-[#007ac2]"/> Rental Period</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Pickup */}
                         <div>
@@ -148,7 +148,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
 
                 {/* Contact & Flight */}
                 <div>
-                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600"/> Contact & Flight</h4>
+                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Phone className="w-4 h-4 text-[#007ac2]"/> Contact & Flight</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div>
                             <label className="text-xs font-semibold text-slate-500">Phone Number</label>
@@ -163,17 +163,17 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
 
                 {/* Extras */}
                 <div>
-                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><PlusCircle className="w-4 h-4 text-blue-600"/> Optional Extras</h4>
+                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><PlusCircle className="w-4 h-4 text-[#007ac2]"/> Optional Extras</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {car.extras.map(extra => {
                             const isSelected = selectedExtras.some(e => e.id === extra.id);
                             return (
-                                <div key={extra.id} onClick={() => toggleExtra(extra)} className={`border p-3 rounded-lg cursor-pointer flex justify-between items-center transition-all ${isSelected ? 'bg-blue-50 border-blue-300 ring-1 ring-blue-300' : 'bg-white hover:bg-slate-50'}`}>
+                                <div key={extra.id} onClick={() => toggleExtra(extra)} className={`border p-3 rounded-card cursor-pointer flex justify-between items-center transition-all ${isSelected ? 'bg-blue-50 border-blue-300 ring-1 ring-blue-300' : 'bg-white hover:bg-slate-50'}`}>
                                     <div>
                                         <p className="font-semibold text-sm text-slate-800">{extra.name}</p>
                                         <p className="text-xs text-slate-500">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)} / {extra.type === 'per_day' ? 'day' : 'rental'}</p>
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
+                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${isSelected ? 'bg-[#007ac2] border-blue-600' : 'border-slate-300'}`}>
                                         {isSelected && <Check className="w-3 h-3 text-white"/>}
                                     </div>
                                 </div>
@@ -185,7 +185,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
             </div>
             
             {/* Footer / Price Summary & Actions */}
-            <div className="p-4 bg-slate-100 border-t border-slate-200 rounded-b-xl space-y-3">
+            <div className="p-4 bg-slate-100 border-t border-slate-200 rounded-b-card space-y-3">
                  <h4 className="text-xs font-bold text-slate-500 uppercase">Updated Price Summary</h4>
                  <div className="grid grid-cols-3 gap-4 text-center">
                      <div>
@@ -194,7 +194,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
                      </div>
                      <div>
                         <p className="text-xs text-slate-500">New Total</p>
-                        <p className="font-bold text-lg text-blue-600">{getCurrencySymbol()}{convertPrice(priceDetails.newTotal).toFixed(2)}</p>
+                        <p className="font-bold text-lg text-[#007ac2]">{getCurrencySymbol()}{convertPrice(priceDetails.newTotal).toFixed(2)}</p>
                      </div>
                      <div>
                         {priceDetails.priceDifference !== 0 && (
@@ -209,12 +209,12 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
                  </div>
                  
                  {priceDetails.paymentDifference > 0 && (
-                     <div className="p-3 bg-orange-50 border border-orange-200 text-orange-800 text-sm font-semibold rounded-lg text-center">
+                     <div className="p-3 bg-orange-50 border border-orange-200 text-orange-800 text-sm font-semibold rounded-card text-center">
                          Additional Amount Due Online: {getCurrencySymbol()}{convertPrice(priceDetails.paymentDifference).toFixed(2)}
                      </div>
                  )}
                  {priceDetails.paymentDifference < 0 && (
-                     <div className="p-3 bg-green-50 border border-green-200 text-green-800 text-sm font-semibold rounded-lg text-center">
+                     <div className="p-3 bg-green-50 border border-green-200 text-green-800 text-sm font-semibold rounded-card text-center">
                          Refund Amount: {getCurrencySymbol()}{convertPrice(Math.abs(priceDetails.paymentDifference)).toFixed(2)}
                      </div>
                  )}
@@ -222,7 +222,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({ booking, car, i
                  <button 
                     onClick={handleSave} 
                     disabled={isSaving}
-                    className={`w-full font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-wait ${priceDetails.paymentDifference > 0 ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                    className={`w-full font-bold py-3 px-4 rounded-card shadow-md transition-transform active:scale-95 flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-wait ${priceDetails.paymentDifference > 0 ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-[#007ac2] hover:bg-[#007ac2] text-white'}`}
                 >
                     {isSaving ? <RefreshCw className="w-4 h-4 animate-spin mr-2"/> : (priceDetails.paymentDifference > 0 ? <CreditCard className="w-4 h-4 mr-2"/> : <Save className="w-4 h-4 mr-2"/>)}
                     {isSaving ? 'Processing...' : (priceDetails.paymentDifference > 0 ? `Pay & Confirm Changes` : 'Confirm Changes')}

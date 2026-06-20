@@ -223,7 +223,7 @@ const Home: React.FC = () => {
         </div>
         
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-[2rem] sm:text-4xl lg:text-6xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
+          <h1 className="text-[2rem] sm:text-4xl lg:text-6xl font-extrabold mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
             {content.hero.title || 'Search, Compare & Save on Car Rentals'}
           </h1>
           <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-2xl mx-auto text-[13px] sm:text-base lg:text-lg font-medium leading-relaxed px-2">
@@ -243,7 +243,7 @@ const Home: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3 mt-8 text-[11px] font-black uppercase tracking-wider">
+          <div className="flex flex-wrap justify-center gap-3 mt-8 text-[11px] font-extrabold uppercase tracking-wider">
             <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
               <CheckCircle className="w-4 h-4 text-green-400" /> Free Cancellation
             </div>
@@ -260,7 +260,7 @@ const Home: React.FC = () => {
       {/* TRUSTED PARTNERS – marquee version */}
       <section className="py-8 bg-white overflow-hidden border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-          <div className="text-[10px] font-black text-[#008009] uppercase tracking-[0.5em] mb-4">Partnered with the World's Best</div>
+          <div className="text-[10px] font-extrabold text-[#007ac2] uppercase tracking-[0.5em] mb-4">Partnered with the World's Best</div>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
         </div>
         <div className="relative flex items-center group">
@@ -293,10 +293,10 @@ const Home: React.FC = () => {
       </section>
 
       {/* WHY BOOK WITH HOGICAR? & STATS */}
-      <section className="py-8 lg:py-12 bg-slate-50/70">
+      <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-10">
-            <h2 className="text-xs font-bold tracking-widest text-[#008009] uppercase mb-2">The Hogicar Advantage</h2>
+            <h2 className="text-xs font-bold tracking-widest text-[#007ac2] uppercase mb-2">The Hogicar Advantage</h2>
             <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">Unbeatable value, unparalleled convenience.</h3>
             <p className="mt-3 text-base text-slate-600 leading-relaxed">
               We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
@@ -308,15 +308,15 @@ const Home: React.FC = () => {
             {content.features.slice(0, 4).map((feature, index) => {
               const Icon = iconMap[feature.icon] || CheckCircle;
               const colors = [
-                'bg-blue-100 text-blue-600',
+                'bg-blue-100 text-[#007ac2]',
                 'bg-green-100 text-green-600',
                 'bg-yellow-100 text-yellow-600',
                 'bg-purple-100 text-purple-600'
               ];
               const colorClass = colors[index % colors.length];
               return (
-                <div key={feature.id} className="text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100/80">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${colorClass}`}>
+                <div key={feature.id} className="text-center p-6 bg-white rounded-card shadow-sm border border-slate-100/80">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-card mb-4 ${colorClass}`}>
                     <Icon className="w-6 h-6" />
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h4>
@@ -327,20 +327,20 @@ const Home: React.FC = () => {
           </div>
 
           {/* Stats – simplified card (no absolute/blur) */}
-          <div className="bg-slate-900 text-white p-8 rounded-xl text-center">
+          <div className="bg-slate-900 text-white p-8 rounded-card text-center">
             <Globe className="w-10 h-10 mx-auto mb-2" />
             <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
             <p className="text-slate-300 mb-4">We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
-            <Link to="/become-supplier" className="bg-blue-600 px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
+            <Link to="/become-supplier" className="bg-[#007ac2] px-6 py-2 rounded-full text-sm inline-flex items-center gap-2">
               Become a Partner <ArrowRight className="w-4 h-4" />
             </Link>
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
               <div className="text-center">
-                <div className="text-3xl font-black">900+</div>
+                <div className="text-3xl font-extrabold">900+</div>
                 <div className="text-xs uppercase tracking-wider">Trusted Suppliers</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-black">60k+</div>
+                <div className="text-3xl font-extrabold">60k+</div>
                 <div className="text-xs uppercase tracking-wider">Global Locations</div>
               </div>
             </div>
@@ -352,7 +352,7 @@ const Home: React.FC = () => {
       <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-xs font-bold tracking-widest text-[#008009] uppercase mb-2">Simple Process</h2>
+            <h2 className="text-xs font-bold tracking-widest text-[#007ac2] uppercase mb-2">Simple Process</h2>
             <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{content.howItWorks.title}</h3>
             <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
           </div>
@@ -367,9 +367,9 @@ const Home: React.FC = () => {
               ];
               const colorClass = colors[index % colors.length];
               return (
-                <div key={step.id} className={`relative flex items-center gap-6 sm:gap-8 p-6 rounded-2xl bg-gradient-to-r ${colorClass} text-white shadow-lg`}>
+                <div key={step.id} className={`relative flex items-center gap-6 sm:gap-8 p-6 rounded-card bg-gradient-to-r ${colorClass} text-white shadow-lg`}>
                   <div className="flex-shrink-0 relative">
-                    <span className="font-sans text-7xl font-black text-white/20 -z-10">{`0${index + 1}`}</span>
+                    <span className="font-sans text-7xl font-extrabold text-white/20 -z-10">{`0${index + 1}`}</span>
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-md text-white rounded-full shadow-inner border border-white/30">
                       <Icon className="w-6 h-6" />
                     </div>
@@ -386,17 +386,17 @@ const Home: React.FC = () => {
       </section>
 
       {/* POPULAR DESTINATIONS */}
-      <section className="py-8 lg:py-12 bg-slate-50">
+      <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                <div className="max-w-2xl">
-                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#008009] text-[10px] font-bold tracking-widest uppercase mb-3">
+                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-3">
                        <MapPin className="w-3 h-3" /> Top Destinations
                    </div>
                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">{content.popularDestinations.title}</h3>
                    <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                </div>
-               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#008009] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
+               <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
                    Explore All Locations
                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                </Link>
@@ -407,7 +407,7 @@ const Home: React.FC = () => {
                    <Link 
                        to={`/search?location=${encodeURIComponent(dest.name)}`} 
                        key={dest.name} 
-                       className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3]"
+                       className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3]"
                    >
                        <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
                    </Link>
@@ -421,11 +421,11 @@ const Home: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 p-8 md:p-14 text-center">
             {/* Ambient Glows */}
-            <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 bg-[#008009]/10 rounded-full blur-3xl"></div>
+            <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 bg-[#007ac2]/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 bg-[#007ac2]/10 rounded-full blur-3xl"></div>
             
             <div className="relative z-10 max-w-2xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-extrabold uppercase tracking-widest mb-6">
                 <Sparkles className="w-3.5 h-3.5" />
                 Exclusive Member Access
               </div>
@@ -446,12 +446,12 @@ const Home: React.FC = () => {
                   <input 
                     type="email" 
                     placeholder="Enter your email address" 
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all bg-white/5 border border-white/10 placeholder-slate-500"
+                    className="w-full pl-12 pr-4 py-4 rounded-card text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all bg-white/5 border border-white/10 placeholder-slate-500"
                   />
                 </div>
                 <button 
                   type="submit" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 active:scale-[0.98] whitespace-nowrap text-sm"
+                  className="bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold py-4 px-8 rounded-card transition-all duration-300 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 active:scale-[0.98] whitespace-nowrap text-sm"
                 >
                   Join the Club
                 </button>
@@ -471,10 +471,10 @@ const Home: React.FC = () => {
       </section>
       
       {/* FAQS */}
-      <section className="py-8 lg:py-12 bg-slate-50/70">
+      <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mx-auto text-center mb-6">
-            <h2 className="text-[10px] font-bold tracking-widest text-[#008009] uppercase mb-1.5">Support</h2>
+            <h2 className="text-[10px] font-bold tracking-widest text-[#007ac2] uppercase mb-1.5">Support</h2>
             <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">{content.faqs.title}</h3>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed">
               Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.
@@ -484,13 +484,13 @@ const Home: React.FC = () => {
           <div className="max-w-2xl mx-auto">
             <div className="space-y-2">
               {faqs.map((faq, index) => (
-                <div key={faq.id} className="bg-white rounded-lg shadow-sm border border-slate-100/80 overflow-hidden">
+                <div key={faq.id} className="bg-white rounded-card shadow-sm border border-slate-100/80 overflow-hidden">
                   <button 
                     onClick={() => toggleFaq(index)} 
                     className="w-full flex justify-between items-center text-left p-3 sm:p-4 focus:outline-none group"
                   >
-                    <span className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 transition-colors">{faq.question}</span>
-                    <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
+                    <span className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#007ac2] transition-colors">{faq.question}</span>
+                    <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? 'bg-[#007ac2] text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-[#007ac2]'}`}>
                       <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
                     </span>
                   </button>

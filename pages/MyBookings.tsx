@@ -24,14 +24,14 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
     }
 
     return (
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        <div className="max-w-md mx-auto bg-white rounded-card shadow-lg border border-slate-200 overflow-hidden">
             <div className="bg-[#003580] p-6 text-center">
                 <h2 className="text-xl font-bold text-white mb-2">Manage your booking</h2>
                 <p className="text-blue-100 text-sm">View, modify or cancel your reservation</p>
             </div>
             <div className="p-8">
                 {error && (
-                    <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                    <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-card text-sm flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 flex-shrink-0" />
                         {error}
                     </div>
@@ -46,7 +46,7 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
                                 required
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-base"
+                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-base"
                                 placeholder="e.g. name@example.com"
                             />
                         </div>
@@ -60,7 +60,7 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
                                 required
                                 value={bookingRef}
                                 onChange={e => setBookingRef(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase text-base"
+                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase text-base"
                                 placeholder="e.g. H1001"
                             />
                         </div>
@@ -69,7 +69,7 @@ const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, r
                     <button 
                         type="submit" 
                         disabled={isLoading}
-                        className="w-full bg-[#008009] hover:bg-[#006607] text-white font-bold py-3.5 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-[#007ac2] hover:bg-[#006607] text-white font-bold py-3.5 rounded-card shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <>Find My Booking <ArrowRight className="w-5 h-5" /></>}
                     </button>
@@ -179,7 +179,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
         <div className="max-w-4xl mx-auto">
              {fullCar && isModifyModalOpen && <ModifyBookingModal booking={booking} car={fullCar} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
              
-             <button onClick={onBack} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
+             <button onClick={onBack} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-[#007ac2] transition-colors">
                  <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> Back to Search
              </button>
 
@@ -188,7 +188,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                  <div className="flex-grow space-y-6">
                      
                      {/* Header Status Card */}
-                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                     <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
                         <div className={`p-6 border-b border-slate-100 flex justify-between items-center ${isCancelled ? 'bg-red-50' : (isCompleted ? 'bg-slate-50' : 'bg-white')}`}>
                             <div>
                                 <h1 className="text-2xl font-bold text-slate-900 mb-1">{isCancelled ? 'Booking Cancelled' : (isCompleted ? 'Booking Completed' : 'Booking Details')}</h1>
@@ -207,7 +207,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                                         <p className="text-sm text-slate-600">Share your feedback and help others choose the right car.</p>
                                     </div>
                                 </div>
-                                <Link to={`/leave-review/${booking.id}`} className="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 transition-all shadow-md active:scale-95 text-sm whitespace-nowrap">
+                                <Link to={`/leave-review/${booking.id}`} className="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-card hover:bg-slate-800 transition-all shadow-md active:scale-95 text-sm whitespace-nowrap">
                                     Rate Now
                                 </Link>
                             </div>
@@ -216,7 +216,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                              <div>
                                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pick-up</h3>
                                  <div className="flex items-start gap-3">
-                                     <div className="bg-blue-50 p-2 rounded text-blue-600"><Calendar className="w-5 h-5"/></div>
+                                     <div className="bg-blue-50 p-2 rounded text-[#007ac2]"><Calendar className="w-5 h-5"/></div>
                                      <div>
                                          <p className="font-bold text-slate-900">{booking.pickupDate} @ {booking.startTime}</p>
                                          <p className="text-sm text-slate-600 mt-1">{booking.pickupCode}</p>
@@ -226,7 +226,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                              <div>
                                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Drop-off</h3>
                                  <div className="flex items-start gap-3">
-                                     <div className="bg-blue-50 p-2 rounded text-blue-600"><Calendar className="w-5 h-5"/></div>
+                                     <div className="bg-blue-50 p-2 rounded text-[#007ac2]"><Calendar className="w-5 h-5"/></div>
                                      <div>
                                          <p className="font-bold text-slate-900">{booking.dropoffDate} @ {booking.endTime}</p>
                                          <p className="text-sm text-slate-600 mt-1">{booking.dropoffCode}</p>
@@ -237,7 +237,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                      </div>
 
                      {/* Vehicle Card */}
-                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+                     <div className="bg-white rounded-card shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                          <img 
                             src={displayImage} 
                             alt={car.model} 
@@ -250,8 +250,8 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                                  <h3 className="text-xl font-bold text-slate-900">{car.make} {car.model}</h3>
                                  {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
-                                     <div className="flex items-center gap-1 bg-emerald-50 text-[#008009] px-2 py-0.5 rounded text-[10px] font-black uppercase border border-emerald-100 shadow-sm">
-                                         <Zap className="w-2.5 h-2.5 fill-[#008009]/20" />
+                                     <div className="flex items-center gap-1 bg-emerald-50 text-[#007ac2] px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border border-emerald-100 shadow-sm">
+                                         <Zap className="w-2.5 h-2.5 fill-[#007ac2]/20" />
                                          Instant
                                      </div>
                                  )}
@@ -275,11 +275,11 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                  {/* Sidebar Actions */}
                  <div className="lg:w-80 space-y-4">
                      
-                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                     <div className="bg-white rounded-card shadow-sm border border-slate-200 p-5">
                          <h3 className="font-bold text-slate-900 mb-4">Manage Booking</h3>
                          <div className="space-y-3">
                              {isCompleted && !booking.reviewSubmitted && (
-                                <Link to={`/leave-review/${booking.id}`} className="w-full flex items-center justify-between p-3 rounded-lg bg-yellow-400 hover:bg-yellow-500 transition-all group text-slate-900">
+                                <Link to={`/leave-review/${booking.id}`} className="w-full flex items-center justify-between p-3 rounded-card bg-yellow-400 hover:bg-yellow-500 transition-all group text-slate-900">
                                      <div className="flex items-center gap-3">
                                          <Star className="w-5 h-5"/>
                                          <div className="text-left">
@@ -293,12 +293,12 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
                              <Link 
                                  to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`}
-                                 className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                                 className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
                              >
                                  <div className="flex items-center gap-3">
-                                     <FileText className="w-5 h-5 text-slate-400 group-hover:text-blue-600"/>
+                                     <FileText className="w-5 h-5 text-slate-400 group-hover:text-[#007ac2]"/>
                                      <div className="text-left">
-                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-blue-700">Digital Voucher</span>
+                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-[#007ac2]">Digital Voucher</span>
                                          <span className="block text-[10px] text-slate-500">Official Confirmation</span>
                                      </div>
                                  </div>
@@ -309,16 +309,16 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                                 <button 
                                     onClick={handleModifyClick}
                                     disabled={isFetchingCar}
-                                    className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group disabled:opacity-50"
+                                    className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group disabled:opacity-50"
                                 >
                                     <div className="flex items-center gap-3">
                                         {isFetchingCar ? (
                                             <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                                         ) : (
-                                            <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-blue-600"/>
+                                            <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-[#007ac2]"/>
                                         )}
                                         <div className="text-left">
-                                            <span className="block font-bold text-slate-700 text-sm group-hover:text-blue-700">Modify Booking</span>
+                                            <span className="block font-bold text-slate-700 text-sm group-hover:text-[#007ac2]">Modify Booking</span>
                                             <span className="block text-[10px] text-slate-500">Dates, flight, or phone</span>
                                         </div>
                                     </div>
@@ -329,16 +329,16 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                      </div>
 
                      {canCancel && (
-                         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                         <div className="bg-white rounded-card shadow-sm border border-slate-200 p-5">
                              <h3 className="font-bold text-slate-900 mb-2">Need to cancel?</h3>
                              <p className="text-xs text-slate-500 mb-4">Free cancellation available until 48 hours before pick-up.</p>
                              
                              {!isCancelling ? (
-                                <button onClick={() => setIsCancelling(true)} className="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-2.5 rounded-lg text-sm transition-colors">
+                                <button onClick={() => setIsCancelling(true)} className="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-2.5 rounded-card text-sm transition-colors">
                                     Cancel Booking
                                 </button>
                              ) : (
-                                 <div className="bg-red-50 p-3 rounded-lg border border-red-100 animate-fadeIn">
+                                 <div className="bg-red-50 p-3 rounded-card border border-red-100 animate-fadeIn">
                                      <p className="text-xs font-bold text-red-800 mb-2 flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5"/> Are you sure?</p>
                                      <div className="flex gap-2">
                                          <button onClick={() => setIsCancelling(false)} className="flex-1 bg-white border border-slate-300 text-slate-700 py-1.5 rounded text-xs font-medium">Keep it</button>
@@ -349,9 +349,9 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
                          </div>
                      )}
                      
-                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                     <div className="bg-blue-50 p-4 rounded-card border border-blue-100">
                          <h4 className="font-bold text-blue-800 text-sm mb-1">Need Help?</h4>
-                         <p className="text-xs text-blue-600 mb-2">Our agents are available 24/7.</p>
+                         <p className="text-xs text-[#007ac2] mb-2">Our agents are available 24/7.</p>
                          <p className="text-sm font-bold text-blue-900">+1 (555) 123-4567</p>
                      </div>
 
@@ -437,7 +437,7 @@ const MyBookings: React.FC = () => {
                  ) : (
                      <div className="text-center">
                          <h2 className="text-xl font-bold">No booking loaded</h2>
-                         <button onClick={handleLogout} className="text-blue-600 underline mt-2">Go Back</button>
+                         <button onClick={handleLogout} className="text-[#007ac2] underline mt-2">Go Back</button>
                      </div>
                  )}
             </div>

@@ -96,11 +96,11 @@ const LeaveReview: React.FC = () => {
         <div className="bg-slate-50 min-h-screen py-12">
             <SEOMetadata title="Leave a Review" description="Rate your car rental experience." noIndex={true} />
             <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                <button onClick={() => navigate(-1)} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
+                <button onClick={() => navigate(-1)} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-[#007ac2] transition-colors">
                     <ArrowLeft className="w-4 h-4 mr-1" /> Back to My Bookings
                 </button>
 
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="bg-white rounded-card shadow-lg border border-slate-200 overflow-hidden">
                     {submitted ? (
                         <div className="text-center p-16">
                             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -116,7 +116,7 @@ const LeaveReview: React.FC = () => {
                             
                             <div className="p-8">
                                 <div className="flex items-center gap-4 mb-8">
-                                    <img src={displayImage} alt="Car" className="w-32 h-20 object-cover rounded-lg"/>
+                                    <img src={displayImage} alt="Car" className="w-32 h-20 object-cover rounded-card"/>
                                     <div>
                                         <p className="font-bold text-slate-800">{displayCarName}</p>
                                         <p className="text-xs text-slate-500">Rented from {displaySupplier}</p>
@@ -133,11 +133,11 @@ const LeaveReview: React.FC = () => {
                                           {label: "Staff Service", sub: "Were the staff helpful?", rating: staffService, setRating: setStaffService},
                                           {label: "Reservation Experience", sub: "How easy was the booking process?", rating: reservationRating, setRating: setReservationRating}
                                         ].map(cat => (
-                                            <div key={cat.label} className="flex flex-col gap-2 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                                            <div key={cat.label} className="flex flex-col gap-2 p-4 rounded-card bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
                                                 <div className="flex justify-between items-center">
                                                     <div>
                                                         <label className="font-bold text-slate-800 text-sm">{cat.label}</label>
-                                                        <p className="text-[10px] text-slate-500 uppercase font-black tracking-wider">{cat.sub}</p>
+                                                        <p className="text-[10px] text-slate-500 uppercase font-extrabold tracking-wider">{cat.sub}</p>
                                                     </div>
                                                 </div>
                                                 <StarRatingInput rating={cat.rating} setRating={cat.setRating} size="w-6 h-6" />
@@ -151,12 +151,12 @@ const LeaveReview: React.FC = () => {
                                             value={comment}
                                             onChange={(e) => setComment(e.target.value)}
                                             placeholder="Tell us about your experience (optional)..."
-                                            className="w-full h-32 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700 resize-none"
+                                            className="w-full h-32 p-4 rounded-card border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-700 resize-none"
                                         />
                                     </div>
                                     
                                     {error && (
-                                        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl flex items-center gap-2 animate-shake">
+                                        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-card flex items-center gap-2 animate-shake">
                                             <AlertCircle className="w-4 h-4 flex-shrink-0"/> {error}
                                         </div>
                                     )}
@@ -165,7 +165,7 @@ const LeaveReview: React.FC = () => {
                                         <button 
                                             type="submit" 
                                             disabled={isSubmitting}
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold py-3 px-4 rounded-card shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
                                             {isSubmitting ? 'Submitting...' : 'Submit Review'}

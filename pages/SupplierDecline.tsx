@@ -62,7 +62,7 @@ export default function SupplierDecline() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <Logo className="mb-8" />
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-card shadow-lg p-8 max-w-md w-full text-center">
           <div className="text-red-500 text-5xl mb-4">✕</div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Error</h1>
           <p className="text-gray-600 mb-6">{error}</p>
@@ -78,14 +78,14 @@ export default function SupplierDecline() {
         <div className="text-center mb-8">
           <Logo className="h-12 mx-auto" />
         </div>
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-white rounded-card shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
             <h1 className="text-2xl font-bold text-white">Decline Booking</h1>
             <p className="text-red-100">Reference: {booking.bookingRef}</p>
           </div>
           <div className="p-6 md:p-8">
             {/* Booking summary */}
-            <div className="bg-gray-50 rounded-xl p-5 mb-6">
+            <div className="bg-gray-50 rounded-card p-5 mb-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">Customer</p>
@@ -116,7 +116,7 @@ export default function SupplierDecline() {
                   value={declinedBy}
                   onChange={(e) => setDeclinedBy(e.target.value)}
                   placeholder="e.g., John Smith"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-card focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -129,7 +129,7 @@ export default function SupplierDecline() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-card focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="Please provide a reason..."
                   required
                 />
@@ -152,7 +152,7 @@ export default function SupplierDecline() {
               <button
                 type="submit"
                 disabled={submitting || !confirmed || !reason.trim() || !declinedBy.trim()}
-                className="mt-4 w-full bg-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="mt-4 w-full bg-red-500 text-white py-3 px-4 rounded-card font-semibold hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {submitting ? 'Submitting...' : 'Decline Booking'}
               </button>

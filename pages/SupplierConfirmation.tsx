@@ -115,12 +115,12 @@ const SupplierConfirmation: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen bg-slate-100 flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-blue-600"/></div>;
+        return <div className="min-h-screen bg-white flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-blue-600"/></div>;
     }
 
     if (error && !booking) {
         return (
-            <div className="min-h-screen bg-slate-100 flex flex-col justify-center items-center p-4">
+            <div className="min-h-screen bg-white flex flex-col justify-center items-center p-4">
                 <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
                 <h1 className="text-xl font-bold text-slate-800">Error</h1>
                 <p className="text-slate-500">{error}</p>
@@ -143,7 +143,7 @@ const SupplierConfirmation: React.FC = () => {
     const isRejectAction = action === 'reject';
 
     return (
-        <div className="supplier-print-page min-h-screen bg-slate-100 font-sans print:bg-white">
+        <div className="supplier-print-page min-h-screen bg-white font-sans print:bg-white">
             <SEOMetadata title="Confirm Booking Request" description="Supplier confirmation page for Hogicar rental request." noIndex={true} />
             <style>{`
                 @media print {

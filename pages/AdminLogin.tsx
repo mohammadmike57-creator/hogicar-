@@ -131,11 +131,11 @@ const AdminLogin: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
                     >
-                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] mb-10">
+                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-slate-900 text-[10px] font-extrabold uppercase tracking-[0.2em] mb-10">
                             <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
                             Administrative Infrastructure
                         </div>
-                        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6">
+                        <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.05] tracking-tight mb-6">
                             Autonomous Platform <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-indigo-600">
                                 Control Reimagined.
@@ -162,10 +162,10 @@ const AdminLogin: React.FC = () => {
                                 className="group cursor-default"
                             >
                                 <div className="p-5 rounded-[2rem] bg-white border border-slate-100 shadow-sm group-hover:shadow-xl group-hover:shadow-indigo-100 group-hover:border-indigo-200 transition-all duration-500">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-900 mb-4 group-hover:rotate-12 transition-all">
+                                    <div className="w-10 h-10 rounded-card bg-slate-50 flex items-center justify-center text-slate-900 mb-4 group-hover:rotate-12 transition-all">
                                         <feature.icon className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-slate-900 font-black text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
+                                    <h3 className="text-slate-900 font-extrabold text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
                                     <p className="text-slate-400 text-[10px] leading-relaxed font-bold">{feature.desc}</p>
                                 </div>
                             </motion.div>
@@ -173,7 +173,7 @@ const AdminLogin: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-8 text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">
+                <div className="flex items-center gap-8 text-slate-400 text-[9px] font-extrabold uppercase tracking-[0.3em]">
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                         <span>Core Operational</span>
@@ -203,13 +203,13 @@ const AdminLogin: React.FC = () => {
                         <div className="inline-flex items-center justify-center w-14 h-14 rounded-[2rem] bg-indigo-50 border border-indigo-100 text-indigo-600 mb-4 shadow-inner">
                             <Shield className="w-7 h-7" />
                         </div>
-                        <h2 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tighter mb-1">Command Access</h2>
-                        <p className="text-slate-400 font-black text-[9px] uppercase tracking-[0.25em]">Restricted Administrative Port</p>
+                        <h2 className="text-xl lg:text-2xl font-extrabold text-slate-900 tracking-tighter mb-1">Command Access</h2>
+                        <p className="text-slate-400 font-extrabold text-[9px] uppercase tracking-[0.25em]">Restricted Administrative Port</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Identity</label>
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Access Identity</label>
                             <div className="relative group/input">
                                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
                                     <Mail className="w-4.5 h-4.5" />
@@ -219,7 +219,7 @@ const AdminLogin: React.FC = () => {
                                     required
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-extrabold"
                                     placeholder="admin or system.admin@hogicar.net"
                                     disabled={isLoading}
                                 />
@@ -228,8 +228,8 @@ const AdminLogin: React.FC = () => {
 
                         <div className="space-y-2.5">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Token</label>
-                                <button type="button" className="text-[9px] font-black text-orange-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Emergency Reset</button>
+                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Security Token</label>
+                                <button type="button" className="text-[9px] font-extrabold text-orange-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Emergency Reset</button>
                             </div>
                             <div className="relative group/input">
                                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-orange-500 transition-colors">
@@ -240,7 +240,7 @@ const AdminLogin: React.FC = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-black"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4.5 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xs font-extrabold"
                                     placeholder="••••••••••••"
                                     disabled={isLoading}
                                 />
@@ -260,10 +260,10 @@ const AdminLogin: React.FC = () => {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3.5"
+                                    className="bg-red-50 border border-red-100 p-4 rounded-card flex items-center gap-3.5"
                                 >
                                     <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                                    <p className="text-red-600 text-[10px] font-black leading-tight uppercase tracking-tight">{error}</p>
+                                    <p className="text-red-600 text-[10px] font-extrabold leading-tight uppercase tracking-tight">{error}</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -272,7 +272,7 @@ const AdminLogin: React.FC = () => {
                             whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
                             disabled={isLoading}
-                            className="w-full bg-slate-900 hover:bg-orange-600 text-white font-black py-4 rounded-[1.5rem] shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-4 group"
+                            className="w-full bg-slate-900 hover:bg-orange-600 text-white font-extrabold py-4 rounded-[1.5rem] shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-4 group"
                         >
                             {isLoading ? (
                                 <LoaderCircle className="w-5 h-5 animate-spin" />
@@ -285,7 +285,7 @@ const AdminLogin: React.FC = () => {
                         </motion.button>
                     </form>
 
-                    <div className="mt-8 flex justify-center items-center gap-6 text-slate-300 font-black text-[9px] uppercase tracking-[0.2em]">
+                    <div className="mt-8 flex justify-center items-center gap-6 text-slate-300 font-extrabold text-[9px] uppercase tracking-[0.2em]">
                         <div className="flex items-center gap-1.5">
                             <Cpu className="w-3.5 h-3.5" />
                             <span>v4.0.2</span>

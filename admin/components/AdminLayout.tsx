@@ -35,8 +35,8 @@ const AdminLayout: React.FC = () => {
             end
             onClick={() => setIsSidebarOpen(false)}
             className={({ isActive }) =>
-                `flex items-center w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                `flex items-center w-full px-4 py-2 rounded-card text-sm font-medium transition-colors ${
+                isActive ? 'bg-[#007ac2] text-white' : 'text-slate-600 hover:bg-slate-100'
                 }`
             }
         >
@@ -54,7 +54,7 @@ const AdminLayout: React.FC = () => {
               <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />
               <NavItem to="/admin/suppliers" icon={Building} label="Suppliers" />
             </nav>
-            <button onClick={handleLogout} className="flex items-center w-full px-4 py-2 mt-4 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+            <button onClick={handleLogout} className="flex items-center w-full px-4 py-2 mt-4 rounded-card text-sm font-medium text-slate-600 hover:bg-slate-100">
               <LogOut className="w-5 h-5 mr-3" />
               <span>Logout</span>
             </button>
@@ -64,7 +64,7 @@ const AdminLayout: React.FC = () => {
     if (isValidating) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-                <LoaderCircle className="h-8 w-8 animate-spin text-blue-600" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-[#007ac2]" />
             </div>
         );
     }

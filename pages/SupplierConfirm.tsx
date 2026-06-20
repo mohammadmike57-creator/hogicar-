@@ -118,9 +118,9 @@ export default function SupplierConfirm() {
             {/* Two-column layout with refined cards */}
             <div className="grid md:grid-cols-2 gap-6">
               {/* Customer & Flight */}
-              <div className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
+              <div className="group bg-white rounded-card p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-orange-50 rounded-card flex items-center justify-center">
                     <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -148,9 +148,9 @@ export default function SupplierConfirm() {
               </div>
 
               {/* Vehicle */}
-              <div className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
+              <div className="group bg-white rounded-card p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-orange-50 rounded-card flex items-center justify-center">
                     <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
@@ -181,9 +181,9 @@ export default function SupplierConfirm() {
             {/* Second row */}
             <div className="grid md:grid-cols-2 gap-6">
               {/* Rental Period */}
-              <div className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
+              <div className="group bg-white rounded-card p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-orange-50 rounded-card flex items-center justify-center">
                     <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -207,9 +207,9 @@ export default function SupplierConfirm() {
               </div>
 
               {/* Payment – elegantly highlighted */}
-              <div className="group bg-gradient-to-br from-orange-50 to-white rounded-2xl p-6 shadow-md border border-orange-100">
+              <div className="group bg-gradient-to-br from-orange-50 to-white rounded-card p-6 shadow-md border border-orange-100">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-orange-100 rounded-card flex items-center justify-center">
                     <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
@@ -217,7 +217,7 @@ export default function SupplierConfirm() {
                   <h2 className="text-lg font-medium text-slate-800">Payment</h2>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between bg-white/80 rounded-xl p-5 border border-orange-200">
+                  <div className="flex items-center justify-between bg-white/80 rounded-card p-5 border border-orange-200">
                     <div>
                       <p className="text-sm text-slate-600 mb-1">Amount due at rental desk</p>
                       <p className="text-xs text-slate-500">Includes all taxes and fees</p>
@@ -227,7 +227,7 @@ export default function SupplierConfirm() {
                     </span>
                   </div>
                   {booking.payNow > 0 && (
-                    <div className="text-xs text-slate-500 italic bg-white/50 rounded-lg p-3">
+                    <div className="text-xs text-slate-500 italic bg-white/50 rounded-card p-3">
                       * ${booking.payNow} already paid online
                     </div>
                   )}
@@ -248,7 +248,7 @@ export default function SupplierConfirm() {
                       value={confirmationNumber}
                       onChange={(e) => setConfirmationNumber(e.target.value)}
                       placeholder="e.g., CONF-123"
-                      className="w-full px-5 py-4 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm text-slate-800 placeholder-slate-400"
+                      className="w-full px-5 py-4 bg-white border border-slate-200 rounded-card focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm text-slate-800 placeholder-slate-400"
                       required
                     />
                     <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
@@ -262,7 +262,7 @@ export default function SupplierConfirm() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-6 rounded-2xl font-medium hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-6 rounded-card font-medium hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>

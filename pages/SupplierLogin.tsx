@@ -107,11 +107,11 @@ const SupplierLogin: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
                     >
-                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 shadow-sm text-white text-[10px] font-black uppercase tracking-[0.2em] mb-6 lg:mb-10">
+                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 shadow-sm text-white text-[10px] font-extrabold uppercase tracking-[0.2em] mb-6 lg:mb-10">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                             Enterprise Fleet Logistics
                         </div>
-                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.05] tracking-tight mb-5 lg:mb-6">
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.05] tracking-tight mb-5 lg:mb-6">
                             Supplier operations, pricing, and fleet control.
                         </h1>
                         <p className="text-sm lg:text-base text-slate-300 font-semibold leading-relaxed max-w-lg mb-6 lg:mb-8">
@@ -132,11 +132,11 @@ const SupplierLogin: React.FC = () => {
                                 transition={{ duration: 0.6, delay: 0.6 + i * 0.1 }}
                                 className="group cursor-default"
                             >
-                                <div className="p-5 rounded-2xl bg-white/10 border border-white/15 shadow-sm group-hover:bg-white/[0.14] transition-all duration-500">
-                                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-blue-200 mb-4 transition-all">
+                                <div className="p-5 rounded-card bg-white/10 border border-white/15 shadow-sm group-hover:bg-white/[0.14] transition-all duration-500">
+                                    <div className="w-10 h-10 rounded-card bg-white/10 flex items-center justify-center text-blue-200 mb-4 transition-all">
                                         <feature.icon className="w-5 h-5" />
                                     </div>
-                                    <h3 className="text-white font-black text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
+                                    <h3 className="text-white font-extrabold text-xs mb-1.5 tracking-tight uppercase">{feature.title}</h3>
                                     <p className="text-slate-300 text-[10px] leading-relaxed font-bold">{feature.desc}</p>
                                 </div>
                             </motion.div>
@@ -144,7 +144,7 @@ const SupplierLogin: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="hidden lg:flex items-center gap-8 text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">
+                <div className="hidden lg:flex items-center gap-8 text-slate-400 text-[9px] font-extrabold uppercase tracking-[0.3em]">
                     <span>&copy; {new Date().getFullYear()} Hogicar Partnership</span>
                     <div className="w-12 h-px bg-white/20" />
                     <span>Security Protocol</span>
@@ -161,18 +161,18 @@ const SupplierLogin: React.FC = () => {
                     className="w-full max-w-md bg-white p-6 sm:p-8 lg:p-10 rounded-3xl border border-slate-200 shadow-2xl shadow-slate-200/70 relative"
                 >
                     <div className="mb-8 text-center">
-                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 text-white mb-4 shadow-inner">
+                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-card bg-slate-950 border border-slate-800 text-white mb-4 shadow-inner">
                             <Building className="w-7 h-7" />
                         </div>
-                        <h2 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tighter mb-1">Partner Access</h2>
-                        <p className="text-slate-400 font-black text-[9px] uppercase tracking-[0.25em]">Authorized Supply Nodes Only</p>
+                        <h2 className="text-xl lg:text-2xl font-extrabold text-slate-900 tracking-tighter mb-1">Partner Access</h2>
+                        <p className="text-slate-400 font-extrabold text-[9px] uppercase tracking-[0.25em]">Authorized Supply Nodes Only</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Partner Identity</label>
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Partner Identity</label>
                             <div className="relative group/input">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-blue-600 transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-[#007ac2] transition-colors">
                                     <User className="w-4.5 h-4.5" />
                                 </div>
                                 <input
@@ -180,7 +180,7 @@ const SupplierLogin: React.FC = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-black"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-extrabold"
                                     placeholder="Username or Email"
                                     disabled={isLoading}
                                 />
@@ -189,11 +189,11 @@ const SupplierLogin: React.FC = () => {
 
                         <div className="space-y-2.5">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Access Key</label>
-                                <button type="button" className="text-[9px] font-black text-blue-700 uppercase tracking-widest hover:text-slate-900 transition-colors">Reset</button>
+                                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Access Key</label>
+                                <button type="button" className="text-[9px] font-extrabold text-[#007ac2] uppercase tracking-widest hover:text-slate-900 transition-colors">Reset</button>
                             </div>
                             <div className="relative group/input">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-blue-600 transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 group-focus-within/input:text-[#007ac2] transition-colors">
                                     <Lock className="w-4.5 h-4.5" />
                                 </div>
                                 <input
@@ -201,14 +201,14 @@ const SupplierLogin: React.FC = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-black"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-card py-4 pl-13 pr-5 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 transition-all text-xs font-extrabold"
                                     placeholder="••••••••"
                                     disabled={isLoading}
                                 />
                                 <button 
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-blue-600 transition-colors"
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-[#007ac2] transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
@@ -221,10 +221,10 @@ const SupplierLogin: React.FC = () => {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3.5"
+                                    className="bg-red-50 border border-red-100 p-4 rounded-card flex items-center gap-3.5"
                                 >
                                     <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                                    <p className="text-red-600 text-[10px] font-black leading-tight uppercase tracking-tight">{error}</p>
+                                    <p className="text-red-600 text-[10px] font-extrabold leading-tight uppercase tracking-tight">{error}</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -233,7 +233,7 @@ const SupplierLogin: React.FC = () => {
                             whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
                             disabled={isLoading}
-                            className="w-full bg-slate-950 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-4 group"
+                            className="w-full bg-slate-950 hover:bg-[#007ac2] text-white font-extrabold py-4 rounded-card shadow-2xl shadow-slate-200 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500 mt-4 group"
                         >
                             {isLoading ? (
                                 <LoaderCircle className="w-5 h-5 animate-spin" />
@@ -247,9 +247,9 @@ const SupplierLogin: React.FC = () => {
                     </form>
 
                     <div className="mt-8 text-center">
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                        <p className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
                             New partner?{' '}
-                            <Link to="/apply" className="text-blue-700 hover:text-slate-900 transition-colors ml-1 border-b-2 border-blue-100 hover:border-slate-900 pb-0.5">Application Form</Link>
+                            <Link to="/apply" className="text-[#007ac2] hover:text-slate-900 transition-colors ml-1 border-b-2 border-blue-100 hover:border-slate-900 pb-0.5">Application Form</Link>
                         </p>
                     </div>
                 </motion.div>

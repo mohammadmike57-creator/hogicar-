@@ -71,7 +71,7 @@ const AdminSuppliers: React.FC = () => {
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center p-8"><LoaderCircle className="w-8 h-8 animate-spin text-blue-600" /></div>;
+        return <div className="flex justify-center items-center p-8"><LoaderCircle className="w-8 h-8 animate-spin text-[#007ac2]" /></div>;
     }
 
     if (error) {
@@ -79,10 +79,10 @@ const AdminSuppliers: React.FC = () => {
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+        <div className="bg-white p-6 rounded-card shadow-sm border border-slate-100">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-xl font-bold text-slate-800">Suppliers</h1>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-2">
+                <button className="bg-[#007ac2] hover:bg-[#007ac2] text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-2">
                     <Plus className="w-3.5 h-3.5"/> Add Supplier
                 </button>
             </div>

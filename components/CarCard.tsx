@@ -101,7 +101,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
 
     return (
         <div className="fixed inset-0 bg-slate-950/70 z-[9999] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
                     <div className="flex min-w-0 items-center gap-4">
@@ -731,7 +731,7 @@ const CarCard: React.FC<CarCardProps> = ({
                   </div>
 
                   {/* Price & CTA Section */}
-                  <div className="p-2.5 md:w-[29%] bg-slate-50 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
+                  <div className="p-2.5 md:w-[29%] bg-white flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
                       <div>
                           {/* Pricing Info */}
                           <div className="flex flex-col mb-2.5">

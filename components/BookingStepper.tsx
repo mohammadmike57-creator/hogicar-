@@ -31,9 +31,9 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
               return (
                 <div key={step.step} className="relative z-10 flex flex-col items-center gap-3 text-center">
                   <div
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-500
+                    className={`w-12 h-12 rounded-card flex items-center justify-center border-2 transition-all duration-500
                       ${isCompleted ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/20' : ''}
-                      ${isActive ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30 scale-105' : ''}
+                      ${isActive ? 'bg-[#007ac2] border-blue-600 text-white shadow-lg shadow-blue-600/30 scale-105' : ''}
                       ${!isCompleted && !isActive ? 'bg-slate-100 border-slate-300 text-slate-600' : ''}
                     `}
                   >
@@ -43,7 +43,7 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
                     <p className={`text-xs font-semibold transition-colors duration-300 ${isActive ? 'text-slate-900' : 'text-slate-500'} ${isCompleted ? 'text-emerald-700' : ''}`}>
                       {step.label}
                     </p>
-                    <p className={`mt-1 text-[11px] ${isActive ? 'text-blue-700' : 'text-slate-400'} ${isCompleted ? 'text-emerald-600' : ''}`}>
+                    <p className={`mt-1 text-[11px] ${isActive ? 'text-[#007ac2]' : 'text-slate-400'} ${isCompleted ? 'text-emerald-600' : ''}`}>
                       Step {step.step}
                     </p>
                   </div>
@@ -56,10 +56,10 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
 
       {/* --- MOBILE STEPPER (COMPACT) --- */}
       <div className="md:hidden">
-        <div className="rounded-2xl border border-slate-300/70 bg-slate-100/85 backdrop-blur-sm px-4 py-4 shadow-[0_10px_28px_-22px_rgba(15,23,42,0.65)]">
+        <div className="rounded-card border border-slate-300/70 bg-slate-100/85 backdrop-blur-sm px-4 py-4 shadow-[0_10px_28px_-22px_rgba(15,23,42,0.65)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/30">
+                <div className="w-10 h-10 bg-[#007ac2] rounded-card flex items-center justify-center text-white shadow-md shadow-blue-600/30">
                     {steps[currentStep-1]?.icon && React.createElement(steps[currentStep-1].icon, { className: "w-5 h-5" })}
                 </div>
                 <div>
@@ -71,7 +71,7 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
           </div>
           <div className="mt-3 flex gap-1.5">
                 {steps.map(s => (
-                    <div key={s.step} className={`h-1.5 rounded-full transition-all duration-500 ${s.step === currentStep ? 'w-7 bg-blue-600' : s.step < currentStep ? 'w-3 bg-emerald-500' : 'w-3 bg-slate-300'}`}></div>
+                    <div key={s.step} className={`h-1.5 rounded-full transition-all duration-500 ${s.step === currentStep ? 'w-7 bg-[#007ac2]' : s.step < currentStep ? 'w-3 bg-emerald-500' : 'w-3 bg-slate-300'}`}></div>
                 ))}
           </div>
         </div>

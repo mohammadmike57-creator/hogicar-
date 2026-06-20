@@ -87,7 +87,7 @@ const Confirmation: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-slate-50">
+      <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-white">
         <div className="text-center p-4 flex flex-col items-center gap-4">
           <LoaderCircle className="w-12 h-12 text-blue-600 animate-spin" />
           <h2 className="text-xl font-bold text-slate-800">Loading Your Confirmation...</h2>
@@ -98,7 +98,7 @@ const Confirmation: React.FC = () => {
 
   if (!booking) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-slate-50">
+      <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-white">
         <SEOMetadata
           title="Booking Not Found | Hogicar"
           description="The requested booking could not be found."
@@ -150,7 +150,7 @@ const Confirmation: React.FC = () => {
         description="Your car rental booking is confirmed. View your voucher and pickup details."
         noIndex={true}
       />
-      <div className="bg-slate-50 min-h-screen py-8">
+      <div className="bg-white min-h-screen py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <BookingStepper currentStep={5} />
           {apiError && booking && (
@@ -175,7 +175,7 @@ const Confirmation: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Details</h3>
                   <div className="flex flex-col sm:flex-row items-center gap-6">
-                    <div className="w-full sm:w-48 h-32 bg-slate-50 rounded-xl border border-slate-100 p-2 flex items-center justify-center shrink-0">
+                    <div className="w-full sm:w-48 h-32 bg-white rounded-xl border border-slate-100 p-2 flex items-center justify-center shrink-0">
                       <img 
                         src={carDisplay.image} 
                         alt={`${carDisplay.make} ${carDisplay.model}`} 
