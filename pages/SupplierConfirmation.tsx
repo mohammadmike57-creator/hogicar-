@@ -115,7 +115,7 @@ const SupplierConfirmation: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen bg-slate-100 flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-[#007ac2]"/></div>;
+        return <div className="min-h-screen bg-slate-100 flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-blue-600"/></div>;
     }
 
     if (error && !booking) {
@@ -124,7 +124,7 @@ const SupplierConfirmation: React.FC = () => {
                 <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
                 <h1 className="text-xl font-bold text-slate-800">Error</h1>
                 <p className="text-slate-500">{error}</p>
-                <Link to="/" className="mt-6 text-sm text-[#007ac2] hover:underline">Return to Hogicar Home</Link>
+                <Link to="/" className="mt-6 text-sm text-blue-600 hover:underline">Return to Hogicar Home</Link>
             </div>
         );
     }
@@ -183,7 +183,7 @@ const SupplierConfirmation: React.FC = () => {
                     </div>
                     <button 
                         onClick={() => window.print()}
-                        className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-card text-sm font-bold transition-all"
+                        className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold transition-all"
                     >
                         <Printer className="w-4 h-4" /> Print
                     </button>
@@ -191,7 +191,7 @@ const SupplierConfirmation: React.FC = () => {
             </header>
             
             <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-0 print:px-0">
-                <div className="supplier-print-area bg-white rounded-card shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
+                <div className="supplier-print-area bg-white rounded-xl shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
                     <div className="supplier-print-hide p-8 border-b border-slate-100 print:hidden">
                         <h1 className="text-2xl font-bold text-slate-800">Rental Request Voucher</h1>
                         <p className="text-sm text-slate-500 mt-1">Please review the details below and take action to finalize this booking.</p>
@@ -201,9 +201,9 @@ const SupplierConfirmation: React.FC = () => {
                     <div className="hidden print:flex items-center justify-between border-b-2 border-slate-200 p-4 mb-2">
                         <Logo className="h-12 w-auto" variant="dark" />
                         <div className="text-right">
-                            <h1 className="text-xl font-extrabold uppercase tracking-widest text-slate-900">Supplier Reservation</h1>
+                            <h1 className="text-xl font-black uppercase tracking-widest text-slate-900">Supplier Reservation</h1>
                             <p className="text-slate-500 font-bold text-sm">Reference: {booking.bookingRef}</p>
-                            <div className="mt-2 inline-block bg-blue-100 text-[#007ac2] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-tighter">
+                            <div className="mt-2 inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
                                 {isConfirmed ? 'CONFIRMED' : (isRejected ? 'CANCELLED' : 'ACTION REQUIRED')}
                             </div>
                         </div>
@@ -214,7 +214,7 @@ const SupplierConfirmation: React.FC = () => {
                         <div className="space-y-6">
                             <div>
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Booking Details</h3>
-                                <div className="supplier-print-card bg-slate-50 border border-slate-200 rounded-card p-4 space-y-2 text-sm">
+                                <div className="supplier-print-card bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-sm">
                                     <p className="flex justify-between"><span>Hogicar Reference:</span> <strong className="font-mono">{booking.bookingRef || booking.id}</strong></p>
                                     <p className="flex justify-between"><span>Customer Name:</span> <strong>{booking.firstName} {booking.lastName}</strong></p>
                                     <p className="flex justify-between"><span>Customer Email:</span> <strong>{booking.email}</strong></p>
@@ -222,18 +222,18 @@ const SupplierConfirmation: React.FC = () => {
                                 </div>
                             </div>
                             {/* Rental Itinerary (Modern Style) */}
-                            <div className="supplier-print-card md:col-span-2 bg-white rounded-card shadow-sm border border-slate-200 p-6 mt-4">
+                            <div className="supplier-print-card md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-4">
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative">
                                     {/* Pickup */}
                                     <div className="flex-1 w-full md:w-auto">
                                         <div className="flex flex-col items-start">
-                                            <span className="text-2xl font-extrabold text-slate-950 mb-1">{booking.startTime || '10:00'}</span>
+                                            <span className="text-2xl font-black text-slate-950 mb-1">{booking.startTime || '10:00'}</span>
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-lg font-extrabold text-[#003580] tracking-tight">{booking.pickupCode}</span>
+                                                <span className="text-lg font-black text-[#003580] tracking-tight">{booking.pickupCode}</span>
                                                 <div className="h-1 w-1 rounded-full bg-slate-300" />
                                                 <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.pickupLocationName?.split(',')[0]}</span>
                                             </div>
-                                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{booking.pickupDate}</span>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.pickupDate}</span>
                                         </div>
                                     </div>
 
@@ -245,7 +245,7 @@ const SupplierConfirmation: React.FC = () => {
                                             </div>
                                             <div className="relative z-10 bg-white px-4 flex flex-col items-center text-center">
                                                 <div className="bg-slate-50 p-1.5 rounded-full border border-slate-100 shadow-sm mb-1">
-                                                    <Hash className="w-4 h-4 text-[#007ac2]" />
+                                                    <Hash className="w-4 h-4 text-[#008009]" />
                                                 </div>
                                                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] bg-white px-2">
                                                     Reservation Request
@@ -257,13 +257,13 @@ const SupplierConfirmation: React.FC = () => {
                                     {/* Drop-off */}
                                     <div className="flex-1 w-full md:w-auto">
                                         <div className="flex flex-col items-end text-right">
-                                            <span className="text-2xl font-extrabold text-slate-950 mb-1">{booking.endTime || '10:00'}</span>
+                                            <span className="text-2xl font-black text-slate-950 mb-1">{booking.endTime || '10:00'}</span>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</span>
                                                 <div className="h-1 w-1 rounded-full bg-slate-300" />
-                                                <span className="text-lg font-extrabold text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
+                                                <span className="text-lg font-black text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
                                             </div>
-                                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{booking.dropoffDate}</span>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.dropoffDate}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -272,27 +272,27 @@ const SupplierConfirmation: React.FC = () => {
 
                         {/* Right Column: Car Details & Price */}
                         <div className="space-y-6">
-                            <div className="supplier-print-card bg-slate-50 p-6 rounded-card border border-slate-200">
+                            <div className="supplier-print-card bg-slate-50 p-6 rounded-lg border border-slate-200">
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Specifications</h3>
                                 <div className="flex flex-col sm:flex-row gap-6 items-center mb-4">
                                     <div className="flex-grow">
-                                        <p className="text-lg font-extrabold text-slate-900 uppercase">{displayCar.make} {displayCar.model}</p>
+                                        <p className="text-lg font-black text-slate-900 uppercase">{displayCar.make} {displayCar.model}</p>
                                         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{displayCar.category} or similar</p>
                                     </div>
                                 </div>
                                 <div className="space-y-3 text-sm">
                                     <div className="grid grid-cols-2 gap-y-2 mt-2 border-t border-slate-100 pt-3">
-                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-[#007ac2] uppercase">{displayCar.sippCode}</span></p>
+                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-blue-600 uppercase">{displayCar.sippCode}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Transmission</span> <span className="font-bold">{displayCar.transmission}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Category</span> <span className="font-bold">{displayCar.category}</span></p>
                                         <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Fuel Policy</span> <span className="font-bold">{booking.carFuelPolicy || 'N/A'}</span></p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="supplier-print-card bg-blue-50 p-6 rounded-card border border-blue-100">
+                            <div className="supplier-print-card bg-blue-50 p-6 rounded-lg border border-blue-100">
                                 <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Financial Breakdown</h3>
                                 <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-[#007ac2]">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
+                                    <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-blue-700">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
                                     <p className="text-[10px] text-blue-400 italic">This is the amount you will receive for this rental.</p>
                                 </div>
                             </div>
@@ -300,7 +300,7 @@ const SupplierConfirmation: React.FC = () => {
                     </div>
 
                     {isConfirmed ? (
-                        <div className="supplier-print-status p-8 bg-green-50 border-t border-green-200 rounded-b-card">
+                        <div className="supplier-print-status p-8 bg-green-50 border-t border-green-200 rounded-b-xl">
                             <div className="text-center mb-6">
                                 <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
                                 <h2 className="text-xl font-bold text-green-800">Booking Confirmed!</h2>
@@ -310,7 +310,7 @@ const SupplierConfirmation: React.FC = () => {
                             </div>
                             
                             {(!booking.supplierConfirmationNumber || booking.supplierConfirmationNumber === 'PENDING' || booking.supplierConfirmationNumber === 'N/A') && (
-                                <div className="supplier-print-hide max-w-md mx-auto bg-white p-6 rounded-card border border-green-200 shadow-sm print:hidden">
+                                <div className="supplier-print-hide max-w-md mx-auto bg-white p-6 rounded-xl border border-green-200 shadow-sm print:hidden">
                                     <h3 className="text-sm font-bold text-slate-700 mb-4 text-center uppercase tracking-wider">Provide Your Confirmation Number</h3>
                                     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                                         <div className="relative">
@@ -319,7 +319,7 @@ const SupplierConfirmation: React.FC = () => {
                                                 type="text"
                                                 value={confirmationNumber === 'N/A' ? '' : confirmationNumber}
                                                 onChange={e => setConfirmationNumber(e.target.value)}
-                                                className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500 outline-none uppercase text-sm"
+                                                className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase text-sm"
                                                 placeholder="Your System ID"
                                                 required
                                             />
@@ -327,7 +327,7 @@ const SupplierConfirmation: React.FC = () => {
                                         <button 
                                             type="submit" 
                                             disabled={isSubmitting}
-                                            className="bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold py-2.5 rounded-card transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                                         >
                                             {isSubmitting ? <LoaderCircle className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                                             Update Confirmation #
@@ -345,7 +345,7 @@ const SupplierConfirmation: React.FC = () => {
                                     </p>
                                     <button 
                                         onClick={() => window.print()} 
-                                        className="supplier-print-hide mt-6 flex items-center gap-2 mx-auto bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-card text-sm font-bold hover:bg-slate-50 transition-all print:hidden"
+                                        className="supplier-print-hide mt-6 flex items-center gap-2 mx-auto bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all print:hidden"
                                     >
                                         <Printer className="w-4 h-4" /> Print Updated Voucher
                                     </button>
@@ -353,7 +353,7 @@ const SupplierConfirmation: React.FC = () => {
                             )}
                         </div>
                     ) : isRejected ? (
-                        <div className="supplier-print-status p-8 bg-red-50 border-t border-red-200 rounded-b-card text-center">
+                        <div className="supplier-print-status p-8 bg-red-50 border-t border-red-200 rounded-b-xl text-center">
                             <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
                             <h2 className="text-xl font-bold text-red-800">Booking Declined</h2>
                             <p className="text-sm text-red-700 mt-2">
@@ -361,7 +361,7 @@ const SupplierConfirmation: React.FC = () => {
                             </p>
                         </div>
                     ) : (
-                        <div className="supplier-print-hide p-8 bg-slate-50 border-t border-slate-200 rounded-b-card print:hidden">
+                        <div className="supplier-print-hide p-8 bg-slate-50 border-t border-slate-200 rounded-b-xl print:hidden">
                             {isRejectAction ? (
                                 <div className="space-y-4">
                                     <h2 className="text-lg font-bold text-red-900 mb-2">Decline Booking Request</h2>
@@ -373,7 +373,7 @@ const SupplierConfirmation: React.FC = () => {
                                                 id="reason"
                                                 value={rejectionReason}
                                                 onChange={e => setRejectionReason(e.target.value)}
-                                                className="w-full px-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm"
+                                                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm"
                                                 placeholder="Please explain why this request is being declined (e.g., Vehicle out of stock, maintenance issue)"
                                                 rows={3}
                                                 required
@@ -384,7 +384,7 @@ const SupplierConfirmation: React.FC = () => {
                                             <button 
                                                 type="submit" 
                                                 disabled={isSubmitting}
-                                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-card shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                                             >
                                                 {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <XCircle className="w-5 h-5"/>}
                                                 Decline Booking
@@ -397,7 +397,7 @@ const SupplierConfirmation: React.FC = () => {
                                                     window.history.pushState({}, '', url.toString());
                                                     window.location.reload();
                                                 }}
-                                                className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-8 rounded-card transition-all"
+                                                className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-8 rounded-lg transition-all"
                                             >
                                                 Back to Confirm
                                             </button>
@@ -417,7 +417,7 @@ const SupplierConfirmation: React.FC = () => {
                                                     type="text"
                                                     value={confirmationNumber}
                                                     onChange={e => setConfirmationNumber(e.target.value)}
-                                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase"
+                                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase"
                                                     placeholder="Enter your system's ID"
                                                     required
                                                 />
@@ -428,7 +428,7 @@ const SupplierConfirmation: React.FC = () => {
                                             <button 
                                                 type="submit" 
                                                 disabled={isSubmitting}
-                                                className="flex-grow bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold py-3 px-6 rounded-card shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
+                                                className="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
                                             >
                                                 {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
                                                 Confirm Booking
@@ -441,7 +441,7 @@ const SupplierConfirmation: React.FC = () => {
                                                     window.history.pushState({}, '', url.toString());
                                                     window.location.reload();
                                                 }}
-                                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-card transition-all flex items-center justify-center gap-2"
+                                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2"
                                             >
                                                 <XCircle className="w-5 h-5"/>
                                                 Decline

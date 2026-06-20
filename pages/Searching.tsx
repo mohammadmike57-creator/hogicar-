@@ -371,19 +371,19 @@ const Searching: React.FC = () => {
         
         <div className="relative z-10 w-full max-w-7xl text-center">
           <div className="mb-3 animate-fade-in">
-            <h1 className="text-[9px] sm:text-[10px] font-extrabold tracking-[0.4em] text-blue-300/60 uppercase mb-1.5">
+            <h1 className="text-[9px] sm:text-[10px] font-black tracking-[0.4em] text-blue-300/60 uppercase mb-1.5">
               Searching for the best deals in
             </h1>
             
             <div className="flex flex-col items-center justify-center gap-1 relative">
-              <div className="flex items-center gap-2 bg-white/5 px-5 py-1.5 rounded-card backdrop-blur-md border border-white/10 shadow-xl relative overflow-hidden group">
+              <div className="flex items-center gap-2 bg-white/5 px-5 py-1.5 rounded-xl backdrop-blur-md border border-white/10 shadow-xl relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse" />
                 <MapPin className="w-3.5 h-3.5 text-amber-400 relative z-10" />
-                <span className="text-lg sm:text-xl font-extrabold text-white tracking-tight uppercase relative z-10 drop-shadow-sm">
+                <span className="text-lg sm:text-xl font-black text-white tracking-tight uppercase relative z-10 drop-shadow-sm">
                   {pickupName}
                 </span>
                 {pickupIata && (
-                  <span className="bg-amber-400 text-slate-900 px-2 py-0.5 rounded-card text-[9px] font-extrabold tracking-tighter relative z-10 shadow-md">
+                  <span className="bg-amber-400 text-slate-900 px-2 py-0.5 rounded-lg text-[9px] font-black tracking-tighter relative z-10 shadow-md">
                     {pickupIata.toUpperCase()}
                   </span>
                 )}
@@ -393,15 +393,15 @@ const Searching: React.FC = () => {
           </div>
 
           <div className="h-8 mt-1">
-             <p className="text-base sm:text-lg font-bold text-blue-100/80 transition-all duration-500 bg-white/5 inline-block px-4 py-1 rounded-card backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
+             <p className="text-base sm:text-lg font-bold text-blue-100/80 transition-all duration-500 bg-white/5 inline-block px-4 py-1 rounded-xl backdrop-blur-sm" style={{ animation: `fade-in-text 0.5s ease-out forwards` }} key={currentMessageIndex}>
                 {searchMessages[currentMessageIndex]}
              </p>
           </div>
           
-          <div className="mt-4 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-2.5 px-5 rounded-card max-w-md mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[60px]">
+          <div className="mt-4 flex items-center justify-center gap-3 text-sm text-blue-200 font-medium bg-white/5 py-2.5 px-5 rounded-xl max-w-md mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[60px]">
             <Check className="w-5 h-5 flex-shrink-0 text-green-400" />
             <div className="text-left overflow-hidden">
-                <p className="text-[9px] font-extrabold text-blue-300/50 uppercase tracking-widest mb-0.5">Expert Tip</p>
+                <p className="text-[9px] font-black text-blue-300/50 uppercase tracking-widest mb-0.5">Expert Tip</p>
                 <motion.p 
                     key={currentTipIndex}
                     initial={{ opacity: 0, x: 20 }}
@@ -427,20 +427,20 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-5 bg-white/5 py-2.5 px-6 rounded-card backdrop-blur-sm border border-white/5 shadow-2xl">
+          <div className="mt-5 flex items-center justify-center gap-5 bg-white/5 py-2.5 px-6 rounded-2xl backdrop-blur-sm border border-white/5 shadow-2xl">
             <div className="flex flex-col items-center">
-              <span className="text-[8px] font-extrabold text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Security</span>
-              <span className="text-[10px] font-extrabold text-green-400 tracking-tighter uppercase">Verified</span>
+              <span className="text-[8px] font-black text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Security</span>
+              <span className="text-[10px] font-black text-green-400 tracking-tighter uppercase">Verified</span>
             </div>
             <div className="w-px h-6 bg-white/10" />
             <div className="flex flex-col items-center">
-              <span className="text-[8px] font-extrabold text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Scanning</span>
-              <span className="text-[10px] font-extrabold text-white tracking-tighter uppercase">{Math.floor(progress * 100)}%</span>
+              <span className="text-[8px] font-black text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Scanning</span>
+              <span className="text-[10px] font-black text-white tracking-tighter uppercase">{Math.floor(progress * 100)}%</span>
             </div>
             <div className="w-px h-6 bg-white/10" />
             <div className="flex flex-col items-center">
-              <span className="text-[8px] font-extrabold text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Results</span>
-              <span className="text-[10px] font-extrabold text-amber-400 tracking-tighter uppercase">{suppliersScanned} Found</span>
+              <span className="text-[8px] font-black text-blue-300/30 uppercase tracking-[0.2em] mb-0.5">Results</span>
+              <span className="text-[10px] font-black text-amber-400 tracking-tighter uppercase">{suppliersScanned} Found</span>
             </div>
           </div>
 
@@ -452,7 +452,7 @@ const Searching: React.FC = () => {
               return (
                 <div
                   key={supplier.isLocal ? `local-${supplier.id}` : `real-${supplier.id}`}
-                  className="relative flex items-center justify-center aspect-square rounded-card transition-all duration-700 shadow-sm hover:shadow-xl group overflow-hidden"
+                  className="relative flex items-center justify-center aspect-square rounded-2xl transition-all duration-700 shadow-sm hover:shadow-xl group overflow-hidden"
                   style={{
                     backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.45)',
                     backdropFilter: 'blur(8px)',
@@ -480,7 +480,7 @@ const Searching: React.FC = () => {
                   )}
                   {isChecking && (
                     <div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-card"
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-2xl"
                       style={{ animation: `shimmer 1s infinite` }}
                     />
                   )}
