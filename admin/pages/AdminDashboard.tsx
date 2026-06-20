@@ -3394,7 +3394,7 @@ export const AdminDashboard: React.FC = () => {
   const fetchBookings = async (supplierId?: string | null) => {
     setLoadingBookings(true);
     try {
-        const url = supplierId ? `/api/bookings?supplierId=${supplierId}` : '/api/bookings';
+        const url = supplierId ? `/api/admin/bookings?supplierId=${supplierId}` : '/api/admin/bookings';
         const res = await adminFetch(url);
         setBookings(Array.isArray(res) ? res : []);
     } catch (e) {
