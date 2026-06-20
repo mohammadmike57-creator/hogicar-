@@ -1,5 +1,127 @@
 @import "tailwindcss";
 
+@theme {
+  --color-accent: #007ac2;
+  --color-background: #ffffff;
+  --color-text: #0f172a;
+  
+  --font-inter: "Inter", "Segoe UI", system-ui, sans-serif;
+
+  --spacing-xs: 6px;
+  --spacing-sm: 16px;
+  --spacing-md: 26px;
+  --spacing-lg: 50px;
+  --spacing-xl: 80px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 20px 0 rgba(0, 0, 0, 0.14);
+  
+  --radius-button: 32px;
+  --radius-card: 4px;
+}
+
+@layer base {
+  h1 {
+    @apply font-inter;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 40px;
+    letter-spacing: -1px;
+    color: var(--color-text);
+  }
+  h2 {
+    @apply font-inter;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 40px;
+    letter-spacing: -0.68px;
+    color: var(--color-text);
+  }
+  h3 {
+    @apply font-inter;
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 28px;
+    letter-spacing: 0px;
+    color: var(--color-text);
+  }
+  h4 {
+    @apply font-inter;
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 28px;
+    letter-spacing: 0px;
+    color: var(--color-text);
+  }
+  p {
+    @apply font-inter;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 40px;
+    letter-spacing: -0.68px;
+    color: var(--color-text);
+  }
+  
+  .btn-primary {
+    @apply font-inter;
+    background-color: #007ac2;
+    color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 32px;
+    padding: 9px 28px;
+    font-size: 17px;
+    font-weight: 500;
+    min-width: 140px;
+    min-height: 120px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+  }
+  .btn-primary:hover {
+    background-color: #005c94;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-secondary {
+    @apply font-inter;
+    background-color: transparent;
+    color: #0ea5e9;
+    border: 1px solid #cbd5e1;
+    border-radius: 32px;
+    padding: 9px 28px;
+    font-size: 17px;
+    font-weight: 500;
+    min-width: 140px;
+    min-height: 120px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+  }
+  .btn-secondary:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+  }
+  
+  .card-professional {
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 0px none;
+    border-radius: 4px;
+    padding: 16px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
 html, body {
   margin: 0;
   padding: 0;
