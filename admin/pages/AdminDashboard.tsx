@@ -2233,7 +2233,14 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
     if (title.length > 60) return alert("Title must not exceed 60 characters.");
     if (description.length > 160) return alert("Description must not exceed 160 characters.");
     
-    onSave({ route, title, description, keywords, canonicalUrl, indexable });
+    // Normalize route: ensure leading slash, remove trailing slash (unless it's just /)
+    let normalizedRoute = route.trim();
+    if (!normalizedRoute.startsWith('/')) normalizedRoute = '/' + normalizedRoute;
+    if (normalizedRoute.length > 1 && normalizedRoute.endsWith('/')) {
+        normalizedRoute = normalizedRoute.substring(0, normalizedRoute.length - 1);
+    }
+    
+    onSave({ route: normalizedRoute, title, description, keywords, canonicalUrl, indexable });
   };
 
   const getScore = () => {

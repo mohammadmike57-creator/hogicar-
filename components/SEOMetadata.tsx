@@ -24,22 +24,24 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const location = useLocation();
   const [config, setConfig] = useState<any>(null);
 
+  const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
+
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await api.fetchSeoConfig(location.pathname);
+        const res = await api.fetchSeoConfig(normalizedPathname);
         if (res.data) {
           setConfig(res.data);
         } else {
           setConfig(null);
         }
       } catch (e) {
-        console.error('Failed to fetch SEO config for', location.pathname);
+        console.error('Failed to fetch SEO config for', normalizedPathname);
         setConfig(null);
       }
     };
     fetchConfig();
-  }, [location.pathname]);
+  }, [normalizedPathname]);
 
   const title = config?.title || defaultTitle;
   const description = config?.description || defaultDescription;

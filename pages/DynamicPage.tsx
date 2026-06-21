@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import SEOMetadata from '../components/SEOMetadata';
 import { ArrowLeft, Clock, Loader2 } from 'lucide-react';
@@ -8,7 +8,7 @@ import Home from './Home';
 import { API_BASE_URL } from '../lib/config';
 
 const DynamicPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const [page, setPage] = useState<any>(null);
   const [seoConfig, setSeoConfig] = useState<any>(null);
   const [isLandingPage, setIsLandingPage] = useState(false);
@@ -23,18 +23,23 @@ const DynamicPage: React.FC = () => {
       setPage(null);
       setSeoConfig(null);
 
+      // Normalize route
+      const route = location.pathname.replace(/\/$/, '') || '/';
+      const slug = route.startsWith('/') ? route.substring(1) : route;
+
       try {
-        // 1. Try fetching static page content first
-        const pageResponse = await fetch(`${API_BASE_URL}/api/pages/${slug}`);
-        if (pageResponse.ok) {
-          const data = await pageResponse.json();
-          setPage(data);
-          setLoading(false);
-          return;
+        // 1. Try fetching static page content first (if there's a slug)
+        if (slug) {
+          const pageResponse = await fetch(`${API_BASE_URL}/api/pages/${slug}`);
+          if (pageResponse.ok) {
+            const data = await pageResponse.json();
+            setPage(data);
+            setLoading(false);
+            return;
+          }
         }
 
         // 2. If no static page, check if it's an SEO route (e.g. /car-rental-amman)
-        const route = `/${slug}`;
         const seoResponse = await fetch(`${API_BASE_URL}/api/seo/config?route=${encodeURIComponent(route)}`);
         if (seoResponse.ok) {
            const seoData = await seoResponse.json();
@@ -56,10 +61,8 @@ const DynamicPage: React.FC = () => {
       }
     };
 
-    if (slug) {
-      fetchPageData();
-    }
-  }, [slug]);
+    fetchPageData();
+  }, [location.pathname]);
 
   if (loading) {
     return (

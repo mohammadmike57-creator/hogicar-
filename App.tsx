@@ -37,29 +37,20 @@ const pathname = window.location.pathname;
 const hash = window.location.hash;
 const search = window.location.search || "";
 
-// If using HashRouter, the application logic is in the hash part.
-// But we might still get traditional paths if someone types them or from old redirects.
+// Handle legacy hash routes by redirecting to clean URLs
+if (hash.startsWith("#/")) {
+  const cleanPath = hash.substring(2);
+  window.location.replace(`/${cleanPath}${search}`);
+}
+
 if (host.startsWith("admin.")) {
-  if (!hash.startsWith("#/admin") && !hash.startsWith("#/admin-login")) {
-    window.location.replace(`/#/admin${search}`);
+  if (pathname !== "/admin" && pathname !== "/admin-login") {
+    window.location.replace(`/admin${search}`);
   }
 } else if (host.startsWith("supplier.")) {
-  if (!hash.startsWith("#/supplier") && !hash.startsWith("#/supplier-login")) {
-    window.location.replace(`/#/supplier-login${search}`);
+  if (pathname !== "/supplier" && pathname !== "/supplier-login") {
+    window.location.replace(`/supplier-login${search}`);
   }
-}
-// Support for non-subdomain admin path (e.g. hogicar.com/admin)
-else if (pathname === "/admin" || pathname === "/admin/") {
-  window.location.replace(`/#/admin${search}`);
-}
-else if (pathname === "/admin-login" || pathname === "/admin-login/") {
-  window.location.replace(`/#/admin-login${search}`);
-}
-else if (pathname === "/supplier" || pathname === "/supplier/") {
-  window.location.replace(`/#/supplier${search}`);
-}
-else if (pathname === "/supplier-login" || pathname === "/supplier-login/") {
-  window.location.replace(`/#/supplier-login${search}`);
 }
 // --- END SUBDOMAIN REDIRECT ---
 
@@ -98,7 +89,7 @@ const App: React.FC = () => {
           <Route path="/become-supplier" element={<BecomeSupplier />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/:slug" element={<DynamicPage />} />
+          <Route path="*" element={<DynamicPage />} />
         </Route>
       </Routes>
     </CurrencyProvider>
