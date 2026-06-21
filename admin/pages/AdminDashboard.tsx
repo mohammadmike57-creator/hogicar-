@@ -3,13 +3,13 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Menu, X, LogOut, LayoutDashboard, Car, Building, Calendar, 
-  Save, Plus, Trash2, Edit, ChevronDown, ChevronUp, DollarSign, 
+  Save, Plus, Trash2, Edit, ChevronDown, ChevronUp, DollarSign, ExternalLink,
   Settings, AlertCircle, CheckCircle, Shield, TrendingUp, 
   MailQuestion, Rss, Link2, XCircle, RefreshCw, Copy, Share2, ShieldCheck,
   Power, Tag, ImageIcon, PlusCircle, LoaderCircle, FileText, Globe, 
   Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
   Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins, MapPin, Lock,
-  Eye, EyeOff,
+  Eye, EyeOff, LayoutGrid, Palette,
   Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -2200,12 +2200,45 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
+  const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style'>('seo');
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
   const [description, setDescription] = useState(config?.description || '');
   const [keywords, setKeywords] = useState(config?.keywords || '');
   const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
   const [indexable, setIndexable] = useState(config?.indexable !== false);
+  const [ogImage, setOgImage] = useState(config?.ogImage || '');
+
+  // Page Builder States
+  const [layout, setLayout] = useState<'HOMEPAGE' | 'LANDING_PAGE'>(config?.layout || 'HOMEPAGE');
+  const [h1Title, setH1Title] = useState(config?.h1Title || '');
+  const [introText, setIntroText] = useState(config?.introText || '');
+  
+  // Advanced Config
+  const [builderConfig, setBuilderConfig] = useState<any>(() => {
+    try {
+      return config?.contentJson ? JSON.parse(config.contentJson) : {
+        sections: {
+          search: { enabled: true, pickupPrefill: '' },
+          hero: { enabled: true, showImage: true },
+          features: { enabled: true },
+          whyChooseUs: { enabled: true },
+          faq: { enabled: true, items: [] },
+          cta: { enabled: true },
+          supplierLogos: { enabled: true },
+          stats: { enabled: true }
+        },
+        styles: {
+          accentColor: '#007ac2',
+          backgroundColor: '#ffffff',
+          textColor: '#0f172a',
+          buttonStyle: 'rounded-card'
+        }
+      };
+    } catch (e) {
+      return {};
+    }
+  });
 
   useEffect(() => {
     if (config) {
@@ -2215,6 +2248,13 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setKeywords(config.keywords || '');
       setCanonicalUrl(config.canonicalUrl || '');
       setIndexable(config.indexable !== false);
+      setOgImage(config.ogImage || '');
+      setLayout(config.layout || 'HOMEPAGE');
+      setH1Title(config.h1Title || '');
+      setIntroText(config.introText || '');
+      try {
+        if (config.contentJson) setBuilderConfig(JSON.parse(config.contentJson));
+      } catch(e) {}
     } else {
         setRoute('');
         setTitle('');
@@ -2222,6 +2262,28 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setKeywords('');
         setCanonicalUrl('');
         setIndexable(true);
+        setOgImage('');
+        setLayout('HOMEPAGE');
+        setH1Title('');
+        setIntroText('');
+        setBuilderConfig({
+          sections: {
+            search: { enabled: true, pickupPrefill: '' },
+            hero: { enabled: true, showImage: true },
+            features: { enabled: true },
+            whyChooseUs: { enabled: true },
+            faq: { enabled: true, items: [] },
+            cta: { enabled: true },
+            supplierLogos: { enabled: true },
+            stats: { enabled: true }
+          },
+          styles: {
+            accentColor: '#007ac2',
+            backgroundColor: '#ffffff',
+            textColor: '#0f172a',
+            buttonStyle: 'rounded-card'
+          }
+        });
     }
   }, [config, isOpen]);
 
@@ -2233,14 +2295,26 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
     if (title.length > 60) return alert("Title must not exceed 60 characters.");
     if (description.length > 160) return alert("Description must not exceed 160 characters.");
     
-    // Normalize route: ensure leading slash, remove trailing slash (unless it's just /)
+    // Normalize route
     let normalizedRoute = route.trim();
     if (!normalizedRoute.startsWith('/')) normalizedRoute = '/' + normalizedRoute;
     if (normalizedRoute.length > 1 && normalizedRoute.endsWith('/')) {
         normalizedRoute = normalizedRoute.substring(0, normalizedRoute.length - 1);
     }
     
-    onSave({ route: normalizedRoute, title, description, keywords, canonicalUrl, indexable });
+    onSave({ 
+      route: normalizedRoute, 
+      title, 
+      description, 
+      keywords, 
+      canonicalUrl, 
+      indexable, 
+      ogImage,
+      layout,
+      h1Title,
+      introText,
+      contentJson: JSON.stringify(builderConfig)
+    });
   };
 
   const getScore = () => {
@@ -2254,127 +2328,378 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={config?.id ? 'Edit SEO Optimization' : 'Optimize New Route'}>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-4">
-            <InputField 
-              label="Route (e.g. /amman)" 
-              value={route} 
-              onChange={(e: any) => setRoute(e.target.value)} 
-              disabled={!!config?.id}
-              placeholder="/your-custom-route"
-            />
-            
-            <div className="space-y-1">
-              <div className="flex justify-between items-end">
-                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Page Title</label>
-                <span className={`text-[9px] font-bold ${title.length > 60 ? 'text-rose-500' : 'text-slate-400'}`}>
-                  {title.length}/60
-                </span>
-              </div>
-              <input 
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-bold ${title.length > 60 ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'}`}
-                placeholder="Car Rental in Amman, Jordan | Hogicar"
-              />
-            </div>
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={config?.id ? 'Edit SEO Optimization' : 'Optimize New Route'}
+      size="xl"
+    >
+      <div className="flex flex-col h-[75vh]">
+        {/* Tabs */}
+        <div className="flex border-b border-slate-200 mb-6 -mx-6 px-6">
+          {[
+            { id: 'seo', label: 'General SEO', icon: Globe },
+            { id: 'layout', label: 'Layout', icon: LayoutDashboard },
+            { id: 'builder', label: 'Sections', icon: LayoutGrid },
+            { id: 'style', label: 'Design', icon: Palette }
+          ].map(tab => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest transition-all border-b-2 ${activeTab === tab.id ? 'border-[#007ac2] text-[#007ac2]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+            >
+              <tab.icon className="w-3.5 h-3.5" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between items-end">
-                <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Meta Description</label>
-                <span className={`text-[9px] font-bold ${description.length > 160 ? 'text-rose-500' : 'text-slate-400'}`}>
-                  {description.length}/160
-                </span>
-              </div>
-              <textarea 
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className={`w-full px-3 py-2 border rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium ${description.length > 160 ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'}`}
-                placeholder="Enter a compelling description that encourages clicks from Google search results."
-              />
-            </div>
-          </div>
+        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+          {activeTab === 'seo' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <InputField 
+                        label="Route (e.g. /amman)" 
+                        value={route} 
+                        onChange={(e: any) => setRoute(e.target.value)} 
+                        disabled={!!config?.id}
+                        placeholder="/your-custom-route"
+                      />
+                    </div>
+                    {config?.id && (
+                      <a 
+                        href={`${window.location.origin}${route}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-2 mb-[1px] bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-card transition-all flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Live
+                      </a>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-end">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Page Title</label>
+                      <span className={`text-[9px] font-bold ${title.length > 60 ? 'text-rose-500' : 'text-slate-400'}`}>
+                        {title.length}/60
+                      </span>
+                    </div>
+                    <input 
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-bold ${title.length > 60 ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'}`}
+                      placeholder="Car Rental in Amman, Jordan | Hogicar"
+                    />
+                  </div>
 
-          <div className="space-y-4">
-            <InputField 
-              label="Keywords (comma separated)" 
-              value={keywords} 
-              onChange={(e: any) => setKeywords(e.target.value)} 
-              placeholder="car rental amman, cheap car hire jordan"
-            />
-            <InputField 
-              label="Canonical URL" 
-              value={canonicalUrl} 
-              onChange={(e: any) => setCanonicalUrl(e.target.value)} 
-              placeholder="https://www.hogicar.com/your-route"
-            />
-            
-            <div className="p-4 bg-slate-50 rounded-card border border-slate-100 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">Indexing Toggle</h4>
-                  <p className="text-[9px] text-slate-400 mt-0.5">Allow Google to index this page?</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-end">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Meta Description</label>
+                      <span className={`text-[9px] font-bold ${description.length > 160 ? 'text-rose-500' : 'text-slate-400'}`}>
+                        {description.length}/160
+                      </span>
+                    </div>
+                    <textarea 
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={3}
+                      className={`w-full px-3 py-2 border rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium ${description.length > 160 ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'}`}
+                      placeholder="Enter a compelling description that encourages clicks from Google search results."
+                    />
+                  </div>
                 </div>
-                <button 
-                  onClick={() => setIndexable(!indexable)}
-                  className={`w-12 h-6 rounded-full transition-all relative ${indexable ? 'bg-emerald-500' : 'bg-slate-300'}`}
+
+                <div className="space-y-4">
+                  <InputField 
+                    label="Keywords (comma separated)" 
+                    value={keywords} 
+                    onChange={(e: any) => setKeywords(e.target.value)} 
+                    placeholder="car rental amman, cheap car hire jordan"
+                  />
+                  <InputField 
+                    label="Canonical URL" 
+                    value={canonicalUrl} 
+                    onChange={(e: any) => setCanonicalUrl(e.target.value)} 
+                    placeholder="https://www.hogicar.com/your-route"
+                  />
+                  <InputField 
+                    label="OG Image URL" 
+                    value={ogImage} 
+                    onChange={(e: any) => setOgImage(e.target.value)} 
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  
+                  <div className="p-4 bg-slate-50 rounded-card border border-slate-100 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">Indexing Toggle</h4>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Allow Google to index this page?</p>
+                      </div>
+                      <button 
+                        onClick={() => setIndexable(!indexable)}
+                        className={`w-12 h-6 rounded-full transition-all relative ${indexable ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${indexable ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-200">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">SEO Score</span>
+                        <span className={`text-xs font-black ${getScore() >= 80 ? 'text-emerald-500' : getScore() >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                          {getScore()}%
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div className={`h-full transition-all duration-500 ${getScore() >= 80 ? 'bg-emerald-500' : getScore() >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${getScore()}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Google Preview */}
+              <div className="p-4 bg-slate-50 rounded-card border border-slate-200 space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <Search className="w-3 h-3 text-slate-400" />
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Google Search Preview</span>
+                </div>
+                <div className="bg-white p-4 rounded border border-slate-200 shadow-sm max-w-xl">
+                  <div className="text-[14px] text-blue-800 hover:underline cursor-pointer font-medium mb-1 truncate">
+                    {title || 'Your Page Title Goes Here'}
+                  </div>
+                  <div className="flex items-center gap-1 text-[12px] text-emerald-800 mb-1">
+                    <span>https://www.hogicar.com</span>
+                    <span className="text-slate-400 font-bold">{route || '/example'}</span>
+                  </div>
+                  <div className="text-[13px] text-slate-600 line-clamp-2">
+                    {description || 'Provide a meta description to see how your page will look in Google search results. Make it attractive to get more clicks!'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'layout' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div 
+                  onClick={() => setLayout('HOMEPAGE')}
+                  className={`p-6 rounded-card border-2 cursor-pointer transition-all ${layout === 'HOMEPAGE' ? 'border-[#007ac2] bg-blue-50/30' : 'border-slate-100 bg-white hover:border-slate-200'}`}
                 >
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${indexable ? 'left-7' : 'left-1'}`} />
-                </button>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${layout === 'HOMEPAGE' ? 'bg-[#007ac2] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                      <Home className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest">Homepage Layout</h4>
+                      <p className="text-xs text-slate-500">Standard booking experience</p>
+                    </div>
+                    {layout === 'HOMEPAGE' && <CheckCircle className="w-5 h-5 text-[#007ac2] ml-auto" />}
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => setLayout('LANDING_PAGE')}
+                  className={`p-6 rounded-card border-2 cursor-pointer transition-all ${layout === 'LANDING_PAGE' ? 'border-[#007ac2] bg-blue-50/30' : 'border-slate-100 bg-white hover:border-slate-200'}`}
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${layout === 'LANDING_PAGE' ? 'bg-[#007ac2] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                      <LayoutDashboard className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest">Custom Landing</h4>
+                      <p className="text-xs text-slate-500">Bespoke section builder</p>
+                    </div>
+                    {layout === 'LANDING_PAGE' && <CheckCircle className="w-5 h-5 text-[#007ac2] ml-auto" />}
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-200">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">SEO Score</span>
-                  <span className={`text-xs font-black ${getScore() >= 80 ? 'text-emerald-500' : getScore() >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
-                    {getScore()}%
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div className={`h-full transition-all duration-500 ${getScore() >= 80 ? 'bg-emerald-500' : getScore() >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${getScore()}%` }} />
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <InputField 
+                  label="Hero H1 Heading" 
+                  value={h1Title} 
+                  onChange={(e: any) => setH1Title(e.target.value)} 
+                  placeholder="e.g. Best Car Rental in Amman"
+                />
+                <div className="space-y-1">
+                  <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Intro Text / Description</label>
+                  <textarea 
+                    value={introText}
+                    onChange={(e) => setIntroText(e.target.value)}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium bg-white"
+                    placeholder="Provide unique content for this landing page."
+                  />
                 </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'builder' && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded-card border border-slate-200 mb-6">
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Section Visibility</p>
+                <p className="text-[11px] text-slate-500 font-medium">Control which components are displayed on this specific route.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Object.keys(builderConfig.sections || {}).map((sectionKey: string) => {
+                  const section = builderConfig.sections[sectionKey];
+                  const label = sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1).replace(/([A-Z])/g, ' $1');
+                  return (
+                    <div key={sectionKey} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-card hover:border-slate-200 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded ${section.enabled ? 'bg-blue-50 text-[#007ac2]' : 'bg-slate-50 text-slate-400'}`}>
+                          {sectionKey === 'search' && <Search className="w-4 h-4" />}
+                          {sectionKey === 'hero' && <ImageIcon className="w-4 h-4" />}
+                          {sectionKey === 'faq' && <MailQuestion className="w-4 h-4" />}
+                          {sectionKey === 'features' && <Award className="w-4 h-4" />}
+                          {sectionKey === 'stats' && <Activity className="w-4 h-4" />}
+                          {!['search', 'hero', 'faq', 'features', 'stats'].includes(sectionKey) && <LayoutDashboard className="w-4 h-4" />}
+                        </div>
+                        <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-widest">{label}</span>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const newConfig = { ...builderConfig };
+                          newConfig.sections[sectionKey].enabled = !section.enabled;
+                          setBuilderConfig(newConfig);
+                        }}
+                        className={`text-[10px] font-extrabold px-3 py-1 rounded-full border transition-all ${section.enabled ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+                      >
+                        {section.enabled ? 'Enabled' : 'Disabled'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {builderConfig.sections?.search?.enabled && (
+                <div className="mt-8 p-6 border border-slate-200 rounded-card bg-slate-50 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Search className="w-4 h-4 text-[#007ac2]" />
+                    <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-widest">Search Integration</span>
+                  </div>
+                  <InputField 
+                    label="Prefill Pickup Location" 
+                    value={builderConfig.sections.search.pickupPrefill} 
+                    onChange={(e: any) => {
+                      const newConfig = { ...builderConfig };
+                      newConfig.sections.search.pickupPrefill = e.target.value;
+                      setBuilderConfig(newConfig);
+                    }} 
+                    placeholder="Enter city or airport name (e.g. Amman Airport)"
+                  />
+                  <p className="text-[10px] text-slate-400 italic">This location will be automatically selected in the search widget on this page.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'style' && (
+            <div className="space-y-6">
+              <div className="bg-slate-50 p-6 rounded-card border border-slate-200">
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-6">Custom Design Controls</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Accent Color</label>
+                      <div className="flex gap-3">
+                        <input 
+                          type="color" 
+                          value={builderConfig.styles?.accentColor || '#007ac2'} 
+                          onChange={(e) => {
+                            const newConfig = { ...builderConfig };
+                            newConfig.styles.accentColor = e.target.value;
+                            setBuilderConfig(newConfig);
+                          }}
+                          className="w-12 h-12 rounded cursor-pointer border-2 border-white shadow-sm"
+                        />
+                        <input 
+                          type="text"
+                          value={builderConfig.styles?.accentColor || '#007ac2'}
+                          onChange={(e) => {
+                            const newConfig = { ...builderConfig };
+                            newConfig.styles.accentColor = e.target.value;
+                            setBuilderConfig(newConfig);
+                          }}
+                          className="flex-1 px-4 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Background Color</label>
+                      <div className="flex gap-3">
+                        <input 
+                          type="color" 
+                          value={builderConfig.styles?.backgroundColor || '#ffffff'} 
+                          onChange={(e) => {
+                            const newConfig = { ...builderConfig };
+                            newConfig.styles.backgroundColor = e.target.value;
+                            setBuilderConfig(newConfig);
+                          }}
+                          className="w-12 h-12 rounded cursor-pointer border-2 border-white shadow-sm"
+                        />
+                        <input 
+                          type="text"
+                          value={builderConfig.styles?.backgroundColor || '#ffffff'}
+                          onChange={(e) => {
+                            const newConfig = { ...builderConfig };
+                            newConfig.styles.backgroundColor = e.target.value;
+                            setBuilderConfig(newConfig);
+                          }}
+                          className="flex-1 px-4 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center bg-white p-6 rounded border border-slate-200 shadow-inner">
+                    <p className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest mb-4">Button Style Preview</p>
+                    <button 
+                      style={{ backgroundColor: builderConfig.styles?.accentColor || '#007ac2' }}
+                      className="px-8 py-3 text-white font-extrabold text-sm rounded-card shadow-lg active:scale-95 transition-all"
+                    >
+                      Action Button
+                    </button>
+                    <p className="text-[9px] text-slate-400 mt-4 text-center">Preview of primary call-to-action</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="p-4 bg-slate-50 rounded-card border border-slate-200 space-y-2">
-          <div className="flex items-center gap-2 mb-2">
-            <Search className="w-3 h-3 text-slate-400" />
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Google Search Preview</span>
-          </div>
-          <div className="bg-white p-4 rounded border border-slate-200 shadow-sm max-w-xl">
-            <div className="text-[14px] text-blue-800 hover:underline cursor-pointer font-medium mb-1 truncate">
-              {title || 'Your Page Title Goes Here'}
-            </div>
-            <div className="flex items-center gap-1 text-[12px] text-emerald-800 mb-1">
-              <span>https://www.hogicar.com</span>
-              <span className="text-slate-400 font-bold">{route || '/example'}</span>
-            </div>
-            <div className="text-[13px] text-slate-600 line-clamp-2">
-              {description || 'Provide a meta description to see how your page will look in Google search results. Make it attractive to get more clicks!'}
+        {/* Footer Actions */}
+        <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-200 -mx-6 px-6">
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-2 w-fit px-3 py-1.5 rounded-full border text-[10px] font-extrabold uppercase tracking-widest transition-all ${getScore() >= 80 ? 'text-emerald-500 bg-emerald-50 border-emerald-100' : 'text-amber-500 bg-amber-50 border-amber-100'}`}>
+              <Activity className="w-3 h-3" />
+              SEO Quality: {getScore()}%
             </div>
           </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <button 
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-extrabold text-slate-500 hover:text-slate-700 transition-colors uppercase tracking-widest"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleSave} 
-            className="bg-[#007ac2] hover:bg-[#00619a] text-white px-8 py-2 rounded-card font-extrabold text-sm transition-all shadow-lg active:scale-95 flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            Save Optimization
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={onClose}
+              className="px-6 py-2 text-sm font-extrabold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSave} 
+              className="bg-[#007ac2] hover:bg-[#00619a] text-white px-8 py-2 rounded-card font-extrabold text-sm transition-all shadow-lg active:scale-95 flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              Save Settings
+            </button>
+          </div>
         </div>
       </div>
     </Modal>

@@ -21,9 +21,10 @@ interface SearchWidgetProps {
     initialValues?: Partial<SearchParams>;
     onSearch: (params: Partial<SearchParams>) => void;
     showTitle?: boolean;
+    accentColor?: string;
 }
 
-const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, showTitle = false }) => {
+const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, showTitle = false, accentColor }) => {
     const today = new Date();
     const nextThreeDays = new Date(today);
     nextThreeDays.setDate(today.getDate() + 3);
@@ -536,7 +537,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </label>
                     </div>
 
-                    <button type="submit" className="w-full bg-[#FF9F1C] hover:bg-[#f39200] text-white font-extrabold h-12 rounded-card shadow-[0_10px_25px_-5px_rgba(255,159,28,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-1 text-[15px] tracking-tight">
+                    <button 
+                        type="submit" 
+                        className="w-full text-white font-extrabold h-12 rounded-card active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-1 text-[15px] tracking-tight"
+                        style={{ backgroundColor: accentColor || '#FF9F1C', boxShadow: `0 10px 25px -5px ${accentColor ? accentColor + '66' : 'rgba(255,159,28,0.4)'}` }}
+                    >
                         <SearchIcon className="w-4.5 h-4.5 stroke-[3px]" />
                         Search Deals
                     </button>
@@ -631,7 +636,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 options={timeOptions}
                             />
                         </div>
-                        <button type="submit" className="h-16 px-12 bg-[#FF9F1C] hover:bg-[#f39200] text-white font-extrabold rounded-card shadow-[0_15px_30px_-5px_rgba(255,159,28,0.4)] transition-all active:scale-95 flex items-center justify-center text-xl whitespace-nowrap tracking-tight">
+                        <button 
+                            type="submit" 
+                            className="h-16 px-12 text-white font-extrabold rounded-card transition-all active:scale-95 flex items-center justify-center text-xl whitespace-nowrap tracking-tight"
+                            style={{ backgroundColor: accentColor || '#FF9F1C', boxShadow: `0 15px 30px -5px ${accentColor ? accentColor + '66' : 'rgba(255,159,28,0.4)'}` }}
+                        >
                             Search Deals
                         </button>
                     </div>

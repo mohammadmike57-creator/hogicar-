@@ -402,6 +402,10 @@ export interface SEOConfig {
   ogImage?: string;
   canonicalUrl?: string;
   indexable: boolean;
+  layout?: 'HOMEPAGE' | 'LANDING_PAGE';
+  h1Title?: string;
+  introText?: string;
+  contentJson?: string;
 }
 
 // --- Homepage Content Management ---
