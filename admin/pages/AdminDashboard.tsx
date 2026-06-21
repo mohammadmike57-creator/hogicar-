@@ -2213,6 +2213,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [layout, setLayout] = useState<'HOMEPAGE' | 'LANDING_PAGE'>(config?.layout || 'HOMEPAGE');
   const [h1Title, setH1Title] = useState(config?.h1Title || '');
   const [introText, setIntroText] = useState(config?.introText || '');
+  const [heroImage, setHeroImage] = useState(config?.heroImage || '');
   
   // Advanced Config
   const [builderConfig, setBuilderConfig] = useState<any>(() => {
@@ -2252,6 +2253,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setLayout(config.layout || 'HOMEPAGE');
       setH1Title(config.h1Title || '');
       setIntroText(config.introText || '');
+      setHeroImage(config.heroImage || '');
       try {
         if (config.contentJson) setBuilderConfig(JSON.parse(config.contentJson));
       } catch(e) {}
@@ -2266,6 +2268,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setLayout('HOMEPAGE');
         setH1Title('');
         setIntroText('');
+        setHeroImage('');
         setBuilderConfig({
           sections: {
             search: { enabled: true, pickupPrefill: '' },
@@ -2313,6 +2316,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       layout,
       h1Title,
       introText,
+      heroImage,
       contentJson: JSON.stringify(builderConfig)
     });
   };
@@ -2539,6 +2543,12 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                     placeholder="Provide unique content for this landing page."
                   />
                 </div>
+                <InputField 
+                  label="Hero Background Image URL" 
+                  value={heroImage} 
+                  onChange={(e: any) => setHeroImage(e.target.value)} 
+                  placeholder="https://example.com/hero-image.jpg"
+                />
               </div>
             </div>
           )}

@@ -255,7 +255,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const content = homepageContent;
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
-  const heroBackgroundImage = heroImageUrl || content.hero.backgroundImage;
+  const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
 
   // Use SEO config for H1 and subtitle if available
   const displayH1 = seoConfig?.title ? seoConfig.title.split(' | ')[0] : (content.hero.title || 'Search, Compare & Save on Car Rentals');

@@ -406,6 +406,7 @@ export interface SEOConfig {
   h1Title?: string;
   introText?: string;
   contentJson?: string;
+  heroImage?: string;
 }
 
 // --- Homepage Content Management ---
