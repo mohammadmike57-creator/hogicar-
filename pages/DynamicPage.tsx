@@ -4,25 +4,52 @@ import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import SEOMetadata from '../components/SEOMetadata';
 import { ArrowLeft, Clock, Loader2 } from 'lucide-react';
+import Home from './Home';
+import { API_BASE_URL } from '../lib/config';
 
 const DynamicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<any>(null);
+  const [seoConfig, setSeoConfig] = useState<any>(null);
+  const [isLandingPage, setIsLandingPage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchPage = async () => {
+    const fetchPageData = async () => {
       setLoading(true);
       setError(false);
+      setIsLandingPage(false);
+      setPage(null);
+      setSeoConfig(null);
+
       try {
-        const baseUrl = 'https://hogicar-backend.onrender.com';
-        const response = await fetch(`${baseUrl}/api/pages/${slug}`);
-        if (!response.ok) throw new Error('Page not found');
-        const data = await response.json();
-        setPage(data);
+        // 1. Try fetching static page content first
+        const pageResponse = await fetch(`${API_BASE_URL}/api/pages/${slug}`);
+        if (pageResponse.ok) {
+          const data = await pageResponse.json();
+          setPage(data);
+          setLoading(false);
+          return;
+        }
+
+        // 2. If no static page, check if it's an SEO route (e.g. /car-rental-amman)
+        const route = `/${slug}`;
+        const seoResponse = await fetch(`${API_BASE_URL}/api/seo/config?route=${encodeURIComponent(route)}`);
+        if (seoResponse.ok) {
+           const seoData = await seoResponse.json();
+           // Ensure it's not a generic fallback/empty response
+           if (seoData && seoData.title) {
+             setSeoConfig(seoData);
+             setIsLandingPage(true);
+             setLoading(false);
+             return;
+           }
+        }
+
+        throw new Error('Page not found');
       } catch (err) {
-        console.error('Error fetching page:', err);
+        console.error('Error fetching page data:', err);
         setError(true);
       } finally {
         setLoading(false);
@@ -30,17 +57,22 @@ const DynamicPage: React.FC = () => {
     };
 
     if (slug) {
-      fetchPage();
+      fetchPageData();
     }
   }, [slug]);
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-slate-50">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
          <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
-         <p className="mt-4 text-slate-500 font-medium">Loading page...</p>
+         <p className="mt-4 text-slate-500 font-medium text-sm">Loading page...</p>
       </div>
     );
+  }
+
+  // If it's a landing page, render the Home component with SEO config
+  if (isLandingPage && seoConfig) {
+    return <Home seoConfig={seoConfig} />;
   }
 
   if (error || !page) {

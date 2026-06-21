@@ -76,7 +76,11 @@ const normalizeHomepageContent = (content: any) => {
   };
 };
 
-const Home: React.FC = () => {
+interface HomeProps {
+  seoConfig?: any;
+}
+
+const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const navigate = useNavigate();
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
   const { convertPrice, getCurrencySymbol } = useCurrency();
@@ -106,10 +110,35 @@ const Home: React.FC = () => {
       try {
         const options = await fetchLocations('');
         setLocationsOptions(options);
-        const ammOption = options.find(o => o.value === 'AMM');
-        if (ammOption) {
-            setPickupName(ammOption.label);
-            setDropoffName(ammOption.label);
+        
+        let targetOption = null;
+
+        // Try to pre-fill based on SEO config or current route
+        if (seoConfig) {
+          const lowerRoute = (seoConfig.route || '').toLowerCase();
+          const lowerTitle = (seoConfig.title || '').toLowerCase();
+          
+          targetOption = options.find(o => {
+            const name = (o.name || '').toLowerCase();
+            const muni = (o.municipality || '').toLowerCase();
+            const iata = (o.iataCode || '').toLowerCase();
+            
+            return (name.length > 3 && lowerRoute.includes(name)) || 
+                   (muni.length > 3 && lowerRoute.includes(muni)) ||
+                   (iata.length === 3 && lowerRoute.includes(iata)) ||
+                   (name.length > 3 && lowerTitle.includes(name));
+          });
+        }
+
+        if (!targetOption) {
+            targetOption = options.find(o => o.value === 'AMM');
+        }
+
+        if (targetOption) {
+            setPickupName(targetOption.label);
+            setPickupCode(targetOption.value);
+            setDropoffName(targetOption.label);
+            setDropoffCode(targetOption.value);
         }
       } catch (error) {
          console.error("Failed to load locations on homepage:", error);
@@ -194,6 +223,10 @@ const Home: React.FC = () => {
   const destinations = content.popularDestinations.destinations;
   const heroBackgroundImage = heroImageUrl || content.hero.backgroundImage;
 
+  // Use SEO config for H1 and subtitle if available
+  const displayH1 = seoConfig?.title ? seoConfig.title.split(' | ')[0] : (content.hero.title || 'Search, Compare & Save on Car Rentals');
+  const displaySubtitle = seoConfig?.description || (content.hero.subtitle || 'Free cancellations on most bookings');
+
   const iconMap: { [key: string]: React.ElementType } = {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
   };
@@ -201,8 +234,10 @@ const Home: React.FC = () => {
   return (
     <div className="bg-white font-sans text-slate-900">
       <SEOMetadata
-        title="Hogicar | Affordable Car Rentals Worldwide"
-        description="Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."
+        title={seoConfig?.title || "Hogicar | Affordable Car Rentals Worldwide"}
+        description={seoConfig?.description || "Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."}
+        keywords={seoConfig?.keywords}
+        canonicalUrl={seoConfig?.canonicalUrl}
       />
       
       {/* HERO – professional centered layout with background image */}
@@ -224,10 +259,10 @@ const Home: React.FC = () => {
         
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
           <h1 className="text-[2rem] sm:text-4xl lg:text-6xl font-extrabold mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
-            {content.hero.title || 'Search, Compare & Save on Car Rentals'}
+            {displayH1}
           </h1>
           <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-2xl mx-auto text-[13px] sm:text-base lg:text-lg font-medium leading-relaxed px-2">
-            {content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.'}
+            {displaySubtitle}
           </p>
           
           <div className="relative z-20 mt-1 lg:mt-0">

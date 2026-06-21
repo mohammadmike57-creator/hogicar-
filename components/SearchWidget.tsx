@@ -29,17 +29,52 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     nextThreeDays.setDate(today.getDate() + 3);
 
     const [pickupQuery, setPickupQuery] = React.useState(initialValues?.pickupName || initialValues?.location || '');
-    const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { label: initialValues.pickupName || initialValues.location || '', value: initialValues.pickup, type: 'AIRPORT' } : null);
+    const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { label: initialValues.pickupName || initialValues.location || '', value: initialValues.pickup, type: 'airport' as any } : null);
     
     const [differentDropoff, setDifferentDropoff] = React.useState(initialValues?.differentDropoff || false);
     
     const [dropoffQuery, setDropoffQuery] = React.useState(initialValues?.dropoffName || initialValues?.dropoffLocation || '');
-    const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { label: initialValues.dropoffName || initialValues.dropoffLocation || '', value: initialValues.dropoff, type: 'AIRPORT' } : null);
+    const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { label: initialValues.dropoffName || initialValues.dropoffLocation || '', value: initialValues.dropoff, type: 'airport' as any } : null);
 
     const [pickupDate, setPickupDate] = React.useState(initialValues?.pickupDate || today.toISOString().split('T')[0]);
     const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || nextThreeDays.toISOString().split('T')[0]);
     const [pickupTime, setPickupTime] = React.useState(initialValues?.startTime || '10:00');
     const [dropoffTime, setDropoffTime] = React.useState(initialValues?.endTime || '10:00');
+
+    // Sync state when initialValues change (important for dynamic SEO routes)
+    React.useEffect(() => {
+        if (initialValues) {
+            if (initialValues.pickupName !== undefined) setPickupQuery(initialValues.pickupName || '');
+            if (initialValues.pickup !== undefined) {
+                setPickupSelection({
+                    label: initialValues.pickupName || '',
+                    value: initialValues.pickup,
+                    type: 'airport' as any,
+                    iataCode: initialValues.pickup,
+                    name: initialValues.pickupName || '',
+                    municipality: '',
+                    countryCode: ''
+                });
+            }
+            if (initialValues.dropoffName !== undefined) setDropoffQuery(initialValues.dropoffName || '');
+            if (initialValues.dropoff !== undefined) {
+                setDropoffSelection({
+                    label: initialValues.dropoffName || '',
+                    value: initialValues.dropoff,
+                    type: 'airport' as any,
+                    iataCode: initialValues.dropoff,
+                    name: initialValues.dropoffName || '',
+                    municipality: '',
+                    countryCode: ''
+                });
+            }
+            if (initialValues.pickupDate) setPickupDate(initialValues.pickupDate);
+            if (initialValues.dropoffDate) setDropoffDate(initialValues.dropoffDate);
+            if (initialValues.startTime) setPickupTime(initialValues.startTime);
+            if (initialValues.endTime) setDropoffTime(initialValues.endTime);
+            if (initialValues.differentDropoff !== undefined) setDifferentDropoff(initialValues.differentDropoff);
+        }
+    }, [initialValues]);
 
     const [suggestions, setSuggestions] = React.useState<LocationSuggestion[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = React.useState(false);

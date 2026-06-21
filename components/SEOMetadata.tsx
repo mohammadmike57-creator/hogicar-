@@ -7,10 +7,20 @@ import { api } from '../api';
 interface SEOMetadataProps {
   title: string;
   description: string;
+  keywords?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
   noIndex?: boolean;
 }
 
-const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, description: defaultDescription, noIndex: defaultNoIndex }) => {
+const SEOMetadata: React.FC<SEOMetadataProps> = ({ 
+  title: defaultTitle, 
+  description: defaultDescription, 
+  keywords: defaultKeywords,
+  canonicalUrl: defaultCanonical,
+  ogImage: defaultOgImage,
+  noIndex: defaultNoIndex 
+}) => {
   const location = useLocation();
   const [config, setConfig] = useState<any>(null);
 
@@ -33,9 +43,9 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({ title: defaultTitle, descript
 
   const title = config?.title || defaultTitle;
   const description = config?.description || defaultDescription;
-  const keywords = config?.keywords || 'car rental, cheap car hire, auto rental, travel';
-  const ogImage = config?.ogImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
-  const canonical = config?.canonicalUrl || (window.location.origin + location.pathname);
+  const keywords = config?.keywords || defaultKeywords || 'car rental, cheap car hire, auto rental, travel';
+  const ogImage = config?.ogImage || defaultOgImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
+  const canonical = config?.canonicalUrl || defaultCanonical || (window.location.origin + location.pathname);
   const isNoIndex = config ? (config.indexable === false) : defaultNoIndex;
 
   useEffect(() => {
