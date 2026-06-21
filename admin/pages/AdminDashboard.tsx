@@ -722,7 +722,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
           <div className="flex flex-col items-center">
             <div className="relative group w-48 h-32">
               {editedSupplier.logo || editedSupplier.logoUrl ? (
-                <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-card object-contain bg-white shadow-xl border-4 border-white" alt="Logo" />
+                <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-card object-contain bg-white shadow-xl border-4 border-white" alt="Logo" width="192" height="128" />
               ) : (
                 <div className="w-full h-full bg-white rounded-card flex items-center justify-center border-2 border-dashed border-gray-200">
                   <Building className="w-10 h-10 text-gray-300" />
@@ -1714,7 +1714,7 @@ const SiteSettingsContent = () => {
           <div className="mt-4">
             <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Preview</label>
             <div className="relative aspect-video rounded-card overflow-hidden border border-slate-100 bg-slate-50">
-              <img src={heroImageUrl} alt="Hero Preview" className="w-full h-full object-cover" />
+              <img src={heroImageUrl} alt="Hero Preview" className="w-full h-full object-cover" width="1280" height="720" />
             </div>
           </div>
         )}
@@ -3184,7 +3184,7 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="w-16 h-10 rounded-card bg-slate-50 flex items-center justify-center border border-slate-100 overflow-hidden">
-                            {car.imageUrl ? <img src={car.imageUrl} className="w-full h-full object-contain" /> : <Car className="w-5 h-5 text-slate-200" />}
+                            {car.imageUrl ? <img src={car.imageUrl} className="w-full h-full object-contain" width="64" height="40" /> : <Car className="w-5 h-5 text-slate-200" />}
                           </div>
                           <div>
                             <div className="text-xs font-extrabold text-slate-900">{car.make} {car.model}</div>

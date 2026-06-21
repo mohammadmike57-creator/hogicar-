@@ -470,6 +470,8 @@ const Searching: React.FC = () => {
                     <img
                       src={supplier.logoUrl || supplier.logo}
                       alt={supplier.name}
+                      width="100"
+                      height="100"
                       className="w-full h-full object-contain transition-all duration-1000"
                       style={{ 
                           opacity: isChecked ? 1 : 0.6,
