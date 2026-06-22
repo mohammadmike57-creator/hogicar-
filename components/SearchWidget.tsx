@@ -364,7 +364,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string }) => (
-        <div className="relative w-[150px] group bg-white h-[72px]">
+        <div className="relative flex-1 min-w-0 group bg-white h-[72px]">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                 <Calendar className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
@@ -383,7 +383,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     );
 
     const DesktopTimeField = ({ label, value, onChange, options }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[] }) => (
-        <div className="relative w-[110px] group bg-white h-[72px]">
+        <div className="relative flex-1 min-w-0 group bg-white h-[72px]">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                 <Clock className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
@@ -561,12 +561,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[1200px] mx-auto">
+            <div className="max-w-[1280px] mx-auto">
                 <form onSubmit={handleSearch} className="flex flex-col gap-4">
                     <div className="flex items-center bg-[#FFB703] p-[3px] rounded-[10px]">
                         <div className="flex flex-1 items-center bg-white rounded-[7px] overflow-hidden divide-x divide-slate-200">
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[6] h-[72px] min-w-0 group`}>
+                            <div className={`relative flex-[8] h-[72px] min-w-0 group`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <SearchIcon className="w-6 h-6 text-slate-400" />
                                 </div>
@@ -601,7 +601,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[6] h-[72px] min-w-0 group bg-slate-50/50`}>
+                                <div className={`relative flex-[8] h-[72px] min-w-0 group bg-slate-50/50`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <SearchIcon className="w-6 h-6 text-slate-400" />
                                     </div>
