@@ -142,7 +142,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
             <ArrowLeft size={20} color="#475569" />
           </button>
           <div style={{ flex: 1, position: 'relative' }}>
-            <SearchIcon size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            {searchQuery && <SearchIcon size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />}
             <input
               ref={inputRef}
               autoFocus
@@ -155,7 +155,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
               inputMode="search"
               style={{
                 width: '100%',
-                padding: '12px 16px 12px 40px',
+                padding: searchQuery ? '12px 16px 12px 40px' : '12px 16px',
                 borderRadius: '16px',
                 border: '1px solid #e2e8f0',
                 backgroundColor: '#f8fafc',
@@ -163,7 +163,8 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 outline: 'none',
                 boxSizing: 'border-box',
                 appearance: 'none',
-                WebkitAppearance: 'none'
+                WebkitAppearance: 'none',
+                transition: 'padding 0.2s ease'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.outline = '2px solid #007ac2';
@@ -266,20 +267,14 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
         {/* Empty states */}
         {!loading && searchQuery.length >= 2 && results.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-              <MapPin size={28} color="#94a3b8" />
-            </div>
-            <p style={{ color: '#64748b', fontSize: '16px' }}>No locations found</p>
+            <p style={{ color: '#64748b', fontSize: '16px', fontWeight: 600 }}>No locations found</p>
             <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Try a different spelling</p>
           </div>
         )}
 
         {!loading && searchQuery.length < 2 && recentLocations.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-              <SearchIcon size={28} color="#94a3b8" />
-            </div>
-            <p style={{ color: '#64748b', fontSize: '16px' }}>Start typing</p>
+            <p style={{ color: '#64748b', fontSize: '16px', fontWeight: 600 }}>Start typing</p>
             <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Enter at least 2 letters</p>
           </div>
         )}
