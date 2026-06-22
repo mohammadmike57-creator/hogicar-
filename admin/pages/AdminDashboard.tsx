@@ -2215,47 +2215,13 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
-  const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style'>('seo');
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
   const [description, setDescription] = useState(config?.description || '');
   const [keywords, setKeywords] = useState(config?.keywords || '');
   const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
   const [indexable, setIndexable] = useState(config?.indexable !== false);
-  const [published, setPublished] = useState(config?.published !== false);
   const [ogImage, setOgImage] = useState(config?.ogImage || '');
-
-  // Page Builder States
-  const [layout, setLayout] = useState<'HOMEPAGE' | 'LANDING_PAGE'>(config?.layout || 'HOMEPAGE');
-  const [h1Title, setH1Title] = useState(config?.h1Title || '');
-  const [introText, setIntroText] = useState(config?.introText || '');
-  const [heroImage, setHeroImage] = useState(config?.heroImage || '');
-  
-  // Advanced Config
-  const [builderConfig, setBuilderConfig] = useState<any>(() => {
-    try {
-      return config?.contentJson ? JSON.parse(config.contentJson) : {
-        sections: {
-          search: { enabled: true, pickupPrefill: '' },
-          hero: { enabled: true, showImage: true },
-          features: { enabled: true },
-          whyChooseUs: { enabled: true },
-          faq: { enabled: true, items: [] },
-          cta: { enabled: true },
-          supplierLogos: { enabled: true },
-          stats: { enabled: true }
-        },
-        styles: {
-          accentColor: '#007ac2',
-          backgroundColor: '#ffffff',
-          textColor: '#0f172a',
-          buttonStyle: 'rounded-card'
-        }
-      };
-    } catch (e) {
-      return {};
-    }
-  });
 
   useEffect(() => {
     if (config) {
@@ -2265,15 +2231,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setKeywords(config.keywords || '');
       setCanonicalUrl(config.canonicalUrl || '');
       setIndexable(config.indexable !== false);
-      setPublished(config.published !== false);
       setOgImage(config.ogImage || '');
-      setLayout(config.layout || 'HOMEPAGE');
-      setH1Title(config.h1Title || '');
-      setIntroText(config.introText || '');
-      setHeroImage(config.heroImage || '');
-      try {
-        if (config.contentJson) setBuilderConfig(JSON.parse(config.contentJson));
-      } catch(e) {}
     } else {
         setRoute('');
         setTitle('');
@@ -2281,30 +2239,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setKeywords('');
         setCanonicalUrl('');
         setIndexable(true);
-        setPublished(true);
         setOgImage('');
-        setLayout('HOMEPAGE');
-        setH1Title('');
-        setIntroText('');
-        setHeroImage('');
-        setBuilderConfig({
-          sections: {
-            search: { enabled: true, pickupPrefill: '' },
-            hero: { enabled: true, showImage: true },
-            features: { enabled: true },
-            whyChooseUs: { enabled: true },
-            faq: { enabled: true, items: [] },
-            cta: { enabled: true },
-            supplierLogos: { enabled: true },
-            stats: { enabled: true }
-          },
-          styles: {
-            accentColor: '#007ac2',
-            backgroundColor: '#ffffff',
-            textColor: '#0f172a',
-            buttonStyle: 'rounded-card'
-          }
-        });
     }
   }, [config, isOpen]);
 
@@ -2330,13 +2265,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       keywords, 
       canonicalUrl, 
       indexable,
-      published,
-      ogImage,
-      layout,
-      h1Title,
-      introText,
-      heroImage,
-      contentJson: JSON.stringify(builderConfig)
+      ogImage
     });
   };
 

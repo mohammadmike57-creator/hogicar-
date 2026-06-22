@@ -255,11 +255,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const content = homepageContent;
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
-  const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
+  const heroBackgroundImage = heroImageUrl || content.hero.backgroundImage;
 
-  // Use SEO config for H1 and subtitle if available
-  const displayH1 = seoConfig?.title ? seoConfig.title.split(' | ')[0] : (content.hero.title || 'Search, Compare & Save on Car Rentals');
-  const displaySubtitle = seoConfig?.description || (content.hero.subtitle || 'Free cancellations on most bookings');
+  const displayH1 = content.hero.title || 'Search, Compare & Save on Car Rentals';
+  const displaySubtitle = content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
@@ -284,23 +283,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* HERO – professional centered layout with background image */}
       {sections.hero?.enabled && (
         <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden">
-          {/* Background Image with Overlay */}
           <div className="absolute inset-0 z-0">
-            {sections.hero?.showImage !== false && (
-              <img 
-                src={heroBackgroundImage || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop"} 
-                className="w-full h-full object-cover"
-                alt="Hero Background"
-              />
-            )}
-            <div 
-              className="absolute inset-0 backdrop-blur-[1px]"
-              style={{ 
-                background: isCustomLanding 
-                  ? `linear-gradient(to b, ${accentColor}EE, ${accentColor}CC)` 
-                  : 'linear-gradient(to b, #003580EE, #003580CC, #003580F2)'
-              }}
-            ></div>
+            <img 
+              src={heroBackgroundImage || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop"} 
+              className="w-full h-full object-cover"
+              alt="Hero Background"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
           </div>
 
           <div className="absolute inset-0 opacity-20 pointer-events-none z-[1]">
@@ -310,10 +299,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           
           <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
             <h1 className="text-[2rem] sm:text-4xl lg:text-6xl font-extrabold mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
-              {seoConfig?.h1Title || displayH1}
+              {displayH1}
             </h1>
             <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-2xl mx-auto text-[13px] sm:text-base lg:text-lg font-medium leading-relaxed px-2">
-              {seoConfig?.introText || displaySubtitle}
+              {displaySubtitle}
             </p>
             
             {sections.search?.enabled && (

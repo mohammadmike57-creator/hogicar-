@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown, X } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 import SearchOverlay from './SearchOverlay';
 
@@ -364,37 +364,38 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string }) => (
-        <div className="relative flex-1 group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <Calendar className="w-4 h-4 text-slate-400 group-focus-within:text-accent transition-colors" />
+        <div className="relative flex-1 group bg-white h-[72px]">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <Calendar className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
-            <label className="absolute top-1 left-9 text-[9px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
-            <input
-                type="date"
-                value={value}
-                onChange={onChange}
-                min={min}
-                className="w-full h-14 pt-4 pb-1 pl-9 pr-3 rounded-card border border-transparent bg-white group-hover:bg-slate-50 focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent focus:outline-none text-base font-bold text-slate-900 cursor-pointer transition-all"
-                style={{ colorScheme: 'light' }}
-            />
+            <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">{label}</label>
+                <input
+                    type="date"
+                    value={value}
+                    onChange={onChange}
+                    min={min}
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 cursor-pointer p-0 -mt-1"
+                    style={{ colorScheme: 'light' }}
+                />
+            </div>
         </div>
     );
 
     const DesktopTimeField = ({ label, value, onChange, options }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[] }) => (
-        <div className="relative w-32 group">
+        <div className="relative w-[110px] group bg-white h-[72px]">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <Clock className="w-4 h-4 text-slate-400 group-focus-within:text-accent transition-colors" />
+                <Clock className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
-            <label className="absolute top-1 left-9 text-[9px] font-bold text-slate-500 uppercase tracking-wider z-10">{label}</label>
-            <select
-                value={value}
-                onChange={onChange}
-                className="w-full h-14 pt-4 pb-1 pl-9 pr-8 rounded-card border border-transparent bg-white group-hover:bg-slate-50 focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent focus:outline-none text-base font-bold text-slate-900 cursor-pointer appearance-none transition-all"
-            >
-                {options.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <ChevronDown className="w-4 h-4 text-slate-400" />
+            <div className="pl-11 pt-2.5 pb-1 flex flex-col h-full">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">{label}</label>
+                <select
+                    value={value}
+                    onChange={onChange}
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 cursor-pointer p-0 -mt-1 appearance-none"
+                >
+                    {options.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
             </div>
         </div>
     );
@@ -558,104 +559,147 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             saveRecentLocation={saveRecentLocation}
         />
 
-        {/* --- DESKTOP WIDGET (professional design) --- */}
+        {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)] relative z-10 border border-slate-100">
-                <form onSubmit={handleSearch} className="flex flex-col gap-5">
-                    <div className="flex flex-row items-center gap-4 w-full">
-                        <div className={`relative h-16 bg-slate-50 rounded-card hover:bg-slate-100 transition-all duration-300 border border-slate-200/50 focus-within:border-accent focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/10 ${differentDropoff ? 'flex-1' : 'flex-1'} w-full`}>
-                            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                {getLocationIcon(pickupSelection?.type || '', 'w-6 h-6')}
-                            </div>
-                            <div className="absolute top-2 left-12 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Pick-up Location</div>
-                            <input
-                                type="text"
-                                placeholder="City, airport, or station"
-                                className="block w-full h-full pl-12 pr-4 pt-5 pb-1 border-none focus:ring-0 focus:outline-none text-[16px] font-extrabold placeholder-slate-400 text-slate-900 bg-transparent"
-                                value={pickupQuery}
-                                onChange={handleLocationChange}
-                                onFocus={handleFocus}
-                                autoComplete="off"
-                                required
-                            />
-                            {isSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-3 w-[600px] left-0 bg-white border border-slate-100 rounded-3xl shadow-[0_30px_60px_-10px_rgba(0,0,0,0.2)] z-50 max-h-[400px] overflow-y-auto">
-                                    {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+            <div className="max-w-[1200px] mx-auto">
+                <form onSubmit={handleSearch} className="flex flex-col gap-4">
+                    <div className="flex items-center bg-[#FFB703] p-[3px] rounded-[10px]">
+                        <div className="flex flex-1 items-center bg-white rounded-[7px] overflow-hidden divide-x divide-slate-200">
+                            {/* Pick-up Location */}
+                            <div className={`relative flex-[3] h-[72px] min-w-0 group`}>
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <SearchIcon className="w-6 h-6 text-slate-400" />
                                 </div>
-                            )}
-                        </div>
-                        {differentDropoff && (
-                            <div className="relative h-16 bg-slate-50 rounded-card hover:bg-slate-100 transition-all duration-300 border border-slate-200/50 focus-within:border-accent focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/10 flex-1 w-full animate-in fade-in slide-in-from-left-4">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                    {getLocationIcon(dropoffSelection?.type || '', 'w-6 h-6')}
+                                <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full pr-10">
+                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
+                                    <input
+                                        type="text"
+                                        placeholder="City, airport, or station"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
+                                        value={pickupQuery}
+                                        onChange={handleLocationChange}
+                                        onFocus={handleFocus}
+                                        autoComplete="off"
+                                        required
+                                    />
                                 </div>
-                                <div className="absolute top-2 left-12 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Drop-off Location</div>
-                                <input
-                                    type="text"
-                                    placeholder="Enter drop-off city"
-                                    className="block w-full h-full pl-12 pr-4 pt-5 pb-1 border-none focus:ring-0 focus:outline-none text-[16px] font-extrabold placeholder-slate-400 text-slate-900 bg-transparent"
-                                    value={dropoffQuery}
-                                    onChange={handleDropoffLocationChange}
-                                    onFocus={handleDropoffFocus}
-                                    autoComplete="off"
-                                />
-                                {isDropoffSuggestionsOpen && (
-                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full mt-3 w-[600px] right-0 bg-white border border-slate-100 rounded-3xl shadow-[0_30px_60px_-10px_rgba(0,0,0,0.2)] z-50 max-h-[400px] overflow-y-auto">
-                                        {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                                {pickupQuery && (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => { setPickupQuery(''); setPickupSelection(null); }}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                    >
+                                        <X className="w-4 h-4 text-slate-400" />
+                                    </button>
+                                )}
+                                {isSuggestionsOpen && (
+                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-2 w-[500px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
+                                        {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                                     </div>
                                 )}
                             </div>
-                        )}
-                    </div>
-                    <div className="flex flex-row items-center gap-4 w-full">
-                        <div className="flex-[2] flex flex-row gap-3">
+
+                            {/* Drop-off Location (if different) */}
+                            {differentDropoff && (
+                                <div className={`relative flex-[3] h-[72px] min-w-0 group bg-slate-50/50`}>
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <SearchIcon className="w-6 h-6 text-slate-400" />
+                                    </div>
+                                    <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full pr-10">
+                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
+                                        <input
+                                            type="text"
+                                            placeholder="City, airport, or station"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
+                                            value={dropoffQuery}
+                                            onChange={handleDropoffLocationChange}
+                                            onFocus={handleDropoffFocus}
+                                            autoComplete="off"
+                                            required={differentDropoff}
+                                        />
+                                    </div>
+                                    {dropoffQuery && (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { setDropoffQuery(''); setDropoffSelection(null); }}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                        >
+                                            <X className="w-4 h-4 text-slate-400" />
+                                        </button>
+                                    )}
+                                    {isDropoffSuggestionsOpen && (
+                                        <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full right-0 mt-2 w-[500px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
+                                            {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Pick-up Date */}
                             <DesktopDateField
-                                label="Pick-up Date"
+                                label="Pick-up date"
                                 value={pickupDate}
                                 onChange={(e) => setPickupDate(e.target.value)}
                                 min={today.toISOString().split('T')[0]}
                             />
+
+                            {/* Pick-up Time */}
                             <DesktopTimeField
                                 label="Time"
                                 value={pickupTime}
                                 onChange={(e) => setPickupTime(e.target.value)}
                                 options={timeOptions}
                             />
-                        </div>
-                        <div className="flex-[2] flex flex-row gap-3">
+
+                            {/* Drop-off Date */}
                             <DesktopDateField
-                                label="Drop-off Date"
+                                label="Drop-off date"
                                 value={dropoffDate}
                                 onChange={(e) => setDropoffDate(e.target.value)}
                                 min={pickupDate}
                             />
+
+                            {/* Drop-off Time */}
                             <DesktopTimeField
                                 label="Time"
                                 value={dropoffTime}
                                 onChange={(e) => setDropoffTime(e.target.value)}
                                 options={timeOptions}
                             />
+
+                            {/* Search Button */}
+                            <div className="p-[5px] flex items-center justify-center bg-white h-[72px]">
+                                <button 
+                                    type="submit" 
+                                    className="h-full px-10 bg-[#008009] hover:bg-[#006407] text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight"
+                                >
+                                    Search
+                                </button>
+                            </div>
                         </div>
-                        <button 
-                            type="submit" 
-                            className="h-16 px-12 text-white font-extrabold rounded-card transition-all active:scale-95 flex items-center justify-center text-xl whitespace-nowrap tracking-tight"
-                            style={{ backgroundColor: accentColor || '#FF9F1C', boxShadow: `0 15px 30px -5px ${accentColor ? accentColor + '66' : 'rgba(255,159,28,0.4)'}` }}
-                        >
-                            Search Deals
-                        </button>
+                    </div>
+
+                    {/* Checkboxes */}
+                    <div className="flex items-center gap-8 px-2 text-[12px] uppercase tracking-widest font-extrabold text-white">
+                        <label className="flex items-center cursor-pointer select-none hover:text-white/80 transition-colors group">
+                            <input 
+                                type="checkbox" 
+                                onChange={(e) => setDifferentDropoff(e.target.checked)} 
+                                checked={differentDropoff} 
+                                className="h-5 w-5 rounded border-2 border-white/20 bg-white/10 text-accent focus:ring-0 mr-3 transition-colors" 
+                            />
+                            Drop car off at different location
+                        </label>
+                        <label className="flex items-center cursor-pointer select-none hover:text-white/80 transition-colors group">
+                            <input 
+                                type="checkbox" 
+                                defaultChecked 
+                                className="h-5 w-5 rounded border-2 border-white/20 bg-white/10 text-accent focus:ring-0 mr-3 transition-colors" 
+                            />
+                            Driver aged 30 - 65?
+                        </label>
                     </div>
                 </form>
-
-                <div className="mt-5 flex items-center gap-8 px-2 text-[12px] uppercase tracking-widest font-extrabold">
-                    <label className="flex items-center text-slate-500 cursor-pointer select-none hover:text-accent transition-colors group">
-                        <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-5 w-5 rounded-card border-2 border-slate-200 text-accent focus:ring-0 mr-3 group-hover:border-accent/40 transition-colors" />
-                        Drop car off at different location
-                    </label>
-                    <label className="flex items-center text-slate-500 cursor-pointer select-none hover:text-accent transition-colors group">
-                        <input type="checkbox" defaultChecked className="h-5 w-5 rounded-card border-2 border-slate-200 text-accent focus:ring-0 mr-3 group-hover:border-accent/40 transition-colors" />
-                        Driver aged 30 - 65?
-                    </label>
-                </div>
             </div>
         </div>
         </>
