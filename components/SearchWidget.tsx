@@ -364,12 +364,24 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min, className = "flex-1" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string, className?: string }) => (
-        <div className={`relative ${className} min-w-0 group bg-white h-[72px]`}>
+        <div 
+            className={`relative ${className} min-w-0 group bg-white h-[72px] cursor-pointer`}
+            onClick={(e) => {
+                const input = e.currentTarget.querySelector('input');
+                if (input) {
+                    try {
+                        (input as any).showPicker();
+                    } catch (err) {
+                        input.focus();
+                    }
+                }
+            }}
+        >
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                 <Calendar className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
             <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">{label}</label>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight cursor-pointer">{label}</label>
                 <input
                     type="date"
                     value={value}
@@ -383,12 +395,24 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     );
 
     const DesktopTimeField = ({ label, value, onChange, options, className = "flex-1" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[], className?: string }) => (
-        <div className={`relative ${className} min-w-0 group bg-white h-[72px]`}>
+        <div 
+            className={`relative ${className} min-w-0 group bg-white h-[72px] cursor-pointer`}
+            onClick={(e) => {
+                const select = e.currentTarget.querySelector('select');
+                if (select) {
+                    try {
+                        (select as any).showPicker();
+                    } catch (err) {
+                        select.focus();
+                    }
+                }
+            }}
+        >
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                 <Clock className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
             <div className="pl-11 pt-2.5 pb-1 flex flex-col h-full">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">{label}</label>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight cursor-pointer">{label}</label>
                 <select
                     value={value}
                     onChange={onChange}

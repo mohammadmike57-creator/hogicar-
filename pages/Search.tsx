@@ -787,18 +787,18 @@ export const Search: React.FC = () => {
                                 key={category}
                                 onClick={() => handleCategoryToggle(category)}
                                 disabled={!hasCars}
-                                className={`flex-shrink-0 w-[118px] sm:w-[150px] md:w-[162px] flex flex-col rounded-lg transition-all duration-300 relative border group snap-start overflow-hidden
+                                className={`flex-shrink-0 w-[110px] sm:w-[140px] md:w-[155px] flex flex-col rounded-lg transition-all duration-300 relative border group snap-start overflow-hidden
                                     ${isActive
                                         ? 'bg-white border-accent shadow-[0_16px_34px_-18px_rgba(0,122,194,0.65)] ring-2 ring-accent/10'
                                         : hasCars
                                           ? 'bg-white border-slate-200 hover:border-accent/50 hover:shadow-[0_16px_32px_-22px_rgba(15,23,42,0.7)]'
                                           : 'bg-slate-50 border-slate-200 opacity-55 cursor-not-allowed'}`}
                             >
-                                <div className="px-2.5 pt-2.5 sm:px-3 sm:pt-3 text-center">
+                                <div className="px-2 pt-2 sm:px-2.5 sm:pt-2.5 text-center">
                                     <span className={`block truncate text-xs sm:text-sm font-black tracking-tight ${isActive ? 'text-accent' : 'text-slate-900'}`}>
                                         {formatCategoryName(category)}
                                     </span>
-                                    <div className="mt-1.5 sm:mt-2 flex items-center justify-center gap-2.5 sm:gap-3 text-slate-600">
+                                    <div className="mt-1 sm:mt-1.5 flex items-center justify-center gap-2 sm:gap-2.5 text-slate-600">
                                       <span className="inline-flex items-center gap-1 text-xs font-bold">
                                         <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[1.8px]" />
                                         {summary?.passengers || '-'}
@@ -809,7 +809,7 @@ export const Search: React.FC = () => {
                                       </span>
                                     </div>
                                 </div>
-                                <div className="relative mx-3 mt-2 hidden aspect-[1.65/1] overflow-hidden sm:block">
+                                <div className="relative mx-2 mt-1 hidden aspect-[1.65/1] overflow-hidden sm:block">
                                     <img 
                                       src={categoryImage} 
                                       alt={category} 
@@ -817,7 +817,7 @@ export const Search: React.FC = () => {
                                       loading="lazy"
                                     />
                                 </div>
-                                <div className="mt-auto border-t border-slate-100 px-2.5 py-2 sm:px-3 sm:py-2.5 text-center">
+                                <div className="mt-auto border-t border-slate-100 px-2 py-1.5 sm:px-2.5 sm:py-2 text-center">
                                     <span className="block text-[9px] sm:text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
                                         {hasCars ? `${count} available` : 'No cars'}
                                     </span>
