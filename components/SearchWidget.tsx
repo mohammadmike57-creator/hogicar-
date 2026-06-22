@@ -141,7 +141,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-        if (value.length < 3) {
+        if (value.length < 2) {
             setSuggestions([]);
             setIsSuggestionsOpen(false);
             setIsLoadingSuggestions(false);
@@ -186,7 +186,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
         
-        if (value.length < 3) {
+        if (value.length < 2) {
             setDropoffSuggestions([]);
             setIsDropoffSuggestionsOpen(false);
             setIsDropoffLoading(false);
@@ -564,9 +564,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <div className="max-w-[1280px] mx-auto">
                 <form onSubmit={handleSearch} className="flex flex-col gap-4">
                     <div className="flex items-center bg-[#FFB703] p-[3px] rounded-[10px]">
-                        <div className="flex flex-1 items-center bg-white rounded-[7px] overflow-hidden divide-x divide-slate-200">
+                        <div className="flex flex-1 items-center bg-white rounded-[7px] divide-x divide-slate-200">
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[8] h-[72px] min-w-0 group`}>
+                            <div className={`relative flex-1 h-[72px] min-w-0 group rounded-l-[7px]`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <SearchIcon className="w-6 h-6 text-slate-400" />
                                 </div>
@@ -601,7 +601,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[8] h-[72px] min-w-0 group bg-slate-50/50`}>
+                                <div className={`relative flex-1 h-[72px] min-w-0 group bg-slate-50/50`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <SearchIcon className="w-6 h-6 text-slate-400" />
                                     </div>
@@ -668,7 +668,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             />
 
                             {/* Search Button */}
-                            <div className="p-[5px] flex items-center justify-center bg-white h-[72px]">
+                            <div className="p-[5px] flex items-center justify-center bg-white h-[72px] rounded-r-[7px]">
                                 <button 
                                     type="submit" 
                                     className="h-full px-10 bg-[#008009] hover:bg-[#006407] text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight"
