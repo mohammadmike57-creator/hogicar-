@@ -402,6 +402,8 @@ export interface SEOConfig {
   ogImage?: string;
   canonicalUrl?: string;
   indexable: boolean;
+  published?: boolean;
+  lastUpdated?: string;
   layout?: 'HOMEPAGE' | 'LANDING_PAGE';
   h1Title?: string;
   introText?: string;

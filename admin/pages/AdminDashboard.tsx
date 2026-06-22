@@ -1215,18 +1215,33 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          {c.indexable !== false ? (
-                            <span className="flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 uppercase tracking-wider">
-                              <CheckCircle className="w-3 h-3" />
-                              Index
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1.5 text-[10px] font-extrabold text-rose-500 bg-rose-50 px-2 py-1 rounded-full border border-rose-100 uppercase tracking-wider">
-                              <XCircle className="w-3 h-3" />
-                              NoIndex
-                            </span>
-                          )}
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            {c.published !== false ? (
+                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 uppercase tracking-wider">
+                                <CheckCircle className="w-2.5 h-2.5" />
+                                Published
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 uppercase tracking-wider">
+                                <Activity className="w-2.5 h-2.5" />
+                                Draft
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {c.indexable !== false ? (
+                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-[#007ac2] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-wider">
+                                <Globe className="w-2.5 h-2.5" />
+                                Index
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100 uppercase tracking-wider">
+                                <XCircle className="w-2.5 h-2.5" />
+                                NoIndex
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -2207,6 +2222,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [keywords, setKeywords] = useState(config?.keywords || '');
   const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
   const [indexable, setIndexable] = useState(config?.indexable !== false);
+  const [published, setPublished] = useState(config?.published !== false);
   const [ogImage, setOgImage] = useState(config?.ogImage || '');
 
   // Page Builder States
@@ -2249,6 +2265,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setKeywords(config.keywords || '');
       setCanonicalUrl(config.canonicalUrl || '');
       setIndexable(config.indexable !== false);
+      setPublished(config.published !== false);
       setOgImage(config.ogImage || '');
       setLayout(config.layout || 'HOMEPAGE');
       setH1Title(config.h1Title || '');
@@ -2264,6 +2281,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setKeywords('');
         setCanonicalUrl('');
         setIndexable(true);
+        setPublished(true);
         setOgImage('');
         setLayout('HOMEPAGE');
         setH1Title('');
@@ -2311,7 +2329,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       description, 
       keywords, 
       canonicalUrl, 
-      indexable, 
+      indexable,
+      published,
       ogImage,
       layout,
       h1Title,
@@ -2447,9 +2466,22 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                       </div>
                       <button 
                         onClick={() => setIndexable(!indexable)}
-                        className={`w-12 h-6 rounded-full transition-all relative ${indexable ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                        className={`w-12 h-6 rounded-full transition-all relative ${indexable ? 'bg-[#007ac2]' : 'bg-slate-300'}`}
                       >
                         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${indexable ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                      <div>
+                        <h4 className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">Publish Status</h4>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Show this page on the site & sitemap?</p>
+                      </div>
+                      <button 
+                        onClick={() => setPublished(!published)}
+                        className={`w-12 h-6 rounded-full transition-all relative ${published ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${published ? 'left-7' : 'left-1'}`} />
                       </button>
                     </div>
 
