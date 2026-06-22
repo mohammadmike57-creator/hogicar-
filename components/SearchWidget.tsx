@@ -364,7 +364,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string }) => (
-        <div className="relative flex-1 group bg-white h-[72px]">
+        <div className="relative w-[150px] group bg-white h-[72px]">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                 <Calendar className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
@@ -566,7 +566,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="flex items-center bg-[#FFB703] p-[3px] rounded-[10px]">
                         <div className="flex flex-1 items-center bg-white rounded-[7px] overflow-hidden divide-x divide-slate-200">
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[3] h-[72px] min-w-0 group`}>
+                            <div className={`relative flex-[6] h-[72px] min-w-0 group`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <SearchIcon className="w-6 h-6 text-slate-400" />
                                 </div>
@@ -601,7 +601,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[3] h-[72px] min-w-0 group bg-slate-50/50`}>
+                                <div className={`relative flex-[6] h-[72px] min-w-0 group bg-slate-50/50`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <SearchIcon className="w-6 h-6 text-slate-400" />
                                     </div>
