@@ -289,12 +289,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               className="w-full h-full object-cover"
               alt="Hero Background"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
+            {!heroBackgroundImage ? (
+              <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
+            ) : (
+              <div className="absolute inset-0 bg-black/20"></div>
+            )}
           </div>
 
           <div className="absolute inset-0 opacity-20 pointer-events-none z-[1]">
              <div className="absolute top-0 left-0 w-64 h-64 bg-white/20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-             <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
+             {!heroBackgroundImage && (
+               <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2"></div>
+             )}
           </div>
           
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
