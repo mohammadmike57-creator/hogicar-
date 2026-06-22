@@ -348,10 +348,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 <button
                   type="button"
                   onClick={() => handler(suggestion)}
-                  className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
+                  className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-card bg-slate-100 border border-slate-200 flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
-                  <div><span className="font-bold">{suggestion.label}</span></div>
+                  <div><span className="font-semibold">{suggestion.label}</span></div>
                 </button>
               </li>
             ))}
@@ -443,7 +443,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="font-extrabold text-slate-900 text-[14px] truncate leading-tight">
+                                    <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
                                         {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
                                     </div>
                                     <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
@@ -469,7 +469,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-extrabold text-slate-900 text-[14px] truncate leading-tight">
+                                        <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
                                             {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
                                         </div>
                                         <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
@@ -593,14 +593,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {/* Pick-up Location */}
                             <div className={`relative flex-[14] h-[72px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <SearchIcon className="w-6 h-6 text-slate-400" />
+                                    {pickupSelection ? getLocationIcon(pickupSelection.type, 'w-6 h-6') : <SearchIcon className="w-6 h-6 text-slate-400" />}
                                 </div>
                                 <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full pr-10">
                                     <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
                                     <input
                                         type="text"
                                         placeholder="City, airport, or station"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[13px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
@@ -628,14 +628,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {differentDropoff && (
                                 <div className={`relative flex-[14] h-[72px] min-w-0 group bg-slate-50/50 rounded-tr-[7px]`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <SearchIcon className="w-6 h-6 text-slate-400" />
+                                        {dropoffSelection ? getLocationIcon(dropoffSelection.type, 'w-6 h-6') : <SearchIcon className="w-6 h-6 text-slate-400" />}
                                     </div>
                                     <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full pr-10">
                                         <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
                                         <input
                                             type="text"
                                             placeholder="City, airport, or station"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[13px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}

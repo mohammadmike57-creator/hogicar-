@@ -213,7 +213,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                   {getLocationIcon(loc.type, 'w-5 h-5')}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '16px' }}>{loc.label}</div>
+                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>{loc.label}</div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>{loc.iataCode}</div>
                 </div>
               </button>
@@ -255,7 +255,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                   {getLocationIcon(loc.type, 'w-5 h-5')}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '16px' }}>{loc.label}</div>
+                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>{loc.label}</div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>{loc.iataCode}</div>
                 </div>
               </button>
