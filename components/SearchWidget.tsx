@@ -363,8 +363,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     );
 
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
-    const DesktopDateField = ({ label, value, onChange, min }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string }) => (
-        <div className="relative flex-1 min-w-0 group bg-white h-[72px]">
+    const DesktopDateField = ({ label, value, onChange, min, className = "flex-1" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string, className?: string }) => (
+        <div className={`relative ${className} min-w-0 group bg-white h-[72px]`}>
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                 <Calendar className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
@@ -382,8 +382,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         </div>
     );
 
-    const DesktopTimeField = ({ label, value, onChange, options }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[] }) => (
-        <div className="relative flex-1 min-w-0 group bg-white h-[72px]">
+    const DesktopTimeField = ({ label, value, onChange, options, className = "flex-1" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[], className?: string }) => (
+        <div className={`relative ${className} min-w-0 group bg-white h-[72px]`}>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                 <Clock className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
             </div>
@@ -566,7 +566,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="flex items-center bg-[#FFB703] p-[3px] rounded-[10px]">
                         <div className="flex flex-1 items-center bg-white rounded-[7px] divide-x divide-slate-200">
                             {/* Pick-up Location */}
-                            <div className={`relative flex-1 h-[72px] min-w-0 group rounded-l-[7px]`}>
+                            <div className={`relative flex-[12] h-[72px] min-w-0 group rounded-l-[7px]`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <SearchIcon className="w-6 h-6 text-slate-400" />
                                 </div>
@@ -601,7 +601,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-1 h-[72px] min-w-0 group bg-slate-50/50`}>
+                                <div className={`relative flex-[12] h-[72px] min-w-0 group bg-slate-50/50`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <SearchIcon className="w-6 h-6 text-slate-400" />
                                     </div>
@@ -641,6 +641,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={pickupDate}
                                 onChange={(e) => setPickupDate(e.target.value)}
                                 min={today.toISOString().split('T')[0]}
+                                className="flex-[5]"
                             />
 
                             {/* Pick-up Time */}
@@ -649,6 +650,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={pickupTime}
                                 onChange={(e) => setPickupTime(e.target.value)}
                                 options={timeOptions}
+                                className="flex-[4]"
                             />
 
                             {/* Drop-off Date */}
@@ -657,6 +659,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={dropoffDate}
                                 onChange={(e) => setDropoffDate(e.target.value)}
                                 min={pickupDate}
+                                className="flex-[5]"
                             />
 
                             {/* Drop-off Time */}
@@ -665,6 +668,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={dropoffTime}
                                 onChange={(e) => setDropoffTime(e.target.value)}
                                 options={timeOptions}
+                                className="flex-[4]"
                             />
 
                             {/* Search Button */}
