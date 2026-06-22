@@ -2233,6 +2233,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
     sections: {
       hero: { enabled: true },
       search: { enabled: true, pickupPrefill: '' },
+      content: { enabled: true, html: '', text: '' },
       features: { enabled: true },
       stats: { enabled: false },
       faq: { enabled: true }
@@ -2575,6 +2576,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                         <div className={`p-2 rounded ${section.enabled ? 'bg-blue-50 text-[#007ac2]' : 'bg-slate-50 text-slate-400'}`}>
                           {sectionKey === 'search' && <Search className="w-4 h-4" />}
                           {sectionKey === 'hero' && <ImageIcon className="w-4 h-4" />}
+                          {sectionKey === 'content' && <FileText className="w-4 h-4" />}
                           {sectionKey === 'faq' && <MailQuestion className="w-4 h-4" />}
                           {sectionKey === 'features' && <Award className="w-4 h-4" />}
                           {sectionKey === 'stats' && <Activity className="w-4 h-4" />}
@@ -2614,6 +2616,44 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                     placeholder="Enter city or airport name (e.g. Amman Airport)"
                   />
                   <p className="text-[10px] text-slate-400 italic">This location will be automatically selected in the search widget on this page.</p>
+                </div>
+              )}
+
+              {builderConfig.sections?.content?.enabled && (
+                <div className="mt-8 p-6 border border-slate-200 rounded-card bg-slate-50 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-4 h-4 text-[#007ac2]" />
+                    <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-widest">Custom SEO Content</span>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">HTML Content</label>
+                    <textarea 
+                      value={builderConfig.sections.content.html || ''}
+                      onChange={(e) => {
+                        const newConfig = { ...builderConfig };
+                        newConfig.sections.content.html = e.target.value;
+                        setBuilderConfig(newConfig);
+                      }}
+                      rows={8}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-card text-xs font-mono focus:ring-2 focus:ring-[#007ac2] outline-none transition-all bg-white"
+                      placeholder="Enter custom HTML for SEO content."
+                    />
+                    <p className="text-[9px] text-slate-400 italic">Use standard HTML tags. Will be rendered safely using dangerouslySetInnerHTML.</p>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Fallback Plain Text</label>
+                    <textarea 
+                      value={builderConfig.sections.content.text || ''}
+                      onChange={(e) => {
+                        const newConfig = { ...builderConfig };
+                        newConfig.sections.content.text = e.target.value;
+                        setBuilderConfig(newConfig);
+                      }}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-card text-xs focus:ring-2 focus:ring-[#007ac2] outline-none transition-all bg-white"
+                      placeholder="Fallback text if HTML is not provided."
+                    />
+                  </div>
                 </div>
               )}
             </div>

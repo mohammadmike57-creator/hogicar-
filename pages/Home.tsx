@@ -257,8 +257,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const destinations = content.popularDestinations.destinations;
   const heroBackgroundImage = heroImageUrl || content.hero.backgroundImage;
 
-  const displayH1 = content.hero.title || 'Search, Compare & Save on Car Rentals';
-  const displaySubtitle = content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
+  const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
+  const displaySubtitle = seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
@@ -569,6 +569,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
       
+      {/* DYNAMIC SEO CONTENT */}
+      {((seoConfig?.layout !== 'LANDING_PAGE') || (sections.content?.enabled)) && (builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
+        <section className="py-12 bg-white" style={isCustomLanding ? { backgroundColor } : {}}>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="prose prose-slate max-w-none prose-img:rounded-card prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed">
+              {(builderConfig?.sections?.content?.html || builderConfig?.html) ? (
+                <div dangerouslySetInnerHTML={{ __html: builderConfig?.sections?.content?.html || builderConfig?.html }} />
+              ) : (
+                <div className="whitespace-pre-wrap text-slate-600">{builderConfig?.sections?.content?.text || builderConfig?.text}</div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* FAQS */}
       {sections.faq?.enabled && (
         <section className="py-8 lg:py-12" style={isCustomLanding ? { backgroundColor } : {}}>
