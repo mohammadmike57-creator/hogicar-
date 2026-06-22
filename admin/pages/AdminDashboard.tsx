@@ -2215,6 +2215,7 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
+  const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style'>('seo');
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
   const [description, setDescription] = useState(config?.description || '');
@@ -2222,6 +2223,28 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
   const [indexable, setIndexable] = useState(config?.indexable !== false);
   const [ogImage, setOgImage] = useState(config?.ogImage || '');
+  const [published, setPublished] = useState(config?.published !== false);
+  const [layout, setLayout] = useState(config?.layout || 'HOMEPAGE');
+  const [h1Title, setH1Title] = useState(config?.h1Title || '');
+  const [introText, setIntroText] = useState(config?.introText || '');
+  const [heroImage, setHeroImage] = useState(config?.heroImage || '');
+
+  const defaultBuilder = {
+    sections: {
+      hero: { enabled: true },
+      search: { enabled: true, pickupPrefill: '' },
+      features: { enabled: true },
+      stats: { enabled: false },
+      faq: { enabled: true }
+    },
+    styles: {
+      accentColor: '#007ac2',
+      backgroundColor: '#ffffff',
+      textColor: '#0f172a'
+    }
+  };
+
+  const [builderConfig, setBuilderConfig] = useState(config?.contentJson ? JSON.parse(config.contentJson) : defaultBuilder);
 
   useEffect(() => {
     if (config) {
@@ -2232,6 +2255,13 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setCanonicalUrl(config.canonicalUrl || '');
       setIndexable(config.indexable !== false);
       setOgImage(config.ogImage || '');
+      setPublished(config.published !== false);
+      setLayout(config.layout || 'HOMEPAGE');
+      setH1Title(config.h1Title || '');
+      setIntroText(config.introText || '');
+      setHeroImage(config.heroImage || '');
+      setBuilderConfig(config.contentJson ? JSON.parse(config.contentJson) : defaultBuilder);
+      setActiveTab('seo');
     } else {
         setRoute('');
         setTitle('');
@@ -2240,6 +2270,13 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setCanonicalUrl('');
         setIndexable(true);
         setOgImage('');
+        setPublished(true);
+        setLayout('HOMEPAGE');
+        setH1Title('');
+        setIntroText('');
+        setHeroImage('');
+        setBuilderConfig(defaultBuilder);
+        setActiveTab('seo');
     }
   }, [config, isOpen]);
 
@@ -2259,13 +2296,20 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
     }
     
     onSave({ 
+      ...config,
       route: normalizedRoute, 
       title, 
       description, 
       keywords, 
       canonicalUrl, 
       indexable,
-      ogImage
+      ogImage,
+      published,
+      layout,
+      h1Title,
+      introText,
+      heroImage,
+      contentJson: JSON.stringify(builderConfig)
     });
   };
 
