@@ -289,10 +289,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               className="w-full h-full object-cover"
               alt="Hero Background"
             />
-            {!heroBackgroundImage ? (
+            {!heroBackgroundImage && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
-            ) : (
-              <div className="absolute inset-0 bg-black/20"></div>
             )}
           </div>
 
