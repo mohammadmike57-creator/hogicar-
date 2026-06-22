@@ -27,6 +27,19 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
 
   useEffect(() => {
+    // If props are provided and valid, we use them instead of fetching
+    if (defaultTitle && defaultTitle !== "Hogicar | Affordable Car Rentals Worldwide") {
+      setConfig({
+        title: defaultTitle,
+        description: defaultDescription,
+        keywords: defaultKeywords,
+        canonicalUrl: defaultCanonical,
+        ogImage: defaultOgImage,
+        indexable: !defaultNoIndex
+      });
+      return;
+    }
+
     const fetchConfig = async () => {
       try {
         const res = await api.fetchSeoConfig(normalizedPathname);

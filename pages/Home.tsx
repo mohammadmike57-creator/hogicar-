@@ -256,7 +256,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const content = homepageContent;
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
-  const heroBackgroundImage = heroImageUrl || content.hero.backgroundImage;
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
   const displaySubtitle = seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
@@ -285,14 +286,27 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {sections.hero?.enabled && (
         <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <img 
-              src={heroBackgroundImage || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop"} 
-              className="w-full h-full object-cover"
-              alt="Hero Background"
-            />
+            {heroBackgroundImage && (
+              <img 
+                key={heroBackgroundImage}
+                src={heroBackgroundImage} 
+                className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
+                alt={displayH1}
+                onLoad={() => setHeroLoaded(true)}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
+                  setHeroLoaded(true);
+                }}
+              />
+            )}
+            {!heroLoaded && (
+              <div className="absolute inset-0 bg-[#003580]/80 animate-pulse"></div>
+            )}
             {!heroBackgroundImage && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
             )}
+            <div className="absolute inset-0 bg-black/40"></div>
           </div>
 
           <div className="absolute inset-0 opacity-20 pointer-events-none z-[1]">
@@ -323,6 +337,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   }}
                   accentColor={isCustomLanding ? accentColor : undefined}
                 />
+              </div>
+            )}
+
+            {/* QUICK SEO INTRO (if available) */}
+            {seoConfig?.content && (
+              <div className="mt-8 lg:mt-12 max-w-3xl mx-auto text-left bg-white/10 backdrop-blur-md p-6 rounded-card border border-white/20 shadow-xl">
+                 <div className="prose prose-invert prose-sm max-w-none text-white/90" dangerouslySetInnerHTML={{ __html: seoConfig.content.split('</p>')[0] + '</p>' }} />
+                 {seoConfig.content.includes('</p>') && (
+                   <button 
+                     onClick={() => document.getElementById('main-seo-content')?.scrollIntoView({ behavior: 'smooth' })}
+                     className="mt-4 text-xs font-bold text-blue-300 hover:text-white transition-colors flex items-center gap-1"
+                   >
+                     Read more <ChevronDown className="w-3 h-3" />
+                   </button>
+                 )}
               </div>
             )}
 
@@ -573,7 +602,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* DYNAMIC SEO CONTENT */}
       {/* MAIN CONTENT SECTION - for SEO and Dynamic Pages */}
       {sections.content?.enabled && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
-        <section className="py-12 bg-white" style={isCustomLanding ? { backgroundColor } : {}}>
+        <section id="main-seo-content" className="py-12 bg-white" style={isCustomLanding ? { backgroundColor } : {}}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="prose prose-slate max-w-none prose-img:rounded-card prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed">
               {seoConfig?.content ? (
