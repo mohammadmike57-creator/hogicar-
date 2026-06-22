@@ -298,7 +298,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
           
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-            <h1 className="text-[1.75rem] sm:text-3xl lg:text-5xl font-extrabold mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto">
               {displayH1}
             </h1>
             <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-xl mx-auto text-[13px] sm:text-base lg:text-lg font-medium leading-relaxed px-2">
