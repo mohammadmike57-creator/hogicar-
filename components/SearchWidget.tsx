@@ -566,7 +566,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="flex items-center bg-[#FFB703] p-[3px] rounded-[10px]">
                         <div className="flex flex-1 items-center bg-white rounded-[7px] divide-x divide-slate-200">
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[12] h-[72px] min-w-0 group rounded-l-[7px]`}>
+                            <div className={`relative flex-[14] h-[72px] min-w-0 group rounded-l-[7px]`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <SearchIcon className="w-6 h-6 text-slate-400" />
                                 </div>
@@ -601,7 +601,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[12] h-[72px] min-w-0 group bg-slate-50/50`}>
+                                <div className={`relative flex-[14] h-[72px] min-w-0 group bg-slate-50/50`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <SearchIcon className="w-6 h-6 text-slate-400" />
                                     </div>
@@ -650,7 +650,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={pickupTime}
                                 onChange={(e) => setPickupTime(e.target.value)}
                                 options={timeOptions}
-                                className="flex-[4]"
+                                className="flex-[3]"
                             />
 
                             {/* Drop-off Date */}
@@ -668,7 +668,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 value={dropoffTime}
                                 onChange={(e) => setDropoffTime(e.target.value)}
                                 options={timeOptions}
-                                className="flex-[4]"
+                                className="flex-[3]"
                             />
 
                             {/* Search Button */}
