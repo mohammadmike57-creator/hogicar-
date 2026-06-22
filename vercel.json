@@ -2,6 +2,6 @@
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "https://hogicar-backend.onrender.com/api/seo/sitemap.xml" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/(.*)", "destination": "https://hogicar-backend.onrender.com/api/seo/render?path=/$1" }
   ]
 }
