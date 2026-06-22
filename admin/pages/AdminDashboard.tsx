@@ -2227,6 +2227,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [layout, setLayout] = useState(config?.layout || 'HOMEPAGE');
   const [h1Title, setH1Title] = useState(config?.h1Title || '');
   const [introText, setIntroText] = useState(config?.introText || '');
+  const [content, setContent] = useState(config?.content || '');
   const [heroImage, setHeroImage] = useState(config?.heroImage || '');
 
   const defaultBuilder = {
@@ -2260,6 +2261,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setLayout(config.layout || 'HOMEPAGE');
       setH1Title(config.h1Title || '');
       setIntroText(config.introText || '');
+      setContent(config.content || '');
       setHeroImage(config.heroImage || '');
       setBuilderConfig(config.contentJson ? JSON.parse(config.contentJson) : defaultBuilder);
       setActiveTab('seo');
@@ -2275,6 +2277,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setLayout('HOMEPAGE');
         setH1Title('');
         setIntroText('');
+        setContent('');
         setHeroImage('');
         setBuilderConfig(defaultBuilder);
         setActiveTab('seo');
@@ -2309,6 +2312,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       layout,
       h1Title,
       introText,
+      content,
       heroImage,
       contentJson: JSON.stringify(builderConfig)
     });
@@ -2548,6 +2552,17 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                     className="w-full px-3 py-2 border border-slate-200 rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium bg-white"
                     placeholder="Provide unique content for this landing page."
                   />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Main SEO Content (HTML/Markdown support)</label>
+                  <textarea 
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    rows={10}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium bg-white"
+                    placeholder="Enter the main SEO content for this page. You can use HTML tags."
+                  />
+                  <p className="text-[9px] text-slate-400 italic">This content will be displayed prominently on the landing page.</p>
                 </div>
                 <InputField 
                   label="Hero Background Image URL" 

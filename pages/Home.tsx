@@ -108,12 +108,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     search: { enabled: true },
     hero: { enabled: true },
     features: { enabled: true },
-    whyChooseUs: { enabled: true },
+    whyChooseUs: { enabled: !seoConfig }, // Hide generic content on SEO routes by default
     faq: { enabled: true },
     cta: { enabled: true },
     supplierLogos: { enabled: true },
     stats: { enabled: true },
-    popularDestinations: { enabled: true }
+    popularDestinations: { enabled: !seoConfig }, // Hide generic content on SEO routes by default
+    content: { enabled: true }
   };
 
   const customStyles = builderConfig?.styles || {};
@@ -228,7 +229,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     loadLocations();
     loadSuppliers();
     loadHomepageData();
-  }, []);
+  }, [seoConfig, location.pathname]);
 
   const handleSearch = (params: any) => {
     if (!params.pickup || !params.dropoff) {
@@ -570,11 +571,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
       
       {/* DYNAMIC SEO CONTENT */}
-      {((seoConfig?.layout !== 'LANDING_PAGE') || (sections.content?.enabled)) && (builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
+      {/* MAIN CONTENT SECTION - for SEO and Dynamic Pages */}
+      {sections.content?.enabled && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
         <section className="py-12 bg-white" style={isCustomLanding ? { backgroundColor } : {}}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="prose prose-slate max-w-none prose-img:rounded-card prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed">
-              {(builderConfig?.sections?.content?.html || builderConfig?.html) ? (
+              {seoConfig?.content ? (
+                <div dangerouslySetInnerHTML={{ __html: seoConfig.content }} />
+              ) : (builderConfig?.sections?.content?.html || builderConfig?.html) ? (
                 <div dangerouslySetInnerHTML={{ __html: builderConfig?.sections?.content?.html || builderConfig?.html }} />
               ) : (
                 <div className="whitespace-pre-wrap text-slate-600">{builderConfig?.sections?.content?.text || builderConfig?.text}</div>
