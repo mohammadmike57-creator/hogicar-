@@ -439,18 +439,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             className="relative h-[62px] bg-white rounded-card border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
                         >
                             <div className="flex items-center gap-3 w-full min-w-0">
-                                <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
-                                    {getLocationIcon(pickupSelection?.type || '', 'w-5 h-5')}
-                                </div>
+                                {pickupSelection ? (
+                                    <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
+                                        {getLocationIcon(pickupSelection.type, 'w-5 h-5')}
+                                    </div>
+                                ) : null}
                                 <div className="flex-1 min-w-0">
                                     <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
                                         {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
                                     </div>
                                     <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
                                 </div>
-                                <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
-                                    <SearchIcon className="w-3 h-3" />
-                                </div>
+                                {pickupSelection ? (
+                                    <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
+                                        <SearchIcon className="w-3 h-3" />
+                                    </div>
+                                ) : null}
                             </div>
                         </button>
                     </div>
@@ -465,18 +469,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 className="relative h-[62px] bg-slate-50 rounded-card border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
                             >
                                 <div className="flex items-center gap-3 w-full min-w-0">
-                                    <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
-                                        {getLocationIcon(dropoffSelection?.type || '', 'w-5 h-5')}
-                                    </div>
+                                    {dropoffSelection ? (
+                                        <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
+                                            {getLocationIcon(dropoffSelection.type, 'w-5 h-5')}
+                                        </div>
+                                    ) : null}
                                     <div className="flex-1 min-w-0">
                                         <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
                                             {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
                                         </div>
                                         <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
                                     </div>
-                                    <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
-                                        <SearchIcon className="w-3 h-3" />
-                                    </div>
+                                    {dropoffSelection ? (
+                                        <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
+                                            <SearchIcon className="w-3 h-3" />
+                                        </div>
+                                    ) : null}
                                 </div>
                             </button>
                         </div>
@@ -593,7 +601,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {/* Pick-up Location */}
                             <div className={`relative flex-[14] h-[72px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    {pickupSelection ? getLocationIcon(pickupSelection.type, 'w-6 h-6') : <SearchIcon className="w-6 h-6 text-slate-400" />}
+                                    {pickupSelection ? getLocationIcon(pickupSelection.type, 'w-6 h-6') : null}
                                 </div>
                                 <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full pr-10">
                                     <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
@@ -628,7 +636,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {differentDropoff && (
                                 <div className={`relative flex-[14] h-[72px] min-w-0 group bg-slate-50/50 rounded-tr-[7px]`}>
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        {dropoffSelection ? getLocationIcon(dropoffSelection.type, 'w-6 h-6') : <SearchIcon className="w-6 h-6 text-slate-400" />}
+                                        {dropoffSelection ? getLocationIcon(dropoffSelection.type, 'w-6 h-6') : null}
                                     </div>
                                     <div className="pl-12 pt-2.5 pb-1 flex flex-col h-full pr-10">
                                         <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
