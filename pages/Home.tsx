@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Gift, Sparkles } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
@@ -82,6 +82,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
   const { convertPrice, getCurrencySymbol } = useCurrency();
   
@@ -256,7 +257,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const content = homepageContent;
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
-  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [heroLoaded, setHeroLoaded] = React.useState(false);
   const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
