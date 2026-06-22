@@ -281,6 +281,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         description={seoConfig?.description || "Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."}
         keywords={seoConfig?.keywords}
         canonicalUrl={seoConfig?.canonicalUrl}
+        ogImage={seoConfig?.ogImage}
+        noIndex={seoConfig ? !seoConfig.indexable : undefined}
       />
       
       {/* HERO – professional centered layout with background image */}

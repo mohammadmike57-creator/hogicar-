@@ -26,17 +26,20 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
 
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
 
+  // Use props if they are custom, otherwise fallback to config fetched from API
+  const isDefaultTitle = defaultTitle === "Hogicar | Affordable Car Rentals Worldwide";
+  
+  const title = (!isDefaultTitle && defaultTitle) ? defaultTitle : (config?.title || defaultTitle);
+  const description = (!isDefaultTitle && defaultDescription) ? defaultDescription : (config?.description || defaultDescription);
+  const keywords = (!isDefaultTitle && defaultKeywords) ? defaultKeywords : (config?.keywords || defaultKeywords || 'car rental, cheap car hire, auto rental, travel');
+  const ogImage = (!isDefaultTitle && defaultOgImage) ? defaultOgImage : (config?.ogImage || defaultOgImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop');
+  const canonical = (!isDefaultTitle && defaultCanonical) ? defaultCanonical : (config?.canonicalUrl || defaultCanonical || (window.location.origin + location.pathname));
+  const isNoIndex = (!isDefaultTitle && defaultNoIndex !== undefined) ? defaultNoIndex : (config ? (config.indexable === false) : defaultNoIndex);
+
   useEffect(() => {
-    // If props are provided and valid, we use them instead of fetching
-    if (defaultTitle && defaultTitle !== "Hogicar | Affordable Car Rentals Worldwide") {
-      setConfig({
-        title: defaultTitle,
-        description: defaultDescription,
-        keywords: defaultKeywords,
-        canonicalUrl: defaultCanonical,
-        ogImage: defaultOgImage,
-        indexable: !defaultNoIndex
-      });
+    // If props are the default/generic ones, we fetch route-specific config from the API
+    if (!isDefaultTitle) {
+      setConfig(null); // Clear any previous fetched config when custom props are provided
       return;
     }
 
@@ -54,14 +57,24 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       }
     };
     fetchConfig();
-  }, [normalizedPathname]);
+  }, [normalizedPathname, isDefaultTitle]);
 
-  const title = config?.title || defaultTitle;
-  const description = config?.description || defaultDescription;
-  const keywords = config?.keywords || defaultKeywords || 'car rental, cheap car hire, auto rental, travel';
-  const ogImage = config?.ogImage || defaultOgImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
-  const canonical = config?.canonicalUrl || defaultCanonical || (window.location.origin + location.pathname);
-  const isNoIndex = config ? (config.indexable === false) : defaultNoIndex;
+  useEffect(() => {
+    // Handle robots/noindex separately
+    const robotsTag = document.querySelector('meta[name="robots"]');
+    if (isNoIndex) {
+      if (robotsTag) {
+        robotsTag.setAttribute('content', 'noindex, nofollow');
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex, nofollow';
+        document.head.appendChild(meta);
+      }
+    } else if (robotsTag) {
+      robotsTag.setAttribute('content', 'index, follow');
+    }
+  }, [isNoIndex]);
 
   useEffect(() => {
     // 1. Set Page Title
