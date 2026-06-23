@@ -34,8 +34,9 @@ const DynamicPage: React.FC = () => {
           if (pageResponse.ok) {
             const data = await pageResponse.json();
             
-            // Check if it's actually an SEO landing page disguised as a page
-            if (data.layout === 'LANDING_PAGE' || data.layout === 'HOMEPAGE') {
+            // Check if it's an SEO landing page or should use the Home layout
+            // data.route is only present in SeoConfigDto
+            if (data.route || data.layout === 'LANDING_PAGE' || data.layout === 'HOMEPAGE') {
               setSeoConfig(data);
               setIsLandingPage(true);
               setLoading(false);
@@ -76,6 +77,10 @@ const DynamicPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
+         <SEOMetadata 
+           title="Hogicar | Affordable Car Rentals Worldwide" 
+           description="Compare car rental deals from 900+ suppliers. Find the perfect car for your next trip with Hogicar."
+         />
          <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
          <p className="mt-4 text-slate-500 font-medium text-sm">Loading page...</p>
       </div>

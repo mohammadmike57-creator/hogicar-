@@ -109,12 +109,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     search: { enabled: true },
     hero: { enabled: true },
     features: { enabled: true },
-    whyChooseUs: { enabled: !seoConfig }, // Hide generic content on SEO routes by default
+    whyChooseUs: { enabled: true }, // Keep enabled by default for all SEO routes
     faq: { enabled: true },
     cta: { enabled: true },
     supplierLogos: { enabled: true },
     stats: { enabled: true },
-    popularDestinations: { enabled: !seoConfig }, // Hide generic content on SEO routes by default
+    popularDestinations: { enabled: true }, // Keep enabled by default for all SEO routes
     content: { enabled: true }
   };
 
