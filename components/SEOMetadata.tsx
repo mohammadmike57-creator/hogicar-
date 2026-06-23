@@ -65,7 +65,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     };
     fetchConfig();
     return () => { isMounted = false; };
-  }, [normalizedPathname, isDefaultTitle]);
+  }, [normalizedPathname]);
 
   useEffect(() => {
     // Handle robots/noindex separately
