@@ -26,22 +26,22 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
 
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
 
-  // Use props if they are custom, otherwise fallback to config fetched from API
-  const isDefaultTitle = defaultTitle === "Hogicar | Affordable Car Rentals Worldwide";
-  
-  const title = (!isDefaultTitle && defaultTitle) ? defaultTitle : (config?.title || defaultTitle);
-  const description = (!isDefaultTitle && defaultDescription) ? defaultDescription : (config?.description || defaultDescription);
-  const keywords = (!isDefaultTitle && defaultKeywords) ? defaultKeywords : (config?.keywords || defaultKeywords || 'car rental, cheap car hire, auto rental, travel');
-  const ogImage = (!isDefaultTitle && defaultOgImage) ? defaultOgImage : (config?.ogImage || defaultOgImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop');
-  const canonical = (!isDefaultTitle && defaultCanonical) ? defaultCanonical : (config?.canonicalUrl || defaultCanonical || (window.location.origin + location.pathname));
-  const isNoIndex = (!isDefaultTitle && defaultNoIndex !== undefined) ? defaultNoIndex : (config ? (config.indexable === false) : defaultNoIndex);
+  // Use props if they exist, otherwise fallback to config fetched from API
+  // Only fetch if required props are missing
+  const title = defaultTitle || config?.title || (typeof document !== 'undefined' ? document.title : "Hogicar | Affordable Car Rentals Worldwide");
+  const description = defaultDescription || config?.description || "Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar.";
+  const keywords = defaultKeywords || config?.keywords || 'car rental, car hire, cheap car rental, rent a car, hogicar';
+  const ogImage = defaultOgImage || config?.ogImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
+  const canonical = defaultCanonical || config?.canonicalUrl || (typeof window !== 'undefined' ? (window.location.origin + location.pathname) : '');
+  const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
 
   useEffect(() => {
     // RESET state when pathname changes to avoid showing stale data from previous route
     setConfig(null);
 
-    // If props are the default/generic ones, we fetch route-specific config from the API
-    if (!isDefaultTitle) {
+    // If props are provided, we don't necessarily need to fetch
+    // But we fetch if the title is missing to ensure we have some metadata
+    if (defaultTitle && defaultDescription) {
       return;
     }
 

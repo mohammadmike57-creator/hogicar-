@@ -277,8 +277,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       style={isCustomLanding ? { backgroundColor, color: textColor } : {}}
     >
       <SEOMetadata
-        title={seoConfig?.title || "Hogicar | Affordable Car Rentals Worldwide"}
-        description={seoConfig?.description || "Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar."}
+        title={seoConfig?.title}
+        description={seoConfig?.description}
         keywords={seoConfig?.keywords}
         canonicalUrl={seoConfig?.canonicalUrl}
         ogImage={seoConfig?.ogImage}
