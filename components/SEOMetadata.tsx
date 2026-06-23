@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 
@@ -37,26 +37,34 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const isNoIndex = (!isDefaultTitle && defaultNoIndex !== undefined) ? defaultNoIndex : (config ? (config.indexable === false) : defaultNoIndex);
 
   useEffect(() => {
+    // RESET state when pathname changes to avoid showing stale data from previous route
+    setConfig(null);
+
     // If props are the default/generic ones, we fetch route-specific config from the API
     if (!isDefaultTitle) {
-      setConfig(null); // Clear any previous fetched config when custom props are provided
       return;
     }
 
+    let isMounted = true;
     const fetchConfig = async () => {
       try {
         const res = await api.fetchSeoConfig(normalizedPathname);
-        if (res.data) {
-          setConfig(res.data);
-        } else {
-          setConfig(null);
+        if (isMounted) {
+          if (res.data) {
+            setConfig(res.data);
+          } else {
+            setConfig(null);
+          }
         }
       } catch (e) {
-        console.error('Failed to fetch SEO config for', normalizedPathname);
-        setConfig(null);
+        if (isMounted) {
+          console.error('Failed to fetch SEO config for', normalizedPathname);
+          setConfig(null);
+        }
       }
     };
     fetchConfig();
+    return () => { isMounted = false; };
   }, [normalizedPathname, isDefaultTitle]);
 
   useEffect(() => {
@@ -76,12 +84,15 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     }
   }, [isNoIndex]);
 
-  useEffect(() => {
-    // 1. Set Page Title
-    document.title = title;
+  useLayoutEffect(() => {
+    // 1. Set Page Title IMMEDIATELY
+    if (title) {
+      document.title = title;
+    }
 
     // Helper to update or create meta tags
     const setMetaTag = (name: string, content: string, attribute = 'name') => {
+      if (!content) return;
       let element = document.querySelector(`meta[${attribute}="${name}"]`);
       if (!element) {
         element = document.createElement('meta');
@@ -126,7 +137,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
         robotsTag.setAttribute('content', 'index, follow');
       }
     }
-  }, [title, description, keywords, ogImage, isNoIndex, canonical, location]);
+  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname]);
 
   return null;
 };
