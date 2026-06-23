@@ -77,10 +77,6 @@ const DynamicPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
-         <SEOMetadata 
-           title="Hogicar | Affordable Car Rentals Worldwide" 
-           description="Compare car rental deals from 900+ suppliers. Find the perfect car for your next trip with Hogicar."
-         />
          <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
          <p className="mt-4 text-slate-500 font-medium text-sm">Loading page...</p>
       </div>
