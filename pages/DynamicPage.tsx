@@ -33,6 +33,15 @@ const DynamicPage: React.FC = () => {
           const pageResponse = await fetch(`${API_BASE_URL}/api/pages/${slug}`);
           if (pageResponse.ok) {
             const data = await pageResponse.json();
+            
+            // Check if it's actually an SEO landing page disguised as a page
+            if (data.layout === 'LANDING_PAGE' || data.layout === 'HOMEPAGE') {
+              setSeoConfig(data);
+              setIsLandingPage(true);
+              setLoading(false);
+              return;
+            }
+
             setPage(data);
             setLoading(false);
             return;
