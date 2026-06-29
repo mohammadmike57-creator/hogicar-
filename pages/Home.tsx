@@ -106,22 +106,28 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     }
   }, [seoConfig]);
 
-  const isCustomLanding = seoConfig?.layout === 'LANDING_PAGE';
-  const sections = builderConfig?.sections || {
-    search: { enabled: true },
-    hero: { enabled: true },
-    features: { enabled: true },
-    whyChooseUs: { enabled: true }, // Keep enabled by default for all SEO routes
-    faq: { enabled: true },
-    cta: { enabled: true },
-    supplierLogos: { enabled: true },
-    stats: { enabled: true },
-    popularDestinations: { enabled: true }, // Keep enabled by default for all SEO routes
-    content: { enabled: true },
-    reviews: { enabled: true }
+  const sections = {
+    hero: seoConfig?.showHero ?? true,
+    search: seoConfig?.showSearch ?? true,
+    promotions: seoConfig?.showPromotions ?? true,
+    suppliers: seoConfig?.showSuppliers ?? true,
+    benefits: seoConfig?.showBenefits ?? true,
+    reviews: seoConfig?.showReviews ?? true,
+    faq: seoConfig?.showFaq ?? true,
+    content: seoConfig?.showSeoContent ?? true,
+    popularDestinations: seoConfig?.showRelatedDestinations ?? true,
+    featuredCars: seoConfig?.showFeaturedCars ?? true,
+    cta: true
   };
 
-  const customStyles = builderConfig?.styles || {};
+  const customStyles = {
+    primaryColor: seoConfig?.primaryColor || '#007ac2',
+    secondaryColor: seoConfig?.secondaryColor || '#ffffff',
+    buttonColor: seoConfig?.buttonColor || '#007ac2',
+    backgroundColor: seoConfig?.backgroundColor || '#ffffff',
+    accentColor: seoConfig?.accentColor || '#007ac2',
+    textColor: seoConfig?.heroTextColor || '#0f172a'
+  };
   
   React.useEffect(() => {
     const loadSettings = async () => {
@@ -262,6 +268,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
   const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
+  const heroMobileImage = seoConfig?.heroMobileImage || heroBackgroundImage;
+  const heroVideo = seoConfig?.heroVideo || content.hero.video;
+  const heroOverlayOpacity = seoConfig?.heroOverlayOpacity ?? 0.4;
+  const heroTextColor = seoConfig?.heroTextColor || content.hero.textColor || '#FFFFFF';
+  const heroButtonText = seoConfig?.heroButtonText || content.hero.buttonText;
+  const heroButtonLink = seoConfig?.heroButtonLink || content.hero.buttonLink || '#search';
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
   const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
@@ -270,14 +282,16 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
   };
 
-  const accentColor = customStyles.accentColor || '#007ac2';
-  const backgroundColor = customStyles.backgroundColor || '#ffffff';
-  const textColor = customStyles.textColor || '#0f172a';
+  const accentColor = customStyles.accentColor;
+  const backgroundColor = customStyles.backgroundColor;
+  const textColor = customStyles.textColor;
+  const primaryColor = customStyles.primaryColor;
+  const buttonColor = customStyles.buttonColor;
 
   return (
     <div 
       className="bg-white font-sans" 
-      style={isCustomLanding ? { backgroundColor, color: textColor } : {}}
+      style={{ backgroundColor, color: textColor }}
     >
       <SEOMetadata
         title={seoConfig?.title}
@@ -289,30 +303,44 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       />
       
       {/* HERO – professional centered layout with background image */}
-      {sections.hero?.enabled && (
-        <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden">
+      {sections.hero && (
+        <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0">
-            {heroBackgroundImage && (
-              <img 
-                key={heroBackgroundImage}
-                src={heroBackgroundImage} 
-                className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
-                alt={displayH1}
-                onLoad={() => setHeroLoaded(true)}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
-                  setHeroLoaded(true);
-                }}
-              />
+            {heroVideo ? (
+              <video 
+                autoPlay 
+                muted 
+                loop 
+                playsInline 
+                className="w-full h-full object-cover"
+                onCanPlay={() => setHeroLoaded(true)}
+              >
+                <source src={heroVideo} type="video/mp4" />
+              </video>
+            ) : heroBackgroundImage && (
+              <picture>
+                <source media="(max-width: 640px)" srcSet={heroMobileImage} />
+                <img 
+                  key={heroBackgroundImage}
+                  src={heroBackgroundImage} 
+                  className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  alt={displayH1}
+                  onLoad={() => setHeroLoaded(true)}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
+                    setHeroLoaded(true);
+                  }}
+                />
+              </picture>
             )}
-            {!heroLoaded && (
+            {!heroLoaded && !heroVideo && (
               <div className="absolute inset-0 bg-[#003580]/80 animate-pulse"></div>
             )}
-            {!heroBackgroundImage && (
+            {!heroBackgroundImage && !heroVideo && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
             )}
-            <div className="absolute inset-0 bg-black/40"></div>
+            <div className="absolute inset-0 bg-black" style={{ opacity: heroOverlayOpacity }}></div>
           </div>
 
           <div className="absolute inset-0 opacity-20 pointer-events-none z-[1]">
@@ -330,7 +358,19 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               {displaySubtitle}
             </p>
             
-            {sections.search?.enabled && (
+            {heroButtonText && (
+              <div className="mt-8">
+                <a 
+                  href={heroButtonLink} 
+                  className="px-8 py-4 rounded-card font-bold text-lg shadow-2xl transition-all hover:scale-105 active:scale-95 inline-block"
+                  style={{ backgroundColor: buttonColor, color: '#fff' }}
+                >
+                  {heroButtonText}
+                </a>
+              </div>
+            )}
+            
+            {sections.search && (
               <div className="relative z-20 mt-1 lg:mt-0">
                 <SearchWidget
                   onSearch={handleSearch}
@@ -341,7 +381,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                     dropoff: dropoffCode,
                     dropoffName: dropoffName
                   }}
-                  accentColor={isCustomLanding ? accentColor : undefined}
+                  accentColor={accentColor}
+                  style={seoConfig?.searchWidgetStyle}
+                  customColor={seoConfig?.searchWidgetColor}
                 />
               </div>
             )}
@@ -377,27 +419,27 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* TRUSTED PARTNERS – marquee version */}
-      {sections.supplierLogos?.enabled && (
+      {sections.suppliers && (
         <TrustedSuppliers 
-          accentColor={isCustomLanding ? accentColor : undefined}
-          backgroundColor={isCustomLanding ? backgroundColor : undefined}
+          accentColor={accentColor}
+          backgroundColor={backgroundColor}
         />
       )}
 
       {/* REVIEWS SECTION */}
-      {sections.reviews?.enabled && (
-        <Reviews accentColor={isCustomLanding ? accentColor : undefined} />
+      {sections.reviews && (
+        <Reviews accentColor={accentColor} />
       )}
 
       {/* WHY BOOK WITH HOGICAR? & STATS */}
-      {(sections.features?.enabled || sections.stats?.enabled) && (
-        <section className="py-8 lg:py-12" style={isCustomLanding ? { backgroundColor } : {}}>
+      {(sections.benefits || sections.featuredCars) && (
+        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            {sections.features?.enabled && (
+            {sections.benefits && (
               <>
                 <div className="max-w-3xl mx-auto text-center mb-10">
-                  <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: isCustomLanding ? accentColor : '#007ac2' }}>The Hogicar Advantage</h2>
-                  <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight" style={isCustomLanding ? { color: textColor } : { color: '#0f172a' }}>Unbeatable value, unparalleled convenience.</h3>
+                  <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: accentColor }}>The Hogicar Advantage</h2>
+                  <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight" style={{ color: textColor }}>Unbeatable value, unparalleled convenience.</h3>
                   <p className="mt-3 text-base text-slate-600 leading-relaxed">
                     We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
                   </p>
@@ -432,9 +474,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             )}
 
             {/* Stats – simplified card */}
-            {sections.stats?.enabled && (
-              <div className="bg-slate-900 text-white p-8 rounded-card text-center" style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : {}}>
-                <Globe className="w-10 h-10 mx-auto mb-2" style={isCustomLanding ? { color: accentColor } : {}} />
+            {sections.featuredCars && (
+              <div className="bg-slate-900 text-white p-8 rounded-card text-center" style={{ backgroundColor: textColor, color: backgroundColor }}>
+                <Globe className="w-10 h-10 mx-auto mb-2" style={{ color: accentColor }} />
                 <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
                 <p className="text-slate-300 mb-4" style={isCustomLanding ? { color: `${backgroundColor}CC` } : {}}>We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
                 <Link to="/become-supplier" className="px-6 py-2 rounded-full text-sm inline-flex items-center gap-2" style={{ backgroundColor: accentColor, color: '#fff' }}>
@@ -457,12 +499,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* GET YOUR PERFECT CAR */}
-      {sections.whyChooseUs?.enabled && (
-        <section className="py-8 lg:py-12" style={isCustomLanding ? { backgroundColor } : {}}>
+      {sections.promotions && (
+        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: isCustomLanding ? accentColor : '#007ac2' }}>Simple Process</h2>
-              <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight" style={isCustomLanding ? { color: textColor } : { color: '#0f172a' }}>{content.howItWorks.title}</h3>
+              <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: accentColor }}>Simple Process</h2>
+              <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight" style={{ color: textColor }}>{content.howItWorks.title}</h3>
               <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
             </div>
 
@@ -500,18 +542,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* POPULAR DESTINATIONS */}
-      {sections.popularDestinations?.enabled && (
-        <section className="py-8 lg:py-12" style={isCustomLanding ? { backgroundColor } : {}}>
+      {sections.popularDestinations && (
+        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
              <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                  <div className="max-w-2xl">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-3" style={isCustomLanding ? { backgroundColor: `${accentColor}10`, color: accentColor } : {}}>
+                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-3" style={{ backgroundColor: `${accentColor}10`, color: accentColor }}>
                          <MapPin className="w-3 h-3" /> Top Destinations
                      </div>
-                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight" style={isCustomLanding ? { color: textColor } : { color: '#0f172a' }}>{content.popularDestinations.title}</h3>
+                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight" style={{ color: textColor }}>{content.popularDestinations.title}</h3>
                      <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                  </div>
-                 <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm" style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : {}}>
+                 <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm" style={{ backgroundColor: textColor, color: backgroundColor }}>
                      Explore All Locations
                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                  </Link>
@@ -523,7 +565,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                          to={`/search?location=${encodeURIComponent(dest.name)}`} 
                          key={dest.name} 
                          className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3] border-2 border-transparent"
-                         style={isCustomLanding ? { borderColor: `${accentColor}20` } : {}}
+                         style={{ borderColor: `${accentColor}20` }}
                      >
                          <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
                      </Link>
@@ -534,25 +576,25 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* NEWSLETTER CTA */}
-      {sections.cta?.enabled && (
-        <section className="py-12" style={isCustomLanding ? { backgroundColor } : {}}>
+      {sections.cta && (
+        <section className="py-12" style={{ backgroundColor }}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 p-8 md:p-14 text-center" style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : {}}>
+            <div className="relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 p-8 md:p-14 text-center" style={{ backgroundColor: textColor, color: backgroundColor }}>
               {/* Ambient Glows */}
               <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
               <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
               
               <div className="relative z-10 max-w-2xl mx-auto">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-extrabold uppercase tracking-widest mb-6" style={isCustomLanding ? { backgroundColor: `${accentColor}20`, borderColor: `${accentColor}40`, color: accentColor } : {}}>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-extrabold uppercase tracking-widest mb-6" style={{ backgroundColor: `${accentColor}20`, borderColor: `${accentColor}40`, color: accentColor }}>
                   <Sparkles className="w-3.5 h-3.5" />
                   Exclusive Member Access
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-6">
-                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400" style={isCustomLanding ? { backgroundImage: `linear-gradient(to right, ${accentColor}, #10b981)` } : {}}>car rental deals</span>
+                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400" style={{ backgroundImage: `linear-gradient(to right, ${accentColor}, #10b981)` }}>car rental deals</span>
                 </h2>
                 
-                <p className="text-base text-slate-400 mb-10 leading-relaxed" style={isCustomLanding ? { color: `${backgroundColor}AA` } : {}}>
+                <p className="text-base text-slate-400 mb-10 leading-relaxed" style={{ color: `${backgroundColor}AA` }}>
                   Join 10,000+ travelers receiving insider offers, premium travel inspiration, and first-look access to our most competitive rates.
                 </p>
                 
@@ -565,13 +607,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                       type="email" 
                       placeholder="Enter your email address" 
                       className="w-full pl-12 pr-4 py-4 rounded-card text-white text-sm font-medium focus:outline-none transition-all bg-white/5 border border-white/10 placeholder-slate-500"
-                      style={isCustomLanding ? { borderColor: `${backgroundColor}30` } : {}}
+                      style={{ borderColor: `${backgroundColor}30` }}
                     />
                   </div>
                   <button 
                     type="submit" 
                     className="bg-accent hover:bg-accent-700 text-white font-bold py-4 px-8 rounded-card transition-all duration-300 shadow-lg active:scale-[0.98] whitespace-nowrap text-sm"
-                    style={isCustomLanding ? { backgroundColor: accentColor } : {}}
+                    style={{ backgroundColor: accentColor }}
                   >
                     Join the Club
                   </button>
@@ -584,8 +626,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* DYNAMIC SEO CONTENT */}
       {/* MAIN CONTENT SECTION - for SEO and Dynamic Pages */}
-      {sections.content?.enabled && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
-        <section id="main-seo-content" className="py-12 bg-white" style={isCustomLanding ? { backgroundColor } : {}}>
+      {sections.content && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
+        <section id="main-seo-content" className="py-12 bg-white" style={{ backgroundColor }}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="prose prose-slate max-w-none prose-img:rounded-card prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed">
               {seoConfig?.content ? (
@@ -601,12 +643,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* FAQS */}
-      {sections.faq?.enabled && (
-        <section className="py-8 lg:py-12" style={isCustomLanding ? { backgroundColor } : {}}>
+      {sections.faq && (
+        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mx-auto text-center mb-6">
-              <h2 className="text-[10px] font-bold tracking-widest uppercase mb-1.5" style={{ color: isCustomLanding ? accentColor : '#007ac2' }}>Support</h2>
-              <h3 className="text-xl md:text-2xl font-extrabold tracking-tight" style={isCustomLanding ? { color: textColor } : { color: '#0f172a' }}>{content.faqs.title}</h3>
+              <h2 className="text-[10px] font-bold tracking-widest uppercase mb-1.5" style={{ color: accentColor }}>Support</h2>
+              <h3 className="text-xl md:text-2xl font-extrabold tracking-tight" style={{ color: textColor }}>{content.faqs.title}</h3>
               <p className="mt-3 text-xs text-slate-600 leading-relaxed">
                 Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.
               </p>

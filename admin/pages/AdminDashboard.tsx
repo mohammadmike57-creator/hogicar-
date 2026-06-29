@@ -1477,11 +1477,25 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
         </div>
       </div>
 
-      <div className="space-y-3">
-        <InputField label="Hero Title" value={localContent?.hero?.title || ''} onChange={e => handleChange('hero.title', e.target.value)} />
-        <InputField label="Hero Subtitle" value={localContent?.hero?.subtitle || ''} onChange={e => handleChange('hero.subtitle', e.target.value)} />
-        <InputField label="Hero Background" value={localContent?.hero?.backgroundImage || ''} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
-        <InputField label="FAQs Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
+      <div className="bg-slate-50 p-6 rounded-card border border-slate-200 space-y-4">
+        <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+          <ImageIcon className="w-4 h-4 text-[#007ac2]" />
+          Hero Section Builder
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputField label="Hero Title" value={localContent?.hero?.title || ''} onChange={e => handleChange('hero.title', e.target.value)} />
+          <InputField label="Hero Subtitle" value={localContent?.hero?.subtitle || ''} onChange={e => handleChange('hero.subtitle', e.target.value)} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputField label="Hero Background Image" value={localContent?.hero?.backgroundImage || ''} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
+          <InputField label="Hero Background Video" value={localContent?.hero?.video || ''} onChange={e => handleChange('hero.video', e.target.value)} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <InputField label="Button Text" value={localContent?.hero?.buttonText || ''} onChange={e => handleChange('hero.buttonText', e.target.value)} />
+          <InputField label="Button Link" value={localContent?.hero?.buttonLink || ''} onChange={e => handleChange('hero.buttonLink', e.target.value)} />
+          <InputField label="Text Color" type="color" value={localContent?.hero?.textColor || '#FFFFFF'} onChange={e => handleChange('hero.textColor', e.target.value)} />
+        </div>
+        <InputField label="FAQs Section Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
       </div>
 
       <div className="mt-8 pt-6 border-t border-slate-100">
@@ -2154,11 +2168,12 @@ const FleetContent = ({ cars, onRefresh }: any) => (
             <th className="px-6 py-4">Location</th>
             <th className="px-6 py-4">SIPP</th>
             <th className="px-6 py-4">Status</th>
+            <th className="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
           {Array.isArray(cars) && cars.map((c: any) => (
-            <tr key={c.id} className="hover:bg-blue-50/30 transition-colors">
+            <tr key={c.id} className="hover:bg-blue-50/30 transition-colors group">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width="48" height="32" />
@@ -2187,6 +2202,16 @@ const FleetContent = ({ cars, onRefresh }: any) => (
                     <div className={`w-1.5 h-1.5 rounded-full ${c.isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     <span className="text-xs font-medium">{c.isAvailable ? 'Available' : 'Sold Out'}</span>
                 </div>
+              </td>
+              <td className="px-6 py-4 text-right">
+                <button 
+                  onClick={() => { setManagingPromosForCar(c); setIsPromotionModalOpen(true); }}
+                  className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#007ac2] rounded-card transition-all flex items-center gap-2 text-xs font-bold"
+                  title="Manage Pricing & Promotions"
+                >
+                  <Tag className="w-4 h-4" />
+                  <span>Pricing</span>
+                </button>
               </td>
             </tr>
           ))}
@@ -2230,6 +2255,33 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [introText, setIntroText] = useState(config?.introText || '');
   const [content, setContent] = useState(config?.content || '');
   const [heroImage, setHeroImage] = useState(config?.heroImage || '');
+  const [heroMobileImage, setHeroMobileImage] = useState(config?.heroMobileImage || '');
+  const [heroVideo, setHeroVideo] = useState(config?.heroVideo || '');
+  const [heroOverlayOpacity, setHeroOverlayOpacity] = useState(config?.heroOverlayOpacity ?? 0.4);
+  const [heroTextColor, setHeroTextColor] = useState(config?.heroTextColor || '#FFFFFF');
+  const [heroButtonText, setHeroButtonText] = useState(config?.heroButtonText || '');
+  const [heroButtonLink, setHeroButtonLink] = useState(config?.heroButtonLink || '');
+
+  const [primaryColor, setPrimaryColor] = useState(config?.primaryColor || '#007ac2');
+  const [secondaryColor, setSecondaryColor] = useState(config?.secondaryColor || '#FFFFFF');
+  const [buttonColor, setButtonColor] = useState(config?.buttonColor || '#007ac2');
+  const [backgroundColor, setBackgroundColor] = useState(config?.backgroundColor || '#F8FAFC');
+  const [accentColor, setAccentColor] = useState(config?.accentColor || '#E2E8F0');
+
+  const [searchWidgetStyle, setSearchWidgetStyle] = useState(config?.searchWidgetStyle || 'DEFAULT');
+  const [searchWidgetColor, setSearchWidgetColor] = useState(config?.searchWidgetColor || '');
+  const [searchWidgetButtonColor, setSearchWidgetButtonColor] = useState(config?.searchWidgetButtonColor || '');
+
+  const [showHero, setShowHero] = useState(config?.showHero ?? true);
+  const [showSearch, setShowSearch] = useState(config?.showSearch ?? true);
+  const [showPromotions, setShowPromotions] = useState(config?.showPromotions ?? true);
+  const [showSuppliers, setShowSuppliers] = useState(config?.showSuppliers ?? true);
+  const [showBenefits, setShowBenefits] = useState(config?.showBenefits ?? true);
+  const [showReviews, setShowReviews] = useState(config?.showReviews ?? true);
+  const [showFaq, setShowFaq] = useState(config?.showFaq ?? true);
+  const [showSeoContent, setShowSeoContent] = useState(config?.showSeoContent ?? true);
+  const [showRelatedDestinations, setShowRelatedDestinations] = useState(config?.showRelatedDestinations ?? true);
+  const [showFeaturedCars, setShowFeaturedCars] = useState(config?.showFeaturedCars ?? true);
 
   const defaultBuilder = {
     sections: {
@@ -2328,6 +2380,30 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       introText,
       content,
       heroImage,
+      heroMobileImage,
+      heroVideo,
+      heroOverlayOpacity,
+      heroTextColor,
+      heroButtonText,
+      heroButtonLink,
+      primaryColor,
+      secondaryColor,
+      buttonColor,
+      backgroundColor,
+      accentColor,
+      searchWidgetStyle,
+      searchWidgetColor,
+      searchWidgetButtonColor,
+      showHero,
+      showSearch,
+      showPromotions,
+      showSuppliers,
+      showBenefits,
+      showReviews,
+      showFaq,
+      showSeoContent,
+      showRelatedDestinations,
+      showFeaturedCars,
       contentJson: JSON.stringify(builderConfig)
     });
   };
@@ -2584,11 +2660,56 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                   />
                   <p className="text-[9px] text-slate-400 italic">This content will be displayed prominently on the landing page.</p>
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputField 
+                    label="Hero Background Image (Desktop)" 
+                    value={heroImage} 
+                    onChange={(e: any) => setHeroImage(e.target.value)} 
+                    placeholder="https://example.com/hero.jpg"
+                  />
+                  <InputField 
+                    label="Hero Background Image (Mobile)" 
+                    value={heroMobileImage} 
+                    onChange={(e: any) => setHeroMobileImage(e.target.value)} 
+                    placeholder="https://example.com/hero-mobile.jpg"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputField 
+                    label="Hero Background Video (Optional)" 
+                    value={heroVideo} 
+                    onChange={(e: any) => setHeroVideo(e.target.value)} 
+                    placeholder="https://example.com/hero-video.mp4"
+                  />
+                  <InputField 
+                    label="Hero Overlay Opacity (0.0 - 1.0)" 
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={heroOverlayOpacity} 
+                    onChange={(e: any) => setHeroOverlayOpacity(parseFloat(e.target.value))} 
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputField 
+                    label="Hero Text Color" 
+                    type="color"
+                    value={heroTextColor} 
+                    onChange={(e: any) => setHeroTextColor(e.target.value)} 
+                  />
+                  <InputField 
+                    label="Hero Button Text" 
+                    value={heroButtonText} 
+                    onChange={(e: any) => setHeroButtonText(e.target.value)} 
+                    placeholder="Book Now"
+                  />
+                </div>
                 <InputField 
-                  label="Hero Background Image URL" 
-                  value={heroImage} 
-                  onChange={(e: any) => setHeroImage(e.target.value)} 
-                  placeholder="https://example.com/hero-image.jpg"
+                  label="Hero Button Link" 
+                  value={heroButtonLink} 
+                  onChange={(e: any) => setHeroButtonLink(e.target.value)} 
+                  placeholder="#search"
                 />
               </div>
             </div>
@@ -2596,175 +2717,117 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
 
           {activeTab === 'builder' && (
             <div className="space-y-4">
-              <div className="bg-slate-50 p-4 rounded-card border border-slate-200 mb-6">
+              <div className="bg-slate-50 p-4 rounded-card border border-slate-200 mb-6 text-left">
                 <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Section Visibility</p>
                 <p className="text-[11px] text-slate-500 font-medium">Control which components are displayed on this specific route.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Object.keys(builderConfig.sections || {}).map((sectionKey: string) => {
-                  const section = builderConfig.sections[sectionKey];
-                  const label = sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1).replace(/([A-Z])/g, ' $1');
-                  return (
-                    <div key={sectionKey} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-card hover:border-slate-200 transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded ${section.enabled ? 'bg-blue-50 text-[#007ac2]' : 'bg-slate-50 text-slate-400'}`}>
-                          {sectionKey === 'search' && <Search className="w-4 h-4" />}
-                          {sectionKey === 'hero' && <ImageIcon className="w-4 h-4" />}
-                          {sectionKey === 'content' && <FileText className="w-4 h-4" />}
-                          {sectionKey === 'faq' && <MailQuestion className="w-4 h-4" />}
-                          {sectionKey === 'features' && <Award className="w-4 h-4" />}
-                          {sectionKey === 'stats' && <Activity className="w-4 h-4" />}
-                          {sectionKey === 'supplierLogos' && <Building2 className="w-4 h-4" />}
-                          {sectionKey === 'reviews' && <Star className="w-4 h-4" />}
-                          {sectionKey === 'whyChooseUs' && <ShieldCheck className="w-4 h-4" />}
-                          {sectionKey === 'popularDestinations' && <MapPin className="w-4 h-4" />}
-                          {!['search', 'hero', 'faq', 'features', 'stats', 'supplierLogos', 'reviews', 'whyChooseUs', 'popularDestinations'].includes(sectionKey) && <LayoutDashboard className="w-4 h-4" />}
-                        </div>
-                        <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-widest">{label}</span>
+                {[
+                  { key: 'Hero', state: showHero, setter: setShowHero, icon: ImageIcon },
+                  { key: 'Search', state: showSearch, setter: setShowSearch, icon: Search },
+                  { key: 'Promotions', state: showPromotions, setter: setShowPromotions, icon: Tag },
+                  { key: 'Suppliers', state: showSuppliers, setter: setShowSuppliers, icon: Building2 },
+                  { key: 'Benefits', state: showBenefits, setter: setShowBenefits, icon: ShieldCheck },
+                  { key: 'Reviews', state: showReviews, setter: setShowReviews, icon: Star },
+                  { key: 'FAQ', state: showFaq, setter: setShowFaq, icon: MailQuestion },
+                  { key: 'SEO Content', state: showSeoContent, setter: setShowSeoContent, icon: FileText },
+                  { key: 'Related Destinations', state: showRelatedDestinations, setter: setShowRelatedDestinations, icon: MapPin },
+                  { key: 'Featured Cars', state: showFeaturedCars, setter: setShowFeaturedCars, icon: Car },
+                ].map((s) => (
+                  <div key={s.key} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-card hover:border-slate-200 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded ${s.state ? 'bg-blue-50 text-[#007ac2]' : 'bg-slate-50 text-slate-400'}`}>
+                        <s.icon className="w-4 h-4" />
                       </div>
-                      <button 
-                        onClick={() => {
-                          const newConfig = { ...builderConfig };
-                          newConfig.sections[sectionKey].enabled = !section.enabled;
-                          setBuilderConfig(newConfig);
-                        }}
-                        className={`text-[10px] font-extrabold px-3 py-1 rounded-full border transition-all ${section.enabled ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
-                      >
-                        {section.enabled ? 'Enabled' : 'Disabled'}
-                      </button>
+                      <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-widest">{s.key}</span>
                     </div>
-                  );
-                })}
+                    <button 
+                      onClick={() => s.setter(!s.state)}
+                      className={`text-[10px] font-extrabold px-3 py-1 rounded-full border transition-all ${s.state ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+                    >
+                      {s.state ? 'Enabled' : 'Disabled'}
+                    </button>
+                  </div>
+                ))}
               </div>
-
-              {builderConfig.sections?.search?.enabled && (
-                <div className="mt-8 p-6 border border-slate-200 rounded-card bg-slate-50 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Search className="w-4 h-4 text-[#007ac2]" />
-                    <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-widest">Search Integration</span>
-                  </div>
-                  <InputField 
-                    label="Prefill Pickup Location" 
-                    value={builderConfig.sections.search.pickupPrefill} 
-                    onChange={(e: any) => {
-                      const newConfig = { ...builderConfig };
-                      newConfig.sections.search.pickupPrefill = e.target.value;
-                      setBuilderConfig(newConfig);
-                    }} 
-                    placeholder="Enter city or airport name (e.g. Amman Airport)"
-                  />
-                  <p className="text-[10px] text-slate-400 italic">This location will be automatically selected in the search widget on this page.</p>
-                </div>
-              )}
-
-              {builderConfig.sections?.content?.enabled && (
-                <div className="mt-8 p-6 border border-slate-200 rounded-card bg-slate-50 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileText className="w-4 h-4 text-[#007ac2]" />
-                    <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-widest">Custom SEO Content</span>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">HTML Content</label>
-                    <textarea 
-                      value={builderConfig.sections.content.html || ''}
-                      onChange={(e) => {
-                        const newConfig = { ...builderConfig };
-                        newConfig.sections.content.html = e.target.value;
-                        setBuilderConfig(newConfig);
-                      }}
-                      rows={8}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-card text-xs font-mono focus:ring-2 focus:ring-[#007ac2] outline-none transition-all bg-white"
-                      placeholder="Enter custom HTML for SEO content."
-                    />
-                    <p className="text-[9px] text-slate-400 italic">Use standard HTML tags. Will be rendered safely using dangerouslySetInnerHTML.</p>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Fallback Plain Text</label>
-                    <textarea 
-                      value={builderConfig.sections.content.text || ''}
-                      onChange={(e) => {
-                        const newConfig = { ...builderConfig };
-                        newConfig.sections.content.text = e.target.value;
-                        setBuilderConfig(newConfig);
-                      }}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-card text-xs focus:ring-2 focus:ring-[#007ac2] outline-none transition-all bg-white"
-                      placeholder="Fallback text if HTML is not provided."
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
           {activeTab === 'style' && (
             <div className="space-y-6">
               <div className="bg-slate-50 p-6 rounded-card border border-slate-200">
-                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-6">Custom Design Controls</p>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-6">Global Color Theme</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Accent Color</label>
-                      <div className="flex gap-3">
-                        <input 
-                          type="color" 
-                          value={builderConfig.styles?.accentColor || '#007ac2'} 
-                          onChange={(e) => {
-                            const newConfig = { ...builderConfig };
-                            newConfig.styles.accentColor = e.target.value;
-                            setBuilderConfig(newConfig);
-                          }}
-                          className="w-12 h-12 rounded cursor-pointer border-2 border-white shadow-sm"
-                        />
-                        <input 
-                          type="text"
-                          value={builderConfig.styles?.accentColor || '#007ac2'}
-                          onChange={(e) => {
-                            const newConfig = { ...builderConfig };
-                            newConfig.styles.accentColor = e.target.value;
-                            setBuilderConfig(newConfig);
-                          }}
-                          className="flex-1 px-4 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase"
-                        />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Color</label>
+                        <div className="flex gap-2">
+                          <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
+                          <input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Secondary Color</label>
+                        <div className="flex gap-2">
+                          <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
+                          <input type="text" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                        </div>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Background Color</label>
-                      <div className="flex gap-3">
-                        <input 
-                          type="color" 
-                          value={builderConfig.styles?.backgroundColor || '#ffffff'} 
-                          onChange={(e) => {
-                            const newConfig = { ...builderConfig };
-                            newConfig.styles.backgroundColor = e.target.value;
-                            setBuilderConfig(newConfig);
-                          }}
-                          className="w-12 h-12 rounded cursor-pointer border-2 border-white shadow-sm"
-                        />
-                        <input 
-                          type="text"
-                          value={builderConfig.styles?.backgroundColor || '#ffffff'}
-                          onChange={(e) => {
-                            const newConfig = { ...builderConfig };
-                            newConfig.styles.backgroundColor = e.target.value;
-                            setBuilderConfig(newConfig);
-                          }}
-                          className="flex-1 px-4 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase"
-                        />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Button Color</label>
+                        <div className="flex gap-2">
+                          <input type="color" value={buttonColor} onChange={(e) => setButtonColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
+                          <input type="text" value={buttonColor} onChange={(e) => setButtonColor(e.target.value)} className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Accent Color</label>
+                        <div className="flex gap-2">
+                          <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
+                          <input type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-col justify-center items-center bg-white p-6 rounded border border-slate-200 shadow-inner">
-                    <p className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest mb-4">Button Style Preview</p>
-                    <button 
-                      style={{ backgroundColor: builderConfig.styles?.accentColor || '#007ac2' }}
-                      className="px-8 py-3 text-white font-extrabold text-sm rounded-card shadow-lg active:scale-95 transition-all"
-                    >
-                      Action Button
+                    <p className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest mb-4">Live Theme Preview</p>
+                    <button style={{ backgroundColor: buttonColor }} className="px-8 py-3 text-white font-extrabold text-sm rounded-card shadow-lg active:scale-95 transition-all">
+                      Primary CTA
                     </button>
-                    <p className="text-[9px] text-slate-400 mt-4 text-center">Preview of primary call-to-action</p>
+                    <div className="mt-4 flex gap-2">
+                       <div style={{ backgroundColor: primaryColor }} className="w-8 h-8 rounded-full border border-slate-100 shadow-sm" title="Primary"></div>
+                       <div style={{ backgroundColor: secondaryColor }} className="w-8 h-8 rounded-full border border-slate-100 shadow-sm" title="Secondary"></div>
+                       <div style={{ backgroundColor: accentColor }} className="w-8 h-8 rounded-full border border-slate-100 shadow-sm" title="Accent"></div>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-card border border-slate-200">
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-6">Search Widget Customization</p>
+                <div className="space-y-4">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Widget Style</label>
+                        <select value={searchWidgetStyle} onChange={(e) => setSearchWidgetStyle(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-card text-sm font-bold bg-white outline-none">
+                          <option value="DEFAULT">Default (Professional)</option>
+                          <option value="MODERN">Modern (Glassmorphism)</option>
+                          <option value="CLASSIC">Classic (Compact)</option>
+                          <option value="MINIMAL">Minimalist</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Widget Accent Color</label>
+                        <div className="flex gap-2">
+                          <input type="color" value={searchWidgetColor} onChange={(e) => setSearchWidgetColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
+                          <input type="text" value={searchWidgetColor} onChange={(e) => setSearchWidgetColor(e.target.value)} placeholder="Auto" className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                        </div>
+                      </div>
+                   </div>
                 </div>
               </div>
             </div>
@@ -2975,7 +3038,89 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
   );
 };
 const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => null;
-const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => null;
+const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => {
+  const [choice, setChoice] = useState(car?.hogicarChoice || false);
+  const [promo, setPromo] = useState(car?.hogicarPromotion || 0);
+  const [manualPrice, setManualPrice] = useState(car?.manualPrice || 0);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (car) {
+      setChoice(car.hogicarChoice || false);
+      setPromo(car.hogicarPromotion || 0);
+      setManualPrice(car.manualPrice || 0);
+    }
+  }, [car]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // car.supplierId is available from the car object
+      const supplierId = car.supplierId;
+      const res = await adminFetch(`/api/admin/suppliers/${supplierId}/cars/${car.id}/hogicar-choice`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          hogicarChoice: choice,
+          hogicarPromotion: promo,
+          manualPrice: manualPrice
+        })
+      });
+      alert('Pricing and Choice settings updated successfully');
+      onSave(car.id, res); // Refresh the list
+      onClose();
+    } catch (e: any) {
+      alert(`Update failed: ${e.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={`Manage Pricing: ${car?.displayName || 'Vehicle'}`}>
+      <div className="space-y-6">
+        <div className="bg-blue-50 p-4 rounded-card border border-blue-100 flex items-center justify-between">
+          <div>
+            <h4 className="text-sm font-extrabold text-[#007ac2] uppercase tracking-wider">Hogicar Choice</h4>
+            <p className="text-[10px] text-blue-600 font-medium mt-0.5">Highlight this vehicle as a recommended option</p>
+          </div>
+          <Toggle checked={choice} onChange={setChoice} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputField 
+            label="Manual Price Override (Daily)" 
+            type="number" 
+            value={manualPrice} 
+            onChange={(e: any) => setManualPrice(parseFloat(e.target.value))} 
+            placeholder="0.00"
+            helper="If set, this will override the supplier's base daily rate."
+          />
+          <InputField 
+            label="Promotion Discount (%)" 
+            type="number" 
+            value={promo} 
+            onChange={(e: any) => setPromo(parseFloat(e.target.value))} 
+            placeholder="0"
+            helper="Applied on top of the final price."
+          />
+        </div>
+
+        <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+          <button onClick={onClose} className="px-6 py-2 text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
+          <button 
+            onClick={handleSave} 
+            disabled={isSaving}
+            className="bg-[#007ac2] text-white px-8 py-2.5 rounded-card font-bold text-sm shadow-xl shadow-blue-200 hover:bg-blue-800 transition-all disabled:opacity-50"
+          >
+            {isSaving ? 'Saving...' : 'Update Pricing'}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+};
 
 // ==================== Homepage Logos ====================
 const HomepageLogosContent = () => {

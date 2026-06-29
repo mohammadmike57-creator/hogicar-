@@ -170,7 +170,7 @@ const DynamicPage: React.FC = () => {
       </div>
 
       {/* Reusable Premium Sections */}
-      <TrustedSuppliers />
+      {(seoConfig?.showSuppliers ?? true) && <TrustedSuppliers />}
       
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -194,10 +194,10 @@ const DynamicPage: React.FC = () => {
         </div>
       </section>
 
-      <Reviews />
+      {(seoConfig?.showReviews ?? true) && <Reviews />}
 
       {/* Popular Destinations Fallback for Standard Pages */}
-      {homepageContent?.popularDestinations?.destinations?.length > 0 && (
+      {(seoConfig?.showRelatedDestinations ?? true) && homepageContent?.popularDestinations?.destinations?.length > 0 && (
         <section className="py-16 bg-white border-t border-slate-100">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
@@ -223,7 +223,7 @@ const DynamicPage: React.FC = () => {
       )}
 
       {/* FAQ Section Fallback for Standard Pages */}
-      {homepageContent?.faqs?.items?.length > 0 && (
+      {(seoConfig?.showFaq ?? true) && homepageContent?.faqs?.items?.length > 0 && (
         <section className="py-16 bg-slate-50">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
