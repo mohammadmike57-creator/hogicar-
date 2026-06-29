@@ -97,6 +97,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
   const [homepageContent, setHomepageContent] = React.useState<any>(normalizeHomepageContent(null));
 
+  const isCustomLanding = !!seoConfig;
+
   const builderConfig = React.useMemo(() => {
     if (!seoConfig?.contentJson) return null;
     try {

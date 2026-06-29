@@ -27,14 +27,14 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
 
   // Use props if they exist, otherwise fallback to config fetched from API
-  const title = defaultTitle || config?.title || "";
-  const description = defaultDescription || config?.description || "";
-  const keywords = defaultKeywords || config?.keywords || "";
+  const title = defaultTitle || config?.title || "Hogicar | Car Rental & Search";
+  const description = defaultDescription || config?.description || "Search and compare car rentals from 900+ suppliers worldwide.";
+  const keywords = defaultKeywords || config?.keywords || "car rental, hire car, search car rental, hogicar";
   const ogImage = defaultOgImage || config?.ogImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
   const canonical = defaultCanonical || config?.canonicalUrl || (typeof window !== 'undefined' ? (window.location.origin + location.pathname) : '');
   const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
 
-  // AUTHOREITATIVE TITLE SETTER
+  // AUTHORITATIVE TITLE SETTER
   useLayoutEffect(() => {
     if (title) {
       document.title = title;

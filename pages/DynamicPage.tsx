@@ -106,10 +106,7 @@ const DynamicPage: React.FC = () => {
   // If it's a landing page, render the Home component with SEO config
   if (isLandingPage && seoConfig) {
     return (
-      <>
-        <SEOMetadata title={seoConfig.title} description={seoConfig.description} />
-        <Home seoConfig={seoConfig} />
-      </>
+      <Home seoConfig={seoConfig} />
     );
   }
 
