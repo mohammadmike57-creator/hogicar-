@@ -3,8 +3,10 @@ import * as React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import SEOMetadata from '../components/SEOMetadata';
-import { ArrowLeft, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, Loader2, CheckCircle, Shield, Award, ChevronRight, ChevronDown, MapPin } from 'lucide-react';
 import Home from './Home';
+import Reviews from '../components/Reviews';
+import TrustedSuppliers from '../components/TrustedSuppliers';
 import { API_BASE_URL } from '../lib/config';
 
 const DynamicPage: React.FC = () => {
@@ -14,6 +16,21 @@ const DynamicPage: React.FC = () => {
   const [isLandingPage, setIsLandingPage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [homepageContent, setHomepageContent] = useState<any>(null);
+
+  useEffect(() => {
+    const loadCommonData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/homepage/content`);
+        if (response.ok) {
+          setHomepageContent(await response.json());
+        }
+      } catch (e) {
+        console.error("Failed to load common content:", e);
+      }
+    };
+    loadCommonData();
+  }, []);
 
   useEffect(() => {
     const fetchPageData = async () => {
@@ -115,23 +132,127 @@ const DynamicPage: React.FC = () => {
   ));
 
   const content = (
-    <div className="bg-slate-50 min-h-screen py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-             <div className="bg-[#003580] text-white p-8 md:p-12">
-                 <h1 className="text-3xl md:text-4xl font-bold mb-4">{page?.title}</h1>
-                 <div className="flex items-center gap-2 text-blue-200 text-xs font-medium uppercase tracking-wider">
-                     <Clock className="w-4 h-4"/>
-                     <span>Last Updated: {page?.lastUpdated}</span>
-                 </div>
-             </div>
-             <div className="p-8 md:p-12 text-slate-700 leading-relaxed text-base">
-                 <div className="prose prose-slate max-w-none">
+    <div className="bg-white min-h-screen">
+      {/* Standard Page Hero */}
+      <div className="bg-[#003580] text-white py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight">{page?.title}</h1>
+            <div className="flex items-center justify-center gap-4 text-blue-200 text-xs font-bold uppercase tracking-[0.2em]">
+                <div className="flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-400" />
+                    <span>Verified Info</span>
+                </div>
+                <div className="w-1 h-1 bg-blue-300/30 rounded-full"></div>
+                <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4" />
+                    <span>Updated: {page?.lastUpdated || 'Recently'}</span>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+        <div className="bg-white rounded-card shadow-xl border border-slate-100 overflow-hidden mb-12">
+             <div className="p-8 md:p-12 text-slate-700 leading-relaxed text-lg">
+                 <div className="prose prose-slate prose-lg max-w-none">
                     <p>{processedContent}</p>
                  </div>
              </div>
+             <div className="bg-slate-50 border-t border-slate-100 p-6 flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-500">Was this page helpful?</span>
+                <div className="flex gap-2">
+                    <button className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-bold hover:bg-slate-50 transition-colors">Yes</button>
+                    <button className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-bold hover:bg-slate-50 transition-colors">No</button>
+                </div>
+             </div>
         </div>
       </div>
+
+      {/* Reusable Premium Sections */}
+      <TrustedSuppliers />
+      
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="p-8 bg-blue-50 rounded-card border border-blue-100 flex flex-col items-center text-center">
+                    <Shield className="w-10 h-10 text-[#007ac2] mb-4" />
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">Secure Bookings</h4>
+                    <p className="text-sm text-slate-600">Your data is always protected with industry-standard encryption.</p>
+                </div>
+                <div className="p-8 bg-emerald-50 rounded-card border border-emerald-100 flex flex-col items-center text-center">
+                    <CheckCircle className="w-10 h-10 text-emerald-600 mb-4" />
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">Free Cancellation</h4>
+                    <p className="text-sm text-slate-600">Flexible plans with free cancellation on most vehicles.</p>
+                </div>
+                <div className="p-8 bg-orange-50 rounded-card border border-orange-100 flex flex-col items-center text-center">
+                    <Award className="w-10 h-10 text-orange-600 mb-4" />
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">Best Price Guarantee</h4>
+                    <p className="text-sm text-slate-600">Find a lower price? We'll match it, no questions asked.</p>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <Reviews />
+
+      {/* Popular Destinations Fallback for Standard Pages */}
+      {homepageContent?.popularDestinations?.destinations?.length > 0 && (
+        <section className="py-16 bg-white border-t border-slate-100">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                    <h3 className="text-3xl font-extrabold text-slate-900 mb-4">Popular Destinations</h3>
+                    <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {homepageContent.popularDestinations.destinations.slice(0, 4).map((dest: any) => (
+                        <Link key={dest.id} to={`/car-rental-${dest.name.toLowerCase().replace(/\s+/g, '-')}`} className="group">
+                            <div className="relative aspect-[4/3] rounded-card overflow-hidden mb-3">
+                                <img src={dest.image || dest.imageUrl} alt={dest.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div className="absolute bottom-3 left-3 text-white">
+                                    <div className="text-sm font-bold">{dest.name}</div>
+                                    <div className="text-[10px] uppercase tracking-wider opacity-80">{dest.country}</div>
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </section>
+      )}
+
+      {/* FAQ Section Fallback for Standard Pages */}
+      {homepageContent?.faqs?.items?.length > 0 && (
+        <section className="py-16 bg-slate-50">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                    <h3 className="text-3xl font-extrabold text-slate-900 mb-4">Frequently Asked Questions</h3>
+                    <p className="text-slate-500">Everything you need to know about renting a car with Hogicar.</p>
+                </div>
+                <div className="space-y-4">
+                    {homepageContent.faqs.items.slice(0, 5).map((faq: any, idx: number) => (
+                        <div key={idx} className="bg-white p-6 rounded-card border border-slate-200">
+                            <h4 className="font-bold text-slate-900 mb-2 flex items-center justify-between">
+                                {faq.question}
+                            </h4>
+                            <p className="text-sm text-slate-600 leading-relaxed">{faq.answer}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+      )}
+
+      <section className="py-16 bg-slate-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+            <h3 className="text-3xl font-extrabold mb-6">Ready to hit the road?</h3>
+            <p className="text-slate-400 mb-8 text-lg">Compare over 900+ suppliers and find your perfect car today.</p>
+            <Link to="/" className="inline-flex items-center gap-2 bg-[#007ac2] hover:bg-blue-600 text-white px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-500/20">
+                Start Searching Now <ChevronRight className="w-5 h-5" />
+            </Link>
+        </div>
+      </section>
     </div>
   );
 

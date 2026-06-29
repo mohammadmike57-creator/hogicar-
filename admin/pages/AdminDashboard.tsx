@@ -2226,6 +2226,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [published, setPublished] = useState(config?.published !== false);
   const [layout, setLayout] = useState(config?.layout || 'HOMEPAGE');
   const [h1Title, setH1Title] = useState(config?.h1Title || '');
+  const [heroSubtitle, setHeroSubtitle] = useState(config?.heroSubtitle || '');
   const [introText, setIntroText] = useState(config?.introText || '');
   const [content, setContent] = useState(config?.content || '');
   const [heroImage, setHeroImage] = useState(config?.heroImage || '');
@@ -2236,6 +2237,10 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       search: { enabled: true, pickupPrefill: '' },
       content: { enabled: true, html: '', text: '' },
       features: { enabled: true },
+      whyChooseUs: { enabled: true },
+      supplierLogos: { enabled: true },
+      reviews: { enabled: true, selection: '' },
+      popularDestinations: { enabled: true },
       stats: { enabled: false },
       faq: { enabled: true }
     },
@@ -2260,10 +2265,17 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setPublished(config.published !== false);
       setLayout(config.layout || 'HOMEPAGE');
       setH1Title(config.h1Title || '');
+      setHeroSubtitle(config.heroSubtitle || '');
       setIntroText(config.introText || '');
       setContent(config.content || '');
       setHeroImage(config.heroImage || '');
-      setBuilderConfig(config.contentJson ? JSON.parse(config.contentJson) : defaultBuilder);
+      const savedBuilder = config.contentJson ? JSON.parse(config.contentJson) : {};
+      setBuilderConfig({
+        ...defaultBuilder,
+        ...savedBuilder,
+        sections: { ...defaultBuilder.sections, ...(savedBuilder.sections || {}) },
+        styles: { ...defaultBuilder.styles, ...(savedBuilder.styles || {}) }
+      });
       setActiveTab('seo');
     } else {
         setRoute('');
@@ -2276,6 +2288,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setPublished(true);
         setLayout('HOMEPAGE');
         setH1Title('');
+        setHeroSubtitle('');
         setIntroText('');
         setContent('');
         setHeroImage('');
@@ -2311,6 +2324,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       published,
       layout,
       h1Title,
+      heroSubtitle,
       introText,
       content,
       heroImage,
@@ -2543,6 +2557,12 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                   onChange={(e: any) => setH1Title(e.target.value)} 
                   placeholder="e.g. Best Car Rental in Amman"
                 />
+                <InputField 
+                  label="Hero Subtitle" 
+                  value={heroSubtitle} 
+                  onChange={(e: any) => setHeroSubtitle(e.target.value)} 
+                  placeholder="e.g. Compare trusted suppliers and find the best car rental deals in Amman."
+                />
                 <div className="space-y-1">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Intro Text / Description</label>
                   <textarea 
@@ -2595,7 +2615,11 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                           {sectionKey === 'faq' && <MailQuestion className="w-4 h-4" />}
                           {sectionKey === 'features' && <Award className="w-4 h-4" />}
                           {sectionKey === 'stats' && <Activity className="w-4 h-4" />}
-                          {!['search', 'hero', 'faq', 'features', 'stats'].includes(sectionKey) && <LayoutDashboard className="w-4 h-4" />}
+                          {sectionKey === 'supplierLogos' && <Building2 className="w-4 h-4" />}
+                          {sectionKey === 'reviews' && <Star className="w-4 h-4" />}
+                          {sectionKey === 'whyChooseUs' && <ShieldCheck className="w-4 h-4" />}
+                          {sectionKey === 'popularDestinations' && <MapPin className="w-4 h-4" />}
+                          {!['search', 'hero', 'faq', 'features', 'stats', 'supplierLogos', 'reviews', 'whyChooseUs', 'popularDestinations'].includes(sectionKey) && <LayoutDashboard className="w-4 h-4" />}
                         </div>
                         <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-widest">{label}</span>
                       </div>

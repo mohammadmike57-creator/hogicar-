@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Gift, Sparkles } from 'lucide-react';
+import { CheckCircle, Shield, Tag, ChevronDown, Globe, Compass, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Gift, Sparkles, Building2, Quote, User } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
+import Reviews from '../components/Reviews';
+import TrustedSuppliers from '../components/TrustedSuppliers';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
@@ -115,7 +117,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     supplierLogos: { enabled: true },
     stats: { enabled: true },
     popularDestinations: { enabled: true }, // Keep enabled by default for all SEO routes
-    content: { enabled: true }
+    content: { enabled: true },
+    reviews: { enabled: true }
   };
 
   const customStyles = builderConfig?.styles || {};
@@ -261,7 +264,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
-  const displaySubtitle = seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
+  const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
@@ -375,38 +378,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* TRUSTED PARTNERS – marquee version */}
       {sections.supplierLogos?.enabled && (
-        <section className="py-8 bg-white overflow-hidden border-b border-slate-100" style={isCustomLanding ? { backgroundColor } : {}}>
-          <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-            <div className="text-[10px] font-extrabold uppercase tracking-[0.5em] mb-4" style={{ color: isCustomLanding ? accentColor : '#007ac2' }}>Partnered with the World's Best</div>
-            <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
-          </div>
-          <div className="relative flex items-center group">
-            <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" style={isCustomLanding ? { backgroundImage: `linear-gradient(to right, ${backgroundColor}, transparent)` } : {}}></div>
-            <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={isCustomLanding ? { backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` } : {}}></div>
+        <TrustedSuppliers 
+          accentColor={isCustomLanding ? accentColor : undefined}
+          backgroundColor={isCustomLanding ? backgroundColor : undefined}
+        />
+      )}
 
-            <div className="animate-marquee flex items-center hover:[animation-play-state:paused]">
-              {[...suppliers, ...suppliers, ...suppliers, ...suppliers].map((s, idx) => (
-                <div 
-                  key={`${s.id || s.name}-${idx}`}
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{ marginRight: `${s.spacing || 40}px` }}
-                >
-                  <img 
-                    src={s.logo || s.logoUrl} 
-                    alt={s.name} 
-                    className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 logo-scaled-hover" 
-                    width="160"
-                    height="48"
-                    style={{ 
-                        '--logo-scale': (s.scale || 100) / 100,
-                        '--logo-scale-mobile': (s.mobileScale || 100) / 100,
-                    } as any}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* REVIEWS SECTION */}
+      {sections.reviews?.enabled && (
+        <Reviews accentColor={isCustomLanding ? accentColor : undefined} />
       )}
 
       {/* WHY BOOK WITH HOGICAR? & STATS */}
