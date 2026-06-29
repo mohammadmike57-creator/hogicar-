@@ -9,9 +9,10 @@ interface Review {
   comment: string;
   date: string;
   verified: boolean;
+  avatar?: string;
 }
 
-const MOCK_REVIEWS: Review[] = [
+const DEFAULT_REVIEWS: Review[] = [
   {
     id: 1,
     author: "James Wilson",
@@ -50,46 +51,59 @@ const MOCK_REVIEWS: Review[] = [
   }
 ];
 
-export const Reviews: React.FC<{ accentColor?: string }> = ({ accentColor = '#007ac2' }) => {
+export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] }> = ({ accentColor = '#007ac2', customReviews }) => {
+  const reviews = customReviews && customReviews.length > 0 ? customReviews : DEFAULT_REVIEWS;
+  
   return (
-    <section className="py-16 bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 bg-slate-50 overflow-hidden relative">
+      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
+      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
-          <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: accentColor }}>Trusted by Travelers</h2>
-          <h3 className="text-3xl font-extrabold text-slate-900 mb-4">What Our Customers Say</h3>
-          <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" style={{ backgroundColor: accentColor }}></div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: accentColor, borderColor: `${accentColor}40`, backgroundColor: `${accentColor}10` }}>
+            <Star className="w-3 h-3 fill-current" /> Customer Testimonials
+          </div>
+          <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Real Stories from Real Travelers</h3>
+          <p className="max-w-2xl mx-auto text-slate-500 text-sm md:text-base leading-relaxed">
+            Join thousands of satisfied customers who have experienced the Hogicar difference in destinations around the globe.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MOCK_REVIEWS.map((review) => (
-            <div key={review.id} className="bg-white p-6 rounded-card shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-shadow">
-              <div className="flex gap-1 mb-4">
+          {reviews.map((review) => (
+            <div key={review.id} className="group bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="flex gap-1 mb-5">
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`w-4 h-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'}`} 
+                    className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'}`} 
                   />
                 ))}
               </div>
               
-              <div className="relative mb-6">
-                <Quote className="absolute -top-2 -left-2 w-8 h-8 text-slate-50 opacity-50 z-0" />
-                <p className="text-slate-600 text-sm leading-relaxed relative z-10 italic">
+              <div className="relative mb-6 flex-grow">
+                <Quote className="absolute -top-3 -left-3 w-10 h-10 text-slate-100 opacity-40 z-0 group-hover:text-blue-100 transition-colors" />
+                <p className="text-slate-600 text-[13px] md:text-sm leading-relaxed relative z-10 italic font-medium">
                   "{review.comment}"
                 </p>
               </div>
 
-              <div className="mt-auto flex items-center gap-3 border-t border-slate-50 pt-4">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                  <User className="w-6 h-6" />
+              <div className="mt-6 flex items-center gap-3 pt-6 border-t border-slate-50">
+                <div className="w-11 h-11 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shadow-inner">
+                  {review.avatar ? (
+                    <img src={review.avatar} alt={review.author} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-6 h-6" />
+                  )}
                 </div>
                 <div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <span className="text-sm font-bold text-slate-900">{review.author}</span>
-                    {review.verified && <CheckCircle className="w-3 h-3 text-emerald-500" />}
+                    {review.verified && <CheckCircle className="w-3.5 h-3.5 text-emerald-500 fill-emerald-50" />}
                   </div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">
-                    {review.location} • {review.date}
+                  <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-0.5">
+                    {review.location}
                   </div>
                 </div>
               </div>

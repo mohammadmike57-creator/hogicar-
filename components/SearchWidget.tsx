@@ -579,8 +579,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <button 
                         type="submit" 
-                        className="w-full text-white font-extrabold h-12 rounded-card active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-1 text-[15px] tracking-tight"
-                        style={{ backgroundColor: buttonColor || accentColor || '#FF9F1C', boxShadow: `0 10px 25px -5px ${buttonColor ? buttonColor + '66' : (accentColor ? accentColor + '66' : 'rgba(255,159,28,0.4)')}` }}
+                        className="w-full text-white font-extrabold h-12 rounded-card active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-1 text-[15px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/20"
+                        style={{ backgroundColor: '#059669' }}
                     >
                         <SearchIcon className="w-4.5 h-4.5 stroke-[3px]" />
                         Search Deals
@@ -720,8 +720,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <div className="p-[5px] flex items-center justify-center bg-white h-[72px] rounded-r-[7px]">
                                         <button 
                                             type="submit" 
-                                            className="h-full px-10 text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight"
-                                            style={{ backgroundColor: buttonColor || accentColor || '#008009' }}
+                                            className="h-full px-10 text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/10"
+                                            style={{ backgroundColor: '#059669' }}
                                         >
                                             Search
                                         </button>
@@ -768,8 +768,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-[5px] flex-[6] flex items-center justify-center bg-white h-[72px]">
                                     <button 
                                         type="submit" 
-                                        className="h-full w-full text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight"
-                                        style={{ backgroundColor: buttonColor || accentColor || '#008009' }}
+                                        className="h-full w-full text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/10"
+                                        style={{ backgroundColor: '#059669' }}
                                     >
                                         Search
                                     </button>

@@ -436,19 +436,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* TRUSTED PARTNERS – marquee version */}
-      {sections.suppliers && (
-        <TrustedSuppliers 
-          accentColor={accentColor}
-          backgroundColor={backgroundColor}
-        />
-      )}
-
-      {/* REVIEWS SECTION */}
-      {sections.reviews && (
-        <Reviews accentColor={accentColor} />
-      )}
-
       {/* WHY BOOK WITH HOGICAR? & STATS */}
       {(sections.benefits || sections.featuredCars) && (
         <section className="py-8 lg:py-12" style={{ backgroundColor }}>
@@ -514,6 +501,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             )}
           </div>
         </section>
+      )}
+
+      {/* TRUSTED PARTNERS – marquee version */}
+      {sections.suppliers && (
+        <TrustedSuppliers 
+          accentColor={accentColor}
+          backgroundColor={backgroundColor}
+        />
       )}
 
       {/* GET YOUR PERFECT CAR */}
@@ -591,6 +586,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
              </div>
           </div>
         </section>
+      )}
+
+      {/* REVIEWS SECTION */}
+      {sections.reviews && (
+        <Reviews 
+          accentColor={accentColor} 
+          customReviews={builderConfig?.sections?.reviews?.items}
+        />
       )}
 
       {/* NEWSLETTER CTA */}

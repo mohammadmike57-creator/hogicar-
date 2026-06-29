@@ -2807,6 +2807,137 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                   </div>
                 ))}
               </div>
+
+              {/* ROUTE-SPECIFIC REVIEWS EDITOR */}
+              <div className="bg-slate-50 p-6 rounded-card border border-slate-200 mt-8 text-left">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Customer Reviews</p>
+                    <p className="text-[11px] text-slate-500 font-medium">Add route-specific reviews to make this page more professional.</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const currentItems = builderConfig.sections?.reviews?.items || [];
+                      const newItem = { id: Date.now(), author: '', location: '', comment: '', rating: 5, verified: true, date: 'Just now' };
+                      setBuilderConfig({
+                        ...builderConfig, 
+                        sections: {
+                          ...builderConfig.sections, 
+                          reviews: {
+                            ...builderConfig.sections?.reviews, 
+                            enabled: true,
+                            items: [...currentItems, newItem]
+                          }
+                        }
+                      });
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-blue-600 transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Review
+                  </button>
+                </div>
+                
+                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                  {(builderConfig.sections?.reviews?.items || []).map((review: any, idx: number) => (
+                    <div key={review.id || idx} className="p-4 bg-white rounded-card border border-slate-200 shadow-sm space-y-3 relative group">
+                       <button 
+                         onClick={() => {
+                            const newItems = [...builderConfig.sections.reviews.items];
+                            newItems.splice(idx, 1);
+                            setBuilderConfig({...builderConfig, sections: {...builderConfig.sections, reviews: {...builderConfig.sections.reviews, items: newItems}}});
+                         }} 
+                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                       >
+                         <Trash2 className="w-3 h-3" />
+                       </button>
+                       
+                       <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase">Author</label>
+                            <input 
+                              placeholder="e.g. John Doe" 
+                              className="w-full text-xs p-2 border border-slate-100 rounded bg-slate-50/50 focus:bg-white transition-all outline-none" 
+                              value={review.author} 
+                              onChange={(e) => {
+                                const newItems = [...builderConfig.sections.reviews.items];
+                                newItems[idx].author = e.target.value;
+                                setBuilderConfig({...builderConfig, sections: {...builderConfig.sections, reviews: {...builderConfig.sections.reviews, items: newItems}}});
+                              }} 
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase">Location</label>
+                            <input 
+                              placeholder="e.g. United Kingdom" 
+                              className="w-full text-xs p-2 border border-slate-100 rounded bg-slate-50/50 focus:bg-white transition-all outline-none" 
+                              value={review.location} 
+                              onChange={(e) => {
+                                const newItems = [...builderConfig.sections.reviews.items];
+                                newItems[idx].location = e.target.value;
+                                setBuilderConfig({...builderConfig, sections: {...builderConfig.sections, reviews: {...builderConfig.sections.reviews, items: newItems}}});
+                              }} 
+                            />
+                          </div>
+                       </div>
+                       
+                       <div className="space-y-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">Comment</label>
+                          <textarea 
+                            placeholder="Customer feedback..." 
+                            className="w-full text-xs p-3 border border-slate-100 rounded bg-slate-50/50 focus:bg-white transition-all outline-none h-20 resize-none" 
+                            value={review.comment} 
+                            onChange={(e) => {
+                              const newItems = [...builderConfig.sections.reviews.items];
+                              newItems[idx].comment = e.target.value;
+                              setBuilderConfig({...builderConfig, sections: {...builderConfig.sections, reviews: {...builderConfig.sections.reviews, items: newItems}}});
+                            }} 
+                          />
+                       </div>
+
+                       <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                               Rating: 
+                               <select 
+                                 value={review.rating} 
+                                 className="border-none bg-slate-50 rounded px-2 py-1 text-[10px] font-black" 
+                                 onChange={(e) => {
+                                    const newItems = [...builderConfig.sections.reviews.items];
+                                    newItems[idx].rating = parseInt(e.target.value);
+                                    setBuilderConfig({...builderConfig, sections: {...builderConfig.sections, reviews: {...builderConfig.sections.reviews, items: newItems}}});
+                                 }}
+                               >
+                                  {[5,4,3,2,1].map(r => <option key={r} value={r}>{r} Stars</option>)}
+                               </select>
+                            </label>
+                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 cursor-pointer">
+                               <input 
+                                 type="checkbox" 
+                                 checked={review.verified} 
+                                 className="rounded border-slate-200 text-blue-500 focus:ring-0"
+                                 onChange={(e) => {
+                                    const newItems = [...builderConfig.sections.reviews.items];
+                                    newItems[idx].verified = e.target.checked;
+                                    setBuilderConfig({...builderConfig, sections: {...builderConfig.sections, reviews: {...builderConfig.sections.reviews, items: newItems}}});
+                                 }} 
+                               />
+                               Verified
+                            </label>
+                          </div>
+                          <span className="text-[9px] text-slate-300 font-mono">ID: {review.id}</span>
+                       </div>
+                    </div>
+                  ))}
+                  
+                  {(!builderConfig.sections?.reviews?.items || builderConfig.sections.reviews.items.length === 0) && (
+                    <div className="py-12 border-2 border-dashed border-slate-100 rounded-card flex flex-col items-center justify-center text-slate-300">
+                      <Star className="w-8 h-8 mb-2 opacity-20" />
+                      <p className="text-[10px] font-bold uppercase tracking-widest">No custom reviews added</p>
+                      <p className="text-[9px] mt-1">Default global reviews will be shown</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -2884,34 +3015,12 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Widget Button Color (Catalogue)</label>
-                        <div className="flex flex-col gap-3">
-                          <div className="flex gap-2">
-                            <input type="color" value={searchWidgetButtonColor} onChange={(e) => setSearchWidgetButtonColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
-                            <input type="text" value={searchWidgetButtonColor} onChange={(e) => setSearchWidgetButtonColor(e.target.value)} placeholder="Auto" className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {[
-                              { name: 'Blue', color: '#007ac2' },
-                              { name: 'Red', color: '#E11D48' },
-                              { name: 'Green', color: '#10B981' },
-                              { name: 'Gold', color: '#F59E0B' },
-                              { name: 'Black', color: '#0F172A' },
-                              { name: 'Purple', color: '#7C3AED' },
-                              { name: 'Indigo', color: '#4F46E5' },
-                              { name: 'Pink', color: '#DB2777' }
-                            ].map(c => (
-                              <button
-                                key={c.color}
-                                type="button"
-                                onClick={() => setSearchWidgetButtonColor(c.color)}
-                                className={`w-6 h-6 rounded-full border-2 transition-all ${searchWidgetButtonColor.toLowerCase() === c.color.toLowerCase() ? 'border-slate-900 scale-110 shadow-md' : 'border-white hover:scale-105'}`}
-                                style={{ backgroundColor: c.color }}
-                                title={c.name}
-                              />
-                            ))}
-                          </div>
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Search Button Color</label>
+                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-card flex items-center gap-3">
+                          <div className="w-6 h-6 rounded-full bg-[#059669] shadow-sm"></div>
+                          <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">Locked to Professional Green</span>
                         </div>
+                        <p className="text-[9px] text-slate-400 mt-1 italic">For optimal conversion and brand consistency, the search button remains emerald green.</p>
                       </div>
                    </div>
                 </div>
