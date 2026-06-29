@@ -2272,6 +2272,11 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [searchWidgetColor, setSearchWidgetColor] = useState(config?.searchWidgetColor || '');
   const [searchWidgetButtonColor, setSearchWidgetButtonColor] = useState(config?.searchWidgetButtonColor || '');
 
+  const [heroPromotionActive, setHeroPromotionActive] = useState(config?.heroPromotionActive ?? false);
+  const [heroPromotionText, setHeroPromotionText] = useState(config?.heroPromotionText || '');
+  const [heroPromotionLink, setHeroPromotionLink] = useState(config?.heroPromotionLink || '');
+  const [heroPromotionColor, setHeroPromotionColor] = useState(config?.heroPromotionColor || '#E11D48');
+
   const [showHero, setShowHero] = useState(config?.showHero ?? true);
   const [showSearch, setShowSearch] = useState(config?.showSearch ?? true);
   const [showPromotions, setShowPromotions] = useState(config?.showPromotions ?? true);
@@ -2321,6 +2326,10 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setIntroText(config.introText || '');
       setContent(config.content || '');
       setHeroImage(config.heroImage || '');
+      setHeroPromotionActive(config.heroPromotionActive ?? false);
+      setHeroPromotionText(config.heroPromotionText || '');
+      setHeroPromotionLink(config.heroPromotionLink || '');
+      setHeroPromotionColor(config.heroPromotionColor || '#E11D48');
       const savedBuilder = config.contentJson ? JSON.parse(config.contentJson) : {};
       setBuilderConfig({
         ...defaultBuilder,
@@ -2344,6 +2353,10 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setIntroText('');
         setContent('');
         setHeroImage('');
+        setHeroPromotionActive(false);
+        setHeroPromotionText('');
+        setHeroPromotionLink('');
+        setHeroPromotionColor('#E11D48');
         setBuilderConfig(defaultBuilder);
         setActiveTab('seo');
     }
@@ -2394,6 +2407,10 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       searchWidgetStyle,
       searchWidgetColor,
       searchWidgetButtonColor,
+      heroPromotionActive,
+      heroPromotionText,
+      heroPromotionLink,
+      heroPromotionColor,
       showHero,
       showSearch,
       showPromotions,
@@ -2691,6 +2708,45 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                     onChange={(e: any) => setHeroOverlayOpacity(parseFloat(e.target.value))} 
                   />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                   <div className="md:col-span-2 bg-rose-50/50 p-4 rounded-card border border-rose-100 mb-2">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-rose-500" />
+                          <span className="text-[11px] font-extrabold text-rose-900 uppercase tracking-widest">Hero Promotion Section</span>
+                        </div>
+                        <button 
+                          onClick={() => setHeroPromotionActive(!heroPromotionActive)}
+                          className={`text-[9px] font-extrabold px-3 py-1 rounded-full border transition-all ${heroPromotionActive ? 'bg-rose-500 text-white border-rose-500' : 'bg-white text-slate-400 border-slate-200'}`}
+                        >
+                          {heroPromotionActive ? 'Active' : 'Disabled'}
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <InputField 
+                          label="Promotion Text (e.g. 15% OFF)" 
+                          value={heroPromotionText} 
+                          onChange={(e: any) => setHeroPromotionText(e.target.value)} 
+                          placeholder="BLACK FRIDAY - 20% OFF"
+                        />
+                        <InputField 
+                          label="Promotion Color (Background)" 
+                          type="color"
+                          value={heroPromotionColor} 
+                          onChange={(e: any) => setHeroPromotionColor(e.target.value)} 
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <InputField 
+                          label="Promotion Link (Optional)" 
+                          value={heroPromotionLink} 
+                          onChange={(e: any) => setHeroPromotionLink(e.target.value)} 
+                          placeholder="/promotions/black-friday"
+                        />
+                      </div>
+                   </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InputField 
                     label="Hero Text Color" 
@@ -2825,6 +2881,36 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                         <div className="flex gap-2">
                           <input type="color" value={searchWidgetColor} onChange={(e) => setSearchWidgetColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
                           <input type="text" value={searchWidgetColor} onChange={(e) => setSearchWidgetColor(e.target.value)} placeholder="Auto" className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Widget Button Color (Catalogue)</label>
+                        <div className="flex flex-col gap-3">
+                          <div className="flex gap-2">
+                            <input type="color" value={searchWidgetButtonColor} onChange={(e) => setSearchWidgetButtonColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-2 border-white shadow-sm" />
+                            <input type="text" value={searchWidgetButtonColor} onChange={(e) => setSearchWidgetButtonColor(e.target.value)} placeholder="Auto" className="flex-1 px-3 py-2 border border-slate-200 rounded-card text-xs font-mono font-bold uppercase" />
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              { name: 'Blue', color: '#007ac2' },
+                              { name: 'Red', color: '#E11D48' },
+                              { name: 'Green', color: '#10B981' },
+                              { name: 'Gold', color: '#F59E0B' },
+                              { name: 'Black', color: '#0F172A' },
+                              { name: 'Purple', color: '#7C3AED' },
+                              { name: 'Indigo', color: '#4F46E5' },
+                              { name: 'Pink', color: '#DB2777' }
+                            ].map(c => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => setSearchWidgetButtonColor(c.color)}
+                                className={`w-6 h-6 rounded-full border-2 transition-all ${searchWidgetButtonColor.toLowerCase() === c.color.toLowerCase() ? 'border-slate-900 scale-110 shadow-md' : 'border-white hover:scale-105'}`}
+                                style={{ backgroundColor: c.color }}
+                                title={c.name}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
                    </div>

@@ -353,6 +353,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
           
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
+            {/* Hero Promotion Banner */}
+            {seoConfig?.heroPromotionActive && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md shadow-2xl border border-white/20 animate-bounce mb-6 mx-auto cursor-default transition-transform hover:scale-105" style={{ backgroundColor: seoConfig.heroPromotionColor || '#E11D48' }}>
+                <Zap className="w-3.5 h-3.5 text-white fill-current" />
+                <span className="text-[11px] sm:text-[13px] font-black uppercase tracking-widest text-white leading-none">
+                  {seoConfig.heroPromotionText}
+                </span>
+                {seoConfig.heroPromotionLink && (
+                  <Link to={seoConfig.heroPromotionLink} className="ml-2 pl-2 border-l border-white/30 text-[10px] sm:text-[11px] font-bold text-white/90 hover:text-white hover:underline">
+                    CLAIM OFFER
+                  </Link>
+                )}
+              </div>
+            )}
+
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto">
               {displayH1}
             </h1>
@@ -386,6 +401,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   accentColor={accentColor}
                   style={seoConfig?.searchWidgetStyle}
                   customColor={seoConfig?.searchWidgetColor}
+                  buttonColor={seoConfig?.searchWidgetButtonColor}
                 />
               </div>
             )}

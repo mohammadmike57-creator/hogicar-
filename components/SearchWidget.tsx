@@ -24,9 +24,10 @@ interface SearchWidgetProps {
     accentColor?: string;
     style?: string;
     customColor?: string;
+    buttonColor?: string;
 }
 
-const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, showTitle = false, accentColor, style: widgetStyle = 'DEFAULT', customColor }) => {
+const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, showTitle = false, accentColor, style: widgetStyle = 'DEFAULT', customColor, buttonColor }) => {
     const today = new Date();
     const nextThreeDays = new Date(today);
     nextThreeDays.setDate(today.getDate() + 3);
@@ -579,7 +580,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <button 
                         type="submit" 
                         className="w-full text-white font-extrabold h-12 rounded-card active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-1 text-[15px] tracking-tight"
-                        style={{ backgroundColor: accentColor || '#FF9F1C', boxShadow: `0 10px 25px -5px ${accentColor ? accentColor + '66' : 'rgba(255,159,28,0.4)'}` }}
+                        style={{ backgroundColor: buttonColor || accentColor || '#FF9F1C', boxShadow: `0 10px 25px -5px ${buttonColor ? buttonColor + '66' : (accentColor ? accentColor + '66' : 'rgba(255,159,28,0.4)')}` }}
                     >
                         <SearchIcon className="w-4.5 h-4.5 stroke-[3px]" />
                         Search Deals
@@ -720,7 +721,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         <button 
                                             type="submit" 
                                             className="h-full px-10 text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight"
-                                            style={{ backgroundColor: accentColor || '#008009' }}
+                                            style={{ backgroundColor: buttonColor || accentColor || '#008009' }}
                                         >
                                             Search
                                         </button>
@@ -768,7 +769,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <button 
                                         type="submit" 
                                         className="h-full w-full text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight"
-                                        style={{ backgroundColor: accentColor || '#008009' }}
+                                        style={{ backgroundColor: buttonColor || accentColor || '#008009' }}
                                     >
                                         Search
                                     </button>
