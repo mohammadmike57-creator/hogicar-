@@ -27,13 +27,33 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
 
   // Use props if they exist, otherwise fallback to config fetched from API
-  // Only fetch if required props are missing
-  const title = defaultTitle || config?.title || (typeof document !== 'undefined' ? document.title : "Hogicar | Affordable Car Rentals Worldwide");
-  const description = defaultDescription || config?.description || "Compare car rental deals from 900+ suppliers at 60,000+ locations. Find the perfect car for your next trip with Hogicar.";
-  const keywords = defaultKeywords || config?.keywords || 'car rental, car hire, cheap car rental, rent a car, hogicar';
+  const title = defaultTitle || config?.title || "";
+  const description = defaultDescription || config?.description || "";
+  const keywords = defaultKeywords || config?.keywords || "";
   const ogImage = defaultOgImage || config?.ogImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop';
   const canonical = defaultCanonical || config?.canonicalUrl || (typeof window !== 'undefined' ? (window.location.origin + location.pathname) : '');
   const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
+
+  // AUTHOREITATIVE TITLE SETTER
+  useLayoutEffect(() => {
+    if (title) {
+      document.title = title;
+      console.log('[SEO DEBUG] AUTHORITATIVE SET - document.title =', title);
+    }
+  }, [title, location.pathname]);
+
+  useEffect(() => {
+    // DEBUG LOGS
+    console.log('[SEO DEBUG] Current URL:', window.location.href);
+    console.log('[SEO DEBUG] Loaded SEO title:', title);
+    console.log('[SEO DEBUG] Props - Title:', defaultTitle);
+    console.log('[SEO DEBUG] API Config - Title:', config?.title);
+
+    if (title) {
+      document.title = title;
+      console.log('[SEO DEBUG] Final document.title check:', document.title);
+    }
+  }, [title, location.pathname]);
 
   useEffect(() => {
     // RESET state when pathname changes to avoid showing stale data from previous route
@@ -88,6 +108,9 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     // 1. Set Page Title IMMEDIATELY
     if (title) {
       document.title = title;
+      if (typeof window !== 'undefined') {
+        window.document.title = title;
+      }
     }
 
     // Helper to update or create meta tags
@@ -103,21 +126,21 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     };
 
     // 2. Standard Meta Tags
-    setMetaTag('description', description);
-    setMetaTag('keywords', keywords);
+    if (description) setMetaTag('description', description);
+    if (keywords) setMetaTag('keywords', keywords);
 
     // 3. Open Graph Tags
-    setMetaTag('og:title', title, 'property');
-    setMetaTag('og:description', description, 'property');
-    setMetaTag('og:image', ogImage, 'property');
+    if (title) setMetaTag('og:title', title, 'property');
+    if (description) setMetaTag('og:description', description, 'property');
     setMetaTag('og:url', window.location.href, 'property');
     setMetaTag('og:type', 'website', 'property');
+    if (ogImage) setMetaTag('og:image', ogImage, 'property');
 
     // 4. Twitter Card Tags
     setMetaTag('twitter:card', 'summary_large_image');
-    setMetaTag('twitter:title', title);
-    setMetaTag('twitter:description', description);
-    setMetaTag('twitter:image', ogImage);
+    if (title) setMetaTag('twitter:title', title);
+    if (description) setMetaTag('twitter:description', description);
+    if (ogImage) setMetaTag('twitter:image', ogImage);
 
     // 5. Canonical URL
     let canonicalTag = document.querySelector('link[rel="canonical"]');

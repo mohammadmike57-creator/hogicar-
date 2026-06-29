@@ -76,16 +76,24 @@ const DynamicPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
-         <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
-         <p className="mt-4 text-slate-500 font-medium text-sm">Loading page...</p>
-      </div>
+      <>
+        <SEOMetadata title="" description="" />
+        <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
+           <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
+           <p className="mt-4 text-slate-500 font-medium text-sm">Loading page...</p>
+        </div>
+      </>
     );
   }
 
   // If it's a landing page, render the Home component with SEO config
   if (isLandingPage && seoConfig) {
-    return <Home seoConfig={seoConfig} />;
+    return (
+      <>
+        <SEOMetadata title={seoConfig.title} description={seoConfig.description} />
+        <Home seoConfig={seoConfig} />
+      </>
+    );
   }
 
   if (error || !page) {
@@ -106,19 +114,15 @@ const DynamicPage: React.FC = () => {
       </React.Fragment>
   ));
 
-  return (
+  const content = (
     <div className="bg-slate-50 min-h-screen py-12">
-      <SEOMetadata 
-        title={`${page.title} | Hogicar`} 
-        description={page.content.substring(0, 160)} 
-      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
              <div className="bg-[#003580] text-white p-8 md:p-12">
-                 <h1 className="text-3xl md:text-4xl font-bold mb-4">{page.title}</h1>
+                 <h1 className="text-3xl md:text-4xl font-bold mb-4">{page?.title}</h1>
                  <div className="flex items-center gap-2 text-blue-200 text-xs font-medium uppercase tracking-wider">
                      <Clock className="w-4 h-4"/>
-                     <span>Last Updated: {page.lastUpdated}</span>
+                     <span>Last Updated: {page?.lastUpdated}</span>
                  </div>
              </div>
              <div className="p-8 md:p-12 text-slate-700 leading-relaxed text-base">
@@ -129,6 +133,16 @@ const DynamicPage: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      <SEOMetadata 
+        title={seoConfig?.title || (page ? `${page.title} | Hogicar` : undefined)} 
+        description={seoConfig?.description || (page ? page.content.substring(0, 160) : undefined)} 
+      />
+      {content}
+    </>
   );
 };
 
