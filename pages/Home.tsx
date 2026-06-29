@@ -114,7 +114,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     promotions: seoConfig?.showPromotions ?? true,
     suppliers: seoConfig?.showSuppliers ?? true,
     benefits: seoConfig?.showBenefits ?? true,
-    reviews: seoConfig?.showReviews ?? true,
+    reviews: seoConfig ? seoConfig.showReviews : !!homepageContent?.showReviews,
     faq: seoConfig?.showFaq ?? true,
     content: seoConfig?.showSeoContent ?? true,
     popularDestinations: seoConfig?.showRelatedDestinations ?? true,
@@ -436,6 +436,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
+      {/* TRUSTED PARTNERS – marquee version */}
+      {sections.suppliers && (
+        <TrustedSuppliers 
+          accentColor={accentColor}
+          backgroundColor={backgroundColor}
+        />
+      )}
+
       {/* WHY BOOK WITH HOGICAR? & STATS */}
       {(sections.benefits || sections.featuredCars) && (
         <section className="py-8 lg:py-12" style={{ backgroundColor }}>
@@ -480,11 +488,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
             {/* Stats – simplified card */}
             {sections.featuredCars && (
-              <div className="bg-slate-900 text-white p-8 rounded-card text-center" style={{ backgroundColor: textColor, color: backgroundColor }}>
-                <Globe className="w-10 h-10 mx-auto mb-2" style={{ color: accentColor }} />
+              <div className={`p-8 rounded-card text-center ${isCustomLanding ? 'bg-slate-900 text-white shadow-2xl' : 'bg-slate-50 text-slate-900 border border-slate-100'}`} style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : {}}>
+                <Globe className="w-10 h-10 mx-auto mb-2" style={isCustomLanding ? { color: accentColor } : { color: '#007ac2' }} />
                 <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
-                <p className="text-slate-300 mb-4" style={isCustomLanding ? { color: `${backgroundColor}CC` } : {}}>We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
-                <Link to="/become-supplier" className="px-6 py-2 rounded-full text-sm inline-flex items-center gap-2" style={{ backgroundColor: accentColor, color: '#fff' }}>
+                <p className={`mb-4 ${isCustomLanding ? 'text-slate-300' : 'text-slate-600'}`} style={isCustomLanding ? { color: `${backgroundColor}CC` } : {}}>We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
+                <Link to="/become-supplier" className="px-6 py-2 rounded-full text-sm inline-flex items-center gap-2" style={isCustomLanding ? { backgroundColor: accentColor, color: '#fff' } : { backgroundColor: '#007ac2', color: '#fff' }}>
                   Become a Partner <ArrowRight className="w-4 h-4" />
                 </Link>
                 <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
@@ -501,14 +509,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             )}
           </div>
         </section>
-      )}
-
-      {/* TRUSTED PARTNERS – marquee version */}
-      {sections.suppliers && (
-        <TrustedSuppliers 
-          accentColor={accentColor}
-          backgroundColor={backgroundColor}
-        />
       )}
 
       {/* GET YOUR PERFECT CAR */}
@@ -600,22 +600,32 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {sections.cta && (
         <section className="py-12" style={{ backgroundColor }}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 p-8 md:p-14 text-center" style={{ backgroundColor: textColor, color: backgroundColor }}>
+            <div 
+              className={`relative overflow-hidden p-8 md:p-14 text-center ${isCustomLanding ? 'bg-slate-900 rounded-[2.5rem] shadow-2xl border border-white/5' : 'bg-[#003580] rounded-card shadow-xl'}`} 
+              style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : { color: '#fff' }}
+            >
               {/* Ambient Glows */}
-              <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
-              <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
+              {isCustomLanding && (
+                <>
+                  <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
+                  <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
+                </>
+              )}
               
               <div className="relative z-10 max-w-2xl mx-auto">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-extrabold uppercase tracking-widest mb-6" style={{ backgroundColor: `${accentColor}20`, borderColor: `${accentColor}40`, color: accentColor }}>
+                <div 
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-extrabold uppercase tracking-widest mb-6 ${isCustomLanding ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : 'bg-white/10 border-white/20 text-white'}`}
+                  style={isCustomLanding ? { backgroundColor: `${accentColor}20`, borderColor: `${accentColor}40`, color: accentColor } : {}}
+                >
                   <Sparkles className="w-3.5 h-3.5" />
                   Exclusive Member Access
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-6">
-                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400" style={{ backgroundImage: `linear-gradient(to right, ${accentColor}, #10b981)` }}>car rental deals</span>
+                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400" style={isCustomLanding ? { backgroundImage: `linear-gradient(to right, ${accentColor}, #10b981)` } : { backgroundImage: 'linear-gradient(to right, #60a5fa, #34d399)' }}>car rental deals</span>
                 </h2>
                 
-                <p className="text-base text-slate-400 mb-10 leading-relaxed" style={{ color: `${backgroundColor}AA` }}>
+                <p className="text-base text-slate-400 mb-10 leading-relaxed" style={isCustomLanding ? { color: `${backgroundColor}AA` } : { color: '#bfdbfe' }}>
                   Join 10,000+ travelers receiving insider offers, premium travel inspiration, and first-look access to our most competitive rates.
                 </p>
                 

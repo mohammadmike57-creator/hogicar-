@@ -1496,6 +1496,18 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           <InputField label="Text Color" type="color" value={localContent?.hero?.textColor || '#FFFFFF'} onChange={e => handleChange('hero.textColor', e.target.value)} />
         </div>
         <InputField label="FAQs Section Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
+        <div className="flex items-center gap-2 pt-2">
+          <input 
+            type="checkbox" 
+            id="hp-show-reviews"
+            checked={!!localContent?.showReviews} 
+            onChange={e => {
+                setLocalContent((prev: any) => ({ ...prev, showReviews: e.target.checked }));
+            }}
+            className="w-4 h-4 rounded border-slate-300 text-[#007ac2] focus:ring-[#007ac2]"
+          />
+          <label htmlFor="hp-show-reviews" className="text-sm font-bold text-slate-700">Show Customer Reviews on Homepage</label>
+        </div>
       </div>
 
       <div className="mt-8 pt-6 border-t border-slate-100">

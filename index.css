@@ -13,6 +13,9 @@
   --color-accent-800: #075985;
   --color-accent-900: #0c4a6e;
   --color-accent-950: #082f49;
+
+  --radius-card: 1rem;
+  --radius-button: 0.5rem;
 }
 
 html, body {
