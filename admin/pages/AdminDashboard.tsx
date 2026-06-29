@@ -9,7 +9,7 @@ import {
   Power, Tag, ImageIcon, PlusCircle, LoaderCircle, FileText, Globe, 
   Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
   Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins, MapPin, Lock,
-  Eye, EyeOff, LayoutGrid, Palette,
+  Eye, EyeOff, LayoutGrid, Palette, Building2,
   Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
