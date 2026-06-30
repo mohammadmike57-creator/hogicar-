@@ -291,10 +291,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const buttonColor = customStyles.buttonColor;
 
   return (
-    <div 
-      className="bg-white font-sans" 
-      style={{ backgroundColor, color: textColor }}
-    >
+    <div className="bg-white font-sans">
       <SEOMetadata
         title={seoConfig?.title}
         description={seoConfig?.description}
@@ -438,21 +435,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* TRUSTED PARTNERS – marquee version */}
       {sections.suppliers && (
-        <TrustedSuppliers 
-          accentColor={accentColor}
-          backgroundColor={backgroundColor}
-        />
+        <TrustedSuppliers />
       )}
 
       {/* WHY BOOK WITH HOGICAR? & STATS */}
       {(sections.benefits || sections.featuredCars) && (
-        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
+        <section className="py-8 lg:py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             {sections.benefits && (
               <>
                 <div className="max-w-3xl mx-auto text-center mb-10">
-                  <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: accentColor }}>The Hogicar Advantage</h2>
-                  <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight" style={{ color: textColor }}>Unbeatable value, unparalleled convenience.</h3>
+                  <h2 className="text-xs font-bold tracking-widest uppercase mb-2 text-[#007ac2]">The Hogicar Advantage</h2>
+                  <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight text-slate-900">Unbeatable value, unparalleled convenience.</h3>
                   <p className="mt-3 text-base text-slate-600 leading-relaxed">
                     We streamline the car rental process from start to finish, ensuring you get the best vehicle for your needs without the hassle.
                   </p>
@@ -472,8 +466,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                     return (
                       <div key={feature.id} className="text-center p-6 bg-white rounded-card shadow-sm border border-slate-100/80">
                         <div 
-                          className={`inline-flex items-center justify-center w-12 h-12 rounded-card mb-4 ${isCustomLanding ? '' : colorClass}`}
-                          style={isCustomLanding ? { backgroundColor: `${accentColor}15`, color: accentColor } : {}}
+                          className={`inline-flex items-center justify-center w-12 h-12 rounded-card mb-4 ${colorClass}`}
                         >
                           <Icon className="w-6 h-6" />
                         </div>
@@ -488,11 +481,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
             {/* Stats – simplified card */}
             {sections.featuredCars && (
-              <div className={`p-8 rounded-card text-center ${isCustomLanding ? 'bg-slate-900 text-white shadow-2xl' : 'bg-slate-50 text-slate-900 border border-slate-100'}`} style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : {}}>
-                <Globe className="w-10 h-10 mx-auto mb-2" style={isCustomLanding ? { color: accentColor } : { color: '#007ac2' }} />
+              <div className="p-8 rounded-card text-center bg-slate-50 text-slate-900 border border-slate-100">
+                <Globe className="w-10 h-10 mx-auto mb-2 text-[#007ac2]" />
                 <h3 className="text-2xl md:text-3xl font-bold mb-2">Join our global network</h3>
-                <p className={`mb-4 ${isCustomLanding ? 'text-slate-300' : 'text-slate-600'}`} style={isCustomLanding ? { color: `${backgroundColor}CC` } : {}}>We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
-                <Link to="/become-supplier" className="px-6 py-2 rounded-full text-sm inline-flex items-center gap-2" style={isCustomLanding ? { backgroundColor: accentColor, color: '#fff' } : { backgroundColor: '#007ac2', color: '#fff' }}>
+                <p className="mb-4 text-slate-600">We've built a vast network of trusted partners to provide you with an exceptional car rental experience, anywhere in the world.</p>
+                <Link to="/become-supplier" className="px-6 py-2 rounded-full text-sm inline-flex items-center gap-2 bg-[#007ac2] text-white">
                   Become a Partner <ArrowRight className="w-4 h-4" />
                 </Link>
                 <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm">
@@ -513,11 +506,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* GET YOUR PERFECT CAR */}
       {sections.promotions && (
-        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
+        <section className="py-8 lg:py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: accentColor }}>Simple Process</h2>
-              <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight" style={{ color: textColor }}>{content.howItWorks.title}</h3>
+              <h2 className="text-xs font-bold tracking-widest uppercase mb-2 text-[#007ac2]">Simple Process</h2>
+              <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">{content.howItWorks.title}</h3>
               <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
             </div>
 
@@ -533,8 +526,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 return (
                   <div 
                     key={step.id} 
-                    className={`relative flex items-center gap-6 sm:gap-8 p-6 rounded-card text-white shadow-lg ${isCustomLanding ? '' : `bg-gradient-to-r ${colorClass}`}`}
-                    style={isCustomLanding ? { backgroundColor: accentColor } : {}}
+                    className={`relative flex items-center gap-6 sm:gap-8 p-6 rounded-card text-white shadow-lg bg-gradient-to-r ${colorClass}`}
                   >
                     <div className="flex-shrink-0 relative">
                       <span className="font-sans text-7xl font-extrabold text-white/20 -z-10">{`0${index + 1}`}</span>
@@ -556,17 +548,17 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* POPULAR DESTINATIONS */}
       {sections.popularDestinations && (
-        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
+        <section className="py-8 lg:py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
              <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
                  <div className="max-w-2xl">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-3" style={{ backgroundColor: `${accentColor}10`, color: accentColor }}>
+                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-3">
                          <MapPin className="w-3 h-3" /> Top Destinations
                      </div>
-                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight" style={{ color: textColor }}>{content.popularDestinations.title}</h3>
+                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-slate-900">{content.popularDestinations.title}</h3>
                      <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
                  </div>
-                 <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm" style={{ backgroundColor: textColor, color: backgroundColor }}>
+                 <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
                      Explore All Locations
                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                  </Link>
@@ -577,8 +569,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                      <Link 
                          to={`/search?location=${encodeURIComponent(dest.name)}`} 
                          key={dest.name} 
-                         className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3] border-2 border-transparent"
-                         style={{ borderColor: `${accentColor}20` }}
+                         className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3] border-2 border-transparent hover:border-blue-100"
                      >
                          <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
                      </Link>
@@ -591,60 +582,43 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* REVIEWS SECTION */}
       {sections.reviews && (
         <Reviews 
-          accentColor={accentColor} 
           customReviews={builderConfig?.sections?.reviews?.items}
         />
       )}
 
       {/* NEWSLETTER CTA */}
       {sections.cta && (
-        <section className="py-12" style={{ backgroundColor }}>
+        <section className="py-12">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div 
-              className={`relative overflow-hidden p-8 md:p-14 text-center ${isCustomLanding ? 'bg-slate-900 rounded-[2.5rem] shadow-2xl border border-white/5' : 'bg-[#003580] rounded-card shadow-xl'}`} 
-              style={isCustomLanding ? { backgroundColor: textColor, color: backgroundColor } : { color: '#fff' }}
-            >
-              {/* Ambient Glows */}
-              {isCustomLanding && (
-                <>
-                  <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
-                  <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accentColor }}></div>
-                </>
-              )}
-              
+            <div className="relative overflow-hidden p-8 md:p-14 text-center bg-[#003580] rounded-card shadow-xl text-white">
               <div className="relative z-10 max-w-2xl mx-auto">
-                <div 
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-extrabold uppercase tracking-widest mb-6 ${isCustomLanding ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : 'bg-white/10 border-white/20 text-white'}`}
-                  style={isCustomLanding ? { backgroundColor: `${accentColor}20`, borderColor: `${accentColor}40`, color: accentColor } : {}}
-                >
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-white/10 text-white text-[10px] font-extrabold uppercase tracking-widest mb-6">
                   <Sparkles className="w-3.5 h-3.5" />
                   Exclusive Member Access
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-6">
-                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400" style={isCustomLanding ? { backgroundImage: `linear-gradient(to right, ${accentColor}, #10b981)` } : { backgroundImage: 'linear-gradient(to right, #60a5fa, #34d399)' }}>car rental deals</span>
+                  Get exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">car rental deals</span>
                 </h2>
                 
-                <p className="text-base text-slate-400 mb-10 leading-relaxed" style={isCustomLanding ? { color: `${backgroundColor}AA` } : { color: '#bfdbfe' }}>
+                <p className="text-base text-blue-100/90 mb-10 leading-relaxed">
                   Join 10,000+ travelers receiving insider offers, premium travel inspiration, and first-look access to our most competitive rates.
                 </p>
                 
                 <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                   <div className="relative flex-grow">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-slate-500" />
+                      <Mail className="h-5 w-5 text-white/50" />
                     </div>
                     <input 
                       type="email" 
                       placeholder="Enter your email address" 
-                      className="w-full pl-12 pr-4 py-4 rounded-card text-white text-sm font-medium focus:outline-none transition-all bg-white/5 border border-white/10 placeholder-slate-500"
-                      style={{ borderColor: `${backgroundColor}30` }}
+                      className="w-full pl-12 pr-4 py-4 rounded-card text-white text-sm font-medium focus:outline-none transition-all bg-white/10 border border-white/20 placeholder-white/40 focus:border-white/40"
                     />
                   </div>
                   <button 
                     type="submit" 
-                    className="bg-accent hover:bg-accent-700 text-white font-bold py-4 px-8 rounded-card transition-all duration-300 shadow-lg active:scale-[0.98] whitespace-nowrap text-sm"
-                    style={{ backgroundColor: accentColor }}
+                    className="bg-white text-[#003580] hover:bg-blue-50 font-bold py-4 px-8 rounded-card transition-all duration-300 shadow-lg active:scale-[0.98] whitespace-nowrap text-sm"
                   >
                     Join the Club
                   </button>
@@ -658,7 +632,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* DYNAMIC SEO CONTENT */}
       {/* MAIN CONTENT SECTION - for SEO and Dynamic Pages */}
       {sections.content && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
-        <section id="main-seo-content" className="py-12 bg-white" style={{ backgroundColor }}>
+        <section id="main-seo-content" className="py-12 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="prose prose-slate max-w-none prose-img:rounded-card prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed">
               {seoConfig?.content ? (
@@ -675,11 +649,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* FAQS */}
       {sections.faq && (
-        <section className="py-8 lg:py-12" style={{ backgroundColor }}>
+        <section className="py-8 lg:py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mx-auto text-center mb-6">
-              <h2 className="text-[10px] font-bold tracking-widest uppercase mb-1.5" style={{ color: accentColor }}>Support</h2>
-              <h3 className="text-xl md:text-2xl font-extrabold tracking-tight" style={{ color: textColor }}>{content.faqs.title}</h3>
+              <h2 className="text-[10px] font-bold tracking-widest uppercase mb-1.5 text-[#007ac2]">Support</h2>
+              <h3 className="text-xl md:text-2xl font-extrabold tracking-tight text-slate-900">{content.faqs.title}</h3>
               <p className="mt-3 text-xs text-slate-600 leading-relaxed">
                 Have questions? We've got answers. Explore our most frequently asked questions to find the information you need.
               </p>
@@ -693,10 +667,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                       onClick={() => toggleFaq(index)} 
                       className="w-full flex justify-between items-center text-left p-3 sm:p-4 focus:outline-none group"
                     >
-                      <span className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#007ac2] transition-colors" style={isCustomLanding ? { '--hover-color': accentColor } as any : {}}>{faq.question}</span>
+                      <span className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#007ac2] transition-colors">{faq.question}</span>
                       <span 
-                        className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? '' : 'bg-slate-100 text-slate-500'}`}
-                        style={openFaqIndex === index ? { backgroundColor: accentColor, color: '#fff' } : {}}
+                        className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors ${openFaqIndex === index ? 'bg-[#007ac2] text-white' : 'bg-slate-100 text-slate-500'}`}
                       >
                         <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : ''}`} />
                       </span>
@@ -712,7 +685,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 ))}
               </div>
               <div className="mt-8 text-center">
-                <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-extrabold rounded-full text-white bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 transform border-none" style={isCustomLanding ? { backgroundColor: accentColor, backgroundImage: 'none' } : {}}>
+                <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-extrabold rounded-full text-white bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 transform border-none">
                   Still have questions? Contact Support
                 </Link>
               </div>
