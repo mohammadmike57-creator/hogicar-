@@ -294,8 +294,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
+  const heroImageSource = seoConfig?.heroImage ? 'route' : heroImageUrl ? 'settings' : content.hero.backgroundImage ? 'content' : 'fallback';
   const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
   const heroMobileImage = seoConfig?.heroMobileImage || heroBackgroundImage;
+  const shouldFitHeroImage = heroImageSource === 'route';
   const heroVideo = seoConfig?.heroVideo || content.hero.video;
   const heroOverlayOpacity = seoConfig?.heroOverlayOpacity ?? 0.4;
   const heroTextColor = seoConfig?.heroTextColor || content.hero.textColor || '#FFFFFF';
@@ -341,7 +343,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* HERO – professional centered layout with background image */}
       {sections.hero && (
-        <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden" style={{ color: heroTextColor }}>
+        <section className={`relative overflow-hidden pt-12 pb-8 text-white sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 ${shouldFitHeroImage ? 'min-h-[680px] sm:min-h-[720px] lg:min-h-[760px]' : ''}`} style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0">
             {heroVideo ? (
               <video 
@@ -355,21 +357,35 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 <source src={heroVideo} type="video/mp4" />
               </video>
             ) : heroBackgroundImage && (
-              <picture>
-                <source media="(max-width: 640px)" srcSet={heroMobileImage} />
-                <img 
-                  key={heroBackgroundImage}
-                  src={heroBackgroundImage} 
-                  className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  alt={displayH1}
-                  onLoad={() => setHeroLoaded(true)}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
-                    setHeroLoaded(true);
-                  }}
-                />
-              </picture>
+              <>
+                {shouldFitHeroImage && (
+                  <picture className="block h-full w-full">
+                    <source media="(max-width: 640px)" srcSet={heroMobileImage} />
+                    <img
+                      aria-hidden="true"
+                      key={`${heroBackgroundImage}-blur`}
+                      src={heroBackgroundImage}
+                      className={`absolute inset-0 h-full w-full scale-110 object-cover blur-2xl transition-opacity duration-700 ${heroLoaded ? 'opacity-70' : 'opacity-0'}`}
+                      alt=""
+                    />
+                  </picture>
+                )}
+                <picture className="block h-full w-full">
+                  <source media="(max-width: 640px)" srcSet={heroMobileImage} />
+                  <img 
+                    key={heroBackgroundImage}
+                    src={heroBackgroundImage} 
+                    className={`h-full w-full transition-opacity duration-700 ${shouldFitHeroImage ? 'object-contain p-3 sm:p-6 lg:p-8' : 'object-cover'} ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    alt={displayH1}
+                    onLoad={() => setHeroLoaded(true)}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
+                      setHeroLoaded(true);
+                    }}
+                  />
+                </picture>
+              </>
             )}
             {!heroLoaded && !heroVideo && (
               <div className="absolute inset-0 bg-[#003580]/80 animate-pulse"></div>
