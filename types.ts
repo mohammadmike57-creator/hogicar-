@@ -395,7 +395,7 @@ export interface Affiliate {
 
 export interface SEOConfig {
   id?: number;
-  route: string; // e.g., "/", "/about", "/search"
+  route: string;
   title: string;
   description: string;
   keywords?: string;
@@ -406,9 +406,40 @@ export interface SEOConfig {
   lastUpdated?: string;
   layout?: 'HOMEPAGE' | 'LANDING_PAGE';
   h1Title?: string;
+  heroSubtitle?: string;
   introText?: string;
+  content?: string;
   contentJson?: string;
+  relatedBlogsJson?: string;
   heroImage?: string;
+  heroMobileImage?: string;
+  heroVideo?: string;
+  heroOverlayOpacity?: number;
+  heroTextColor?: string;
+  heroButtonText?: string;
+  heroButtonLink?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  buttonColor?: string;
+  backgroundColor?: string;
+  accentColor?: string;
+  searchWidgetStyle?: string;
+  searchWidgetColor?: string;
+  searchWidgetButtonColor?: string;
+  heroPromotionActive?: boolean;
+  heroPromotionText?: string;
+  heroPromotionLink?: string;
+  heroPromotionColor?: string;
+  showHero?: boolean;
+  showSearch?: boolean;
+  showPromotions?: boolean;
+  showSuppliers?: boolean;
+  showBenefits?: boolean;
+  showReviews?: boolean;
+  showFaq?: boolean;
+  showSeoContent?: boolean;
+  showRelatedDestinations?: boolean;
+  showFeaturedCars?: boolean;
 }
 
 // --- Homepage Content Management ---
