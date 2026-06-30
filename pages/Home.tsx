@@ -390,43 +390,30 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
             {/* Hero Promotion Banner */}
             {heroPromotion.active && (
-              <div className="mx-auto mb-6 max-w-3xl rounded-lg border border-white/25 bg-white/95 p-2 text-left shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-w-0 items-center gap-3 px-2 py-1">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white shadow-sm" style={{ backgroundColor: heroPromotion.color }}>
-                      <Tag className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
-                          Limited route offer
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
-                          <Shield className="h-3 w-3" /> Verified deal
-                        </span>
-                      </div>
-                      <p className="truncate text-sm font-extrabold tracking-tight text-slate-950 sm:text-base">
-                        {heroPromotion.text}
-                      </p>
-                    </div>
-                  </div>
+              <div className="mb-5 flex justify-center">
+                <div className="inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-white/25 bg-white/15 px-2.5 py-2 text-white shadow-lg shadow-slate-950/10 backdrop-blur-md">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-sm" style={{ backgroundColor: heroPromotion.color }}>
+                    <Tag className="h-3.5 w-3.5" />
+                    Promotion
+                  </span>
+                  <span className="px-1 text-xs font-extrabold leading-tight text-white sm:text-sm">
+                    {heroPromotion.text}
+                  </span>
                   {heroPromotion.link && (
                     heroPromotion.link === '#search' ? (
                       <button
                         type="button"
                         onClick={scrollToSearchWidget}
-                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm transition-transform hover:-translate-y-0.5"
-                        style={{ backgroundColor: heroPromotion.color }}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-950 transition-colors hover:bg-blue-50"
                       >
-                        Claim offer <ArrowRight className="h-3.5 w-3.5" />
+                        View deal <ArrowRight className="h-3 w-3" />
                       </button>
                     ) : (
                       <Link
                         to={heroPromotion.link}
-                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm transition-transform hover:-translate-y-0.5"
-                        style={{ backgroundColor: heroPromotion.color }}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-950 transition-colors hover:bg-blue-50"
                       >
-                        Claim offer <ArrowRight className="h-3.5 w-3.5" />
+                        View deal <ArrowRight className="h-3 w-3" />
                       </Link>
                     )
                   )}
