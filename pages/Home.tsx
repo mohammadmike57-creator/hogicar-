@@ -63,7 +63,27 @@ const normalizeHomepageContent = (content: any) => {
     },
     howItWorks: {
       title: 'Get Your Perfect Car in 3 Easy Steps',
-      steps: [],
+      subtitle: 'A streamlined rental flow from search to confirmation, built for clear prices, trusted suppliers, and fast booking.',
+      steps: [
+        {
+          id: 'search',
+          icon: 'Search',
+          title: 'Search your trip',
+          description: 'Choose your pickup location, dates, and times to see cars that match your exact journey.'
+        },
+        {
+          id: 'compare',
+          icon: 'Shield',
+          title: 'Compare with confidence',
+          description: 'Review supplier ratings, vehicle details, deposits, and policies before you decide.'
+        },
+        {
+          id: 'book',
+          icon: 'BookCheck',
+          title: 'Book securely',
+          description: 'Reserve online and receive your booking details with clear pickup instructions.'
+        }
+      ],
       ...(safeContent.howItWorks || {}),
     },
     faqs: {
@@ -285,6 +305,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight
   };
 
+  const processSteps = Array.isArray(content.howItWorks.steps) ? content.howItWorks.steps : [];
+  const processDetails = [
+    'Live location and date matching',
+    'Transparent terms before payment',
+    'Confirmation sent after booking'
+  ];
+  const processStats = [
+    { label: 'Clear pricing', value: 'No surprises' },
+    { label: 'Trusted suppliers', value: 'Verified partners' },
+    { label: 'Booking support', value: '24/7 help' }
+  ];
+
   const accentColor = customStyles.accentColor;
   const backgroundColor = customStyles.backgroundColor;
   const textColor = customStyles.textColor;
@@ -505,89 +537,105 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* GET YOUR PERFECT CAR - REDESIGNED FOR RICH LOOK */}
+      {/* GET YOUR PERFECT CAR - PROFESSIONAL PROCESS SECTION */}
       {sections.promotions && (
-        <section className="py-12 lg:py-20 relative overflow-hidden">
-          {/* Subtle background pattern/blobs */}
-          <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-[0.4]">
-             <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-50/50 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" />
-             <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-emerald-50/50 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4" />
-          </div>
-
+        <section className="relative overflow-hidden border-y border-slate-200 bg-slate-50 py-12 lg:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center mb-16 relative">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-4 border border-blue-100/50 shadow-sm">
-                <Sparkles className="w-3 h-3" /> Booking Process
+            <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+              <div className="lg:sticky lg:top-24">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#007ac2]/20 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#007ac2] shadow-sm">
+                  <Sparkles className="h-3.5 w-3.5" /> Simple process
+                </div>
+                <h3 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 md:text-4xl lg:text-5xl">
+                  {content.howItWorks.title}
+                </h3>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg">
+                  {content.howItWorks.subtitle || "We've simplified car rental to give you more time for the journey. Experience a seamless booking flow in just minutes."}
+                </p>
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                  {processStats.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                      <span className="text-xs font-bold uppercase tracking-widest text-slate-500">{item.label}</span>
+                      <span className="text-sm font-extrabold text-slate-950">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h3 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-                {content.howItWorks.title}
-              </h3>
-              <p className="text-base md:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-                {content.howItWorks.subtitle || "We've simplified car rental to give you more time for the journey. Experience a seamless booking flow in just minutes."}
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14 relative">
-              {/* Connecting line for desktop - more stylized with gradient */}
-              <div className="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-[2px] z-0">
-                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#007ac2]/20 to-transparent animate-pulse" />
-                 
-                 {/* Little dots at junctions */}
-                 <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-200" />
-                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-200" />
-                 <div className="absolute top-1/2 left-[100%] -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-200" />
+              <div className="relative">
+                <div className="hidden lg:block absolute left-10 top-8 bottom-8 w-px bg-slate-200" />
+                <div className="space-y-5">
+                  {processSteps.map((step, index) => {
+                    const Icon = iconMap[step.icon] || CheckCircle;
+                    const isLast = index === processSteps.length - 1;
+                    return (
+                      <motion.article
+                        key={step.id || `${step.title}-${index}`}
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-80px" }}
+                        transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
+                        className="group relative rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#007ac2]/30 hover:shadow-xl hover:shadow-slate-200/80 sm:p-6"
+                      >
+                        {!isLast && (
+                          <div className="absolute left-9 top-full hidden h-5 w-px bg-slate-200 lg:block" />
+                        )}
+                        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white shadow-lg shadow-slate-300/60 transition-colors duration-300 group-hover:bg-[#007ac2]">
+                            <Icon className="h-7 w-7" />
+                            <span className="absolute -right-2 -top-2 flex h-7 min-w-7 items-center justify-center rounded-full border-2 border-white bg-[#F57C00] px-2 text-[11px] font-black text-white shadow-sm">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-[#007ac2]">
+                                  Step {index + 1}
+                                </p>
+                                <h4 className="mt-1 text-xl font-extrabold tracking-tight text-slate-950 md:text-2xl">
+                                  {step.title}
+                                </h4>
+                              </div>
+                              <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                Verified
+                              </div>
+                            </div>
+
+                            <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
+                              {step.description}
+                            </p>
+
+                            <div className="mt-5 flex flex-wrap gap-2">
+                              <span className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
+                                {processDetails[index] || 'Guided rental flow'}
+                              </span>
+                              <span className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-[#007ac2]">
+                                Built for speed
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.article>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-6 rounded-lg border border-[#007ac2]/20 bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#007ac2]">Ready when you are</p>
+                      <p className="mt-1 text-sm font-bold text-slate-700">Search live availability and compare rental options in one place.</p>
+                    </div>
+                    <Link to="/search" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#007ac2] px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-[#006aa8]">
+                      Start searching <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
               </div>
-              
-              {content.howItWorks.steps.map((step, index) => {
-                const Icon = iconMap[step.icon] || CheckCircle;
-                return (
-                  <motion.div 
-                    key={step.id} 
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
-                    className="relative group flex flex-col items-center text-center z-10"
-                  >
-                    {/* The Icon Container - Premium Circle */}
-                    <div className="mb-10 relative">
-                      {/* Interactive Background Shadow */}
-                      <div className="absolute inset-0 bg-[#007ac2]/10 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                      
-                      {/* Main Icon Box */}
-                      <div className="relative w-28 h-28 bg-white rounded-[2.5rem] flex items-center justify-center text-slate-900 group-hover:text-white group-hover:bg-[#007ac2] transition-all duration-500 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.08)] group-hover:shadow-[0_20px_50px_-10px_rgba(0,122,194,0.4)] border border-slate-100 group-hover:border-[#007ac2] overflow-hidden">
-                        {/* Subtle inner reflection */}
-                        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                        
-                        <Icon className="w-12 h-12 relative z-10 transition-transform duration-500 group-hover:scale-110" />
-                      </div>
-
-                      {/* Step Badge */}
-                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center text-xs font-black border-4 border-white group-hover:bg-emerald-500 group-hover:rotate-12 transition-all duration-500">
-                        {index + 1}
-                      </div>
-                    </div>
-                    
-                    {/* Text Content */}
-                    <div className="px-2">
-                        <h4 className="text-xl lg:text-2xl font-black text-slate-900 mb-4 group-hover:text-[#007ac2] transition-colors tracking-tight">
-                            {step.title}
-                        </h4>
-                        <p className="text-slate-500 leading-relaxed text-[15px] max-w-[280px] mx-auto group-hover:text-slate-600 transition-colors">
-                            {step.description}
-                        </p>
-                    </div>
-
-                    {/* Rich Detail Line */}
-                    <div className="mt-8 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                        <div className="h-px w-8 bg-slate-200" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Verified Step</span>
-                        <div className="h-px w-8 bg-slate-200" />
-                    </div>
-                  </motion.div>
-                );
-              })}
             </div>
           </div>
         </section>
