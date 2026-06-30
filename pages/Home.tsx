@@ -311,11 +311,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     'Transparent terms before payment',
     'Confirmation sent after booking'
   ];
-  const processStats = [
-    { label: 'Clear pricing', value: 'No surprises' },
-    { label: 'Trusted suppliers', value: 'Verified partners' },
-    { label: 'Booking support', value: '24/7 help' }
-  ];
 
   const accentColor = customStyles.accentColor;
   const backgroundColor = customStyles.backgroundColor;
@@ -537,105 +532,64 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* GET YOUR PERFECT CAR - PROFESSIONAL PROCESS SECTION */}
+      {/* GET YOUR PERFECT CAR - COMPACT PROFESSIONAL PROCESS */}
       {sections.promotions && (
-        <section className="relative overflow-hidden border-y border-slate-200 bg-slate-50 py-12 lg:py-20">
+        <section className="border-y border-slate-200 bg-white py-10 lg:py-14">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-              <div className="lg:sticky lg:top-24">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#007ac2]/20 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#007ac2] shadow-sm">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="max-w-2xl">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#007ac2]">
                   <Sparkles className="h-3.5 w-3.5" /> Simple process
                 </div>
-                <h3 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 md:text-4xl lg:text-5xl">
+                <h3 className="text-2xl font-extrabold leading-tight tracking-tight text-slate-950 md:text-3xl">
                   {content.howItWorks.title}
                 </h3>
-                <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg">
-                  {content.howItWorks.subtitle || "We've simplified car rental to give you more time for the journey. Experience a seamless booking flow in just minutes."}
+                <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
+                  {content.howItWorks.subtitle || "Search, compare, and book your rental car with clear pricing and trusted suppliers."}
                 </p>
-
-                <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                  {processStats.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
-                      <span className="text-xs font-bold uppercase tracking-widest text-slate-500">{item.label}</span>
-                      <span className="text-sm font-extrabold text-slate-950">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
               </div>
+              <Link to="/search" className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-[#007ac2]">
+                Find a car <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
 
-              <div className="relative">
-                <div className="hidden lg:block absolute left-10 top-8 bottom-8 w-px bg-slate-200" />
-                <div className="space-y-5">
-                  {processSteps.map((step, index) => {
-                    const Icon = iconMap[step.icon] || CheckCircle;
-                    const isLast = index === processSteps.length - 1;
-                    return (
-                      <motion.article
-                        key={step.id || `${step.title}-${index}`}
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-80px" }}
-                        transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
-                        className="group relative rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#007ac2]/30 hover:shadow-xl hover:shadow-slate-200/80 sm:p-6"
-                      >
-                        {!isLast && (
-                          <div className="absolute left-9 top-full hidden h-5 w-px bg-slate-200 lg:block" />
-                        )}
-                        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white shadow-lg shadow-slate-300/60 transition-colors duration-300 group-hover:bg-[#007ac2]">
-                            <Icon className="h-7 w-7" />
-                            <span className="absolute -right-2 -top-2 flex h-7 min-w-7 items-center justify-center rounded-full border-2 border-white bg-[#F57C00] px-2 text-[11px] font-black text-white shadow-sm">
-                              {String(index + 1).padStart(2, '0')}
-                            </span>
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                              <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-[#007ac2]">
-                                  Step {index + 1}
-                                </p>
-                                <h4 className="mt-1 text-xl font-extrabold tracking-tight text-slate-950 md:text-2xl">
-                                  {step.title}
-                                </h4>
-                              </div>
-                              <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
-                                <CheckCircle className="h-3.5 w-3.5" />
-                                Verified
-                              </div>
-                            </div>
-
-                            <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
-                              {step.description}
-                            </p>
-
-                            <div className="mt-5 flex flex-wrap gap-2">
-                              <span className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
-                                {processDetails[index] || 'Guided rental flow'}
-                              </span>
-                              <span className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-[#007ac2]">
-                                Built for speed
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.article>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-6 rounded-lg border border-[#007ac2]/20 bg-white p-5 shadow-sm">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#007ac2]">Ready when you are</p>
-                      <p className="mt-1 text-sm font-bold text-slate-700">Search live availability and compare rental options in one place.</p>
+            <div className="relative grid gap-4 md:grid-cols-3">
+              <div className="absolute left-[16%] right-[16%] top-8 hidden h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent md:block" />
+              {processSteps.slice(0, 3).map((step, index) => {
+                const Icon = iconMap[step.icon] || CheckCircle;
+                const tones = [
+                  'bg-blue-50 text-[#007ac2] border-blue-100',
+                  'bg-emerald-50 text-emerald-700 border-emerald-100',
+                  'bg-orange-50 text-orange-700 border-orange-100'
+                ];
+                return (
+                  <motion.article
+                    key={step.id || `${step.title}-${index}`}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.35, delay: index * 0.08, ease: "easeOut" }}
+                    className="relative rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                  >
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className={`flex h-14 w-14 items-center justify-center rounded-lg border ${tones[index % tones.length]}`}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                        0{index + 1}
+                      </span>
                     </div>
-                    <Link to="/search" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#007ac2] px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-[#006aa8]">
-                      Start searching <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
+                    <h4 className="text-lg font-extrabold tracking-tight text-slate-950">{step.title}</h4>
+                    <p className="mt-2 min-h-[60px] text-sm leading-relaxed text-slate-600">
+                      {step.description}
+                    </p>
+                    <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
+                      <CheckCircle className="h-4 w-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-slate-500">{processDetails[index] || 'Guided rental flow'}</span>
+                    </div>
+                  </motion.article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -643,30 +597,52 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* POPULAR DESTINATIONS */}
       {sections.popularDestinations && (
-        <section className="py-8 lg:py-12">
+        <section className="bg-slate-50 py-10 lg:py-14">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-             <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
+             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                  <div className="max-w-2xl">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-3">
-                         <MapPin className="w-3 h-3" /> Top Destinations
+                     <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#007ac2] shadow-sm">
+                         <MapPin className="h-3.5 w-3.5" /> Popular destinations
                      </div>
-                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-slate-900">{content.popularDestinations.title}</h3>
-                     <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">{content.popularDestinations.subtitle}</p>
+                     <h3 className="text-2xl font-extrabold tracking-tight leading-tight text-slate-950 md:text-3xl">{content.popularDestinations.title}</h3>
+                     <p className="mt-3 text-sm text-slate-600 leading-relaxed md:text-base">{content.popularDestinations.subtitle}</p>
                  </div>
-                 <Link to="/search" className="group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-[#007ac2] transition-colors duration-300 shadow-lg hover:shadow-xl text-sm">
-                     Explore All Locations
-                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                 <Link to="/search" className="group inline-flex w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-extrabold text-slate-950 shadow-sm transition-colors hover:border-[#007ac2]/30 hover:text-[#007ac2]">
+                     Explore all
+                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                  </Link>
              </div>
              
-             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                  {destinations.slice(0, 5).map((dest, index) => (
                      <Link 
                          to={`/search?location=${encodeURIComponent(dest.name)}`} 
                          key={dest.name} 
-                         className="group relative rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 block aspect-[4/3] border-2 border-transparent hover:border-blue-100"
+                         className={`group relative block overflow-hidden rounded-lg bg-slate-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${index === 0 ? 'sm:col-span-2 lg:row-span-2' : ''}`}
                      >
-                         <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" width="400" height="300" />
+                         <div className={index === 0 ? 'aspect-[16/10] lg:aspect-auto lg:h-full' : 'aspect-[4/3]'}>
+                           <img src={dest.image} alt={dest.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" width="600" height="420" />
+                         </div>
+                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                         <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm">
+                             <MapPin className="h-3 w-3" /> Car hire
+                           </div>
+                           <div className="flex items-end justify-between gap-3">
+                             <div className="min-w-0">
+                               <h4 className={`${index === 0 ? 'text-2xl md:text-3xl' : 'text-lg'} truncate font-extrabold tracking-tight`}>
+                                 {dest.name}
+                               </h4>
+                               <p className="mt-1 truncate text-xs font-bold text-white/75">{dest.country}</p>
+                             </div>
+                             {dest.price > 0 && (
+                               <div className="shrink-0 rounded-lg bg-white px-3 py-2 text-right text-slate-950 shadow-sm">
+                                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">From</p>
+                                 <p className="text-sm font-extrabold">{getCurrencySymbol()}{convertPrice(dest.price).toFixed(0)}</p>
+                               </div>
+                             )}
+                          </div>
+                        </div>
                      </Link>
                  ))}
              </div>
