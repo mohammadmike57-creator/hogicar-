@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
@@ -281,7 +282,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
-      Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield
+      Globe, Tag, Star, Award, Search, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight
   };
 
   const accentColor = customStyles.accentColor;
@@ -514,31 +515,42 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
             </div>
 
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+              {/* Connecting line for desktop */}
+              <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0"></div>
+              
               {content.howItWorks.steps.map((step, index) => {
                 const Icon = iconMap[step.icon] || CheckCircle;
-                const colors = [
-                  'from-blue-500 to-cyan-400',
-                  'from-purple-500 to-pink-400',
-                  'from-emerald-500 to-teal-400'
-                ];
-                const colorClass = colors[index % colors.length];
                 return (
-                  <div 
+                  <motion.div 
                     key={step.id} 
-                    className={`relative flex items-center gap-6 sm:gap-8 p-6 rounded-card text-white shadow-lg bg-gradient-to-r ${colorClass}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    className="relative group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 z-10"
                   >
-                    <div className="flex-shrink-0 relative">
-                      <span className="font-sans text-7xl font-extrabold text-white/20 -z-10">{`0${index + 1}`}</span>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-md text-white rounded-full shadow-inner border border-white/30">
-                        <Icon className="w-6 h-6" />
+                    <div className="absolute -top-4 -right-4 w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                         <span className="text-4xl font-black text-slate-100">{index + 1}</span>
+                    </div>
+                    
+                    <div className="mb-6 relative">
+                      <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-[#007ac2] group-hover:bg-[#007ac2] group-hover:text-white transition-all duration-500 shadow-inner">
+                        <Icon className="w-8 h-8" />
+                      </div>
+                      <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center text-[10px] font-black text-slate-400 border border-slate-50 group-hover:border-blue-100">
+                        {`0${index + 1}`}
                       </div>
                     </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-white mb-2">{step.title}</h4>
-                      <p className="text-white/90 leading-relaxed text-sm">{step.description}</p>
+                    
+                    <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-[#007ac2] transition-colors">{step.title}</h4>
+                    <p className="text-slate-500 leading-relaxed text-sm">{step.description}</p>
+                    
+                    <div className="mt-6 pt-6 border-t border-slate-50 flex items-center gap-2 text-[#007ac2] font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                        <span>Get Started</span>
+                        <ArrowRight className="w-3 h-3" />
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -582,7 +594,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* REVIEWS SECTION */}
       {sections.reviews && (
         <Reviews 
-          customReviews={builderConfig?.sections?.reviews?.items}
+          customReviews={seoConfig ? builderConfig?.sections?.reviews?.items : homepageContent?.selectedReviews}
+          accentColor={customStyles.accentColor}
         />
       )}
 

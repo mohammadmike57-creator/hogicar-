@@ -1496,7 +1496,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           <InputField label="Text Color" type="color" value={localContent?.hero?.textColor || '#FFFFFF'} onChange={e => handleChange('hero.textColor', e.target.value)} />
         </div>
         <InputField label="FAQs Section Title" value={localContent?.faqs?.title || ''} onChange={e => handleChange('faqs.title', e.target.value)} />
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2 pt-2 pb-4">
           <input 
             type="checkbox" 
             id="hp-show-reviews"
@@ -1507,6 +1507,97 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
             className="w-4 h-4 rounded border-slate-300 text-[#007ac2] focus:ring-[#007ac2]"
           />
           <label htmlFor="hp-show-reviews" className="text-sm font-bold text-slate-700">Show Customer Reviews on Homepage</label>
+        </div>
+
+        {/* HOMEPAGE REVIEWS EDITOR */}
+        <div className="bg-white p-6 rounded-card border border-slate-100 mt-4">
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        Homepage Reviews
+                    </h4>
+                    <p className="text-[11px] text-slate-500 font-medium">Add reviews specifically for the homepage.</p>
+                </div>
+                <button 
+                    type="button"
+                    onClick={() => {
+                        const currentItems = localContent?.selectedReviews || [];
+                        const newItem = { id: Date.now(), author: '', location: '', comment: '', rating: 5, verified: true, date: 'Just now' };
+                        setLocalContent((prev: any) => ({ ...prev, selectedReviews: [...currentItems, newItem] }));
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-blue-600 transition-all"
+                >
+                    <Plus className="w-3.5 h-3.5" /> Add Review
+                </button>
+            </div>
+            
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {(localContent?.selectedReviews || []).map((review: any, idx: number) => (
+                    <div key={review.id || idx} className="p-4 bg-slate-50 rounded-card border border-slate-100 shadow-sm space-y-3 relative group">
+                        <button 
+                            type="button"
+                            onClick={() => {
+                                const newItems = [...localContent.selectedReviews];
+                                newItems.splice(idx, 1);
+                                setLocalContent((prev: any) => ({ ...prev, selectedReviews: newItems }));
+                            }} 
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <Trash2 className="w-3 h-3" />
+                        </button>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-bold text-slate-400 uppercase">Author</label>
+                                <input 
+                                    placeholder="e.g. John Doe" 
+                                    className="w-full text-xs p-2 border border-slate-200 rounded bg-white outline-none" 
+                                    value={review.author || ''} 
+                                    onChange={(e) => {
+                                        const newItems = [...localContent.selectedReviews];
+                                        newItems[idx].author = e.target.value;
+                                        setLocalContent((prev: any) => ({ ...prev, selectedReviews: newItems }));
+                                    }} 
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-bold text-slate-400 uppercase">Location</label>
+                                <input 
+                                    placeholder="e.g. United Kingdom" 
+                                    className="w-full text-xs p-2 border border-slate-200 rounded bg-white outline-none" 
+                                    value={review.location || ''} 
+                                    onChange={(e) => {
+                                        const newItems = [...localContent.selectedReviews];
+                                        newItems[idx].location = e.target.value;
+                                        setLocalContent((prev: any) => ({ ...prev, selectedReviews: newItems }));
+                                    }} 
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase">Comment</label>
+                            <textarea 
+                                placeholder="Customer feedback..." 
+                                className="w-full text-xs p-3 border border-slate-200 rounded bg-white outline-none h-20 resize-none" 
+                                value={review.comment || ''} 
+                                onChange={(e) => {
+                                    const newItems = [...localContent.selectedReviews];
+                                    newItems[idx].comment = e.target.value;
+                                    setLocalContent((prev: any) => ({ ...prev, selectedReviews: newItems }));
+                                }} 
+                            />
+                        </div>
+                    </div>
+                ))}
+                {(!localContent?.selectedReviews || localContent.selectedReviews.length === 0) && (
+                    <div className="py-8 text-center text-slate-400 border-2 border-dashed border-slate-100 rounded-card">
+                        <p className="text-[10px] font-bold uppercase tracking-widest">No custom reviews added</p>
+                        <p className="text-[9px] mt-1">Default global reviews will be shown</p>
+                    </div>
+                )}
+            </div>
         </div>
       </div>
 
