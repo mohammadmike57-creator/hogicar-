@@ -505,50 +505,85 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* GET YOUR PERFECT CAR */}
+      {/* GET YOUR PERFECT CAR - REDESIGNED FOR RICH LOOK */}
       {sections.promotions && (
-        <section className="py-8 lg:py-12">
+        <section className="py-12 lg:py-20 relative overflow-hidden">
+          {/* Subtle background pattern/blobs */}
+          <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-[0.4]">
+             <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-50/50 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" />
+             <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-emerald-50/50 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4" />
+          </div>
+
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-xs font-bold tracking-widest uppercase mb-2 text-[#007ac2]">Simple Process</h2>
-              <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">{content.howItWorks.title}</h3>
-              <p className="mt-3 text-base text-slate-600 leading-relaxed">{content.howItWorks.subtitle}</p>
+            <div className="max-w-3xl mx-auto text-center mb-16 relative">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#007ac2] text-[10px] font-bold tracking-widest uppercase mb-4 border border-blue-100/50 shadow-sm">
+                <Sparkles className="w-3 h-3" /> Booking Process
+              </div>
+              <h3 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
+                {content.howItWorks.title}
+              </h3>
+              <p className="text-base md:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+                {content.howItWorks.subtitle || "We've simplified car rental to give you more time for the journey. Experience a seamless booking flow in just minutes."}
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-              {/* Connecting line for desktop */}
-              <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14 relative">
+              {/* Connecting line for desktop - more stylized with gradient */}
+              <div className="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-[2px] z-0">
+                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#007ac2]/20 to-transparent animate-pulse" />
+                 
+                 {/* Little dots at junctions */}
+                 <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-200" />
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-200" />
+                 <div className="absolute top-1/2 left-[100%] -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-200" />
+              </div>
               
               {content.howItWorks.steps.map((step, index) => {
                 const Icon = iconMap[step.icon] || CheckCircle;
                 return (
                   <motion.div 
                     key={step.id} 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.2 }}
-                    className="relative group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 z-10"
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
+                    className="relative group flex flex-col items-center text-center z-10"
                   >
-                    <div className="absolute -top-4 -right-4 w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                         <span className="text-4xl font-black text-slate-100">{index + 1}</span>
+                    {/* The Icon Container - Premium Circle */}
+                    <div className="mb-10 relative">
+                      {/* Interactive Background Shadow */}
+                      <div className="absolute inset-0 bg-[#007ac2]/10 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                      
+                      {/* Main Icon Box */}
+                      <div className="relative w-28 h-28 bg-white rounded-[2.5rem] flex items-center justify-center text-slate-900 group-hover:text-white group-hover:bg-[#007ac2] transition-all duration-500 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.08)] group-hover:shadow-[0_20px_50px_-10px_rgba(0,122,194,0.4)] border border-slate-100 group-hover:border-[#007ac2] overflow-hidden">
+                        {/* Subtle inner reflection */}
+                        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                        
+                        <Icon className="w-12 h-12 relative z-10 transition-transform duration-500 group-hover:scale-110" />
+                      </div>
+
+                      {/* Step Badge */}
+                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center text-xs font-black border-4 border-white group-hover:bg-emerald-500 group-hover:rotate-12 transition-all duration-500">
+                        {index + 1}
+                      </div>
                     </div>
                     
-                    <div className="mb-6 relative">
-                      <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-[#007ac2] group-hover:bg-[#007ac2] group-hover:text-white transition-all duration-500 shadow-inner">
-                        <Icon className="w-8 h-8" />
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center text-[10px] font-black text-slate-400 border border-slate-50 group-hover:border-blue-100">
-                        {`0${index + 1}`}
-                      </div>
+                    {/* Text Content */}
+                    <div className="px-2">
+                        <h4 className="text-xl lg:text-2xl font-black text-slate-900 mb-4 group-hover:text-[#007ac2] transition-colors tracking-tight">
+                            {step.title}
+                        </h4>
+                        <p className="text-slate-500 leading-relaxed text-[15px] max-w-[280px] mx-auto group-hover:text-slate-600 transition-colors">
+                            {step.description}
+                        </p>
                     </div>
-                    
-                    <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-[#007ac2] transition-colors">{step.title}</h4>
-                    <p className="text-slate-500 leading-relaxed text-sm">{step.description}</p>
-                    
-                    <div className="mt-6 pt-6 border-t border-slate-50 flex items-center gap-2 text-[#007ac2] font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                        <span>Get Started</span>
-                        <ArrowRight className="w-3 h-3" />
+
+                    {/* Rich Detail Line */}
+                    <div className="mt-8 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                        <div className="h-px w-8 bg-slate-200" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Verified Step</span>
+                        <div className="h-px w-8 bg-slate-200" />
                     </div>
                   </motion.div>
                 );
