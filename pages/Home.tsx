@@ -282,6 +282,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     navigate(`/searching?${searchParams.toString()}`);
   };
 
+  const scrollToSearchWidget = () => {
+    document.getElementById('search')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
@@ -297,6 +301,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const heroTextColor = seoConfig?.heroTextColor || content.hero.textColor || '#FFFFFF';
   const heroButtonText = seoConfig?.heroButtonText || content.hero.buttonText;
   const heroButtonLink = seoConfig?.heroButtonLink || content.hero.buttonLink || '#search';
+  const heroPromotion = {
+    active: !!seoConfig?.heroPromotionActive && !!seoConfig?.heroPromotionText,
+    text: seoConfig?.heroPromotionText || '',
+    link: seoConfig?.heroPromotionLink || '',
+    color: seoConfig?.heroPromotionColor || '#E11D48'
+  };
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
   const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
@@ -379,16 +389,22 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
             {/* Hero Promotion Banner */}
-            {seoConfig?.heroPromotionActive && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md shadow-2xl border border-white/20 animate-bounce mb-6 mx-auto cursor-default transition-transform hover:scale-105" style={{ backgroundColor: seoConfig.heroPromotionColor || '#E11D48' }}>
+            {heroPromotion.active && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md shadow-2xl border border-white/20 animate-bounce mb-6 mx-auto cursor-default transition-transform hover:scale-105" style={{ backgroundColor: heroPromotion.color }}>
                 <Zap className="w-3.5 h-3.5 text-white fill-current" />
                 <span className="text-[11px] sm:text-[13px] font-black uppercase tracking-widest text-white leading-none">
-                  {seoConfig.heroPromotionText}
+                  {heroPromotion.text}
                 </span>
-                {seoConfig.heroPromotionLink && (
-                  <Link to={seoConfig.heroPromotionLink} className="ml-2 pl-2 border-l border-white/30 text-[10px] sm:text-[11px] font-bold text-white/90 hover:text-white hover:underline">
+                {heroPromotion.link && (
+                  heroPromotion.link === '#search' ? (
+                    <button type="button" onClick={scrollToSearchWidget} className="ml-2 pl-2 border-l border-white/30 text-[10px] sm:text-[11px] font-bold text-white/90 hover:text-white hover:underline">
+                      CLAIM OFFER
+                    </button>
+                  ) : (
+                  <Link to={heroPromotion.link} className="ml-2 pl-2 border-l border-white/30 text-[10px] sm:text-[11px] font-bold text-white/90 hover:text-white hover:underline">
                     CLAIM OFFER
                   </Link>
+                  )
                 )}
               </div>
             )}
@@ -413,7 +429,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             )}
             
             {sections.search && (
-              <div className="relative z-20 mt-1 lg:mt-0">
+              <div id="search" className="relative z-20 mt-1 scroll-mt-24 lg:mt-0">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
@@ -548,9 +564,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   {content.howItWorks.subtitle || "Search, compare, and book your rental car with clear pricing and trusted suppliers."}
                 </p>
               </div>
-              <Link to="/search" className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-[#007ac2]">
+              <button type="button" onClick={scrollToSearchWidget} className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-[#007ac2]">
                 Find a car <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
             </div>
 
             <div className="relative grid gap-4 md:grid-cols-3">
