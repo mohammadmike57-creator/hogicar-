@@ -5,7 +5,7 @@ import {
   Save, X, Globe, MessageSquare, AlertCircle,
   LoaderCircle, ImageIcon, ChevronDown
 } from 'lucide-react';
-import { adminFetch } from '../lib/adminApi';
+import { adminFetch } from '../../lib/adminApi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface BlogCategory {
