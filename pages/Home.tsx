@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap } from 'lucide-react';
+import { CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, Search, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap, FileText } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
 import Reviews from '../components/Reviews';
@@ -138,6 +138,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     reviews: seoConfig ? seoConfig.showReviews : !!homepageContent?.showReviews,
     faq: seoConfig?.showFaq ?? true,
     content: seoConfig?.showSeoContent ?? true,
+    relatedBlogs: seoConfig?.showSeoContent ?? true,
     popularDestinations: seoConfig?.showRelatedDestinations ?? true,
     featuredCars: seoConfig?.showFeaturedCars ?? true,
     cta: true
@@ -327,6 +328,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const textColor = customStyles.textColor;
   const primaryColor = customStyles.primaryColor;
   const buttonColor = customStyles.buttonColor;
+
+  const relatedBlogs = React.useMemo(() => {
+    if (!seoConfig?.relatedBlogsJson) return [];
+    try {
+      return JSON.parse(seoConfig.relatedBlogsJson);
+    } catch (e) {
+      return [];
+    }
+  }, [seoConfig]);
 
   return (
     <div className="bg-white font-sans">
@@ -743,6 +753,39 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 <div className="whitespace-pre-wrap text-slate-600">{builderConfig?.sections?.content?.text || builderConfig?.text}</div>
               )}
             </div>
+
+            {/* Related Blogs within content area */}
+            {sections.relatedBlogs && relatedBlogs.length > 0 && (
+              <div className="mt-16 pt-12 border-t border-slate-100">
+                <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-2">
+                  <FileText className="text-emerald-600 w-6 h-6" /> Related Travel Guides
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {relatedBlogs.map((blog: any, idx: number) => (
+                    <Link 
+                      key={idx} 
+                      to={`/blog/${blog.slug}`}
+                      className="group flex flex-col bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300"
+                    >
+                      <div className="aspect-video overflow-hidden">
+                        <img 
+                          src={blog.image || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=400'} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                      <div className="p-5">
+                        <h4 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                          {blog.title}
+                        </h4>
+                        <div className="mt-4 flex items-center text-xs font-bold text-emerald-600 uppercase tracking-widest">
+                          Read Guide <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}

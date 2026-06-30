@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check, Lock } from 'lucide-react';
+import { Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check, Lock, MessageSquare } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
 
@@ -74,6 +74,7 @@ const FullFooter = () => (
             <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Company</h3>
             <ul className="space-y-2 text-xs text-white opacity-90">
                <li><Link to="/about-us" className="hover:text-blue-200 transition-colors">About Us</Link></li>
+               <li><Link to="/blog" className="hover:text-blue-200 transition-colors">Blog</Link></li>
                <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
                <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
             </ul>
@@ -179,6 +180,9 @@ const Layout: React.FC = () => {
 
           {/* Desktop right side */}
           <div className="hidden md:flex items-center space-x-6">
+            <Link to="/blog" className="text-sm font-bold text-white hover:text-blue-200 transition-colors px-4 py-2 rounded-full hover:bg-white/10">
+              Blog
+            </Link>
             <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
               <User className="w-4 h-4" />
               Manage Booking
@@ -246,6 +250,10 @@ const Layout: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-[#003580] bg-[#004099] w-full shadow-xl z-50">
             <div className="pt-2 pb-3 space-y-1">
+              <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
+                <MessageSquare className="w-5 h-5" />
+                Blog
+              </Link>
               <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
                 <User className="w-5 h-5" />
                 Manage Booking

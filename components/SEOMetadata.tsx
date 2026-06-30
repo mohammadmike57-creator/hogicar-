@@ -11,6 +11,7 @@ interface SEOMetadataProps {
   canonicalUrl?: string;
   ogImage?: string;
   noIndex?: boolean;
+  schema?: any;
 }
 
 const SEOMetadata: React.FC<SEOMetadataProps> = ({ 
@@ -19,7 +20,8 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   keywords: defaultKeywords,
   canonicalUrl: defaultCanonical,
   ogImage: defaultOgImage,
-  noIndex: defaultNoIndex 
+  noIndex: defaultNoIndex,
+  schema
 }) => {
   const location = useLocation();
   const [config, setConfig] = useState<any>(null);
@@ -160,7 +162,22 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
         robotsTag.setAttribute('content', 'index, follow');
       }
     }
-  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname]);
+
+    // 7. Schema Markup (JSON-LD)
+    if (schema) {
+      let scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
+      if (!scriptTag) {
+        scriptTag = document.createElement('script');
+        scriptTag.setAttribute('type', 'application/ld+json');
+        scriptTag.id = 'seo-schema';
+        document.head.appendChild(scriptTag);
+      }
+      scriptTag.textContent = JSON.stringify(schema);
+    } else {
+      const scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
+      if (scriptTag) scriptTag.remove();
+    }
+  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema]);
 
   return null;
 };

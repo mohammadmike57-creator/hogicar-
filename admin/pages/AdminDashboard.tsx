@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
+import BlogManagement from '../components/BlogManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
     adminFetch, 
@@ -199,7 +200,8 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: {
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
-                'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 'homepagelogos' | 'searchinglogos';
+                'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
+                'homepagelogos' | 'searchinglogos' | 'blog';
 
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => {
@@ -482,6 +484,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
 
           <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">System</div>
           <NavItem section="cms" label="Pages" icon={FileText} />
+          <NavItem section="blog" label="Blog" icon={MessageSquare} />
           <NavItem section="seo" label="SEO" icon={Globe} />
           <NavItem section="homepage" label="Assets" icon={ImageIcon} />
           <NavItem section="sitesettings" label="Config" icon={Settings} />
@@ -2343,7 +2346,7 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
 const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
-  const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style'>('seo');
+  const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style' | 'links'>('seo');
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
   const [description, setDescription] = useState(config?.description || '');
@@ -2390,6 +2393,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [showSeoContent, setShowSeoContent] = useState(config?.showSeoContent ?? true);
   const [showRelatedDestinations, setShowRelatedDestinations] = useState(config?.showRelatedDestinations ?? true);
   const [showFeaturedCars, setShowFeaturedCars] = useState(config?.showFeaturedCars ?? true);
+  const [relatedBlogsJson, setRelatedBlogsJson] = useState(config?.relatedBlogsJson || '');
 
   const defaultBuilder = {
     sections: {
@@ -2433,6 +2437,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setHeroPromotionText(config.heroPromotionText || '');
       setHeroPromotionLink(config.heroPromotionLink || '');
       setHeroPromotionColor(config.heroPromotionColor || '#E11D48');
+      setRelatedBlogsJson(config.relatedBlogsJson || '');
       const savedBuilder = config.contentJson ? JSON.parse(config.contentJson) : {};
       setBuilderConfig({
         ...defaultBuilder,
@@ -2524,6 +2529,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       showSeoContent,
       showRelatedDestinations,
       showFeaturedCars,
+      relatedBlogsJson,
       contentJson: JSON.stringify(builderConfig)
     });
   };
@@ -2552,7 +2558,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
             { id: 'seo', label: 'General SEO', icon: Globe },
             { id: 'layout', label: 'Layout', icon: LayoutDashboard },
             { id: 'builder', label: 'Sections', icon: LayoutGrid },
-            { id: 'style', label: 'Design', icon: Palette }
+            { id: 'style', label: 'Design', icon: Palette },
+            { id: 'links', label: 'Internal Links', icon: Link2 }
           ].map(tab => (
             <button 
               key={tab.id}
@@ -3126,6 +3133,38 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                         <p className="text-[9px] text-slate-400 mt-1 italic">For optimal conversion and brand consistency, the search button remains emerald green.</p>
                       </div>
                    </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'links' && (
+            <div className="space-y-6">
+              <div className="bg-slate-50 p-6 rounded-card border border-slate-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-slate-900 p-2 rounded-xl text-white">
+                    <Link2 size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest leading-none">Internal linking</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Connect this page to relevant travel content</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Blog Articles (JSON)</label>
+                    <TextAreaField 
+                      label=""
+                      placeholder='[{"title": "Driving Tips for Amman", "slug": "driving-amman-tips", "image": "URL"}]'
+                      value={relatedBlogsJson}
+                      onChange={(e: any) => setRelatedBlogsJson(e.target.value)}
+                      rows={12}
+                    />
+                    <p className="text-[9px] text-slate-400 mt-2 italic px-1">
+                      Add a JSON array of blog articles to display them as related content on this destination landing page.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4586,6 +4625,7 @@ export const AdminDashboard: React.FC = () => {
       case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
+      case 'blog': return <BlogManagement />;
       case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} />;
       case 'homepage':
         if (loadingHomepageEditor) {

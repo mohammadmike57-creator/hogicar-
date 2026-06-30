@@ -13,6 +13,8 @@ import Voucher from './pages/Voucher';
 import AdminLogin from './pages/AdminLogin';
 import SupplierLogin from './pages/SupplierLogin';
 import Contact from './pages/Contact';
+import BlogIndex from './pages/BlogIndex';
+import BlogArticle from './pages/BlogArticle';
 import DynamicPage from './pages/DynamicPage';
 import AffiliateProgram from './pages/AffiliateProgram';
 import BecomeSupplier from './pages/BecomeSupplier';
@@ -89,6 +91,8 @@ const App: React.FC = () => {
           <Route path="/become-supplier" element={<BecomeSupplier />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<BlogIndex />} />
+          <Route path="/blog/:slug" element={<BlogArticle />} />
           <Route path="*" element={<DynamicPage />} />
         </Route>
       </Routes>
