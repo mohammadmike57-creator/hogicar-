@@ -390,22 +390,47 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
             {/* Hero Promotion Banner */}
             {heroPromotion.active && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md shadow-2xl border border-white/20 animate-bounce mb-6 mx-auto cursor-default transition-transform hover:scale-105" style={{ backgroundColor: heroPromotion.color }}>
-                <Zap className="w-3.5 h-3.5 text-white fill-current" />
-                <span className="text-[11px] sm:text-[13px] font-black uppercase tracking-widest text-white leading-none">
-                  {heroPromotion.text}
-                </span>
-                {heroPromotion.link && (
-                  heroPromotion.link === '#search' ? (
-                    <button type="button" onClick={scrollToSearchWidget} className="ml-2 pl-2 border-l border-white/30 text-[10px] sm:text-[11px] font-bold text-white/90 hover:text-white hover:underline">
-                      CLAIM OFFER
-                    </button>
-                  ) : (
-                  <Link to={heroPromotion.link} className="ml-2 pl-2 border-l border-white/30 text-[10px] sm:text-[11px] font-bold text-white/90 hover:text-white hover:underline">
-                    CLAIM OFFER
-                  </Link>
-                  )
-                )}
+              <div className="mx-auto mb-6 max-w-3xl rounded-lg border border-white/25 bg-white/95 p-2 text-left shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3 px-2 py-1">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white shadow-sm" style={{ backgroundColor: heroPromotion.color }}>
+                      <Tag className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                          Limited route offer
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
+                          <Shield className="h-3 w-3" /> Verified deal
+                        </span>
+                      </div>
+                      <p className="truncate text-sm font-extrabold tracking-tight text-slate-950 sm:text-base">
+                        {heroPromotion.text}
+                      </p>
+                    </div>
+                  </div>
+                  {heroPromotion.link && (
+                    heroPromotion.link === '#search' ? (
+                      <button
+                        type="button"
+                        onClick={scrollToSearchWidget}
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm transition-transform hover:-translate-y-0.5"
+                        style={{ backgroundColor: heroPromotion.color }}
+                      >
+                        Claim offer <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    ) : (
+                      <Link
+                        to={heroPromotion.link}
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm transition-transform hover:-translate-y-0.5"
+                        style={{ backgroundColor: heroPromotion.color }}
+                      >
+                        Claim offer <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    )
+                  )}
+                </div>
               </div>
             )}
 
