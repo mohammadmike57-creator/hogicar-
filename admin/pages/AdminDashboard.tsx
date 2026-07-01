@@ -4570,7 +4570,7 @@ export const AdminDashboard: React.FC = () => {
   const handleDeleteSeoConfig = async (route: string) => {
     if (!confirm(`Are you sure you want to delete SEO config for route: ${route}?`)) return;
     try {
-        await adminFetch(`/api/admin/seo/${encodeURIComponent(route)}`, { method: 'DELETE' });
+        await adminFetch(`/api/admin/seo?route=${encodeURIComponent(route)}`, { method: 'DELETE' });
         showToast("SEO config deleted");
         fetchSeoConfigs();
     } catch (e: any) {

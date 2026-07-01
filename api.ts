@@ -406,5 +406,5 @@ export const adminApi = {
   getDashboardSummary: () => adminAxios.get(`${API_BASE_URL}/api/admin/dashboard/summary`),
   getSeoConfigs: () => adminAxios.get(`${API_BASE_URL}/api/admin/seo`),
   saveSeoConfig: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/seo`, payload),
-  deleteSeoConfig: (route: string) => adminAxios.delete(`${API_BASE_URL}/api/admin/seo/${encodeURIComponent(route)}`),
+  deleteSeoConfig: (route: string) => adminAxios.delete(`${API_BASE_URL}/api/admin/seo?route=${encodeURIComponent(route)}`),
 };
