@@ -10,7 +10,7 @@ import {
   Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
   Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins, MapPin, Lock,
   Eye, EyeOff, LayoutGrid, Palette, Building2,
-  Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard
+  Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard, MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
