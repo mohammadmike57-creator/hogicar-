@@ -440,6 +440,9 @@ export interface SEOConfig {
   showSeoContent?: boolean;
   showRelatedDestinations?: boolean;
   showFeaturedCars?: boolean;
+  destinationName?: string;
+  countryTag?: string;
+  airportTags?: string;
 }
 
 // --- Homepage Content Management ---

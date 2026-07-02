@@ -21,10 +21,15 @@ const BlogArticle: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(`${api.baseUrl}/public/blog/articles/${slug}`);
+      if (!res.ok) {
+        setArticle(null);
+        return;
+      }
       const data = await res.json();
       setArticle(data);
     } catch (error) {
       console.error('Error fetching article:', error);
+      setArticle(null);
     } finally {
       setLoading(false);
     }
@@ -70,6 +75,32 @@ const BlogArticle: React.FC = () => {
 
   const faqs = article.faqJson ? JSON.parse(article.faqJson) : [];
   const relatedRoutes = article.relatedRoutesJson ? JSON.parse(article.relatedRoutesJson) : [];
+
+  // Generate Table of Contents from h2 tags in content
+  const toc: { id: string, text: string }[] = [];
+  if (article.content) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(article.content, 'text/html');
+    const h2s = doc.querySelectorAll('h2');
+    h2s.forEach((h2, idx) => {
+      const text = h2.textContent || '';
+      const id = text.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      toc.push({ id, text });
+    });
+  }
+
+  // Add IDs to h2 tags in content for TOC linking
+  const enrichedContent = React.useMemo(() => {
+    if (!article.content) return '';
+    let content = article.content;
+    toc.forEach(item => {
+      // Find the h2 with that text and inject id
+      const escapedText = item.text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const regex = new RegExp(`<h2>${escapedText}</h2>`, 'g');
+      content = content.replace(regex, `<h2 id="${item.id}">${item.text}</h2>`);
+    });
+    return content;
+  }, [article.content, toc]);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -161,11 +192,98 @@ const BlogArticle: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-12">
           
+          {/* Sidebar / Table of Contents */}
+          <aside className="lg:w-80 shrink-0">
+            <div className="sticky top-24 space-y-8">
+              {toc.length > 0 && (
+                <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <ArrowRight className="text-emerald-600 w-5 h-5" /> Table of Contents
+                  </h3>
+                  <nav className="space-y-3">
+                    {toc.map((item) => (
+                      <a 
+                        key={item.id} 
+                        href={`#${item.id}`}
+                        className="block text-sm text-slate-600 hover:text-emerald-600 font-medium transition-colors"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                      >
+                        {item.text}
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Booking CTA */}
+              <div className="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-all duration-500" />
+                <h3 className="text-xl font-bold mb-4 relative z-10">Need a Car?</h3>
+                <p className="text-slate-400 text-sm mb-6 relative z-10 leading-relaxed">
+                  Compare the best prices from top suppliers in {article.destinations?.split(',')[0] || 'your destination'}.
+                </p>
+                <Link 
+                  to="/"
+                  className="block w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-center font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 relative z-10"
+                >
+                  Book Now & Save
+                </Link>
+              </div>
+
+              {/* Newsletter */}
+              <div className="bg-emerald-50 rounded-[2rem] p-8 border border-emerald-100">
+                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <MessageSquare className="text-emerald-600 w-5 h-5" /> Newsletter
+                </h3>
+                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                  Get travel tips and exclusive car rental deals delivered to your inbox.
+                </p>
+                <div className="space-y-3">
+                  <input 
+                    type="email" 
+                    placeholder="Your email address"
+                    className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  />
+                  <button className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors text-sm">
+                    Subscribe
+                  </button>
+                </div>
+              </div>
+
+              {/* Recent Articles */}
+              <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
+                <h3 className="text-lg font-bold text-slate-900 mb-6">Recent Articles</h3>
+                <div className="space-y-6">
+                  {recentArticles.filter(a => a.id !== article.id).slice(0, 4).map((recent) => (
+                    <Link key={recent.id} to={`/blog/${recent.slug}`} className="group flex gap-4">
+                      <img 
+                        src={recent.featuredImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=100'} 
+                        className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
+                        alt={recent.title}
+                      />
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                          {recent.title}
+                        </h4>
+                        <span className="text-xs text-slate-500">
+                          {new Date(recent.publishedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </aside>
+          
           {/* Article Body */}
-          <article className="flex-1 max-w-4xl">
+          <article className="flex-1 max-w-4xl order-first lg:order-none">
             <div 
-              className="prose prose-lg prose-emerald max-w-none text-slate-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              className="prose prose-lg prose-emerald max-w-none text-slate-700 leading-relaxed prose-headings:text-slate-900 prose-headings:font-black prose-a:text-emerald-600 prose-img:rounded-[2rem] prose-img:shadow-xl prose-strong:text-slate-900"
+              dangerouslySetInnerHTML={{ __html: enrichedContent }}
             />
 
             {/* FAQ Section */}
@@ -230,33 +348,6 @@ const BlogArticle: React.FC = () => {
               </Link>
             </div>
           </article>
-
-          {/* Sidebar */}
-          <div className="w-full lg:w-80 space-y-8">
-            <div className="bg-slate-50 p-6 rounded-card border border-slate-100 sticky top-24">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Recent Articles</h3>
-              <div className="space-y-6">
-                {recentArticles.filter(a => a.id !== article.id).slice(0, 4).map((recent) => (
-                  <Link key={recent.id} to={`/blog/${recent.slug}`} className="group flex gap-4">
-                    <img 
-                      src={recent.featuredImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=100'} 
-                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                      alt={recent.title}
-                    />
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
-                        {recent.title}
-                      </h4>
-                      <span className="text-xs text-slate-500">
-                        {new Date(recent.publishedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 

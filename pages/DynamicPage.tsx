@@ -244,6 +244,7 @@ const DynamicPage: React.FC = () => {
 
       <LatestTravelGuides 
         route={location.pathname} 
+        destination={seoConfig?.destinationName}
         country={seoConfig?.countryTag || homepageContent?.countryTag} 
         airport={seoConfig?.airportTags}
       />

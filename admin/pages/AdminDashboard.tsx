@@ -2393,6 +2393,9 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [showSeoContent, setShowSeoContent] = useState(config?.showSeoContent ?? true);
   const [showRelatedDestinations, setShowRelatedDestinations] = useState(config?.showRelatedDestinations ?? true);
   const [showFeaturedCars, setShowFeaturedCars] = useState(config?.showFeaturedCars ?? true);
+  const [destinationName, setDestinationName] = useState(config?.destinationName || '');
+  const [countryTag, setCountryTag] = useState(config?.countryTag || '');
+  const [airportTags, setAirportTags] = useState(config?.airportTags || '');
   const [relatedBlogsJson, setRelatedBlogsJson] = useState(config?.relatedBlogsJson || '');
 
   const defaultBuilder = {
@@ -2437,6 +2440,9 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setHeroPromotionText(config.heroPromotionText || '');
       setHeroPromotionLink(config.heroPromotionLink || '');
       setHeroPromotionColor(config.heroPromotionColor || '#E11D48');
+      setDestinationName(config.destinationName || '');
+      setCountryTag(config.countryTag || '');
+      setAirportTags(config.airportTags || '');
       setRelatedBlogsJson(config.relatedBlogsJson || '');
       const savedBuilder = config.contentJson ? JSON.parse(config.contentJson) : {};
       setBuilderConfig({
@@ -2465,6 +2471,9 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setHeroPromotionText('');
         setHeroPromotionLink('');
         setHeroPromotionColor('#E11D48');
+        setDestinationName('');
+        setCountryTag('');
+        setAirportTags('');
         setBuilderConfig(defaultBuilder);
         setActiveTab('seo');
     }
@@ -2529,7 +2538,9 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       showSeoContent,
       showRelatedDestinations,
       showFeaturedCars,
-      relatedBlogsJson,
+      destinationName,
+      countryTag,
+      airportTags,
       contentJson: JSON.stringify(builderConfig)
     });
   };
@@ -2691,6 +2702,33 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                         <div className={`h-full transition-all duration-500 ${getScore() >= 80 ? 'bg-emerald-500' : getScore() >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${getScore()}%` }} />
                       </div>
                     </div>
+                  </div>
+
+                  {/* Smart Filtering Tags */}
+                  <div className="p-4 bg-emerald-50/50 rounded-card border border-emerald-100 space-y-4">
+                    <h4 className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest flex items-center gap-2">
+                      <MapPin className="w-3 h-3" /> Location Tagging (Smart Blogs)
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <InputField 
+                        label="Destination" 
+                        value={destinationName} 
+                        onChange={(e: any) => setDestinationName(e.target.value)} 
+                        placeholder="e.g. Dubai"
+                      />
+                      <InputField 
+                        label="Country" 
+                        value={countryTag} 
+                        onChange={(e: any) => setCountryTag(e.target.value)} 
+                        placeholder="e.g. UAE"
+                      />
+                    </div>
+                    <InputField 
+                      label="Airport Tags" 
+                      value={airportTags} 
+                      onChange={(e: any) => setAirportTags(e.target.value)} 
+                      placeholder="e.g. DXB, Dubai International"
+                    />
                   </div>
                 </div>
               </div>

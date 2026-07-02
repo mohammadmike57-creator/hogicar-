@@ -9,6 +9,7 @@ interface LatestTravelGuidesProps {
   route?: string;
   country?: string;
   airport?: string;
+  destination?: string;
   limit?: number;
   title?: string;
   subtitle?: string;
@@ -18,6 +19,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
   route = '/',
   country,
   airport,
+  destination,
   limit = 6,
   title,
   subtitle
@@ -45,7 +47,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
         if (route === '/') {
           data = await fetchHomepageFeaturedBlogs();
         } else {
-          data = await fetchRelatedBlogs(route, country, airport, limit);
+          data = await fetchRelatedBlogs(destination || route, country, airport, limit);
         }
         setArticles(data);
       } catch (error) {
