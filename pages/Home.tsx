@@ -693,6 +693,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       <LatestTravelGuides 
         route={seoConfig?.route || '/'} 
         country={seoConfig?.countryTag} 
+        airport={seoConfig?.airportTags}
         limit={6} 
       />
 

@@ -272,10 +272,25 @@ export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]>
   }
 };
 
-export const fetchRelatedBlogs = async (route: string, country?: string, limit: number = 6): Promise<any[]> => {
+export const fetchHomepageFeaturedBlogs = async (): Promise<BlogArticle[]> => {
   try {
-    const url = `${API_BASE_URL}/api/public/blog/related?route=${encodeURIComponent(route)}&country=${encodeURIComponent(country || '')}&limit=${limit}`;
-    const response = await publicAxios.get(url);
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/blog/featured-home`);
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Error fetching featured blogs:', error);
+    return [];
+  }
+};
+
+export const fetchRelatedBlogs = async (route?: string, country?: string, airport?: string, limit: number = 6): Promise<BlogArticle[]> => {
+  try {
+    const params = new URLSearchParams();
+    if (route) params.append('route', route);
+    if (country) params.append('country', country);
+    if (airport) params.append('airport', airport);
+    params.append('limit', limit.toString());
+    
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/blog/related?${params.toString()}`);
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('Error fetching related blogs:', error);

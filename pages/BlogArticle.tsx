@@ -2,34 +2,15 @@ import * as React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
+import LatestTravelGuides from '../components/LatestTravelGuides';
 import { api } from '../api';
-
-interface BlogArticle {
-  id: number;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string;
-  featuredImage: string;
-  category: {
-    name: string;
-    slug: string;
-  };
-  authorName: string;
-  authorImage: string;
-  publishedAt: string;
-  seoTitle: string;
-  seoDescription: string;
-  canonicalUrl: string;
-  faqJson: string;
-  relatedRoutesJson: string;
-}
+import { BlogArticle as BlogArticleType } from '../types';
 
 const BlogArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [article, setArticle] = React.useState<BlogArticle | null>(null);
+  const [article, setArticle] = React.useState<BlogArticleType | null>(null);
   const [loading, setLoading] = React.useState(true);
-  const [recentArticles, setRecentArticles] = React.useState<BlogArticle[]>([]);
+  const [recentArticles, setRecentArticles] = React.useState<BlogArticleType[]>([]);
 
   React.useEffect(() => {
     fetchArticle();
@@ -278,6 +259,15 @@ const BlogArticle: React.FC = () => {
 
         </div>
       </div>
+
+      <LatestTravelGuides 
+        route={article.destinations?.split(',')[0]} 
+        country={article.countryTag} 
+        airport={article.airportTags?.split(',')[0]}
+        limit={3}
+        title="More Like This"
+        subtitle="Explore more travel guides and tips related to this topic."
+      />
     </div>
   );
 };

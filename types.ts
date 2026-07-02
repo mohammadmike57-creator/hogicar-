@@ -699,6 +699,8 @@ export interface BlogArticle {
   airportTags?: string;
   countryTag?: string;
   readingTime?: string;
+  featuredOnHomepage?: boolean;
+  isFeatured?: boolean;
   tags?: string;
   authorName?: string;
   authorImage?: string;

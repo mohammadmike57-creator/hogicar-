@@ -245,6 +245,7 @@ const DynamicPage: React.FC = () => {
       <LatestTravelGuides 
         route={location.pathname} 
         country={seoConfig?.countryTag || homepageContent?.countryTag} 
+        airport={seoConfig?.airportTags}
       />
 
       <section className="py-16 bg-slate-900 text-white">

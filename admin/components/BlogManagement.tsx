@@ -34,6 +34,8 @@ interface BlogArticle {
   airportTags: string;
   countryTag: string;
   readingTime: string;
+  featuredOnHomepage: boolean;
+  isFeatured: boolean;
   tags: string;
   authorName: string;
   authorImage: string;
@@ -490,6 +492,28 @@ const BlogManagement: React.FC = () => {
                             className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.published ? 'bg-emerald-500' : 'bg-slate-300'}`}
                           >
                             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.published ? 'left-7' : 'left-1'}`} />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
+                          <span className="text-sm font-bold text-slate-700">Featured on Homepage</span>
+                          <button 
+                            type="button"
+                            onClick={() => setEditingArticle({...editingArticle, featuredOnHomepage: !editingArticle.featuredOnHomepage})}
+                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.featuredOnHomepage ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                          >
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.featuredOnHomepage ? 'left-7' : 'left-1'}`} />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
+                          <span className="text-sm font-bold text-slate-700">Mark as Featured</span>
+                          <button 
+                            type="button"
+                            onClick={() => setEditingArticle({...editingArticle, isFeatured: !editingArticle.isFeatured})}
+                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.isFeatured ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                          >
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.isFeatured ? 'left-7' : 'left-1'}`} />
                           </button>
                         </div>
                       </div>

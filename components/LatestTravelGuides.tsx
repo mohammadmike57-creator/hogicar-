@@ -2,12 +2,13 @@ import * as React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Clock, Calendar, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { fetchRelatedBlogs, fetchRecentBlogs } from '../api';
+import { fetchRelatedBlogs, fetchHomepageFeaturedBlogs } from '../api';
 import { BlogArticle } from '../types';
 
 interface LatestTravelGuidesProps {
   route?: string;
   country?: string;
+  airport?: string;
   limit?: number;
   title?: string;
   subtitle?: string;
@@ -16,12 +17,25 @@ interface LatestTravelGuidesProps {
 const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
   route = '/',
   country,
+  airport,
   limit = 6,
-  title = "Latest Travel Guides & Tips",
-  subtitle = "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations related to this destination."
+  title,
+  subtitle
 }) => {
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [loading, setLoading] = React.useState(true);
+
+  // Default text based on context
+  const defaultTitle = route === '/' 
+    ? "Latest Travel Guides & Tips" 
+    : "Latest Travel Guides & Tips";
+    
+  const defaultSubtitle = route === '/'
+    ? "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations from around the world."
+    : "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations related to this destination.";
+
+  const displayTitle = title || defaultTitle;
+  const displaySubtitle = subtitle || defaultSubtitle;
 
   React.useEffect(() => {
     const loadBlogs = async () => {
@@ -29,9 +43,9 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
       try {
         let data: BlogArticle[] = [];
         if (route === '/') {
-          data = await fetchRecentBlogs();
+          data = await fetchHomepageFeaturedBlogs();
         } else {
-          data = await fetchRelatedBlogs(route, country, limit);
+          data = await fetchRelatedBlogs(route, country, airport, limit);
         }
         setArticles(data);
       } catch (error) {
@@ -42,7 +56,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
     };
 
     loadBlogs();
-  }, [route, country, limit]);
+  }, [route, country, airport, limit]);
 
   if (!loading && articles.length === 0) return null;
 
@@ -66,7 +80,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
               transition={{ delay: 0.1 }}
               className="text-3xl md:text-4xl font-bold text-slate-900 mb-4"
             >
-              {title}
+              {displayTitle}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -75,7 +89,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
               transition={{ delay: 0.2 }}
               className="text-lg text-slate-600"
             >
-              {subtitle}
+              {displaySubtitle}
             </motion.p>
           </div>
           
