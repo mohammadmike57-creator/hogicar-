@@ -672,3 +672,38 @@ export interface CarRateTier {
   currency: string;
   bands: CarRateBand[];
 }
+
+export interface BlogCategory {
+  id?: number;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface BlogArticle {
+  id?: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  featuredImage: string;
+  mobileImage?: string;
+  thumbnailImage?: string;
+  category?: BlogCategory;
+  seoTitle?: string;
+  seoDescription?: string;
+  canonicalUrl?: string;
+  faqJson?: string;
+  relatedRoutesJson?: string;
+  destinations?: string;
+  airportTags?: string;
+  countryTag?: string;
+  readingTime?: string;
+  tags?: string;
+  authorName?: string;
+  authorImage?: string;
+  published: boolean;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

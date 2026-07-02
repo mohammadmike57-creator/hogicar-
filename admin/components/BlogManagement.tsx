@@ -22,11 +22,19 @@ interface BlogArticle {
   content: string;
   excerpt: string;
   featuredImage: string;
+  mobileImage: string;
+  thumbnailImage: string;
   category: BlogCategory | null;
   seoTitle: string;
   seoDescription: string;
   canonicalUrl: string;
   faqJson: string;
+  relatedRoutesJson: string;
+  destinations: string;
+  airportTags: string;
+  countryTag: string;
+  readingTime: string;
+  tags: string;
   authorName: string;
   authorImage: string;
   published: boolean;
@@ -379,6 +387,63 @@ const BlogManagement: React.FC = () => {
                         />
                       </div>
 
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Reading Time</label>
+                          <input 
+                            type="text"
+                            placeholder="e.g., 5 min read"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-bold"
+                            value={editingArticle.readingTime || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, readingTime: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country Tag</label>
+                          <input 
+                            type="text"
+                            placeholder="e.g., Jordan"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-bold"
+                            value={editingArticle.countryTag || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, countryTag: e.target.value})}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Destinations (Route Slugs)</label>
+                          <input 
+                            type="text"
+                            placeholder="/car-rental-amman, /car-rental-aqaba"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-mono"
+                            value={editingArticle.destinations || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, destinations: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Airport Codes</label>
+                          <input 
+                            type="text"
+                            placeholder="AMM, DXB, AUH"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-mono"
+                            value={editingArticle.airportTags || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, airportTags: e.target.value})}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Tags (Comma Separated)</label>
+                        <input 
+                          type="text"
+                          placeholder="Travel Tips, Luxury, Adventure"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm"
+                          value={editingArticle.tags || ''}
+                          onChange={(e) => setEditingArticle({...editingArticle, tags: e.target.value})}
+                        />
+                      </div>
+
                       <div className="space-y-2">
                         <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Content (HTML Supported)</label>
                         <textarea 
@@ -431,22 +496,41 @@ const BlogManagement: React.FC = () => {
 
                       {/* Featured Image */}
                       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Featured Image</h3>
-                        <div className="space-y-3">
-                          <div className="aspect-video bg-white rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
-                            {editingArticle.featuredImage ? (
-                              <img src={editingArticle.featuredImage} className="w-full h-full object-cover" />
-                            ) : (
-                              <ImageIcon className="text-slate-300" size={32} />
-                            )}
+                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Images</h3>
+                        
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Desktop (Main)</label>
+                            <input 
+                              type="text"
+                              placeholder="Desktop image URL..."
+                              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
+                              value={editingArticle.featuredImage || ''}
+                              onChange={(e) => setEditingArticle({...editingArticle, featuredImage: e.target.value})}
+                            />
                           </div>
-                          <input 
-                            type="text"
-                            placeholder="Image URL..."
-                            className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
-                            value={editingArticle.featuredImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, featuredImage: e.target.value})}
-                          />
+                          
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Mobile</label>
+                            <input 
+                              type="text"
+                              placeholder="Mobile image URL..."
+                              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
+                              value={editingArticle.mobileImage || ''}
+                              onChange={(e) => setEditingArticle({...editingArticle, mobileImage: e.target.value})}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Thumbnail (Card)</label>
+                            <input 
+                              type="text"
+                              placeholder="Thumbnail image URL..."
+                              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
+                              value={editingArticle.thumbnailImage || ''}
+                              onChange={(e) => setEditingArticle({...editingArticle, thumbnailImage: e.target.value})}
+                            />
+                          </div>
                         </div>
                       </div>
 

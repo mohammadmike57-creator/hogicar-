@@ -7,6 +7,7 @@ import { ArrowLeft, Clock, Loader2, CheckCircle, Shield, Award, ChevronRight, Ch
 import Home from './Home';
 import Reviews from '../components/Reviews';
 import TrustedSuppliers from '../components/TrustedSuppliers';
+import LatestTravelGuides from '../components/LatestTravelGuides';
 import { API_BASE_URL } from '../lib/config';
 
 const DynamicPage: React.FC = () => {
@@ -240,6 +241,11 @@ const DynamicPage: React.FC = () => {
             </div>
         </section>
       )}
+
+      <LatestTravelGuides 
+        route={location.pathname} 
+        country={seoConfig?.countryTag || homepageContent?.countryTag} 
+      />
 
       <section className="py-16 bg-slate-900 text-white">
         <div className="max-w-4xl mx-auto px-4 text-center">

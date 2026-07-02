@@ -6,6 +6,7 @@ import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
 import Reviews from '../components/Reviews';
 import TrustedSuppliers from '../components/TrustedSuppliers';
+import LatestTravelGuides from '../components/LatestTravelGuides';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
@@ -687,6 +688,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
         </section>
       )}
+
+      {/* Latest Travel Guides & Tips */}
+      <LatestTravelGuides 
+        route={seoConfig?.route || '/'} 
+        country={seoConfig?.countryTag} 
+        limit={6} 
+      />
 
       {/* REVIEWS SECTION */}
       {sections.reviews && (

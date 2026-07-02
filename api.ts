@@ -272,6 +272,27 @@ export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]>
   }
 };
 
+export const fetchRelatedBlogs = async (route: string, country?: string, limit: number = 6): Promise<any[]> => {
+  try {
+    const url = `${API_BASE_URL}/api/public/blog/related?route=${encodeURIComponent(route)}&country=${encodeURIComponent(country || '')}&limit=${limit}`;
+    const response = await publicAxios.get(url);
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Error fetching related blogs:', error);
+    return [];
+  }
+};
+
+export const fetchRecentBlogs = async (): Promise<any[]> => {
+  try {
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/blog/recent`);
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Error fetching recent blogs:', error);
+    return [];
+  }
+};
+
 export const submitPartnerApplication = async (data: any): Promise<any> => {
   const response = await publicAxios.post(`${API_BASE_URL}/api/partner-applications/submit`, data, {
     headers: {
