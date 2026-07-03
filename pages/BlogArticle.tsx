@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
-import { api, API_BASE_URL } from '../api';
+import { api } from '../api';
+import { API_BASE_URL } from '../lib/config';
 import { BlogArticle as BlogArticleType } from '../types';
 
 const BlogArticle: React.FC = () => {

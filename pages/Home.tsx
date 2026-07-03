@@ -11,6 +11,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
 import { LocationSuggestion } from '../api';
+import { API_BASE_URL } from '../lib/config';
 
 const normalizeHomepageContent = (content: any) => {
   const safeContent = content && typeof content === 'object' ? content : {};

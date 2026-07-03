@@ -14,7 +14,8 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie
 } from 'recharts';
-import { supplierApi, getPublicLocations, API_BASE_URL } from '../api';
+import { supplierApi, getPublicLocations } from '../api';
+import { API_BASE_URL } from '../lib/config';
 import { CURRENCIES } from '../contexts/CurrencyContext';
 import { 
   Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 

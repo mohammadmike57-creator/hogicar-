@@ -1,6 +1,6 @@
 import axios from 'axios';
+export { API_BASE_URL } from './lib/config';
 import { API_BASE_URL } from './lib/config';
-export { API_BASE_URL };
 
 // ---------- Types ----------
 export interface LocationSuggestion {
@@ -356,6 +356,7 @@ export const api = {
   fetchSearchingLogos,
   submitPartnerApplication,
   fetchSeoConfig: (route: string) => publicAxios.get(`${API_BASE_URL}/api/seo/config?route=${encodeURIComponent(route)}`),
+  get baseUrl() { return API_BASE_URL; },
 };
 
 // ---------- Supplier API ----------

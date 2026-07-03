@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, ArrowRight, Search as SearchIcon, Tag } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
-import { api, API_BASE_URL } from '../api';
+import { api } from '../api';
+import { API_BASE_URL } from '../lib/config';
 
 interface BlogArticle {
   id: number;
