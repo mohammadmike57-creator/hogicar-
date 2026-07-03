@@ -10,7 +10,7 @@ import {
   Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
   Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins, MapPin, Lock,
   Eye, EyeOff, LayoutGrid, Palette, Building2,
-  Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard, MessageSquare
+  Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard, MessageSquare, Upload
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -255,6 +255,64 @@ const InputField = ({ label, error, helperText, ...props }: any) => (
     {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
   </div>
 );
+
+const ImageUploadField = ({ label, value, onChange, placeholder }: any) => {
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await adminFetch('/api/admin/seo/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.url) {
+        onChange({ target: { value: res.url } } as any);
+      }
+    } catch (err: any) {
+      alert('Upload failed: ' + err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-1">
+      <label className="block text-xs font-medium text-gray-600">{label}</label>
+      <div className="flex gap-2">
+        <input 
+          value={value} 
+          onChange={onChange} 
+          placeholder={placeholder}
+          className="flex-1 px-3 py-2 border border-gray-200 rounded-card text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+        />
+        <input 
+          type="file" 
+          hidden 
+          ref={fileInputRef} 
+          onChange={handleUpload}
+          accept="image/*"
+        />
+        <button 
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-card text-[10px] font-extrabold uppercase tracking-widest transition-all flex items-center gap-2"
+        >
+          {uploading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+          Upload
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const SelectField = ({ label, options, error, ...props }: any) => (
   <div className="space-y-1">
@@ -1834,13 +1892,11 @@ const SiteSettingsContent = () => {
           />
         </div>
         <div>
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Homepage Hero Background Image URL</label>
-          <input 
-            type="text" 
+          <ImageUploadField 
+            label="Homepage Hero Background Image" 
             value={heroImageUrl} 
-            onChange={e => setHeroImageUrl(e.target.value)} 
+            onChange={(e: any) => setHeroImageUrl(e.target.value)} 
             placeholder="https://example.com/image.jpg"
-            className="w-full bg-slate-50 border border-slate-100 rounded-card p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono" 
           />
           <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
         </div>
@@ -2826,13 +2882,13 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                   <p className="text-[9px] text-slate-400 italic">This content will be displayed prominently on the landing page.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputField 
+                  <ImageUploadField 
                     label="Hero Background Image (Desktop)" 
                     value={heroImage} 
                     onChange={(e: any) => setHeroImage(e.target.value)} 
                     placeholder="https://example.com/hero.jpg"
                   />
-                  <InputField 
+                  <ImageUploadField 
                     label="Hero Background Image (Mobile)" 
                     value={heroMobileImage} 
                     onChange={(e: any) => setHeroMobileImage(e.target.value)} 
