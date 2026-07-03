@@ -30,8 +30,9 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
         body: formData,
       });
       if (res.url) {
-        const fullUrl = res.url.startsWith('/') ? `${API_BASE_URL}${res.url}` : res.url;
-        onChange({ target: { value: fullUrl } } as any);
+        // Store only the relative path in the database
+        const relativeUrl = res.url.startsWith('/') ? res.url : `/${res.url}`;
+        onChange({ target: { value: relativeUrl } } as any);
       }
     } catch (err: any) {
       alert('Upload failed: ' + err.message);
@@ -48,13 +49,16 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
         <div className="relative mb-2 group">
           <div className="relative aspect-video rounded-card overflow-hidden border border-slate-200 bg-slate-50">
             <img 
-              src={value} 
+              src={value.startsWith('/') && !value.startsWith('http') ? `${API_BASE_URL}${value}` : value} 
               alt="Preview" 
               className="w-full h-full object-cover"
               onError={(e) => {
+                const target = e.currentTarget;
                 if (value.startsWith('/') && !value.startsWith('http')) {
-                  e.currentTarget.src = `${API_BASE_URL}${value}`;
+                   // If prepending API_BASE_URL failed, maybe it's already there or just broken
+                   console.error("Failed to load image with API_BASE_URL prepended:", target.src);
                 }
+                target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
               }}
             />
           </div>

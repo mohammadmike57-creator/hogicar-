@@ -296,8 +296,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const faqs = content.faqs.items;
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
-  const heroBackgroundImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
-  const heroMobileImage = seoConfig?.heroMobileImage || heroBackgroundImage;
+  const heroBackgroundImage = (seoConfig?.heroImage?.startsWith('/') && !seoConfig?.heroImage?.startsWith('http') ? `${API_BASE_URL}${seoConfig.heroImage}` : seoConfig?.heroImage) 
+    || (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) 
+    || content.hero.backgroundImage;
+  const heroMobileImage = (seoConfig?.heroMobileImage?.startsWith('/') && !seoConfig?.heroMobileImage?.startsWith('http') ? `${API_BASE_URL}${seoConfig.heroMobileImage}` : seoConfig?.heroMobileImage) 
+    || heroBackgroundImage;
   const heroVideo = seoConfig?.heroVideo || content.hero.video;
   const heroOverlayOpacity = seoConfig?.heroOverlayOpacity ?? 0.4;
   const heroTextColor = seoConfig?.heroTextColor || content.hero.textColor || '#FFFFFF';

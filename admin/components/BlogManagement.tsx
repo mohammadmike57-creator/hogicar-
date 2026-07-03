@@ -8,6 +8,7 @@ import {
 import { adminFetch } from '../../lib/adminApi';
 import ImageUploadField from './ImageUploadField';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../../lib/config';
 
 interface BlogCategory {
   id: number;
@@ -204,7 +205,7 @@ const BlogManagement: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <img 
-                          src={article.featuredImage || 'https://via.placeholder.com/150'} 
+                          src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://via.placeholder.com/150'} 
                           className="w-12 h-12 rounded-lg object-cover bg-slate-100"
                         />
                         <div>

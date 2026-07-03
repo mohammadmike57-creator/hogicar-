@@ -1639,7 +1639,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 
                 <div className="h-24 rounded-card border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
                   {imageUrl ? (
-                    <img src={imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width="320" height="210" loading="lazy" />
+                    <img src={imageUrl.startsWith('/') && !imageUrl.startsWith('http') ? `${API_BASE_URL}${imageUrl}` : imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width="320" height="210" loading="lazy" />
                   ) : (
                     <div className="text-[11px] font-bold text-slate-400">No image</div>
                   )}

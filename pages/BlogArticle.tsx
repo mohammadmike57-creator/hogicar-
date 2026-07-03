@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
-import { api } from '../api';
+import { api, API_BASE_URL } from '../api';
 import { BlogArticle as BlogArticleType } from '../types';
 
 const BlogArticle: React.FC = () => {
@@ -141,7 +141,7 @@ const BlogArticle: React.FC = () => {
       <SEOMetadata 
         title={article.seoTitle || article.title}
         description={article.seoDescription || article.excerpt}
-        ogImage={article.featuredImage}
+        ogImage={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : undefined}
         canonicalUrl={article.canonicalUrl || `https://www.hogicar.com/blog/${article.slug}`}
         schema={faqSchema ? [articleSchema, faqSchema] : articleSchema}
       />
@@ -158,7 +158,7 @@ const BlogArticle: React.FC = () => {
       {/* Hero Section */}
       <div className="relative h-[60vh] min-h-[400px] mb-12">
         <img 
-          src={article.featuredImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=1200'} 
+          src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=1200'} 
           alt={article.title}
           className="w-full h-full object-cover"
         />
@@ -174,7 +174,7 @@ const BlogArticle: React.FC = () => {
             <div className="flex items-center gap-6 text-white/90 text-sm">
               <div className="flex items-center gap-2">
                 <img 
-                  src={article.authorImage || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100'} 
+                  src={article.authorImage ? (article.authorImage.startsWith('/') && !article.authorImage.startsWith('http') ? `${API_BASE_URL}${article.authorImage}` : article.authorImage) : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100'} 
                   className="w-10 h-10 rounded-full border-2 border-white/20"
                   alt={article.authorName}
                 />
@@ -260,7 +260,7 @@ const BlogArticle: React.FC = () => {
                   {recentArticles.filter(a => a.id !== article.id).slice(0, 4).map((recent) => (
                     <Link key={recent.id} to={`/blog/${recent.slug}`} className="group flex gap-4">
                       <img 
-                        src={recent.featuredImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=100'} 
+                        src={recent.featuredImage ? (recent.featuredImage.startsWith('/') && !recent.featuredImage.startsWith('http') ? `${API_BASE_URL}${recent.featuredImage}` : recent.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=100'} 
                         className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
                         alt={recent.title}
                       />

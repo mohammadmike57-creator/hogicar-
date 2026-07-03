@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, ArrowRight, Search as SearchIcon, Tag } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
-import { api } from '../api';
+import { api, API_BASE_URL } from '../api';
 
 interface BlogArticle {
   id: number;
@@ -110,7 +110,7 @@ const BlogIndex: React.FC = () => {
                   >
                     <div className="relative h-48 overflow-hidden">
                       <img 
-                        src={article.featuredImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'} 
+                        src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'} 
                         alt={article.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
