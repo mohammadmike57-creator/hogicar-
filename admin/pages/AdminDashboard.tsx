@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';
+import ImageUploadField from '../components/ImageUploadField';
 import BlogManagement from '../components/BlogManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
@@ -256,64 +257,6 @@ const InputField = ({ label, error, helperText, ...props }: any) => (
   </div>
 );
 
-const ImageUploadField = ({ label, value, onChange, placeholder }: any) => {
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await adminFetch('/api/admin/seo/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.url) {
-        const fullUrl = res.url.startsWith('/') ? `${API_BASE_URL}${res.url}` : res.url;
-        onChange({ target: { value: fullUrl } } as any);
-      }
-    } catch (err: any) {
-      alert('Upload failed: ' + err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-1">
-      <label className="block text-xs font-medium text-gray-600">{label}</label>
-      <div className="flex gap-2">
-        <input 
-          value={value} 
-          onChange={onChange} 
-          placeholder={placeholder}
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-card text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-        />
-        <input 
-          type="file" 
-          hidden 
-          ref={fileInputRef} 
-          onChange={handleUpload}
-          accept="image/*"
-        />
-        <button 
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-card text-[10px] font-extrabold uppercase tracking-widest transition-all flex items-center gap-2"
-        >
-          {uploading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-          Upload
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const SelectField = ({ label, options, error, ...props }: any) => (
   <div className="space-y-1">
@@ -1271,9 +1214,20 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
                   return (
                     <tr key={c.route} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-mono text-xs font-bold text-[#007ac2] bg-blue-50 px-2 py-0.5 rounded-full w-fit mb-1">{c.route}</span>
-                          <span className="text-sm font-extrabold text-slate-900 truncate max-w-md">{c.title || 'Untitled'}</span>
+                        <div className="flex items-center gap-4">
+                          {c.heroImage && (
+                            <div className="w-12 h-8 rounded bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
+                              <img 
+                                src={c.heroImage.startsWith('/') ? `${API_BASE_URL}${c.heroImage}` : c.heroImage} 
+                                alt="" 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="flex flex-col">
+                            <span className="font-mono text-xs font-bold text-[#007ac2] bg-blue-50 px-2 py-0.5 rounded-full w-fit mb-1">{c.route}</span>
+                            <span className="text-sm font-extrabold text-slate-900 truncate max-w-md">{c.title || 'Untitled'}</span>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -1549,7 +1503,11 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
           <InputField label="Hero Subtitle" value={localContent?.hero?.subtitle || ''} onChange={e => handleChange('hero.subtitle', e.target.value)} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField label="Hero Background Image" value={localContent?.hero?.backgroundImage || ''} onChange={e => handleChange('hero.backgroundImage', e.target.value)} />
+          <ImageUploadField 
+            label="Hero Background Image" 
+            value={localContent?.hero?.backgroundImage || ''} 
+            onChange={(e: any) => handleChange('hero.backgroundImage', e.target.value)} 
+          />
           <InputField label="Hero Background Video" value={localContent?.hero?.video || ''} onChange={e => handleChange('hero.video', e.target.value)} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1777,52 +1735,11 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
               </div>
 
               <div className="mt-3 space-y-2">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Destination Image</label>
-                <div className="h-28 rounded-card border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
-                  {destination?.image ? (
-                    <img
-                      src={destination.image}
-                      alt={`${destination?.name || 'Destination'} preview`}
-                      className="w-full h-full object-cover"
-                      width="320"
-                      height="180"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="text-[11px] font-bold text-slate-400">No image</div>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  <input
-                    id={`popular-destination-image-${index}`}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={async (e) => {
-                      await handleDestinationImageUpload(index, e.target.files?.[0]);
-                      e.target.value = '';
-                    }}
-                  />
-                  <label
-                    htmlFor={`popular-destination-image-${index}`}
-                    className="flex-1 text-center bg-white border border-blue-200 text-[#007ac2] rounded-card px-3 py-2 text-xs font-bold cursor-pointer hover:bg-blue-50 transition-colors"
-                  >
-                    Upload Image
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => updateDestinationField(index, 'image', '')}
-                    className="px-3 py-2 rounded-card border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
-                  >
-                    Clear
-                  </button>
-                </div>
-
-                <InputField
-                  label="Image URL"
+                <ImageUploadField 
+                  label="Destination Image"
                   value={destination?.image || destination?.imageUrl || ''}
                   onChange={e => updateDestinationField(index, 'image', e.target.value)}
+                  placeholder="https://example.com/image.jpg"
                 />
               </div>
             </div>
@@ -1898,18 +1815,9 @@ const SiteSettingsContent = () => {
             value={heroImageUrl} 
             onChange={(e: any) => setHeroImageUrl(e.target.value)} 
             placeholder="https://example.com/image.jpg"
+            helperText="Recommended size: 2000x1200px"
           />
-          <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recommended size: 2000x1200px</p>
         </div>
-        
-        {heroImageUrl && (
-          <div className="mt-4">
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Preview</label>
-            <div className="relative aspect-video rounded-card overflow-hidden border border-slate-100 bg-slate-50">
-              <img src={heroImageUrl} alt="Hero Preview" className="w-full h-full object-cover" width="1280" height="720" />
-            </div>
-          </div>
-        )}
 
         <div className="pt-4 flex items-center gap-4">
           <button 

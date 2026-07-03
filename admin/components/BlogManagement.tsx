@@ -6,6 +6,7 @@ import {
   LoaderCircle, ImageIcon, ChevronDown
 } from 'lucide-react';
 import { adminFetch } from '../../lib/adminApi';
+import ImageUploadField from './ImageUploadField';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface BlogCategory {
@@ -523,38 +524,26 @@ const BlogManagement: React.FC = () => {
                         <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Images</h3>
                         
                         <div className="space-y-4">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Desktop (Main)</label>
-                            <input 
-                              type="text"
-                              placeholder="Desktop image URL..."
-                              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
-                              value={editingArticle.featuredImage || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, featuredImage: e.target.value})}
-                            />
-                          </div>
+                          <ImageUploadField 
+                            label="Desktop (Main)"
+                            placeholder="Desktop image URL..."
+                            value={editingArticle.featuredImage || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, featuredImage: e.target.value})}
+                          />
                           
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Mobile</label>
-                            <input 
-                              type="text"
-                              placeholder="Mobile image URL..."
-                              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
-                              value={editingArticle.mobileImage || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, mobileImage: e.target.value})}
-                            />
-                          </div>
+                          <ImageUploadField 
+                            label="Mobile"
+                            placeholder="Mobile image URL..."
+                            value={editingArticle.mobileImage || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, mobileImage: e.target.value})}
+                          />
 
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Thumbnail (Card)</label>
-                            <input 
-                              type="text"
-                              placeholder="Thumbnail image URL..."
-                              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900"
-                              value={editingArticle.thumbnailImage || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, thumbnailImage: e.target.value})}
-                            />
-                          </div>
+                          <ImageUploadField 
+                            label="Thumbnail (Card)"
+                            placeholder="Thumbnail image URL..."
+                            value={editingArticle.thumbnailImage || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, thumbnailImage: e.target.value})}
+                          />
                         </div>
                       </div>
 
@@ -604,13 +593,12 @@ const BlogManagement: React.FC = () => {
                             value={editingArticle.authorName || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, authorName: e.target.value})}
                           />
-                          <input 
-                            type="text"
-                            placeholder="Image URL"
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                            value={editingArticle.authorImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, authorImage: e.target.value})}
-                          />
+                        <ImageUploadField 
+                          label="Author Image"
+                          placeholder="Author image URL"
+                          value={editingArticle.authorImage || ''}
+                          onChange={(e) => setEditingArticle({...editingArticle, authorImage: e.target.value})}
+                        />
                         </div>
                       </div>
                     </div>
