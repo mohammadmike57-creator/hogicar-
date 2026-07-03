@@ -274,7 +274,8 @@ const ImageUploadField = ({ label, value, onChange, placeholder }: any) => {
         body: formData,
       });
       if (res.url) {
-        onChange({ target: { value: res.url } } as any);
+        const fullUrl = res.url.startsWith('/') ? `${API_BASE_URL}${res.url}` : res.url;
+        onChange({ target: { value: fullUrl } } as any);
       }
     } catch (err: any) {
       alert('Upload failed: ' + err.message);
