@@ -23,6 +23,10 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
+    if (value) {
+      // Pass the current value as oldUrl to be deleted on the server
+      formData.append('oldUrl', value);
+    }
 
     try {
       const res = await adminFetch('/api/admin/seo/upload', {
@@ -39,6 +43,23 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleRemove = async () => {
+    if (!value) return;
+    
+    // If it's a local upload, we can try to delete it from the server
+    if (value.startsWith('/uploads/')) {
+        try {
+            await adminFetch(`/api/admin/seo/image?url=${encodeURIComponent(value)}`, {
+                method: 'DELETE'
+            });
+        } catch (err) {
+            console.error("Failed to delete image from server:", err);
+        }
+    }
+    
+    onChange({ target: { value: '' } } as any);
   };
 
   return (
@@ -64,7 +85,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
           </div>
           <button 
             type="button"
-            onClick={() => onChange({ target: { value: '' } } as any)}
+            onClick={handleRemove}
             className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all border border-rose-100"
             title="Remove image"
           >
