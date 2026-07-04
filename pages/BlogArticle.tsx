@@ -115,7 +115,7 @@ const BlogArticle: React.FC = () => {
   }
 
   // Add IDs to h2 tags in content for TOC linking
-  const enrichedContent = React.useMemo(() => {
+  const enrichedContent = (() => {
     if (!article.content) return '';
     let content = article.content;
     toc.forEach(item => {
@@ -125,7 +125,7 @@ const BlogArticle: React.FC = () => {
       content = content.replace(regex, `<h2 id="${item.id}">${item.text}</h2>`);
     });
     return content;
-  }, [article.content, toc]);
+  })();
 
   const articleSchema = parseJsonObject(article.articleSchemaJson) || {
     "@context": "https://schema.org",
