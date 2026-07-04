@@ -393,7 +393,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   onLoad={() => setHeroLoaded(true)}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
+                    target.style.display = 'none';
                     setHeroLoaded(true);
                   }}
                 />
@@ -796,8 +796,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                     >
                       <div className="aspect-video overflow-hidden">
                         <img 
-                          src={blog.image || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=400'} 
+                          src={blog.image || ''} 
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
                         />
                       </div>
                       <div className="p-5">

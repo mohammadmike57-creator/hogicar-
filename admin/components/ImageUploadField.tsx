@@ -75,11 +75,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
               className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.currentTarget;
-                if (value.startsWith('/') && !value.startsWith('http')) {
-                   // If prepending API_BASE_URL failed, maybe it's already there or just broken
-                   console.error("Failed to load image with API_BASE_URL prepended:", target.src);
-                }
-                target.src = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop";
+                target.style.display = 'none';
               }}
             />
           </div>

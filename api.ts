@@ -246,7 +246,7 @@ export const fetchSiteSettings = async (): Promise<any> => {
     return response.data;
   } catch (error) {
     console.error('Error fetching site settings:', error);
-    return { searchingScreenDuration: 5000, heroImageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=2070" };
+    return { searchingScreenDuration: 5000, heroImageUrl: "" };
   }
 };
 
