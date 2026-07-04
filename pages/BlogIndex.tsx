@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { Calendar, User, ArrowRight, Search as SearchIcon, Tag } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { Calendar, User, ArrowRight, Search as SearchIcon, Tag, Clock } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 import { API_BASE_URL } from '../lib/config';
@@ -17,20 +17,37 @@ interface BlogArticle {
   };
   authorName: string;
   publishedAt: string;
+  readingTime?: string;
+  tags?: string;
 }
 
 const BlogIndex: React.FC = () => {
+  const { categorySlug, tag, author } = useParams<{ categorySlug?: string; tag?: string; author?: string }>();
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [categories, setCategories] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
   const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
+  const [page, setPage] = React.useState(0);
+  const [totalPages, setTotalPages] = React.useState(1);
+
+  const selectedCategory = categorySlug || null;
+  const pageTitle = categorySlug
+    ? `${categorySlug.replace(/-/g, ' ')} Travel Guides`
+    : tag
+      ? `${tag.replace(/-/g, ' ')} Articles`
+      : author
+        ? `Articles by ${decodeURIComponent(author)}`
+        : 'Hogicar Travel Blog';
+
+  React.useEffect(() => {
+    setPage(0);
+  }, [categorySlug, tag, author]);
 
   React.useEffect(() => {
     fetchData();
     fetchSettings();
-  }, [selectedCategory]);
+  }, [categorySlug, tag, author, page]);
 
   const fetchSettings = async () => {
     try {
@@ -47,9 +64,15 @@ const BlogIndex: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const articlesRes = await fetch(`${api.baseUrl}/api/public/blog/articles?category=${selectedCategory || ''}`);
+      const params = new URLSearchParams({ page: String(page), size: '10' });
+      if (categorySlug) params.set('category', categorySlug);
+      if (tag) params.set('tag', tag);
+      if (author) params.set('author', decodeURIComponent(author));
+
+      const articlesRes = await fetch(`${api.baseUrl}/api/public/blog/articles?${params.toString()}`);
       const articlesData = await articlesRes.json();
       setArticles(articlesData.content || []);
+      setTotalPages(Math.max(articlesData.totalPages || 1, 1));
 
       const catsRes = await fetch(`${api.baseUrl}/api/public/blog/categories`);
       const catsData = await catsRes.json();
@@ -72,6 +95,7 @@ const BlogIndex: React.FC = () => {
       const res = await fetch(`${api.baseUrl}/api/public/blog/search?q=${searchQuery}`);
       const data = await res.json();
       setArticles(data.content || []);
+      setTotalPages(Math.max(data.totalPages || 1, 1));
     } catch (error) {
       console.error('Error searching articles:', error);
     } finally {
@@ -83,7 +107,7 @@ const BlogIndex: React.FC = () => {
     <div className="min-h-screen bg-slate-50 pt-20 pb-12">
       <SEOMetadata 
         title="Hogicar Blog - Car Rental Tips & Travel Guides"
-        description="Discover the best car rental tips, destination guides, and travel inspiration on the Hogicar blog."
+        description="Discover car rental tips, destination guides, airport advice, and road trip planning from Hogicar."
       />
 
       {/* Hero Section */}
@@ -99,9 +123,9 @@ const BlogIndex: React.FC = () => {
             </div>
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Hogicar Travel Blog</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 capitalize">{pageTitle}</h1>
           <p className="text-emerald-100 text-lg max-w-2xl mx-auto">
-            Your ultimate guide to car rentals, road trips, and exploring the world's most beautiful destinations.
+            Practical car rental guides, airport pickup advice, road trip planning, and destination-specific travel tips.
           </p>
         </div>
       </div>
@@ -152,6 +176,10 @@ const BlogIndex: React.FC = () => {
                           {new Date(article.publishedAt).toLocaleDateString()}
                         </div>
                         <div className="flex items-center gap-1">
+                          <Clock size={14} />
+                          {article.readingTime || '5 min read'}
+                        </div>
+                        <div className="flex items-center gap-1">
                           <User size={14} />
                           {article.authorName || 'Hogicar Team'}
                         </div>
@@ -165,6 +193,15 @@ const BlogIndex: React.FC = () => {
                       <div className="flex items-center text-emerald-600 font-semibold text-sm">
                         Read More <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
                       </div>
+                      {article.tags && (
+                        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
+                          {article.tags.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3).map(t => (
+                            <span key={t} className="text-[11px] font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded">
+                              #{t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </Link>
                 ))}
@@ -176,6 +213,28 @@ const BlogIndex: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900">No articles found</h3>
                 <p className="text-slate-600">Try adjusting your search or category filters.</p>
+              </div>
+            )}
+
+            {!loading && totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-10">
+                <button
+                  type="button"
+                  disabled={page === 0}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-bold disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                <span className="text-sm font-bold text-slate-600">Page {page + 1} of {totalPages}</span>
+                <button
+                  type="button"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-bold disabled:opacity-40"
+                >
+                  Next
+                </button>
               </div>
             )}
           </div>
@@ -203,20 +262,20 @@ const BlogIndex: React.FC = () => {
                 <Tag size={18} /> Categories
               </h3>
               <div className="flex flex-wrap lg:flex-col gap-2">
-                <button 
-                  onClick={() => setSelectedCategory(null)}
+                <Link
+                  to="/blog"
                   className={`px-4 py-2 text-sm text-left rounded-lg transition-colors ${!selectedCategory ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
                 >
                   All Categories
-                </button>
+                </Link>
                 {categories.map((cat) => (
-                  <button 
+                  <Link 
                     key={cat.id}
-                    onClick={() => setSelectedCategory(cat.slug)}
+                    to={`/blog/category/${cat.slug}`}
                     className={`px-4 py-2 text-sm text-left rounded-lg transition-colors ${selectedCategory === cat.slug ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
                   >
                     {cat.name}
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>

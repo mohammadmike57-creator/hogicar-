@@ -74,8 +74,32 @@ const BlogArticle: React.FC = () => {
     );
   }
 
-  const faqs = article.faqJson ? JSON.parse(article.faqJson) : [];
-  const relatedRoutes = article.relatedRoutesJson ? JSON.parse(article.relatedRoutesJson) : [];
+  const parseJsonArray = (value?: string) => {
+    if (!value) return [];
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+  const parseJsonObject = (value?: string) => {
+    if (!value) return null;
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const faqs = parseJsonArray(article.faqJson);
+  const relatedRoutes = parseJsonArray(article.relatedRoutesJson);
+  const relatedAirports = parseJsonArray(article.relatedAirportsJson);
+  const relatedDestinations = parseJsonArray(article.relatedDestinationsJson);
+  const heroImage = article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=1200';
+  const mobileImage = article.mobileImage ? (article.mobileImage.startsWith('/') && !article.mobileImage.startsWith('http') ? `${API_BASE_URL}${article.mobileImage}` : article.mobileImage) : heroImage;
+  const ogImage = article.openGraphImage || article.twitterCardImage || article.featuredImage;
 
   // Generate Table of Contents from h2 tags in content
   const toc: { id: string, text: string }[] = [];
@@ -103,7 +127,7 @@ const BlogArticle: React.FC = () => {
     return content;
   }, [article.content, toc]);
 
-  const articleSchema = {
+  const articleSchema = parseJsonObject(article.articleSchemaJson) || {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": article.title,
@@ -124,7 +148,7 @@ const BlogArticle: React.FC = () => {
     "description": article.seoDescription || article.excerpt
   };
 
-  const faqSchema = faqs.length > 0 ? {
+  const faqSchema = parseJsonObject(article.faqSchemaJson) || (faqs.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": faqs.map((f: any) => ({
@@ -135,9 +159,9 @@ const BlogArticle: React.FC = () => {
         "text": f.answer
       }
     }))
-  } : null;
+  } : null);
 
-  const breadcrumbSchema = {
+  const breadcrumbSchema = parseJsonObject(article.breadcrumbSchemaJson) || {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
@@ -170,7 +194,7 @@ const BlogArticle: React.FC = () => {
       <SEOMetadata 
         title={article.seoTitle || article.title}
         description={article.seoDescription || article.excerpt}
-        ogImage={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : undefined}
+        ogImage={ogImage ? (ogImage.startsWith('/') && !ogImage.startsWith('http') ? `${API_BASE_URL}${ogImage}` : ogImage) : undefined}
         canonicalUrl={article.canonicalUrl || `https://www.hogicar.com/blog/${article.slug}`}
         schema={faqSchema ? [articleSchema, faqSchema, breadcrumbSchema] : [articleSchema, breadcrumbSchema]}
       />
@@ -186,11 +210,15 @@ const BlogArticle: React.FC = () => {
 
       {/* Hero Section */}
       <div className="relative h-[60vh] min-h-[400px] mb-12">
-        <img 
-          src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=1200'} 
-          alt={article.title}
-          className="w-full h-full object-cover"
-        />
+        <picture>
+          <source media="(max-width: 640px)" srcSet={mobileImage} />
+          <img 
+            src={heroImage}
+            alt={article.imageAltText || article.title}
+            className="w-full h-full object-cover"
+            fetchPriority="high"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16">
           <div className="max-w-4xl mx-auto">
@@ -213,7 +241,11 @@ const BlogArticle: React.FC = () => {
                 <Calendar size={18} />
                 {new Date(article.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
               </div>
+              <span>{article.readingTime || '5 min read'}</span>
             </div>
+            {article.imageCaption && (
+              <p className="mt-4 text-xs text-white/70">{article.imageCaption}</p>
+            )}
           </div>
         </div>
       </div>
@@ -333,13 +365,13 @@ const BlogArticle: React.FC = () => {
             )}
 
             {/* Related Routes */}
-            {relatedRoutes.length > 0 && (
+            {(relatedRoutes.length > 0 || relatedDestinations.length > 0 || relatedAirports.length > 0) && (
               <div className="mt-12">
                 <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <ArrowRight className="text-emerald-600" /> Related Destinations
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {relatedRoutes.map((route: any, idx: number) => (
+                  {[...relatedRoutes, ...relatedDestinations, ...relatedAirports].map((route: any, idx: number) => (
                     <Link 
                       key={idx} 
                       to={route.path}

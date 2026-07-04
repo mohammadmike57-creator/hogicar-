@@ -92,6 +92,9 @@ const App: React.FC = () => {
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<BlogIndex />} />
+          <Route path="/blog/category/:categorySlug" element={<BlogIndex />} />
+          <Route path="/blog/tag/:tag" element={<BlogIndex />} />
+          <Route path="/blog/author/:author" element={<BlogIndex />} />
           <Route path="/blog/:slug" element={<BlogArticle />} />
           <Route path="*" element={<DynamicPage />} />
         </Route>
