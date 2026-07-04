@@ -21,7 +21,7 @@ const BlogArticle: React.FC = () => {
   const fetchArticle = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${api.baseUrl}/public/blog/articles/${slug}`);
+      const res = await fetch(`${api.baseUrl}/api/public/blog/articles/${slug}`);
       if (!res.ok) {
         setArticle(null);
         return;
@@ -38,9 +38,9 @@ const BlogArticle: React.FC = () => {
 
   const fetchRecent = async () => {
     try {
-      const res = await fetch(`${api.baseUrl}/public/blog/recent`);
+      const res = await fetch(`${api.baseUrl}/api/public/blog/recent`);
       const data = await res.json();
-      setRecentArticles(data);
+      setRecentArticles(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching recent articles:', error);
     }

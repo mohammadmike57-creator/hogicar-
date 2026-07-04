@@ -47,13 +47,13 @@ const BlogIndex: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const articlesRes = await fetch(`${api.baseUrl}/public/blog/articles?category=${selectedCategory || ''}`);
+      const articlesRes = await fetch(`${api.baseUrl}/api/public/blog/articles?category=${selectedCategory || ''}`);
       const articlesData = await articlesRes.json();
-      setArticles(articlesData.content);
+      setArticles(articlesData.content || []);
 
-      const catsRes = await fetch(`${api.baseUrl}/public/blog/categories`);
+      const catsRes = await fetch(`${api.baseUrl}/api/public/blog/categories`);
       const catsData = await catsRes.json();
-      setCategories(catsData);
+      setCategories(Array.isArray(catsData) ? catsData : []);
     } catch (error) {
       console.error('Error fetching blog data:', error);
     } finally {
@@ -69,9 +69,9 @@ const BlogIndex: React.FC = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${api.baseUrl}/public/blog/search?q=${searchQuery}`);
+      const res = await fetch(`${api.baseUrl}/api/public/blog/search?q=${searchQuery}`);
       const data = await res.json();
-      setArticles(data.content);
+      setArticles(data.content || []);
     } catch (error) {
       console.error('Error searching articles:', error);
     } finally {
