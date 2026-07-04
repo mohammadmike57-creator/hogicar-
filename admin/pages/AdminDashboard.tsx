@@ -78,6 +78,15 @@ const updatePromoCodeStatus = (id: string, s: string) => {};
 const deletePromoCode = (id: string) => {};
 
 // ==================== Helper Functions ====================
+const getImageUrl = (url: string) => {
+  if (!url) return '';
+  if (typeof url !== 'string') return '';
+  if (url.startsWith('/') && !url.startsWith('http')) {
+    return `${API_BASE_URL}${url}`;
+  }
+  return url;
+};
+
 const removeLightBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
@@ -727,7 +736,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
           <div className="flex flex-col items-center">
             <div className="relative group w-48 h-32">
               {editedSupplier.logo || editedSupplier.logoUrl ? (
-                <img src={editedSupplier.logo || editedSupplier.logoUrl} className="w-full h-full rounded-card object-contain bg-white shadow-xl border-4 border-white" alt="Logo" width="192" height="128" />
+                <img src={getImageUrl(editedSupplier.logo || editedSupplier.logoUrl)} className="w-full h-full rounded-card object-contain bg-white shadow-xl border-4 border-white" alt="Logo" width="192" height="128" />
               ) : (
                 <div className="w-full h-full bg-white rounded-card flex items-center justify-center border-2 border-dashed border-gray-200">
                   <Building className="w-10 h-10 text-gray-300" />
@@ -1639,7 +1648,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
 
                 <div className="h-24 rounded-card border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
                   {imageUrl ? (
-                    <img src={imageUrl.startsWith('/') && !imageUrl.startsWith('http') ? `${API_BASE_URL}${imageUrl}` : imageUrl} alt={`${category} category`} className="w-full h-full object-cover" width="320" height="210" loading="lazy" />
+                    <img src={getImageUrl(imageUrl)} alt={`${category} category`} className="w-full h-full object-cover" width="320" height="210" loading="lazy" />
                   ) : (
                     <div className="text-[11px] font-bold text-slate-400">No image</div>
                   )}
@@ -1933,7 +1942,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
               <tr key={m.id} className="hover:bg-blue-50/30 transition-colors group">
                 <td className="px-8 py-4">
                   <div className="w-16 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-blue-200 transition-colors">
-                    <img src={m.image || m.imageUrl} className="max-w-full max-h-full object-contain" alt={m.model} width="400" height="250" referrerPolicy="no-referrer" loading="lazy" />
+                    <img src={getImageUrl(m.image || m.imageUrl)} className="max-w-full max-h-full object-contain" alt={m.model} width="400" height="250" referrerPolicy="no-referrer" loading="lazy" />
                   </div>
                 </td>
                 <td className="px-8 py-4">
@@ -2045,7 +2054,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
-                                    <img src={s.logo || s.logoUrl} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width="40" height="40"/>
+                                    <img src={getImageUrl(s.logo || s.logoUrl)} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width="40" height="40"/>
                                 </div>
                                 <div>
                                     <div className="text-[13px] font-extrabold text-slate-900 group-hover:text-[#007ac2] transition-colors leading-tight">{s.name}</div>
@@ -2247,7 +2256,7 @@ const FleetContent = ({ cars, onRefresh }: any) => (
             <tr key={c.id} className="hover:bg-blue-50/30 transition-colors group">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <img src={c.image} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width="48" height="32" />
+                    <img src={getImageUrl(c.image)} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width="48" height="32" />
                     <div>
                         <div className="text-sm font-bold text-gray-800">{c.displayName}</div>
                         <div className="text-[10px] text-gray-400 uppercase tracking-tighter">{c.make} {c.model}</div>
@@ -3318,7 +3327,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
         <div className="flex gap-4 items-start">
           <div className="w-40 h-28 rounded-card bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
             {model.imageUrl ? (
-              <img src={model.imageUrl} className="max-w-full max-h-full object-contain" alt="Preview" width="400" height="250" referrerPolicy="no-referrer" />
+              <img src={getImageUrl(model.imageUrl)} className="max-w-full max-h-full object-contain" alt="Preview" width="400" height="250" referrerPolicy="no-referrer" />
             ) : (
               <ImageIcon className="w-8 h-8 text-gray-200" />
             )}
@@ -3592,7 +3601,7 @@ const HomepageLogosContent = () => {
                                     <td className="px-8 py-4">
                                         <div className="w-20 h-10 bg-white border border-slate-100 rounded-card flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
-                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
+                                                <img src={getImageUrl(l.logoUrl)} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
                                             ) : (
                                                 <ImageIcon className="w-4 h-4 text-slate-300" />
                                             )}
@@ -3728,7 +3737,7 @@ const SearchingLogosContent = () => {
                                     <td className="px-8 py-4">
                                         <div className="w-20 h-10 bg-white border border-slate-100 rounded-card flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
                                             {l.logoUrl ? (
-                                                <img src={l.logoUrl} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
+                                                <img src={getImageUrl(l.logoUrl)} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
                                             ) : (
                                                 <ImageIcon className="w-4 h-4 text-slate-300" />
                                             )}
@@ -3804,7 +3813,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                     </div>
                     {formData.logoUrl && (
                         <div className="mt-4 p-4 border border-slate-100 rounded-card bg-slate-50/50 flex items-center justify-center">
-                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
+                            <img src={getImageUrl(formData.logoUrl)} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
                         </div>
                     )}
                 </div>
@@ -3934,7 +3943,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                     </div>
                     {formData.logoUrl && (
                         <div className="mt-4 p-4 border border-slate-100 rounded-card bg-slate-50/50 flex items-center justify-center">
-                            <img src={formData.logoUrl} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
+                            <img src={getImageUrl(formData.logoUrl)} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
                         </div>
                     )}
                 </div>
@@ -4138,7 +4147,7 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="w-16 h-10 rounded-card bg-slate-50 flex items-center justify-center border border-slate-100 overflow-hidden">
-                            {car.imageUrl ? <img src={car.imageUrl} className="w-full h-full object-contain" width="64" height="40" /> : <Car className="w-5 h-5 text-slate-200" />}
+                            {car.imageUrl ? <img src={getImageUrl(car.imageUrl)} className="w-full h-full object-contain" width="64" height="40" /> : <Car className="w-5 h-5 text-slate-200" />}
                           </div>
                           <div>
                             <div className="text-xs font-extrabold text-slate-900">{car.make} {car.model}</div>
