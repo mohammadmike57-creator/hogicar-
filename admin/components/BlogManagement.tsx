@@ -33,8 +33,8 @@ interface BlogArticle {
   faqJson: string;
   relatedRoutesJson: string;
   destinations: string;
-  airportTags: string;
-  countryTag: string;
+  airportCodes: string;
+  country: string;
   readingTime: string;
   featuredOnHomepage: boolean;
   isFeatured: boolean;
@@ -126,6 +126,16 @@ const BlogManagement: React.FC = () => {
     }
   };
 
+  const handlePurgeArticles = async () => {
+    if (!confirm('CRITICAL: This will delete ALL blog articles. This cannot be undone. Are you sure?')) return;
+    try {
+      await adminFetch('/api/admin/blog/articles/purge', { method: 'DELETE' });
+      fetchData();
+    } catch (error) {
+      alert('Failed to purge articles');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-card shadow-sm border border-slate-200">
@@ -143,20 +153,30 @@ const BlogManagement: React.FC = () => {
             Categories
           </button>
         </div>
-        <button 
-          onClick={() => {
-            if (activeTab === 'articles') {
-              setEditingArticle({ published: false, category: categories[0] || null });
-              setIsArticleModalOpen(true);
-            } else {
-              setEditingCategory({});
-              setIsCategoryModalOpen(true);
-            }
-          }}
-          className="bg-slate-900 text-white px-5 py-2.5 rounded-card text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-sm"
-        >
-          <Plus size={16} /> Add {activeTab === 'articles' ? 'Article' : 'Category'}
-        </button>
+        <div className="flex gap-2">
+          {activeTab === 'articles' && (
+            <button 
+              onClick={handlePurgeArticles}
+              className="bg-rose-50 text-rose-600 px-5 py-2.5 rounded-card text-xs font-bold flex items-center justify-center gap-2 hover:bg-rose-100 transition-all border border-rose-100"
+            >
+              <Trash2 size={16} /> Purge All
+            </button>
+          )}
+          <button 
+            onClick={() => {
+              if (activeTab === 'articles') {
+                setEditingArticle({ published: false, category: categories[0] || null });
+                setIsArticleModalOpen(true);
+              } else {
+                setEditingCategory({});
+                setIsCategoryModalOpen(true);
+              }
+            }}
+            className="bg-slate-900 text-white px-5 py-2.5 rounded-card text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-sm"
+          >
+            <Plus size={16} /> Add {activeTab === 'articles' ? 'Article' : 'Category'}
+          </button>
+        </div>
       </div>
 
       {activeTab === 'articles' ? (
@@ -403,13 +423,13 @@ const BlogManagement: React.FC = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country Tag</label>
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country</label>
                           <input 
                             type="text"
                             placeholder="e.g., Jordan"
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-bold"
-                            value={editingArticle.countryTag || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, countryTag: e.target.value})}
+                            value={editingArticle.country || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, country: e.target.value})}
                           />
                         </div>
                       </div>
@@ -431,8 +451,8 @@ const BlogManagement: React.FC = () => {
                             type="text"
                             placeholder="AMM, DXB, AUH"
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-mono"
-                            value={editingArticle.airportTags || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, airportTags: e.target.value})}
+                            value={editingArticle.airportCodes || ''}
+                            onChange={(e) => setEditingArticle({...editingArticle, airportCodes: e.target.value})}
                           />
                         </div>
                       </div>
@@ -449,7 +469,12 @@ const BlogManagement: React.FC = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Content (HTML Supported)</label>
+                        <div className="flex items-center justify-between ml-1">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Content (HTML Supported)</label>
+                          <span className={`text-[10px] font-bold uppercase tracking-widest ${((editingArticle.content || '').split(/\s+/).filter(Boolean).length) >= 1500 ? 'text-emerald-500' : 'text-amber-500'}`}>
+                            Word Count: {(editingArticle.content || '').split(/\s+/).filter(Boolean).length} / 1500
+                          </span>
+                        </div>
                         <textarea 
                           required
                           className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-96 font-mono"

@@ -145,7 +145,7 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number }> = ({ article, 
       <Link to={`/blog/${article.slug}`} className="block">
         <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-6 shadow-xl shadow-slate-200/50">
           <img
-            src={article.featuredImage}
+            src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'}
             alt={article.title}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"

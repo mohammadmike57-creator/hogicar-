@@ -137,6 +137,34 @@ const BlogArticle: React.FC = () => {
     }))
   } : null;
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.hogicar.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://www.hogicar.com/blog"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": article.title,
+        "item": `https://www.hogicar.com/blog/${article.slug}`
+      }
+    ]
+  };
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareTitle = article.title;
+
   return (
     <div className="min-h-screen bg-white pt-20 pb-20">
       <SEOMetadata 
@@ -144,7 +172,7 @@ const BlogArticle: React.FC = () => {
         description={article.seoDescription || article.excerpt}
         ogImage={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : undefined}
         canonicalUrl={article.canonicalUrl || `https://www.hogicar.com/blog/${article.slug}`}
-        schema={faqSchema ? [articleSchema, faqSchema] : articleSchema}
+        schema={faqSchema ? [articleSchema, faqSchema, breadcrumbSchema] : [articleSchema, breadcrumbSchema]}
       />
 
       {/* Breadcrumbs */}
@@ -330,16 +358,41 @@ const BlogArticle: React.FC = () => {
               <div className="flex items-center gap-4">
                 <span className="text-slate-900 font-bold uppercase tracking-wider text-sm">Share this article:</span>
                 <div className="flex gap-2">
-                  <button className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors">
+                  <a 
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors"
+                  >
                     <Facebook size={20} />
-                  </button>
-                  <button className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors">
+                  </a>
+                  <a 
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors"
+                  >
                     <Twitter size={20} />
-                  </button>
-                  <button className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors">
+                  </a>
+                  <a 
+                    href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors"
+                  >
                     <Linkedin size={20} />
-                  </button>
-                  <button className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors">
+                  </a>
+                  <button 
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({ title: shareTitle, url: shareUrl });
+                      } else {
+                        navigator.clipboard.writeText(shareUrl);
+                        alert('Link copied to clipboard');
+                      }
+                    }}
+                    className="p-2 bg-slate-100 rounded-full hover:bg-emerald-600 hover:text-white transition-colors"
+                  >
                     <Share2 size={20} />
                   </button>
                 </div>
@@ -354,8 +407,8 @@ const BlogArticle: React.FC = () => {
 
       <LatestTravelGuides 
         route={article.destinations?.split(',')[0]} 
-        country={article.countryTag} 
-        airport={article.airportTags?.split(',')[0]}
+        country={article.country} 
+        airport={article.airportCodes?.split(',')[0]}
         limit={3}
         title="More Like This"
         subtitle="Explore more travel guides and tips related to this topic."

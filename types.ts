@@ -699,8 +699,8 @@ export interface BlogArticle {
   faqJson?: string;
   relatedRoutesJson?: string;
   destinations?: string;
-  airportTags?: string;
-  countryTag?: string;
+  airportCodes?: string;
+  country?: string;
   readingTime?: string;
   featuredOnHomepage?: boolean;
   isFeatured?: boolean;
