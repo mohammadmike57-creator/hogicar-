@@ -5,6 +5,7 @@ import SEOMetadata from '../components/SEOMetadata';
 import { Building, Car, Globe, CheckCircle, ArrowRight, BarChart3, ShieldCheck, Database, Send } from 'lucide-react';
 import { api } from '../api';
 import { SupplierApplication } from '../types';
+import { API_BASE_URL } from '../lib/config';
 
 const BecomeSupplier: React.FC = () => {
   const [submitted, setSubmitted] = React.useState(false);

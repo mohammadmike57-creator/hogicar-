@@ -5,6 +5,7 @@ const MOCK_AFFILIATES: any[] = [];
 const registerAffiliate = (name: string, email: string, website: string, pass: string) => ({ id: 'aff-' + Date.now(), name, email, website, status: 'active', commissionRate: 0.1 });
 import { Affiliate } from '../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { API_BASE_URL } from '../lib/config';
 
 const AffiliateProgram: React.FC = () => {
     const [view, setView] = React.useState<'landing' | 'dashboard'>('landing');

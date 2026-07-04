@@ -66,6 +66,3 @@ export const supplierApi = {
 };
 
 export const getPublicLocations = () => api.get('/api/public/locations').then(res => res.data);
-
-// Export the base URL as a constant (no duplicate)
-export { API_BASE_URL };

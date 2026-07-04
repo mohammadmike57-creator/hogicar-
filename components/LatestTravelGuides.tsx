@@ -4,6 +4,7 @@ import { ArrowRight, Clock, Calendar, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { fetchRelatedBlogs, fetchHomepageFeaturedBlogs } from '../api';
 import { BlogArticle } from '../types';
+import { API_BASE_URL } from '../lib/config';
 
 interface LatestTravelGuidesProps {
   route?: string;
