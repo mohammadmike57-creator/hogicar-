@@ -25,10 +25,24 @@ const BlogIndex: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
 
   React.useEffect(() => {
     fetchData();
+    fetchSettings();
   }, [selectedCategory]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/public/settings`);
+      if (response.ok) {
+        const data = await response.json();
+        setHeroImageUrl(data.heroImageUrl || '');
+      }
+    } catch (e) {
+      console.error("Failed to load settings:", e);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -73,8 +87,18 @@ const BlogIndex: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <div className="bg-emerald-900 text-white py-16 mb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className={`relative text-white py-16 mb-12 overflow-hidden ${!heroImageUrl ? 'bg-emerald-900' : ''}`}>
+        {heroImageUrl && (
+            <div className="absolute inset-0 z-0">
+                <img 
+                    src={heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl} 
+                    alt="Hogicar Blog" 
+                    className="w-full h-full object-cover" 
+                />
+                <div className="absolute inset-0 bg-emerald-950/70 backdrop-blur-[1px]"></div>
+            </div>
+        )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Hogicar Travel Blog</h1>
           <p className="text-emerald-100 text-lg max-w-2xl mx-auto">
             Your ultimate guide to car rentals, road trips, and exploring the world's most beautiful destinations.

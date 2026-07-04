@@ -309,8 +309,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
-  const heroBackgroundImage = (seoConfig?.heroImage?.startsWith('/') && !seoConfig?.heroImage?.startsWith('http') ? `${API_BASE_URL}${seoConfig.heroImage}` : seoConfig?.heroImage) 
-    || (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) 
+  const heroBackgroundImage = (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl)
+    || (seoConfig?.heroImage?.startsWith('/') && !seoConfig?.heroImage?.startsWith('http') ? `${API_BASE_URL}${seoConfig.heroImage}` : seoConfig?.heroImage) 
     || content.hero.backgroundImage;
   const heroMobileImage = (seoConfig?.heroMobileImage?.startsWith('/') && !seoConfig?.heroMobileImage?.startsWith('http') ? `${API_BASE_URL}${seoConfig.heroMobileImage}` : seoConfig?.heroMobileImage) 
     || heroBackgroundImage;

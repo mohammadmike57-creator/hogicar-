@@ -8,6 +8,7 @@ import { SupplierApplication } from '../types';
 
 const BecomeSupplier: React.FC = () => {
   const [submitted, setSubmitted] = React.useState(false);
+  const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
   // FIX: Explicitly type the formData state to ensure type compatibility with submitSupplierApplication.
   const [formData, setFormData] = React.useState<Omit<SupplierApplication, 'id' | 'status' | 'submissionDate'>>({
     companyName: '',
@@ -19,6 +20,21 @@ const BecomeSupplier: React.FC = () => {
     primaryLocation: '',
     integrationType: 'api'
   });
+
+  React.useEffect(() => {
+    const fetchSettings = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/public/settings`);
+            if (response.ok) {
+                const data = await response.json();
+                setHeroImageUrl(data.heroImageUrl || '');
+            }
+        } catch (e) {
+            console.error("Failed to load settings:", e);
+        }
+    };
+    fetchSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +79,17 @@ const BecomeSupplier: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <div className="bg-[#003580] text-white pt-20 pb-24 relative overflow-hidden">
+      <div className={`relative text-white pt-20 pb-24 overflow-hidden ${!heroImageUrl ? 'bg-[#003580]' : ''}`}>
+         {heroImageUrl && (
+            <div className="absolute inset-0 z-0">
+                <img 
+                    src={heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl} 
+                    alt="Become a Partner" 
+                    className="w-full h-full object-cover" 
+                />
+                <div className="absolute inset-0 bg-[#003580]/80 backdrop-blur-[1px]"></div>
+            </div>
+         )}
          <div className="absolute top-0 right-0 opacity-10">
              <Car className="w-96 h-96 -mr-20 -mt-20" />
          </div>

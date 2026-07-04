@@ -11,6 +11,7 @@ const AffiliateProgram: React.FC = () => {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [currentUser, setCurrentUser] = React.useState<Affiliate | null>(null);
+    const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
     
     // Registration Form State
     const [regName, setRegName] = React.useState('');
@@ -18,6 +19,21 @@ const AffiliateProgram: React.FC = () => {
     const [regWebsite, setRegWebsite] = React.useState('');
     const [regPassword, setRegPassword] = React.useState('');
     const [submitted, setSubmitted] = React.useState(false);
+
+    React.useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/public/settings`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setHeroImageUrl(data.heroImageUrl || '');
+                }
+            } catch (e) {
+                console.error("Failed to load settings:", e);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -197,7 +213,17 @@ const AffiliateProgram: React.FC = () => {
             />
 
             {/* Hero Section */}
-            <div className="relative bg-gradient-to-br from-[#2c135c] to-[#003580] pt-24 pb-32 overflow-hidden">
+            <div className={`relative pt-24 pb-32 overflow-hidden ${!heroImageUrl ? 'bg-gradient-to-br from-[#2c135c] to-[#003580]' : ''}`}>
+                {heroImageUrl && (
+                    <div className="absolute inset-0 z-0">
+                        <img 
+                            src={heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl} 
+                            alt="Affiliate Program" 
+                            className="w-full h-full object-cover" 
+                        />
+                        <div className="absolute inset-0 bg-[#2c135c]/80 backdrop-blur-[1px]"></div>
+                    </div>
+                )}
                 <div className="absolute top-0 left-0 w-full h-full opacity-10">
                     <Globe className="w-[800px] h-[800px] absolute -right-40 -top-40 text-white" />
                 </div>

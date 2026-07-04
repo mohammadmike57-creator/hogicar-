@@ -1,15 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Send, CheckCircle } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
+import { API_BASE_URL } from '../lib/config';
 
 const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [heroImageUrl, setHeroImageUrl] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     reason: '',
     message: ''
   });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/public/settings`);
+            if (response.ok) {
+                const data = await response.json();
+                setHeroImageUrl(data.heroImageUrl || '');
+            }
+        } catch (e) {
+            console.error("Failed to load settings:", e);
+        }
+    };
+    fetchSettings();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,19 +41,32 @@ const Contact = () => {
     }, 1000);
   };
 
+  const heroBackgroundImage = heroImageUrl ? (heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) : null;
+
   return (
-    <div className="min-h-screen bg-white py-12 lg:py-20">
+    <div className="min-h-screen bg-white pb-12 lg:pb-20">
       <SEOMetadata 
         title="Contact Us | Hogicar Support" 
         description="Have questions about your car rental? Reach out to Hogicar's 24/7 customer support team for help with bookings, partnerships, and technical issues."
       />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">Contact Us</h1>
-          <p className="text-lg text-slate-600">
+
+      {/* Hero Section */}
+      <div className={`relative text-white py-16 md:py-24 mb-12 overflow-hidden ${!heroBackgroundImage ? 'bg-[#003580]' : ''}`}>
+        {heroBackgroundImage && (
+            <div className="absolute inset-0 z-0">
+                <img src={heroBackgroundImage} alt="Contact Us" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-[#003580]/80 backdrop-blur-[1px]"></div>
+            </div>
+        )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Contact Us</h1>
+          <p className="text-lg text-blue-100 max-w-2xl mx-auto">
             We're here to help! Whether you have a question about a booking, need technical support, or want to partner with us, please reach out.
           </p>
         </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Contact Information - Only Email */}

@@ -18,6 +18,7 @@ const DynamicPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [homepageContent, setHomepageContent] = useState<any>(null);
+  const [siteSettings, setSiteSettings] = useState<any>(null);
 
   useEffect(() => {
     const loadCommonData = async () => {
@@ -30,7 +31,20 @@ const DynamicPage: React.FC = () => {
         console.error("Failed to load common content:", e);
       }
     };
+
+    const loadSettings = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/public/settings`);
+          if (response.ok) {
+            setSiteSettings(await response.json());
+          }
+        } catch (e) {
+          console.error("Failed to load site settings:", e);
+        }
+    };
+
     loadCommonData();
+    loadSettings();
   }, []);
 
   useEffect(() => {
@@ -129,11 +143,22 @@ const DynamicPage: React.FC = () => {
       </React.Fragment>
   ));
 
+  const heroImageUrl = siteSettings?.heroImageUrl;
+  const heroBackgroundImage = heroImageUrl ? (heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) : null;
+
   const content = (
     <div className="bg-white min-h-screen">
       {/* Standard Page Hero */}
-      <div className="bg-[#003580] text-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className={`relative text-white py-16 md:py-24 overflow-hidden ${!heroBackgroundImage ? 'bg-[#003580]' : ''}`}>
+        {heroBackgroundImage && (
+            <>
+                <div className="absolute inset-0 z-0">
+                    <img src={heroBackgroundImage} alt={page?.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px]"></div>
+                </div>
+            </>
+        )}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <h1 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight">{page?.title}</h1>
             <div className="flex items-center justify-center gap-4 text-blue-200 text-xs font-bold uppercase tracking-[0.2em]">
                 <div className="flex items-center gap-1.5">
