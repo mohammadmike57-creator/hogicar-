@@ -294,7 +294,19 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   };
   
   const content = homepageContent;
-  const faqs = content.faqs.items;
+  
+  const faqs = React.useMemo(() => {
+    if (seoConfig?.faqJson) {
+      try {
+        const parsed = JSON.parse(seoConfig.faqJson);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {
+        console.error("Failed to parse FAQ JSON from SEO config:", e);
+      }
+    }
+    return content.faqs.items;
+  }, [seoConfig, content.faqs.items]);
+
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
   const heroBackgroundImage = (seoConfig?.heroImage?.startsWith('/') && !seoConfig?.heroImage?.startsWith('http') ? `${API_BASE_URL}${seoConfig.heroImage}` : seoConfig?.heroImage) 
@@ -352,6 +364,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         canonicalUrl={seoConfig?.canonicalUrl}
         ogImage={seoConfig?.ogImage}
         noIndex={seoConfig ? !seoConfig.indexable : undefined}
+        structuredData={seoConfig?.structuredData}
       />
       
       {/* HERO – professional centered layout with background image */}

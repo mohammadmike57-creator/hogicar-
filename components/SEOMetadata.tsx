@@ -12,6 +12,7 @@ interface SEOMetadataProps {
   ogImage?: string;
   noIndex?: boolean;
   schema?: any;
+  structuredData?: string;
 }
 
 const SEOMetadata: React.FC<SEOMetadataProps> = ({ 
@@ -21,7 +22,8 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   canonicalUrl: defaultCanonical,
   ogImage: defaultOgImage,
   noIndex: defaultNoIndex,
-  schema
+  schema,
+  structuredData
 }) => {
   const location = useLocation();
   const [config, setConfig] = useState<any>(null);
@@ -164,7 +166,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     }
 
     // 7. Schema Markup (JSON-LD)
-    if (schema) {
+    if (schema || structuredData || config?.structuredData) {
       let scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
       if (!scriptTag) {
         scriptTag = document.createElement('script');
@@ -172,12 +174,16 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
         scriptTag.id = 'seo-schema';
         document.head.appendChild(scriptTag);
       }
-      scriptTag.textContent = JSON.stringify(schema);
+      
+      const schemaToInject = structuredData || config?.structuredData || (schema ? JSON.stringify(schema) : null);
+      if (schemaToInject) {
+        scriptTag.textContent = typeof schemaToInject === 'string' ? schemaToInject : JSON.stringify(schemaToInject);
+      }
     } else {
       const scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
       if (scriptTag) scriptTag.remove();
     }
-  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema]);
+  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema, structuredData, config]);
 
   return null;
 };

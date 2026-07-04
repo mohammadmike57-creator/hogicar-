@@ -2362,6 +2362,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [countryTag, setCountryTag] = useState(config?.countryTag || '');
   const [airportTags, setAirportTags] = useState(config?.airportTags || '');
   const [relatedBlogsJson, setRelatedBlogsJson] = useState(config?.relatedBlogsJson || '');
+  const [faqJson, setFaqJson] = useState(config?.faqJson || '');
+  const [structuredData, setStructuredData] = useState(config?.structuredData || '');
 
   const defaultBuilder = {
     sections: {
@@ -2409,6 +2411,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       setCountryTag(config.countryTag || '');
       setAirportTags(config.airportTags || '');
       setRelatedBlogsJson(config.relatedBlogsJson || '');
+      setFaqJson(config.faqJson || '');
+      setStructuredData(config.structuredData || '');
       const savedBuilder = config.contentJson ? JSON.parse(config.contentJson) : {};
       setBuilderConfig({
         ...defaultBuilder,
@@ -2439,6 +2443,9 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setDestinationName('');
         setCountryTag('');
         setAirportTags('');
+        setRelatedBlogsJson('');
+        setFaqJson('');
+        setStructuredData('');
         setBuilderConfig(defaultBuilder);
         setActiveTab('seo');
     }
@@ -2506,6 +2513,9 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       destinationName,
       countryTag,
       airportTags,
+      relatedBlogsJson,
+      faqJson,
+      structuredData,
       contentJson: JSON.stringify(builderConfig)
     });
   };
@@ -2780,15 +2790,20 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Main SEO Content (HTML/Markdown support)</label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Main SEO Content (HTML/Markdown support)</label>
+                    <span className={`text-[9px] font-bold uppercase tracking-tight ${content.split(/\s+/).filter(Boolean).length >= 1000 ? 'text-emerald-500' : 'text-rose-400'}`}>
+                      Word Count: {content.split(/\s+/).filter(Boolean).length} / 1000+ recommended
+                    </span>
+                  </div>
                   <textarea 
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    rows={10}
+                    rows={12}
                     className="w-full px-3 py-2 border border-slate-200 rounded-card text-sm focus:ring-2 focus:ring-[#007ac2] outline-none transition-all font-medium bg-white"
                     placeholder="Enter the main SEO content for this page. You can use HTML tags."
                   />
-                  <p className="text-[9px] text-slate-400 italic">This content will be displayed prominently on the landing page.</p>
+                  <p className="text-[9px] text-slate-400 italic font-bold">CRITICAL: Google indexing requires at least 1,000–1,500 words of high-quality content per page.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <ImageUploadField 
@@ -3149,12 +3164,12 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                     <Link2 size={18} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest leading-none">Internal linking</h3>
+                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest leading-none">Internal linking & FAQ</h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Connect this page to relevant travel content</p>
                   </div>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Blog Articles (JSON)</label>
                     <TextAreaField 
@@ -3162,10 +3177,38 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                       placeholder='[{"title": "Driving Tips for Amman", "slug": "driving-amman-tips", "image": "URL"}]'
                       value={relatedBlogsJson}
                       onChange={(e: any) => setRelatedBlogsJson(e.target.value)}
-                      rows={12}
+                      rows={6}
                     />
                     <p className="text-[9px] text-slate-400 mt-2 italic px-1">
                       Add a JSON array of blog articles to display them as related content on this destination landing page.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">FAQ Items (JSON)</label>
+                    <TextAreaField 
+                      label=""
+                      placeholder='[{"question": "How to rent a car?", "answer": "Simple..."}]'
+                      value={faqJson}
+                      onChange={(e: any) => setFaqJson(e.target.value)}
+                      rows={6}
+                    />
+                    <p className="text-[9px] text-slate-400 mt-2 italic px-1">
+                      JSON array of question/answer pairs. Essential for Google FAQ Rich Snippets.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Custom Structured Data (JSON-LD)</label>
+                    <TextAreaField 
+                      label=""
+                      placeholder='{"@context": "https://schema.org", "@type": "Product", ...}'
+                      value={structuredData}
+                      onChange={(e: any) => setStructuredData(e.target.value)}
+                      rows={8}
+                    />
+                    <p className="text-[9px] text-slate-400 mt-2 italic px-1">
+                      Schema.org JSON-LD to be injected into the page head. Critical for advanced SEO indexing.
                     </p>
                   </div>
                 </div>
