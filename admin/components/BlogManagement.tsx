@@ -17,6 +17,23 @@ interface BlogCategory {
   description: string;
 }
 
+interface SeoConfig {
+  id: number;
+  route: string;
+  destinationName: string;
+  countryTag: string;
+  cityTag: string;
+  airportTags: string;
+  routeType: string;
+  heroImage: string;
+}
+
+interface BlogTag {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface BlogArticle {
   id: number;
   title: string;
@@ -32,6 +49,11 @@ interface BlogArticle {
   imageAltText: string;
   imageCaption: string;
   category: BlogCategory | null;
+  primaryRoute: SeoConfig | null;
+  secondaryRoutes: SeoConfig[];
+  relatedAirports: any[];
+  articleTags: BlogTag[];
+  relatedArticles: BlogArticle[];
   seoTitle: string;
   seoDescription: string;
   canonicalUrl: string;
@@ -41,17 +63,11 @@ interface BlogArticle {
   openGraphTagsJson: string;
   twitterCardTagsJson: string;
   faqJson: string;
-  relatedRoutesJson: string;
-  relatedAirportsJson: string;
-  relatedArticlesJson: string;
-  relatedDestinationsJson: string;
-  destinations: string;
-  airportCodes: string;
   country: string;
   readingTime: string;
   featuredOnHomepage: boolean;
   isFeatured: boolean;
-  tags: string;
+  tags?: string;
   authorName: string;
   authorImage: string;
   status: string;
@@ -75,6 +91,16 @@ const BlogManagement: React.FC = () => {
   const [editingCategory, setEditingCategory] = React.useState<Partial<BlogCategory> | null>(null);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [previewMode, setPreviewMode] = React.useState<'desktop' | 'tablet' | 'mobile' | 'google'>('desktop');
+  
+  // Route Connection Manager State
+  const [availableRoutes, setAvailableRoutes] = React.useState<SeoConfig[]>([]);
+  const [routeFilters, setRouteFilters] = React.useState({
+    routeType: '',
+    countryTag: '',
+    cityTag: '',
+    search: ''
+  });
+  const [isRouteSectionOpen, setIsRouteSectionOpen] = React.useState(true);
 
   React.useEffect(() => {
     fetchData();
@@ -90,12 +116,37 @@ const BlogManagement: React.FC = () => {
       // Always fetch categories as they are needed for article editing
       const catRes = await adminFetch('/api/admin/blog/categories');
       setCategories(catRes || []);
+
+      // Fetch all routes for connections
+      const routeRes = await adminFetch('/api/admin/blog/routes');
+      setAvailableRoutes(routeRes || []);
     } catch (error) {
       console.error('Error fetching blog data:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const fetchFilteredRoutes = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (routeFilters.routeType) params.append('routeType', routeFilters.routeType);
+      if (routeFilters.countryTag) params.append('countryTag', routeFilters.countryTag);
+      if (routeFilters.cityTag) params.append('cityTag', routeFilters.cityTag);
+      if (routeFilters.search) params.append('search', routeFilters.search);
+
+      const res = await adminFetch(`/api/admin/blog/routes?${params.toString()}`);
+      setAvailableRoutes(res || []);
+    } catch (error) {
+      console.error('Error fetching filtered routes:', error);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isArticleModalOpen) {
+      fetchFilteredRoutes();
+    }
+  }, [routeFilters]);
 
   const handleSaveArticle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +246,7 @@ const BlogManagement: React.FC = () => {
     if (editingArticle.focusKeyword) score += 10;
     if (editingArticle.imageAltText || editingArticle.title) score += 10;
     if (editingArticle.faqJson) score += 10;
-    if (editingArticle.relatedRoutesJson || editingArticle.relatedDestinationsJson) score += 10;
+    if (editingArticle.primaryRoute || (editingArticle.secondaryRoutes && editingArticle.secondaryRoutes.length > 0)) score += 10;
     if ((editingArticle.content || '').split(/\s+/).filter(Boolean).length >= 900) score += 10;
     if (editingArticle.excerpt) score += 5;
     if (editingArticle.tags) score += 5;
@@ -582,28 +633,6 @@ const BlogManagement: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Destinations (Route Slugs)</label>
-                          <input 
-                            type="text"
-                            placeholder="/car-rental-amman, /car-rental-aqaba"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-mono"
-                            value={editingArticle.destinations || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, destinations: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Airport Codes</label>
-                          <input 
-                            type="text"
-                            placeholder="AMM, DXB, AUH"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-mono"
-                            value={editingArticle.airportCodes || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, airportCodes: e.target.value})}
-                          />
-                        </div>
-                      </div>
 
                       <div className="space-y-2">
                         <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Tags (Comma Separated)</label>
@@ -672,24 +701,6 @@ const BlogManagement: React.FC = () => {
                         </details>
                       </div>
 
-                      {/* Internal Links Editor */}
-                      <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Structured Related Content JSON</label>
-                        {[
-                          ['relatedRoutesJson', 'Related Routes'],
-                          ['relatedAirportsJson', 'Related Airports'],
-                          ['relatedDestinationsJson', 'Related Destinations'],
-                          ['relatedArticlesJson', 'Related Articles']
-                        ].map(([field, label]) => (
-                          <textarea
-                            key={field}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-24 font-mono"
-                            placeholder={`[{"label": "${label}", "path": "/car-rental-amman"}]`}
-                            value={(editingArticle as any)[field] || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, [field]: e.target.value})}
-                          />
-                        ))}
-                      </div>
                     </div>
 
                     {/* Sidebar / Settings */}
@@ -805,6 +816,126 @@ const BlogManagement: React.FC = () => {
                             onChange={(e) => setEditingArticle({...editingArticle, imageCaption: e.target.value})}
                           />
                         </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                        <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsRouteSectionOpen(!isRouteSectionOpen)}>
+                          <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                            <Globe size={14} /> Route Connections
+                          </h3>
+                          <ChevronDown size={16} className={`transition-transform ${isRouteSectionOpen ? 'rotate-180' : ''}`} />
+                        </div>
+
+                        <AnimatePresence>
+                          {isRouteSectionOpen && (
+                            <motion.div 
+                              initial={{ height: 0, opacity: 0 }} 
+                              animate={{ height: 'auto', opacity: 1 }} 
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden space-y-4 pt-4 border-t border-slate-200"
+                            >
+                              {/* Primary Route Dropdown */}
+                              <div className="space-y-2">
+                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Primary Route (Required)</label>
+                                <div className="relative">
+                                  <select 
+                                    required
+                                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold text-sm"
+                                    value={editingArticle.primaryRoute?.id || ''}
+                                    onChange={(e) => {
+                                      const route = availableRoutes.find(r => r.id === Number(e.target.value));
+                                      setEditingArticle({...editingArticle, primaryRoute: route || null});
+                                    }}
+                                  >
+                                    <option value="">Select Primary Route...</option>
+                                    {availableRoutes.map(r => (
+                                      <option key={r.id} value={r.id}>{r.destinationName || r.route} ({r.route})</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+
+                              {/* Related Routes Multi-Select */}
+                              <div className="space-y-2">
+                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Routes</label>
+                                <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-200">
+                                  {/* Route Filters */}
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <select 
+                                      className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold"
+                                      value={routeFilters.routeType}
+                                      onChange={(e) => setRouteFilters({...routeFilters, routeType: e.target.value})}
+                                    >
+                                      <option value="">All Types</option>
+                                      <option value="HOMEPAGE">Homepage</option>
+                                      <option value="AIRPORT">Airport</option>
+                                      <option value="CITY">City</option>
+                                      <option value="DESTINATION">Destination</option>
+                                    </select>
+                                    <input 
+                                      type="text"
+                                      placeholder="Search routes..."
+                                      className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold"
+                                      value={routeFilters.search}
+                                      onChange={(e) => setRouteFilters({...routeFilters, search: e.target.value})}
+                                    />
+                                  </div>
+
+                                  <div className="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                                    {availableRoutes
+                                      .filter(r => r.id !== editingArticle.primaryRoute?.id)
+                                      .map(r => {
+                                        const isSelected = editingArticle.secondaryRoutes?.some(sr => sr.id === r.id);
+                                        return (
+                                          <div 
+                                            key={r.id} 
+                                            className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
+                                            onClick={() => {
+                                              const newSecondary = isSelected 
+                                                ? editingArticle.secondaryRoutes?.filter(sr => sr.id !== r.id)
+                                                : [...(editingArticle.secondaryRoutes || []), r];
+                                              setEditingArticle({...editingArticle, secondaryRoutes: newSecondary});
+                                            }}
+                                          >
+                                            <div className="flex flex-col">
+                                              <span className="text-xs font-bold">{r.destinationName || r.route}</span>
+                                              <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
+                                            </div>
+                                            {isSelected && <Check size={14} />}
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Live Preview of connections */}
+                              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-2">
+                                <div className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">Live Preview: Article Visibility</div>
+                                <div className="space-y-1">
+                                  {editingArticle.featuredOnHomepage && (
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" /> Featured on Homepage
+                                    </div>
+                                  )}
+                                  {editingArticle.primaryRoute && (
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" /> {editingArticle.primaryRoute.destinationName || editingArticle.primaryRoute.route} (Primary)
+                                    </div>
+                                  )}
+                                  {editingArticle.secondaryRoutes?.map(r => (
+                                    <div key={r.id} className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> {r.destinationName || r.route}
+                                    </div>
+                                  ))}
+                                  {(!editingArticle.primaryRoute && (!editingArticle.secondaryRoutes || editingArticle.secondaryRoutes.length === 0) && !editingArticle.featuredOnHomepage) && (
+                                    <div className="text-[10px] font-bold text-slate-400 italic">No route connections yet.</div>
+                                  )}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
 
                       {/* SEO Settings */}

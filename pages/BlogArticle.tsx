@@ -94,10 +94,15 @@ const BlogArticle: React.FC = () => {
   };
 
   const faqs = parseJsonArray(article.faqJson);
-  const relatedRoutes = parseJsonArray(article.relatedRoutesJson);
-  const relatedAirports = parseJsonArray(article.relatedAirportsJson);
-  const relatedDestinations = parseJsonArray(article.relatedDestinationsJson);
-  const heroImage = article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=1200';
+  const relatedRoutes = article.secondaryRoutes || [];
+  const primaryRoute = article.primaryRoute;
+  
+  const connections = [
+    ...(primaryRoute ? [{ path: primaryRoute.route, label: primaryRoute.destinationName || primaryRoute.route }] : []),
+    ...(relatedRoutes.map(r => ({ path: r.route, label: r.destinationName || r.route })))
+  ];
+
+  const heroImage = article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : (primaryRoute?.heroImage || 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=1200');
   const mobileImage = article.mobileImage ? (article.mobileImage.startsWith('/') && !article.mobileImage.startsWith('http') ? `${API_BASE_URL}${article.mobileImage}` : article.mobileImage) : heroImage;
   const ogImage = article.openGraphImage || article.twitterCardImage || article.featuredImage;
 
@@ -365,13 +370,13 @@ const BlogArticle: React.FC = () => {
             )}
 
             {/* Related Routes */}
-            {(relatedRoutes.length > 0 || relatedDestinations.length > 0 || relatedAirports.length > 0) && (
+            {connections.length > 0 && (
               <div className="mt-12">
                 <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <ArrowRight className="text-emerald-600" /> Related Destinations
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[...relatedRoutes, ...relatedDestinations, ...relatedAirports].map((route: any, idx: number) => (
+                  {connections.map((route: any, idx: number) => (
                     <Link 
                       key={idx} 
                       to={route.path}
@@ -438,9 +443,9 @@ const BlogArticle: React.FC = () => {
       </div>
 
       <LatestTravelGuides 
-        route={article.destinations?.split(',')[0]} 
+        route={article.primaryRoute?.route} 
         country={article.country} 
-        airport={article.airportCodes?.split(',')[0]}
+        airport={article.relatedAirports?.[0]?.iataCode}
         limit={3}
         title="More Like This"
         subtitle="Explore more travel guides and tips related to this topic."

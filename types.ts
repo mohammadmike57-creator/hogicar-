@@ -442,7 +442,9 @@ export interface SEOConfig {
   showFeaturedCars?: boolean;
   destinationName?: string;
   countryTag?: string;
+  cityTag?: string;
   airportTags?: string;
+  routeType?: string;
 }
 
 // --- Homepage Content Management ---
@@ -683,6 +685,12 @@ export interface BlogCategory {
   description?: string;
 }
 
+export interface BlogTag {
+  id?: number;
+  name: string;
+  slug: string;
+}
+
 export interface BlogArticle {
   id?: number;
   title: string;
@@ -698,6 +706,11 @@ export interface BlogArticle {
   imageAltText?: string;
   imageCaption?: string;
   category?: BlogCategory;
+  primaryRoute?: SEOConfig;
+  secondaryRoutes?: SEOConfig[];
+  relatedAirports?: any[];
+  articleTags?: BlogTag[];
+  relatedArticles?: BlogArticle[];
   seoTitle?: string;
   seoDescription?: string;
   canonicalUrl?: string;
@@ -707,17 +720,10 @@ export interface BlogArticle {
   openGraphTagsJson?: string;
   twitterCardTagsJson?: string;
   faqJson?: string;
-  relatedRoutesJson?: string;
-  relatedAirportsJson?: string;
-  relatedArticlesJson?: string;
-  relatedDestinationsJson?: string;
-  destinations?: string;
-  airportCodes?: string;
   country?: string;
   readingTime?: string;
   featuredOnHomepage?: boolean;
   isFeatured?: boolean;
-  tags?: string;
   authorName?: string;
   authorImage?: string;
   status?: string;
