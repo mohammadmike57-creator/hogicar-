@@ -17,6 +17,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Logo } from '../../components/Logo';
 import ImageUploadField from '../components/ImageUploadField';
 import BlogManagement from '../components/BlogManagement';
+import SitemapManagement from '../components/SitemapManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
     adminFetch, 
@@ -211,7 +212,7 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: {
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
-                'homepagelogos' | 'searchinglogos' | 'blog';
+                'homepagelogos' | 'searchinglogos' | 'blog' | 'sitemap';
 
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => {
@@ -496,6 +497,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">System</div>
           <NavItem section="cms" label="Pages" icon={FileText} />
           <NavItem section="blog" label="Blog" icon={MessageSquare} />
+          <NavItem section="sitemap" label="Sitemap" icon={Link2} />
           <NavItem section="seo" label="SEO" icon={Globe} />
           <NavItem section="homepage" label="Assets" icon={ImageIcon} />
           <NavItem section="sitesettings" label="Config" icon={Settings} />
@@ -4681,6 +4683,7 @@ export const AdminDashboard: React.FC = () => {
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
       case 'blog': return <BlogManagement />;
+      case 'sitemap': return <SitemapManagement />;
       case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} />;
       case 'homepage':
         if (loadingHomepageEditor) {
