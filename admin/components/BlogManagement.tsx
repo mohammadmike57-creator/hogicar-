@@ -1033,9 +1033,11 @@ const BlogManagement: React.FC = () => {
 
                     {/* Sidebar / Settings */}
                     <div className="space-y-8">
-                      {/* Publishing */}
+                      {/* General Information */}
                       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Publishing</h3>
+                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                          <Eye size={14} /> General Information
+                        </h3>
                         <div className="space-y-1">
                           <label className="text-[10px] font-bold text-slate-400 uppercase">Status</label>
                           <select
@@ -1094,6 +1096,138 @@ const BlogManagement: React.FC = () => {
                           >
                             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.isFeatured ? 'left-7' : 'left-1'}`} />
                           </button>
+                        </div>
+                      </div>
+
+                      {/* Route Assignment */}
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                          <MapPin size={14} /> Route Assignment
+                        </h3>
+
+                        <div className="space-y-4">
+                          {/* Route Filters */}
+                          <div className="grid grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-slate-200">
+                            <select 
+                              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                              value={routeFilters.routeType}
+                              onChange={(e) => setRouteFilters({...routeFilters, routeType: e.target.value})}
+                            >
+                              <option value="">All Route Types</option>
+                              <option value="HOMEPAGE">Homepage</option>
+                              <option value="AIRPORT">Airport</option>
+                              <option value="CITY">City</option>
+                              <option value="DESTINATION">Destination</option>
+                            </select>
+                            <input 
+                              type="text"
+                              placeholder="Search routes..."
+                              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                              value={routeFilters.search}
+                              onChange={(e) => setRouteFilters({...routeFilters, search: e.target.value})}
+                            />
+                          </div>
+
+                          {/* Primary Route */}
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Primary Route (Required)</label>
+                            <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
+                              {availableRoutes.map(r => {
+                                const isSelected = editingArticle.primaryRoute?.id === r.id;
+                                return (
+                                  <div 
+                                    key={r.id} 
+                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
+                                    onClick={() => setEditingArticle({...editingArticle, primaryRoute: r})}
+                                  >
+                                    <div className="flex flex-col">
+                                      <span className="text-xs font-bold">{r.destinationName || r.route}</span>
+                                      <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
+                                    </div>
+                                    {isSelected && <Check size={14} />}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Related Routes Multi-Select */}
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Routes (Optional)</label>
+                            <div className="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
+                                {availableRoutes
+                                  .filter(r => r.id !== editingArticle.primaryRoute?.id)
+                                  .map(r => {
+                                    const isSelected = editingArticle.secondaryRoutes?.some(sr => sr.id === r.id);
+                                    return (
+                                      <div 
+                                        key={r.id} 
+                                        className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
+                                        onClick={() => {
+                                          const newSecondary = isSelected 
+                                            ? editingArticle.secondaryRoutes?.filter(sr => sr.id !== r.id)
+                                            : [...(editingArticle.secondaryRoutes || []), r];
+                                          setEditingArticle({...editingArticle, secondaryRoutes: newSecondary});
+                                        }}
+                                      >
+                                        <div className="flex flex-col">
+                                          <span className="text-xs font-bold">{r.destinationName || r.route}</span>
+                                          <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
+                                        </div>
+                                        {isSelected && <Check size={14} />}
+                                      </div>
+                                    );
+                                  })}
+                            </div>
+                          </div>
+
+                          {/* Admin Preview Summary */}
+                          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
+                            <div className="space-y-2">
+                              <div className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">This article will appear on:</div>
+                              <div className="space-y-1">
+                                {(editingArticle.featuredOnHomepage || editingArticle.isFeatured) && (
+                                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                    <Check size={10} className="text-emerald-500" /> Homepage (Featured)
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                  <Check size={10} className="text-emerald-500" /> Blog Index
+                                </div>
+                                {editingArticle.primaryRoute && (
+                                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                    <Check size={10} className="text-emerald-500" /> {editingArticle.primaryRoute.destinationName || editingArticle.primaryRoute.route}
+                                  </div>
+                                )}
+                                {editingArticle.secondaryRoutes?.map(r => (
+                                  <div key={r.id} className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                    <Check size={10} className="text-emerald-500" /> {r.destinationName || r.route}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2 pt-2 border-t border-emerald-200/50">
+                              <div className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">This article will be added to:</div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                  <Check size={10} className="text-emerald-500" /> Blog Index
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                  <Check size={10} className="text-emerald-500" /> XML Sitemap
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                  <Check size={10} className="text-emerald-500" /> Internal Search
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                  <Check size={10} className="text-emerald-500" /> Related Articles
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
+                                  <Check size={10} className="text-emerald-500" /> Route Blog Sections
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -1158,126 +1292,6 @@ const BlogManagement: React.FC = () => {
                             onChange={(e) => setEditingArticle({...editingArticle, imageCaption: e.target.value})}
                           />
                         </div>
-                      </div>
-
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsRouteSectionOpen(!isRouteSectionOpen)}>
-                          <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                            <Globe size={14} /> Route Connections
-                          </h3>
-                          <ChevronDown size={16} className={`transition-transform ${isRouteSectionOpen ? 'rotate-180' : ''}`} />
-                        </div>
-
-                        <AnimatePresence>
-                          {isRouteSectionOpen && (
-                            <motion.div 
-                              initial={{ height: 0, opacity: 0 }} 
-                              animate={{ height: 'auto', opacity: 1 }} 
-                              exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden space-y-4 pt-4 border-t border-slate-200"
-                            >
-                              {/* Route Filters */}
-                              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <select 
-                                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold"
-                                  value={routeFilters.routeType}
-                                  onChange={(e) => setRouteFilters({...routeFilters, routeType: e.target.value})}
-                                >
-                                  <option value="">All Route Types</option>
-                                  <option value="HOMEPAGE">Homepage</option>
-                                  <option value="AIRPORT">Airport</option>
-                                  <option value="CITY">City</option>
-                                  <option value="DESTINATION">Destination</option>
-                                </select>
-                                <input 
-                                  type="text"
-                                  placeholder="Search routes..."
-                                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold"
-                                  value={routeFilters.search}
-                                  onChange={(e) => setRouteFilters({...routeFilters, search: e.target.value})}
-                                />
-                              </div>
-
-                              {/* Primary Route */}
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Primary Route (Required)</label>
-                                <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
-                                  {availableRoutes.map(r => {
-                                    const isSelected = editingArticle.primaryRoute?.id === r.id;
-                                    return (
-                                      <div 
-                                        key={r.id} 
-                                        className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
-                                        onClick={() => setEditingArticle({...editingArticle, primaryRoute: r})}
-                                      >
-                                        <div className="flex flex-col">
-                                          <span className="text-xs font-bold">{r.destinationName || r.route}</span>
-                                          <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
-                                        </div>
-                                        {isSelected && <Check size={14} />}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-
-                              {/* Related Routes Multi-Select */}
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Routes</label>
-                                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
-                                    {availableRoutes
-                                      .filter(r => r.id !== editingArticle.primaryRoute?.id)
-                                      .map(r => {
-                                        const isSelected = editingArticle.secondaryRoutes?.some(sr => sr.id === r.id);
-                                        return (
-                                          <div 
-                                            key={r.id} 
-                                            className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
-                                            onClick={() => {
-                                              const newSecondary = isSelected 
-                                                ? editingArticle.secondaryRoutes?.filter(sr => sr.id !== r.id)
-                                                : [...(editingArticle.secondaryRoutes || []), r];
-                                              setEditingArticle({...editingArticle, secondaryRoutes: newSecondary});
-                                            }}
-                                          >
-                                            <div className="flex flex-col">
-                                              <span className="text-xs font-bold">{r.destinationName || r.route}</span>
-                                              <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
-                                            </div>
-                                            {isSelected && <Check size={14} />}
-                                          </div>
-                                        );
-                                      })}
-                                </div>
-                              </div>
-
-                              {/* Live Preview of connections */}
-                              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-2">
-                                <div className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">Live Preview: Article Visibility</div>
-                                <div className="space-y-1">
-                                  {editingArticle.featuredOnHomepage && (
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" /> Featured on Homepage
-                                    </div>
-                                  )}
-                                  {editingArticle.primaryRoute && (
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" /> {editingArticle.primaryRoute.destinationName || editingArticle.primaryRoute.route} (Primary)
-                                    </div>
-                                  )}
-                                  {editingArticle.secondaryRoutes?.map(r => (
-                                    <div key={r.id} className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> {r.destinationName || r.route}
-                                    </div>
-                                  ))}
-                                  {(!editingArticle.primaryRoute && (!editingArticle.secondaryRoutes || editingArticle.secondaryRoutes.length === 0) && !editingArticle.featuredOnHomepage) && (
-                                    <div className="text-[10px] font-bold text-slate-400 italic">No route connections yet.</div>
-                                  )}
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </div>
 
                       {/* SEO Settings */}
