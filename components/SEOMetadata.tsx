@@ -71,6 +71,9 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
 
     let isMounted = true;
     const fetchConfig = async () => {
+      if (normalizedPathname.endsWith('.xml') || normalizedPathname.endsWith('.txt')) {
+        return;
+      }
       try {
         const res = await api.fetchSeoConfig(normalizedPathname);
         if (isMounted) {
