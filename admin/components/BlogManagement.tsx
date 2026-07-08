@@ -4,7 +4,7 @@ import {
   Calendar, User, Tag, FileText, ChevronRight,
   Save, X, Globe, MessageSquare, AlertCircle,
   LoaderCircle, ImageIcon, ChevronDown, Copy, Archive, Monitor, Tablet, Smartphone,
-  Check, Filter, MoreVertical, Layout, Share2, ArrowUpRight
+  Check, Filter, MoreVertical, Layout, Share2, ArrowUpRight, MapPin
 } from 'lucide-react';
 import { adminFetch } from '../../lib/adminApi';
 import ImageUploadField from './ImageUploadField';
