@@ -39,14 +39,6 @@ const pathname = window.location.pathname;
 const hash = window.location.hash;
 const search = window.location.search || "";
 
-// Handle static files that should be served by the backend
-if (pathname.endsWith('.xml') || pathname.endsWith('.txt')) {
-  if (!search.includes('spa_fallback=1')) {
-    const sep = search ? '&' : '?';
-    window.location.href = pathname + search + sep + 'spa_fallback=1';
-  }
-}
-
 // Handle legacy hash routes by redirecting to clean URLs
 if (hash.startsWith("#/")) {
   const cleanPath = hash.substring(2);

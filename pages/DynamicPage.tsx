@@ -58,12 +58,6 @@ const DynamicPage: React.FC = () => {
       // Normalize route
       const route = location.pathname.replace(/\/$/, '') || '/';
       
-      // If the route is for a static file that should be handled by the server (sitemap, robots)
-      if (route.endsWith('.xml') || route.endsWith('.txt')) {
-        window.location.reload();
-        return;
-      }
-
       const slug = route.startsWith('/') ? route.substring(1) : route;
 
       try {

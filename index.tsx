@@ -4,6 +4,23 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
 
+// IMMEDIATE BYPASS FOR STATIC FILES (SITEMAP, ROBOTS)
+// This must run before ANY React initialization to prevent the SPA from taking over.
+(function() {
+  const pathname = window.location.pathname.toLowerCase();
+  const search = window.location.search || "";
+  
+  if (pathname.endsWith('.xml') || pathname.endsWith('.txt')) {
+    // If we are already in the fallback loop, don't redirect again
+    if (!search.includes('spa_fallback=1')) {
+      const sep = search ? '&' : '?';
+      console.log('[SPA BYPASS] Redirecting to server-side route:', pathname);
+      window.location.replace(pathname + search + sep + 'spa_fallback=1');
+      return;
+    }
+  }
+})();
+
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {

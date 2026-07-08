@@ -1,16 +1,20 @@
 {
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "https://hogicar-backend.onrender.com/sitemap.xml"
-    },
-    {
-      "source": "/sitemap-:suffix.xml",
-      "destination": "https://hogicar-backend.onrender.com/sitemap-:suffix.xml"
+      "source": "/(sitemap.*\\.xml)",
+      "destination": "https://hogicar-backend.onrender.com/$1"
     },
     {
       "source": "/robots.txt",
       "destination": "https://hogicar-backend.onrender.com/robots.txt"
+    },
+    {
+      "source": "/api/pages/(sitemap.*\\.xml)",
+      "destination": "https://hogicar-backend.onrender.com/api/pages/$1"
+    },
+    {
+      "source": "/api/seo/(sitemap.*\\.xml)",
+      "destination": "https://hogicar-backend.onrender.com/api/seo/$1"
     }
   ]
 }
