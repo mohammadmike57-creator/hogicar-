@@ -3,7 +3,8 @@ import {
   Plus, Search, Edit, Trash2, Eye, EyeOff, 
   Calendar, User, Tag, FileText, ChevronRight,
   Save, X, Globe, MessageSquare, AlertCircle,
-  LoaderCircle, ImageIcon, ChevronDown, Copy, Archive, Monitor, Tablet, Smartphone
+  LoaderCircle, ImageIcon, ChevronDown, Copy, Archive, Monitor, Tablet, Smartphone,
+  Check, Filter, MoreVertical, Layout, Share2, ArrowUpRight
 } from 'lucide-react';
 import { adminFetch } from '../../lib/adminApi';
 import ImageUploadField from './ImageUploadField';
@@ -20,12 +21,13 @@ interface BlogCategory {
 interface SeoConfig {
   id: number;
   route: string;
-  destinationName: string;
-  countryTag: string;
-  cityTag: string;
-  airportTags: string;
-  routeType: string;
-  heroImage: string;
+  title?: string;
+  destinationName?: string;
+  countryTag?: string;
+  cityTag?: string;
+  airportTags?: string;
+  routeType?: string;
+  heroImage?: string;
 }
 
 interface BlogTag {
@@ -76,8 +78,10 @@ interface BlogArticle {
   archivedAt: string;
   seoScore: number;
   published: boolean;
+  live: boolean;
   publishedAt: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 const BlogManagement: React.FC = () => {
@@ -90,7 +94,23 @@ const BlogManagement: React.FC = () => {
   const [editingArticle, setEditingArticle] = React.useState<Partial<BlogArticle> | null>(null);
   const [editingCategory, setEditingCategory] = React.useState<Partial<BlogCategory> | null>(null);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [selectedArticles, setSelectedArticles] = React.useState<number[]>([]);
+  const [filters, setFilters] = React.useState({
+    category: '',
+    country: '',
+    route: '',
+    status: '',
+    featured: '',
+    author: ''
+  });
+  const [showFilters, setShowFilters] = React.useState(false);
   const [previewMode, setPreviewMode] = React.useState<'desktop' | 'tablet' | 'mobile' | 'google'>('desktop');
+  
+  // Pagination State
+  const [page, setPage] = React.useState(0);
+  const [totalPages, setTotalPages] = React.useState(0);
+  const [totalElements, setTotalElements] = React.useState(0);
+  const [pageSize, setPageSize] = React.useState(10);
   
   // Route Connection Manager State
   const [availableRoutes, setAvailableRoutes] = React.useState<SeoConfig[]>([]);
@@ -106,12 +126,70 @@ const BlogManagement: React.FC = () => {
     fetchData();
   }, [activeTab]);
 
-  const fetchData = async () => {
+  const filteredArticles = React.useMemo(() => {
+    return articles.filter(article => {
+      const matchSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          article.slug.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchCategory = !filters.category || article.category?.id === Number(filters.category);
+      const matchCountry = !filters.country || article.country === filters.country;
+      const matchRoute = !filters.route || article.primaryRoute?.id === Number(filters.route);
+      const matchStatus = !filters.status || article.status === filters.status;
+      const matchFeatured = !filters.featured || (filters.featured === 'true' ? article.featuredOnHomepage : !article.featuredOnHomepage);
+      const matchAuthor = !filters.author || article.authorName === filters.author;
+
+      return matchSearch && matchCategory && matchCountry && matchRoute && matchStatus && matchFeatured && matchAuthor;
+    });
+  }, [articles, searchTerm, filters]);
+
+  const toggleSelectAll = () => {
+    if (selectedArticles.length === filteredArticles.length) {
+      setSelectedArticles([]);
+    } else {
+      setSelectedArticles(filteredArticles.map(a => a.id));
+    }
+  };
+
+  const handleBulkAction = async (action: 'publish' | 'unpublish' | 'archive' | 'delete') => {
+    if (selectedArticles.length === 0) return;
+    if (action === 'delete' && !confirm(`Are you sure you want to delete ${selectedArticles.length} articles?`)) return;
+    
+    setLoading(true);
+    try {
+      for (const id of selectedArticles) {
+        if (action === 'delete') {
+          await adminFetch(`/api/admin/blog/articles/${id}`, { method: 'DELETE' });
+        } else {
+          await adminFetch(`/api/admin/blog/articles/${id}/${action}`, { method: 'POST' });
+        }
+      }
+      setSelectedArticles([]);
+      fetchData();
+    } catch (error) {
+      alert(`Bulk ${action} failed`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchData = React.useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === 'articles') {
-        const res = await adminFetch('/api/admin/blog/articles');
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('size', pageSize.toString());
+        if (filters.category) params.append('category', filters.category);
+        if (filters.country) params.append('country', filters.country);
+        if (filters.route) params.append('route', filters.route);
+        if (filters.status) params.append('status', filters.status);
+        if (filters.featured) params.append('featured', filters.featured);
+        if (filters.author) params.append('author', filters.author);
+        if (searchTerm) params.append('search', searchTerm);
+
+        const res = await adminFetch(`/api/admin/blog/articles?${params.toString()}`);
         setArticles(res.content || []);
+        setTotalPages(res.totalPages || 0);
+        setTotalElements(res.totalElements || 0);
       }
       // Always fetch categories as they are needed for article editing
       const catRes = await adminFetch('/api/admin/blog/categories');
@@ -125,7 +203,11 @@ const BlogManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, page, pageSize, filters, searchTerm]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const fetchFilteredRoutes = async () => {
     try {
@@ -302,143 +384,294 @@ const BlogManagement: React.FC = () => {
           <button 
             onClick={() => {
               if (activeTab === 'articles') {
-                setEditingArticle({ published: false, status: 'DRAFT', category: categories[0] || null });
+                setEditingArticle({ 
+                  published: false, 
+                  status: 'DRAFT', 
+                  category: categories[0] || null,
+                  secondaryRoutes: [],
+                  articleTags: [],
+                  relatedArticles: [],
+                  relatedAirports: [],
+                  readingTime: '1 min read',
+                  featuredOnHomepage: false,
+                  isFeatured: false,
+                  live: false
+                });
                 setIsArticleModalOpen(true);
               } else {
                 setEditingCategory({});
                 setIsCategoryModalOpen(true);
               }
             }}
-            className="bg-slate-900 text-white px-5 py-2.5 rounded-card text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-sm"
+            className="bg-indigo-600 text-white px-6 py-2.5 rounded-card text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 uppercase tracking-widest"
           >
-            <Plus size={16} /> Add {activeTab === 'articles' ? 'Article' : 'Category'}
+            <Plus size={18} strokeWidth={3} /> {activeTab === 'articles' ? 'New Article' : 'New Category'}
           </button>
         </div>
       </div>
 
       {activeTab === 'articles' ? (
         <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="text"
-                placeholder="Search articles by title..."
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-900 outline-none transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="relative max-w-md flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input 
+                  type="text"
+                  placeholder="Search articles by title or slug..."
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-900 outline-none transition-all"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`p-2 rounded-lg border transition-all flex items-center gap-2 text-xs font-bold ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                >
+                  <Filter size={16} /> Filters
+                </button>
+                {selectedArticles.length > 0 && (
+                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                    <button onClick={() => handleBulkAction('publish')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md transition-all" title="Publish Selected"><Eye size={14} /></button>
+                    <button onClick={() => handleBulkAction('unpublish')} className="p-1.5 text-slate-500 hover:bg-slate-200 rounded-md transition-all" title="Unpublish Selected"><EyeOff size={14} /></button>
+                    <button onClick={() => handleBulkAction('archive')} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-md transition-all" title="Archive Selected"><Archive size={14} /></button>
+                    <button onClick={() => handleBulkAction('delete')} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md transition-all" title="Delete Selected"><Trash2 size={14} /></button>
+                  </div>
+                )}
+              </div>
             </div>
+
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100"
+                >
+                  <select 
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
+                    value={filters.category}
+                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <input 
+                    type="text" placeholder="Country"
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
+                    value={filters.country}
+                    onChange={(e) => setFilters({...filters, country: e.target.value})}
+                  />
+                  <select 
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
+                    value={filters.route}
+                    onChange={(e) => setFilters({...filters, route: e.target.value})}
+                  >
+                    <option value="">All Routes</option>
+                    {availableRoutes.map(r => <option key={r.id} value={r.id}>{r.destinationName || r.route}</option>)}
+                  </select>
+                  <select 
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
+                    value={filters.status}
+                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="ARCHIVED">Archived</option>
+                  </select>
+                  <select 
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
+                    value={filters.featured}
+                    onChange={(e) => setFilters({...filters, featured: e.target.value})}
+                  >
+                    <option value="">All Visibility</option>
+                    <option value="true">Homepage Featured</option>
+                    <option value="false">Not on Homepage</option>
+                  </select>
+                  <input 
+                    type="text" placeholder="Author"
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
+                    value={filters.author}
+                    onChange={(e) => setFilters({...filters, author: e.target.value})}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Article</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Category</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Date</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                  <th className="pl-6 py-4 w-10">
+                    <input 
+                      type="checkbox"
+                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                      checked={selectedArticles.length === filteredArticles.length && filteredArticles.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Article</th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Category</th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Routes</th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-center">SEO</th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Visibility</th>
+                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-20 text-center">
+                    <td colSpan={7} className="px-6 py-20 text-center">
                       <div className="flex flex-col items-center gap-3">
                         <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Articles...</span>
                       </div>
                     </td>
                   </tr>
-                ) : articles.length === 0 ? (
+                ) : filteredArticles.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-20 text-center text-slate-400">
-                      No articles found. Start by creating one!
+                    <td colSpan={7} className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
+                      No articles match your criteria
                     </td>
                   </tr>
-                ) : articles.filter(a => a.title.toLowerCase().includes(searchTerm.toLowerCase())).map((article) => (
-                  <tr key={article.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <img 
-                          src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://via.placeholder.com/150'} 
-                          className="w-12 h-12 rounded-lg object-cover bg-slate-100"
-                        />
-                        <div>
-                          <div className="font-bold text-slate-900">{article.title}</div>
-                          <div className="text-[10px] text-slate-400 font-medium">/{article.slug}</div>
+                ) : filteredArticles.map((article) => (
+                  <tr key={article.id} className={`hover:bg-slate-50/50 transition-colors ${selectedArticles.includes(article.id) ? 'bg-slate-50' : ''}`}>
+                    <td className="pl-6 py-4">
+                      <input 
+                        type="checkbox"
+                        className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                        checked={selectedArticles.includes(article.id)}
+                        onChange={() => {
+                          setSelectedArticles(prev => prev.includes(article.id) ? prev.filter(id => id !== article.id) : [...prev, article.id]);
+                        }}
+                      />
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-shrink-0">
+                          <img 
+                            src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://via.placeholder.com/150'} 
+                            className="w-10 h-10 rounded-lg object-cover bg-slate-100 shadow-sm border border-slate-200"
+                          />
+                        </div>
+                        <div className="max-w-[200px] xl:max-w-[300px]">
+                          <div className="font-bold text-slate-900 truncate" title={article.title}>{article.title}</div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[9px] text-indigo-600 font-extrabold uppercase tracking-tighter bg-indigo-50 px-1 rounded">{article.authorName || 'Hogicar'}</span>
+                            <span className="text-[9px] text-slate-400 font-medium truncate">/{article.slug}</span>
+                            <span className="text-[9px] text-slate-300 font-bold">•</span>
+                            <span className="text-[9px] text-slate-400 font-bold">{article.readingTime || '1 min read'}</span>
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tight">
-                        {article.category?.name || 'Uncategorized'}
-                      </span>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col">
+                        <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-tight self-start">
+                          {article.category?.name || 'Uncategorized'}
+                        </span>
+                        <span className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">{article.country || 'Jordan'}</span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      {article.published ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase tracking-tighter">
-                          <Eye size={12} /> {article.status || 'Published'}
-                        </span>
-                      ) : article.status === 'ARCHIVED' ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-tighter">
-                          <Archive size={12} /> Archived
-                        </span>
+                    <td className="px-4 py-4">
+                      {article.primaryRoute ? (
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-extrabold text-slate-700 leading-tight truncate max-w-[120px]" title={article.primaryRoute.route}>{article.primaryRoute.destinationName || article.primaryRoute.route}</span>
+                          {article.secondaryRoutes && article.secondaryRoutes.length > 0 && (
+                            <div className="flex items-center gap-1 mt-0.5" title={article.secondaryRoutes.map(r => r.route).join(', ')}>
+                              <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                              <span className="text-[9px] text-slate-400 font-medium">{article.secondaryRoutes.length} related</span>
+                            </div>
+                          )}
+                        </div>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 uppercase tracking-tighter">
-                          <EyeOff size={12} /> {article.status || 'Draft'}
-                        </span>
+                        <span className="text-[10px] text-slate-300 font-bold uppercase tracking-widest italic">No Route</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-xs text-slate-600 font-medium">
-                        {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
+                    <td className="px-4 py-4 text-center">
+                      <div className={`inline-flex flex-col items-center justify-center w-8 h-8 rounded-full border-2 ${article.seoScore >= 80 ? 'border-emerald-500 text-emerald-600 bg-emerald-50' : article.seoScore >= 60 ? 'border-amber-400 text-amber-600 bg-amber-50' : 'border-rose-300 text-rose-500 bg-rose-50'}`}>
+                        <span className="text-[10px] font-extrabold leading-none">{article.seoScore || 0}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-tighter ${
+                          article.status === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-700' :
+                          article.status === 'SCHEDULED' ? 'bg-indigo-100 text-indigo-700' :
+                          article.status === 'ARCHIVED' ? 'bg-slate-200 text-slate-600' :
+                          'bg-slate-100 text-slate-500'
+                        }`}>
+                          {article.status || 'DRAFT'}
+                        </span>
+                        <div className="flex items-center gap-1 ml-1">
+                           <Calendar size={8} className="text-slate-400" />
+                           <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
+                             {article.updatedAt ? new Date(article.updatedAt).toLocaleDateString() : 'N/A'}
+                           </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1">
+                        {article.published && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-600 uppercase tracking-tighter">
+                            <Check size={8} /> Published
+                          </span>
+                        )}
+                        {article.live && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-600 uppercase tracking-tighter">
+                            <Globe size={8} /> Live
+                          </span>
+                        )}
+                        {article.featuredOnHomepage && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-50 text-amber-600 uppercase tracking-tighter">
+                            <Layout size={8} /> Homepage
+                          </span>
+                        )}
+                        {!article.published && !article.live && !article.featuredOnHomepage && (
+                          <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic ml-1">Hidden</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1">
                         <a
                           href={`/blog/${article.slug}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-                          title="Preview article"
+                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                          title="View Live"
                         >
-                          <Eye size={16} />
+                          <ArrowUpRight size={14} />
                         </a>
                         <button
                           onClick={() => handleArticleAction(article.id, article.published ? 'unpublish' : 'publish')}
-                          className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                          className={`p-1.5 rounded-lg transition-all ${article.published ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
                           title={article.published ? 'Unpublish' : 'Publish'}
                         >
-                          {article.published ? <EyeOff size={16} /> : <Globe size={16} />}
+                          {article.published ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
                         <button
                           onClick={() => handleArticleAction(article.id, 'duplicate')}
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                           title="Duplicate"
                         >
-                          <Copy size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleArticleAction(article.id, 'archive')}
-                          className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-                          title="Archive"
-                        >
-                          <Archive size={16} />
+                          <Copy size={14} />
                         </button>
                         <button 
                           onClick={() => { setEditingArticle(article); setIsArticleModalOpen(true); }}
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
                         >
-                          <Edit size={16} />
+                          <Edit size={14} />
                         </button>
                         <button 
                           onClick={() => handleDeleteArticle(article.id)}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>
@@ -447,6 +680,45 @@ const BlogManagement: React.FC = () => {
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination */}
+          {activeTab === 'articles' && totalPages > 1 && (
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                Showing <span className="text-slate-900">{page * pageSize + 1}</span> to <span className="text-slate-900">{Math.min((page + 1) * pageSize, totalElements)}</span> of <span className="text-slate-900">{totalElements}</span> articles
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={page === 0}
+                  onClick={() => setPage(p => p - 1)}
+                  className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                >
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setPage(i)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${page === i ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  disabled={page === totalPages - 1}
+                  onClick={() => setPage(p => p + 1)}
+                  className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
@@ -647,14 +919,49 @@ const BlogManagement: React.FC = () => {
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between ml-1">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Content (HTML Supported)</label>
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Content (Rich HTML Editor)</label>
                           <span className={`text-[10px] font-bold uppercase tracking-widest ${((editingArticle.content || '').split(/\s+/).filter(Boolean).length) >= 1500 ? 'text-emerald-500' : 'text-amber-500'}`}>
                             Word Count: {(editingArticle.content || '').split(/\s+/).filter(Boolean).length} / 1500
                           </span>
                         </div>
+                        <div className="flex flex-wrap gap-1 p-2 bg-slate-100 border border-slate-200 rounded-t-xl border-b-0">
+                          {['H1', 'H2', 'H3', 'B', 'I', 'UL', 'OL', 'LI', 'IMG', 'A', 'TABLE', 'TR', 'TD'].map(tag => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => {
+                                const el = document.getElementById('article-content-textarea') as HTMLTextAreaElement;
+                                if (!el) return;
+                                const start = el.selectionStart;
+                                const end = el.selectionEnd;
+                                const text = el.value;
+                                const selected = text.substring(start, end);
+                                const before = text.substring(0, start);
+                                const after = text.substring(end);
+                                const lowerTag = tag.toLowerCase();
+                                let replacement = '';
+                                if (tag === 'IMG') replacement = `<img src="" alt="" />`;
+                                else if (tag === 'A') replacement = `<a href="">${selected || 'Link'}</a>`;
+                                else if (tag === 'TABLE') replacement = `<table>\n  <tr>\n    <td></td>\n  </tr>\n</table>`;
+                                else replacement = `<${lowerTag}>${selected}</${lowerTag}>`;
+                                
+                                const newValue = before + replacement + after;
+                                setEditingArticle({...editingArticle, content: newValue});
+                                setTimeout(() => {
+                                  el.focus();
+                                  el.setSelectionRange(start + replacement.length, start + replacement.length);
+                                }, 10);
+                              }}
+                              className="px-2 py-1 bg-white border border-slate-200 rounded text-[9px] font-extrabold text-slate-600 hover:bg-slate-900 hover:text-white transition-all"
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
                         <textarea 
+                          id="article-content-textarea"
                           required
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-96 font-mono"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-b-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-96 font-mono"
                           value={editingArticle.content || ''}
                           onChange={(e) => setEditingArticle({...editingArticle, content: e.target.value})}
                         />
@@ -690,15 +997,36 @@ const BlogManagement: React.FC = () => {
                             </div>
                           ))}
                         </div>
-                        <details className="text-xs text-slate-500">
-                          <summary className="cursor-pointer font-bold">Raw FAQ JSON</summary>
-                          <textarea
-                            className="mt-2 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-32 font-mono"
-                            placeholder='[{"question": "How to rent?", "answer": "Steps..."}]'
-                            value={editingArticle.faqJson || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, faqJson: e.target.value})}
-                          />
-                        </details>
+                      </div>
+
+                      {/* Related Articles Selector */}
+                      <div className="space-y-4 pt-4 border-t border-slate-100">
+                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Articles</label>
+                        <div className="max-h-60 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-slate-50 p-4 rounded-xl border border-slate-200">
+                          {articles
+                            .filter(a => a.id !== editingArticle.id)
+                            .map(a => {
+                              const isSelected = editingArticle.relatedArticles?.some(ra => ra.id === a.id);
+                              return (
+                                <div 
+                                  key={a.id} 
+                                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-white text-slate-700'}`}
+                                  onClick={() => {
+                                    const newRelated = isSelected 
+                                      ? editingArticle.relatedArticles?.filter(ra => ra.id !== a.id)
+                                      : [...(editingArticle.relatedArticles || []), a];
+                                    setEditingArticle({...editingArticle, relatedArticles: newRelated});
+                                  }}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <img src={a.featuredImage ? (a.featuredImage.startsWith('/') && !a.featuredImage.startsWith('http') ? `${API_BASE_URL}${a.featuredImage}` : a.featuredImage) : 'https://via.placeholder.com/150'} className="w-6 h-6 rounded object-cover" />
+                                    <span className="text-xs font-bold truncate max-w-[300px]">{a.title}</span>
+                                  </div>
+                                  {isSelected && <Check size={14} />}
+                                </div>
+                              );
+                            })}
+                        </div>
                       </div>
 
                     </div>
@@ -722,13 +1050,27 @@ const BlogManagement: React.FC = () => {
                           </select>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
-                          <span className="text-sm font-bold text-slate-700">Live Status</span>
+                          <span className="text-sm font-bold text-slate-700">Published</span>
                           <button 
                             type="button"
-                            onClick={() => setEditingArticle({...editingArticle, published: !editingArticle.published, status: !editingArticle.published ? 'PUBLISHED' : 'DRAFT'})}
+                            onClick={() => setEditingArticle({...editingArticle, published: !editingArticle.published})}
                             className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.published ? 'bg-emerald-500' : 'bg-slate-300'}`}
                           >
                             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.published ? 'left-7' : 'left-1'}`} />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold text-slate-700">Live Status</span>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase">Publicly Accessible</span>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={() => setEditingArticle({...editingArticle, live: !editingArticle.live})}
+                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.live ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                          >
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.live ? 'left-7' : 'left-1'}`} />
                           </button>
                         </div>
 
@@ -834,54 +1176,55 @@ const BlogManagement: React.FC = () => {
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden space-y-4 pt-4 border-t border-slate-200"
                             >
-                              {/* Primary Route Dropdown */}
+                              {/* Route Filters */}
+                              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <select 
+                                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                                  value={routeFilters.routeType}
+                                  onChange={(e) => setRouteFilters({...routeFilters, routeType: e.target.value})}
+                                >
+                                  <option value="">All Route Types</option>
+                                  <option value="HOMEPAGE">Homepage</option>
+                                  <option value="AIRPORT">Airport</option>
+                                  <option value="CITY">City</option>
+                                  <option value="DESTINATION">Destination</option>
+                                </select>
+                                <input 
+                                  type="text"
+                                  placeholder="Search routes..."
+                                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                                  value={routeFilters.search}
+                                  onChange={(e) => setRouteFilters({...routeFilters, search: e.target.value})}
+                                />
+                              </div>
+
+                              {/* Primary Route */}
                               <div className="space-y-2">
                                 <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Primary Route (Required)</label>
-                                <div className="relative">
-                                  <select 
-                                    required
-                                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold text-sm"
-                                    value={editingArticle.primaryRoute?.id || ''}
-                                    onChange={(e) => {
-                                      const route = availableRoutes.find(r => r.id === Number(e.target.value));
-                                      setEditingArticle({...editingArticle, primaryRoute: route || null});
-                                    }}
-                                  >
-                                    <option value="">Select Primary Route...</option>
-                                    {availableRoutes.map(r => (
-                                      <option key={r.id} value={r.id}>{r.destinationName || r.route} ({r.route})</option>
-                                    ))}
-                                  </select>
+                                <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
+                                  {availableRoutes.map(r => {
+                                    const isSelected = editingArticle.primaryRoute?.id === r.id;
+                                    return (
+                                      <div 
+                                        key={r.id} 
+                                        className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
+                                        onClick={() => setEditingArticle({...editingArticle, primaryRoute: r})}
+                                      >
+                                        <div className="flex flex-col">
+                                          <span className="text-xs font-bold">{r.destinationName || r.route}</span>
+                                          <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
+                                        </div>
+                                        {isSelected && <Check size={14} />}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               </div>
 
                               {/* Related Routes Multi-Select */}
                               <div className="space-y-2">
                                 <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Routes</label>
-                                <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-200">
-                                  {/* Route Filters */}
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <select 
-                                      className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold"
-                                      value={routeFilters.routeType}
-                                      onChange={(e) => setRouteFilters({...routeFilters, routeType: e.target.value})}
-                                    >
-                                      <option value="">All Types</option>
-                                      <option value="HOMEPAGE">Homepage</option>
-                                      <option value="AIRPORT">Airport</option>
-                                      <option value="CITY">City</option>
-                                      <option value="DESTINATION">Destination</option>
-                                    </select>
-                                    <input 
-                                      type="text"
-                                      placeholder="Search routes..."
-                                      className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold"
-                                      value={routeFilters.search}
-                                      onChange={(e) => setRouteFilters({...routeFilters, search: e.target.value})}
-                                    />
-                                  </div>
-
-                                  <div className="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
                                     {availableRoutes
                                       .filter(r => r.id !== editingArticle.primaryRoute?.id)
                                       .map(r => {
@@ -905,7 +1248,6 @@ const BlogManagement: React.FC = () => {
                                           </div>
                                         );
                                       })}
-                                  </div>
                                 </div>
                               </div>
 
