@@ -5,6 +5,10 @@
       "destination": "https://hogicar-backend.onrender.com/sitemap.xml"
     },
     {
+      "source": "/sitemap-:suffix.xml",
+      "destination": "https://hogicar-backend.onrender.com/sitemap-:suffix.xml"
+    },
+    {
       "source": "/robots.txt",
       "destination": "https://hogicar-backend.onrender.com/robots.txt"
     }
