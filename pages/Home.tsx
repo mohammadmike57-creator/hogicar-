@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
     CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, 
     Search as SearchIcon, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap, 
-    FileText, User, Plane, Building, Car, Fuel, ParkingCircle, Compass, Calendar,
+    FileText, User, Car, Fuel, ParkingCircle, Compass, Calendar,
     Quote, ShieldCheck, Clock, ChevronUp
 } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
