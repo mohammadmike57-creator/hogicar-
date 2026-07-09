@@ -88,10 +88,14 @@ supplierAxios.interceptors.request.use(
 );
 
 // ---------- Standalone customer API functions (named exports) ----------
-export const fetchLocations = async (query: string): Promise<LocationSuggestion[]> => {
+export const fetchLocations = async (query: string, hint?: string): Promise<LocationSuggestion[]> => {
   if (!query || query.length < 2) return [];
   try {
-    const response = await publicAxios.get(`${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`);
+    let url = `${API_BASE_URL}/api/public/locations/search?q=${encodeURIComponent(query)}`;
+    if (hint) {
+      url += `&hint=${encodeURIComponent(hint)}`;
+    }
+    const response = await publicAxios.get(url);
     // Map the backend response to { value, label, type } format
     const results = response.data.map((loc: any) => {
       // Determine type based on backend type or airport name

@@ -14,6 +14,7 @@ interface LatestTravelGuidesProps {
   limit?: number;
   title?: string;
   subtitle?: string;
+  variant?: 'DEFAULT' | 'HOMEPAGE';
 }
 
 const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
@@ -23,8 +24,10 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
   destination,
   limit = 6,
   title,
-  subtitle
+  subtitle,
+  variant
 }) => {
+  const isHomepage = variant === 'HOMEPAGE' || route === '/';
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -113,7 +116,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5, 6].slice(0, isHomepage ? 6 : 3).map((i) => (
               <div key={i} className="animate-pulse">
                 <div className="bg-slate-200 aspect-[4/3] rounded-2xl mb-4"></div>
                 <div className="h-4 bg-slate-200 rounded w-1/4 mb-2"></div>
@@ -125,7 +128,12 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {articles.map((article, index) => (
-              <BlogCard key={article.id || index} article={article} index={index} />
+              <BlogCard 
+                key={article.id || index} 
+                article={article} 
+                index={index} 
+                largeImage={isHomepage}
+              />
             ))}
           </div>
         )}
@@ -134,7 +142,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
   );
 };
 
-const BlogCard: React.FC<{ article: BlogArticle; index: number }> = ({ article, index }) => {
+const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boolean }> = ({ article, index, largeImage }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -144,7 +152,7 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number }> = ({ article, 
       className="group"
     >
       <Link to={`/blog/${article.slug}`} className="block">
-        <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-6 shadow-xl shadow-slate-200/50">
+        <div className={`relative ${largeImage ? 'aspect-[16/10]' : 'aspect-[4/3]'} rounded-[2rem] overflow-hidden mb-6 shadow-xl shadow-slate-200/50`}>
           <img
             src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'}
             alt={article.title}

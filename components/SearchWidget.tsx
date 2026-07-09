@@ -25,9 +25,19 @@ interface SearchWidgetProps {
     style?: string;
     customColor?: string;
     buttonColor?: string;
+    prioritizeHint?: string;
 }
 
-const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, showTitle = false, accentColor, style: widgetStyle = 'DEFAULT', customColor, buttonColor }) => {
+const SearchWidget: React.FC<SearchWidgetProps> = ({ 
+    initialValues, 
+    onSearch, 
+    showTitle = false, 
+    accentColor, 
+    style: widgetStyle = 'DEFAULT', 
+    customColor, 
+    buttonColor,
+    prioritizeHint
+}) => {
     const today = new Date();
     const nextThreeDays = new Date(today);
     nextThreeDays.setDate(today.getDate() + 3);
@@ -156,7 +166,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         debounceTimer.current = setTimeout(async () => {
             try {
-                const results = await fetchLocations(value);
+                const results = await fetchLocations(value, prioritizeHint);
                 setSuggestions(results);
                 if (results.length > 0) setIsSuggestionsOpen(true);
             } catch (err) {
@@ -201,7 +211,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         debounceTimer.current = setTimeout(async () => {
              try {
-                const results = await fetchLocations(value);
+                const results = await fetchLocations(value, prioritizeHint);
                 setDropoffSuggestions(results);
                 if (results.length > 0) setIsDropoffSuggestionsOpen(true);
             } catch (err) {
@@ -453,7 +463,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 ) : null}
                                 <div className="flex-1 min-w-0">
                                     <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
-                                        {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
+                                        {pickupSelection?.label || pickupQuery || 'Enter pickup location'}
                                     </div>
                                     <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
                                 </div>
@@ -467,35 +477,34 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
 
                     {/* Drop-off location button */}
-                    {differentDropoff && (
-                        <div className="flex flex-col gap-1 -mt-1 animate-in slide-in-from-top-2 duration-300">
-                            <label className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.15em] ml-1">Drop-off Location</label>
-                            <button
-                                type="button"
-                                onClick={() => openSearchOverlay('dropoff')}
-                                className="relative h-[62px] bg-slate-50 rounded-card border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
-                            >
-                                <div className="flex items-center gap-3 w-full min-w-0">
-                                    {dropoffSelection ? (
-                                        <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
-                                            {getLocationIcon(dropoffSelection.type, 'w-5 h-5')}
-                                        </div>
-                                    ) : null}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
-                                            {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
-                                        </div>
-                                        <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
+                    <div className="flex flex-col gap-1 -mt-1 animate-in slide-in-from-top-2 duration-300">
+                        <label className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.15em] ml-1">Drop-off Location</label>
+                        <button
+                            type="button"
+                            onClick={() => openSearchOverlay('dropoff')}
+                            className={`relative h-[62px] ${differentDropoff ? 'bg-slate-50' : 'bg-white opacity-60'} rounded-card border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm`}
+                            disabled={!differentDropoff}
+                        >
+                            <div className="flex items-center gap-3 w-full min-w-0">
+                                {dropoffSelection ? (
+                                    <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
+                                        {getLocationIcon(dropoffSelection.type, 'w-5 h-5')}
                                     </div>
-                                    {dropoffSelection ? (
-                                        <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
-                                            <SearchIcon className="w-3 h-3" />
-                                        </div>
-                                    ) : null}
+                                ) : null}
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-extrabold text-slate-900 text-[12px] truncate leading-tight">
+                                        {differentDropoff ? (dropoffSelection?.label || dropoffQuery || 'Enter drop-off location') : 'Same as pick-up'}
+                                    </div>
+                                    <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
                                 </div>
-                            </button>
-                        </div>
-                    )}
+                                {dropoffSelection && differentDropoff ? (
+                                    <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
+                                        <SearchIcon className="w-3 h-3" />
+                                    </div>
+                                ) : null}
+                            </div>
+                        </button>
+                    </div>
 
                     {/* Date/Time Section */}
                     <div className="grid grid-cols-2 gap-2">
@@ -596,6 +605,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             onSelectLocation={handleOverlaySelect}
             recentLocations={recentLocations}
             saveRecentLocation={saveRecentLocation}
+            prioritizeHint={prioritizeHint}
+            placeholder={overlayType === 'pickup' ? 'Enter pickup location' : 'Enter drop-off location'}
         />
 
         {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
@@ -618,7 +629,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
                                     <input
                                         type="text"
-                                        placeholder="City, airport, or station"
+                                        placeholder="Enter pickup location"
                                         className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[13px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
@@ -657,7 +668,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
                                         <input
                                             type="text"
-                                            placeholder="City, airport, or station"
+                                            placeholder="Enter drop-off location"
                                             className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[13px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1 truncate"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}

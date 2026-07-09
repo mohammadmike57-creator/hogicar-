@@ -10,6 +10,8 @@ interface SearchOverlayProps {
   onSelectLocation: (location: LocationSuggestion) => void;
   recentLocations: LocationSuggestion[];
   saveRecentLocation: (loc: LocationSuggestion) => void;
+  prioritizeHint?: string;
+  placeholder?: string;
 }
 
 const SearchOverlay: React.FC<SearchOverlayProps> = ({
@@ -17,7 +19,9 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
   onClose,
   onSelectLocation,
   recentLocations,
-  saveRecentLocation
+  saveRecentLocation,
+  prioritizeHint,
+  placeholder = "Search city or airport"
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<LocationSuggestion[]>([]);
@@ -73,7 +77,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(async () => {
       try {
-        const locations = await getAllLocations(searchQuery);
+        const locations = await getAllLocations(searchQuery, prioritizeHint);
         setResults(locations);
       } catch (err) {
         setResults([]);
@@ -147,7 +151,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
               ref={inputRef}
               autoFocus
               type="text"
-              placeholder="Search city or airport"
+              placeholder={placeholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoCapitalize="off"

@@ -2,11 +2,11 @@ import { fetchLocations, LocationSuggestion } from '../api';
 
 const CUSTOM_LOCATIONS_KEY = 'hogicar_custom_locations';
 
-export const getAllLocations = async (searchTerm?: string): Promise<LocationSuggestion[]> => {
+export const getAllLocations = async (searchTerm?: string, hint?: string): Promise<LocationSuggestion[]> => {
   let apiLocations: LocationSuggestion[] = [];
   try {
     const term = searchTerm && searchTerm.length >= 2 ? searchTerm : 'a';
-    apiLocations = await fetchLocations(term);
+    apiLocations = await fetchLocations(term, hint);
   } catch (error) {
     console.error('Failed to fetch API locations:', error);
   }
