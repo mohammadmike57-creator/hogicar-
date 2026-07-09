@@ -57,6 +57,20 @@ const DynamicPage: React.FC = () => {
 
       // Normalize route
       const route = location.pathname.replace(/\/$/, '') || '/';
+      const lowercaseRoute = route.toLowerCase();
+
+      // STRICT BYPASS for static file extensions to prevent JSON parsing crashes
+      if (lowercaseRoute.endsWith('.xml') || lowercaseRoute.endsWith('.txt')) {
+        if (!location.search.includes('spa_fallback=1')) {
+          console.warn('[SPA] Detected static file route in DynamicPage, triggering hard reload:', route);
+          window.location.href = route + (location.search ? location.search + '&' : '?') + 'spa_fallback=1';
+        } else {
+          console.error('[SPA] Failed to load static file from server, even with spa_fallback=1. Showing error.');
+          setError(true);
+          setLoading(false);
+        }
+        return;
+      }
       
       const slug = route.startsWith('/') ? route.substring(1) : route;
 
