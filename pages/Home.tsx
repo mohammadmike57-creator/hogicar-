@@ -49,7 +49,7 @@ const normalizeHomepageContent = (content: any) => {
         .filter((destination: any) => destination.name || destination.country || destination.image || destination.price > 0)
     : [];
 
-  const features = hasFeaturesArray
+  const features = hasFeaturesArray && safeContent.features.length > 0
     ? safeContent.features
         .map((f: any, index: number) => ({
           id: f?.id || `f${index + 1}`,
@@ -57,7 +57,32 @@ const normalizeHomepageContent = (content: any) => {
           title: f?.title || '',
           description: f?.description || ''
         }))
-    : [];
+    : [
+        {
+          id: 'f1',
+          icon: 'Shield',
+          title: 'Transparent Pricing',
+          description: 'No hidden surprises. What you see is what you pay, including all mandatory taxes and fees.'
+        },
+        {
+          id: 'f2',
+          icon: 'Zap',
+          title: 'Instant Booking',
+          description: 'Secure your vehicle in seconds with our streamlined booking process and instant confirmation.'
+        },
+        {
+          id: 'f3',
+          icon: 'Globe',
+          title: '24/7 Global Support',
+          description: 'Our dedicated customer excellence team is available around the clock to assist you anywhere.'
+        },
+        {
+          id: 'f4',
+          icon: 'Star',
+          title: 'Verified Suppliers',
+          description: 'We only partner with trusted rental companies to ensure you get the best quality and service.'
+        }
+      ];
 
   return {
     ...safeContent,
@@ -406,7 +431,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-28 pb-12 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-[550px] sm:min-h-0 flex flex-col justify-start sm:justify-center" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0">
             {heroVideo ? (
               <video 
@@ -446,10 +471,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-            <h1 className="text-xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase">
+            <h1 className="text-xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase px-4">
               {displayH1}
             </h1>
-            <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-xl mx-auto text-[13px] sm:text-base lg:text-lg font-bold leading-relaxed px-2">
+            <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-xl mx-auto text-sm sm:text-base lg:text-lg font-bold leading-relaxed px-6">
               {displaySubtitle}
             </p>
             
@@ -484,22 +509,34 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 5. WHY CHOOSE HOGICAR */}
       {sections.benefits && (
-          <section className="py-16 bg-white">
+          <section className="py-24 bg-slate-50">
             <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Why Choose HogiCar?</h2>
-                    <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">The smartest way to rent a car</p>
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 text-center md:text-left">
+                    <div className="max-w-2xl mx-auto md:mx-0">
+                        <p className="text-accent font-black uppercase text-sm tracking-[0.2em] mb-4">The HogiCar Advantage</p>
+                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter">
+                            Why Travelers <span className="text-accent">Choose Us</span> Over Others
+                        </h2>
+                    </div>
+                    <div className="hidden md:block pb-2">
+                        <Link to="/about" className="group flex items-center gap-2 text-slate-900 font-black uppercase text-sm tracking-widest hover:text-accent transition-colors">
+                            Learn more about us <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {content.features.slice(0, 4).map((feature, i) => {
                         const Icon = iconMap[feature.icon] || CheckCircle;
                         return (
-                            <div key={i} className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all group">
-                                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:bg-accent group-hover:text-white transition-colors">
-                                    <Icon className="w-6 h-6" />
+                            <div key={i} className="relative p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 group overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[5rem] -mr-16 -mt-16 group-hover:bg-accent/5 transition-colors duration-500" />
+                                <div className="relative z-10">
+                                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-8 group-hover:bg-accent group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 text-slate-900">
+                                        <Icon className="w-8 h-8" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight leading-none">{feature.title}</h3>
+                                    <p className="text-slate-500 text-sm leading-relaxed font-bold">{feature.description}</p>
                                 </div>
-                                <h3 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">{feature.title}</h3>
-                                <p className="text-slate-600 text-sm leading-relaxed font-medium">{feature.description}</p>
                             </div>
                         );
                     })}
