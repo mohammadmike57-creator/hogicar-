@@ -8,3 +8,12 @@ export const API_BASE_URL = (() => {
     return "https://hogicar-backend.onrender.com";
   }
 })();
+
+export const PUBLIC_BASE_URL = (() => {
+  try {
+    return import.meta.env.VITE_PUBLIC_BASE_URL || 
+           "https://www.hogicar.com";
+  } catch (e) {
+    return "https://www.hogicar.com";
+  }
+})();

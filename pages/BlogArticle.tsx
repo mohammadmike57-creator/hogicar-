@@ -1,14 +1,15 @@
 import * as React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
 import { api } from '../api';
-import { API_BASE_URL } from '../lib/config';
+import { API_BASE_URL, PUBLIC_BASE_URL } from '../lib/config';
 import { BlogArticle as BlogArticleType } from '../types';
 
 const BlogArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const [article, setArticle] = React.useState<BlogArticleType | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [recentArticles, setRecentArticles] = React.useState<BlogArticleType[]>([]);
@@ -146,7 +147,7 @@ const BlogArticle: React.FC = () => {
       "name": "Hogicar",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.hogicar.com/logo.png"
+        "url": `${PUBLIC_BASE_URL}/logo.png`
       }
     },
     "datePublished": article.publishedAt,
@@ -174,24 +175,24 @@ const BlogArticle: React.FC = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://www.hogicar.com"
+        "item": PUBLIC_BASE_URL
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Blog",
-        "item": "https://www.hogicar.com/blog"
+        "item": `${PUBLIC_BASE_URL}/blog`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": article.title,
-        "item": `https://www.hogicar.com/blog/${article.slug}`
+        "item": `${PUBLIC_BASE_URL}/blog/${article.slug}`
       }
     ]
   };
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareUrl = typeof window !== 'undefined' ? (PUBLIC_BASE_URL + location.pathname) : '';
   const shareTitle = article.title;
 
   return (
@@ -200,7 +201,7 @@ const BlogArticle: React.FC = () => {
         title={article.seoTitle || article.title}
         description={article.seoDescription || article.excerpt}
         ogImage={ogImage ? (ogImage.startsWith('/') && !ogImage.startsWith('http') ? `${API_BASE_URL}${ogImage}` : ogImage) : undefined}
-        canonicalUrl={article.canonicalUrl || `https://www.hogicar.com/blog/${article.slug}`}
+        canonicalUrl={article.canonicalUrl || `${PUBLIC_BASE_URL}/blog/${article.slug}`}
         schema={faqSchema ? [articleSchema, faqSchema, breadcrumbSchema] : [articleSchema, breadcrumbSchema]}
       />
 

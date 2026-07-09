@@ -19,7 +19,7 @@ import './index.css';
       return;
     } else {
       // LAST RESORT: Redirect directly to backend
-      const backendUrl = (window as any).VITE_API_BASE_URL || "https://hogicar-backend.onrender.com";
+      const backendUrl = "https://hogicar-backend.onrender.com";
       console.warn('[SPA BYPASS] Proxy failed, redirecting directly to backend:', backendUrl + pathname);
       window.location.replace(backendUrl + pathname);
       return;

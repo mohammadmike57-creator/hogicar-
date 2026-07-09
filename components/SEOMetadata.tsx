@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api';
+import { PUBLIC_BASE_URL } from '../lib/config';
 
 interface SEOMetadataProps {
   title: string;
@@ -35,7 +36,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const description = defaultDescription || config?.description || "Search and compare car rentals from 900+ suppliers worldwide.";
   const keywords = defaultKeywords || config?.keywords || "car rental, hire car, search car rental, hogicar";
   const ogImage = defaultOgImage || config?.ogImage || '';
-  const canonical = defaultCanonical || config?.canonicalUrl || (typeof window !== 'undefined' ? (window.location.origin + location.pathname) : '');
+  const canonical = defaultCanonical || config?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
   const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
 
   // AUTHORITATIVE TITLE SETTER
@@ -139,7 +140,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     // 3. Open Graph Tags
     if (title) setMetaTag('og:title', title, 'property');
     if (description) setMetaTag('og:description', description, 'property');
-    setMetaTag('og:url', window.location.href, 'property');
+    setMetaTag('og:url', PUBLIC_BASE_URL + location.pathname, 'property');
     setMetaTag('og:type', 'website', 'property');
     if (ogImage) setMetaTag('og:image', ogImage, 'property');
 
