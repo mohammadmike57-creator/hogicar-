@@ -136,34 +136,6 @@ interface HomeProps {
 }
 
 
-const DestinationTips = ({ destination, seoConfig }: { destination?: string, seoConfig?: any }) => {
-    const tips = [
-        { icon: <Car className="w-5 h-5 text-accent" />, title: 'Rental Tips', content: 'Book in advance to secure the best rates and wide selection of vehicles.' },
-        { icon: <Compass className="w-5 h-5 text-amber-500" />, title: 'Driving Tips', content: 'Always carry your international driving permit and follow local speed limits.' },
-        { icon: <ParkingCircle className="w-5 h-5 text-emerald-600" />, title: 'Parking', content: 'Look for designated blue/white parking zones or use secure paid parking garages.' },
-        { icon: <Fuel className="w-5 h-5 text-rose-500" />, title: 'Fuel Information', content: 'Most cars take Unleaded 95. Fill up before returning to avoid extra charges.' }
-    ];
-
-    return (
-        <section className="py-16 bg-white">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {tips.map((tip, i) => (
-                        <div key={i} className="flex flex-col gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center shadow-sm border border-slate-100">
-                                {tip.icon}
-                            </div>
-                            <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">{tip.title}</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed font-medium">
-                                {tip.content}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
 
 
 const Home: React.FC<HomeProps> = ({ seoConfig }) => {
@@ -493,7 +465,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   style={seoConfig?.searchWidgetStyle}
                   customColor={seoConfig?.searchWidgetColor}
                   buttonColor={seoConfig?.searchWidgetButtonColor}
-                  prioritizeHint={seoConfig?.title}
                 />
               </div>
             )}
@@ -570,8 +541,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* 8, 9, 10, 11. TIPS SECTIONS */}
-      <DestinationTips destination={displayH1.replace('Car Rental in ', '')} />
 
 
       {/* 14. FREQUENTLY ASKED QUESTIONS */}
