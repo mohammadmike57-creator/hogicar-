@@ -135,9 +135,6 @@ interface HomeProps {
   seoConfig?: any;
 }
 
-
-
-
 const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const navigate = useNavigate();
   const location = useLocation();
