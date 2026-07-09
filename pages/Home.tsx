@@ -563,7 +563,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* 3. POPULAR CARS */}
-      <PopularCarsSection destination={displayH1.replace('Car Rental in ', '')} />
+      {location.pathname === '/' && (
+        <PopularCarsSection destination={displayH1.replace('Car Rental in ', '')} />
+      )}
 
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
@@ -625,7 +627,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       <DestinationTips destination={displayH1.replace('Car Rental in ', '')} />
 
       {/* 12, 13. NEARBY AIRPORTS & CITIES */}
-      <NearbyLocations destination={seoConfig?.destinationName} seoConfig={seoConfig} />
+      {location.pathname === '/' && (
+        <NearbyLocations destination={seoConfig?.destinationName} seoConfig={seoConfig} />
+      )}
 
       {/* 14. FREQUENTLY ASKED QUESTIONS */}
       {sections.faq && (
