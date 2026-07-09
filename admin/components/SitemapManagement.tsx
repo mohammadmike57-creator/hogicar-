@@ -12,7 +12,7 @@ import {
   Search,
   AlertTriangle,
   Clock,
-  ChevronRight
+  Send
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { adminFetch } from '../../lib/adminApi';
@@ -21,8 +21,11 @@ interface SitemapStats {
     lastGenerated: string;
     totalUrls: number;
     routesCount: number;
+    airportPages: number;
     blogsCount: number;
     staticCount: number;
+    imagesCount: number;
+    lastValidation: string;
     status: string;
 }
 
@@ -77,6 +80,10 @@ const SitemapManagement: React.FC = () => {
         window.open('/sitemap.xml', '_blank');
     };
 
+    const submitToGoogle = () => {
+        window.open('https://search.google.com/search-console/sitemaps', '_blank');
+    };
+
     if (loading && !stats) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -109,11 +116,18 @@ const SitemapManagement: React.FC = () => {
                         {refreshing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                         Regenerate Sitemap
                     </button>
+                    <button
+                        onClick={submitToGoogle}
+                        className="px-4 py-2.5 bg-blue-600 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-100"
+                    >
+                        <Send className="w-3.5 h-3.5" />
+                        Submit to Google
+                    </button>
                 </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5">
                 <div className="bg-white p-6 rounded-card border border-slate-200 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                         <div className="w-10 h-10 rounded-card bg-blue-50 flex items-center justify-center text-blue-600">
@@ -136,6 +150,14 @@ const SitemapManagement: React.FC = () => {
                 </div>
 
                 <div className="bg-white p-6 rounded-card border border-slate-200 shadow-sm">
+                    <div className="w-10 h-10 rounded-card bg-cyan-50 flex items-center justify-center text-cyan-600 mb-4">
+                        <Route className="w-5 h-5" />
+                    </div>
+                    <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-[0.2em] mb-1">Airport Pages</p>
+                    <p className="text-3xl font-extrabold text-slate-950">{stats?.airportPages || 0}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-card border border-slate-200 shadow-sm">
                     <div className="w-10 h-10 rounded-card bg-purple-50 flex items-center justify-center text-purple-600 mb-4">
                         <MessageSquare className="w-5 h-5" />
                     </div>
@@ -149,6 +171,14 @@ const SitemapManagement: React.FC = () => {
                     </div>
                     <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-[0.2em] mb-1">Static Pages</p>
                     <p className="text-3xl font-extrabold text-slate-950">{stats?.staticCount || 0}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-card border border-slate-200 shadow-sm">
+                    <div className="w-10 h-10 rounded-card bg-rose-50 flex items-center justify-center text-rose-600 mb-4">
+                        <FileText className="w-5 h-5" />
+                    </div>
+                    <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-[0.2em] mb-1">Images</p>
+                    <p className="text-3xl font-extrabold text-slate-950">{stats?.imagesCount || 0}</p>
                 </div>
             </div>
 
@@ -230,6 +260,13 @@ const SitemapManagement: React.FC = () => {
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider">{validationResult.warnings} Warnings</span>
                                     </div>
                                 </div>
+                                {(validationResult.errorDetails?.length > 0 || validationResult.warningDetails?.length > 0) && (
+                                    <div className="mt-4 space-y-1 max-h-36 overflow-auto pr-2">
+                                        {[...(validationResult.errorDetails || []), ...(validationResult.warningDetails || [])].slice(0, 20).map((message: string, index: number) => (
+                                            <p key={index} className="text-[11px] font-semibold text-slate-700">{message}</p>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )}
@@ -265,6 +302,12 @@ const SitemapManagement: React.FC = () => {
                             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Last Sync</p>
                             <p className="text-xs font-bold text-white">
                                 {stats?.lastGenerated ? new Date(stats.lastGenerated).toLocaleString() : 'Never'}
+                            </p>
+                        </div>
+                        <div className="mt-3 p-4 bg-white/5 rounded-card border border-white/10">
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Last Validation</p>
+                            <p className="text-xs font-bold text-white">
+                                {stats?.lastValidation && stats.lastValidation !== 'Never' ? new Date(stats.lastValidation).toLocaleString() : 'Never'}
                             </p>
                         </div>
                     </div>
