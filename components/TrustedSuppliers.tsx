@@ -60,6 +60,7 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = ({
                 className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 hover:scale-110" 
                 width="160"
                 height="48"
+                loading="lazy"
                 style={{ 
                     transform: `scale(${(s.scale || 100) / 100})`,
                 } as any}

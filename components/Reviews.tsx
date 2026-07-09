@@ -92,7 +92,7 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
               <div className="mt-6 flex items-center gap-3 pt-6 border-t border-slate-50">
                 <div className="w-11 h-11 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shadow-inner">
                   {review.avatar ? (
-                    <img src={review.avatar} alt={review.author} className="w-full h-full object-cover" />
+                    <img src={review.avatar} alt={review.author} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
                     <User className="w-6 h-6" />
                   )}
