@@ -29,8 +29,12 @@ function shouldProxy(pathname) {
   return pathname.startsWith('/api/')
     || pathname.startsWith('/uploads/')
     || pathname === '/robots.txt'
-    || pathname === '/sitemap.xml'
-    || /^\/sitemap-[a-z]+\.xml$/i.test(pathname);
+    || /^\/sitemap(?:-[^/]+)?\.[a-z0-9]+$/i.test(pathname);
+}
+
+function sitemapTypoTarget(pathname, search) {
+  const match = pathname.match(/^(\/sitemap(?:-[^/]+)?)\.xm$/i);
+  return match ? `${match[1]}.xml${search}` : null;
 }
 
 function send(res, status, body, headers = {}) {
@@ -42,6 +46,7 @@ async function proxyToBackend(req, res, url) {
   const target = new URL(url.pathname + url.search, backendOrigin);
   const headers = new Headers(req.headers);
   headers.set('host', target.host);
+  headers.set('accept-encoding', 'identity');
 
   const chunks = [];
   for await (const chunk of req) {
@@ -55,7 +60,12 @@ async function proxyToBackend(req, res, url) {
     redirect: 'manual'
   });
 
-  res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
+  const responseHeaders = new Headers(response.headers);
+  responseHeaders.delete('content-encoding');
+  responseHeaders.delete('content-length');
+  responseHeaders.delete('transfer-encoding');
+
+  res.writeHead(response.status, Object.fromEntries(responseHeaders.entries()));
   if (response.body) {
     for await (const chunk of response.body) {
       res.write(chunk);
@@ -92,6 +102,12 @@ async function serveStatic(req, res, url) {
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const typoRedirect = sitemapTypoTarget(url.pathname, url.search);
+    if (typoRedirect) {
+      send(res, 301, '', { Location: typoRedirect });
+      return;
+    }
+
     if (shouldProxy(url.pathname)) {
       await proxyToBackend(req, res, url);
       return;
