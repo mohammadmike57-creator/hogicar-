@@ -1,9 +1,7 @@
 {
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "https://hogicar-backend.onrender.com/sitemap.xml" },
-    { "source": "/sitemap-routes.xml", "destination": "https://hogicar-backend.onrender.com/sitemap-routes.xml" },
-    { "source": "/sitemap-blogs.xml", "destination": "https://hogicar-backend.onrender.com/sitemap-blogs.xml" },
-    { "source": "/sitemap-static.xml", "destination": "https://hogicar-backend.onrender.com/sitemap-static.xml" },
+    { "source": "/sitemap-:path*", "destination": "https://hogicar-backend.onrender.com/sitemap-:path*" },
     { "source": "/robots.txt", "destination": "https://hogicar-backend.onrender.com/robots.txt" },
     { "source": "/api/pages/sitemap.xml", "destination": "https://hogicar-backend.onrender.com/api/pages/sitemap.xml" },
     { "source": "/api/seo/sitemap.xml", "destination": "https://hogicar-backend.onrender.com/api/seo/sitemap.xml" },

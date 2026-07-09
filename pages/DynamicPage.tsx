@@ -63,9 +63,10 @@ const DynamicPage: React.FC = () => {
       if (lowercaseRoute.endsWith('.xml') || lowercaseRoute.endsWith('.txt')) {
         if (!location.search.includes('spa_fallback=1')) {
           console.warn('[SPA] Detected static file route in DynamicPage, triggering hard reload:', route);
-          window.location.href = route + (location.search ? location.search + '&' : '?') + 'spa_fallback=1';
+          const sep = location.search ? '&' : '?';
+          window.location.href = route + location.search + sep + 'spa_fallback=1';
         } else {
-          console.error('[SPA] Failed to load static file from server, even with spa_fallback=1. Showing error.');
+          console.error('[SPA] Failed to load static file from server, even with spa_fallback=1. This means the server (Vercel/Render) is still serving index.html for this path instead of proxying to the backend.');
           setError(true);
           setLoading(false);
         }
