@@ -110,53 +110,6 @@ interface HomeProps {
   seoConfig?: any;
 }
 
-const PopularCarsSection = ({ destination }: { destination?: string }) => {
-    // Semi-dynamic placeholder data for professional look
-    const cars = [
-        { name: 'Economy', model: 'Hyundai Accent', price: '25', image: 'https://cdn.pixabay.com/photo/2016/04/01/12/16/car-1300629_1280.png', type: 'Economy' },
-        { name: 'Compact', model: 'Toyota Corolla', price: '30', image: 'https://cdn.pixabay.com/photo/2012/04/13/20/45/car-33568_1280.png', type: 'Compact' },
-        { name: 'SUV', model: 'Kia Sportage', price: '45', image: 'https://cdn.pixabay.com/photo/2016/04/01/12/16/car-1300629_1280.png', type: 'SUV' },
-        { name: 'Luxury', model: 'Mercedes C-Class', price: '85', image: 'https://cdn.pixabay.com/photo/2012/04/13/20/45/car-33568_1280.png', type: 'Luxury' }
-    ];
-
-    return (
-        <section className="py-16 bg-slate-50">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-10">
-                    <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Popular Cars in {destination || 'this destination'}</h2>
-                    <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Most booked vehicle types in the last 30 days</p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {cars.map((car, i) => (
-                        <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-accent mb-1 block">{car.type}</span>
-                                    <h3 className="font-extrabold text-slate-900">{car.model}</h3>
-                                </div>
-                                <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                    From ${car.price}/day
-                                </div>
-                            </div>
-                            <div className="aspect-[16/10] mb-4 overflow-hidden rounded-2xl bg-slate-50 flex items-center justify-center p-4">
-                                <img src={car.image} alt={car.model} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" />
-                            </div>
-                            <div className="flex items-center justify-between mt-4">
-                                <div className="flex gap-2 text-slate-400">
-                                    <div className="flex items-center gap-1"><User className="w-3 h-3" /> <span className="text-[10px] font-black">5</span></div>
-                                    <div className="flex items-center gap-1"><Zap className="w-3 h-3" /> <span className="text-[10px] font-black">Auto</span></div>
-                                </div>
-                                <button className="text-accent font-black text-[11px] uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
-                                    View Offers <ArrowRight className="w-3 h-3" />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
 
 const DestinationTips = ({ destination, seoConfig }: { destination?: string, seoConfig?: any }) => {
     const tips = [
@@ -187,45 +140,6 @@ const DestinationTips = ({ destination, seoConfig }: { destination?: string, seo
     );
 };
 
-const NearbyLocations = ({ destination, seoConfig }: { destination?: string, seoConfig?: any }) => {
-    // If we have destination from SEO title, use it.
-    const dest = destination || (seoConfig?.title ? seoConfig.title.replace('Car Rental in ', '') : 'this destination');
-
-    return (
-        <section className="py-16 bg-slate-50 border-y border-slate-200/50">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div>
-                        <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight flex items-center gap-2">
-                            <Plane className="w-5 h-5 text-accent" /> Nearby Airports
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {[`${dest} Airport`, 'Queen Alia Airport (AMM)', 'International Airport'].map((loc, i) => (
-                                <button key={i} className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-accent transition-all text-left group">
-                                    <div className="bg-slate-50 p-2 rounded-xl group-hover:bg-accent/10 transition-colors"><MapPin className="w-4 h-4 text-slate-400 group-hover:text-accent" /></div>
-                                    <span className="text-sm font-extrabold text-slate-700">{loc}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight flex items-center gap-2">
-                            <Building className="w-5 h-5 text-accent" /> Nearby Cities
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {[`${dest} Downtown`, 'Old City', 'Business District', 'Coastal Area'].map((loc, i) => (
-                                <button key={i} className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-accent transition-all text-left group">
-                                    <div className="bg-slate-50 p-2 rounded-xl group-hover:bg-accent/10 transition-colors"><MapPin className="w-4 h-4 text-slate-400 group-hover:text-accent" /></div>
-                                    <span className="text-sm font-extrabold text-slate-700">{loc}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
 
 const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const navigate = useNavigate();
@@ -492,7 +406,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-hidden" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-12 pb-8 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0">
             {heroVideo ? (
               <video 
@@ -562,10 +476,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* 3. POPULAR CARS */}
-      {location.pathname === '/' && (
-        <PopularCarsSection destination={displayH1.replace('Car Rental in ', '')} />
-      )}
 
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
@@ -626,10 +536,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 8, 9, 10, 11. TIPS SECTIONS */}
       <DestinationTips destination={displayH1.replace('Car Rental in ', '')} />
 
-      {/* 12, 13. NEARBY AIRPORTS & CITIES */}
-      {location.pathname === '/' && (
-        <NearbyLocations destination={seoConfig?.destinationName} seoConfig={seoConfig} />
-      )}
 
       {/* 14. FREQUENTLY ASKED QUESTIONS */}
       {sections.faq && (
