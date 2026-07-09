@@ -17,6 +17,12 @@ import './index.css';
       console.log('[SPA BYPASS] Redirecting to server-side route:', pathname);
       window.location.replace(pathname + search + sep + 'spa_fallback=1');
       return;
+    } else {
+      // LAST RESORT: Redirect directly to backend
+      const backendUrl = (window as any).VITE_API_BASE_URL || "https://hogicar-backend.onrender.com";
+      console.warn('[SPA BYPASS] Proxy failed, redirecting directly to backend:', backendUrl + pathname);
+      window.location.replace(backendUrl + pathname);
+      return;
     }
   }
 })();

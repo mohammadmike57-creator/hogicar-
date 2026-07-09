@@ -1,5 +1,5 @@
 /sitemap.xml https://hogicar-backend.onrender.com/sitemap.xml 200
-/sitemap-*.xml https://hogicar-backend.onrender.com/sitemap-:splat 200
+/sitemap-*.xml https://hogicar-backend.onrender.com/sitemap-:splat.xml 200
 /robots.txt https://hogicar-backend.onrender.com/robots.txt 200
 /api/* https://hogicar-backend.onrender.com/api/:splat 200
 /* /index.html 200
