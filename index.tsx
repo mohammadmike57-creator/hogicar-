@@ -18,10 +18,8 @@ import './index.css';
       window.location.replace(pathname + search + sep + 'spa_fallback=1');
       return;
     } else {
-      // LAST RESORT: Redirect directly to backend
-      const backendUrl = "https://hogicar-backend.onrender.com";
-      console.warn('[SPA BYPASS] Proxy failed, redirecting directly to backend:', backendUrl + pathname);
-      window.location.replace(backendUrl + pathname);
+      // PROXY FAILED - DO NOT redirect to Render domain as it should not be used publicly.
+      console.error('[SPA BYPASS] Static file failed to load from server even after bypass.');
       return;
     }
   }

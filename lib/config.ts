@@ -3,9 +3,9 @@ export const API_BASE_URL = (() => {
   try {
     return import.meta.env.VITE_API_BASE_URL || 
            import.meta.env.VITE_API_URL || 
-           "https://hogicar-backend.onrender.com";
+           ""; // Default to relative path for better SEO and proxy compatibility
   } catch (e) {
-    return "https://hogicar-backend.onrender.com";
+    return "";
   }
 })();
 

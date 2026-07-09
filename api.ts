@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL as CONFIG_BASE_URL } from './lib/config';
 
-export const API_BASE_URL = CONFIG_BASE_URL || "https://hogicar-backend.onrender.com";
+export const API_BASE_URL = CONFIG_BASE_URL || "";
 
 // ---------- Types ----------
 export interface LocationSuggestion {

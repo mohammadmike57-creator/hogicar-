@@ -66,8 +66,8 @@ const DynamicPage: React.FC = () => {
           const sep = location.search ? '&' : '?';
           window.location.href = route + location.search + sep + 'spa_fallback=1';
         } else {
-          console.error('[SPA] Failed to load static file from server, even with spa_fallback=1. Redirecting directly to backend.');
-          window.location.href = `${API_BASE_URL}${route}`;
+          console.error('[SPA] Failed to load static file from server, even with spa_fallback=1. This means the server (Render) is still serving index.html for this path instead of proxying to the backend.');
+          setError(true);
         }
         return;
       }
