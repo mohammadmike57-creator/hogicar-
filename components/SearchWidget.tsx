@@ -606,7 +606,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* FIRST ROW: Pickup & Optional Dropoff */}
                         <div className={`flex flex-1 items-center bg-white divide-x divide-slate-200 ${differentDropoff ? 'rounded-t-[7px]' : 'rounded-[7px]'}`}>
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[14] h-[72px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
+                            <div className={`relative flex-[10] h-[72px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
                                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                     {pickupSelection ? (
                                         <div className="flex items-center justify-center w-10 h-10">
@@ -645,7 +645,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[14] h-[72px] min-w-0 group bg-slate-50/50 rounded-tr-[7px]`}>
+                                <div className={`relative flex-[10] h-[72px] min-w-0 group bg-slate-50/50 rounded-tr-[7px]`}>
                                     <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                         {dropoffSelection ? (
                                             <div className="flex items-center justify-center w-10 h-10">
@@ -690,7 +690,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={pickupDate}
                                         onChange={(e) => setPickupDate(e.target.value)}
                                         min={today.toISOString().split('T')[0]}
-                                        className="flex-[5]"
+                                        className="flex-[7]"
                                         showIcon={!!pickupSelection}
                                     />
                                     <DesktopTimeField
@@ -698,7 +698,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={pickupTime}
                                         onChange={(e) => setPickupTime(e.target.value)}
                                         options={timeOptions}
-                                        className="flex-[3]"
+                                        className="flex-[4]"
                                         showIcon={!!pickupSelection}
                                     />
                                     <DesktopDateField
@@ -706,7 +706,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={dropoffDate}
                                         onChange={(e) => setDropoffDate(e.target.value)}
                                         min={pickupDate}
-                                        className="flex-[5]"
+                                        className="flex-[7]"
                                         showIcon={!!pickupSelection}
                                     />
                                     <DesktopTimeField
@@ -714,7 +714,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={dropoffTime}
                                         onChange={(e) => setDropoffTime(e.target.value)}
                                         options={timeOptions}
-                                        className="flex-[3]"
+                                        className="flex-[4]"
                                         showIcon={!!pickupSelection}
                                     />
                                     <div className="p-[5px] flex items-center justify-center bg-white h-[72px] rounded-r-[7px]">
@@ -738,7 +738,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     value={pickupDate}
                                     onChange={(e) => setPickupDate(e.target.value)}
                                     min={today.toISOString().split('T')[0]}
-                                    className="flex-[5]"
+                                    className="flex-[7]"
                                     showIcon={!!pickupSelection}
                                 />
                                 <DesktopTimeField
@@ -746,7 +746,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     value={pickupTime}
                                     onChange={(e) => setPickupTime(e.target.value)}
                                     options={timeOptions}
-                                    className="flex-[3]"
+                                    className="flex-[4]"
                                     showIcon={!!pickupSelection}
                                 />
                                 <DesktopDateField
@@ -754,7 +754,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     value={dropoffDate}
                                     onChange={(e) => setDropoffDate(e.target.value)}
                                     min={pickupDate}
-                                    className="flex-[5]"
+                                    className="flex-[7]"
                                     showIcon={!!pickupSelection}
                                 />
                                 <DesktopTimeField
@@ -762,7 +762,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     value={dropoffTime}
                                     onChange={(e) => setDropoffTime(e.target.value)}
                                     options={timeOptions}
-                                    className="flex-[3]"
+                                    className="flex-[4]"
                                     showIcon={!!pickupSelection}
                                 />
                                 <div className="p-[5px] flex-[6] flex items-center justify-center bg-white h-[72px]">
