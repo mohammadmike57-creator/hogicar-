@@ -434,9 +434,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     return (
         <>
         {/* --- MOBILE WIDGET --- */}
-        <div className="lg:hidden w-full px-4" ref={mobileWidgetRef}>
-            <div className="bg-white p-5 rounded-[2rem] shadow-2xl relative z-10 border border-white/50">
-                <form onSubmit={handleSearch} className="flex flex-col gap-2.5">
+        <div className="lg:hidden w-full px-3 sm:px-6" ref={mobileWidgetRef}>
+            <div className="bg-white p-6 rounded-[1.25rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] relative z-10 border border-white/20">
+                <form onSubmit={handleSearch} className="flex flex-col gap-3">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1">
                         <label className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.12em] ml-1">Pick-up Location</label>
@@ -579,7 +579,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <button 
                         type="submit" 
-                        className="w-full text-black font-black h-14 rounded-xl active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-2 text-[16px] uppercase tracking-widest hover:brightness-110 shadow-lg shadow-yellow-500/20"
+                        className="w-full text-slate-900 font-black h-16 rounded-[1rem] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4 text-[15px] uppercase tracking-[0.1em] hover:brightness-105 shadow-xl shadow-yellow-500/30"
                         style={{ backgroundColor: '#FFB703' }}
                     >
                         <SearchIcon className="w-5 h-5 stroke-[3px]" />

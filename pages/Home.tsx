@@ -511,15 +511,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-            <h1 className="text-xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase px-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase px-4">
               {displayH1}
             </h1>
-            <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-xl mx-auto text-sm sm:text-base lg:text-lg font-bold leading-relaxed px-6">
+            <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-xl mx-auto text-xs sm:text-base lg:text-lg font-bold leading-relaxed px-6">
               {displaySubtitle}
             </p>
             
             {sections.search && (
-              <div id="search" className="relative z-20 mt-1 scroll-mt-24 lg:mt-0">
+              <div id="search" className="relative z-20 mt-2 scroll-mt-24 lg:mt-0">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
@@ -536,7 +536,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 />
                 
                 {/* Mobile Features Bar */}
-                <div className="lg:hidden mt-8 flex flex-wrap justify-center gap-3 px-4">
+                <div className="lg:hidden mt-6 flex flex-wrap justify-center gap-2 px-4">
                     {[
                         { icon: Shield, text: 'Fully Insured' },
                         { icon: Zap, text: 'Free Cancellation' },
@@ -559,6 +559,61 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
         <TrustedSuppliers />
+      )}
+
+      {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
+      {!isCustomLanding && (
+        <section className="py-24 bg-slate-50 overflow-hidden relative">
+            <div className="max-w-7xl mx-auto px-4 relative z-10">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
+                        How to find a <span className="text-blue-600">great car rental deal</span>
+                    </h2>
+                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {[
+                        { 
+                            title: 'Book Early', 
+                            desc: 'Secure your vehicle at least 2-4 weeks before pickup to save up to 40% on peak season rates.',
+                            icon: Calendar,
+                            color: 'bg-emerald-500',
+                            shadow: 'shadow-emerald-500/20'
+                        },
+                        { 
+                            title: 'Compare Deals', 
+                            desc: 'We compare prices from 900+ suppliers including global brands like Hertz and local experts.',
+                            icon: Zap,
+                            color: 'bg-blue-600',
+                            shadow: 'shadow-blue-600/20'
+                        },
+                        { 
+                            title: 'Check Conditions', 
+                            desc: 'Always read the rental conditions for fuel policy, mileage, and insurance coverage to avoid surprises.',
+                            icon: ShieldCheck,
+                            color: 'bg-amber-500',
+                            shadow: 'shadow-amber-500/20'
+                        },
+                        { 
+                            title: 'Save Big', 
+                            desc: 'Enjoy your trip with the best price guaranteed and 24/7 support throughout your journey.',
+                            icon: Sparkles,
+                            color: 'bg-rose-500',
+                            shadow: 'shadow-rose-500/20'
+                        },
+                    ].map((step, i) => (
+                        <div key={i} className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-200/60 transition-all duration-500 hover:-translate-y-2">
+                            <div className={`w-16 h-16 rounded-2xl ${step.color} ${step.shadow} flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                                <step.icon className="w-8 h-8" />
+                            </div>
+                            <h4 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h4>
+                            <p className="text-slate-500 text-sm font-bold leading-relaxed">{step.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
       )}
 
       {/* 4.5 POPULAR COUNTRIES & LOCATIONS */}
@@ -630,61 +685,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                             ))}
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-      )}
-
-      {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
-      {!isCustomLanding && (
-        <section className="py-24 bg-slate-50 overflow-hidden relative">
-            <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
-                        How to find a <span className="text-blue-600">great car rental deal</span>
-                    </h2>
-                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {[
-                        { 
-                            title: 'Book Early', 
-                            desc: 'Secure your vehicle at least 2-4 weeks before pickup to save up to 40% on peak season rates.',
-                            icon: Calendar,
-                            color: 'bg-emerald-500',
-                            shadow: 'shadow-emerald-500/20'
-                        },
-                        { 
-                            title: 'Compare Deals', 
-                            desc: 'We compare prices from 900+ suppliers including global brands like Hertz and local experts.',
-                            icon: Zap,
-                            color: 'bg-blue-600',
-                            shadow: 'shadow-blue-600/20'
-                        },
-                        { 
-                            title: 'Check Conditions', 
-                            desc: 'Always read the rental conditions for fuel policy, mileage, and insurance coverage to avoid surprises.',
-                            icon: ShieldCheck,
-                            color: 'bg-amber-500',
-                            shadow: 'shadow-amber-500/20'
-                        },
-                        { 
-                            title: 'Save Big', 
-                            desc: 'Enjoy your trip with the best price guaranteed and 24/7 support throughout your journey.',
-                            icon: Sparkles,
-                            color: 'bg-rose-500',
-                            shadow: 'shadow-rose-500/20'
-                        },
-                    ].map((step, i) => (
-                        <div key={i} className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-200/60 transition-all duration-500 hover:-translate-y-2">
-                            <div className={`w-16 h-16 rounded-2xl ${step.color} ${step.shadow} flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                                <step.icon className="w-8 h-8" />
-                            </div>
-                            <h4 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h4>
-                            <p className="text-slate-500 text-sm font-bold leading-relaxed">{step.desc}</p>
-                        </div>
-                    ))}
                 </div>
             </div>
         </section>
