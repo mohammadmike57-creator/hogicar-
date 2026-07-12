@@ -617,6 +617,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className={`${pickupSelection ? 'pl-12' : 'pl-4'} pt-2.5 pb-1 flex flex-col h-full pr-10`}>
                                     <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
                                     <input
+                                        id="pickup-location"
+                                        aria-label="Pick-up location"
                                         type="text"
                                         placeholder="City, airport, or station"
                                         className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[13px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1"
@@ -656,6 +658,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <div className={`${dropoffSelection ? 'pl-12' : 'pl-4'} pt-2.5 pb-1 flex flex-col h-full pr-10`}>
                                         <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
                                         <input
+                                            id="dropoff-location"
+                                            aria-label="Drop-off location"
                                             type="text"
                                             placeholder="City, airport, or station"
                                             className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[13px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1"

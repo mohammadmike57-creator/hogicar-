@@ -14,6 +14,8 @@ interface SEOMetadataProps {
   noIndex?: boolean;
   schema?: any;
   structuredData?: string;
+  preloadImageUrl?: string;
+  preloadImageSrcSet?: string;
 }
 
 const SEOMetadata: React.FC<SEOMetadataProps> = ({ 
@@ -24,7 +26,9 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   ogImage: defaultOgImage,
   noIndex: defaultNoIndex,
   schema,
-  structuredData
+  structuredData,
+  preloadImageUrl,
+  preloadImageSrcSet
 }) => {
   const location = useLocation();
   const [config, setConfig] = useState<any>(null);
@@ -187,7 +191,23 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       const scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
       if (scriptTag) scriptTag.remove();
     }
-  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema, structuredData, config]);
+
+    // 8. Preload Image (Hero)
+    if (preloadImageUrl) {
+      let preloadTag = document.querySelector('link[rel="preload"][as="image"]#hero-preload');
+      if (!preloadTag) {
+        preloadTag = document.createElement('link');
+        preloadTag.setAttribute('rel', 'preload');
+        preloadTag.setAttribute('as', 'image');
+        preloadTag.id = 'hero-preload';
+        document.head.appendChild(preloadTag);
+      }
+      preloadTag.setAttribute('href', preloadImageUrl);
+      if (preloadImageSrcSet) {
+        preloadTag.setAttribute('imagesrcset', preloadImageSrcSet);
+      }
+    }
+  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema, structuredData, config, preloadImageUrl, preloadImageSrcSet]);
 
   return null;
 };

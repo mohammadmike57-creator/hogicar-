@@ -61,26 +61,50 @@ const normalizeHomepageContent = (content: any) => {
         {
           id: 'f1',
           icon: 'Shield',
-          title: 'Transparent Pricing',
-          description: 'No hidden surprises. What you see is what you pay, including all mandatory taxes and fees.'
+          title: '900+ Suppliers',
+          description: 'Compare deals from over 900 global and local car rental companies in one place.'
         },
         {
           id: 'f2',
-          icon: 'Zap',
-          title: 'Instant Booking',
-          description: 'Secure your vehicle in seconds with our streamlined booking process and instant confirmation.'
+          icon: 'MapPin',
+          title: '60,000+ Locations',
+          description: 'Pick up your car at airports, city centers, and stations in over 160 countries.'
         },
         {
           id: 'f3',
-          icon: 'Globe',
-          title: '24/7 Global Support',
-          description: 'Our dedicated customer excellence team is available around the clock to assist you anywhere.'
+          icon: 'Zap',
+          title: 'Free Cancellation',
+          description: 'Flexible bookings with free cancellation on most rentals up to 48 hours before pickup.'
         },
         {
           id: 'f4',
+          icon: 'ShieldCheck',
+          title: 'No Hidden Fees',
+          description: 'Transparent pricing with all mandatory taxes and fees included in the final price.'
+        },
+        {
+          id: 'f5',
+          icon: 'Clock',
+          title: '24/7 Support',
+          description: 'Our customer excellence team is available around the clock to assist you anywhere.'
+        },
+        {
+          id: 'f6',
+          icon: 'BookCheck',
+          title: 'Secure Payments',
+          description: 'Safe and encrypted payment processing for your peace of mind.'
+        },
+        {
+          id: 'f7',
           icon: 'Star',
-          title: 'Verified Suppliers',
-          description: 'We only partner with trusted rental companies to ensure you get the best quality and service.'
+          title: 'Verified Reviews',
+          description: 'Read authentic experiences from millions of customers to help you decide.'
+        },
+        {
+          id: 'f8',
+          icon: 'Award',
+          title: 'Trusted Partners',
+          description: 'We only work with established, reputable suppliers to ensure quality service.'
         }
       ];
 
@@ -234,6 +258,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           */
         }
 
+        /* 
+        DISABLED: Leave Pickup/Dropoff Location EMPTY as per redesign requirements.
         if (!targetOption && !seoConfig) {
             targetOption = options.find(o => o.value === 'AMM');
         }
@@ -244,6 +270,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             setDropoffName(targetOption.label);
             setDropoffCode(targetOption.value);
         }
+        */
       } catch (error) {
          console.error("Failed to load locations on homepage:", error);
       }
@@ -342,8 +369,16 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
-  // THE HERO IMAGE SHOULD NEVER CHANGE per redesign requirements
-  const heroBackgroundImage = content.hero.backgroundImage || (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl);
+  // THE HERO IMAGE SHOULD NEVER CHANGE per redesign requirements: USE THE GLOBAL SITE SETTINGS IMAGE ONLY
+  const heroBackgroundImage = (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) || content.hero.backgroundImage;
+  const isLocalHero = heroBackgroundImage?.includes('/uploads/hero/');
+  const heroWebpSrcSet = isLocalHero ? 
+    `${heroBackgroundImage.replace('.webp', '_thumb.webp')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.webp')} 800w, ${heroBackgroundImage.replace('.webp', '_large.webp')} 1600w` 
+    : undefined;
+  const heroPngSrcSet = isLocalHero ? 
+    `${heroBackgroundImage.replace('.webp', '_thumb.png')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.png')} 800w, ${heroBackgroundImage.replace('.webp', '_large.png')} 1600w` 
+    : undefined;
+  
   const heroMobileImage = heroBackgroundImage;
   const heroVideo = seoConfig?.heroVideo || content.hero.video;
   const heroOverlayOpacity = seoConfig?.heroOverlayOpacity ?? 0.4;
@@ -396,6 +431,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         ogImage={seoConfig?.ogImage}
         noIndex={seoConfig ? !seoConfig.indexable : undefined}
         structuredData={seoConfig?.structuredData}
+        preloadImageUrl={heroBackgroundImage}
+        preloadImageSrcSet={heroWebpSrcSet || heroPngSrcSet}
       />
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
@@ -415,12 +452,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               </video>
             ) : heroBackgroundImage && (
               <picture>
-                <source media="(max-width: 640px)" srcSet={heroMobileImage} />
+                {isLocalHero && (
+                    <source 
+                        type="image/webp" 
+                        srcSet={heroWebpSrcSet} 
+                        sizes="100vw"
+                    />
+                )}
                 <img 
                   key={heroBackgroundImage}
-                  src={heroBackgroundImage} 
+                  src={heroBackgroundImage}
+                  srcSet={heroPngSrcSet}
+                  sizes="100vw"
                   className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
                   alt={displayH1}
+                  fetchPriority="high"
                   onLoad={() => setHeroLoaded(true)}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -493,7 +539,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {content.features.slice(0, 4).map((feature, i) => {
+                    {content.features.map((feature, i) => {
                         const Icon = iconMap[feature.icon] || CheckCircle;
                         return (
                             <div key={i} className="relative p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 group overflow-hidden">
