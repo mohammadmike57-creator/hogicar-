@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
     CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, 
     Search as SearchIcon, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap, 
-    FileText, User, Car, Fuel, ParkingCircle, Compass, Calendar,
+    FileText, User, Car, Fuel, ParkingCircle, Compass, Calendar, Plane,
     Quote, ShieldCheck, Clock, ChevronUp
 } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
@@ -421,7 +421,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
-      Globe, Tag, Star, Award, Search: SearchIcon, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight
+      Globe, Tag, Star, Award, Search: SearchIcon, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight, Plane
   };
 
   const processSteps = Array.isArray(content.howItWorks.steps) ? content.howItWorks.steps : [];
