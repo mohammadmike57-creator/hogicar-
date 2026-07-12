@@ -437,8 +437,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-28 pb-12 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-[550px] sm:min-h-0 flex flex-col justify-start sm:justify-center" style={{ color: heroTextColor }}>
-          <div className="absolute inset-0 z-0">
+        <section className="relative z-30 pt-20 pb-12 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-0 flex flex-col justify-start sm:justify-center bg-[#0052cc] sm:bg-transparent" style={{ color: heroTextColor }}>
+          <div className="absolute inset-0 z-0 hidden sm:block">
             {heroVideo ? (
               <video 
                 autoPlay 
@@ -509,6 +509,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   customColor={seoConfig?.searchWidgetColor}
                   buttonColor={seoConfig?.searchWidgetButtonColor}
                 />
+                
+                {/* Mobile Features Bar */}
+                <div className="lg:hidden mt-8 flex flex-wrap justify-center gap-3 px-4">
+                    {[
+                        { icon: Shield, text: 'Fully Insured' },
+                        { icon: Zap, text: 'Free Cancellation' },
+                        { icon: CheckCircle, text: 'No Hidden Fees' },
+                        { icon: Clock, text: '24/7 Support' }
+                    ].map((f, i) => (
+                        <div key={i} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/10">
+                            <f.icon className="w-3.5 h-3.5 text-blue-200" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white/90">{f.text}</span>
+                        </div>
+                    ))}
+                </div>
               </div>
             )}
           </div>
@@ -519,6 +534,113 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
         <TrustedSuppliers />
+      )}
+
+      {/* 4.5 POPULAR COUNTRIES */}
+      {!isCustomLanding && (
+        <section className="py-16 bg-white overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Top Destinations Worldwide</h2>
+                    <p className="text-slate-500 font-bold uppercase text-xs tracking-[0.2em]">Explore car rental options in over 160 countries</p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                    {[
+                        { name: 'United Arab Emirates', code: 'AE', count: '1,200+', flag: '🇦🇪' },
+                        { name: 'Jordan', code: 'JO', count: '800+', flag: '🇯🇴' },
+                        { name: 'Saudi Arabia', code: 'SA', count: '950+', flag: '🇸🇦' },
+                        { name: 'Oman', code: 'OM', count: '400+', flag: '🇴🇲' },
+                        { name: 'Qatar', code: 'QA', count: '300+', flag: '🇶🇦' },
+                        { name: 'Kuwait', code: 'KW', count: '250+', flag: '🇰🇼' },
+                    ].map((country) => (
+                        <Link key={country.code} to={`/search?country=${country.name}`} className="group flex flex-col items-center p-6 rounded-3xl bg-slate-50 hover:bg-blue-600 transition-all duration-300 border border-slate-100 hover:border-blue-600 hover:-translate-y-1">
+                            <span className="text-4xl mb-3 group-hover:scale-110 transition-transform">{country.flag}</span>
+                            <span className="font-black text-[12px] text-slate-900 group-hover:text-white uppercase tracking-tighter text-center">{country.name}</span>
+                            <span className="text-[10px] text-slate-400 group-hover:text-blue-100 font-bold mt-1 uppercase">{country.count} Cars</span>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </section>
+      )}
+
+      {/* 4.6 SMART RENTAL GUIDE */}
+      {!isCustomLanding && (
+        <section className="py-20 bg-slate-900 text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-600/10 skew-x-12 translate-x-20" />
+            <div className="max-w-7xl mx-auto px-4 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <p className="text-blue-400 font-black uppercase text-sm tracking-[0.2em] mb-4">Rental Intelligence</p>
+                        <h2 className="text-3xl md:text-5xl font-black text-white leading-[1.1] uppercase tracking-tighter mb-8">
+                            How to get the <span className="text-blue-500">absolute best</span> car rental deal
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {[
+                                { title: 'Book 2 Weeks Early', desc: 'Secure your vehicle at least 14 days before pickup to save up to 40% on peak season rates.' },
+                                { title: 'Full-to-Full Policy', desc: 'Always choose full-to-full fuel policies to avoid hidden service charges and high fuel prices.' },
+                                { title: 'Check Insurance', desc: 'Verify what is included in your CDW. Sometimes booking full cover online is 50% cheaper than at the desk.' },
+                                { title: 'Unlimited Mileage', desc: 'For road trips, ensure unlimited mileage is included to avoid expensive per-km charges later.' },
+                            ].map((tip, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400 font-black text-lg">{i+1}</div>
+                                    <h4 className="font-black text-white uppercase text-sm tracking-tight">{tip.title}</h4>
+                                    <p className="text-slate-400 text-xs font-bold leading-relaxed">{tip.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="relative hidden lg:block">
+                        <div className="absolute inset-0 bg-blue-600 blur-[120px] opacity-20" />
+                        <div className="relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+                             <img 
+                                src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800" 
+                                alt="Driver enjoying car rental" 
+                                className="w-full h-auto grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
+                             />
+                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                             <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
+                                 <div className="flex -space-x-3">
+                                     {[1,2,3,4].map(i => (
+                                         <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 overflow-hidden">
+                                             <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
+                                         </div>
+                                     ))}
+                                 </div>
+                                 <div className="text-right">
+                                     <p className="text-white font-black text-sm uppercase">10k+ Daily Bookings</p>
+                                     <div className="flex gap-1 justify-end mt-1">
+                                         {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-blue-500 text-blue-500" />)}
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+      )}
+
+      {/* 4.7 GLOBAL REACH */}
+      {!isCustomLanding && (
+        <section className="py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    {[
+                        { label: 'Partners', value: '900+', sub: 'Global & Local Suppliers' },
+                        { label: 'Locations', value: '60,000+', sub: 'In 160+ Countries' },
+                        { label: 'Reviews', value: '2M+', sub: 'Verified Customer Ratings' },
+                        { label: 'Support', value: '24/7', sub: 'In 30+ Languages' },
+                    ].map((stat, i) => (
+                        <div key={i} className="text-center p-8 rounded-[2rem] bg-slate-50 border border-slate-100">
+                            <div className="text-3xl md:text-4xl font-black text-blue-600 mb-2 tracking-tighter">{stat.value}</div>
+                            <div className="text-[12px] font-black text-slate-900 uppercase tracking-widest mb-1">{stat.label}</div>
+                            <div className="text-[10px] text-slate-400 font-bold uppercase">{stat.sub}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
       )}
 
       {/* 5. WHY CHOOSE HOGICAR */}

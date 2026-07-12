@@ -434,8 +434,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     return (
         <>
         {/* --- MOBILE WIDGET --- */}
-        <div className="lg:hidden w-full px-1.5" ref={mobileWidgetRef}>
-            <div className="bg-white p-3.5 sm:p-5 rounded-card shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] relative z-10 border border-slate-100/50">
+        <div className="lg:hidden w-full px-2" ref={mobileWidgetRef}>
+            <div className="bg-white p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative z-10 border border-white/50">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2.5">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1">
@@ -579,11 +579,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <button 
                         type="submit" 
-                        className="w-full text-white font-extrabold h-12 rounded-card active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-1 text-[15px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/20"
-                        style={{ backgroundColor: '#059669' }}
+                        className="w-full text-black font-black h-14 rounded-xl active:scale-[0.97] transition-all flex items-center justify-center gap-3 mt-2 text-[16px] uppercase tracking-widest hover:brightness-110 shadow-lg shadow-yellow-500/20"
+                        style={{ backgroundColor: '#FFB703' }}
                     >
-                        <SearchIcon className="w-4.5 h-4.5 stroke-[3px]" />
-                        Search Deals
+                        <SearchIcon className="w-5 h-5 stroke-[3px]" />
+                        Search Cars
                     </button>
                 </form>
             </div>
