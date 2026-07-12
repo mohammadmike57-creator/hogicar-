@@ -356,15 +356,40 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const content = homepageContent;
   
   const faqs = React.useMemo(() => {
+    const globalFaqs = [
+      {
+        question: "What do I need to rent a car?",
+        answer: "Firstly, you need a valid driver’s license. In most cases, you must have held it for at least one (1) year. You also need a credit (or debit, where accepted) card to pay for the rental and leave a deposit and the voucher received after your booking is confirmed. When renting in a foreign country, you often need another form of identification, usually a passport."
+      },
+      {
+        question: "At what age can I rent a car?",
+        answer: "This depends on where you would like to rent a car. Though you can rent a car at the age of 18 in many European countries and the states of New York and Michigan in the United States, in many locations you must be 21 to rent a car. You can conveniently check this by entering your age before clicking 'Search now'. Note that most rental suppliers charge an additional Young Driver Fee for renters under the age of 25, though this age varies by supplier and location. If you enter your age before searching, we include this fee in the total, allowing for the simplest comparison."
+      },
+      {
+        question: "What should I look for when choosing a rental supplier?",
+        answer: "There are two things you should use to determine which supplier to rent from - reviews and the Rental Conditions. We ask every customer to rate their rental experience after they drop off the car and show their ratings when you search for a car. If you want to be sure you get great service, look for the Excellent Car Rental Service badge which we award to the top three suppliers in each location with an average rating of 8 or higher. You should also check the Rental Conditions to make sure the rental supplier you choose works best for your requirements."
+      },
+      {
+        question: "Can I rent a car without a credit card?",
+        answer: "Though just a few years ago it was impossible to rent a car without a credit card, things have changed quickly. Many suppliers, especially global companies such as Avis, Dollar, Hertz, etc., allow renters to both pay and leave a deposit with a debit card (though the card must be a Mastercard or Visa). If you do not have a credit card, be sure to check the Payment Policy section of the Rental Conditions prior to booking to see if the supplier accepts debit cards."
+      },
+      {
+        question: "What if my plans change?",
+        answer: "When you book a car through Hogicar.com, you can make changes or cancel your booking for free at any point prior to 48 hours before you are scheduled to pick up the car."
+      }
+    ];
+
     if (seoConfig?.faqJson) {
       try {
         const parsed = JSON.parse(seoConfig.faqJson);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch (e) {
         console.error("Failed to parse FAQ JSON from SEO config:", e);
       }
     }
-    return content.faqs.items;
+    
+    const contentFaqs = content.faqs.items || [];
+    return contentFaqs.length > 0 ? contentFaqs : globalFaqs;
   }, [seoConfig, content.faqs.items]);
 
   const destinations = content.popularDestinations.destinations;
@@ -437,7 +462,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-20 pb-12 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-0 flex flex-col justify-start sm:justify-center bg-[#0052cc] sm:bg-transparent" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-12 pb-6 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-0 flex flex-col justify-start sm:justify-center bg-[#002b70] sm:bg-transparent" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0 hidden sm:block">
             {heroVideo ? (
               <video 
@@ -536,86 +561,130 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         <TrustedSuppliers />
       )}
 
-      {/* 4.5 POPULAR COUNTRIES */}
+      {/* 4.5 POPULAR COUNTRIES & LOCATIONS */}
       {!isCustomLanding && (
-        <section className="py-16 bg-white overflow-hidden">
+        <section className="py-20 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Top Destinations Worldwide</h2>
-                    <p className="text-slate-500 font-bold uppercase text-xs tracking-[0.2em]">Explore car rental options in over 160 countries</p>
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">Top Destinations Worldwide</h2>
+                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">Compare car rental deals in over 60,000 locations</p>
                 </div>
+                
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                     {[
+                        { name: 'United Kingdom', code: 'GB', count: '2,500+', flag: '🇬🇧' },
+                        { name: 'United States', code: 'US', count: '8,000+', flag: '🇺🇸' },
+                        { name: 'Spain', code: 'ES', count: '3,200+', flag: '🇪🇸' },
+                        { name: 'Italy', code: 'IT', count: '2,800+', flag: '🇮🇹' },
+                        { name: 'France', code: 'FR', count: '2,400+', flag: '🇫🇷' },
+                        { name: 'Germany', code: 'DE', count: '2,100+', flag: '🇩🇪' },
                         { name: 'United Arab Emirates', code: 'AE', count: '1,200+', flag: '🇦🇪' },
                         { name: 'Jordan', code: 'JO', count: '800+', flag: '🇯🇴' },
-                        { name: 'Saudi Arabia', code: 'SA', count: '950+', flag: '🇸🇦' },
-                        { name: 'Oman', code: 'OM', count: '400+', flag: '🇴🇲' },
-                        { name: 'Qatar', code: 'QA', count: '300+', flag: '🇶🇦' },
-                        { name: 'Kuwait', code: 'KW', count: '250+', flag: '🇰🇼' },
+                        { name: 'Portugal', code: 'PT', count: '1,500+', flag: '🇵🇹' },
+                        { name: 'Greece', code: 'GR', count: '1,800+', flag: '🇬🇷' },
+                        { name: 'Turkey', code: 'TR', count: '1,600+', flag: '🇹🇷' },
+                        { name: 'Australia', code: 'AU', count: '2,000+', flag: '🇦🇺' },
                     ].map((country) => (
-                        <Link key={country.code} to={`/search?country=${country.name}`} className="group flex flex-col items-center p-6 rounded-3xl bg-slate-50 hover:bg-blue-600 transition-all duration-300 border border-slate-100 hover:border-blue-600 hover:-translate-y-1">
-                            <span className="text-4xl mb-3 group-hover:scale-110 transition-transform">{country.flag}</span>
-                            <span className="font-black text-[12px] text-slate-900 group-hover:text-white uppercase tracking-tighter text-center">{country.name}</span>
-                            <span className="text-[10px] text-slate-400 group-hover:text-blue-100 font-bold mt-1 uppercase">{country.count} Cars</span>
+                        <Link key={country.code} to={`/search?country=${country.name}`} className="group flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 hover:bg-[#002b70] transition-all duration-500 border border-slate-100 hover:border-[#002b70] hover:-translate-y-2 shadow-sm hover:shadow-xl">
+                            <span className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">{country.flag}</span>
+                            <span className="font-black text-[13px] text-slate-900 group-hover:text-white uppercase tracking-tighter text-center">{country.name}</span>
+                            <span className="text-[10px] text-slate-400 group-hover:text-blue-200 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
                         </Link>
                     ))}
+                </div>
+
+                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div className="space-y-6">
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                            <MapPin className="text-blue-600" /> Popular Cities
+                        </h3>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            {['London', 'Dubai', 'Amman', 'Paris', 'Rome', 'Madrid', 'Lisbon', 'Athens', 'Istanbul', 'New York'].map(city => (
+                                <Link key={city} to={`/search?location=${city}`} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {city}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-6">
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                            <Plane className="text-blue-600" /> Major Airports
+                        </h3>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            {['Heathrow (LHR)', 'Dubai (DXB)', 'Queen Alia (AMM)', 'Charles de Gaulle', 'Rome Fiumicino', 'JFK Airport', 'LAX Airport', 'Frankfurt (FRA)', 'Istanbul (IST)', 'Barcelona (BCN)'].map(airport => (
+                                <Link key={airport} to={`/search?location=${airport}`} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-6">
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                            <Globe className="text-blue-600" /> Popular Regions
+                        </h3>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            {['Tuscany', 'Algarve', 'Costa del Sol', 'Florida', 'California', 'Bavaria', 'Provence', 'Dead Sea', 'Wadi Rum', 'Cyclades'].map(region => (
+                                <Link key={region} to={`/search?location=${region}`} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {region}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
       )}
 
-      {/* 4.6 SMART RENTAL GUIDE */}
+      {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
       {!isCustomLanding && (
-        <section className="py-20 bg-slate-900 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-600/10 skew-x-12 translate-x-20" />
+        <section className="py-24 bg-slate-50 overflow-hidden relative">
             <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div>
-                        <p className="text-blue-400 font-black uppercase text-sm tracking-[0.2em] mb-4">Rental Intelligence</p>
-                        <h2 className="text-3xl md:text-5xl font-black text-white leading-[1.1] uppercase tracking-tighter mb-8">
-                            How to get the <span className="text-blue-500">absolute best</span> car rental deal
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {[
-                                { title: 'Book 2 Weeks Early', desc: 'Secure your vehicle at least 14 days before pickup to save up to 40% on peak season rates.' },
-                                { title: 'Full-to-Full Policy', desc: 'Always choose full-to-full fuel policies to avoid hidden service charges and high fuel prices.' },
-                                { title: 'Check Insurance', desc: 'Verify what is included in your CDW. Sometimes booking full cover online is 50% cheaper than at the desk.' },
-                                { title: 'Unlimited Mileage', desc: 'For road trips, ensure unlimited mileage is included to avoid expensive per-km charges later.' },
-                            ].map((tip, i) => (
-                                <div key={i} className="space-y-2">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400 font-black text-lg">{i+1}</div>
-                                    <h4 className="font-black text-white uppercase text-sm tracking-tight">{tip.title}</h4>
-                                    <p className="text-slate-400 text-xs font-bold leading-relaxed">{tip.desc}</p>
-                                </div>
-                            ))}
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
+                        How to find a <span className="text-blue-600">great car rental deal</span>
+                    </h2>
+                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {[
+                        { 
+                            title: 'Book Early', 
+                            desc: 'Secure your vehicle at least 2-4 weeks before pickup to save up to 40% on peak season rates.',
+                            icon: Calendar,
+                            color: 'bg-emerald-500',
+                            shadow: 'shadow-emerald-500/20'
+                        },
+                        { 
+                            title: 'Compare Deals', 
+                            desc: 'We compare prices from 900+ suppliers including global brands like Hertz and local experts.',
+                            icon: Zap,
+                            color: 'bg-blue-600',
+                            shadow: 'shadow-blue-600/20'
+                        },
+                        { 
+                            title: 'Check Conditions', 
+                            desc: 'Always read the rental conditions for fuel policy, mileage, and insurance coverage to avoid surprises.',
+                            icon: ShieldCheck,
+                            color: 'bg-amber-500',
+                            shadow: 'shadow-amber-500/20'
+                        },
+                        { 
+                            title: 'Save Big', 
+                            desc: 'Enjoy your trip with the best price guaranteed and 24/7 support throughout your journey.',
+                            icon: Sparkles,
+                            color: 'bg-rose-500',
+                            shadow: 'shadow-rose-500/20'
+                        },
+                    ].map((step, i) => (
+                        <div key={i} className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-200/60 transition-all duration-500 hover:-translate-y-2">
+                            <div className={`w-16 h-16 rounded-2xl ${step.color} ${step.shadow} flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                                <step.icon className="w-8 h-8" />
+                            </div>
+                            <h4 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h4>
+                            <p className="text-slate-500 text-sm font-bold leading-relaxed">{step.desc}</p>
                         </div>
-                    </div>
-                    <div className="relative hidden lg:block">
-                        <div className="absolute inset-0 bg-blue-600 blur-[120px] opacity-20" />
-                        <div className="relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-                             <img 
-                                src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800" 
-                                alt="Driver enjoying car rental" 
-                                className="w-full h-auto grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
-                             />
-                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                             <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
-                                 <div className="flex -space-x-3">
-                                     {[1,2,3,4].map(i => (
-                                         <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 overflow-hidden">
-                                             <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
-                                         </div>
-                                     ))}
-                                 </div>
-                                 <div className="text-right">
-                                     <p className="text-white font-black text-sm uppercase">10k+ Daily Bookings</p>
-                                     <div className="flex gap-1 justify-end mt-1">
-                                         {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-blue-500 text-blue-500" />)}
-                                     </div>
-                                 </div>
-                             </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
         </section>

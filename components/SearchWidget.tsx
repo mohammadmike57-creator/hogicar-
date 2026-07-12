@@ -434,8 +434,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     return (
         <>
         {/* --- MOBILE WIDGET --- */}
-        <div className="lg:hidden w-full px-2" ref={mobileWidgetRef}>
-            <div className="bg-white p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative z-10 border border-white/50">
+        <div className="lg:hidden w-full px-4" ref={mobileWidgetRef}>
+            <div className="bg-white p-5 rounded-[2rem] shadow-2xl relative z-10 border border-white/50">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2.5">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1">
