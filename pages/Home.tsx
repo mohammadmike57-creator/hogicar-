@@ -5,7 +5,7 @@ import {
     CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, 
     Search as SearchIcon, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap, 
     FileText, User, Car, Fuel, ParkingCircle, Compass, Calendar, Plane,
-    Quote, ShieldCheck, Clock, ChevronUp
+    Quote, ShieldCheck, Clock, ChevronUp, CreditCard, Wallet, HelpCircle
 } from 'lucide-react';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
@@ -359,23 +359,33 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     const globalFaqs = [
       {
         question: "What do I need to rent a car?",
-        answer: "Firstly, you need a valid driver’s license. In most cases, you must have held it for at least one (1) year. You also need a credit (or debit, where accepted) card to pay for the rental and leave a deposit and the voucher received after your booking is confirmed. When renting in a foreign country, you often need another form of identification, usually a passport."
+        answer: "Firstly, you need a valid driver’s license. In most cases, you must have held it for at least one (1) year. You also need a credit (or debit, where accepted) card to pay for the rental and leave a deposit and the voucher received after your booking is confirmed. When renting in a foreign country, you often need another form of identification, usually a passport.",
+        icon: 'BookCheck',
+        color: 'bg-blue-500'
       },
       {
         question: "At what age can I rent a car?",
-        answer: "This depends on where you would like to rent a car. Though you can rent a car at the age of 18 in many European countries and the states of New York and Michigan in the United States, in many locations you must be 21 to rent a car. You can conveniently check this by entering your age before clicking 'Search now'. Note that most rental suppliers charge an additional Young Driver Fee for renters under the age of 25, though this age varies by supplier and location. If you enter your age before searching, we include this fee in the total, allowing for the simplest comparison."
+        answer: "This depends on where you would like to rent a car. Though you can rent a car at the age of 18 in many European countries and the states of New York and Michigan in the United States, in many locations you must be 21 to rent a car. You can conveniently check this by entering your age before clicking 'Search now'. Note that most rental suppliers charge an additional Young Driver Fee for renters under the age of 25, though this age varies by supplier and location. If you enter your age before searching, we include this fee in the total, allowing for the simplest comparison.",
+        icon: 'User',
+        color: 'bg-purple-500'
       },
       {
         question: "What should I look for when choosing a rental supplier?",
-        answer: "There are two things you should use to determine which supplier to rent from - reviews and the Rental Conditions. We ask every customer to rate their rental experience after they drop off the car and show their ratings when you search for a car. If you want to be sure you get great service, look for the Excellent Car Rental Service badge which we award to the top three suppliers in each location with an average rating of 8 or higher. You should also check the Rental Conditions to make sure the rental supplier you choose works best for your requirements."
+        answer: "There are two things you should use to determine which supplier to rent from - reviews and the Rental Conditions. We ask every customer to rate their rental experience after they drop off the car and show their ratings when you search for a car. If you want to be sure you get great service, look for the Excellent Car Rental Service badge which we award to the top three suppliers in each location with an average rating of 8 or higher. You should also check the Rental Conditions to make sure the rental supplier you choose works best for your requirements.",
+        icon: 'Star',
+        color: 'bg-yellow-500'
       },
       {
         question: "Can I rent a car without a credit card?",
-        answer: "Though just a few years ago it was impossible to rent a car without a credit card, things have changed quickly. Many suppliers, especially global companies such as Avis, Dollar, Hertz, etc., allow renters to both pay and leave a deposit with a debit card (though the card must be a Mastercard or Visa). If you do not have a credit card, be sure to check the Payment Policy section of the Rental Conditions prior to booking to see if the supplier accepts debit cards."
+        answer: "Though just a few years ago it was impossible to rent a car without a credit card, things have changed quickly. Many suppliers, especially global companies such as Avis, Dollar, Hertz, etc., allow renters to both pay and leave a deposit with a debit card (though the card must be a Mastercard or Visa). If you do not have a credit card, be sure to check the Payment Policy section of the Rental Conditions prior to booking to see if the supplier accepts debit cards.",
+        icon: 'CreditCard',
+        color: 'bg-green-500'
       },
       {
         question: "What if my plans change?",
-        answer: "When you book a car through Hogicar.com, you can make changes or cancel your booking for free at any point prior to 48 hours before you are scheduled to pick up the car."
+        answer: "When you book a car through Hogicar.com, you can make changes or cancel your booking for free at any point prior to 48 hours before you are scheduled to pick up the car.",
+        icon: 'Clock',
+        color: 'bg-rose-500'
       }
     ];
 
@@ -421,7 +431,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
-      Globe, Tag, Star, Award, Search: SearchIcon, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight, Plane
+      Globe, Tag, Star, Award, Search: SearchIcon, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight, Plane, CreditCard, Wallet, User, Clock, HelpCircle
   };
 
   const processSteps = Array.isArray(content.howItWorks.steps) ? content.howItWorks.steps : [];
@@ -779,30 +789,66 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 14. FREQUENTLY ASKED QUESTIONS */}
       {sections.faq && (
-        <section className="py-16 bg-white">
-          <div className="max-w-3xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Frequently Asked Questions</h2>
-              <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Everything you need to know about renting in {displayH1.replace('Car Rental in ', '')}</p>
+        <section className="py-20 bg-slate-50/50">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-accent/10 text-accent mb-6">
+                <ShieldCheck className="w-8 h-8" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Frequently Asked Questions</h2>
+              <p className="text-slate-500 font-bold uppercase text-xs tracking-widest max-w-lg mx-auto leading-relaxed">Everything you need to know about renting in {displayH1.replace('Car Rental in ', '')} for a smooth journey.</p>
             </div>
 
-            <div className="space-y-3">
-                {faqs.map((faq, index) => (
-                  <div key={faq.id || index} className="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden transition-all">
-                    <button 
-                      onClick={() => toggleFaq(index)} 
-                      className="w-full flex justify-between items-center text-left p-6 focus:outline-none group"
+            <div className="grid gap-4">
+                {faqs.map((faq, index) => {
+                  const Icon = iconMap[faq.icon] || HelpCircle;
+                  const isOpen = openFaqIndex === index;
+                  
+                  return (
+                    <div 
+                      key={faq.id || index} 
+                      className={`group rounded-3xl transition-all duration-300 border ${isOpen ? 'bg-white shadow-xl shadow-slate-200/50 border-accent/20' : 'bg-white border-slate-100 hover:border-slate-200 shadow-sm'}`}
                     >
-                      <span className="font-black text-slate-900 group-hover:text-accent transition-colors uppercase tracking-tight">{faq.question}</span>
-                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180 text-accent' : 'text-slate-400'}`} />
-                    </button>
-                    <div className={`overflow-hidden transition-all duration-300 ${openFaqIndex === index ? 'max-h-[500px]' : 'max-h-0'}`}>
-                      <div className="p-6 pt-0 text-slate-600 leading-relaxed font-medium border-t border-slate-200/50 mt-2">
-                        {faq.answer}
+                      <button 
+                        onClick={() => toggleFaq(index)} 
+                        className="w-full flex items-center text-left p-5 sm:p-7 focus:outline-none"
+                      >
+                        <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${isOpen ? (faq.color || 'bg-accent') : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
+                          <Icon className={`w-6 h-6 ${isOpen ? 'text-white' : 'text-slate-500'}`} />
+                        </div>
+                        <div className="ml-5 flex-1 pr-4">
+                          <span className={`block font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-slate-900 text-lg' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                            {faq.question}
+                          </span>
+                        </div>
+                        <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-accent border-accent text-white rotate-180' : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-300'}`}>
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className="px-5 sm:px-7 pb-7 ml-0 sm:ml-12">
+                          <div className="h-px w-10 bg-slate-100 mb-6 hidden sm:block"></div>
+                          <p className="text-slate-600 leading-relaxed font-medium text-base">
+                            {faq.answer}
+                          </p>
+                          {isOpen && (
+                            <div className="mt-6 flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
+                              <Sparkles className="w-3 h-3" />
+                              Was this helpful?
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+            </div>
+
+            <div className="mt-16 text-center">
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4">Still have questions?</p>
+              <a href="mailto:support@hogicar.com" className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
+                Contact Support <Mail className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </section>
