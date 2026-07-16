@@ -637,20 +637,20 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                     {[
-                        { name: 'United Kingdom', code: 'GB', count: '2,500+', flag: '🇬🇧' },
-                        { name: 'United States', code: 'US', count: '8,000+', flag: '🇺🇸' },
-                        { name: 'Spain', code: 'ES', count: '3,200+', flag: '🇪🇸' },
-                        { name: 'Italy', code: 'IT', count: '2,800+', flag: '🇮🇹' },
-                        { name: 'France', code: 'FR', count: '2,400+', flag: '🇫🇷' },
-                        { name: 'Germany', code: 'DE', count: '2,100+', flag: '🇩🇪' },
-                        { name: 'United Arab Emirates', code: 'AE', count: '1,200+', flag: '🇦🇪' },
-                        { name: 'Jordan', code: 'JO', count: '800+', flag: '🇯🇴' },
-                        { name: 'Portugal', code: 'PT', count: '1,500+', flag: '🇵🇹' },
-                        { name: 'Greece', code: 'GR', count: '1,800+', flag: '🇬🇷' },
-                        { name: 'Turkey', code: 'TR', count: '1,600+', flag: '🇹🇷' },
-                        { name: 'Australia', code: 'AU', count: '2,000+', flag: '🇦🇺' },
+                        { name: 'United Kingdom', code: 'GB', count: '2,500+', flag: '🇬🇧', slug: 'united-kingdom' },
+                        { name: 'United States', code: 'US', count: '8,000+', flag: '🇺🇸', slug: 'united-states' },
+                        { name: 'Spain', code: 'ES', count: '3,200+', flag: '🇪🇸', slug: 'spain' },
+                        { name: 'Italy', code: 'IT', count: '2,800+', flag: '🇮🇹', slug: 'italy' },
+                        { name: 'France', code: 'FR', count: '2,400+', flag: '🇫🇷', slug: 'france' },
+                        { name: 'Germany', code: 'DE', count: '2,100+', flag: '🇩🇪', slug: 'germany' },
+                        { name: 'United Arab Emirates', code: 'AE', count: '1,200+', flag: '🇦🇪', slug: 'united-arab-emirates' },
+                        { name: 'Jordan', code: 'JO', count: '800+', flag: '🇯🇴', slug: 'jordan' },
+                        { name: 'Portugal', code: 'PT', count: '1,500+', flag: '🇵🇹', slug: 'portugal' },
+                        { name: 'Greece', code: 'GR', count: '1,800+', flag: '🇬🇷', slug: 'greece' },
+                        { name: 'Turkey', code: 'TR', count: '1,600+', flag: '🇹🇷', slug: 'turkey' },
+                        { name: 'Australia', code: 'AU', count: '2,000+', flag: '🇦🇺', slug: 'australia' },
                     ].map((country) => (
-                        <Link key={country.code} to={`/search?country=${country.name}`} className="group flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 hover:bg-[#002b70] transition-all duration-500 border border-slate-100 hover:border-[#002b70] hover:-translate-y-2 shadow-sm hover:shadow-xl">
+                        <Link key={country.code} to={`/${country.slug}`} className="group flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 hover:bg-[#002b70] transition-all duration-500 border border-slate-100 hover:border-[#002b70] hover:-translate-y-2 shadow-sm hover:shadow-xl">
                             <span className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">{country.flag}</span>
                             <span className="font-black text-[13px] text-slate-900 group-hover:text-white uppercase tracking-tighter text-center">{country.name}</span>
                             <span className="text-[10px] text-slate-400 group-hover:text-blue-200 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
