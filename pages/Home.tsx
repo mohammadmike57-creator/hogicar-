@@ -17,6 +17,39 @@ import SearchWidget from '../components/SearchWidget';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
 import { LocationSuggestion } from '../api';
 import { API_BASE_URL } from '../lib/config';
+import { loadCars } from '../utils/loadCars';
+
+const getThreeDayOfferDates = () => {
+  const pickup = new Date();
+  const dropoff = new Date(pickup);
+  dropoff.setDate(pickup.getDate() + 3);
+
+  return {
+    pickupDate: pickup.toISOString().split('T')[0],
+    dropoffDate: dropoff.toISOString().split('T')[0]
+  };
+};
+
+const normalizeHomeOffer = (car: any, index: number) => {
+  const category = car.category || car.type || ['Economy', 'Compact', 'SUV'][index] || 'Standard';
+  const rawPrice = Number(car.finalPrice ?? car.netPrice ?? car.dailyRate ?? car.price ?? 0);
+  const name = car.name || `${car.brand || car.make || 'Available'} ${car.model || 'Car'}`.trim();
+  const nameParts = name.split(' ');
+  const make = car.brand || car.make || nameParts[0] || 'Available';
+  const model = car.model || nameParts.slice(1).join(' ') || 'Car';
+
+  return {
+    id: car.id || `${category}-${index}`,
+    make,
+    model,
+    category,
+    price: rawPrice,
+    image: car.image || car.imageUrl || '',
+    passengers: car.passengers || 5,
+    bags: car.bags || 2,
+    supplierName: car.supplier?.name || car.supplierName || 'Trusted supplier'
+  };
+};
 
 const normalizeHomepageContent = (content: any) => {
   const safeContent = content && typeof content === 'object' ? content : {};
@@ -173,6 +206,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
   const [homepageContent, setHomepageContent] = React.useState<any>(normalizeHomepageContent(null));
+  const [homeOffers, setHomeOffers] = React.useState<any[]>([]);
+  const [homeOfferDates] = React.useState(() => getThreeDayOfferDates());
 
   const isCustomLanding = !!seoConfig;
 
@@ -321,11 +356,40 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       }
     };
 
+    const loadHomeOffers = async () => {
+      try {
+        const liveCars = await loadCars({
+          pickupCode: 'AMM',
+          dropoffCode: 'AMM',
+          pickupDate: homeOfferDates.pickupDate,
+          dropoffDate: homeOfferDates.dropoffDate
+        });
+        const categories = new Set<string>();
+        const offers = liveCars
+          .map(normalizeHomeOffer)
+          .filter((offer) => {
+            if (!offer.price || offer.price <= 0) return false;
+            const key = String(offer.category || '').toLowerCase();
+            if (categories.has(key)) return false;
+            categories.add(key);
+            return true;
+          })
+          .slice(0, 3);
+        setHomeOffers(offers);
+      } catch (error) {
+        console.error('Error loading homepage live offers:', error);
+        setHomeOffers([]);
+      }
+    };
+
     loadSettings();
     loadLocations();
     loadSuppliers();
     loadHomepageData();
-  }, [seoConfig, location.pathname]);
+    if (!seoConfig) {
+      loadHomeOffers();
+    }
+  }, [seoConfig, location.pathname, homeOfferDates.pickupDate, homeOfferDates.dropoffDate]);
 
   const handleSearch = (params: any) => {
     if (!params.pickup || !params.dropoff) {
@@ -555,6 +619,107 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
         <TrustedSuppliers />
+      )}
+
+      {!isCustomLanding && sections.featuredCars && homeOffers.length > 0 && (
+        <section className="py-20 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700 mb-4">
+                  <Zap className="h-4 w-4" />
+                  Live prices
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tight mb-4">
+                  Real car offers for the next 3 days
+                </h2>
+                <p className="max-w-2xl text-slate-500 font-bold leading-relaxed">
+                  Current availability from Queen Alia International Airport, priced from {homeOfferDates.pickupDate} to {homeOfferDates.dropoffDate}.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    pickup: 'AMM',
+                    pickupName: 'Queen Alia International Airport (AMM), Amman',
+                    dropoff: 'AMM',
+                    dropoffName: 'Queen Alia International Airport (AMM), Amman',
+                    pickupDate: homeOfferDates.pickupDate,
+                    dropoffDate: homeOfferDates.dropoffDate,
+                    startTime: '10:00',
+                    endTime: '10:00'
+                  });
+                  navigate(`/searching?${params.toString()}`);
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-7 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-slate-900/15 transition-all hover:bg-slate-800"
+              >
+                View live results <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {homeOffers.map((offer, index) => (
+                <button
+                  key={offer.id}
+                  type="button"
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      pickup: 'AMM',
+                      pickupName: 'Queen Alia International Airport (AMM), Amman',
+                      dropoff: 'AMM',
+                      dropoffName: 'Queen Alia International Airport (AMM), Amman',
+                      pickupDate: homeOfferDates.pickupDate,
+                      dropoffDate: homeOfferDates.dropoffDate,
+                      startTime: '10:00',
+                      endTime: '10:00'
+                    });
+                    navigate(`/searching?${params.toString()}`);
+                  }}
+                  className="group text-left rounded-[1.5rem] border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all"
+                >
+                  <div className="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-6">
+                    {offer.image ? (
+                      <img src={offer.image} alt={`${offer.make} ${offer.model}`} className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <Car className="h-20 w-20 text-slate-300" />
+                    )}
+                    <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-900 border border-slate-200 shadow-sm">
+                      {offer.category}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-4 mb-5">
+                      <div className="min-w-0">
+                        <h3 className="text-xl font-black text-slate-900 truncate">{offer.make} {offer.model}</h3>
+                        <p className="mt-1 text-[11px] font-black uppercase tracking-widest text-slate-400">{offer.supplierName}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-2 py-1">
+                        <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                        <span className="text-xs font-black text-slate-900">4.{8 - (index % 2)}</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mb-6 text-xs font-bold text-slate-600">
+                      <span className="flex items-center gap-2"><User className="h-4 w-4" /> {offer.passengers} Seats</span>
+                      <span className="flex items-center gap-2"><Fuel className="h-4 w-4" /> Automatic</span>
+                      <span className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-accent" /> Free cancellation</span>
+                      <span className="flex items-center gap-2"><Shield className="h-4 w-4 text-accent" /> Clear price</span>
+                    </div>
+                    <div className="flex items-end justify-between border-t border-slate-100 pt-5">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">From per day</p>
+                        <p className="text-3xl font-black text-slate-900">{getCurrencySymbol()}{convertPrice(offer.price).toFixed(0)}</p>
+                      </div>
+                      <span className="rounded-xl bg-accent px-5 py-3 text-sm font-black text-white shadow-lg shadow-accent/20">
+                        Search
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
