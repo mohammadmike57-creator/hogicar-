@@ -445,6 +445,18 @@ export interface SEOConfig {
   cityTag?: string;
   airportTags?: string;
   routeType?: string;
+  metaTitle?: string;
+  focusKeyword?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  imageAltText?: string;
+  imageTitle?: string;
+  breadcrumbTitle?: string;
+  searchIntent?: string;
+  relatedKeywords?: string;
+  heroTitle?: string;
 }
 
 // --- Homepage Content Management ---
