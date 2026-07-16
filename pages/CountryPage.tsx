@@ -31,8 +31,6 @@ const inferLocationCode = (label: string) => {
   const lower = label.toLowerCase();
   if (lower.includes('queen alia')) return 'AMM';
   if (lower.includes('king hussein')) return 'AQJ';
-  if (lower.includes('amman')) return 'AMM';
-  if (lower.includes('aqaba')) return 'AQJ';
   return label;
 };
 
@@ -41,66 +39,6 @@ const normalizeLocationLabel = (location: any) => {
   if (location?.label) return location.label;
   if (location?.name) return location.name;
   return '';
-};
-
-const fallbackCarImages = [
-  'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=900',
-  'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=900',
-  'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=900',
-  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=900',
-  'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=900',
-  'https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=900'
-];
-
-const sampleCarTemplates = [
-  { make: 'Toyota', model: 'Yaris', passengers: 5, dailyRate: 24, category: 'Economy' },
-  { make: 'Hyundai', model: 'Elantra', passengers: 5, dailyRate: 31, category: 'Compact' },
-  { make: 'Kia', model: 'Sportage', passengers: 5, dailyRate: 45, category: 'SUV' },
-  { make: 'Nissan', model: 'Sunny', passengers: 5, dailyRate: 28, category: 'Economy' },
-  { make: 'Toyota', model: 'Corolla', passengers: 5, dailyRate: 34, category: 'Standard' },
-  { make: 'Hyundai', model: 'Tucson', passengers: 5, dailyRate: 52, category: 'SUV' }
-];
-
-const getDisplayPrice = (car: any, index: number) => {
-  const rawPrice = Number(car?.dailyRate ?? car?.finalPrice ?? car?.netPrice ?? car?.price);
-  if (Number.isFinite(rawPrice) && rawPrice > 0) return rawPrice;
-  return sampleCarTemplates[index % sampleCarTemplates.length].dailyRate;
-};
-
-const buildAvailabilityCards = (cars: any[], countryName: string, locations: DealLocation[]) => {
-  const normalizedLocations = locations.length > 0
-    ? locations
-    : [
-        { label: `${countryName} Airport`, value: countryName, type: 'airport' as const },
-        { label: `${countryName} Downtown`, value: countryName, type: 'city' as const }
-      ];
-
-  const sourceCars = cars.length > 0
-    ? cars.slice(0, 6)
-    : sampleCarTemplates.map((template, index) => ({
-        ...template,
-        id: `sample-${countryName}-${index}`,
-        imageUrl: fallbackCarImages[index % fallbackCarImages.length],
-        supplierName: index % 2 === 0 ? 'Airport partner' : 'City desk'
-      }));
-
-  return sourceCars.map((car, index) => {
-    const location = normalizedLocations[index % normalizedLocations.length];
-    const template = sampleCarTemplates[index % sampleCarTemplates.length];
-
-    return {
-      ...car,
-      id: car.id || `availability-${countryName}-${index}`,
-      make: car.make || car.brand || template.make,
-      model: car.model || template.model,
-      passengers: car.passengers || template.passengers,
-      dailyRate: getDisplayPrice(car, index),
-      imageUrl: car.imageUrl || car.image || fallbackCarImages[index % fallbackCarImages.length],
-      pickupLocation: location,
-      category: car.category || template.category,
-      supplierName: car.supplierName || car.supplier?.name || 'Trusted supplier'
-    };
-  });
 };
 
 const CountryPage: React.FC = () => {
@@ -117,6 +55,7 @@ const CountryPage: React.FC = () => {
   const [showBookingPopup, setShowBookingPopup] = useState(false);
   const [mainHeroImage, setMainHeroImage] = useState('');
   const [dealLocations, setDealLocations] = useState<DealLocation[]>([]);
+  const [selectedDealLocation, setSelectedDealLocation] = useState('');
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -170,6 +109,7 @@ const CountryPage: React.FC = () => {
           ).slice(0, 8);
 
           setDealLocations(mergedLocations);
+          setSelectedDealLocation(mergedLocations[0]?.value || data.name);
         } else {
           setError(true);
         }
@@ -233,23 +173,7 @@ const CountryPage: React.FC = () => {
   };
 
   const heroBackgroundImage = mainHeroImage || resolveAssetUrl(country.heroImage);
-  const availabilityCards = buildAvailabilityCards(featuredCars, country.name, dealLocations);
-  const selectedPickup = selectedCar?.pickupLocation;
-  const selectedPickupValue = selectedPickup?.value || '';
-  const canPrefillSelectedPickup = /^[A-Z]{3}$/i.test(selectedPickupValue) || selectedPickupValue.startsWith('LOC:');
-  const popupInitialValues = selectedPickup
-    ? canPrefillSelectedPickup
-      ? {
-          pickup: selectedPickupValue,
-          pickupName: selectedPickup.label,
-          dropoff: selectedPickupValue,
-          dropoffName: selectedPickup.label
-        }
-      : {
-          location: selectedPickup.label,
-          pickupName: selectedPickup.label
-        }
-    : undefined;
+  const selectedLocation = dealLocations.find((location) => location.value === selectedDealLocation) || dealLocations[0];
 
   return (
     <div className="bg-white min-h-screen font-sans overflow-x-hidden">
@@ -327,38 +251,57 @@ const CountryPage: React.FC = () => {
       {/* Featured Deals Section */}
       <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-100 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700 mb-4">
                 <Zap className="w-4 h-4" />
-                Available pickup examples
+                Live rates by pickup location
               </div>
               <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-3">
-                Car availability in {country.name}
+                Car rental deals in {country.name}
               </h2>
-              <p className="text-slate-600 font-medium max-w-3xl">
-                Browse professional example availability for airport and city pickup points. Select any car to open live search, choose the exact location and dates, and see real matching results.
+              <p className="text-slate-600 font-medium max-w-2xl">
+                Compare practical airport and city-center pickup options, including locations such as Queen Alia International Airport when available.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3 rounded-[1.25rem] bg-white border border-slate-200 p-3 shadow-sm">
-              {[
-                { value: 'Free', label: 'Cancellation' },
-                { value: '24/7', label: 'Support' },
-                { value: 'Clear', label: 'Pricing' }
-              ].map((item) => (
-                <div key={item.label} className="px-4 py-3 text-center">
-                  <p className="text-lg font-black text-slate-900">{item.value}</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
-                </div>
-              ))}
+            <div className="hidden md:flex items-center gap-3 rounded-2xl bg-white border border-slate-200 px-5 py-4 shadow-sm">
+              <Plane className="w-5 h-5 text-accent" />
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Featured pickup</p>
+                <p className="text-sm font-black text-slate-900">{dealLocations[0]?.label || country.name}</p>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {availabilityCards.map((car, idx) => {
-              const LocationIcon = car.pickupLocation?.type === 'airport' ? Plane : MapPin;
+          {dealLocations.length > 0 && (
+            <div className="mb-8 flex gap-3 overflow-x-auto pb-2">
+              {dealLocations.slice(0, 6).map((location) => {
+                const isSelected = selectedDealLocation === location.value;
+                const Icon = location.type === 'airport' ? Plane : MapPin;
 
-              return (
+                return (
+                  <button
+                    key={`${location.value}-${location.label}`}
+                    type="button"
+                    onClick={() => setSelectedDealLocation(location.value)}
+                    className={`shrink-0 flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
+                      isSelected
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/15'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                    }`}
+                  >
+                    <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${isSelected ? 'bg-white/10 text-white' : 'bg-slate-50 text-accent'}`}>
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="max-w-[230px] truncate text-sm font-black">{location.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredCars.length > 0 ? featuredCars.map((car, idx) => (
               <motion.div
                 key={car.id || `${car.make}-${car.model}-${idx}`}
                 initial={{ opacity: 0, y: 20 }}
@@ -369,17 +312,16 @@ const CountryPage: React.FC = () => {
                 onClick={() => handleCarClick(car)}
               >
                 {/* Image Section */}
-                <div className="relative h-48 sm:h-56 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-6 overflow-hidden">
+                <div className="relative h-48 sm:h-56 bg-slate-100 flex items-center justify-center p-6 overflow-hidden">
                   <img 
                     src={car.imageUrl || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'} 
                     alt={`${car.make} ${car.model}`}
                     className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 left-4 max-w-[80%] bg-white/95 backdrop-blur-sm px-3 py-2 rounded-2xl text-[10px] font-black uppercase tracking-wider text-slate-900 border border-slate-200 shadow-sm flex items-center gap-2">
-                    <LocationIcon className="w-3.5 h-3.5 text-accent shrink-0" />
-                    <span className="block truncate">{car.pickupLocation?.label || country.name}</span>
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-900 border border-slate-200 shadow-sm">
+                    <span className="block max-w-[210px] truncate">{selectedLocation?.label || country.name}</span>
                   </div>
-                  {Number(car.dailyRate) < 30 && (
+                  {car.dailyRate < 30 && (
                      <div className="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg">
                        Top Deal
                      </div>
@@ -389,10 +331,7 @@ const CountryPage: React.FC = () => {
                 {/* Content Section */}
                 <div className="p-6 flex-grow flex flex-col">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="min-w-0">
-                      <h3 className="text-xl font-black text-slate-900 line-clamp-1">{car.make} {car.model}</h3>
-                      <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mt-1">{car.category || 'Available car'} • {car.supplierName}</p>
-                    </div>
+                    <h3 className="text-xl font-black text-slate-900 line-clamp-1">{car.make} {car.model}</h3>
                     <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded-lg shrink-0">
                       <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                       <span className="text-xs font-black text-slate-900">4.8</span>
@@ -421,7 +360,7 @@ const CountryPage: React.FC = () => {
                   {/* Pricing and Action */}
                   <div className="mt-auto pt-6 border-t border-slate-100 flex items-end justify-between">
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">From per day</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Live rate from</p>
                       <p className="text-2xl font-black text-slate-900">
                         {getCurrencySymbol()}{convertPrice(car.dailyRate).toFixed(0)}
                       </p>
@@ -432,8 +371,29 @@ const CountryPage: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
-              );
-            })}
+            )) : (
+              <div className="col-span-full rounded-[1.5rem] border border-slate-200 bg-white p-8 sm:p-10 shadow-sm">
+                <div className="mx-auto max-w-3xl text-center">
+                  <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <Search className="h-7 w-7" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-900 mb-3">Run a live search for current availability</h3>
+                  <p className="text-slate-600 font-medium mb-6">
+                    Preloaded deals are not available for this destination right now. Search by airport or city to retrieve real cars and live rates for your selected dates.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCar(null);
+                      setShowBookingPopup(true);
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-accent/20 transition-all hover:brightness-110"
+                  >
+                    Search live cars <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -653,7 +613,7 @@ const CountryPage: React.FC = () => {
                 )}
 
                 <div className="rounded-[1.25rem] bg-slate-900 p-4 sm:p-5">
-                   <SearchWidget initialValues={popupInitialValues} onSearch={handleLiveSearch} />
+                   <SearchWidget onSearch={handleLiveSearch} />
                    <p className="mt-4 text-center text-xs font-bold text-white/60">
                      Results are loaded from live availability for the location and dates you select.
                    </p>
