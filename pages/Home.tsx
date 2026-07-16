@@ -407,12 +407,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   // THE HERO IMAGE SHOULD NEVER CHANGE per redesign requirements: USE THE GLOBAL SITE SETTINGS IMAGE ONLY
   const heroBackgroundImage = (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) || content.hero.backgroundImage;
   const isLocalHero = heroBackgroundImage?.includes('/uploads/hero/');
-  const heroWebpSrcSet = isLocalHero ? 
+  
+  // Use .webp only if the source is already .webp
+  const isWebpSource = heroBackgroundImage?.toLowerCase().endsWith('.webp');
+  
+  const heroWebpSrcSet = (isLocalHero && isWebpSource) ? 
     `${heroBackgroundImage.replace('.webp', '_thumb.webp')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.webp')} 800w, ${heroBackgroundImage.replace('.webp', '_large.webp')} 1600w` 
     : undefined;
-  const heroPngSrcSet = isLocalHero ? 
-    `${heroBackgroundImage.replace('.webp', '_thumb.png')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.png')} 800w, ${heroBackgroundImage.replace('.webp', '_large.png')} 1600w` 
-    : undefined;
+    
+  const heroPngSrcSet = isLocalHero ? (
+    isWebpSource ?
+      `${heroBackgroundImage.replace('.webp', '_thumb.png')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.png')} 800w, ${heroBackgroundImage.replace('.webp', '_large.png')} 1600w` 
+      : `${heroBackgroundImage.replace('.png', '_thumb.png').replace('.jpg', '_thumb.png').replace('.jpeg', '_thumb.png')} 400w, 
+         ${heroBackgroundImage.replace('.png', '_medium.png').replace('.jpg', '_medium.png').replace('.jpeg', '_medium.png')} 800w, 
+         ${heroBackgroundImage.replace('.png', '_large.png').replace('.jpg', '_large.png').replace('.jpeg', '_large.png')} 1600w`
+    ) : undefined;
   
   const heroMobileImage = heroBackgroundImage;
   const heroVideo = seoConfig?.heroVideo || content.hero.video;
