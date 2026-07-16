@@ -8,7 +8,6 @@ import Home from './Home';
 import Reviews from '../components/Reviews';
 import TrustedSuppliers from '../components/TrustedSuppliers';
 import LatestTravelGuides from '../components/LatestTravelGuides';
-import CountryPage from './CountryPage';
 import { API_BASE_URL } from '../lib/config';
 
 const DynamicPage: React.FC = () => {
@@ -16,7 +15,6 @@ const DynamicPage: React.FC = () => {
   const [page, setPage] = useState<any>(null);
   const [seoConfig, setSeoConfig] = useState<any>(null);
   const [isLandingPage, setIsLandingPage] = useState(false);
-  const [isCountryPage, setIsCountryPage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [homepageContent, setHomepageContent] = useState<any>(null);
@@ -102,21 +100,10 @@ const DynamicPage: React.FC = () => {
         const seoResponse = await fetch(`${API_BASE_URL}/api/seo/config?route=${encodeURIComponent(route)}`);
         if (seoResponse.ok) {
            const seoData = await seoResponse.json();
+           // Ensure it's not a generic fallback/empty response
            if (seoData && seoData.title) {
              setSeoConfig(seoData);
              setIsLandingPage(true);
-             setLoading(false);
-             return;
-           }
-        }
-
-        // 3. Check if it's a country page
-        const countryResponse = await fetch(`${API_BASE_URL}/api/public/countries/${slug}`);
-        if (countryResponse.ok) {
-           const countryData = await countryResponse.json();
-           if (countryData && countryData.slug) {
-             setPage(countryData);
-             setIsCountryPage(true);
              setLoading(false);
              return;
            }
@@ -151,10 +138,6 @@ const DynamicPage: React.FC = () => {
     return (
       <Home seoConfig={seoConfig} />
     );
-  }
-
-  if (isCountryPage && page) {
-    return <CountryPage />;
   }
 
   if (error || !page) {

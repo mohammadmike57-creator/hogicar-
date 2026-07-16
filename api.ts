@@ -277,39 +277,6 @@ export const fetchSearchingLogos = async (locationCode?: string): Promise<any[]>
   }
 };
 
-export const fetchPublishedCountries = async (): Promise<any[]> => {
-  try {
-    const response = await publicAxios.get(`${API_BASE_URL}/api/public/countries`);
-    return Array.isArray(response.data) ? response.data : [];
-  } catch (error) {
-    console.error('Error fetching countries:', error);
-    return [];
-  }
-};
-
-export const fetchCountryBySlug = async (slug: string): Promise<any> => {
-  try {
-    const response = await publicAxios.get(`${API_BASE_URL}/api/public/countries/${slug}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching country ${slug}:`, error);
-    return null;
-  }
-};
-
-export const fetchFeaturedCars = async (country?: string): Promise<any[]> => {
-  try {
-    const url = country 
-      ? `${API_BASE_URL}/api/public/featured-cars?country=${encodeURIComponent(country)}`
-      : `${API_BASE_URL}/api/public/featured-cars`;
-    const response = await publicAxios.get(url);
-    return Array.isArray(response.data) ? response.data : [];
-  } catch (error) {
-    console.error('Error fetching featured cars:', error);
-    return [];
-  }
-};
-
 export const fetchHomepageFeaturedBlogs = async (): Promise<BlogArticle[]> => {
   try {
     const response = await publicAxios.get(`${API_BASE_URL}/api/public/blog/featured-home`);
