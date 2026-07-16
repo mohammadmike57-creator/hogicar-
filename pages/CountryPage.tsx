@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   CheckCircle, Shield, Star, Award, Search, 
   MapPin, Zap, Fuel, Clock, ArrowRight, ChevronDown, 
-  ChevronRight, Globe, Info, X, Calendar,
+  ChevronRight, Globe, Info, X,
   CreditCard, Wallet, HelpCircle, User, Car as CarIcon,
   ParkingCircle, Compass, Plane, Quote, ShieldCheck, Loader2
 } from 'lucide-react';
@@ -17,25 +17,12 @@ import LatestTravelGuides from '../components/LatestTravelGuides';
 import Reviews from '../components/Reviews';
 import { fetchCountryBySlug, fetchFeaturedCars, fetchHomepageContent, fetchLocations, fetchSiteSettings, LocationSuggestion } from '../api';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { getHeroSrcSet, resolveAssetUrl } from '../utils/heroImage';
+import { resolveAssetUrl } from '../utils/heroImage';
 
 type DealLocation = {
   label: string;
   value: string;
   type: 'airport' | 'city';
-};
-
-const getDefaultDealDates = () => {
-  const today = new Date();
-  const pickup = new Date(today);
-  pickup.setDate(today.getDate() + 3);
-  const dropoff = new Date(pickup);
-  dropoff.setDate(pickup.getDate() + 4);
-
-  return {
-    pickupDate: pickup.toISOString().split('T')[0],
-    dropoffDate: dropoff.toISOString().split('T')[0],
-  };
 };
 
 const inferLocationCode = (label: string) => {
@@ -54,36 +41,6 @@ const normalizeLocationLabel = (location: any) => {
   return '';
 };
 
-const fallbackDealCars = (countryName: string) => [
-  {
-    id: `fallback-economy-${countryName}`,
-    make: 'Toyota',
-    model: 'Yaris',
-    dailyRate: 24,
-    passengers: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800',
-    supplierName: 'Local supplier'
-  },
-  {
-    id: `fallback-compact-${countryName}`,
-    make: 'Hyundai',
-    model: 'Elantra',
-    dailyRate: 31,
-    passengers: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800',
-    supplierName: 'Airport desk'
-  },
-  {
-    id: `fallback-suv-${countryName}`,
-    make: 'Kia',
-    model: 'Sportage',
-    dailyRate: 45,
-    passengers: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
-    supplierName: 'Premium partner'
-  }
-];
-
 const CountryPage: React.FC = () => {
   const params = useParams();
   const countrySlug = params.countrySlug || params['*'];
@@ -98,12 +55,7 @@ const CountryPage: React.FC = () => {
   const [showBookingPopup, setShowBookingPopup] = useState(false);
   const [mainHeroImage, setMainHeroImage] = useState('');
   const [dealLocations, setDealLocations] = useState<DealLocation[]>([]);
-  const defaultDealDates = React.useMemo(() => getDefaultDealDates(), []);
   const [selectedDealLocation, setSelectedDealLocation] = useState('');
-  const [dealPickupDate, setDealPickupDate] = useState(defaultDealDates.pickupDate);
-  const [dealDropoffDate, setDealDropoffDate] = useState(defaultDealDates.dropoffDate);
-  const [dealPickupTime, setDealPickupTime] = useState('10:00');
-  const [dealDropoffTime, setDealDropoffTime] = useState('10:00');
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -123,7 +75,7 @@ const CountryPage: React.FC = () => {
             fetchLocations(data.name)
           ]);
           const cars = countryCars.length > 0 ? countryCars : await fetchFeaturedCars();
-          setFeaturedCars(cars.length > 0 ? cars : fallbackDealCars(data.name));
+          setFeaturedCars(cars);
           setMainHeroImage(resolveAssetUrl(settings?.heroImageUrl || homepageContent?.hero?.backgroundImage || data.heroImage));
 
           const countryInfo = data.countryInfoJson ? JSON.parse(data.countryInfoJson) : {};
@@ -201,9 +153,26 @@ const CountryPage: React.FC = () => {
     setShowBookingPopup(true);
   };
 
+  const handleLiveSearch = (params: any) => {
+    if (!params.pickup || !params.dropoff) {
+      alert("Please select a pickup and dropoff location.");
+      return;
+    }
+
+    const queryParams = new URLSearchParams();
+    queryParams.set('pickup', params.pickup);
+    if (params.pickupName) queryParams.set('pickupName', params.pickupName);
+    if (params.pickupDate) queryParams.set('pickupDate', params.pickupDate);
+    if (params.dropoffDate) queryParams.set('dropoffDate', params.dropoffDate);
+    if (params.startTime) queryParams.set('startTime', params.startTime);
+    if (params.endTime) queryParams.set('endTime', params.endTime);
+    if (params.dropoff) queryParams.set('dropoff', params.dropoff);
+    if (params.dropoffName) queryParams.set('dropoffName', params.dropoffName);
+    setShowBookingPopup(false);
+    navigate(`/searching?${queryParams.toString()}`);
+  };
+
   const heroBackgroundImage = mainHeroImage || resolveAssetUrl(country.heroImage);
-  const heroWebpSrcSet = getHeroSrcSet(heroBackgroundImage, 'webp');
-  const heroPngSrcSet = getHeroSrcSet(heroBackgroundImage, 'png');
   const selectedLocation = dealLocations.find((location) => location.value === selectedDealLocation) || dealLocations[0];
 
   return (
@@ -213,22 +182,16 @@ const CountryPage: React.FC = () => {
         description={country.seoDescription || `Rent a car in ${country.name} with Hogicar. Save up to 70% on your booking.`}
         canonicalUrl={country.canonicalUrl || `https://www.hogicar.com/${country.slug}`}
         preloadImageUrl={heroBackgroundImage}
-        preloadImageSrcSet={heroWebpSrcSet || heroPngSrcSet}
       />
 
       {/* Hero Section - Identical to Home */}
-      <section className="relative min-h-[500px] lg:min-h-[650px] flex items-center pt-24 pb-12 overflow-hidden bg-[#002b70]">
+      <section className="relative min-h-[500px] lg:min-h-[650px] flex items-center pt-24 pb-12 overflow-visible bg-[#002b70]">
         {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           {heroBackgroundImage ? (
             <picture>
-              {heroWebpSrcSet && (
-                <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />
-              )}
-              <img 
+              <img
                 src={heroBackgroundImage}
-                srcSet={heroPngSrcSet}
-                sizes="100vw"
                 alt={`Car rental in ${country.name}`}
                 className="w-full h-full object-cover"
                 loading="eager"
@@ -278,22 +241,7 @@ const CountryPage: React.FC = () => {
 
           {/* Search Widget - same surface as the homepage */}
           <SearchWidget
-            onSearch={(params) => {
-              if (!params.pickup || !params.dropoff) {
-                alert("Please select a pickup and dropoff location.");
-                return;
-              }
-              const queryParams = new URLSearchParams();
-              queryParams.set('pickup', params.pickup);
-              if (params.pickupName) queryParams.set('pickupName', params.pickupName);
-              if (params.pickupDate) queryParams.set('pickupDate', params.pickupDate);
-              if (params.dropoffDate) queryParams.set('dropoffDate', params.dropoffDate);
-              if (params.startTime) queryParams.set('startTime', params.startTime);
-              if (params.endTime) queryParams.set('endTime', params.endTime);
-              if (params.dropoff) queryParams.set('dropoff', params.dropoff);
-              if (params.dropoffName) queryParams.set('dropoffName', params.dropoffName);
-              navigate(`/searching?${queryParams.toString()}`);
-            }}
+            onSearch={handleLiveSearch}
           />
         </div>
       </section>
@@ -353,7 +301,7 @@ const CountryPage: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredCars.map((car, idx) => (
+            {featuredCars.length > 0 ? featuredCars.map((car, idx) => (
               <motion.div
                 key={car.id || `${car.make}-${car.model}-${idx}`}
                 initial={{ opacity: 0, y: 20 }}
@@ -423,7 +371,29 @@ const CountryPage: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="col-span-full rounded-[1.5rem] border border-slate-200 bg-white p-8 sm:p-10 shadow-sm">
+                <div className="mx-auto max-w-3xl text-center">
+                  <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <Search className="h-7 w-7" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-900 mb-3">Run a live search for current availability</h3>
+                  <p className="text-slate-600 font-medium mb-6">
+                    Preloaded deals are not available for this destination right now. Search by airport or city to retrieve real cars and live rates for your selected dates.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCar(null);
+                      setShowBookingPopup(true);
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-accent/20 transition-all hover:brightness-110"
+                  >
+                    Search live cars <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -590,7 +560,7 @@ const CountryPage: React.FC = () => {
 
       {/* Booking Popup Modal */}
       <AnimatePresence>
-        {showBookingPopup && selectedCar && (
+        {showBookingPopup && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -604,16 +574,18 @@ const CountryPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-3xl bg-white rounded-[1.5rem] shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-6xl bg-white rounded-[1.5rem] shadow-2xl overflow-visible z-10"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 sm:p-8">
                 <div className="flex justify-between items-start mb-8">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-accent mb-2">Configure this deal</p>
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Book {selectedCar.make} {selectedCar.model}</h2>
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-accent mb-2">Live availability search</p>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">
+                      {selectedCar?.make ? `Search for ${selectedCar.make} ${selectedCar.model}` : `Search live cars in ${country.name}`}
+                    </h2>
                     <p className="text-slate-500 font-bold flex items-center gap-2">
-                       <MapPin className="w-4 h-4 text-accent" /> Choose pickup location and travel dates
+                       <MapPin className="w-4 h-4 text-accent" /> Type any airport or city, then choose dates to see real results
                     </p>
                   </div>
                   <button 
@@ -624,120 +596,26 @@ const CountryPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="bg-slate-50 rounded-2xl p-5 mb-6 flex items-center gap-5 border border-slate-100">
-                  <div className="w-32 h-20 shrink-0">
-                    <img src={selectedCar.imageUrl || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'} alt={selectedCar.make} className="w-full h-full object-contain" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-lg font-black text-slate-900">{selectedCar.make} {selectedCar.model}</p>
-                    <div className="flex flex-wrap gap-3 mt-2">
-                      <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><User className="w-3 h-3" /> 5</span>
-                      <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Fuel className="w-3 h-3" /> Auto</span>
-                      <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><CheckCircle className="w-3 h-3 text-accent" /> Free Cancellation</span>
+                {selectedCar && (
+                  <div className="bg-slate-50 rounded-2xl p-5 mb-6 flex items-center gap-5 border border-slate-100">
+                    <div className="w-32 h-20 shrink-0">
+                      <img src={selectedCar.imageUrl || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'} alt={selectedCar.make} className="w-full h-full object-contain" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-lg font-black text-slate-900">{selectedCar.make} {selectedCar.model}</p>
+                      <div className="flex flex-wrap gap-3 mt-2">
+                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><User className="w-3 h-3" /> 5</span>
+                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Fuel className="w-3 h-3" /> Auto</span>
+                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><CheckCircle className="w-3 h-3 text-accent" /> Free Cancellation</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="space-y-5">
-                   <div>
-                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Pickup location</label>
-                     <div className="relative">
-                       <Plane className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                       <select
-                         value={selectedDealLocation}
-                         onChange={(event) => setSelectedDealLocation(event.target.value)}
-                         className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                       >
-                         {dealLocations.map((location) => (
-                           <option key={`${location.value}-${location.label}`} value={location.value}>
-                             {location.label}
-                           </option>
-                         ))}
-                       </select>
-                     </div>
-                   </div>
-
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Pickup date</label>
-                       <div className="relative">
-                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                         <input
-                           type="date"
-                           min={new Date().toISOString().split('T')[0]}
-                           value={dealPickupDate}
-                           onChange={(event) => {
-                             setDealPickupDate(event.target.value);
-                             if (dealDropoffDate < event.target.value) setDealDropoffDate(event.target.value);
-                           }}
-                           className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                         />
-                       </div>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Drop-off date</label>
-                       <div className="relative">
-                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                         <input
-                           type="date"
-                           min={dealPickupDate}
-                           value={dealDropoffDate}
-                           onChange={(event) => setDealDropoffDate(event.target.value)}
-                           className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                         />
-                       </div>
-                     </div>
-                   </div>
-
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Pickup time</label>
-                       <select
-                         value={dealPickupTime}
-                         onChange={(event) => setDealPickupTime(event.target.value)}
-                         className="w-full h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                       >
-                         {Array.from({ length: 48 }, (_, index) => `${String(Math.floor(index / 2)).padStart(2, '0')}:${index % 2 === 0 ? '00' : '30'}`).map((time) => (
-                           <option key={time} value={time}>{time}</option>
-                         ))}
-                       </select>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Drop-off time</label>
-                       <select
-                         value={dealDropoffTime}
-                         onChange={(event) => setDealDropoffTime(event.target.value)}
-                         className="w-full h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                       >
-                         {Array.from({ length: 48 }, (_, index) => `${String(Math.floor(index / 2)).padStart(2, '0')}:${index % 2 === 0 ? '00' : '30'}`).map((time) => (
-                           <option key={time} value={time}>{time}</option>
-                         ))}
-                       </select>
-                     </div>
-                   </div>
-
-                   <button 
-                     onClick={() => {
-                       const location = dealLocations.find((item) => item.value === selectedDealLocation) || selectedLocation;
-                       const searchParams = new URLSearchParams();
-                       searchParams.set('pickup', location?.value || country.name);
-                       searchParams.set('pickupName', location?.label || country.name);
-                       searchParams.set('dropoff', location?.value || country.name);
-                       searchParams.set('dropoffName', location?.label || country.name);
-                       searchParams.set('pickupDate', dealPickupDate);
-                       searchParams.set('dropoffDate', dealDropoffDate);
-                       searchParams.set('startTime', dealPickupTime);
-                       searchParams.set('endTime', dealDropoffTime);
-                       setShowBookingPopup(false);
-                       navigate(`/searching?${searchParams.toString()}`);
-                     }}
-                     className="w-full bg-accent text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                   >
-                     Check Availability <ArrowRight className="w-6 h-6" />
-                   </button>
-                   
-                   <p className="text-center text-xs font-bold text-slate-400">
-                     No credit card required to view availability
+                <div className="rounded-[1.25rem] bg-slate-900 p-4 sm:p-5">
+                   <SearchWidget onSearch={handleLiveSearch} />
+                   <p className="mt-4 text-center text-xs font-bold text-white/60">
+                     Results are loaded from live availability for the location and dates you select.
                    </p>
                 </div>
               </div>
