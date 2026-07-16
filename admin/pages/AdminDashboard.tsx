@@ -2325,11 +2325,23 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
   const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style' | 'links'>('seo');
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
+  const [heroTitle, setHeroTitle] = useState(config?.heroTitle || '');
+  const [metaTitle, setMetaTitle] = useState(config?.metaTitle || '');
   const [description, setDescription] = useState(config?.description || '');
   const [keywords, setKeywords] = useState(config?.keywords || '');
+  const [focusKeyword, setFocusKeyword] = useState(config?.focusKeyword || '');
   const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
   const [indexable, setIndexable] = useState(config?.indexable !== false);
+  const [ogTitle, setOgTitle] = useState(config?.ogTitle || '');
+  const [ogDescription, setOgDescription] = useState(config?.ogDescription || '');
   const [ogImage, setOgImage] = useState(config?.ogImage || '');
+  const [twitterTitle, setTwitterTitle] = useState(config?.twitterTitle || '');
+  const [twitterDescription, setTwitterDescription] = useState(config?.twitterDescription || '');
+  const [imageAltText, setImageAltText] = useState(config?.imageAltText || '');
+  const [imageTitle, setImageTitle] = useState(config?.imageTitle || '');
+  const [breadcrumbTitle, setBreadcrumbTitle] = useState(config?.breadcrumbTitle || '');
+  const [searchIntent, setSearchIntent] = useState(config?.searchIntent || '');
+  const [relatedKeywords, setRelatedKeywords] = useState(config?.relatedKeywords || '');
   const [published, setPublished] = useState(config?.published !== false);
   const [layout, setLayout] = useState(config?.layout || 'HOMEPAGE');
   const [h1Title, setH1Title] = useState(config?.h1Title || '');
@@ -2402,11 +2414,23 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
     if (config) {
       setRoute(config.route || '');
       setTitle(config.title || '');
+      setHeroTitle(config.heroTitle || '');
+      setMetaTitle(config.metaTitle || '');
       setDescription(config.description || '');
       setKeywords(config.keywords || '');
+      setFocusKeyword(config.focusKeyword || '');
       setCanonicalUrl(config.canonicalUrl || '');
       setIndexable(config.indexable !== false);
+      setOgTitle(config.ogTitle || '');
+      setOgDescription(config.ogDescription || '');
       setOgImage(config.ogImage || '');
+      setTwitterTitle(config.twitterTitle || '');
+      setTwitterDescription(config.twitterDescription || '');
+      setImageAltText(config.imageAltText || '');
+      setImageTitle(config.imageTitle || '');
+      setBreadcrumbTitle(config.breadcrumbTitle || '');
+      setSearchIntent(config.searchIntent || '');
+      setRelatedKeywords(config.relatedKeywords || '');
       setPublished(config.published !== false);
       setLayout(config.layout || 'HOMEPAGE');
       setH1Title(config.h1Title || '');
@@ -2435,11 +2459,23 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
     } else {
         setRoute('');
         setTitle('');
+        setHeroTitle('');
+        setMetaTitle('');
         setDescription('');
         setKeywords('');
+        setFocusKeyword('');
         setCanonicalUrl('');
         setIndexable(true);
+        setOgTitle('');
+        setOgDescription('');
         setOgImage('');
+        setTwitterTitle('');
+        setTwitterDescription('');
+        setImageAltText('');
+        setImageTitle('');
+        setBreadcrumbTitle('');
+        setSearchIntent('');
+        setRelatedKeywords('');
         setPublished(true);
         setLayout('HOMEPAGE');
         setH1Title('');
@@ -2481,11 +2517,23 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
       ...config,
       route: normalizedRoute, 
       title, 
+      heroTitle,
+      metaTitle,
       description, 
       keywords, 
+      focusKeyword,
       canonicalUrl, 
       indexable,
+      ogTitle,
+      ogDescription,
       ogImage,
+      twitterTitle,
+      twitterDescription,
+      imageAltText,
+      imageTitle,
+      breadcrumbTitle,
+      searchIntent,
+      relatedKeywords,
       published,
       layout,
       h1Title,
@@ -2651,6 +2699,44 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
                   />
                   
                   <div className="p-4 bg-slate-50 rounded-card border border-slate-100 space-y-3">
+                    <h4 className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest flex items-center gap-2">
+                      <Sparkles className="w-3 h-3" /> Advanced SEO
+                    </h4>
+                    <InputField 
+                      label="Focus Keyword" 
+                      value={focusKeyword} 
+                      onChange={(e: any) => setFocusKeyword(e.target.value)} 
+                      placeholder="e.g. car rental amman"
+                    />
+                    <InputField 
+                      label="Search Intent" 
+                      value={searchIntent} 
+                      onChange={(e: any) => setSearchIntent(e.target.value)} 
+                      placeholder="e.g. Commercial, Transactional"
+                    />
+                    <InputField 
+                      label="Breadcrumb Title" 
+                      value={breadcrumbTitle} 
+                      onChange={(e: any) => setBreadcrumbTitle(e.target.value)} 
+                      placeholder="e.g. Amman"
+                    />
+                  </div>
+
+                  <div className="p-4 bg-blue-50/50 rounded-card border border-blue-100 space-y-3">
+                    <h4 className="text-[10px] font-extrabold text-blue-800 uppercase tracking-widest flex items-center gap-2">
+                      <Shield className="w-3 h-3" /> Social & Image Tags
+                    </h4>
+                    <div className="grid grid-cols-1 gap-3">
+                      <InputField label="OG Title" value={ogTitle} onChange={(e: any) => setOgTitle(e.target.value)} />
+                      <InputField label="Twitter Title" value={twitterTitle} onChange={(e: any) => setTwitterTitle(e.target.value)} />
+                      <div className="grid grid-cols-2 gap-3">
+                        <InputField label="Image Alt" value={imageAltText} onChange={(e: any) => setImageAltText(e.target.value)} />
+                        <InputField label="Image Title" value={imageTitle} onChange={(e: any) => setImageTitle(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-slate-50 rounded-card border border-slate-100 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">Indexing Toggle</h4>
@@ -2778,6 +2864,12 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
               </div>
 
               <div className="space-y-4 pt-4 border-t border-slate-100">
+                <InputField 
+                  label="Hero Title" 
+                  value={heroTitle} 
+                  onChange={(e: any) => setHeroTitle(e.target.value)} 
+                  placeholder="The main headline shown in the hero section"
+                />
                 <InputField 
                   label="Hero H1 Heading" 
                   value={h1Title} 
