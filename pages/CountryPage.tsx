@@ -610,86 +610,53 @@ const CountryPage: React.FC = () => {
               className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
             ></motion.div>
             
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-6xl max-h-[92vh] bg-white rounded-[1.5rem] shadow-2xl overflow-y-auto overflow-x-visible z-10"
+              className="relative w-full max-w-6xl bg-white rounded-[1.5rem] shadow-2xl overflow-visible z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr]">
-                <aside className="relative overflow-hidden bg-slate-950 text-white p-6 sm:p-8">
-                  <div className="absolute inset-0 opacity-20">
-                    <img src={heroBackgroundImage} alt="" className="h-full w-full object-cover" />
+              <div className="p-6 sm:p-8">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-accent mb-2">Live availability search</p>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">
+                      {selectedCar?.make ? `Search for ${selectedCar.make} ${selectedCar.model}` : `Search live cars in ${country.name}`}
+                    </h2>
+                    <p className="text-slate-500 font-bold flex items-center gap-2">
+                       <MapPin className="w-4 h-4 text-accent" /> Type any airport or city, then choose dates to see real results
+                    </p>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-950/95 to-slate-900/90" />
-                  <div className="relative z-10 h-full flex flex-col">
-                    <div className="mb-8">
-                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-accent mb-3">Live availability</p>
-                      <h2 className="text-3xl font-black leading-tight">
-                        {selectedCar?.make ? `${selectedCar.make} ${selectedCar.model}` : `Cars in ${country.name}`}
-                      </h2>
-                      <p className="mt-3 text-sm font-bold leading-relaxed text-white/65">
-                        Confirm the exact pickup location and dates to load real cars and supplier prices.
-                      </p>
-                    </div>
-
-                    {selectedCar && (
-                      <div className="rounded-[1.25rem] border border-white/10 bg-white/10 p-5 backdrop-blur-sm">
-                        <div className="mb-5 h-32 rounded-2xl bg-white flex items-center justify-center p-4">
-                          <img src={selectedCar.imageUrl || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'} alt={selectedCar.make} className="h-full w-full object-contain" />
-                        </div>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs font-black uppercase tracking-widest text-white/45">Pickup</span>
-                            <span className="text-sm font-black text-right">{selectedCar.pickupLocation?.label || country.name}</span>
-                          </div>
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs font-black uppercase tracking-widest text-white/45">From</span>
-                            <span className="text-2xl font-black">{getCurrencySymbol()}{convertPrice(selectedCar.dailyRate).toFixed(0)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="mt-auto pt-8 grid grid-cols-3 gap-3">
-                      {[
-                        { icon: CheckCircle, label: 'Free cancellation' },
-                        { icon: Shield, label: 'Clear pricing' },
-                        { icon: Clock, label: '24/7 support' }
-                      ].map((item) => (
-                        <div key={item.label} className="rounded-2xl bg-white/10 p-3 text-center">
-                          <item.icon className="mx-auto mb-2 h-5 w-5 text-accent" />
-                          <p className="text-[9px] font-black uppercase leading-tight tracking-widest text-white/70">{item.label}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </aside>
-
-                <div className="p-6 sm:p-8 overflow-visible">
-                  <div className="flex items-start justify-between gap-6 mb-6">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-accent mb-2">Search details</p>
-                      <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Choose location and dates</h3>
-                      <p className="text-slate-500 font-bold flex items-center gap-2">
-                         <MapPin className="w-4 h-4 text-accent" /> Search any airport or city, then compare live results.
-                      </p>
-                    </div>
                   <button 
                     onClick={() => setShowBookingPopup(false)}
-                    className="shrink-0 p-2 hover:bg-slate-100 rounded-full transition-colors"
+                    className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                   >
                     <X className="w-6 h-6 text-slate-400" />
                   </button>
-                  </div>
+                </div>
 
-                  <div className="rounded-[1.25rem] bg-slate-900 p-4 sm:p-5 overflow-visible">
+                {selectedCar && (
+                  <div className="bg-slate-50 rounded-2xl p-5 mb-6 flex items-center gap-5 border border-slate-100">
+                    <div className="w-32 h-20 shrink-0">
+                      <img src={selectedCar.imageUrl || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'} alt={selectedCar.make} className="w-full h-full object-contain" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-lg font-black text-slate-900">{selectedCar.make} {selectedCar.model}</p>
+                      <div className="flex flex-wrap gap-3 mt-2">
+                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><User className="w-3 h-3" /> 5</span>
+                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Fuel className="w-3 h-3" /> Auto</span>
+                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><CheckCircle className="w-3 h-3 text-accent" /> Free Cancellation</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-[1.25rem] bg-slate-900 p-4 sm:p-5">
                    <SearchWidget initialValues={popupInitialValues} onSearch={handleLiveSearch} />
                    <p className="mt-4 text-center text-xs font-bold text-white/60">
                      Results are loaded from live availability for the location and dates you select.
                    </p>
-                  </div>
                 </div>
               </div>
             </motion.div>
