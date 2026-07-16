@@ -481,7 +481,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-12 pb-6 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-0 flex flex-col justify-start sm:justify-center bg-[#002b70] sm:bg-transparent" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-12 pb-6 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-0 flex flex-col justify-start sm:justify-center bg-sky-600 sm:bg-transparent" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0 hidden sm:block">
             {heroVideo ? (
               <video 
