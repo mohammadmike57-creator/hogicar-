@@ -15,44 +15,8 @@ import SEOMetadata from '../components/SEOMetadata';
 import TrustedSuppliers from '../components/TrustedSuppliers';
 import LatestTravelGuides from '../components/LatestTravelGuides';
 import Reviews from '../components/Reviews';
-import { fetchCountryBySlug, fetchFeaturedCars, fetchHomepageContent, fetchLocations, fetchSiteSettings, LocationSuggestion } from '../api';
+import { fetchCountryBySlug, fetchFeaturedCars } from '../api';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { getHeroSrcSet, resolveAssetUrl } from '../utils/heroImage';
-
-type DealLocation = {
-  label: string;
-  value: string;
-  type: 'airport' | 'city';
-};
-
-const getDefaultDealDates = () => {
-  const today = new Date();
-  const pickup = new Date(today);
-  pickup.setDate(today.getDate() + 3);
-  const dropoff = new Date(pickup);
-  dropoff.setDate(pickup.getDate() + 4);
-
-  return {
-    pickupDate: pickup.toISOString().split('T')[0],
-    dropoffDate: dropoff.toISOString().split('T')[0],
-  };
-};
-
-const inferLocationCode = (label: string) => {
-  const match = label.match(/\(([A-Z]{3})\)/i);
-  if (match?.[1]) return match[1].toUpperCase();
-  const lower = label.toLowerCase();
-  if (lower.includes('queen alia')) return 'AMM';
-  if (lower.includes('king hussein')) return 'AQJ';
-  return label;
-};
-
-const normalizeLocationLabel = (location: any) => {
-  if (typeof location === 'string') return location;
-  if (location?.label) return location.label;
-  if (location?.name) return location.name;
-  return '';
-};
 
 const CountryPage: React.FC = () => {
   const params = useParams();
@@ -66,14 +30,6 @@ const CountryPage: React.FC = () => {
   const [error, setError] = useState(false);
   const [selectedCar, setSelectedCar] = useState<any>(null);
   const [showBookingPopup, setShowBookingPopup] = useState(false);
-  const [mainHeroImage, setMainHeroImage] = useState('');
-  const [dealLocations, setDealLocations] = useState<DealLocation[]>([]);
-  const defaultDealDates = React.useMemo(() => getDefaultDealDates(), []);
-  const [selectedDealLocation, setSelectedDealLocation] = useState('');
-  const [dealPickupDate, setDealPickupDate] = useState(defaultDealDates.pickupDate);
-  const [dealDropoffDate, setDealDropoffDate] = useState(defaultDealDates.dropoffDate);
-  const [dealPickupTime, setDealPickupTime] = useState('10:00');
-  const [dealDropoffTime, setDealDropoffTime] = useState('10:00');
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -86,47 +42,8 @@ const CountryPage: React.FC = () => {
         const data = await fetchCountryBySlug(countrySlug);
         if (data) {
           setCountry(data);
-          const [cars, settings, homepageContent, locationSuggestions] = await Promise.all([
-            fetchFeaturedCars(data.name),
-            fetchSiteSettings(),
-            fetchHomepageContent(),
-            fetchLocations(data.name)
-          ]);
+          const cars = await fetchFeaturedCars(data.name);
           setFeaturedCars(cars);
-          setMainHeroImage(resolveAssetUrl(settings?.heroImageUrl || homepageContent?.hero?.backgroundImage || data.heroImage));
-
-          const countryInfo = data.countryInfoJson ? JSON.parse(data.countryInfoJson) : {};
-          const airports = data.airportsJson ? JSON.parse(data.airportsJson) : [];
-          const popularCities = data.popularCitiesJson ? JSON.parse(data.popularCitiesJson) : [];
-          const countryName = (data.name || '').toLowerCase();
-          const countryCode = (countryInfo.countryCode || data.countryCode || '').toLowerCase();
-          const apiLocations = (locationSuggestions || [])
-            .filter((loc: LocationSuggestion) => {
-              const haystack = `${loc.label} ${loc.name} ${loc.municipality} ${loc.countryCode}`.toLowerCase();
-              return haystack.includes(countryName) || (countryCode && loc.countryCode?.toLowerCase() === countryCode);
-            })
-            .map((loc: LocationSuggestion) => ({
-              label: loc.label,
-              value: loc.value,
-              type: loc.type
-            }));
-
-          const fallbackAirports = (airports.length > 0 ? airports : data.name === 'Jordan' ? ['Queen Alia International Airport (AMM), Amman', 'King Hussein International Airport (AQJ), Aqaba'] : [])
-            .map((airport: any) => normalizeLocationLabel(airport))
-            .filter(Boolean)
-            .map((label: string) => ({ label, value: inferLocationCode(label), type: 'airport' as const }));
-
-          const fallbackCities = (popularCities.length > 0 ? popularCities : data.name === 'Jordan' ? ['Amman Downtown', 'Aqaba City Center'] : [data.name])
-            .map((city: any) => normalizeLocationLabel(city))
-            .filter(Boolean)
-            .map((label: string) => ({ label, value: inferLocationCode(label), type: 'city' as const }));
-
-          const mergedLocations = Array.from(
-            new Map([...apiLocations, ...fallbackAirports, ...fallbackCities].map((item) => [item.label, item])).values()
-          ).slice(0, 8);
-
-          setDealLocations(mergedLocations);
-          setSelectedDealLocation(mergedLocations[0]?.value || data.name);
         } else {
           setError(true);
         }
@@ -170,18 +87,21 @@ const CountryPage: React.FC = () => {
     setShowBookingPopup(true);
   };
 
-  const heroBackgroundImage = mainHeroImage || resolveAssetUrl(country.heroImage);
-  const heroWebpSrcSet = getHeroSrcSet(heroBackgroundImage, 'webp');
-  const heroPngSrcSet = getHeroSrcSet(heroBackgroundImage, 'png');
-  const selectedLocation = dealLocations.find((location) => location.value === selectedDealLocation) || dealLocations[0];
+  const isLocalHero = country.heroImage?.includes('/uploads/hero/');
+  const heroWebpSrcSet = isLocalHero ? 
+    `${country.heroImage.replace('.webp', '_thumb.webp')} 400w, ${country.heroImage.replace('.webp', '_medium.webp')} 800w, ${country.heroImage.replace('.webp', '_large.webp')} 1600w` 
+    : undefined;
+  const heroPngSrcSet = isLocalHero ? 
+    `${country.heroImage.replace('.webp', '_thumb.png')} 400w, ${country.heroImage.replace('.webp', '_medium.png')} 800w, ${country.heroImage.replace('.webp', '_large.png')} 1600w` 
+    : undefined;
 
   return (
     <div className="bg-white min-h-screen font-sans overflow-x-hidden">
       <SEOMetadata 
         title={country.seoTitle || `Car Rental in ${country.name} | Hogicar`}
         description={country.seoDescription || `Rent a car in ${country.name} with Hogicar. Save up to 70% on your booking.`}
-        canonicalUrl={country.canonicalUrl || `https://www.hogicar.com/${country.slug}`}
-        preloadImageUrl={heroBackgroundImage}
+        canonical={country.canonicalUrl || `https://www.hogicar.com/${country.slug}`}
+        preloadImageUrl={country.heroImage}
         preloadImageSrcSet={heroWebpSrcSet || heroPngSrcSet}
       />
 
@@ -189,13 +109,13 @@ const CountryPage: React.FC = () => {
       <section className="relative min-h-[500px] lg:min-h-[650px] flex items-center pt-24 pb-12 overflow-hidden bg-[#002b70]">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
-          {heroBackgroundImage ? (
+          {country.heroImage ? (
             <picture>
-              {heroWebpSrcSet && (
+              {isLocalHero && (
                 <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />
               )}
               <img 
-                src={heroBackgroundImage}
+                src={country.heroImage} 
                 srcSet={heroPngSrcSet}
                 sizes="100vw"
                 alt={`Car rental in ${country.name}`}
@@ -268,28 +188,20 @@ const CountryPage: React.FC = () => {
       </section>
 
       {/* Featured Deals Section */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-16 bg-slate-50">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-100 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700 mb-4">
-                <Zap className="w-4 h-4" />
-                Live rates by pickup location
-              </div>
-              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-3">
-                Car rental deals in {country.name}
+              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2">
+                Best Car Deals in {country.name}
               </h2>
               <p className="text-slate-600 font-medium max-w-2xl">
-                Compare practical airport and city-center pickup options, including locations such as Queen Alia International Airport when available.
+                Compare top suppliers and save big on your next rental.
               </p>
             </div>
-            <div className="hidden md:flex items-center gap-3 rounded-2xl bg-white border border-slate-200 px-5 py-4 shadow-sm">
-              <Plane className="w-5 h-5 text-accent" />
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Featured pickup</p>
-                <p className="text-sm font-black text-slate-900">{dealLocations[0]?.label || country.name}</p>
-              </div>
-            </div>
+            <button className="hidden md:flex items-center gap-2 text-accent font-black hover:gap-3 transition-all">
+              View All Deals <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -300,7 +212,7 @@ const CountryPage: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white rounded-[1.5rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col cursor-pointer"
+                className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col cursor-pointer"
                 onClick={() => handleCarClick(car)}
               >
                 {/* Image Section */}
@@ -310,8 +222,8 @@ const CountryPage: React.FC = () => {
                     alt={`${car.make} ${car.model}`}
                     className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-900 border border-slate-200 shadow-sm">
-                    {selectedLocation?.label || country.name}
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-900 border border-slate-200">
+                    {car.make}
                   </div>
                   {car.dailyRate < 30 && (
                      <div className="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg">
@@ -352,13 +264,13 @@ const CountryPage: React.FC = () => {
                   {/* Pricing and Action */}
                   <div className="mt-auto pt-6 border-t border-slate-100 flex items-end justify-between">
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Live rate from</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Price for 1 day</p>
                       <p className="text-2xl font-black text-slate-900">
                         {getCurrencySymbol()}{convertPrice(car.dailyRate).toFixed(0)}
                       </p>
                     </div>
                     <button className="bg-accent text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
-                      View Deal
+                      Book Now
                     </button>
                   </div>
                 </div>
@@ -432,9 +344,9 @@ const CountryPage: React.FC = () => {
                 <MapPin className="w-6 h-6 text-accent" /> Popular Cities
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                {(popularCities.length > 0 ? popularCities : ['Amman', 'Aqaba', 'Petra', 'Jerash', 'Madaba']).map((city: any) => (
-                  <button key={normalizeLocationLabel(city)} className="bg-white/5 border border-white/10 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all text-sm group flex items-center justify-between">
-                    {normalizeLocationLabel(city)}
+                {(popularCities.length > 0 ? popularCities : ['Amman', 'Aqaba', 'Petra', 'Jerash', 'Madaba']).map(city => (
+                  <button key={city} className="bg-white/5 border border-white/10 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all text-sm group flex items-center justify-between">
+                    {city}
                     <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                   </button>
                 ))}
@@ -447,9 +359,9 @@ const CountryPage: React.FC = () => {
                 <Plane className="w-6 h-6 text-accent" /> Major Airports
               </h3>
               <div className="grid grid-cols-1 gap-4">
-                {(airports.length > 0 ? airports : ['Queen Alia International Airport (AMM)', 'King Hussein International Airport (AQJ)']).map((airport: any) => (
-                  <button key={normalizeLocationLabel(airport)} className="bg-white/5 border border-white/10 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all text-sm group flex items-center justify-between">
-                    {normalizeLocationLabel(airport)}
+                {(airports.length > 0 ? airports : ['Queen Alia Int\'l Airport', 'King Hussein Int\'l Airport']).map(airport => (
+                  <button key={airport} className="bg-white/5 border border-white/10 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all text-sm group flex items-center justify-between">
+                    {airport}
                     <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                   </button>
                 ))}
@@ -552,16 +464,15 @@ const CountryPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-3xl bg-white rounded-[1.5rem] shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 sm:p-8">
+              <div className="p-8 sm:p-10">
                 <div className="flex justify-between items-start mb-8">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-accent mb-2">Configure this deal</p>
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Book {selectedCar.make} {selectedCar.model}</h2>
+                    <h2 className="text-3xl font-black text-slate-900 mb-2">Book Your {selectedCar.make}</h2>
                     <p className="text-slate-500 font-bold flex items-center gap-2">
-                       <MapPin className="w-4 h-4 text-accent" /> Choose pickup location and travel dates
+                       <MapPin className="w-4 h-4 text-accent" /> Pickup in {country.name}
                     </p>
                   </div>
                   <button 
@@ -572,13 +483,13 @@ const CountryPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="bg-slate-50 rounded-2xl p-5 mb-6 flex items-center gap-5 border border-slate-100">
+                <div className="bg-slate-50 rounded-3xl p-6 mb-8 flex items-center gap-6 border border-slate-100">
                   <div className="w-32 h-20 shrink-0">
-                    <img src={selectedCar.imageUrl || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'} alt={selectedCar.make} className="w-full h-full object-contain" />
+                    <img src={selectedCar.imageUrl} alt={selectedCar.make} className="w-full h-full object-contain" />
                   </div>
-                  <div className="min-w-0">
+                  <div>
                     <p className="text-lg font-black text-slate-900">{selectedCar.make} {selectedCar.model}</p>
-                    <div className="flex flex-wrap gap-3 mt-2">
+                    <div className="flex gap-4 mt-1">
                       <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><User className="w-3 h-3" /> 5</span>
                       <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Fuel className="w-3 h-3" /> Auto</span>
                       <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><CheckCircle className="w-3 h-3 text-accent" /> Free Cancellation</span>
@@ -586,102 +497,32 @@ const CountryPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                   <div>
-                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Pickup location</label>
-                     <div className="relative">
-                       <Plane className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                       <select
-                         value={selectedDealLocation}
-                         onChange={(event) => setSelectedDealLocation(event.target.value)}
-                         className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                       >
-                         {dealLocations.map((location) => (
-                           <option key={`${location.value}-${location.label}`} value={location.value}>
-                             {location.label}
-                           </option>
-                         ))}
-                       </select>
-                     </div>
-                   </div>
-
+                <div className="space-y-6">
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Pickup date</label>
-                       <div className="relative">
-                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                         <input
-                           type="date"
-                           min={new Date().toISOString().split('T')[0]}
-                           value={dealPickupDate}
-                           onChange={(event) => {
-                             setDealPickupDate(event.target.value);
-                             if (dealDropoffDate < event.target.value) setDealDropoffDate(event.target.value);
-                           }}
-                           className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                         />
+                       <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Pickup Date</label>
+                       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3">
+                         <Calendar className="w-5 h-5 text-accent" />
+                         <span className="font-bold text-slate-900">Select Date</span>
                        </div>
                      </div>
                      <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Drop-off date</label>
-                       <div className="relative">
-                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                         <input
-                           type="date"
-                           min={dealPickupDate}
-                           value={dealDropoffDate}
-                           onChange={(event) => setDealDropoffDate(event.target.value)}
-                           className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                         />
+                       <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Drop-off Date</label>
+                       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3">
+                         <Calendar className="w-5 h-5 text-accent" />
+                         <span className="font-bold text-slate-900">Select Date</span>
                        </div>
-                     </div>
-                   </div>
-
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Pickup time</label>
-                       <select
-                         value={dealPickupTime}
-                         onChange={(event) => setDealPickupTime(event.target.value)}
-                         className="w-full h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                       >
-                         {Array.from({ length: 48 }, (_, index) => `${String(Math.floor(index / 2)).padStart(2, '0')}:${index % 2 === 0 ? '00' : '30'}`).map((time) => (
-                           <option key={time} value={time}>{time}</option>
-                         ))}
-                       </select>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Drop-off time</label>
-                       <select
-                         value={dealDropoffTime}
-                         onChange={(event) => setDealDropoffTime(event.target.value)}
-                         className="w-full h-14 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent"
-                       >
-                         {Array.from({ length: 48 }, (_, index) => `${String(Math.floor(index / 2)).padStart(2, '0')}:${index % 2 === 0 ? '00' : '30'}`).map((time) => (
-                           <option key={time} value={time}>{time}</option>
-                         ))}
-                       </select>
                      </div>
                    </div>
 
                    <button 
                      onClick={() => {
-                       const location = dealLocations.find((item) => item.value === selectedDealLocation) || selectedLocation;
-                       const searchParams = new URLSearchParams();
-                       searchParams.set('pickup', location?.value || country.name);
-                       searchParams.set('pickupName', location?.label || country.name);
-                       searchParams.set('dropoff', location?.value || country.name);
-                       searchParams.set('dropoffName', location?.label || country.name);
-                       searchParams.set('pickupDate', dealPickupDate);
-                       searchParams.set('dropoffDate', dealDropoffDate);
-                       searchParams.set('startTime', dealPickupTime);
-                       searchParams.set('endTime', dealDropoffTime);
                        setShowBookingPopup(false);
-                       navigate(`/searching?${searchParams.toString()}`);
+                       navigate(`/searching?pickup=${encodeURIComponent(country.name)}`);
                      }}
                      className="w-full bg-accent text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                    >
-                     Check Availability <ArrowRight className="w-6 h-6" />
+                     Continue to Booking <ArrowRight className="w-6 h-6" />
                    </button>
                    
                    <p className="text-center text-xs font-bold text-slate-400">

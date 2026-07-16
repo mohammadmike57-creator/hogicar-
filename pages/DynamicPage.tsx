@@ -10,7 +10,6 @@ import TrustedSuppliers from '../components/TrustedSuppliers';
 import LatestTravelGuides from '../components/LatestTravelGuides';
 import CountryPage from './CountryPage';
 import { API_BASE_URL } from '../lib/config';
-import { resolveAssetUrl } from '../utils/heroImage';
 
 const DynamicPage: React.FC = () => {
   const location = useLocation();
@@ -195,7 +194,8 @@ const DynamicPage: React.FC = () => {
       </React.Fragment>
   ));
 
-  const heroBackgroundImage = resolveAssetUrl(siteSettings?.heroImageUrl || homepageContent?.hero?.backgroundImage);
+  const heroImageUrl = siteSettings?.heroImageUrl;
+  const heroBackgroundImage = heroImageUrl ? (heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) : null;
 
   const content = (
     <div className="bg-white min-h-screen">
