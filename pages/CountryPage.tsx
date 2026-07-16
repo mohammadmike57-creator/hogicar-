@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   CheckCircle, Shield, Star, Award, Search, 
-  MapPin, Zap, Fuel, Clock, ArrowRight, ChevronDown, 
+  MapPin, Zap, Fuel, Clock, ChevronDown, 
   ChevronRight, Globe, Info, X, Calendar,
   CreditCard, Wallet, HelpCircle, User, Car as CarIcon,
-  ParkingCircle, Compass, Plane, Quote, ShieldCheck, Loader2
+  ParkingCircle, Compass, Plane, Quote, ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchWidget from '../components/SearchWidget';

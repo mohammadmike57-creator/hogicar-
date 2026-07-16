@@ -47,12 +47,20 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   useLayoutEffect(() => {
     if (title) {
       document.title = title;
+      console.log('[SEO DEBUG] AUTHORITATIVE SET - document.title =', title);
     }
   }, [title, location.pathname]);
 
   useEffect(() => {
+    // DEBUG LOGS
+    console.log('[SEO DEBUG] Current URL:', window.location.href);
+    console.log('[SEO DEBUG] Loaded SEO title:', title);
+    console.log('[SEO DEBUG] Props - Title:', defaultTitle);
+    console.log('[SEO DEBUG] API Config - Title:', config?.title);
+
     if (title) {
       document.title = title;
+      console.log('[SEO DEBUG] Final document.title check:', document.title);
     }
   }, [title, location.pathname]);
 
@@ -80,12 +88,9 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
             setConfig(null);
           }
         }
-      } catch (e: any) {
+      } catch (e) {
         if (isMounted) {
-          // 404 is a legitimate state (no custom SEO config for this route)
-          if (e.response?.status !== 404) {
-            console.warn('SEO Config fetch failed for', normalizedPathname, e.message);
-          }
+          console.error('Failed to fetch SEO config for', normalizedPathname);
           setConfig(null);
         }
       }
