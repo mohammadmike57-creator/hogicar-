@@ -27,7 +27,12 @@ const BlogArticle: React.FC = () => {
         setArticle(null);
         return;
       }
-      const data = await res.json();
+      const text = await res.text();
+      if (!text) {
+        setArticle(null);
+        return;
+      }
+      const data = JSON.parse(text);
       setArticle(data);
     } catch (error) {
       console.error('Error fetching article:', error);
@@ -40,8 +45,13 @@ const BlogArticle: React.FC = () => {
   const fetchRecent = async () => {
     try {
       const res = await fetch(`${api.baseUrl}/api/public/blog/recent`);
-      const data = await res.json();
-      setRecentArticles(Array.isArray(data) ? data : []);
+      if (res.ok) {
+        const text = await res.text();
+        if (text) {
+          const data = JSON.parse(text);
+          setRecentArticles(Array.isArray(data) ? data : []);
+        }
+      }
     } catch (error) {
       console.error('Error fetching recent articles:', error);
     }

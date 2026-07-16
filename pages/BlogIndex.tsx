@@ -53,8 +53,11 @@ const BlogIndex: React.FC = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/public/settings`);
       if (response.ok) {
-        const data = await response.json();
-        setHeroImageUrl(data.heroImageUrl || '');
+        const text = await response.text();
+        if (text) {
+          const data = JSON.parse(text);
+          setHeroImageUrl(data.heroImageUrl || '');
+        }
       }
     } catch (e) {
       console.error("Failed to load settings:", e);
@@ -70,13 +73,23 @@ const BlogIndex: React.FC = () => {
       if (author) params.set('author', decodeURIComponent(author));
 
       const articlesRes = await fetch(`${api.baseUrl}/api/public/blog/articles?${params.toString()}`);
-      const articlesData = await articlesRes.json();
-      setArticles(articlesData.content || []);
-      setTotalPages(Math.max(articlesData.totalPages || 1, 1));
+      if (articlesRes.ok) {
+        const text = await articlesRes.text();
+        if (text) {
+          const articlesData = JSON.parse(text);
+          setArticles(articlesData.content || []);
+          setTotalPages(Math.max(articlesData.totalPages || 1, 1));
+        }
+      }
 
       const catsRes = await fetch(`${api.baseUrl}/api/public/blog/categories`);
-      const catsData = await catsRes.json();
-      setCategories(Array.isArray(catsData) ? catsData : []);
+      if (catsRes.ok) {
+        const text = await catsRes.text();
+        if (text) {
+          const catsData = JSON.parse(text);
+          setCategories(Array.isArray(catsData) ? catsData : []);
+        }
+      }
     } catch (error) {
       console.error('Error fetching blog data:', error);
     } finally {
@@ -93,9 +106,14 @@ const BlogIndex: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(`${api.baseUrl}/api/public/blog/search?q=${searchQuery}`);
-      const data = await res.json();
-      setArticles(data.content || []);
-      setTotalPages(Math.max(data.totalPages || 1, 1));
+      if (res.ok) {
+        const text = await res.text();
+        if (text) {
+          const data = JSON.parse(text);
+          setArticles(data.content || []);
+          setTotalPages(Math.max(data.totalPages || 1, 1));
+        }
+      }
     } catch (error) {
       console.error('Error searching articles:', error);
     } finally {
