@@ -9,7 +9,8 @@ export const resolveAssetUrl = (url?: string | null): string => {
 };
 
 export const getHeroSrcSet = (imageUrl?: string | null, format: 'webp' | 'png' = 'webp'): string | undefined => {
-  void imageUrl;
-  void format;
-  return undefined;
+  const resolved = resolveAssetUrl(imageUrl);
+  if (!resolved || !resolved.includes('/uploads/hero/')) return undefined;
+  const source = resolved.replace(/\.(webp|png|jpe?g)$/i, `.${format}`);
+  return `${source.replace(`.${format}`, `_thumb.${format}`)} 400w, ${source.replace(`.${format}`, `_medium.${format}`)} 800w, ${source.replace(`.${format}`, `_large.${format}`)} 1600w`;
 };

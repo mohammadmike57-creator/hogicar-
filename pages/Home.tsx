@@ -406,8 +406,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const [heroLoaded, setHeroLoaded] = React.useState(false);
   // THE HERO IMAGE SHOULD NEVER CHANGE per redesign requirements: USE THE GLOBAL SITE SETTINGS IMAGE ONLY
   const heroBackgroundImage = (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) || content.hero.backgroundImage;
-  const heroWebpSrcSet = undefined;
-  const heroPngSrcSet = undefined;
+  const isLocalHero = heroBackgroundImage?.includes('/uploads/hero/');
+  const heroWebpSrcSet = isLocalHero ? 
+    `${heroBackgroundImage.replace('.webp', '_thumb.webp')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.webp')} 800w, ${heroBackgroundImage.replace('.webp', '_large.webp')} 1600w` 
+    : undefined;
+  const heroPngSrcSet = isLocalHero ? 
+    `${heroBackgroundImage.replace('.webp', '_thumb.png')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.png')} 800w, ${heroBackgroundImage.replace('.webp', '_large.png')} 1600w` 
+    : undefined;
   
   const heroMobileImage = heroBackgroundImage;
   const heroVideo = seoConfig?.heroVideo || content.hero.video;
@@ -482,9 +487,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               </video>
             ) : heroBackgroundImage && (
               <picture>
+                {isLocalHero && (
+                    <source 
+                        type="image/webp" 
+                        srcSet={heroWebpSrcSet} 
+                        sizes="100vw"
+                    />
+                )}
                 <img 
                   key={heroBackgroundImage}
                   src={heroBackgroundImage}
+                  srcSet={heroPngSrcSet}
+                  sizes="100vw"
                   className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
                   alt={displayH1}
                   fetchPriority="high"
