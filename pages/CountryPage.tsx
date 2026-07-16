@@ -54,36 +54,6 @@ const normalizeLocationLabel = (location: any) => {
   return '';
 };
 
-const fallbackDealCars = (countryName: string) => [
-  {
-    id: `fallback-economy-${countryName}`,
-    make: 'Toyota',
-    model: 'Yaris',
-    dailyRate: 24,
-    passengers: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800',
-    supplierName: 'Local supplier'
-  },
-  {
-    id: `fallback-compact-${countryName}`,
-    make: 'Hyundai',
-    model: 'Elantra',
-    dailyRate: 31,
-    passengers: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800',
-    supplierName: 'Airport desk'
-  },
-  {
-    id: `fallback-suv-${countryName}`,
-    make: 'Kia',
-    model: 'Sportage',
-    dailyRate: 45,
-    passengers: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
-    supplierName: 'Premium partner'
-  }
-];
-
 const CountryPage: React.FC = () => {
   const params = useParams();
   const countrySlug = params.countrySlug || params['*'];
@@ -116,14 +86,13 @@ const CountryPage: React.FC = () => {
         const data = await fetchCountryBySlug(countrySlug);
         if (data) {
           setCountry(data);
-          const [countryCars, settings, homepageContent, locationSuggestions] = await Promise.all([
+          const [cars, settings, homepageContent, locationSuggestions] = await Promise.all([
             fetchFeaturedCars(data.name),
             fetchSiteSettings(),
             fetchHomepageContent(),
             fetchLocations(data.name)
           ]);
-          const cars = countryCars.length > 0 ? countryCars : await fetchFeaturedCars();
-          setFeaturedCars(cars.length > 0 ? cars : fallbackDealCars(data.name));
+          setFeaturedCars(cars);
           setMainHeroImage(resolveAssetUrl(settings?.heroImageUrl || homepageContent?.hero?.backgroundImage || data.heroImage));
 
           const countryInfo = data.countryInfoJson ? JSON.parse(data.countryInfoJson) : {};
@@ -276,29 +245,27 @@ const CountryPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Search Widget - same surface as the homepage */}
-          <SearchWidget
-            onSearch={(params) => {
-              if (!params.pickup || !params.dropoff) {
-                alert("Please select a pickup and dropoff location.");
-                return;
-              }
-              const queryParams = new URLSearchParams();
-              queryParams.set('pickup', params.pickup);
-              if (params.pickupName) queryParams.set('pickupName', params.pickupName);
-              if (params.pickupDate) queryParams.set('pickupDate', params.pickupDate);
-              if (params.dropoffDate) queryParams.set('dropoffDate', params.dropoffDate);
-              if (params.startTime) queryParams.set('startTime', params.startTime);
-              if (params.endTime) queryParams.set('endTime', params.endTime);
-              if (params.dropoff) queryParams.set('dropoff', params.dropoff);
-              if (params.dropoffName) queryParams.set('dropoffName', params.dropoffName);
-              navigate(`/searching?${queryParams.toString()}`);
-            }}
-          />
+          {/* Search Widget - Identical to Home */}
+          <div className="max-w-6xl mx-auto bg-white rounded-[1.25rem] shadow-2xl p-4 sm:p-6 lg:p-8">
+            <SearchWidget 
+              initialValues={{ 
+                location: country.name,
+                pickupName: country.name
+              }} 
+              onSearch={(params) => {
+                const queryParams = new URLSearchParams();
+                if (params.location) queryParams.append('pickup', params.location);
+                if (params.pickup) queryParams.append('pickupCode', params.pickup);
+                if (params.pickupDate) queryParams.append('pickupDate', params.pickupDate);
+                if (params.dropoffDate) queryParams.append('dropoffDate', params.dropoffDate);
+                if (params.startTime) queryParams.append('startTime', params.startTime);
+                if (params.endTime) queryParams.append('endTime', params.endTime);
+                navigate(`/searching?${queryParams.toString()}`);
+              }} 
+            />
+          </div>
         </div>
       </section>
-
-      <TrustedSuppliers />
 
       {/* Featured Deals Section */}
       <section className="py-20 bg-slate-50">
@@ -325,37 +292,10 @@ const CountryPage: React.FC = () => {
             </div>
           </div>
 
-          {dealLocations.length > 0 && (
-            <div className="mb-8 flex gap-3 overflow-x-auto pb-2">
-              {dealLocations.slice(0, 6).map((location) => {
-                const isSelected = selectedDealLocation === location.value;
-                const Icon = location.type === 'airport' ? Plane : MapPin;
-
-                return (
-                  <button
-                    key={`${location.value}-${location.label}`}
-                    type="button"
-                    onClick={() => setSelectedDealLocation(location.value)}
-                    className={`shrink-0 flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
-                      isSelected
-                        ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/15'
-                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-sm'
-                    }`}
-                  >
-                    <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${isSelected ? 'bg-white/10 text-white' : 'bg-slate-50 text-accent'}`}>
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <span className="max-w-[230px] truncate text-sm font-black">{location.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredCars.map((car, idx) => (
+            {featuredCars.length > 0 ? featuredCars.map((car, idx) => (
               <motion.div
-                key={car.id || `${car.make}-${car.model}-${idx}`}
+                key={car.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -371,7 +311,7 @@ const CountryPage: React.FC = () => {
                     className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-900 border border-slate-200 shadow-sm">
-                    <span className="block max-w-[210px] truncate">{selectedLocation?.label || country.name}</span>
+                    {selectedLocation?.label || country.name}
                   </div>
                   {car.dailyRate < 30 && (
                      <div className="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg">
@@ -423,7 +363,12 @@ const CountryPage: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="col-span-full py-20 text-center">
+                <Loader2 className="w-10 h-10 text-accent animate-spin mx-auto mb-4" />
+                <p className="text-slate-500 font-bold">Loading live deals...</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -513,6 +458,9 @@ const CountryPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Trusted Suppliers Section */}
+      <TrustedSuppliers />
 
       {/* Reviews Section */}
       <Reviews />
