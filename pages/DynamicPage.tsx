@@ -193,9 +193,7 @@ const DynamicPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
         <div className="bg-white rounded-card shadow-xl border border-slate-100 overflow-hidden mb-12">
              <div className="p-8 md:p-12 text-slate-700 leading-relaxed text-lg">
-                 <div className="prose prose-slate prose-lg max-w-none">
-                    <p>{processedContent}</p>
-                 </div>
+                 <div className="prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: processedContent || '' }} />
              </div>
              <div className="bg-slate-50 border-t border-slate-100 p-6 flex items-center justify-between">
                 <span className="text-sm font-bold text-slate-500">Was this page helpful?</span>

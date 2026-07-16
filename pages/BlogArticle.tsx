@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
+import SearchWidget from '../components/SearchWidget';
 import { api } from '../api';
 import { API_BASE_URL, PUBLIC_BASE_URL } from '../lib/config';
 import { BlogArticle as BlogArticleType } from '../types';
@@ -10,9 +11,18 @@ import { BlogArticle as BlogArticleType } from '../types';
 const BlogArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const [article, setArticle] = React.useState<BlogArticleType | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [recentArticles, setRecentArticles] = React.useState<BlogArticleType[]>([]);
+
+  const handleSearch = (params: any) => {
+    const queryParams = new URLSearchParams();
+    Object.keys(params).forEach(key => {
+      if (params[key]) queryParams.append(key, params[key]);
+    });
+    navigate(`/search?${queryParams.toString()}`);
+  };
 
   React.useEffect(() => {
     fetchArticle();
@@ -253,6 +263,15 @@ const BlogArticle: React.FC = () => {
               <p className="mt-4 text-xs text-white/70">{article.imageCaption}</p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Search Widget Section */}
+      <div className="bg-slate-50 border-b border-slate-100 py-12 mb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="bg-white rounded-[2.5rem] shadow-2xl p-2 md:p-4 -mt-24 relative z-20">
+              <SearchWidget onSearch={handleSearch} />
+           </div>
         </div>
       </div>
 

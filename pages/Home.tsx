@@ -240,28 +240,20 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
         // 2. Heuristic pre-fill based on SEO config or current route
         if (!targetOption && seoConfig) {
-          // DISABLED per redesign requirements: DO NOT automatically fill locations
-          /*
+          const lowerDest = (seoConfig.destinationName || '').toLowerCase();
           const lowerRoute = (seoConfig.route || '').toLowerCase();
-          const lowerTitle = (seoConfig.title || '').toLowerCase();
           
-          targetOption = options.find(o => {
-            const name = (o.name || '').toLowerCase();
-            const muni = (o.municipality || '').toLowerCase();
-            const iata = (o.iataCode || '').toLowerCase();
-            
-            return (name.length > 3 && lowerRoute.includes(name)) || 
-                   (muni.length > 3 && lowerRoute.includes(muni)) ||
-                   (iata.length === 3 && lowerRoute.includes(iata)) ||
-                   (name.length > 3 && lowerTitle.includes(name));
-          });
-          */
-        }
-
-        /* 
-        DISABLED: Leave Pickup/Dropoff Location EMPTY as per redesign requirements.
-        if (!targetOption && !seoConfig) {
-            targetOption = options.find(o => o.value === 'AMM');
+          if (lowerDest || lowerRoute) {
+            targetOption = options.find(o => {
+              const name = (o.name || '').toLowerCase();
+              const label = (o.label || '').toLowerCase();
+              const iata = (o.iataCode || o.iata || '').toLowerCase();
+              
+              return (name.length > 2 && lowerDest.includes(name)) || 
+                     (label.length > 2 && lowerDest.includes(label)) ||
+                     (iata.length === 3 && (lowerDest.includes(iata) || lowerRoute.includes(iata)));
+            });
+          }
         }
 
         if (targetOption) {
@@ -270,7 +262,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             setDropoffName(targetOption.label);
             setDropoffCode(targetOption.value);
         }
-        */
       } catch (error) {
          console.error("Failed to load locations on homepage:", error);
       }
@@ -404,8 +395,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
-  // THE HERO IMAGE SHOULD NEVER CHANGE per redesign requirements: USE THE GLOBAL SITE SETTINGS IMAGE ONLY
-  const heroBackgroundImage = (heroImageUrl?.startsWith('/') && !heroImageUrl?.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) || content.hero.backgroundImage;
+  // PRIORITIZE SEO CONFIG HERO IMAGE FOR DESTINATION PAGES
+  const initialHeroImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
+  const heroBackgroundImage = (initialHeroImage?.startsWith('/') && !initialHeroImage?.startsWith('http') ? `${API_BASE_URL}${initialHeroImage}` : initialHeroImage);
   const isLocalHero = heroBackgroundImage?.includes('/uploads/hero/');
   
   // Use .webp only if the source is already .webp

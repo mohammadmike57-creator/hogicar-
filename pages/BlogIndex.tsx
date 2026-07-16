@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, User, ArrowRight, Search as SearchIcon, Tag, Clock } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
+import SearchWidget from '../components/SearchWidget';
 import { api } from '../api';
 import { API_BASE_URL } from '../lib/config';
 
@@ -23,7 +24,16 @@ interface BlogArticle {
 
 const BlogIndex: React.FC = () => {
   const { categorySlug, tag, author } = useParams<{ categorySlug?: string; tag?: string; author?: string }>();
+  const navigate = useNavigate();
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
+  
+  const handleCarSearch = (params: any) => {
+    const queryParams = new URLSearchParams();
+    Object.keys(params).forEach(key => {
+      if (params[key]) queryParams.append(key, params[key]);
+    });
+    navigate(`/search?${queryParams.toString()}`);
+  };
   const [categories, setCategories] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -128,6 +138,13 @@ const BlogIndex: React.FC = () => {
             Practical car rental guides, airport pickup advice, road trip planning, and destination-specific travel tips.
           </p>
         </div>
+      </div>
+
+      {/* Search Widget Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 mb-16 relative z-20">
+         <div className="bg-white rounded-[2.5rem] shadow-2xl p-2 md:p-4">
+            <SearchWidget onSearch={handleCarSearch} />
+         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
