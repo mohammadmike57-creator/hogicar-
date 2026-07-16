@@ -27,10 +27,7 @@ const DynamicPage: React.FC = () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/homepage/content`);
         if (response.ok) {
-          const text = await response.text();
-          if (text) {
-            setHomepageContent(JSON.parse(text));
-          }
+          setHomepageContent(await response.json());
         }
       } catch (e) {
         console.error("Failed to load common content:", e);
@@ -41,10 +38,7 @@ const DynamicPage: React.FC = () => {
         try {
           const response = await fetch(`${API_BASE_URL}/api/public/settings`);
           if (response.ok) {
-            const text = await response.text();
-            if (text) {
-              setSiteSettings(JSON.parse(text));
-            }
+            setSiteSettings(await response.json());
           }
         } catch (e) {
           console.error("Failed to load site settings:", e);
@@ -62,17 +56,6 @@ const DynamicPage: React.FC = () => {
       setIsLandingPage(false);
       setPage(null);
       setSeoConfig(null);
-
-      const safeJson = async (response: Response) => {
-        try {
-          const text = await response.text();
-          if (!text || text.trim() === '') return null;
-          return JSON.parse(text);
-        } catch (e) {
-          console.error('[DynamicPage] Failed to parse JSON:', e);
-          return null;
-        }
-      };
 
       // Normalize route
       const route = location.pathname.replace(/\/$/, '') || '/';
@@ -98,29 +81,27 @@ const DynamicPage: React.FC = () => {
         if (slug) {
           const pageResponse = await fetch(`${API_BASE_URL}/api/pages/${slug}`);
           if (pageResponse.ok) {
-            const data = await safeJson(pageResponse);
+            const data = await pageResponse.json();
             
-            if (data) {
-              // Check if it's an SEO landing page or should use the Home layout
-              // data.route is only present in SeoConfigDto
-              if (data.route || data.layout === 'LANDING_PAGE' || data.layout === 'HOMEPAGE') {
-                setSeoConfig(data);
-                setIsLandingPage(true);
-                setLoading(false);
-                return;
-              }
-
-              setPage(data);
+            // Check if it's an SEO landing page or should use the Home layout
+            // data.route is only present in SeoConfigDto
+            if (data.route || data.layout === 'LANDING_PAGE' || data.layout === 'HOMEPAGE') {
+              setSeoConfig(data);
+              setIsLandingPage(true);
               setLoading(false);
               return;
             }
+
+            setPage(data);
+            setLoading(false);
+            return;
           }
         }
 
         // 2. If no static page, check if it's an SEO route (e.g. /car-rental-amman)
         const seoResponse = await fetch(`${API_BASE_URL}/api/seo/config?route=${encodeURIComponent(route)}`);
         if (seoResponse.ok) {
-           const seoData = await safeJson(seoResponse);
+           const seoData = await seoResponse.json();
            if (seoData && seoData.title) {
              setSeoConfig(seoData);
              setIsLandingPage(true);
@@ -132,7 +113,7 @@ const DynamicPage: React.FC = () => {
         // 3. Check if it's a country page
         const countryResponse = await fetch(`${API_BASE_URL}/api/public/countries/${slug}`);
         if (countryResponse.ok) {
-           const countryData = await safeJson(countryResponse);
+           const countryData = await countryResponse.json();
            if (countryData && countryData.slug) {
              setPage(countryData);
              setIsCountryPage(true);
