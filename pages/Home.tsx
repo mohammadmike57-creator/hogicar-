@@ -465,6 +465,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         keywords={seoConfig?.keywords}
         canonicalUrl={seoConfig?.canonicalUrl}
         ogImage={seoConfig?.ogImage}
+        ogTitle={seoConfig?.ogTitle}
+        ogDescription={seoConfig?.ogDescription}
+        twitterTitle={seoConfig?.twitterTitle}
+        twitterDescription={seoConfig?.twitterDescription}
         noIndex={seoConfig ? !seoConfig.indexable : undefined}
         structuredData={seoConfig?.structuredData}
         preloadImageUrl={heroBackgroundImage}
@@ -501,7 +505,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   srcSet={heroPngSrcSet}
                   sizes="100vw"
                   className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  alt={displayH1}
+                  alt={seoConfig?.imageAltText || displayH1}
+                  title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
                   onLoad={() => setHeroLoaded(true)}
                   onError={(e) => {

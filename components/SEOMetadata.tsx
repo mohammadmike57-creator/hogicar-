@@ -11,6 +11,10 @@ interface SEOMetadataProps {
   keywords?: string;
   canonicalUrl?: string;
   ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
   noIndex?: boolean;
   schema?: any;
   structuredData?: string;
@@ -24,6 +28,10 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   keywords: defaultKeywords,
   canonicalUrl: defaultCanonical,
   ogImage: defaultOgImage,
+  ogTitle: defaultOgTitle,
+  ogDescription: defaultOgDescription,
+  twitterTitle: defaultTwitterTitle,
+  twitterDescription: defaultTwitterDescription,
   noIndex: defaultNoIndex,
   schema,
   structuredData,
@@ -142,16 +150,20 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     if (keywords) setMetaTag('keywords', keywords);
 
     // 3. Open Graph Tags
-    if (title) setMetaTag('og:title', title, 'property');
-    if (description) setMetaTag('og:description', description, 'property');
+    const finalOgTitle = defaultOgTitle || config?.ogTitle || title;
+    const finalOgDesc = defaultOgDescription || config?.ogDescription || description;
+    if (finalOgTitle) setMetaTag('og:title', finalOgTitle, 'property');
+    if (finalOgDesc) setMetaTag('og:description', finalOgDesc, 'property');
     setMetaTag('og:url', PUBLIC_BASE_URL + location.pathname, 'property');
     setMetaTag('og:type', 'website', 'property');
     if (ogImage) setMetaTag('og:image', ogImage, 'property');
 
     // 4. Twitter Card Tags
     setMetaTag('twitter:card', 'summary_large_image');
-    if (title) setMetaTag('twitter:title', title);
-    if (description) setMetaTag('twitter:description', description);
+    const finalTwitterTitle = defaultTwitterTitle || config?.twitterTitle || title;
+    const finalTwitterDesc = defaultTwitterDescription || config?.twitterDescription || description;
+    if (finalTwitterTitle) setMetaTag('twitter:title', finalTwitterTitle);
+    if (finalTwitterDesc) setMetaTag('twitter:description', finalTwitterDesc);
     if (ogImage) setMetaTag('twitter:image', ogImage);
 
     // 5. Canonical URL

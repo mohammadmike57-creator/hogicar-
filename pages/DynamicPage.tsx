@@ -304,6 +304,13 @@ const DynamicPage: React.FC = () => {
       <SEOMetadata 
         title={seoConfig?.title || (page ? `${page.title} | Hogicar` : undefined)} 
         description={seoConfig?.description || (page ? page.content.substring(0, 160) : undefined)} 
+        ogTitle={seoConfig?.ogTitle}
+        ogDescription={seoConfig?.ogDescription}
+        twitterTitle={seoConfig?.twitterTitle}
+        twitterDescription={seoConfig?.twitterDescription}
+        keywords={seoConfig?.keywords}
+        canonicalUrl={seoConfig?.canonicalUrl}
+        ogImage={seoConfig?.ogImage}
       />
       {content}
     </>
