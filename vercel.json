@@ -21,8 +21,8 @@
       "destination": "https://hogicar-backend.onrender.com/sitemap-:type.xml"
     },
     {
-      "source": "/:path*",
-      "destination": "/index.html"
+      "source": "/((?!api|static|uploads|assets|favicon|manifest|logo|service-worker).*[^\\.]*)",
+      "destination": "https://hogicar-backend.onrender.com/$1"
     }
   ]
 }

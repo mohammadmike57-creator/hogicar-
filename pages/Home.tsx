@@ -650,11 +650,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         { name: 'Turkey', code: 'TR', count: '1,600+', flag: '🇹🇷' },
                         { name: 'Australia', code: 'AU', count: '2,000+', flag: '🇦🇺' },
                     ].map((country) => (
-                        <Link key={country.code} to={`/search?country=${country.name}`} className="group flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 hover:bg-[#002b70] transition-all duration-500 border border-slate-100 hover:border-[#002b70] hover:-translate-y-2 shadow-sm hover:shadow-xl">
-                            <span className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">{country.flag}</span>
-                            <span className="font-black text-[13px] text-slate-900 group-hover:text-white uppercase tracking-tighter text-center">{country.name}</span>
-                            <span className="text-[10px] text-slate-400 group-hover:text-blue-200 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
-                        </Link>
+                        <div key={country.code} className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm">
+                            <span className="text-5xl mb-4">{country.flag}</span>
+                            <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center">{country.name}</span>
+                            <span className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
+                        </div>
                     ))}
                 </div>
 
@@ -665,9 +665,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {['London', 'Dubai', 'Amman', 'Paris', 'Rome', 'Madrid', 'Lisbon', 'Athens', 'Istanbul', 'New York'].map(city => (
-                                <Link key={city} to={`/search?location=${city}`} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors flex items-center gap-2">
+                                <div key={city} className="text-slate-600 font-bold text-sm flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {city}
-                                </Link>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -677,9 +677,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {['Heathrow (LHR)', 'Dubai (DXB)', 'Queen Alia (AMM)', 'Charles de Gaulle', 'Rome Fiumicino', 'JFK Airport', 'LAX Airport', 'Frankfurt (FRA)', 'Istanbul (IST)', 'Barcelona (BCN)'].map(airport => (
-                                <Link key={airport} to={`/search?location=${airport}`} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors flex items-center gap-2">
+                                <div key={airport} className="text-slate-600 font-bold text-sm flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
-                                </Link>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -689,9 +689,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {['Tuscany', 'Algarve', 'Costa del Sol', 'Florida', 'California', 'Bavaria', 'Provence', 'Dead Sea', 'Wadi Rum', 'Cyclades'].map(region => (
-                                <Link key={region} to={`/search?location=${region}`} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors flex items-center gap-2">
+                                <div key={region} className="text-slate-600 font-bold text-sm flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {region}
-                                </Link>
+                                </div>
                             ))}
                         </div>
                     </div>
