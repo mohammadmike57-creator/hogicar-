@@ -268,7 +268,7 @@ const BlogArticle: React.FC = () => {
 
       {/* Search Widget Section */}
       <div className="bg-slate-50 border-b border-slate-100 py-12 mb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
            <div className="bg-white rounded-[2.5rem] shadow-2xl p-2 md:p-4 -mt-24 relative z-20">
               <SearchWidget onSearch={handleSearch} />
            </div>

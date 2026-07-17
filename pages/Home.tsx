@@ -558,7 +558,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             <div className="absolute inset-0 bg-black" style={{ opacity: heroOverlayOpacity }}></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
+          <div className="max-w-[1440px] mx-auto px-4 text-center relative z-10">
             <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase px-4">
               {displayH1}
             </h1>
@@ -612,7 +612,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
       {!isCustomLanding && (
         <section className="py-24 bg-slate-50 overflow-hidden relative">
-            <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <div className="max-w-[1440px] mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
                         How to find a <span className="text-blue-600">great car rental deal</span>
@@ -667,7 +667,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 4.5 POPULAR COUNTRIES & LOCATIONS */}
       {!isCustomLanding && (
         <section className="py-20 bg-white overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-[1440px] mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">{homepageContent.topDestinations.title}</h2>
                     <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">{homepageContent.topDestinations.subtitle}</p>
@@ -728,7 +728,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 4.7 GLOBAL REACH */}
       {!isCustomLanding && (
         <section className="py-20 bg-white">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-[1440px] mx-auto px-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {[
                         { label: 'Partners', value: '900+', sub: 'Global & Local Suppliers' },
@@ -750,7 +750,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 5. WHY CHOOSE HOGICAR */}
       {sections.benefits && (
           <section className="py-24 bg-slate-50">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-[1440px] mx-auto px-4">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 text-center md:text-left">
                     <div className="max-w-2xl mx-auto md:mx-0">
                         <p className="text-accent font-black uppercase text-sm tracking-[0.2em] mb-4">The HogiCar Advantage</p>
@@ -913,7 +913,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* 16. POPULAR DESTINATIONS (Extra, not explicitly requested in order but good for SEO internal linking) */}
       {!isCustomLanding && sections.popularDestinations && (
         <section className="bg-slate-50 py-16">
-          <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-[1440px] mx-auto px-4">
              <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
                  <div>
                      <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Popular Destinations</h2>
