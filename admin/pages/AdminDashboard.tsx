@@ -60,7 +60,15 @@ const MOCK_HOMEPAGE_CONTENT: any = {
   features: [],
   howItWorks: { title: '', steps: [] },
   faqs: { title: '', items: [] },
-  popularDestinations: { title: '', destinations: [] }
+  popularDestinations: { title: '', destinations: [] },
+  topDestinations: {
+    title: '',
+    subtitle: '',
+    countries: [],
+    cities: [],
+    airports: [],
+    regions: []
+  }
 };
 const MOCK_APP_CONFIG = { searchingScreenDuration: 5000, commissionPercent: 15 };
 const updateAppConfig = (c: any) => {};
@@ -1442,6 +1450,53 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
     });
   };
 
+  const addTopCountry = () => {
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+      if (!next.topDestinations) next.topDestinations = {};
+      if (!Array.isArray(next.topDestinations.countries)) next.topDestinations.countries = [];
+      next.topDestinations.countries.push({ name: '', code: '', count: '', flag: '' });
+      return next;
+    });
+  };
+
+  const removeTopCountry = (index: number) => {
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+      if (next.topDestinations && Array.isArray(next.topDestinations.countries)) {
+        next.topDestinations.countries.splice(index, 1);
+      }
+      return next;
+    });
+  };
+
+  const updateTopCountryField = (index: number, field: string, value: string) => {
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+      if (next.topDestinations && Array.isArray(next.topDestinations.countries)) {
+        next.topDestinations.countries[index] = {
+          ...next.topDestinations.countries[index],
+          [field]: value
+        };
+      }
+      return next;
+    });
+  };
+
+  const updateTopList = (field: 'cities' | 'airports' | 'regions', value: string) => {
+    const list = value.split(',').map(s => s.trim()).filter(Boolean);
+    setLocalContent((prev: any) => {
+      const base = prev && typeof prev === 'object' ? prev : {};
+      const next = JSON.parse(JSON.stringify(base));
+      if (!next.topDestinations) next.topDestinations = {};
+      next.topDestinations[field] = list;
+      return next;
+    });
+  };
+
   const handleDestinationImageUpload = async (index: number, file?: File) => {
     if (!file) return;
 
@@ -1692,6 +1747,77 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-slate-100">
+        <div className="flex items-center justify-between mb-3 gap-3">
+          <div>
+            <h3 className="text-base font-extrabold text-slate-900">Top Destinations Worldwide</h3>
+            <p className="text-xs text-slate-500">Manage countries, cities, airports, and regions shown on the home page.</p>
+          </div>
+          <button
+            type="button"
+            onClick={addTopCountry}
+            className="px-3 py-2 rounded-card bg-[#007ac2] text-white text-xs font-extrabold hover:bg-blue-800 transition-colors"
+          >
+            Add Country
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <InputField
+            label="Section Title"
+            value={localContent?.topDestinations?.title || ''}
+            onChange={(e: any) => handleChange('topDestinations.title', e.target.value)}
+          />
+          <InputField
+            label="Section Subtitle"
+            value={localContent?.topDestinations?.subtitle || ''}
+            onChange={(e: any) => handleChange('topDestinations.subtitle', e.target.value)}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <TextAreaField 
+             label="Cities (comma separated)"
+             value={(localContent?.topDestinations?.cities || []).join(', ')}
+             onChange={(e: any) => updateTopList('cities', e.target.value)}
+             rows={4}
+          />
+          <TextAreaField 
+             label="Airports (comma separated)"
+             value={(localContent?.topDestinations?.airports || []).join(', ')}
+             onChange={(e: any) => updateTopList('airports', e.target.value)}
+             rows={4}
+          />
+          <TextAreaField 
+             label="Regions (comma separated)"
+             value={(localContent?.topDestinations?.regions || []).join(', ')}
+             onChange={(e: any) => updateTopList('regions', e.target.value)}
+             rows={4}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+          {(localContent?.topDestinations?.countries || []).map((country: any, idx: number) => (
+            <div key={idx} className="p-4 rounded-card border border-slate-200 bg-white space-y-3 relative group">
+              <button 
+                onClick={() => removeTopCountry(idx)}
+                className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                 <Trash2 className="w-4 h-4" />
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <InputField label="Name" value={country.name} onChange={(e: any) => updateTopCountryField(idx, 'name', e.target.value)} />
+                <InputField label="Code" value={country.code} onChange={(e: any) => updateTopCountryField(idx, 'code', e.target.value)} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <InputField label="Count" value={country.count} onChange={(e: any) => updateTopCountryField(idx, 'count', e.target.value)} />
+                <InputField label="Flag Emoji" value={country.flag} onChange={(e: any) => updateTopCountryField(idx, 'flag', e.target.value)} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

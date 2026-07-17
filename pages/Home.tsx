@@ -108,9 +108,41 @@ const normalizeHomepageContent = (content: any) => {
         }
       ];
 
+  const rawTop = safeContent.topDestinations || {};
+  const topDestinations = {
+    title: rawTop.title || 'Top Destinations Worldwide',
+    subtitle: rawTop.subtitle || 'Compare car rental deals in over 60,000 locations',
+    countries: Array.isArray(rawTop.countries) && rawTop.countries.length > 0 
+      ? rawTop.countries 
+      : [
+          { name: 'United Kingdom', code: 'GB', count: '2,500+', flag: '🇬🇧' },
+          { name: 'United States', code: 'US', count: '8,000+', flag: '🇺🇸' },
+          { name: 'Spain', code: 'ES', count: '3,200+', flag: '🇪🇸' },
+          { name: 'Italy', code: 'IT', count: '2,800+', flag: '🇮🇹' },
+          { name: 'France', code: 'FR', count: '2,400+', flag: '🇫🇷' },
+          { name: 'Germany', code: 'DE', count: '2,100+', flag: '🇩🇪' },
+          { name: 'United Arab Emirates', code: 'AE', count: '1,200+', flag: '🇦🇪' },
+          { name: 'Jordan', code: 'JO', count: '800+', flag: '🇯🇴' },
+          { name: 'Portugal', code: 'PT', count: '1,500+', flag: '🇵🇹' },
+          { name: 'Greece', code: 'GR', count: '1,800+', flag: '🇬🇷' },
+          { name: 'Turkey', code: 'TR', count: '1,600+', flag: '🇹🇷' },
+          { name: 'Australia', code: 'AU', count: '2,000+', flag: '🇦🇺' },
+        ],
+    cities: Array.isArray(rawTop.cities) && rawTop.cities.length > 0
+      ? rawTop.cities
+      : ['London', 'Dubai', 'Amman', 'Paris', 'Rome', 'Madrid', 'Lisbon', 'Athens', 'Istanbul', 'New York'],
+    airports: Array.isArray(rawTop.airports) && rawTop.airports.length > 0
+      ? rawTop.airports
+      : ['Heathrow (LHR)', 'Dubai (DXB)', 'Queen Alia (AMM)', 'Charles de Gaulle', 'Rome Fiumicino', 'JFK Airport', 'LAX Airport', 'Frankfurt (FRA)', 'Istanbul (IST)', 'Barcelona (BCN)'],
+    regions: Array.isArray(rawTop.regions) && rawTop.regions.length > 0
+      ? rawTop.regions
+      : ['Tuscany', 'Algarve', 'Costa del Sol', 'Florida', 'California', 'Bavaria', 'Provence', 'Dead Sea', 'Wadi Rum', 'Cyclades'],
+  };
+
   return {
     ...safeContent,
     features,
+    topDestinations,
     hero: {
       title: 'Car Hire – Search, Compare & Save',
       subtitle: 'Free cancellations on most bookings',
@@ -637,25 +669,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         <section className="py-20 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">Top Destinations Worldwide</h2>
-                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">Compare car rental deals in over 60,000 locations</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">{homepageContent.topDestinations.title}</h2>
+                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">{homepageContent.topDestinations.subtitle}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                    {[
-                        { name: 'United Kingdom', code: 'GB', count: '2,500+', flag: '🇬🇧' },
-                        { name: 'United States', code: 'US', count: '8,000+', flag: '🇺🇸' },
-                        { name: 'Spain', code: 'ES', count: '3,200+', flag: '🇪🇸' },
-                        { name: 'Italy', code: 'IT', count: '2,800+', flag: '🇮🇹' },
-                        { name: 'France', code: 'FR', count: '2,400+', flag: '🇫🇷' },
-                        { name: 'Germany', code: 'DE', count: '2,100+', flag: '🇩🇪' },
-                        { name: 'United Arab Emirates', code: 'AE', count: '1,200+', flag: '🇦🇪' },
-                        { name: 'Jordan', code: 'JO', count: '800+', flag: '🇯🇴' },
-                        { name: 'Portugal', code: 'PT', count: '1,500+', flag: '🇵🇹' },
-                        { name: 'Greece', code: 'GR', count: '1,800+', flag: '🇬🇷' },
-                        { name: 'Turkey', code: 'TR', count: '1,600+', flag: '🇹🇷' },
-                        { name: 'Australia', code: 'AU', count: '2,000+', flag: '🇦🇺' },
-                    ].map((country) => (
+                    {homepageContent.topDestinations.countries.map((country: any) => (
                         <div key={country.code} className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm">
                             <span className="text-5xl mb-4">{country.flag}</span>
                             <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center">{country.name}</span>
@@ -670,7 +689,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                             <MapPin className="text-blue-600" /> Popular Cities
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {['London', 'Dubai', 'Amman', 'Paris', 'Rome', 'Madrid', 'Lisbon', 'Athens', 'Istanbul', 'New York'].map(city => (
+                            {homepageContent.topDestinations.cities.map((city: string) => (
                                 <div key={city} className="text-slate-600 font-bold text-sm flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {city}
                                 </div>
@@ -682,7 +701,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                             <Plane className="text-blue-600" /> Major Airports
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {['Heathrow (LHR)', 'Dubai (DXB)', 'Queen Alia (AMM)', 'Charles de Gaulle', 'Rome Fiumicino', 'JFK Airport', 'LAX Airport', 'Frankfurt (FRA)', 'Istanbul (IST)', 'Barcelona (BCN)'].map(airport => (
+                            {homepageContent.topDestinations.airports.map((airport: string) => (
                                 <div key={airport} className="text-slate-600 font-bold text-sm flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
                                 </div>
@@ -694,7 +713,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                             <Globe className="text-blue-600" /> Popular Regions
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {['Tuscany', 'Algarve', 'Costa del Sol', 'Florida', 'California', 'Bavaria', 'Provence', 'Dead Sea', 'Wadi Rum', 'Cyclades'].map(region => (
+                            {homepageContent.topDestinations.regions.map((region: string) => (
                                 <div key={region} className="text-slate-600 font-bold text-sm flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {region}
                                 </div>
