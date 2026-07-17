@@ -132,7 +132,7 @@ const BlogIndex: React.FC = () => {
                 <div className="absolute inset-0 bg-emerald-950/70 backdrop-blur-[1px]"></div>
             </div>
         )}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 capitalize">{pageTitle}</h1>
           <p className="text-emerald-100 text-lg max-w-2xl mx-auto">
             Practical car rental guides, airport pickup advice, road trip planning, and destination-specific travel tips.
@@ -141,7 +141,7 @@ const BlogIndex: React.FC = () => {
       </div>
 
       {/* Search Widget Section */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 -mt-24 mb-16 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 mb-16 relative z-20">
          <div className="bg-white rounded-[2.5rem] shadow-2xl p-2 md:p-4">
             <SearchWidget onSearch={handleCarSearch} />
          </div>

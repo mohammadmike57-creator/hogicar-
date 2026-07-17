@@ -600,7 +600,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[1440px] mx-auto">
+            <div className="max-w-[1280px] mx-auto">
                 <form onSubmit={handleSearch} className="flex flex-col gap-4">
                     <div className="flex flex-col p-[3px] rounded-[10px] gap-[3px]" style={{ backgroundColor: customColor || '#FFB703' }}>
                         {/* FIRST ROW: Pickup & Optional Dropoff */}
