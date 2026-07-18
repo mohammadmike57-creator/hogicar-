@@ -60,7 +60,8 @@ const DynamicPage: React.FC = () => {
       const lowercaseRoute = route.toLowerCase();
 
       // STRICT BYPASS for static file extensions to prevent JSON parsing crashes
-      if (lowercaseRoute.endsWith('.xml') || lowercaseRoute.endsWith('.txt')) {
+      const assetExtensions = ['.xml', '.txt', '.svg', '.ico', '.png', '.jpg', '.jpeg', '.webp', '.webmanifest', '.json', '.map', '.js', '.css', '.pdf'];
+      if (assetExtensions.some(ext => lowercaseRoute.endsWith(ext))) {
         if (!location.search.includes('spa_fallback=1')) {
           console.warn('[SPA] Detected static file route in DynamicPage, triggering hard reload:', route);
           const sep = location.search ? '&' : '?';
