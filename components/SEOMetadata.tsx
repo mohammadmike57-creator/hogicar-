@@ -44,10 +44,10 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
 
   // Use props if they exist, otherwise fallback to config fetched from API
-  const title = defaultTitle || config?.title || "Hogicar | Car Rental & Search";
-  const description = defaultDescription || config?.description || "Search and compare car rentals from 900+ suppliers worldwide.";
-  const keywords = defaultKeywords || config?.keywords || "car rental, hire car, search car rental, hogicar";
-  const ogImage = defaultOgImage || config?.ogImage || '';
+  const title = defaultTitle || config?.title || "Hogicar | Search & Compare Car Rental Worldwide";
+  const description = defaultDescription || config?.description || "Search and compare car rentals from 900+ suppliers worldwide with transparent pricing and flexible booking.";
+  const keywords = defaultKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
+  const ogImage = defaultOgImage || config?.ogImage || 'https://www.hogicar.com/images/logo-512.png';
   const canonical = defaultCanonical || config?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
   const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
 
@@ -152,6 +152,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     // 3. Open Graph Tags
     const finalOgTitle = defaultOgTitle || config?.ogTitle || title;
     const finalOgDesc = defaultOgDescription || config?.ogDescription || description;
+    setMetaTag('og:site_name', 'Hogicar', 'property');
     if (finalOgTitle) setMetaTag('og:title', finalOgTitle, 'property');
     if (finalOgDesc) setMetaTag('og:description', finalOgDesc, 'property');
     setMetaTag('og:url', PUBLIC_BASE_URL + location.pathname, 'property');
