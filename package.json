@@ -18,7 +18,6 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.34.5",
     "lucide-react": "^0.563.0",
-    "motion": "^12.34.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.13.0",
