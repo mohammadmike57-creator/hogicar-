@@ -803,7 +803,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h2>
                     </div>
                     <div className="hidden md:block pb-2">
-                        <Link to="/about" className="group flex items-center gap-2 text-slate-900 font-black uppercase text-sm tracking-widest hover:text-blue-600 transition-colors">
+                        <Link to="/about-us" className="group flex items-center gap-2 text-slate-900 font-black uppercase text-sm tracking-widest hover:text-blue-600 transition-colors">
                             Learn more about us <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
