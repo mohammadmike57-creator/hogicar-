@@ -69,44 +69,55 @@ const FullFooter = () => (
             </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12 py-8 border-y border-blue-800">
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Company</h3>
-            <ul className="space-y-2 text-xs text-white opacity-90">
-               <li><Link to="/about-us" className="hover:text-blue-200 transition-colors">About Us</Link></li>
-               <li><Link to="/blog" className="hover:text-blue-200 transition-colors">Blog</Link></li>
-               <li><Link to="/affiliate-program" className="hover:text-blue-200 transition-colors">Affiliate Program</Link></li>
-               <li><Link to="/become-supplier" className="hover:text-blue-200 transition-colors">Become a Partner</Link></li>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Top Countries</h3>
+            <ul className="space-y-3 text-xs font-bold">
+               <li><Link to="/car-rental-jordan" className="text-white hover:text-accent transition-colors">Jordan</Link></li>
+               <li><Link to="/car-rental-united-arab-emirates" className="text-white hover:text-accent transition-colors">UAE</Link></li>
+               <li><Link to="/car-rental-united-kingdom" className="text-white hover:text-accent transition-colors">United Kingdom</Link></li>
+               <li><Link to="/car-rental-united-states" className="text-white hover:text-accent transition-colors">United States</Link></li>
+               <li><Link to="/car-rental-turkey" className="text-white hover:text-accent transition-colors">Turkey</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Support</h3>
-            <ul className="space-y-2 text-xs text-white opacity-90">
-              <li><Link to="/help" className="hover:text-blue-200 transition-colors">Help Center</Link></li>
-              <li><Link to="/contact" className="hover:text-blue-200 transition-colors">Contact Us</Link></li>
-              <li><Link to="/cancellation-policy" className="hover:text-blue-200 transition-colors">Cancellation Policy</Link></li>
-              <li><Link to="/sitemap" className="hover:text-blue-200 transition-colors font-bold text-blue-300">Sitemap</Link></li>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Major Cities</h3>
+            <ul className="space-y-3 text-xs font-bold">
+               <li><Link to="/car-rental-london" className="text-white hover:text-accent transition-colors">London</Link></li>
+               <li><Link to="/car-rental-dubai" className="text-white hover:text-accent transition-colors">Dubai</Link></li>
+               <li><Link to="/car-rental-amman" className="text-white hover:text-accent transition-colors">Amman</Link></li>
+               <li><Link to="/car-rental-istanbul" className="text-white hover:text-accent transition-colors">Istanbul</Link></li>
+               <li><Link to="/car-rental-paris" className="text-white hover:text-accent transition-colors">Paris</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Legal</h3>
-            <ul className="space-y-2 text-xs text-white opacity-90">
-              <li><Link to="/terms-and-conditions" className="hover:text-blue-200 transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="hover:text-blue-200 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cookies-policy" className="hover:text-blue-200 transition-colors">Cookies Policy</Link></li>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Airports</h3>
+            <ul className="space-y-3 text-xs font-bold">
+               <li><Link to="/car-rental-lhr-airport" className="text-white hover:text-accent transition-colors">Heathrow (LHR)</Link></li>
+               <li><Link to="/car-rental-dxb-airport" className="text-white hover:text-accent transition-colors">Dubai (DXB)</Link></li>
+               <li><Link to="/car-rental-amm-airport" className="text-white hover:text-accent transition-colors">Queen Alia (AMM)</Link></li>
+               <li><Link to="/car-rental-ist-airport" className="text-white hover:text-accent transition-colors">Istanbul (IST)</Link></li>
+               <li><Link to="/car-rental-cdg-airport" className="text-white hover:text-accent transition-colors">Charles de Gaulle</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-3">Security</h3>
-            <div className="flex items-center gap-2.5 bg-blue-900/40 p-2.5 rounded-card border border-blue-800/50 w-max">
-                <div className="bg-green-500/20 p-1.5 rounded-full">
-                    <Lock className="w-4 h-4 text-green-400" />
-                </div>
-                <div>
-                    <p className="text-xs font-bold text-white leading-tight">SSL Secure</p>
-                    <p className="text-[9px] text-blue-200">256-bit Encryption</p>
-                </div>
-            </div>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Company</h3>
+            <ul className="space-y-3 text-xs font-bold">
+               <li><Link to="/about-us" className="text-white hover:text-accent transition-colors">About Us</Link></li>
+               <li><Link to="/blog" className="text-white hover:text-accent transition-colors">Travel Blog</Link></li>
+               <li><Link to="/affiliate-program" className="text-white hover:text-accent transition-colors">Affiliates</Link></li>
+               <li><Link to="/become-supplier" className="text-white hover:text-accent transition-colors">Suppliers</Link></li>
+               <li><Link to="/sitemap" className="text-accent hover:underline">Sitemap</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Support</h3>
+            <ul className="space-y-3 text-xs font-bold">
+              <li><Link to="/help" className="text-white hover:text-accent transition-colors">Help Center</Link></li>
+              <li><Link to="/contact" className="text-white hover:text-accent transition-colors">Contact Us</Link></li>
+              <li><Link to="/terms-and-conditions" className="text-white hover:text-accent transition-colors">Terms</Link></li>
+              <li><Link to="/privacy-policy" className="text-white hover:text-accent transition-colors">Privacy</Link></li>
+            </ul>
           </div>
         </div>
 

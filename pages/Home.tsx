@@ -702,10 +702,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         <Link 
                           key={country.code} 
                           to={`/car-rental-${country.name.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all group"
+                          className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm hover:shadow-md hover:border-accent transition-all group"
                         >
                             <span className="text-5xl mb-4 group-hover:scale-110 transition-transform">{country.flag}</span>
-                            <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center group-hover:text-blue-600 transition-colors">{country.name}</span>
+                            <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center group-hover:text-accent transition-colors">{country.name}</span>
                             <span className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
                         </Link>
                     ))}
@@ -714,14 +714,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12">
                     <div className="space-y-6">
                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                            <MapPin className="text-blue-600" /> Popular Cities
+                            <MapPin className="text-accent" /> Popular Cities
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {homepageContent.topDestinations.cities.map((city: string) => (
                                 <Link 
                                   key={city} 
                                   to={`/car-rental-${city.toLowerCase().replace(/\s+/g, '-')}`}
-                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors"
+                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-accent transition-colors"
                                 >
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {city}
                                 </Link>
@@ -730,30 +730,34 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                     </div>
                     <div className="space-y-6">
                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                            <Plane className="text-blue-600" /> Major Airports
+                            <Plane className="text-accent" /> Major Airports
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {homepageContent.topDestinations.airports.map((airport: string) => (
-                                <Link 
-                                  key={airport} 
-                                  to={`/car-rental-${airport.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '')}`}
-                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors"
-                                >
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
-                                </Link>
-                            ))}
+                            {homepageContent.topDestinations.airports.map((airport: string) => {
+                                const iataMatch = airport.match(/\(([A-Z]{3})\)/);
+                                const slug = iataMatch ? `car-rental-${iataMatch[1].toLowerCase()}-airport` : `car-rental-${airport.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '')}`;
+                                return (
+                                    <Link 
+                                      key={airport} 
+                                      to={`/${slug}`}
+                                      className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-accent transition-colors"
+                                    >
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                     <div className="space-y-6">
                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                            <Globe className="text-blue-600" /> Popular Regions
+                            <Compass className="text-accent" /> Trending Regions
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {homepageContent.topDestinations.regions.map((region: string) => (
                                 <Link 
                                   key={region} 
                                   to={`/car-rental-${region.toLowerCase().replace(/\s+/g, '-')}`}
-                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors"
+                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-accent transition-colors"
                                 >
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {region}
                                 </Link>

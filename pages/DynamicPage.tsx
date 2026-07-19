@@ -137,8 +137,32 @@ const DynamicPage: React.FC = () => {
 
   // If it's a landing page, render the Home component with SEO config
   if (isLandingPage && seoConfig) {
+    const breadcrumbItems = [];
+    if (seoConfig.countryTag && seoConfig.routeType !== 'COUNTRY') {
+      breadcrumbItems.push({ 
+        name: seoConfig.countryTag, 
+        route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
+      });
+    }
+    if (seoConfig.cityTag && seoConfig.routeType === 'AIRPORT') {
+      breadcrumbItems.push({ 
+        name: seoConfig.cityTag, 
+        route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
+      });
+    }
+    breadcrumbItems.push({ 
+      name: seoConfig.destinationName || seoConfig.h1Title || 'Car Rental', 
+      route: seoConfig.route 
+    });
+
     return (
-      <Home seoConfig={seoConfig} />
+      <div className="bg-slate-50 min-h-screen">
+        <SEOMetadata config={seoConfig} />
+        <div className="max-w-7xl mx-auto px-4 pt-8">
+            <Breadcrumbs items={breadcrumbItems} />
+        </div>
+        <Home seoConfig={seoConfig} />
+      </div>
     );
   }
 
