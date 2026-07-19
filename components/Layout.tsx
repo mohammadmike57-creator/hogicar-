@@ -85,6 +85,7 @@ const FullFooter = () => (
               <li><Link to="/help" className="hover:text-blue-200 transition-colors">Help Center</Link></li>
               <li><Link to="/contact" className="hover:text-blue-200 transition-colors">Contact Us</Link></li>
               <li><Link to="/cancellation-policy" className="hover:text-blue-200 transition-colors">Cancellation Policy</Link></li>
+              <li><Link to="/sitemap" className="hover:text-blue-200 transition-colors font-bold text-blue-300">Sitemap</Link></li>
             </ul>
           </div>
           <div>

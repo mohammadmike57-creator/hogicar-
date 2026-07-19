@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import SEOMetadata from '../components/SEOMetadata';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { ArrowLeft, Clock, Loader2, CheckCircle, Shield, Award, ChevronRight, ChevronDown, MapPin } from 'lucide-react';
 import Home from './Home';
 import Reviews from '../components/Reviews';
@@ -162,6 +163,10 @@ const DynamicPage: React.FC = () => {
   const heroImageUrl = siteSettings?.heroImageUrl;
   const heroBackgroundImage = heroImageUrl ? (heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) : null;
 
+  const breadcrumbItems = [
+    { name: page?.title || 'Page', route: location.pathname }
+  ];
+
   const content = (
     <div className="bg-white min-h-screen">
       {/* Standard Page Hero */}
@@ -175,6 +180,7 @@ const DynamicPage: React.FC = () => {
             </>
         )}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <Breadcrumbs items={breadcrumbItems} variant="light" />
             <h1 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight">{page?.title}</h1>
             <div className="flex items-center justify-center gap-4 text-blue-200 text-xs font-bold uppercase tracking-[0.2em]">
                 <div className="flex items-center gap-1.5">

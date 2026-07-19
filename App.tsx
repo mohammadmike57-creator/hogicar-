@@ -20,6 +20,7 @@ const Contact = React.lazy(() => import('./pages/Contact'));
 const BlogIndex = React.lazy(() => import('./pages/BlogIndex'));
 const BlogArticle = React.lazy(() => import('./pages/BlogArticle'));
 const DynamicPage = React.lazy(() => import('./pages/DynamicPage'));
+const Sitemap = React.lazy(() => import('./pages/Sitemap'));
 const AffiliateProgram = React.lazy(() => import('./pages/AffiliateProgram'));
 const BecomeSupplier = React.lazy(() => import('./pages/BecomeSupplier'));
 const SupplierConfirmation = React.lazy(() => import('./pages/SupplierConfirmation'));
@@ -99,6 +100,7 @@ const App: React.FC = () => {
             <Route path="/blog/tag/:tag" element={<BlogIndex />} />
             <Route path="/blog/author/:author" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogArticle />} />
+            <Route path="/sitemap" element={<Sitemap />} />
             <Route path="*" element={<DynamicPage />} />
           </Route>
         </Routes>

@@ -14,6 +14,7 @@ import TrustedSuppliers from '../components/TrustedSuppliers';
 import LatestTravelGuides from '../components/LatestTravelGuides';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
 import { LocationSuggestion } from '../api';
 import { API_BASE_URL } from '../lib/config';
@@ -489,6 +490,28 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     }
   }, [seoConfig]);
 
+  const breadcrumbItems = React.useMemo(() => {
+    if (!seoConfig) return [];
+    const items = [];
+    if (seoConfig.countryTag && seoConfig.routeType !== 'COUNTRY') {
+      items.push({ 
+        name: seoConfig.countryTag, 
+        route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
+      });
+    }
+    if (seoConfig.cityTag && seoConfig.routeType === 'AIRPORT') {
+      items.push({ 
+        name: seoConfig.cityTag, 
+        route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
+      });
+    }
+    items.push({ 
+      name: seoConfig.h1Title || seoConfig.title, 
+      route: seoConfig.route 
+    });
+    return items;
+  }, [seoConfig]);
+
   return (
     <div className="bg-white font-sans">
       <SEOMetadata
@@ -559,6 +582,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
+            {isCustomLanding && <Breadcrumbs items={breadcrumbItems} variant="light" />}
             <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase px-4">
               {displayH1}
             </h1>
@@ -675,11 +699,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                     {homepageContent.topDestinations.countries.map((country: any) => (
-                        <div key={country.code} className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm">
-                            <span className="text-5xl mb-4">{country.flag}</span>
-                            <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center">{country.name}</span>
+                        <Link 
+                          key={country.code} 
+                          to={`/car-rental-${country.name.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all group"
+                        >
+                            <span className="text-5xl mb-4 group-hover:scale-110 transition-transform">{country.flag}</span>
+                            <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center group-hover:text-blue-600 transition-colors">{country.name}</span>
                             <span className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
@@ -690,9 +718,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {homepageContent.topDestinations.cities.map((city: string) => (
-                                <div key={city} className="text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <Link 
+                                  key={city} 
+                                  to={`/car-rental-${city.toLowerCase().replace(/\s+/g, '-')}`}
+                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors"
+                                >
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {city}
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -702,9 +734,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {homepageContent.topDestinations.airports.map((airport: string) => (
-                                <div key={airport} className="text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <Link 
+                                  key={airport} 
+                                  to={`/car-rental-${airport.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '')}`}
+                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors"
+                                >
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -714,9 +750,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                             {homepageContent.topDestinations.regions.map((region: string) => (
-                                <div key={region} className="text-slate-600 font-bold text-sm flex items-center gap-2">
+                                <Link 
+                                  key={region} 
+                                  to={`/car-rental-${region.toLowerCase().replace(/\s+/g, '-')}`}
+                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-blue-600 transition-colors"
+                                >
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {region}
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
