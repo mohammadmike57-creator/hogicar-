@@ -176,20 +176,28 @@ const DynamicPage: React.FC = () => {
     );
   }
 
-  // Helper to process line breaks for simple text content
-  const processedContent = page.content.split('\n').map((line: string, i: number) => (
-      <React.Fragment key={i}>
-          {line}
-          <br />
-      </React.Fragment>
-  ));
-
   const heroImageUrl = siteSettings?.heroImageUrl;
   const heroBackgroundImage = heroImageUrl ? (heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl) : null;
 
   const breadcrumbItems = [
     { name: page?.title || 'Page', route: location.pathname }
   ];
+
+  // Helper to render content safely (HTML or plain text)
+  const renderPageContent = () => {
+    const contentStr = page?.content || '';
+    const hasHtml = /<[a-z][\s\S]*>/i.test(contentStr);
+    
+    if (hasHtml) {
+      return <div className="prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: contentStr }} />;
+    }
+    
+    return (
+      <div className="prose prose-slate prose-lg max-w-none whitespace-pre-wrap">
+        {contentStr}
+      </div>
+    );
+  };
 
   const content = (
     <div className="bg-white min-h-screen">
@@ -224,7 +232,7 @@ const DynamicPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
         <div className="bg-white rounded-card shadow-xl border border-slate-100 overflow-hidden mb-12">
              <div className="p-8 md:p-12 text-slate-700 leading-relaxed text-lg">
-                 <div className="prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: processedContent || '' }} />
+                 {renderPageContent()}
              </div>
              <div className="bg-slate-50 border-t border-slate-100 p-6 flex items-center justify-between">
                 <span className="text-sm font-bold text-slate-500">Was this page helpful?</span>
