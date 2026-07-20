@@ -618,14 +618,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             saveRecentLocation={saveRecentLocation}
         />
 
-        {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[1000px] mx-auto">
-                <form onSubmit={handleSearch} className="relative bg-[#febb02] p-2 rounded-[2.5rem] shadow-2xl overflow-visible border-4 border-[#febb02]">
-                    <div className="flex flex-col gap-3">
+            <div className="max-w-[950px] mx-auto">
+                <form onSubmit={handleSearch} className="relative bg-[#ffda44] p-1.5 rounded-3xl shadow-2xl overflow-visible border-[3px] border-[#ffda44]">
+                    <div className="flex flex-col gap-2">
                         {/* Pick-up location */}
                         <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                            <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[64px] justify-center">
+                            <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
                                 <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Pick-up location</label>
                                 <input
                                     id="desktop-pickup-location"
@@ -649,7 +648,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* Drop-off location (Conditional) */}
                         {differentDropoff && (
                             <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[64px] justify-center">
+                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
                                     <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Drop-off location</label>
                                     <input
                                         type="text"
@@ -671,8 +670,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         )}
 
                         {/* Checkbox: Return car in same location */}
-                        <div className="flex items-center">
-                            <label className="flex items-center text-[13px] font-medium text-slate-800 cursor-pointer select-none">
+                        <div className="flex items-center px-1">
+                            <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
                                 <input 
                                     type="checkbox" 
                                     onChange={(e) => setDifferentDropoff(!e.target.checked)} 
@@ -710,21 +709,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
 
                         {/* Driver info & Search button row */}
-                        <div className="flex items-center justify-between mt-1">
-                            <div className="flex items-center text-[13px] font-medium text-slate-800">
-                                <span>Driver's country of residence is </span>
-                                <button type="button" className="mx-1 border-b border-slate-800 hover:text-slate-600 transition-colors flex items-center gap-1 leading-tight">
-                                    Jordan <ChevronDown className="w-3 h-3" />
-                                </button>
-                                <span> and age is </span>
-                                <button type="button" className="mx-1 border-b border-slate-800 hover:text-slate-600 transition-colors flex items-center gap-1 leading-tight">
-                                    30-65 <ChevronDown className="w-3 h-3" />
-                                </button>
-                            </div>
-                            
+                        <div className="flex items-center justify-end mt-1">
                             <button 
                                 type="submit" 
-                                className="bg-[#008009] text-white px-10 h-[64px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center"
+                                className="bg-[#008009] text-white px-12 h-[60px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center"
                             >
                                 Search now
                             </button>

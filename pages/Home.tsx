@@ -591,7 +591,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </p>
             
             {sections.search && (
-              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1000px] mx-auto">
+              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[950px] mx-auto">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}

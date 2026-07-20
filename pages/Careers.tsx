@@ -70,7 +70,7 @@ const Careers: React.FC = () => {
                     <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8">
                         We are on a mission to make car rental transparent, affordable, and accessible for everyone, everywhere.
                     </p>
-                    <a href="#open-positions" className="inline-block bg-[#febb02] text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-yellow-400 transition-colors">
+                    <a href="#open-positions" className="inline-block bg-[#ffda44] text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-yellow-400 transition-colors">
                         View Open Positions
                     </a>
                 </div>
