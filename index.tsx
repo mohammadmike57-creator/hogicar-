@@ -4,6 +4,19 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
 
+// Trusted Types Policy for third-party scripts (GTM, Clarity, etc)
+if (typeof window !== 'undefined' && (window as any).trustedTypes && (window as any).trustedTypes.createPolicy) {
+  try {
+    (window as any).trustedTypes.createPolicy('default', {
+      createHTML: (s: string) => s,
+      createScriptURL: (s: string) => s,
+      createScript: (s: string) => s,
+    });
+  } catch (e) {
+    console.warn('Trusted Types policy already exists or failed to create.');
+  }
+}
+
 // IMMEDIATE BYPASS FOR STATIC FILES (SITEMAP, ROBOTS)
 // This must run before ANY React initialization to prevent the SPA from taking over.
 (function() {

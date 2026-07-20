@@ -96,7 +96,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed"
+              className="text-lg md:text-xl text-slate-600 font-medium leading-relaxed"
             >
               {displaySubtitle}
             </motion.p>

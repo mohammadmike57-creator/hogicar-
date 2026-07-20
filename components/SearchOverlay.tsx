@@ -100,7 +100,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
     const lowerType = (type || '').toLowerCase();
     if (lowerType === 'airport') return <Plane className={`${sizeClass} text-green-600`} />;
     if (lowerType === 'city') return <Building className={`${sizeClass} text-amber-700`} />;
-    return <MapPin className={`${sizeClass} text-slate-400`} />;
+    return <MapPin className={`${sizeClass} text-slate-600`} />;
   };
 
   const handleSelect = (loc: LocationSuggestion) => {

@@ -28,7 +28,7 @@ const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
     if (lowerType === 'city') {
          return <Building className={`${sizeClass} text-amber-700`} />;
     }
-    return <MapPin className={`${sizeClass} text-slate-400`} />;
+    return <MapPin className={`${sizeClass} text-slate-600`} />;
 };
 
 const formatDateForDisplay = (dateString: string) => {

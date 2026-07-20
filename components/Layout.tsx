@@ -60,7 +60,7 @@ const FullFooter = () => (
             <Link to="/" className="inline-block mb-6" aria-label="Hogicar Home">
               <Logo className="h-8 w-auto" variant="light" />
             </Link>
-            <p className="text-blue-100 text-sm leading-relaxed opacity-70 mb-8 max-w-xs">
+            <p className="text-blue-100 text-sm leading-relaxed opacity-95 mb-8 max-w-xs">
               Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
             </p>
             <div className="flex space-x-5">
@@ -217,7 +217,7 @@ const Layout: React.FC = () => {
                   {/* Dropdown panel */}
                   <div id="currency-listbox" role="listbox" className="absolute right-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
-                      <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
+                      <span className="text-xs font-extrabold text-slate-600 uppercase tracking-widest">Select Currency</span>
                     </div>
                     <div className="p-2">
                       {currencies.map(currency => (

@@ -466,9 +466,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const heroPngSrcSet = isLocalHero ? (
     isWebpSource ?
       `${heroBackgroundImage.replace('.webp', '_thumb.png')} 400w, ${heroBackgroundImage.replace('.webp', '_medium.png')} 800w, ${heroBackgroundImage.replace('.webp', '_large.png')} 1600w` 
-      : `${heroBackgroundImage.replace('.png', '_thumb.png').replace('.jpg', '_thumb.png').replace('.jpeg', '_thumb.png')} 400w, 
-         ${heroBackgroundImage.replace('.png', '_medium.png').replace('.jpg', '_medium.png').replace('.jpeg', '_medium.png')} 800w, 
-         ${heroBackgroundImage.replace('.png', '_large.png').replace('.jpg', '_large.png').replace('.jpeg', '_large.png')} 1600w`
+      : `${heroBackgroundImage.replace('.png', '_thumb.png').replace('.jpg', '_thumb.png').replace('.jpeg', '_thumb.png')} 400w, ${heroBackgroundImage.replace('.png', '_medium.png').replace('.jpg', '_medium.png').replace('.jpeg', '_medium.png')} 800w, ${heroBackgroundImage.replace('.png', '_large.png').replace('.jpg', '_large.png').replace('.jpeg', '_large.png')} 1600w`
     ) : undefined;
   
   const heroMobileImage = heroBackgroundImage;
@@ -606,12 +604,16 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
           <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10">
             {isCustomLanding && <div className="mb-4"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 lg:mb-4 leading-tight tracking-tight drop-shadow-xl max-w-4xl mx-auto px-4">
-              {displayH1}
-            </h1>
-            <p className="text-white/95 mb-6 lg:mb-8 max-w-2xl mx-auto text-xs sm:text-base lg:text-lg font-medium leading-relaxed px-6 drop-shadow-md">
-              {displaySubtitle}
-            </p>
+            <div className="min-h-[64px] sm:min-h-[80px] lg:min-h-[96px] flex items-center justify-center">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 lg:mb-4 leading-tight tracking-tight drop-shadow-xl max-w-4xl mx-auto px-4">
+                  {displayH1}
+                </h1>
+            </div>
+            <div className="min-h-[48px] sm:min-h-[60px] lg:min-h-[72px] flex items-center justify-center">
+                <p className="text-white/95 mb-6 lg:mb-8 max-w-2xl mx-auto text-xs sm:text-base lg:text-lg font-medium leading-relaxed px-6 drop-shadow-md">
+                  {displaySubtitle}
+                </p>
+            </div>
             
             {sections.search && (
               <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[950px] mx-auto min-h-[380px] lg:min-h-[180px]">
@@ -731,7 +733,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         >
                             <span className="text-5xl mb-4 group-hover:scale-110 transition-transform">{country.flag}</span>
                             <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center group-hover:text-accent transition-colors">{country.name}</span>
-                            <span className="text-[10px] text-slate-600 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
+                            <span className="text-[10px] text-slate-700 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
                         </Link>
                     ))}
                 </div>
