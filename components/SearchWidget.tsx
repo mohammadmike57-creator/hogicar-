@@ -488,7 +488,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 <form onSubmit={handleSearch} className="flex flex-col gap-3">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1">
-                        <label id="mobile-pickup-label" className="text-[9px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Pick-up Location</label>
+                        <label id="mobile-pickup-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Pick-up Location</label>
                         <button
                             type="button"
                             onClick={() => openSearchOverlay('pickup')}
@@ -505,7 +505,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <div className="font-extrabold text-slate-900 text-[12px] leading-tight">
                                         {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
                                     </div>
-                                    <div className="text-[8px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
+                                    <div className="text-[10px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
                                 </div>
                                 {pickupSelection ? (
                                     <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
@@ -519,7 +519,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {/* Drop-off location button */}
                     {differentDropoff && (
                         <div className="flex flex-col gap-1 -mt-1 animate-in slide-in-from-top-2 duration-300">
-                            <label id="mobile-dropoff-label" className="text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] ml-1">Drop-off Location</label>
+                            <label id="mobile-dropoff-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.15em] ml-1">Drop-off Location</label>
                             <button
                                 type="button"
                                 onClick={() => openSearchOverlay('dropoff')}
@@ -551,12 +551,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     {/* Date/Time Section */}
                     <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col gap-1">
-                            <label id="mobile-pickup-date-label" className="text-[9px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Pick-up Date & Time</label>
+                            <label id="mobile-pickup-date-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Pick-up Date & Time</label>
                             <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
+                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
                                         id="mobile-pickup-date"
@@ -572,7 +572,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pt-1 flex flex-col">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
+                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
                                         id="mobile-pickup-time"
@@ -588,12 +588,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label id="mobile-dropoff-date-label" className="text-[9px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Drop-off Date & Time</label>
+                            <label id="mobile-dropoff-date-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Drop-off Date & Time</label>
                             <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
+                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
                                         id="mobile-dropoff-date"
@@ -609,7 +609,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pt-1 flex flex-col">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
+                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
                                         id="mobile-dropoff-time"
@@ -678,7 +678,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         aria-expanded={isSuggestionsOpen}
                                         aria-haspopup="listbox"
                                         placeholder="Enter airport or city"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-500 p-0"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
@@ -708,7 +708,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                             aria-expanded={isDropoffSuggestionsOpen}
                                             aria-haspopup="listbox"
                                             placeholder="Enter airport or city"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-500 p-0"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}

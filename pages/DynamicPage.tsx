@@ -13,11 +13,12 @@ import Award from 'lucide-react/dist/esm/icons/award';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
-import Home from './Home';
-import Reviews from '../components/Reviews';
-import TrustedSuppliers from '../components/TrustedSuppliers';
-import LatestTravelGuides from '../components/LatestTravelGuides';
 import { API_BASE_URL } from '../lib/config';
+
+const Home = React.lazy(() => import('./Home'));
+const Reviews = React.lazy(() => import('../components/Reviews'));
+const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
+const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
 
 const DynamicPage: React.FC = () => {
   const location = useLocation();
@@ -166,7 +167,9 @@ const DynamicPage: React.FC = () => {
     return (
       <div className="bg-slate-50 min-h-screen">
         <SEOMetadata config={seoConfig} />
-        <Home seoConfig={seoConfig} />
+        <React.Suspense fallback={<div className="min-h-[60vh] flex flex-col items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" /></div>}>
+          <Home seoConfig={seoConfig} />
+        </React.Suspense>
       </div>
     );
   }
