@@ -164,19 +164,19 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                 <div className="p-4 sm:p-5 overflow-y-auto custom-scrollbar">
                     <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <div className="rounded-xl border border-slate-200 bg-white p-3">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Deposit</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">Deposit</p>
                             <p className="mt-1 text-sm font-black text-slate-950">{depositText}</p>
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-3">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Excess</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">Excess</p>
                             <p className="mt-1 text-sm font-black text-slate-950">{excessText}</p>
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-3">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Mileage</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">Mileage</p>
                             <p className="mt-1 text-sm font-black text-slate-950">{car.unlimitedMileage ? 'Unlimited' : 'Limited'}</p>
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-3">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pickup</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">Pickup</p>
                             <p className="mt-1 text-sm font-black text-slate-950">{pickupTypeLabel}</p>
                         </div>
                     </div>
@@ -556,9 +556,9 @@ const CarCard: React.FC<CarCardProps> = ({
                                   <span className={`text-[13px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
                                       {getRatingDescription(ratingToDisplay)}
                                   </span>
-                                  <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
+                                  <Info className="w-3 h-3 text-slate-400 group-hover/rating:text-slate-600 transition-colors" />
                               </div>
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.12em] flex items-center gap-1">
+                              <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.12em] flex items-center gap-1">
                                   <Check className="w-2.5 h-2.5 text-accent" />
                                   Trusted Supplier
                               </p>
@@ -641,10 +641,10 @@ const CarCard: React.FC<CarCardProps> = ({
                                 <span className={`text-[11px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
                                   {getRatingDescription(ratingToDisplay)}
                                 </span>
-                                <Info className="w-2.5 h-2.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
+                                <Info className="w-2.5 h-2.5 text-slate-400 group-hover/rating:text-slate-600 transition-colors" />
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="text-[8px] font-black text-slate-400 whitespace-nowrap uppercase tracking-[0.12em]">
+                                <span className="text-[8px] font-black text-slate-600 whitespace-nowrap uppercase tracking-[0.12em]">
                                   Supplier Score
                                 </span>
                             </div>
@@ -760,7 +760,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           {/* Pricing Info */}
                           <div className="flex flex-col mb-2.5">
                               <div className="flex items-start justify-between gap-2 mb-1.5">
-                                <p className="text-xs md:text-xs text-slate-500 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
+                                <p className="text-xs md:text-xs text-slate-600 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
                                 {ratingToDisplay >= 4.5 && (
                                     <div className="flex shrink-0 items-center gap-1 text-xs md:text-xs font-black text-accent uppercase bg-accent/10 px-2 py-1 rounded-md">
                                         <Award className="w-3 h-3" /> <span>Best Value</span>
@@ -769,7 +769,7 @@ const CarCard: React.FC<CarCardProps> = ({
                               </div>
                               <div className="flex flex-wrap items-baseline gap-2">
                                   {car.promotionPercent > 0 && (
-                                      <span className="text-xs text-slate-400 line-through font-bold">
+                                      <span className="text-xs text-slate-500 line-through font-bold">
                                           {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
                                       </span>
                                   )}
@@ -777,7 +777,7 @@ const CarCard: React.FC<CarCardProps> = ({
                                       {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
                                   </span>
                               </div>
-                              <p className="text-xs text-slate-500 font-bold mt-1 flex items-center gap-1">
+                              <p className="text-xs text-slate-600 font-bold mt-1 flex items-center gap-1">
                                   <Shield className="w-2.5 h-2.5" /> All taxes included
                               </p>
                           </div>
@@ -793,8 +793,8 @@ const CarCard: React.FC<CarCardProps> = ({
                                       </span>
                                   </div>
                               </div>
-                              <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm">
-                                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
+                              <div className="p-2 bg-white rounded-xl border border-slate-300 shadow-sm">
+                                  <p className="text-[10px] text-slate-600 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
                                       <Building className="w-3 h-3" /> At pickup
                                   </p>
                                   <span className="text-sm font-black text-slate-900 tracking-tight">

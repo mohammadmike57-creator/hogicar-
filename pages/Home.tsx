@@ -555,8 +555,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-10 pb-6 sm:pt-12 sm:pb-8 lg:pt-16 lg:pb-12 text-white overflow-visible flex flex-col justify-center" style={{ color: heroTextColor }}>
-          <div className="absolute inset-0 z-0">
+        <section className="relative z-30 pt-10 pb-6 sm:pt-12 sm:pb-8 lg:pt-16 lg:pb-12 text-white overflow-visible flex flex-col justify-center min-h-[350px] sm:min-h-[400px] lg:min-h-[450px]" style={{ color: heroTextColor }}>
+          <div className="absolute inset-0 z-0 bg-[#003580]">
             {heroVideo ? (
               <video 
                 autoPlay 
@@ -595,8 +595,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 />
               </picture>
             )}
-            {!heroLoaded && !heroVideo && (
-              <div className="absolute inset-0 bg-[#003580] animate-pulse"></div>
+            {!heroLoaded && !heroVideo && heroBackgroundImage && (
+              <div className="absolute inset-0 bg-[#003580]"></div>
             )}
             {!heroBackgroundImage && !heroVideo && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580] via-[#0047AB] to-[#003580]"></div>
@@ -666,7 +666,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
                         How to find a <span className="text-blue-600">great car rental deal</span>
                     </h2>
-                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
+                    <p className="text-slate-700 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -705,7 +705,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                                 <step.icon className="w-8 h-8" />
                             </div>
                             <h3 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h3>
-                            <p className="text-slate-500 text-sm font-bold leading-relaxed">{step.desc}</p>
+                            <p className="text-slate-700 text-sm font-bold leading-relaxed">{step.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -719,7 +719,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">{homepageContent.topDestinations.title}</h2>
-                    <p className="text-slate-500 font-bold uppercase text-sm tracking-[0.2em]">{homepageContent.topDestinations.subtitle}</p>
+                    <p className="text-slate-700 font-bold uppercase text-sm tracking-[0.2em]">{homepageContent.topDestinations.subtitle}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -731,7 +731,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         >
                             <span className="text-5xl mb-4 group-hover:scale-110 transition-transform">{country.flag}</span>
                             <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center group-hover:text-accent transition-colors">{country.name}</span>
-                            <span className="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
+                            <span className="text-[10px] text-slate-600 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
                         </Link>
                     ))}
                 </div>
@@ -808,7 +808,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         <div key={i} className="text-center p-8 rounded-[2rem] bg-slate-50 border border-slate-100">
                             <div className="text-3xl md:text-4xl font-black text-blue-600 mb-2 tracking-tighter">{stat.value}</div>
                             <div className="text-[12px] font-black text-slate-900 uppercase tracking-widest mb-1">{stat.label}</div>
-                            <div className="text-[10px] text-slate-400 font-bold uppercase">{stat.sub}</div>
+                            <div className="text-[10px] text-slate-600 font-bold uppercase">{stat.sub}</div>
                         </div>
                     ))}
                 </div>
@@ -853,7 +853,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                                         <Icon className="w-8 h-8" />
                                     </div>
                                     <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight leading-none">{feature.title}</h3>
-                                    <p className="text-slate-500 text-sm leading-relaxed font-bold">{feature.description}</p>
+                                    <p className="text-slate-700 text-sm leading-relaxed font-bold">{feature.description}</p>
                                 </div>
                             </div>
                         );
@@ -901,7 +901,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Frequently Asked Questions</h2>
-              <p className="text-slate-500 font-bold uppercase text-xs tracking-widest max-w-lg mx-auto leading-relaxed">Everything you need to know about renting in {displayH1.replace('Car Rental in ', '')} for a smooth journey.</p>
+              <p className="text-slate-700 font-bold uppercase text-xs tracking-widest max-w-lg mx-auto leading-relaxed">Everything you need to know about renting in {displayH1.replace('Car Rental in ', '')} for a smooth journey.</p>
             </div>
 
             <div className="grid gap-4">
@@ -950,7 +950,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </div>
 
             <div className="mt-16 text-center">
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4">Still have questions?</p>
+              <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mb-4">Still have questions?</p>
               <a href="mailto:support@hogicar.com" className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
                 Contact Support <Mail className="w-4 h-4" />
               </a>
@@ -999,7 +999,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
              <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
                  <div>
                      <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Popular Destinations</h2>
-                     <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Explore our most booked locations</p>
+                     <p className="text-slate-700 font-bold uppercase text-xs tracking-widest">Explore our most booked locations</p>
                  </div>
                  <Link to="/search" className="text-accent font-black uppercase text-xs tracking-widest flex items-center gap-2 hover:gap-3 transition-all">
                      View All <ArrowRight className="w-4 h-4" />

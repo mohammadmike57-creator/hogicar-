@@ -49,11 +49,11 @@ const renderSuggestions = (
 ) => (
   <>
     {loading ? (
-      <div className="p-5 text-sm text-slate-600 text-center flex items-center justify-center gap-2 font-semibold">
+      <div className="p-5 text-sm text-slate-700 text-center flex items-center justify-center gap-2 font-semibold">
         <LoaderCircle className="w-4 h-4 animate-spin" /> Loading...
       </div>
     ) : error ? (
-      <p className="p-5 text-sm text-rose-500 text-center font-semibold">{error}</p>
+      <p className="p-5 text-sm text-rose-600 text-center font-semibold">{error}</p>
     ) : suggestions.length > 0 ? (
       <ul role="listbox" className="py-2">
         {suggestions.map((suggestion) => (
@@ -63,7 +63,7 @@ const renderSuggestions = (
               role="option"
               aria-selected="false"
               onClick={() => handler(suggestion)}
-              className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
+              className="w-full text-left px-4 py-2 text-[13px] text-slate-800 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-none bg-slate-100 border border-slate-200 flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
               <div><span className="font-semibold">{suggestion.label}</span></div>
@@ -72,7 +72,7 @@ const renderSuggestions = (
         ))}
       </ul>
     ) : (
-      <p className="p-5 text-sm text-slate-600 text-center font-semibold">No results found.</p>
+      <p className="p-5 text-sm text-slate-700 text-center font-semibold">No results found.</p>
     )}
   </>
 );
@@ -153,7 +153,7 @@ const DesktopGroupedDateTimeField = ({
             <label htmlFor={`${idPrefix}-time`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{timeLabel}</label>
             <div className="text-[15px] font-bold text-slate-900 flex items-center justify-between">
                 {timeValue}
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                <ChevronDown className="w-4 h-4 text-slate-600 group-hover:text-slate-800 transition-colors" />
             </div>
             <select
                 id={`${idPrefix}-time`}
@@ -505,7 +505,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     <div className="font-extrabold text-slate-900 text-[12px] leading-tight">
                                         {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
                                     </div>
-                                    <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
+                                    <div className="text-[8px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
                                 </div>
                                 {pickupSelection ? (
                                     <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
@@ -536,7 +536,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         <div className="font-extrabold text-slate-900 text-[12px] leading-tight">
                                             {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
                                         </div>
-                                        <div className="text-[8px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
+                                        <div className="text-[8px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
                                     </div>
                                     {dropoffSelection ? (
                                         <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
@@ -556,9 +556,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider">Date</span>
+                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
+                                        id="mobile-pickup-date"
+                                        name="pickupDate"
                                         type="date"
                                         value={pickupDate}
                                         onChange={e => setPickupDate(e.target.value)}
@@ -570,9 +572,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pt-1 flex flex-col">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">Time</span>
+                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
+                                        id="mobile-pickup-time"
+                                        name="pickupTime"
                                         value={pickupTime}
                                         onChange={e => setPickupTime(e.target.value)}
                                         className={`w-full bg-transparent p-0 text-[13px] font-extrabold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none ${!pickupSelection ? 'opacity-80' : ''}`}
@@ -589,9 +593,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-600 uppercase tracking-wider">Date</span>
+                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
+                                        id="mobile-dropoff-date"
+                                        name="dropoffDate"
                                         type="date"
                                         value={dropoffDate}
                                         onChange={e => setDropoffDate(e.target.value)}
@@ -603,9 +609,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pt-1 flex flex-col">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-600 uppercase tracking-wider">Time</span>
+                                        <span className="text-[8px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
+                                        id="mobile-dropoff-time"
+                                        name="dropoffTime"
                                         value={dropoffTime}
                                         onChange={e => setDropoffTime(e.target.value)}
                                         className={`w-full bg-transparent p-0 text-[13px] font-extrabold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none ${!pickupSelection ? 'opacity-80' : ''}`}
@@ -619,11 +627,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <div className="space-y-2.5 mt-1 px-1">
                         <label className="flex items-center text-[12px] font-extrabold text-slate-700 cursor-pointer select-none">
-                            <input type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
+                            <input id="mobile-different-dropoff" name="differentDropoff" type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
                             Different drop-off location
                         </label>
                         <label className="flex items-center text-[12px] font-extrabold text-slate-700 cursor-pointer select-none">
-                            <input type="checkbox" defaultChecked className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
+                            <input id="mobile-driver-age" name="driverAgeValid" type="checkbox" defaultChecked className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
                             Driver age between 30 - 65?
                         </label>
                     </div>

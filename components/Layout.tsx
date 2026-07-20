@@ -55,7 +55,7 @@ const PciDssIcon = () => (
 const FullFooter = () => (
     <footer className="bg-[#003580] text-white pt-12 pb-8">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
+        <nav className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16" aria-label="Footer Navigation">
           <div className="col-span-2 lg:col-span-1">
             <Link to="/" className="inline-block mb-6" aria-label="Hogicar Home">
               <Logo className="h-8 w-auto" variant="light" />
@@ -111,7 +111,7 @@ const FullFooter = () => (
               <li><Link to="/sitemap" className="text-blue-50 hover:text-white transition-colors">Sitemap</Link></li>
             </ul>
           </div>
-        </div>
+        </nav>
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-blue-800/50 gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
@@ -186,7 +186,7 @@ const Layout: React.FC = () => {
           </Link>
 
           {/* Desktop right side */}
-          <div className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-6" aria-label="Main Navigation">
             <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
               <User className="w-4 h-4" />
               Manage Booking
@@ -242,7 +242,7 @@ const Layout: React.FC = () => {
                 </>
               )}
             </div>
-          </div>
+          </nav>
 
           {/* Mobile menu button */}
           <div className="md:hidden">

@@ -152,12 +152,13 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
             <ArrowLeft size={20} color="#475569" />
           </button>
           <div style={{ flex: 1, position: 'relative' }}>
-            {searchQuery && <SearchIcon size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />}
+            {searchQuery && <SearchIcon size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />}
             <input
               ref={inputRef}
               autoFocus
               type="text"
               placeholder={placeholder}
+              aria-label={placeholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoCapitalize="off"
@@ -199,7 +200,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
         {/* Recent searches */}
         {searchQuery.length === 0 && recentLocations.length > 0 && (
           <div style={{ marginTop: '8px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', padding: '0 16px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: '#475569', padding: '0 16px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <History size={12} /> Recent searches
             </div>
             {recentLocations.map((loc) => (
@@ -225,7 +226,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>{loc.label}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>{loc.iataCode}</div>
+                  <div style={{ fontSize: '12px', color: '#475569' }}>{loc.iataCode}</div>
                 </div>
               </button>
             ))}
@@ -267,7 +268,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>{loc.label}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>{loc.iataCode}</div>
+                  <div style={{ fontSize: '12px', color: '#475569' }}>{loc.iataCode}</div>
                 </div>
               </button>
             ))}
@@ -277,15 +278,15 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
         {/* Empty states */}
         {!loading && searchQuery.length >= 2 && results.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
-            <p style={{ color: '#64748b', fontSize: '16px', fontWeight: 600 }}>No locations found</p>
-            <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Try a different spelling</p>
+            <p style={{ color: '#475569', fontSize: '16px', fontWeight: 600 }}>No locations found</p>
+            <p style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>Try a different spelling</p>
           </div>
         )}
 
         {!loading && searchQuery.length < 2 && recentLocations.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', textAlign: 'center' }}>
-            <p style={{ color: '#64748b', fontSize: '16px', fontWeight: 600 }}>Start typing</p>
-            <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Enter at least 2 letters</p>
+            <p style={{ color: '#475569', fontSize: '16px', fontWeight: 600 }}>Start typing</p>
+            <p style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>Enter at least 2 letters</p>
           </div>
         )}
       </div>
