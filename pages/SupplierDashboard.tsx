@@ -1,13 +1,47 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LayoutDashboard, Car, Calendar, DollarSign, User, Users, LogOut, 
-  Settings, Settings2, Target, Package, MapPin, Zap, Clock, Shield, Plus, Edit, 
-  Trash2, Search, Filter, ChevronRight, History, TrendingUp,
-  Download, Upload, FileText, CheckCircle, XCircle, AlertCircle, Info,
-  Menu, X, Bell, Briefcase, Gift, RefreshCw, BarChart3, Lock, Globe,
-  Layers, Check, ArrowLeft
-} from 'lucide-react';
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
+import Car from 'lucide-react/dist/esm/icons/car';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
+import User from 'lucide-react/dist/esm/icons/user';
+import Users from 'lucide-react/dist/esm/icons/users';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
+import Settings from 'lucide-react/dist/esm/icons/settings';
+import Settings2 from 'lucide-react/dist/esm/icons/settings-2';
+import Target from 'lucide-react/dist/esm/icons/target';
+import Package from 'lucide-react/dist/esm/icons/package';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Edit from 'lucide-react/dist/esm/icons/edit';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Search from 'lucide-react/dist/esm/icons/search';
+import Filter from 'lucide-react/dist/esm/icons/filter';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import History from 'lucide-react/dist/esm/icons/history';
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
+import Download from 'lucide-react/dist/esm/icons/download';
+import Upload from 'lucide-react/dist/esm/icons/upload';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import Info from 'lucide-react/dist/esm/icons/info';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import Gift from 'lucide-react/dist/esm/icons/gift';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3';
+import Lock from 'lucide-react/dist/esm/icons/lock';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import Layers from 'lucide-react/dist/esm/icons/layers';
+import Check from 'lucide-react/dist/esm/icons/check';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, isAfter, isBefore, addDays, subDays } from 'date-fns';
 import { 

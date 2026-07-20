@@ -1,17 +1,77 @@
 import * as React from 'react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Menu, X, LogOut, LayoutDashboard, Car, Building, Calendar, 
-  Save, Plus, Trash2, Edit, ChevronDown, ChevronUp, DollarSign, ExternalLink,
-  Settings, AlertCircle, CheckCircle, Shield, TrendingUp, 
-  MailQuestion, Rss, Link2, XCircle, RefreshCw, Copy, Share2, ShieldCheck,
-  Power, Tag, ImageIcon, PlusCircle, LoaderCircle, FileText, Globe, 
-  Users, Search, Loader, PowerOff, Key, Code, Mail, CheckSquare, XSquare,
-  Clock, History, Zap, Gift, PieChart, Activity, Percent, Coins, MapPin, Lock,
-  Eye, EyeOff, LayoutGrid, Palette, Building2, Sparkles,
-  Award, Star, Bell, Moon, Sun, Home, Briefcase, Truck, CreditCard, MessageSquare, Upload
-} from 'lucide-react';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
+import Car from 'lucide-react/dist/esm/icons/car';
+import Building from 'lucide-react/dist/esm/icons/building';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Save from 'lucide-react/dist/esm/icons/save';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Edit from 'lucide-react/dist/esm/icons/edit';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
+import Settings from 'lucide-react/dist/esm/icons/settings';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
+import MailQuestion from 'lucide-react/dist/esm/icons/mail-question';
+import Rss from 'lucide-react/dist/esm/icons/rss';
+import Link2 from 'lucide-react/dist/esm/icons/link-2';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Power from 'lucide-react/dist/esm/icons/power';
+import Tag from 'lucide-react/dist/esm/icons/tag';
+import ImageIcon from 'lucide-react/dist/esm/icons/image';
+import PlusCircle from 'lucide-react/dist/esm/icons/plus-circle';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Search from 'lucide-react/dist/esm/icons/search';
+import Loader from 'lucide-react/dist/esm/icons/loader';
+import PowerOff from 'lucide-react/dist/esm/icons/power-off';
+import Key from 'lucide-react/dist/esm/icons/key';
+import Code from 'lucide-react/dist/esm/icons/code';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import CheckSquare from 'lucide-react/dist/esm/icons/check-square';
+import XSquare from 'lucide-react/dist/esm/icons/x-square';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import History from 'lucide-react/dist/esm/icons/history';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Gift from 'lucide-react/dist/esm/icons/gift';
+import PieChart from 'lucide-react/dist/esm/icons/pie-chart';
+import Activity from 'lucide-react/dist/esm/icons/activity';
+import Percent from 'lucide-react/dist/esm/icons/percent';
+import Coins from 'lucide-react/dist/esm/icons/coins';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Lock from 'lucide-react/dist/esm/icons/lock';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off';
+import LayoutGrid from 'lucide-react/dist/esm/icons/layout-grid';
+import Palette from 'lucide-react/dist/esm/icons/palette';
+import Building2 from 'lucide-react/dist/esm/icons/building-2';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import Award from 'lucide-react/dist/esm/icons/award';
+import Star from 'lucide-react/dist/esm/icons/star';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import Moon from 'lucide-react/dist/esm/icons/moon';
+import Sun from 'lucide-react/dist/esm/icons/sun';
+import Home from 'lucide-react/dist/esm/icons/home';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import Truck from 'lucide-react/dist/esm/icons/truck';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
+import Upload from 'lucide-react/dist/esm/icons/upload';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Logo } from '../../components/Logo';

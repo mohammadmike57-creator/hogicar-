@@ -1,11 +1,35 @@
 import * as React from 'react';
-import { 
-  Plus, Search, Edit, Trash2, Eye, EyeOff, 
-  Calendar, User, Tag, FileText, ChevronRight,
-  Save, X, Globe, MessageSquare, AlertCircle,
-  LoaderCircle, ImageIcon, ChevronDown, Copy, Archive, Monitor, Tablet, Smartphone,
-  Check, Filter, MoreVertical, Layout, Share2, ArrowUpRight, MapPin
-} from 'lucide-react';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Search from 'lucide-react/dist/esm/icons/search';
+import Edit from 'lucide-react/dist/esm/icons/edit';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import User from 'lucide-react/dist/esm/icons/user';
+import Tag from 'lucide-react/dist/esm/icons/tag';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Save from 'lucide-react/dist/esm/icons/save';
+import X from 'lucide-react/dist/esm/icons/x';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import ImageIcon from 'lucide-react/dist/esm/icons/image';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import Archive from 'lucide-react/dist/esm/icons/archive';
+import Monitor from 'lucide-react/dist/esm/icons/monitor';
+import Tablet from 'lucide-react/dist/esm/icons/tablet';
+import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Filter from 'lucide-react/dist/esm/icons/filter';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import Layout from 'lucide-react/dist/esm/icons/layout';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
+import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { adminFetch } from '../../lib/adminApi';
 import ImageUploadField from './ImageUploadField';
 import { motion, AnimatePresence } from 'framer-motion';
