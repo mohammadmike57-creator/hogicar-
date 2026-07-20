@@ -368,7 +368,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min, className = "flex-1" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string, className?: string }) => (
         <div 
-            className={`relative ${className} min-w-0 group bg-white h-[88px] cursor-pointer`}
+            className={`relative ${className} min-w-0 group bg-white h-[96px] cursor-pointer`}
             onClick={(e) => {
                 const input = e.currentTarget.querySelector('input');
                 if (input) {
@@ -380,17 +380,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 }
             }}
         >
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                <Calendar className="w-6 h-6 text-slate-800 group-focus-within:text-accent transition-colors" />
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none z-10">
+                <Calendar className="w-7 h-7 text-slate-800 group-focus-within:text-accent transition-colors" />
             </div>
-            <div className="pl-14 pt-4 pb-2 flex flex-col h-full">
+            <div className="pl-16 pt-5 pb-3 flex flex-col h-full">
                 <label className="text-[13px] font-medium text-slate-700 cursor-pointer">{label}</label>
                 <input
                     type="date"
                     value={value}
                     onChange={onChange}
                     min={min}
-                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] font-bold text-slate-900 cursor-pointer p-0 -mt-1"
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-bold text-slate-900 cursor-pointer p-0 -mt-1"
                     style={{ colorScheme: 'light' }}
                 />
             </div>
@@ -399,7 +399,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     const DesktopTimeField = ({ label, value, onChange, options, className = "flex-1" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[], className?: string }) => (
         <div 
-            className={`relative ${className} min-w-0 group bg-white h-[88px] cursor-pointer`}
+            className={`relative ${className} min-w-0 group bg-white h-[96px] cursor-pointer`}
             onClick={(e) => {
                 const select = e.currentTarget.querySelector('select');
                 if (select) {
@@ -411,15 +411,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 }
             }}
         >
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <Clock className="w-6 h-6 text-slate-800 group-focus-within:text-accent transition-colors" />
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <Clock className="w-7 h-7 text-slate-800 group-focus-within:text-accent transition-colors" />
             </div>
-            <div className="pl-12 pt-4 pb-2 flex flex-col h-full">
+            <div className="pl-14 pt-5 pb-3 flex flex-col h-full">
                 <label className="text-[13px] font-medium text-slate-700 cursor-pointer">{label}</label>
                 <select
                     value={value}
                     onChange={onChange}
-                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] font-bold text-slate-900 cursor-pointer p-0 -mt-1 appearance-none"
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-bold text-slate-900 cursor-pointer p-0 -mt-1 appearance-none"
                 >
                     {options.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -598,22 +598,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         <div className="hidden lg:block" ref={desktopWidgetRef}>
             <div className="max-w-[1280px] mx-auto">
                 <form onSubmit={handleSearch} className="flex flex-col gap-4">
-                    <div className="flex flex-col p-[3px] rounded-[10px] gap-[3px]" style={{ backgroundColor: customColor || '#FFB703' }}>
+                    <div className="flex flex-col p-[3px] rounded-[6px] gap-[3px]" style={{ backgroundColor: customColor || '#FFB703' }}>
                         {/* FIRST ROW: Pickup & Optional Dropoff */}
-                        <div className={`flex flex-1 items-center bg-white divide-x divide-slate-200 ${differentDropoff ? 'rounded-t-[7px]' : 'rounded-[7px]'}`}>
+                        <div className={`flex flex-1 items-center bg-white divide-x divide-slate-200 ${differentDropoff ? 'rounded-t-[4px]' : 'rounded-[4px]'}`}>
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[20] h-[88px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <SearchIcon className="w-6 h-6 text-slate-800" />
+                            <div className={`relative flex-[25] h-[96px] min-w-0 group ${!differentDropoff ? 'rounded-l-[4px]' : 'rounded-tl-[4px]'}`}>
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                    <SearchIcon className="w-7 h-7 text-slate-800" />
                                 </div>
-                                <div className="pl-14 pt-4 pb-2 flex flex-col h-full pr-10">
+                                <div className="pl-16 pt-5 pb-3 flex flex-col h-full pr-10">
                                     <label className="text-[13px] font-medium text-slate-700">Pick-up location</label>
                                     <input
                                         id="pickup-location"
                                         aria-label="Pick-up location"
                                         type="text"
                                         placeholder="City, airport, or station"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] font-bold text-slate-900 placeholder-slate-400 p-0 -mt-1"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-bold text-slate-900 placeholder-slate-400 p-0 -mt-1"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
@@ -639,18 +639,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[20] h-[88px] min-w-0 group bg-white rounded-tr-[7px]`}>
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <SearchIcon className="w-6 h-6 text-slate-800" />
+                                <div className={`relative flex-[25] h-[96px] min-w-0 group bg-white rounded-tr-[4px]`}>
+                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                        <SearchIcon className="w-7 h-7 text-slate-800" />
                                     </div>
-                                    <div className="pl-14 pt-4 pb-2 flex flex-col h-full pr-10">
+                                    <div className="pl-16 pt-5 pb-3 flex flex-col h-full pr-10">
                                         <label className="text-[13px] font-medium text-slate-700">Drop-off location</label>
                                         <input
                                             id="dropoff-location"
                                             aria-label="Drop-off location"
                                             type="text"
                                             placeholder="City, airport, or station"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] font-bold text-slate-900 placeholder-slate-400 p-0 -mt-1"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-bold text-slate-900 placeholder-slate-400 p-0 -mt-1"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}
@@ -682,33 +682,33 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={pickupDate}
                                         onChange={(e) => setPickupDate(e.target.value)}
                                         min={today.toISOString().split('T')[0]}
-                                        className="flex-[10]"
+                                        className="flex-[12]"
                                     />
                                     <DesktopTimeField
                                         label="Time"
                                         value={pickupTime}
                                         onChange={(e) => setPickupTime(e.target.value)}
                                         options={timeOptions}
-                                        className="flex-[4]"
+                                        className="flex-[5]"
                                     />
                                     <DesktopDateField
                                         label="Drop-off date"
                                         value={dropoffDate}
                                         onChange={(e) => setDropoffDate(e.target.value)}
                                         min={pickupDate}
-                                        className="flex-[10]"
+                                        className="flex-[12]"
                                     />
                                     <DesktopTimeField
                                         label="Time"
                                         value={dropoffTime}
                                         onChange={(e) => setDropoffTime(e.target.value)}
                                         options={timeOptions}
-                                        className="flex-[4]"
+                                        className="flex-[5]"
                                     />
-                                    <div className="p-[8px] flex-[8] flex items-center justify-center bg-white h-[88px] rounded-r-[7px]">
+                                    <div className="p-[8px] flex-[10] flex items-center justify-center bg-white h-[96px] rounded-r-[4px]">
                                         <button 
                                             type="submit" 
-                                            className="h-full w-full text-white font-bold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[20px] hover:brightness-110 shadow-lg shadow-emerald-900/10"
+                                            className="h-full w-full text-white font-bold rounded-[4px] transition-all active:scale-[0.98] flex items-center justify-center text-[22px] hover:brightness-110 shadow-lg shadow-emerald-900/10"
                                             style={{ backgroundColor: '#008009' }}
                                         >
                                             Search
@@ -720,39 +720,39 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                         {/* SECOND ROW: Dates, Times, Search (only if differentDropoff) */}
                         {differentDropoff && (
-                            <div className="flex flex-1 items-center bg-white rounded-b-[7px] divide-x divide-slate-200 overflow-hidden">
+                            <div className="flex flex-1 items-center bg-white rounded-b-[4px] divide-x divide-slate-200 overflow-hidden">
                                 <DesktopDateField
                                     label="Pick-up date"
                                     value={pickupDate}
                                     onChange={(e) => setPickupDate(e.target.value)}
                                     min={today.toISOString().split('T')[0]}
-                                    className="flex-[10]"
+                                    className="flex-[12]"
                                 />
                                 <DesktopTimeField
                                     label="Time"
                                     value={pickupTime}
                                     onChange={(e) => setPickupTime(e.target.value)}
                                     options={timeOptions}
-                                    className="flex-[4]"
+                                    className="flex-[5]"
                                 />
                                 <DesktopDateField
                                     label="Drop-off date"
                                     value={dropoffDate}
                                     onChange={(e) => setDropoffDate(e.target.value)}
                                     min={pickupDate}
-                                    className="flex-[10]"
+                                    className="flex-[12]"
                                 />
                                 <DesktopTimeField
                                     label="Time"
                                     value={dropoffTime}
                                     onChange={(e) => setDropoffTime(e.target.value)}
                                     options={timeOptions}
-                                    className="flex-[4]"
+                                    className="flex-[5]"
                                 />
-                                <div className="p-[8px] flex-[8] flex items-center justify-center bg-white h-[88px]">
+                                <div className="p-[8px] flex-[10] flex items-center justify-center bg-white h-[96px]">
                                     <button 
                                         type="submit" 
-                                        className="h-full w-full text-white font-bold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[20px] hover:brightness-110 shadow-lg shadow-emerald-900/10"
+                                        className="h-full w-full text-white font-bold rounded-[4px] transition-all active:scale-[0.98] flex items-center justify-center text-[22px] hover:brightness-110 shadow-lg shadow-emerald-900/10"
                                         style={{ backgroundColor: '#008009' }}
                                     >
                                         Search
