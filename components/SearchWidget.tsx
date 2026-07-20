@@ -353,7 +353,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                   onClick={() => handler(suggestion)}
                   className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-card bg-slate-100 border border-slate-200 flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-none bg-slate-100 border border-slate-200 flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
                   <div><span className="font-semibold">{suggestion.label}</span></div>
                 </button>
               </li>
@@ -387,10 +387,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         timeOptions: string[];
         iconType?: 'pickup' | 'dropoff'
     }) => (
-        <div className="flex flex-1 bg-white rounded-[4px] divide-x divide-slate-200 overflow-hidden shadow-sm">
+        <div className="flex flex-1 bg-white rounded-none divide-x divide-slate-200 overflow-hidden shadow-sm">
             {/* Date Part */}
             <div 
-                className="flex-[2] relative cursor-pointer group px-4 pt-3 pb-2"
+                className="flex-[2] relative cursor-pointer group px-4 pt-2 pb-1.5"
                 onClick={(e) => {
                     const input = e.currentTarget.querySelector('input');
                     if (input) {
@@ -398,9 +398,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     }
                 }}
             >
-                <label className="block text-[13px] text-slate-600 mb-0.5">{dateLabel}</label>
+                <label className="block text-[12px] text-slate-600 mb-0.5">{dateLabel}</label>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center text-slate-900 font-bold text-[16px]">
+                    <div className="flex items-center text-slate-900 font-bold text-[15px]">
                         {iconType === 'pickup' ? (
                             <span className="mr-2 flex items-center gap-1 font-black text-slate-800">
                                 <span className="w-2 h-2 rounded-full bg-slate-900"></span>
@@ -427,7 +427,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
             {/* Time Part */}
             <div 
-                className="flex-1 relative cursor-pointer group px-4 pt-3 pb-2"
+                className="flex-1 relative cursor-pointer group px-4 pt-2 pb-1.5"
                 onClick={(e) => {
                     const select = e.currentTarget.querySelector('select');
                     if (select) {
@@ -435,8 +435,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     }
                 }}
             >
-                <label className="block text-[13px] text-slate-600 mb-0.5">{timeLabel}</label>
-                <div className="text-[16px] font-bold text-slate-900 flex items-center justify-between">
+                <label className="block text-[12px] text-slate-600 mb-0.5">{timeLabel}</label>
+                <div className="text-[15px] font-bold text-slate-900 flex items-center justify-between">
                     {timeValue}
                     <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
                 </div>
@@ -455,7 +455,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         <>
         {/* --- MOBILE WIDGET --- */}
         <div className="lg:hidden w-full px-3 sm:px-6" ref={mobileWidgetRef}>
-            <div className="bg-white p-6 rounded-[1.25rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] relative z-10 border border-white/20">
+            <div className="bg-white p-6 rounded-none shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] relative z-10 border border-white/20">
                 <form onSubmit={handleSearch} className="flex flex-col gap-3">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1">
@@ -463,11 +463,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <button
                             type="button"
                             onClick={() => openSearchOverlay('pickup')}
-                            className="relative h-[62px] bg-white rounded-card border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
+                            className="relative h-[62px] bg-white rounded-none border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
                         >
                             <div className="flex items-center gap-3 w-full min-w-0">
                                 {pickupSelection ? (
-                                    <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
+                                    <div className="flex-shrink-0 bg-white p-1.5 rounded-none shadow-sm border border-slate-100">
                                         {getLocationIcon(pickupSelection.type, 'w-5 h-5')}
                                     </div>
                                 ) : null}
@@ -493,11 +493,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <button
                                 type="button"
                                 onClick={() => openSearchOverlay('dropoff')}
-                                className="relative h-[62px] bg-slate-50 rounded-card border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
+                                className="relative h-[62px] bg-slate-50 rounded-none border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
                             >
                                 <div className="flex items-center gap-3 w-full min-w-0">
                                     {dropoffSelection ? (
-                                        <div className="flex-shrink-0 bg-white p-1.5 rounded-card shadow-sm border border-slate-100">
+                                        <div className="flex-shrink-0 bg-white p-1.5 rounded-none shadow-sm border border-slate-100">
                                             {getLocationIcon(dropoffSelection.type, 'w-5 h-5')}
                                         </div>
                                     ) : null}
@@ -521,7 +521,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col gap-1">
                             <label className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.12em] ml-1">Pick-up Date & Time</label>
-                            <div className="relative bg-slate-50 rounded-card border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
+                            <div className="relative bg-slate-50 rounded-none border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
@@ -554,7 +554,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                         <div className="flex flex-col gap-1">
                             <label className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.12em] ml-1">Drop-off Date & Time</label>
-                            <div className="relative bg-slate-50 rounded-card border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
+                            <div className="relative bg-slate-50 rounded-none border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
@@ -599,7 +599,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <button 
                         type="submit" 
-                        className="w-full text-slate-900 font-black h-16 rounded-[1rem] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4 text-[15px] uppercase tracking-[0.1em] hover:brightness-105 shadow-xl shadow-yellow-500/30"
+                        className="w-full text-slate-900 font-black h-16 rounded-none active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4 text-[15px] uppercase tracking-[0.1em] hover:brightness-105 shadow-xl shadow-yellow-500/30"
                         style={{ backgroundColor: '#FFB703' }}
                     >
                         <SearchIcon className="w-5 h-5 stroke-[3px]" />
@@ -620,25 +620,18 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[1100px] mx-auto">
-                <form onSubmit={handleSearch} className="relative bg-[#FFB703] p-5 pt-4 rounded-md shadow-2xl overflow-visible">
-                    {/* Header Link */}
-                    <div className="mb-2 flex items-center text-[13px] font-bold text-slate-900">
-                        <span className="mr-2">✈</span>
-                        <span>Arriving by plane?</span>
-                        <a href="#" className="ml-1 border-b border-slate-900 leading-none">Search by flight</a>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
+            <div className="max-w-[960px] mx-auto">
+                <form onSubmit={handleSearch} className="relative bg-[#FFB703] p-3 rounded-none shadow-xl overflow-visible">
+                    <div className="flex flex-col gap-2">
                         {/* Pick-up location */}
-                        <div className="relative bg-white rounded-[4px] shadow-sm overflow-hidden group">
-                            <div className="px-5 pt-3 pb-2 flex flex-col min-h-[72px]">
-                                <label className="text-[13px] text-slate-600 mb-0.5">Pick-up location</label>
+                        <div className="relative bg-white rounded-none shadow-sm group">
+                            <div className="px-4 pt-1.5 pb-1 flex flex-col min-h-[52px]">
+                                <label className="text-[11px] text-slate-600 mb-0">Pick-up location</label>
                                 <input
                                     id="desktop-pickup-location"
                                     type="text"
                                     placeholder="Enter airport or city"
-                                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[18px] font-bold text-slate-900 placeholder-slate-400 p-0"
+                                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
                                     value={pickupQuery}
                                     onChange={handleLocationChange}
                                     onFocus={handleFocus}
@@ -647,7 +640,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 />
                             </div>
                             {isSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
+                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-0.5 w-full bg-white border border-slate-200 rounded-none shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
                                     {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                                 </div>
                             )}
@@ -655,14 +648,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                         {/* Drop-off location (Conditional) */}
                         {differentDropoff && (
-                            <div className="relative bg-white rounded-[4px] shadow-sm overflow-hidden group">
-                                <div className="px-5 pt-3 pb-2 flex flex-col min-h-[72px]">
-                                    <label className="text-[13px] text-slate-600 mb-0.5">Drop-off location</label>
+                            <div className="relative bg-white rounded-none shadow-sm group">
+                                <div className="px-4 pt-1.5 pb-1 flex flex-col min-h-[52px]">
+                                    <label className="text-[11px] text-slate-600 mb-0">Drop-off location</label>
                                     <input
-                                        id="desktop-dropoff-location"
                                         type="text"
                                         placeholder="Enter airport or city"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[18px] font-bold text-slate-900 placeholder-slate-400 p-0"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
                                         value={dropoffQuery}
                                         onChange={handleDropoffLocationChange}
                                         onFocus={handleDropoffFocus}
@@ -671,7 +663,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     />
                                 </div>
                                 {isDropoffSuggestionsOpen && (
-                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
+                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-0.5 w-full bg-white border border-slate-200 rounded-none shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
                                         {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                     </div>
                                 )}
@@ -680,19 +672,19 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                         {/* Checkbox: Return car in same location */}
                         <div className="flex items-center">
-                            <label className="flex items-center text-[14px] font-medium text-slate-800 cursor-pointer select-none">
+                            <label className="flex items-center text-[13px] font-medium text-slate-800 cursor-pointer select-none">
                                 <input 
                                     type="checkbox" 
                                     onChange={(e) => setDifferentDropoff(!e.target.checked)} 
                                     checked={!differentDropoff} 
-                                    className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
+                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
                                 />
                                 Return car in same location
                             </label>
                         </div>
 
                         {/* Dates & Times row */}
-                        <div className="flex flex-col md:flex-row gap-3">
+                        <div className="flex flex-col md:flex-row gap-2">
                             <DesktopGroupedDateTimeField
                                 dateLabel="Pick-up date"
                                 dateValue={pickupDate}
@@ -718,8 +710,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
 
                         {/* Driver info & Search button row */}
-                        <div className="flex items-center justify-between mt-2">
-                            <div className="flex items-center text-[14px] font-medium text-slate-800">
+                        <div className="flex items-center justify-between mt-1">
+                            <div className="flex items-center text-[13px] font-medium text-slate-800">
                                 <span>Driver's country of residence is </span>
                                 <button type="button" className="mx-1 border-b border-slate-800 hover:text-slate-600 transition-colors flex items-center gap-1 leading-tight">
                                     Jordan <ChevronDown className="w-3 h-3" />
@@ -732,7 +724,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             
                             <button 
                                 type="submit" 
-                                className="bg-[#008009] text-white px-10 py-3 rounded-full font-bold text-[18px] hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg"
+                                className="bg-[#008009] text-white px-8 py-2.5 rounded-none font-bold text-[16px] hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg"
                             >
                                 Search now
                             </button>

@@ -95,6 +95,7 @@ export const fetchLocations = async (query: string, hint?: string): Promise<Loca
     if (hint) {
       url += `&hint=${encodeURIComponent(hint)}`;
     }
+    console.log('[DEBUG_LOG] Fetching locations from:', url);
     const response = await publicAxios.get(url);
     // Map the backend response to { value, label, type } format
     const results = response.data.map((loc: any) => {
