@@ -368,7 +368,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     // --- NEW DESKTOP DATE/TIME FIELDS (reliable) ---
     const DesktopDateField = ({ label, value, onChange, min, className = "flex-1", showIcon = true }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; min: string, className?: string, showIcon?: boolean }) => (
         <div 
-            className={`relative ${className} min-w-0 group bg-white h-[72px] cursor-pointer`}
+            className={`relative ${className} min-w-0 group bg-white h-[88px] cursor-pointer`}
             onClick={(e) => {
                 const input = e.currentTarget.querySelector('input');
                 if (input) {
@@ -382,17 +382,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         >
             {showIcon && (
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                    <Calendar className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
+                    <Calendar className="w-7 h-7 text-slate-400 group-focus-within:text-accent transition-colors" />
                 </div>
             )}
-            <div className={`${showIcon ? 'pl-12' : 'pl-4'} pt-2.5 pb-1 flex flex-col h-full`}>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight cursor-pointer">{label}</label>
+            <div className={`${showIcon ? 'pl-14' : 'pl-5'} pt-4 pb-2 flex flex-col h-full`}>
+                <label className="text-[12px] font-bold text-slate-500 uppercase tracking-tight cursor-pointer">{label}</label>
                 <input
                     type="date"
                     value={value}
                     onChange={onChange}
                     min={min}
-                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 cursor-pointer p-0 -mt-1"
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-extrabold text-slate-900 cursor-pointer p-0 -mt-1"
                     style={{ colorScheme: 'light' }}
                 />
             </div>
@@ -401,7 +401,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
     const DesktopTimeField = ({ label, value, onChange, options, className = "flex-1", showIcon = true }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[], className?: string, showIcon?: boolean }) => (
         <div 
-            className={`relative ${className} min-w-0 group bg-white h-[72px] cursor-pointer`}
+            className={`relative ${className} min-w-0 group bg-white h-[88px] cursor-pointer`}
             onClick={(e) => {
                 const select = e.currentTarget.querySelector('select');
                 if (select) {
@@ -415,15 +415,15 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         >
             {showIcon && (
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                    <Clock className="w-6 h-6 text-slate-400 group-focus-within:text-accent transition-colors" />
+                    <Clock className="w-7 h-7 text-slate-400 group-focus-within:text-accent transition-colors" />
                 </div>
             )}
-            <div className={`${showIcon ? 'pl-11' : 'pl-4'} pt-2.5 pb-1 flex flex-col h-full`}>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight cursor-pointer">{label}</label>
+            <div className={`${showIcon ? 'pl-13' : 'pl-5'} pt-4 pb-2 flex flex-col h-full`}>
+                <label className="text-[12px] font-bold text-slate-500 uppercase tracking-tight cursor-pointer">{label}</label>
                 <select
                     value={value}
                     onChange={onChange}
-                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 cursor-pointer p-0 -mt-1 appearance-none"
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-extrabold text-slate-900 cursor-pointer p-0 -mt-1 appearance-none"
                 >
                     {options.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -606,22 +606,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* FIRST ROW: Pickup & Optional Dropoff */}
                         <div className={`flex flex-1 items-center bg-white divide-x divide-slate-200 ${differentDropoff ? 'rounded-t-[7px]' : 'rounded-[7px]'}`}>
                             {/* Pick-up Location */}
-                            <div className={`relative flex-[20] h-[72px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
+                            <div className={`relative flex-[20] h-[88px] min-w-0 group ${!differentDropoff ? 'rounded-l-[7px]' : 'rounded-tl-[7px]'}`}>
                                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                     {pickupSelection ? (
-                                        <div className="flex items-center justify-center w-10 h-10">
-                                            {getLocationIcon(pickupSelection.type, 'w-6 h-6')}
+                                        <div className="flex items-center justify-center w-12 h-12">
+                                            {getLocationIcon(pickupSelection.type, 'w-7 h-7')}
                                         </div>
                                     ) : null}
                                 </div>
-                                <div className={`${pickupSelection ? 'pl-12' : 'pl-4'} pt-2.5 pb-1 flex flex-col h-full pr-10`}>
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
+                                <div className={`${pickupSelection ? 'pl-14' : 'pl-5'} pt-4 pb-2 flex flex-col h-full pr-10`}>
+                                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-tight">Pick-up location</label>
                                     <input
                                         id="pickup-location"
                                         aria-label="Pick-up location"
                                         type="text"
                                         placeholder="City, airport, or station"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
@@ -647,22 +647,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                             {/* Drop-off Location (if different) */}
                             {differentDropoff && (
-                                <div className={`relative flex-[20] h-[72px] min-w-0 group bg-slate-50/50 rounded-tr-[7px]`}>
+                                <div className={`relative flex-[20] h-[88px] min-w-0 group bg-slate-50/50 rounded-tr-[7px]`}>
                                     <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                         {dropoffSelection ? (
-                                            <div className="flex items-center justify-center w-10 h-10">
-                                                {getLocationIcon(dropoffSelection.type, 'w-6 h-6')}
+                                            <div className="flex items-center justify-center w-12 h-12">
+                                                {getLocationIcon(dropoffSelection.type, 'w-7 h-7')}
                                             </div>
                                         ) : null}
                                     </div>
-                                    <div className={`${dropoffSelection ? 'pl-12' : 'pl-4'} pt-2.5 pb-1 flex flex-col h-full pr-10`}>
-                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
+                                    <div className={`${dropoffSelection ? 'pl-14' : 'pl-5'} pt-4 pb-2 flex flex-col h-full pr-10`}>
+                                        <label className="text-[12px] font-bold text-slate-500 uppercase tracking-tight">Drop-off location</label>
                                         <input
                                             id="dropoff-location"
                                             aria-label="Drop-off location"
                                             type="text"
                                             placeholder="City, airport, or station"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[17px] font-extrabold text-slate-900 placeholder-slate-400 p-0 -mt-1"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}
@@ -721,10 +721,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         className="flex-[4]"
                                         showIcon={!!pickupSelection}
                                     />
-                                    <div className="p-[5px] flex-[8] flex items-center justify-center bg-white h-[72px] rounded-r-[7px]">
+                                    <div className="p-[5px] flex-[8] flex items-center justify-center bg-white h-[88px] rounded-r-[7px]">
                                         <button 
                                             type="submit" 
-                                            className="h-full w-full text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/10"
+                                            className="h-full w-full text-white font-black rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[22px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/10"
                                             style={{ backgroundColor: '#059669' }}
                                         >
                                             Search
@@ -769,10 +769,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     className="flex-[4]"
                                     showIcon={!!pickupSelection}
                                 />
-                                <div className="p-[5px] flex-[8] flex items-center justify-center bg-white h-[72px]">
+                                <div className="p-[5px] flex-[8] flex items-center justify-center bg-white h-[88px]">
                                     <button 
                                         type="submit" 
-                                        className="h-full w-full text-white font-extrabold rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[19px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/10"
+                                        className="h-full w-full text-white font-black rounded-[5px] transition-all active:scale-[0.98] flex items-center justify-center text-[22px] tracking-tight hover:brightness-110 shadow-lg shadow-emerald-900/10"
                                         style={{ backgroundColor: '#059669' }}
                                     >
                                         Search
