@@ -345,9 +345,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         ) : error ? (
           <p className="p-5 text-sm text-rose-500 text-center font-semibold">{error}</p>
         ) : suggestions.length > 0 ? (
-          <ul className="py-2">
+          <ul role="listbox" className="py-2">
             {suggestions.map((suggestion) => (
-              <li key={suggestion.value + suggestion.label}>
+              <li key={suggestion.value + suggestion.label} role="option" aria-selected="false">
                 <button
                   type="button"
                   onClick={() => handler(suggestion)}
@@ -375,7 +375,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         timeValue, 
         onTimeChange,
         timeOptions,
-        iconType = 'pickup'
+        iconType = 'pickup',
+        idPrefix
     }: { 
         dateLabel: string; 
         dateValue: string; 
@@ -385,7 +386,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         timeValue: string;
         onTimeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
         timeOptions: string[];
-        iconType?: 'pickup' | 'dropoff'
+        iconType?: 'pickup' | 'dropoff';
+        idPrefix: string;
     }) => (
         <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 overflow-hidden shadow-sm border border-slate-200/50">
             {/* Date Part */}
@@ -398,7 +400,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     }
                 }}
             >
-                <label className="block text-[12px] text-slate-600 mb-0.5">{dateLabel}</label>
+                <label htmlFor={`${idPrefix}-date`} className="block text-[12px] text-slate-600 mb-0.5">{dateLabel}</label>
                 <div className="flex items-center gap-2">
                     <div className="flex items-center text-slate-900 font-bold text-[15px]">
                         {iconType === 'pickup' ? (
@@ -416,6 +418,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     </div>
                 </div>
                 <input
+                    id={`${idPrefix}-date`}
+                    name={`${idPrefix}Date`}
                     type="date"
                     value={dateValue}
                     onChange={onDateChange}
@@ -435,12 +439,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                     }
                 }}
             >
-                <label className="block text-[12px] text-slate-600 mb-0.5">{timeLabel}</label>
+                <label htmlFor={`${idPrefix}-time`} className="block text-[12px] text-slate-600 mb-0.5">{timeLabel}</label>
                 <div className="text-[15px] font-bold text-slate-900 flex items-center justify-between">
                     {timeValue}
                     <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
                 </div>
                 <select
+                    id={`${idPrefix}-time`}
+                    name={`${idPrefix}Time`}
                     value={timeValue}
                     onChange={onTimeChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
@@ -627,9 +633,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {/* Pick-up location */}
                             <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
                                 <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
-                                    <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Pick-up location</label>
+                                    <label htmlFor="desktop-pickup-location" className="text-[11px] text-slate-500 mb-0.5 font-medium">Pick-up location</label>
                                     <input
                                         id="desktop-pickup-location"
+                                        name="pickupLocation"
                                         type="text"
                                         placeholder="Enter airport or city"
                                         className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
@@ -637,11 +644,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
                                         autoComplete="off"
+                                        aria-expanded={isSuggestionsOpen}
+                                        aria-haspopup="listbox"
+                                        aria-controls="pickup-suggestions"
                                         required
                                     />
                                 </div>
                                 {isSuggestionsOpen && (
-                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                    <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
                                         {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                                     </div>
                                 )}
@@ -651,8 +661,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {differentDropoff && (
                                 <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
                                     <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
-                                        <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Drop-off location</label>
+                                        <label htmlFor="desktop-dropoff-location" className="text-[11px] text-slate-500 mb-0.5 font-medium">Drop-off location</label>
                                         <input
+                                            id="desktop-dropoff-location"
+                                            name="dropoffLocation"
                                             type="text"
                                             placeholder="Enter airport or city"
                                             className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
@@ -660,11 +672,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}
                                             autoComplete="off"
+                                            aria-expanded={isDropoffSuggestionsOpen}
+                                            aria-haspopup="listbox"
+                                            aria-controls="dropoff-suggestions"
                                             required={differentDropoff}
                                         />
                                     </div>
                                     {isDropoffSuggestionsOpen && (
-                                        <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                        <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
                                             {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                         </div>
                                     )}
@@ -676,6 +691,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <div className="flex flex-wrap items-center gap-6 px-1">
                             <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
                                 <input 
+                                    id="return-same-location"
+                                    name="returnSameLocation"
                                     type="checkbox" 
                                     onChange={(e) => setDifferentDropoff(!e.target.checked)} 
                                     checked={!differentDropoff} 
@@ -685,6 +702,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             </label>
                             <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
                                 <input 
+                                    id="driver-age-checkbox"
+                                    name="driverAgeValid"
                                     type="checkbox" 
                                     defaultChecked 
                                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
@@ -696,6 +715,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         {/* Dates & Times row */}
                         <div className="flex flex-col md:flex-row gap-2">
                             <DesktopGroupedDateTimeField
+                                idPrefix="pickup"
                                 dateLabel="Pick-up date"
                                 dateValue={pickupDate}
                                 onDateChange={(e) => setPickupDate(e.target.value)}
@@ -707,6 +727,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 iconType="pickup"
                             />
                             <DesktopGroupedDateTimeField
+                                idPrefix="dropoff"
                                 dateLabel="Drop-off date"
                                 dateValue={dropoffDate}
                                 onDateChange={(e) => setDropoffDate(e.target.value)}

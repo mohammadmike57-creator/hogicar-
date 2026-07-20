@@ -21,8 +21,7 @@ const contentTypes = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
-  '.webp': 'image/webp',
-  '.xml': 'application/xml; charset=utf-8'
+  '.webp': 'image/webp'
 };
 
 function shouldProxy(pathname) {
@@ -37,8 +36,20 @@ function sitemapTypoTarget(pathname, search) {
   return match ? `${match[1]}.xml${search}` : null;
 }
 
+const securityHeaders = {
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.googletagmanager.com https://api.stripe.com https://hogicar-backend.onrender.com; frame-src https://js.stripe.com; object-src 'none';",
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocations=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin'
+};
+
 function send(res, status, body, headers = {}) {
-  res.writeHead(status, headers);
+  res.writeHead(status, { ...securityHeaders, ...headers });
   res.end(body);
 }
 
@@ -78,14 +89,24 @@ async function serveStatic(req, res, url) {
   const decodedPath = decodeURIComponent(url.pathname);
   const normalizedPath = path.normalize(decodedPath).replace(/^(\.\.[/\\])+/, '');
   const requestedPath = path.join(distDir, normalizedPath);
-  const filePath = requestedPath.startsWith(distDir) ? requestedPath : path.join(distDir, 'index.html');
+  let filePath = requestedPath.startsWith(distDir) ? requestedPath : path.join(distDir, 'index.html');
 
   try {
     const fileStat = await stat(filePath);
     if (fileStat.isFile()) {
       const ext = path.extname(filePath).toLowerCase();
+      let contentType = contentTypes[ext] || 'application/octet-stream';
+      
+      // Special case for llms.txt as requested for agentic browsing
+      if (normalizedPath === '/llms.txt') {
+        contentType = 'text/markdown';
+      } else if (normalizedPath === '/robots.txt') {
+        contentType = 'text/plain; charset=utf-8';
+      }
+
       res.writeHead(200, {
-        'Content-Type': contentTypes[ext] || 'application/octet-stream',
+        ...securityHeaders,
+        'Content-Type': contentType,
         'Content-Length': fileStat.size
       });
       createReadStream(filePath).pipe(res);

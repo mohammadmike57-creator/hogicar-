@@ -42,88 +42,85 @@ const PciDssIcon = () => (
 );
 
 const FullFooter = () => (
-    <footer className="bg-[#003580] text-white pt-4 pb-2">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4 pb-4 border-b border-blue-800">
-            <div>
-                <div className="flex items-center gap-2 mb-2">
-                   <Logo className="h-8 w-auto" variant="light" />
-                </div>
-                <p className="text-blue-100 text-xs leading-relaxed max-w-xs opacity-80">
-                  Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
-                </p>
+    <footer className="bg-[#003580] text-white pt-12 pb-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
+          <div className="col-span-2 lg:col-span-1">
+            <Link to="/" className="inline-block mb-6" aria-label="Hogicar Home">
+              <Logo className="h-8 w-auto" variant="light" />
+            </Link>
+            <p className="text-blue-100 text-sm leading-relaxed opacity-70 mb-8 max-w-xs">
+              Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
+            </p>
+            <div className="flex space-x-5">
+              <a href="#" aria-label="Follow us on Facebook" className="text-blue-200 hover:text-white transition-colors">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" aria-label="Follow us on Twitter" className="text-blue-200 hover:text-white transition-colors">
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a href="#" aria-label="Follow us on Instagram" className="text-blue-200 hover:text-white transition-colors">
+                <Instagram className="w-5 h-5" />
+              </a>
             </div>
-            <div className="bg-blue-900/50 p-3 rounded-card border border-blue-700 w-full md:w-auto flex-shrink-0">
-                <p className="font-bold text-xs mb-1.5 text-blue-100">Rated on Trustpilot</p>
-                <div className="flex items-center gap-2">
-                    <div className="flex bg-white p-1 rounded-sm scale-90 origin-left">
-                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
-                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
-                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
-                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
-                        <Star className="w-3.5 h-3.5 text-green-500 fill-current" />
-                    </div>
-                    <p className="font-bold text-base">Excellent</p>
-                </div>
-                <p className="text-[10px] text-blue-300 mt-0.5">Based on <strong>12,000+</strong> reviews</p>
-            </div>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-base mb-6">Company</h3>
+            <ul className="space-y-4 text-sm">
+              <li><Link to="/about-us" className="text-blue-100/70 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/blog" className="text-blue-100/70 hover:text-white transition-colors">Travel Blog</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-base mb-6">Support</h3>
+            <ul className="space-y-4 text-sm">
+              <li><Link to="/contact" className="text-blue-100/70 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/help" className="text-blue-100/70 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/my-bookings" className="text-blue-100/70 hover:text-white transition-colors">Manage Booking</Link></li>
+              <li><Link to="/cancellation-policy" className="text-blue-100/70 hover:text-white transition-colors">Cancellation Policy</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-base mb-6">Partners</h3>
+            <ul className="space-y-4 text-sm">
+              <li><Link to="/become-supplier" className="text-blue-100/70 hover:text-white transition-colors">Become a Supplier</Link></li>
+              <li><Link to="/affiliate-program" className="text-blue-100/70 hover:text-white transition-colors">Affiliate Program</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-base mb-6">Legal</h3>
+            <ul className="space-y-4 text-sm">
+              <li><Link to="/terms-and-conditions" className="text-blue-100/70 hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/privacy-policy" className="text-blue-100/70 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/cookies-policy" className="text-blue-100/70 hover:text-white transition-colors">Cookies Policy</Link></li>
+              <li><Link to="/sitemap" className="text-blue-100/70 hover:text-white transition-colors">Sitemap</Link></li>
+            </ul>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 py-8 border-y border-blue-800">
-          <div>
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Company</h3>
-            <ul className="space-y-3 text-xs font-bold">
-               <li><Link to="/about-us" className="text-white hover:text-accent transition-colors">About Us</Link></li>
-               <li><Link to="/blog" className="text-white hover:text-accent transition-colors">Travel Blog</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Support</h3>
-            <ul className="space-y-3 text-xs font-bold">
-              <li><Link to="/help" className="text-white hover:text-accent transition-colors">Help Center</Link></li>
-              <li><Link to="/contact" className="text-white hover:text-accent transition-colors">Contact Us</Link></li>
-              <li><Link to="/cancellation-policy" className="text-white hover:text-accent transition-colors">Cancellation Policy</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Partners</h3>
-            <ul className="space-y-3 text-xs font-bold">
-               <li><Link to="/become-supplier" className="text-white hover:text-accent transition-colors">Become a Partner</Link></li>
-               <li><Link to="/affiliate-program" className="text-white hover:text-accent transition-colors">Affiliate Program</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-300 mb-5">Legal</h3>
-            <ul className="space-y-3 text-xs font-bold">
-              <li><Link to="/terms-and-conditions" className="text-white hover:text-accent transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="text-white hover:text-accent transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cookies-policy" className="text-white hover:text-accent transition-colors">Cookies Policy</Link></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-blue-300 text-xs order-3 md:order-1 text-center md:text-left">&copy; 2026 Hogicar. All rights reserved.</p>
-          
-          <div className="flex items-center gap-3 order-1 md:order-2">
-              <span className="text-xs font-bold text-blue-200 hidden sm:inline">Secure Payments</span>
+        <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-blue-800/50 gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <p className="text-blue-300 text-sm">&copy; 2026 Hogicar. All rights reserved.</p>
+            <div className="flex items-center gap-4">
               <VisaIcon />
               <MastercardIcon />
               <AmexIcon />
-              <div className="w-px h-6 bg-[#007ac2] mx-1"></div>
+              <div className="w-px h-4 bg-blue-800 hidden md:block"></div>
               <PciDssIcon />
+            </div>
           </div>
           
-          <div className="flex space-x-4 order-2 md:order-3">
-             <a href="#" aria-label="Facebook" className="text-blue-200 hover:text-white transition-colors">
-                <Facebook className="w-5 h-5" />
-            </a>
-            <a href="#" aria-label="Twitter" className="text-blue-200 hover:text-white transition-colors">
-                <Twitter className="w-5 h-5" />
-            </a>
-            <a href="#" aria-label="Instagram" className="text-blue-200 hover:text-white transition-colors">
-                <Instagram className="w-5 h-5" />
-            </a>
+          <div className="bg-blue-900/40 px-4 py-2 rounded-lg border border-blue-700/50 flex items-center gap-3">
+             <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 text-green-400 fill-current" />
+                ))}
+             </div>
+             <span className="text-xs font-bold text-blue-100">Trustpilot Excellent</span>
           </div>
         </div>
       </div>
@@ -167,7 +164,7 @@ const Layout: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500">
+          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500" aria-label="Hogicar Home">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 
@@ -182,6 +179,9 @@ const Layout: React.FC = () => {
             <div className="relative">
               <button 
                 onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+                aria-expanded={isCurrencyOpen}
+                aria-haspopup="listbox"
+                aria-label={`Current currency: ${selectedCurrency}. Click to change.`}
                 className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
               >
                 {currentCurrency?.flag ? (

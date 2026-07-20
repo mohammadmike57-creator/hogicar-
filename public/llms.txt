@@ -1,0 +1,22 @@
+# Hogicar - Compare Car Rental Deals Worldwide
+
+Hogicar is a leading car rental comparison platform that connects travelers with over 900 global and local car rental suppliers. We provide a transparent, easy-to-use search engine for finding the best car hire deals in more than 60,000 locations across 160 countries. Our mission is to provide reliable, affordable, and flexible transportation solutions with 24/7 support and no hidden fees.
+
+## Navigation
+- [Homepage](https://www.hogicar.com/)
+- [About Us](https://www.hogicar.com/about-us)
+- [Contact Us](https://www.hogicar.com/contact)
+- [Travel Blog](https://www.hogicar.com/blog)
+- [Sitemap](https://www.hogicar.com/sitemap)
+- [Terms & Conditions](https://www.hogicar.com/terms-and-conditions)
+- [Privacy Policy](https://www.hogicar.com/privacy-policy)
+- [Cookies Policy](https://www.hogicar.com/cookies-policy)
+- [Affiliate Program](https://www.hogicar.com/affiliate-program)
+- [Become a Supplier](https://www.hogicar.com/become-supplier)
+
+## Key Features
+- **Global Reach**: 60,000+ locations, 160+ countries.
+- **Trusted Suppliers**: Compare 900+ brands including Hertz, Avis, and local experts.
+- **Transparency**: Clear rental conditions, no hidden fees.
+- **Flexibility**: Free cancellation on most bookings up to 48 hours before pickup.
+- **Support**: 24/7 customer excellence team.
