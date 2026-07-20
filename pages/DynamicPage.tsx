@@ -158,9 +158,6 @@ const DynamicPage: React.FC = () => {
     return (
       <div className="bg-slate-50 min-h-screen">
         <SEOMetadata config={seoConfig} />
-        <div className="max-w-7xl mx-auto px-4 pt-8">
-            <Breadcrumbs items={breadcrumbItems} />
-        </div>
         <Home seoConfig={seoConfig} />
       </div>
     );
@@ -207,7 +204,7 @@ const DynamicPage: React.FC = () => {
             <>
                 <div className="absolute inset-0 z-0">
                     <img src={heroBackgroundImage} alt={page?.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px]"></div>
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[0.5px]"></div>
                 </div>
             </>
         )}

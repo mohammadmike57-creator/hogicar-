@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown, X } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown, X, ArrowRight } from 'lucide-react';
 import { fetchLocations, LocationSuggestion } from '../api';
 import SearchOverlay from './SearchOverlay';
 
@@ -387,10 +387,10 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         timeOptions: string[];
         iconType?: 'pickup' | 'dropoff'
     }) => (
-        <div className="flex flex-1 bg-white rounded-none divide-x divide-slate-200 overflow-hidden shadow-sm">
+        <div className="flex flex-1 bg-white rounded-none divide-x divide-slate-200 overflow-hidden shadow-sm border border-slate-200/50">
             {/* Date Part */}
             <div 
-                className="flex-[2] relative cursor-pointer group px-4 pt-2 pb-1.5"
+                className="flex-[2] relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[64px] flex flex-col justify-center"
                 onClick={(e) => {
                     const input = e.currentTarget.querySelector('input');
                     if (input) {
@@ -402,14 +402,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                 <div className="flex items-center gap-2">
                     <div className="flex items-center text-slate-900 font-bold text-[15px]">
                         {iconType === 'pickup' ? (
-                            <span className="mr-2 flex items-center gap-1 font-black text-slate-800">
-                                <span className="w-2 h-2 rounded-full bg-slate-900"></span>
-                                <span className="text-[14px]">→</span>
+                            <span className="mr-3 flex items-center gap-1.5 text-slate-900">
+                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
+                                <ArrowRight className="w-4 h-4 stroke-[3px]" />
                             </span>
                         ) : (
-                            <span className="mr-2 flex items-center gap-1 font-black text-slate-800">
-                                <span className="w-2 h-2 rounded-full bg-slate-900"></span>
-                                <span className="text-[14px]">←</span>
+                            <span className="mr-3 flex items-center gap-1.5 text-slate-900">
+                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
+                                <ArrowRight className="w-4 h-4 stroke-[3px] rotate-180" />
                             </span>
                         )}
                         {formatDateForDisplay(dateValue)}
@@ -427,7 +427,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
             {/* Time Part */}
             <div 
-                className="flex-1 relative cursor-pointer group px-4 pt-2 pb-1.5"
+                className="flex-1 relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[64px] flex flex-col justify-center"
                 onClick={(e) => {
                     const select = e.currentTarget.querySelector('select');
                     if (select) {
@@ -599,11 +599,11 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     <button 
                         type="submit" 
-                        className="w-full text-slate-900 font-black h-16 rounded-none active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4 text-[15px] uppercase tracking-[0.1em] hover:brightness-105 shadow-xl shadow-yellow-500/30"
-                        style={{ backgroundColor: '#FFB703' }}
+                        className="w-full text-white font-black h-16 rounded-none active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4 text-[17px] uppercase tracking-[0.05em] hover:bg-[#006407] shadow-xl shadow-green-900/20"
+                        style={{ backgroundColor: '#008009' }}
                     >
                         <SearchIcon className="w-5 h-5 stroke-[3px]" />
-                        Search Cars
+                        Search now
                     </button>
                 </form>
             </div>
@@ -620,13 +620,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
         {/* --- DESKTOP WIDGET (MATCHING IMAGE) --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[960px] mx-auto">
-                <form onSubmit={handleSearch} className="relative bg-[#FFB703] p-3 rounded-none shadow-xl overflow-visible">
-                    <div className="flex flex-col gap-2">
+            <div className="max-w-[1000px] mx-auto">
+                <form onSubmit={handleSearch} className="relative bg-[#FFB703] p-4 rounded-none shadow-2xl overflow-visible border-[6px] border-[#FFB703]">
+                    <div className="flex flex-col gap-3">
                         {/* Pick-up location */}
-                        <div className="relative bg-white rounded-none shadow-sm group">
-                            <div className="px-4 pt-1.5 pb-1 flex flex-col min-h-[52px]">
-                                <label className="text-[11px] text-slate-600 mb-0">Pick-up location</label>
+                        <div className="relative bg-white rounded-none shadow-sm group border border-slate-200/50">
+                            <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[64px] justify-center">
+                                <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Pick-up location</label>
                                 <input
                                     id="desktop-pickup-location"
                                     type="text"
@@ -648,9 +648,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                         {/* Drop-off location (Conditional) */}
                         {differentDropoff && (
-                            <div className="relative bg-white rounded-none shadow-sm group">
-                                <div className="px-4 pt-1.5 pb-1 flex flex-col min-h-[52px]">
-                                    <label className="text-[11px] text-slate-600 mb-0">Drop-off location</label>
+                            <div className="relative bg-white rounded-none shadow-sm group border border-slate-200/50">
+                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[64px] justify-center">
+                                    <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Drop-off location</label>
                                     <input
                                         type="text"
                                         placeholder="Enter airport or city"
@@ -724,7 +724,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             
                             <button 
                                 type="submit" 
-                                className="bg-[#008009] text-white px-8 py-2.5 rounded-none font-bold text-[16px] hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg"
+                                className="bg-[#008009] text-white px-10 h-[64px] rounded-none font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center"
                             >
                                 Search now
                             </button>

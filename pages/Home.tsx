@@ -532,8 +532,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-12 pb-6 sm:pt-20 sm:pb-10 lg:pt-32 lg:pb-24 text-white overflow-visible min-h-0 flex flex-col justify-start sm:justify-center bg-sky-600 sm:bg-transparent" style={{ color: heroTextColor }}>
-          <div className="absolute inset-0 z-0 hidden sm:block">
+        <section className="relative z-30 pt-16 pb-10 sm:pt-24 sm:pb-16 lg:pt-36 lg:pb-32 text-white overflow-visible min-h-[500px] sm:min-h-[600px] flex flex-col justify-center" style={{ color: heroTextColor }}>
+          <div className="absolute inset-0 z-0">
             {heroVideo ? (
               <video 
                 autoPlay 
@@ -559,7 +559,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   src={heroBackgroundImage}
                   srcSet={heroPngSrcSet}
                   sizes="100vw"
-                  className={`w-full h-full object-cover transition-opacity duration-700 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  className={`w-full h-full object-cover transition-opacity duration-1000 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
                   alt={seoConfig?.imageAltText || displayH1}
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
@@ -573,25 +573,25 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
               </picture>
             )}
             {!heroLoaded && !heroVideo && (
-              <div className="absolute inset-0 bg-[#003580]/80 animate-pulse"></div>
+              <div className="absolute inset-0 bg-[#003580] animate-pulse"></div>
             )}
             {!heroBackgroundImage && !heroVideo && (
-              <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/90 via-[#003580]/80 to-[#003580]/95 backdrop-blur-[1px]"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-[#003580] via-[#0047AB] to-[#003580]"></div>
             )}
-            <div className="absolute inset-0 bg-black" style={{ opacity: heroOverlayOpacity }}></div>
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[0.5px]"></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-            {isCustomLanding && <Breadcrumbs items={breadcrumbItems} variant="light" />}
-            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-3 lg:mb-6 leading-[1.1] tracking-tight drop-shadow-lg max-w-4xl mx-auto uppercase px-4">
+          <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10">
+            {isCustomLanding && <div className="mb-6"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black mb-4 lg:mb-8 leading-[1.05] tracking-tight drop-shadow-2xl max-w-5xl mx-auto uppercase px-4">
               {displayH1}
             </h1>
-            <p className="text-blue-50/90 mb-6 lg:mb-12 max-w-xl mx-auto text-xs sm:text-base lg:text-lg font-bold leading-relaxed px-6">
+            <p className="text-white/90 mb-8 lg:mb-14 max-w-2xl mx-auto text-sm sm:text-lg lg:text-xl font-medium leading-relaxed px-6 drop-shadow-md">
               {displaySubtitle}
             </p>
             
             {sections.search && (
-              <div id="search" className="relative z-20 mt-2 scroll-mt-24 lg:mt-0">
+              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1000px] mx-auto">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
