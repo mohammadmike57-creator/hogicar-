@@ -1,6 +1,16 @@
 import * as React from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight, Clock } from 'lucide-react';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import User from 'lucide-react/dist/esm/icons/user';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
+import Facebook from 'lucide-react/dist/esm/icons/facebook';
+import Twitter from 'lucide-react/dist/esm/icons/twitter';
+import Linkedin from 'lucide-react/dist/esm/icons/linkedin';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
 import { api } from '../api';

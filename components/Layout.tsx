@@ -1,6 +1,17 @@
 import * as React from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Menu, X, User, Globe, ChevronDown, Star, Shield, Facebook, Twitter, Instagram, Check, Lock } from 'lucide-react';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import User from 'lucide-react/dist/esm/icons/user';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Star from 'lucide-react/dist/esm/icons/star';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Facebook from 'lucide-react/dist/esm/icons/facebook';
+import Twitter from 'lucide-react/dist/esm/icons/twitter';
+import Instagram from 'lucide-react/dist/esm/icons/instagram';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Lock from 'lucide-react/dist/esm/icons/lock';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
 
@@ -156,6 +167,12 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-base font-sans">
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-accent focus:text-white focus:rounded-xl focus:shadow-2xl focus:font-bold outline-none"
+      >
+        Skip to main content
+      </a>
       {/* HEADER */}
       <header className={`${isHomePage ? 'fixed' : 'sticky'} top-0 z-50 w-full transition-all duration-500 ${
         isHomePage 
@@ -181,6 +198,7 @@ const Layout: React.FC = () => {
                 onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
                 aria-expanded={isCurrencyOpen}
                 aria-haspopup="listbox"
+                aria-controls="currency-listbox"
                 aria-label={`Current currency: ${selectedCurrency}. Click to change.`}
                 className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
               >
@@ -197,7 +215,7 @@ const Layout: React.FC = () => {
                   {/* Backdrop */}
                   <div className="fixed inset-0 z-40" onClick={() => setIsCurrencyOpen(false)}></div>
                   {/* Dropdown panel */}
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
+                  <div id="currency-listbox" role="listbox" className="absolute right-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
                       <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Select Currency</span>
                     </div>
@@ -205,6 +223,8 @@ const Layout: React.FC = () => {
                       {currencies.map(currency => (
                         <button 
                           key={currency.code} 
+                          role="option"
+                          aria-selected={selectedCurrency === currency.code}
                           onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
                           className={`block w-full text-left px-4 py-3 text-sm rounded-card transition-colors ${selectedCurrency === currency.code ? 'text-[#007ac2] font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                         >
@@ -267,7 +287,7 @@ const Layout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow" tabIndex={-1}>
         <Outlet />
       </main>
 

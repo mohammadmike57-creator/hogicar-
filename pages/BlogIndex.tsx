@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Calendar, User, ArrowRight, Search as SearchIcon, Tag, Clock } from 'lucide-react';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import User from 'lucide-react/dist/esm/icons/user';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import SearchIcon from 'lucide-react/dist/esm/icons/search';
+import Tag from 'lucide-react/dist/esm/icons/tag';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 import { API_BASE_URL } from '../lib/config';

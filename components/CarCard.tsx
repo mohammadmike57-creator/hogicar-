@@ -4,7 +4,31 @@
 
 
 import * as React from 'react';
-import { Users, Info, GaugeCircle, Briefcase, Fuel, Plane, Gift, X, FileText, Shield, CreditCard as CreditCardIcon, Handshake, Truck, Zap, Clock, MapPin, Phone, Building, Bus, Award, Tag, Check, CalendarCheck, Wind, ChevronRight } from 'lucide-react';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Info from 'lucide-react/dist/esm/icons/info';
+import GaugeCircle from 'lucide-react/dist/esm/icons/gauge-circle';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import Fuel from 'lucide-react/dist/esm/icons/fuel';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Gift from 'lucide-react/dist/esm/icons/gift';
+import X from 'lucide-react/dist/esm/icons/x';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import CreditCardIcon from 'lucide-react/dist/esm/icons/credit-card';
+import Handshake from 'lucide-react/dist/esm/icons/handshake';
+import Truck from 'lucide-react/dist/esm/icons/truck';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import Building from 'lucide-react/dist/esm/icons/building';
+import Bus from 'lucide-react/dist/esm/icons/bus';
+import Award from 'lucide-react/dist/esm/icons/award';
+import Tag from 'lucide-react/dist/esm/icons/tag';
+import Check from 'lucide-react/dist/esm/icons/check';
+import CalendarCheck from 'lucide-react/dist/esm/icons/calendar-check';
+import Wind from 'lucide-react/dist/esm/icons/wind';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
 import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
@@ -115,9 +139,9 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-accent">Rental conditions</p>
+                                   <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-accent">Rental conditions</h2>
                                    <h3 className="text-lg font-black text-slate-950 truncate">{supplierName}</h3>
-                                   <p className="text-xs font-bold text-slate-500 truncate">{car.displayName || `${car.make} ${car.model}`}</p>
+                                   <p className="text-xs font-bold text-slate-600 truncate">{car.displayName || `${car.make} ${car.model}`}</p>
                                 </div>
                             </>
                         ) : (
@@ -126,7 +150,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                                     <Award className="w-8 h-8 text-amber-400" />
                                 </div>
                                 <div className="min-w-0">
-                                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-600">Rental conditions</p>
+                                   <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-600">Rental conditions</h2>
                                    <h3 className="text-lg font-black text-slate-950 truncate">Hogicar verified fleet</h3>
                                    <p className="text-xs text-amber-700 font-bold uppercase tracking-wider">Exclusive supplier conditions</p>
                                 </div>
@@ -589,7 +613,7 @@ const CarCard: React.FC<CarCardProps> = ({
                   </Link>
 
                   {/* Supplier & Rating Block */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 mt-auto w-full">
+                  <div className="flex justify-between items-center gap-2 pt-2 border-t border-slate-100 mt-auto w-full">
                       {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
                           <Logo className="h-6 w-auto max-w-[105px]" />
                       ) : (

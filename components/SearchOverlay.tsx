@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Search as SearchIcon, MapPin, History, Plane, Building, LoaderCircle } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import SearchIcon from 'lucide-react/dist/esm/icons/search';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import History from 'lucide-react/dist/esm/icons/history';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Building from 'lucide-react/dist/esm/icons/building';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import { getAllLocations } from '../utils/locations';
 import { fetchLocations, LocationSuggestion } from '../api';
 

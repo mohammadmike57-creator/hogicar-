@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Home } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Home from 'lucide-react/dist/esm/icons/home';
 
 interface BreadcrumbItem {
   name: string;

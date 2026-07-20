@@ -1,5 +1,14 @@
 import * as React from 'react';
-import { MapPin, Calendar, Clock, Plane, Building, LoaderCircle, Search as SearchIcon, ChevronDown, X, ArrowRight } from 'lucide-react';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Building from 'lucide-react/dist/esm/icons/building';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import SearchIcon from 'lucide-react/dist/esm/icons/search';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import X from 'lucide-react/dist/esm/icons/x';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { fetchLocations, LocationSuggestion } from '../api';
 
 const SearchOverlay = React.lazy(() => import('./SearchOverlay'));
@@ -650,19 +659,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         <div className={`grid grid-cols-1 ${differentDropoff ? 'md:grid-cols-2' : ''} gap-2 transition-all duration-300`}>
                             {/* Pick-up location */}
                             <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center" role="combobox" aria-haspopup="listbox" aria-owns="pickup-suggestions" aria-expanded={isSuggestionsOpen}>
+                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
                                     <label htmlFor="desktop-pickup-location" className="text-[11px] text-slate-700 mb-0.5 font-bold">Pick-up location</label>
                                     <input
                                         id="desktop-pickup-location"
                                         name="pickupLocation"
                                         type="text"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-expanded={isSuggestionsOpen}
+                                        aria-haspopup="listbox"
                                         placeholder="Enter airport or city"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-500 p-0"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
                                         autoComplete="off"
-                                        aria-autocomplete="list"
                                         aria-controls="pickup-suggestions"
                                         required
                                     />
@@ -677,19 +689,22 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             {/* Drop-off location (Conditional) */}
                             {differentDropoff && (
                                 <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center" role="combobox" aria-haspopup="listbox" aria-owns="dropoff-suggestions" aria-expanded={isDropoffSuggestionsOpen}>
+                                    <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
                                         <label htmlFor="desktop-dropoff-location" className="text-[11px] text-slate-700 mb-0.5 font-bold">Drop-off location</label>
                                         <input
                                             id="desktop-dropoff-location"
                                             name="dropoffLocation"
                                             type="text"
+                                            role="combobox"
+                                            aria-autocomplete="list"
+                                            aria-expanded={isDropoffSuggestionsOpen}
+                                            aria-haspopup="listbox"
                                             placeholder="Enter airport or city"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-500 p-0"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}
                                             autoComplete="off"
-                                            aria-autocomplete="list"
                                             aria-controls="dropoff-suggestions"
                                             required={differentDropoff}
                                         />

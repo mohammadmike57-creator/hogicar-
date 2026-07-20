@@ -1,17 +1,40 @@
 import * as React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-    CheckCircle, Shield, Tag, ChevronDown, Globe, ArrowRight, Star, Award, 
-    Search as SearchIcon, FileSymlink, BookCheck, MapPin, Mail, Sparkles, Zap, 
-    FileText, User, Car, Fuel, ParkingCircle, Compass, Calendar, Plane,
-    Quote, ShieldCheck, Clock, ChevronUp, CreditCard, Wallet, HelpCircle
-} from 'lucide-react';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Tag from 'lucide-react/dist/esm/icons/tag';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Star from 'lucide-react/dist/esm/icons/star';
+import Award from 'lucide-react/dist/esm/icons/award';
+import SearchIcon from 'lucide-react/dist/esm/icons/search';
+import FileSymlink from 'lucide-react/dist/esm/icons/file-symlink';
+import BookCheck from 'lucide-react/dist/esm/icons/book-check';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import User from 'lucide-react/dist/esm/icons/user';
+import Car from 'lucide-react/dist/esm/icons/car';
+import Fuel from 'lucide-react/dist/esm/icons/fuel';
+import ParkingCircle from 'lucide-react/dist/esm/icons/parking-circle';
+import Compass from 'lucide-react/dist/esm/icons/compass';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Quote from 'lucide-react/dist/esm/icons/quote';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import Wallet from 'lucide-react/dist/esm/icons/wallet';
+import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
-import Reviews from '../components/Reviews';
-import TrustedSuppliers from '../components/TrustedSuppliers';
-import LatestTravelGuides from '../components/LatestTravelGuides';
+const Reviews = React.lazy(() => import('../components/Reviews'));
+const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
+const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -630,7 +653,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
-        <TrustedSuppliers />
+        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+          <TrustedSuppliers />
+        </React.Suspense>
       )}
 
       {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
@@ -840,10 +865,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 6. CUSTOMER REVIEWS */}
       {sections.reviews && (
-        <Reviews 
-          customReviews={seoConfig ? builderConfig?.sections?.reviews?.items : homepageContent?.selectedReviews}
-          accentColor={customStyles.accentColor}
-        />
+        <React.Suspense fallback={<div className="h-64 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+          <Reviews 
+            customReviews={seoConfig ? builderConfig?.sections?.reviews?.items : homepageContent?.selectedReviews}
+            accentColor={customStyles.accentColor}
+          />
+        </React.Suspense>
       )}
 
       {/* 7. DESTINATION INFORMATION (Unique Content) */}
@@ -933,14 +960,16 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* 15. RELATED ARTICLES */}
-      <LatestTravelGuides 
-        variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
-        route={seoConfig?.route || '/'} 
-        destination={seoConfig?.destinationName}
-        country={seoConfig?.countryTag} 
-        airport={seoConfig?.airportTags}
-        limit={isCustomLanding ? 3 : 6} 
-      />
+      <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+        <LatestTravelGuides 
+          variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
+          route={seoConfig?.route || '/'} 
+          destination={seoConfig?.destinationName}
+          country={seoConfig?.countryTag} 
+          airport={seoConfig?.airportTags}
+          limit={isCustomLanding ? 3 : 6} 
+        />
+      </React.Suspense>
 
       {/* FOOTER is outside the Home component usually or at the bottom of the main layout. 
           Assuming Newsletter section is the last part before the real footer. */}
