@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, User, ArrowRight, Search as SearchIcon, Tag, Clock } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
-import SearchWidget from '../components/SearchWidget';
 import { api } from '../api';
 import { API_BASE_URL } from '../lib/config';
 
@@ -27,13 +26,6 @@ const BlogIndex: React.FC = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   
-  const handleCarSearch = (params: any) => {
-    const queryParams = new URLSearchParams();
-    Object.keys(params).forEach(key => {
-      if (params[key]) queryParams.append(key, params[key]);
-    });
-    navigate(`/search?${queryParams.toString()}`);
-  };
   const [categories, setCategories] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -121,7 +113,7 @@ const BlogIndex: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <div className={`relative text-white py-16 mb-12 overflow-hidden ${!heroImageUrl ? 'bg-emerald-900' : ''}`}>
+      <div className={`relative text-white py-12 md:py-20 mb-12 overflow-hidden ${!heroImageUrl ? 'bg-emerald-900' : ''}`}>
         {heroImageUrl && (
             <div className="absolute inset-0 z-0">
                 <img 
@@ -129,33 +121,26 @@ const BlogIndex: React.FC = () => {
                     alt="Hogicar Blog" 
                     className="w-full h-full object-cover" 
                 />
-                <div className="absolute inset-0 bg-emerald-950/70 backdrop-blur-[1px]"></div>
+                <div className="absolute inset-0 bg-emerald-950/40"></div>
             </div>
         )}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 capitalize">{pageTitle}</h1>
-          <p className="text-emerald-100 text-lg max-w-2xl mx-auto">
-            Practical car rental guides, airport pickup advice, road trip planning, and destination-specific travel tips.
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h1 className="text-3xl md:text-6xl font-black mb-6 tracking-tight capitalize">{pageTitle}</h1>
+          <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed">
+            Expert car rental guides, airport pickup advice, and local road trip inspiration to make your next journey seamless.
           </p>
         </div>
       </div>
 
-      {/* Search Widget Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 mb-16 relative z-20">
-         <div className="bg-white rounded-[2.5rem] shadow-2xl p-2 md:p-4">
-            <SearchWidget onSearch={handleCarSearch} />
-         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-12">
           
           {/* Main Content */}
           <div className="flex-1">
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[1, 2, 4].map((i) => (
-                  <div key={i} className="bg-white rounded-card overflow-hidden shadow-sm animate-pulse">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white rounded-3xl overflow-hidden shadow-sm animate-pulse">
                     <div className="h-48 bg-slate-200" />
                     <div className="p-6">
                       <div className="h-4 w-1/4 bg-slate-200 mb-4 rounded" />
@@ -167,58 +152,54 @@ const BlogIndex: React.FC = () => {
                 ))}
               </div>
             ) : articles.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {articles.map((article) => (
                   <Link 
                     key={article.id} 
                     to={`/blog/${article.slug}`}
-                    className="group bg-white rounded-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                    className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
                   >
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-56 overflow-hidden">
                       <img 
                         src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'} 
                         alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute top-4 left-4">
-                        <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        <span className="bg-white/95 backdrop-blur-sm text-emerald-700 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
                           {article.category?.name || 'General'}
                         </span>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <div className="flex items-center gap-4 text-slate-500 text-sm mb-3">
-                        <div className="flex items-center gap-1">
-                          <Calendar size={14} />
+                    <div className="p-8 flex flex-col flex-1">
+                      <div className="flex items-center gap-4 text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-4">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={12} className="text-emerald-500" />
                           {new Date(article.publishedAt).toLocaleDateString()}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock size={14} />
-                          {article.readingTime || '5 min read'}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <User size={14} />
-                          {article.authorName || 'Hogicar Team'}
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={12} className="text-emerald-500" />
+                          {article.readingTime || '5 min'}
                         </div>
                       </div>
-                      <h2 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-emerald-600 transition-colors">
+                      <h2 className="text-xl font-extrabold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
                         {article.title}
                       </h2>
-                      <p className="text-slate-600 text-sm line-clamp-3 mb-4">
+                      <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6">
                         {article.excerpt}
                       </p>
-                      <div className="flex items-center text-emerald-600 font-semibold text-sm">
-                        Read More <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                      {article.tags && (
-                        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
-                          {article.tags.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3).map(t => (
-                            <span key={t} className="text-[11px] font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded">
-                              #{t}
-                            </span>
-                          ))}
+                      
+                      <div className="mt-auto flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-700">
+                                {article.authorName?.charAt(0) || 'H'}
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-600">{article.authorName || 'Hogicar Team'}</span>
                         </div>
-                      )}
+                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                          <ArrowRight size={16} />
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -257,31 +238,31 @@ const BlogIndex: React.FC = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="w-full lg:w-80 space-y-8">
+          <div className="w-full lg:w-[350px] space-y-8">
             {/* Search */}
-            <div className="bg-white p-6 rounded-card shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 mb-4">Search Articles</h3>
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-wider">Search</h3>
               <form onSubmit={handleSearch} className="relative">
                 <input 
                   type="text"
                   placeholder="Search articles..."
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-emerald-500 rounded-lg text-sm transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-emerald-500 rounded-2xl text-sm font-medium transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <SearchIcon className="absolute left-3 top-2.5 text-slate-400" size={18} />
+                <SearchIcon className="absolute left-4 top-4 text-emerald-500" size={18} />
               </form>
             </div>
 
             {/* Categories */}
-            <div className="bg-white p-6 rounded-card shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <Tag size={18} /> Categories
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-wider">
+                 Categories
               </h3>
               <div className="flex flex-wrap lg:flex-col gap-2">
                 <Link
                   to="/blog"
-                  className={`px-4 py-2 text-sm text-left rounded-lg transition-colors ${!selectedCategory ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+                  className={`px-6 py-3 text-sm font-bold rounded-xl transition-all ${!selectedCategory ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-slate-50 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600'}`}
                 >
                   All Categories
                 </Link>
@@ -289,7 +270,7 @@ const BlogIndex: React.FC = () => {
                   <Link 
                     key={cat.id}
                     to={`/blog/category/${cat.slug}`}
-                    className={`px-4 py-2 text-sm text-left rounded-lg transition-colors ${selectedCategory === cat.slug ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+                    className={`px-6 py-3 text-sm font-bold rounded-xl transition-all ${selectedCategory === cat.slug ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-slate-50 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600'}`}
                   >
                     {cat.name}
                   </Link>
@@ -298,17 +279,18 @@ const BlogIndex: React.FC = () => {
             </div>
 
             {/* Newsletter */}
-            <div className="bg-emerald-50 p-6 rounded-card border border-emerald-100">
-              <h3 className="text-lg font-bold text-emerald-900 mb-2">Join Our Newsletter</h3>
-              <p className="text-emerald-700 text-xs mb-4">Get the latest travel tips and exclusive rental deals delivered to your inbox.</p>
-              <form className="space-y-2">
+            <div className="bg-slate-900 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl"></div>
+              <h3 className="text-xl font-black text-white mb-3 relative z-10">Newsletter</h3>
+              <p className="text-slate-400 text-sm mb-6 relative z-10 leading-relaxed">Join 5,000+ travelers getting weekly insights and car rental deals.</p>
+              <form className="space-y-3 relative z-10">
                 <input 
                   type="email"
                   placeholder="Your email address"
-                  className="w-full px-4 py-2 border-slate-200 rounded-lg text-sm"
+                  className="w-full px-5 py-4 bg-white/10 border-transparent focus:bg-white/20 focus:ring-2 focus:ring-emerald-500 rounded-2xl text-white text-sm placeholder:text-slate-500"
                 />
-                <button className="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-emerald-700 transition-colors">
-                  Subscribe
+                <button className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl text-sm hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-900/20">
+                  Join Now
                 </button>
               </form>
             </div>

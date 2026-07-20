@@ -3,7 +3,6 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
-import SearchWidget from '../components/SearchWidget';
 import { api } from '../api';
 import { API_BASE_URL, PUBLIC_BASE_URL } from '../lib/config';
 import { BlogArticle as BlogArticleType } from '../types';
@@ -15,14 +14,6 @@ const BlogArticle: React.FC = () => {
   const [article, setArticle] = React.useState<BlogArticleType | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [recentArticles, setRecentArticles] = React.useState<BlogArticleType[]>([]);
-
-  const handleSearch = (params: any) => {
-    const queryParams = new URLSearchParams();
-    Object.keys(params).forEach(key => {
-      if (params[key]) queryParams.append(key, params[key]);
-    });
-    navigate(`/search?${queryParams.toString()}`);
-  };
 
   React.useEffect(() => {
     fetchArticle();
@@ -225,7 +216,7 @@ const BlogArticle: React.FC = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative h-[60vh] min-h-[400px] mb-12">
+      <div className="relative h-[40vh] md:h-[50vh] min-h-[350px] mb-12">
         <picture>
           <source media="(max-width: 640px)" srcSet={mobileImage} />
           <img 
@@ -235,63 +226,50 @@ const BlogArticle: React.FC = () => {
             fetchPriority="high"
           />
         </picture>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16">
-          <div className="max-w-4xl mx-auto">
-            <span className="inline-block bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+        <div className="absolute inset-0 bg-emerald-950/30" />
+        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-20">
+          <div className="max-w-[1440px] mx-auto">
+            <span className="inline-block bg-white text-emerald-700 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] mb-6 shadow-xl">
               {article.category?.name || 'General'}
             </span>
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-3xl md:text-6xl font-black text-white mb-8 leading-[1.1] tracking-tight max-w-5xl">
               {article.title}
             </h1>
-            <div className="flex items-center gap-6 text-white/90 text-sm">
-              <div className="flex items-center gap-2">
-                <img 
-                  src={article.authorImage ? (article.authorImage.startsWith('/') && !article.authorImage.startsWith('http') ? `${API_BASE_URL}${article.authorImage}` : article.authorImage) : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100'} 
-                  className="w-10 h-10 rounded-full border-2 border-white/20"
-                  alt={article.authorName}
-                />
+            <div className="flex flex-wrap items-center gap-8 text-white text-xs font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 backdrop-blur-md flex items-center justify-center border border-white/20">
+                    {article.authorName?.charAt(0) || 'H'}
+                </div>
                 <span>{article.authorName || 'Hogicar Team'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar size={18} />
+                <Calendar size={16} className="text-emerald-400" />
                 {new Date(article.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
               </div>
-              <span>{article.readingTime || '5 min read'}</span>
+              <div className="flex items-center gap-2">
+                <Clock size={16} className="text-emerald-400" />
+                {article.readingTime || '5 min read'}
+              </div>
             </div>
-            {article.imageCaption && (
-              <p className="mt-4 text-xs text-white/70">{article.imageCaption}</p>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Search Widget Section */}
-      <div className="bg-slate-50 border-b border-slate-100 py-12 mb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="bg-white rounded-[2.5rem] shadow-2xl p-2 md:p-4 -mt-24 relative z-20">
-              <SearchWidget onSearch={handleSearch} />
-           </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-12">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-16">
           
           {/* Sidebar / Table of Contents */}
-          <aside className="lg:w-80 shrink-0">
-            <div className="sticky top-24 space-y-8">
+          <aside className="lg:w-[350px] shrink-0">
+            <div className="sticky top-24 space-y-10">
               {toc.length > 0 && (
-                <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                    <ArrowRight className="text-emerald-600 w-5 h-5" /> Table of Contents
-                  </h3>
-                  <nav className="space-y-3">
+                <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-slate-100">
+                  <h3 className="text-xs font-black text-slate-400 mb-8 uppercase tracking-[0.2em]">Table of Contents</h3>
+                  <nav className="space-y-4">
                     {toc.map((item) => (
                       <a 
                         key={item.id} 
                         href={`#${item.id}`}
-                        className="block text-sm text-slate-600 hover:text-emerald-600 font-medium transition-colors"
+                        className="block text-sm text-slate-600 hover:text-emerald-600 font-bold transition-all hover:translate-x-1"
                         onClick={(e) => {
                           e.preventDefault();
                           document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
@@ -305,35 +283,33 @@ const BlogArticle: React.FC = () => {
               )}
 
               {/* Booking CTA */}
-              <div className="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
-                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-all duration-500" />
-                <h3 className="text-xl font-bold mb-4 relative z-10">Need a Car?</h3>
-                <p className="text-slate-400 text-sm mb-6 relative z-10 leading-relaxed">
+              <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
+                <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-all duration-700" />
+                <h3 className="text-2xl font-black mb-4 relative z-10 leading-tight">Ready to explore?</h3>
+                <p className="text-slate-400 text-sm mb-8 relative z-10 leading-relaxed font-medium">
                   Compare the best prices from top suppliers in {article.destinations?.split(',')[0] || 'your destination'}.
                 </p>
                 <Link 
                   to="/"
-                  className="block w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-center font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 relative z-10"
+                  className="block w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white text-center font-black rounded-2xl transition-all shadow-xl shadow-emerald-900/40 relative z-10 uppercase tracking-widest text-xs"
                 >
-                  Book Now & Save
+                  Book Your Car
                 </Link>
               </div>
 
               {/* Newsletter */}
-              <div className="bg-emerald-50 rounded-[2rem] p-8 border border-emerald-100">
-                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <MessageSquare className="text-emerald-600 w-5 h-5" /> Newsletter
-                </h3>
-                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+              <div className="bg-emerald-50 rounded-[2.5rem] p-10 border border-emerald-100">
+                <h3 className="text-xs font-black text-emerald-800/50 mb-6 uppercase tracking-[0.2em]">Newsletter</h3>
+                <p className="text-slate-600 text-sm mb-8 leading-relaxed font-medium">
                   Get travel tips and exclusive car rental deals delivered to your inbox.
                 </p>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <input 
                     type="email" 
                     placeholder="Your email address"
-                    className="w-full px-4 py-3 rounded-xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    className="w-full px-6 py-4 rounded-2xl border-transparent focus:ring-2 focus:ring-emerald-500 text-sm font-medium bg-white shadow-sm"
                   />
-                  <button className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors text-sm">
+                  <button className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all text-xs uppercase tracking-widest shadow-lg shadow-slate-900/20">
                     Subscribe
                   </button>
                 </div>
@@ -366,9 +342,9 @@ const BlogArticle: React.FC = () => {
           </aside>
           
           {/* Article Body */}
-          <article className="flex-1 max-w-4xl order-first lg:order-none">
+          <article className="flex-1 max-w-[900px] order-first lg:order-none">
             <div 
-              className="prose prose-lg prose-emerald max-w-none text-slate-700 leading-relaxed prose-headings:text-slate-900 prose-headings:font-black prose-a:text-emerald-600 prose-img:rounded-[2rem] prose-img:shadow-xl prose-strong:text-slate-900"
+              className="prose prose-lg prose-emerald max-w-none text-slate-700 leading-relaxed prose-headings:text-slate-900 prose-headings:font-black prose-headings:tracking-tight prose-a:text-emerald-600 prose-img:rounded-[2.5rem] prose-img:shadow-2xl prose-strong:text-slate-900"
               dangerouslySetInnerHTML={{ __html: enrichedContent }}
             />
 

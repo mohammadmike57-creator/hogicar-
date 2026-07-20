@@ -68,14 +68,14 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
 
   return (
     <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm font-medium mb-4"
+              className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-black uppercase tracking-widest mb-6"
             >
               Travel Insights
             </motion.div>
@@ -84,7 +84,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl font-bold text-slate-900 mb-4"
+              className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight"
             >
               {displayTitle}
             </motion.h2>
@@ -93,7 +93,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-lg text-slate-600"
+              className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed"
             >
               {displaySubtitle}
             </motion.p>
@@ -152,7 +152,7 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
       className="group"
     >
       <Link to={`/blog/${article.slug}`} className="block">
-        <div className={`relative ${largeImage ? 'aspect-[16/10]' : 'aspect-[4/3]'} rounded-[2rem] overflow-hidden mb-6 shadow-xl shadow-slate-200/50`}>
+        <div className={`relative ${largeImage ? 'aspect-[16/10]' : 'aspect-[4/3]'} rounded-[2.5rem] overflow-hidden mb-8 shadow-xl shadow-slate-200/50`}>
           <img
             src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'}
             alt={article.title}
@@ -161,37 +161,41 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
           />
           {article.category && (
             <div className="absolute top-6 left-6">
-              <span className="px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-sm font-bold text-slate-900 shadow-lg">
+              <span className="px-4 py-2 bg-white/95 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-700 shadow-lg">
                 {article.category.name}
               </span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </div>
         
         <div className="space-y-4 px-2">
-          <div className="flex items-center gap-4 text-sm text-slate-500 font-medium">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
+          <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <span className="flex items-center gap-2">
+              <Calendar className="w-3 h-3 text-emerald-500" />
               {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}
             </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {article.readingTime || '5 min read'}
+            <span className="flex items-center gap-2">
+              <Clock className="w-3 h-3 text-emerald-500" />
+              {article.readingTime || '5 min'}
             </span>
           </div>
           
-          <h3 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2 leading-tight">
+          <h3 className="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2 leading-tight tracking-tight">
             {article.title}
           </h3>
           
-          <p className="text-slate-600 line-clamp-2 text-sm leading-relaxed">
+          <p className="text-slate-500 font-medium line-clamp-2 text-sm leading-relaxed">
             {article.excerpt}
           </p>
           
-          <div className="flex items-center text-emerald-600 font-bold text-sm pt-2">
-            Read Full Article
-            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <div className="flex items-center justify-between pt-4">
+             <div className="flex items-center text-emerald-600 font-black text-[10px] uppercase tracking-widest">
+                Explore More
+             </div>
+             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                <ArrowRight className="w-5 h-5" />
+             </div>
           </div>
         </div>
       </Link>
