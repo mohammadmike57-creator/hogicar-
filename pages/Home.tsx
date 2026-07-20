@@ -679,7 +679,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                             <div className={`w-16 h-16 rounded-2xl ${step.color} ${step.shadow} flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                                 <step.icon className="w-8 h-8" />
                             </div>
-                            <h4 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h4>
+                            <h3 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h3>
                             <p className="text-slate-500 text-sm font-bold leading-relaxed">{step.desc}</p>
                         </div>
                     ))}
@@ -982,7 +982,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                         <img src={dest.image} alt={dest.name} className="h-full w-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
                         <div className="absolute bottom-6 left-6 right-6">
-                            <h4 className="text-xl font-black text-white uppercase tracking-tight">{dest.name}</h4>
+                            <h3 className="text-xl font-black text-white uppercase tracking-tight">{dest.name}</h3>
                             <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mt-1">{dest.country}</p>
                         </div>
                     </Link>

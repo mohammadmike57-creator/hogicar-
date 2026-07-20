@@ -68,36 +68,36 @@ const FullFooter = () => (
           <div>
             <h3 className="text-white font-bold text-base mb-6">Company</h3>
             <ul className="space-y-4 text-sm">
-              <li><Link to="/about-us" className="text-blue-100/70 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link to="/blog" className="text-blue-100/70 hover:text-white transition-colors">Travel Blog</Link></li>
+              <li><Link to="/about-us" className="text-blue-50 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/blog" className="text-blue-50 hover:text-white transition-colors">Travel Blog</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-white font-bold text-base mb-6">Support</h3>
             <ul className="space-y-4 text-sm">
-              <li><Link to="/contact" className="text-blue-100/70 hover:text-white transition-colors">Contact Us</Link></li>
-              <li><Link to="/help" className="text-blue-100/70 hover:text-white transition-colors">Help Center</Link></li>
-              <li><Link to="/my-bookings" className="text-blue-100/70 hover:text-white transition-colors">Manage Booking</Link></li>
-              <li><Link to="/cancellation-policy" className="text-blue-100/70 hover:text-white transition-colors">Cancellation Policy</Link></li>
+              <li><Link to="/contact" className="text-blue-50 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/help" className="text-blue-50 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/my-bookings" className="text-blue-50 hover:text-white transition-colors">Manage Booking</Link></li>
+              <li><Link to="/cancellation-policy" className="text-blue-50 hover:text-white transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-white font-bold text-base mb-6">Partners</h3>
             <ul className="space-y-4 text-sm">
-              <li><Link to="/become-supplier" className="text-blue-100/70 hover:text-white transition-colors">Become a Supplier</Link></li>
-              <li><Link to="/affiliate-program" className="text-blue-100/70 hover:text-white transition-colors">Affiliate Program</Link></li>
+              <li><Link to="/become-supplier" className="text-blue-50 hover:text-white transition-colors">Become a Supplier</Link></li>
+              <li><Link to="/affiliate-program" className="text-blue-50 hover:text-white transition-colors">Affiliate Program</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-white font-bold text-base mb-6">Legal</h3>
             <ul className="space-y-4 text-sm">
-              <li><Link to="/terms-and-conditions" className="text-blue-100/70 hover:text-white transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="text-blue-100/70 hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cookies-policy" className="text-blue-100/70 hover:text-white transition-colors">Cookies Policy</Link></li>
-              <li><Link to="/sitemap" className="text-blue-100/70 hover:text-white transition-colors">Sitemap</Link></li>
+              <li><Link to="/terms-and-conditions" className="text-blue-50 hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/privacy-policy" className="text-blue-50 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/cookies-policy" className="text-blue-50 hover:text-white transition-colors">Cookies Policy</Link></li>
+              <li><Link to="/sitemap" className="text-blue-50 hover:text-white transition-colors">Sitemap</Link></li>
             </ul>
           </div>
         </div>

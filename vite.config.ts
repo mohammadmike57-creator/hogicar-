@@ -27,18 +27,27 @@ export default defineConfig(({ mode }) => {
       build: {
         rollupOptions: {
           output: {
-            manualChunks: {
-              'vendor': [
-                'react',
-                'react-dom',
-                'react-router-dom',
-                'lucide-react',
-                'framer-motion',
-                'axios',
-                'date-fns',
-                '@stripe/stripe-js',
-                '@stripe/react-stripe-js'
-              ],
+            manualChunks(id) {
+              if (id.includes('node_modules')) {
+                if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                  return 'vendor-core';
+                }
+                if (id.includes('lucide-react')) {
+                  return 'vendor-icons';
+                }
+                if (id.includes('framer-motion')) {
+                  return 'vendor-animation';
+                }
+                if (id.includes('@stripe')) {
+                  return 'vendor-stripe';
+                }
+                if (id.includes('recharts')) {
+                  return 'vendor-charts';
+                }
+                if (id.includes('axios') || id.includes('date-fns')) {
+                  return 'vendor-utils';
+                }
+              }
             },
           },
         },

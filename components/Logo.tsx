@@ -18,7 +18,10 @@ export function Logo({ className = '', variant = 'dark' }: LogoProps) {
       height="100%"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Hogicar"
     >
+      <title>Hogicar</title>
       <circle cx="100" cy="100" r="55" fill={circleColor}/>
       <path d="M60 105 Q100 65 140 95" stroke={accentColor} strokeWidth="16" fill="none" strokeLinecap="round"/>
       <line x1="75" y1="120" x2="125" y2="120" stroke={accentColor} strokeWidth="10" strokeLinecap="round"/>

@@ -207,7 +207,7 @@ const BlogArticle: React.FC = () => {
       />
 
       {/* Breadcrumbs */}
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center text-sm text-slate-500">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center text-sm text-slate-700 font-medium">
         <Link to="/" className="hover:text-emerald-600">Home</Link>
         <ChevronRight size={14} className="mx-2" />
         <Link to="/blog" className="hover:text-emerald-600">Blog</Link>
@@ -330,7 +330,7 @@ const BlogArticle: React.FC = () => {
                         <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
                           {recent.title}
                         </h4>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-600 font-medium">
                           {new Date(recent.publishedAt).toLocaleDateString()}
                         </span>
                       </div>

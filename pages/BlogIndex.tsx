@@ -172,7 +172,7 @@ const BlogIndex: React.FC = () => {
                       </div>
                     </div>
                     <div className="p-8 flex flex-col flex-1">
-                      <div className="flex items-center gap-4 text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-4">
+                      <div className="flex items-center gap-4 text-slate-600 text-[11px] font-bold uppercase tracking-wider mb-4">
                         <div className="flex items-center gap-1.5">
                           <Calendar size={12} className="text-emerald-500" />
                           {new Date(article.publishedAt).toLocaleDateString()}
@@ -185,7 +185,7 @@ const BlogIndex: React.FC = () => {
                       <h2 className="text-xl font-extrabold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
                         {article.title}
                       </h2>
-                      <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6">
+                      <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 mb-6">
                         {article.excerpt}
                       </p>
                       

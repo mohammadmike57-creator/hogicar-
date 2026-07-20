@@ -203,7 +203,7 @@ const DynamicPage: React.FC = () => {
         {heroBackgroundImage && (
             <>
                 <div className="absolute inset-0 z-0">
-                    <img src={heroBackgroundImage} alt={page?.title} className="w-full h-full object-cover" />
+                    <img src={heroBackgroundImage} alt={page?.title} className="w-full h-full object-cover" fetchPriority="high" />
                     <div className="absolute inset-0 bg-black/5"></div>
                 </div>
             </>
@@ -249,17 +249,17 @@ const DynamicPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="p-8 bg-blue-50 rounded-card border border-blue-100 flex flex-col items-center text-center">
                     <Shield className="w-10 h-10 text-[#007ac2] mb-4" />
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Secure Bookings</h4>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Secure Bookings</h3>
                     <p className="text-sm text-slate-600">Your data is always protected with industry-standard encryption.</p>
                 </div>
                 <div className="p-8 bg-emerald-50 rounded-card border border-emerald-100 flex flex-col items-center text-center">
                     <CheckCircle className="w-10 h-10 text-emerald-600 mb-4" />
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Free Cancellation</h4>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Free Cancellation</h3>
                     <p className="text-sm text-slate-600">Flexible plans with free cancellation on most vehicles.</p>
                 </div>
                 <div className="p-8 bg-orange-50 rounded-card border border-orange-100 flex flex-col items-center text-center">
                     <Award className="w-10 h-10 text-orange-600 mb-4" />
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Best Price Guarantee</h4>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Best Price Guarantee</h3>
                     <p className="text-sm text-slate-600">Find a lower price? We'll match it, no questions asked.</p>
                 </div>
             </div>
@@ -273,7 +273,7 @@ const DynamicPage: React.FC = () => {
         <section className="py-16 bg-white border-t border-slate-100">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h3 className="text-3xl font-extrabold text-slate-900 mb-4">Popular Destinations</h3>
+                    <h2 className="text-3xl font-extrabold text-slate-900 mb-4">Popular Destinations</h2>
                     <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full"></div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -299,15 +299,15 @@ const DynamicPage: React.FC = () => {
         <section className="py-16 bg-slate-50">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h3 className="text-3xl font-extrabold text-slate-900 mb-4">Frequently Asked Questions</h3>
+                    <h2 className="text-3xl font-extrabold text-slate-900 mb-4">Frequently Asked Questions</h2>
                     <p className="text-slate-500">Everything you need to know about renting a car with Hogicar.</p>
                 </div>
                 <div className="space-y-4">
                     {homepageContent.faqs.items.slice(0, 5).map((faq: any, idx: number) => (
                         <div key={idx} className="bg-white p-6 rounded-card border border-slate-200">
-                            <h4 className="font-bold text-slate-900 mb-2 flex items-center justify-between">
+                            <h3 className="font-bold text-slate-900 mb-2 flex items-center justify-between">
                                 {faq.question}
-                            </h4>
+                            </h3>
                             <p className="text-sm text-slate-600 leading-relaxed">{faq.answer}</p>
                         </div>
                     ))}
@@ -325,7 +325,7 @@ const DynamicPage: React.FC = () => {
 
       <section className="py-16 bg-slate-900 text-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
-            <h3 className="text-3xl font-extrabold mb-6">Ready to hit the road?</h3>
+            <h2 className="text-3xl font-extrabold mb-6">Ready to hit the road?</h2>
             <p className="text-slate-400 mb-8 text-lg">Compare over 900+ suppliers and find your perfect car today.</p>
             <Link to="/" className="inline-flex items-center gap-2 bg-[#007ac2] hover:bg-blue-600 text-white px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-500/20">
                 Start Searching Now <ChevronRight className="w-5 h-5" />

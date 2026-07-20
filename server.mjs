@@ -97,6 +97,15 @@ async function serveStatic(req, res, url) {
       const ext = path.extname(filePath).toLowerCase();
       let contentType = contentTypes[ext] || 'application/octet-stream';
       
+      const cacheHeaders = {};
+      if (['.js', '.css', '.png', '.jpg', '.jpeg', '.webp', '.svg', '.woff', '.woff2'].includes(ext)) {
+        if (normalizedPath.includes('/assets/') || normalizedPath.startsWith('/assets/')) {
+          cacheHeaders['Cache-Control'] = 'public, max-age=31536000, immutable';
+        } else {
+          cacheHeaders['Cache-Control'] = 'public, max-age=3600';
+        }
+      }
+
       // Special case for llms.txt as requested for agentic browsing
       if (normalizedPath === '/llms.txt') {
         contentType = 'text/markdown';
@@ -106,6 +115,7 @@ async function serveStatic(req, res, url) {
 
       res.writeHead(200, {
         ...securityHeaders,
+        ...cacheHeaders,
         'Content-Type': contentType,
         'Content-Length': fileStat.size
       });
