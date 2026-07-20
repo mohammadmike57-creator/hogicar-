@@ -49,7 +49,7 @@ const renderSuggestions = (
 ) => (
   <>
     {loading ? (
-      <div className="p-5 text-sm text-slate-500 text-center flex items-center justify-center gap-2 font-semibold">
+      <div className="p-5 text-sm text-slate-600 text-center flex items-center justify-center gap-2 font-semibold">
         <LoaderCircle className="w-4 h-4 animate-spin" /> Loading...
       </div>
     ) : error ? (
@@ -72,7 +72,7 @@ const renderSuggestions = (
         ))}
       </ul>
     ) : (
-      <p className="p-5 text-sm text-slate-500 text-center font-semibold">No results found.</p>
+      <p className="p-5 text-sm text-slate-600 text-center font-semibold">No results found.</p>
     )}
   </>
 );
@@ -589,7 +589,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider">Date</span>
+                                        <span className="text-[8px] font-extrabold text-slate-600 uppercase tracking-wider">Date</span>
                                     </div>
                                     <input
                                         type="date"
@@ -603,7 +603,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 <div className="p-2 pt-1 flex flex-col">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">Time</span>
+                                        <span className="text-[8px] font-extrabold text-slate-600 uppercase tracking-wider">Time</span>
                                     </div>
                                     <select
                                         value={dropoffTime}

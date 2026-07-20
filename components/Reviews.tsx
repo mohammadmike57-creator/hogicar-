@@ -65,7 +65,7 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
             <Star className="w-3 h-3 fill-current" /> Customer Testimonials
           </div>
           <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Real Stories from Real Travelers</h3>
-          <p className="max-w-2xl mx-auto text-slate-500 text-sm md:text-base leading-relaxed">
+          <p className="max-w-2xl mx-auto text-slate-600 text-sm md:text-base leading-relaxed">
             Join thousands of satisfied customers who have experienced the Hogicar difference in destinations around the globe.
           </p>
         </div>
@@ -77,20 +77,20 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'}`} 
+                    className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}`} 
                   />
                 ))}
               </div>
               
               <div className="relative mb-6 flex-grow">
                 <Quote className="absolute -top-3 -left-3 w-10 h-10 text-slate-100 opacity-40 z-0 group-hover:text-blue-100 transition-colors" />
-                <p className="text-slate-600 text-[13px] md:text-sm leading-relaxed relative z-10 italic font-medium">
+                <p className="text-slate-700 text-[13px] md:text-sm leading-relaxed relative z-10 italic font-medium">
                   "{review.comment}"
                 </p>
               </div>
 
               <div className="mt-6 flex items-center gap-3 pt-6 border-t border-slate-50">
-                <div className="w-11 h-11 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shadow-inner">
+                <div className="w-11 h-11 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 overflow-hidden shadow-inner">
                   {review.avatar ? (
                     <img src={review.avatar} alt={review.author} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
@@ -102,7 +102,7 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
                     <span className="text-sm font-bold text-slate-900">{review.author}</span>
                     {review.verified && <CheckCircle className="w-3.5 h-3.5 text-emerald-500 fill-emerald-50" />}
                   </div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-0.5">
+                  <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-0.5">
                     {review.location}
                   </div>
                 </div>

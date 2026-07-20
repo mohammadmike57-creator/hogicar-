@@ -337,17 +337,19 @@ const DynamicPage: React.FC = () => {
 
   return (
     <>
-      <SEOMetadata 
-        title={seoConfig?.title || (page ? `${page.title} | Hogicar` : undefined)} 
-        description={seoConfig?.description || (page ? page.content.substring(0, 160) : undefined)} 
-        ogTitle={seoConfig?.ogTitle}
-        ogDescription={seoConfig?.ogDescription}
-        twitterTitle={seoConfig?.twitterTitle}
-        twitterDescription={seoConfig?.twitterDescription}
-        keywords={seoConfig?.keywords}
-        canonicalUrl={seoConfig?.canonicalUrl}
-        ogImage={seoConfig?.ogImage}
-      />
+      {!isLandingPage && (
+        <SEOMetadata 
+          title={seoConfig?.title || (page ? `${page.title} | Hogicar` : undefined)} 
+          description={seoConfig?.description || (page ? page.content.substring(0, 160) : undefined)} 
+          ogTitle={seoConfig?.ogTitle}
+          ogDescription={seoConfig?.ogDescription}
+          twitterTitle={seoConfig?.twitterTitle}
+          twitterDescription={seoConfig?.twitterDescription}
+          keywords={seoConfig?.keywords}
+          canonicalUrl={seoConfig?.canonicalUrl}
+          ogImage={seoConfig?.ogImage}
+        />
+      )}
       {content}
     </>
   );
