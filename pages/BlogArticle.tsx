@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight } from 'lucide-react';
+import { Calendar, User, ChevronRight, Share2, Facebook, Twitter, Linkedin, ArrowLeft, MessageSquare, ArrowRight, Clock } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import LatestTravelGuides from '../components/LatestTravelGuides';
 import { api } from '../api';
