@@ -593,7 +593,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </label>
                         <label className="flex items-center text-[12px] font-extrabold text-slate-700 cursor-pointer select-none">
                             <input type="checkbox" defaultChecked className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
-                            Driver aged 30 - 65?
+                            Driver age between 30 - 65?
                         </label>
                     </div>
 
@@ -622,55 +622,58 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <div className="max-w-[950px] mx-auto">
                 <form onSubmit={handleSearch} className="relative bg-[#ffda44] p-1.5 rounded-3xl shadow-2xl overflow-visible border-[3px] border-[#ffda44]">
                     <div className="flex flex-col gap-2">
-                        {/* Pick-up location */}
-                        <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                            <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
-                                <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Pick-up location</label>
-                                <input
-                                    id="desktop-pickup-location"
-                                    type="text"
-                                    placeholder="Enter airport or city"
-                                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
-                                    value={pickupQuery}
-                                    onChange={handleLocationChange}
-                                    onFocus={handleFocus}
-                                    autoComplete="off"
-                                    required
-                                />
+                        {/* Locations Row */}
+                        <div className={`grid grid-cols-1 ${differentDropoff ? 'md:grid-cols-2' : ''} gap-2 transition-all duration-300`}>
+                            {/* Pick-up location */}
+                            <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
+                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
+                                    <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Pick-up location</label>
+                                    <input
+                                        id="desktop-pickup-location"
+                                        type="text"
+                                        placeholder="Enter airport or city"
+                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
+                                        value={pickupQuery}
+                                        onChange={handleLocationChange}
+                                        onFocus={handleFocus}
+                                        autoComplete="off"
+                                        required
+                                    />
+                                </div>
+                                {isSuggestionsOpen && (
+                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                        {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+                                    </div>
+                                )}
                             </div>
-                            {isSuggestionsOpen && (
-                                <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
-                                    {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+    
+                            {/* Drop-off location (Conditional) */}
+                            {differentDropoff && (
+                                <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
+                                        <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Drop-off location</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter airport or city"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
+                                            value={dropoffQuery}
+                                            onChange={handleDropoffLocationChange}
+                                            onFocus={handleDropoffFocus}
+                                            autoComplete="off"
+                                            required={differentDropoff}
+                                        />
+                                    </div>
+                                    {isDropoffSuggestionsOpen && (
+                                        <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                            {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
 
-                        {/* Drop-off location (Conditional) */}
-                        {differentDropoff && (
-                            <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
-                                    <label className="text-[11px] text-slate-500 mb-0.5 font-medium">Drop-off location</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter airport or city"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-400 p-0"
-                                        value={dropoffQuery}
-                                        onChange={handleDropoffLocationChange}
-                                        onFocus={handleDropoffFocus}
-                                        autoComplete="off"
-                                        required={differentDropoff}
-                                    />
-                                </div>
-                                {isDropoffSuggestionsOpen && (
-                                    <div onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
-                                        {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Checkbox: Return car in same location */}
-                        <div className="flex items-center px-1">
+                        {/* Checkboxes Row */}
+                        <div className="flex flex-wrap items-center gap-6 px-1">
                             <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
                                 <input 
                                     type="checkbox" 
@@ -679,6 +682,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
                                 />
                                 Return car in same location
+                            </label>
+                            <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
+                                <input 
+                                    type="checkbox" 
+                                    defaultChecked 
+                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
+                                />
+                                Driver age between 30 - 65?
                             </label>
                         </div>
 
