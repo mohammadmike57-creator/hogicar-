@@ -532,7 +532,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-12 pb-8 sm:pt-16 sm:pb-10 lg:pt-20 lg:pb-16 text-white overflow-visible min-h-[350px] sm:min-h-[450px] flex flex-col justify-center" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-10 pb-6 sm:pt-12 sm:pb-8 lg:pt-16 lg:pb-12 text-white overflow-visible flex flex-col justify-center" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0">
             {heroVideo ? (
               <video 
@@ -559,7 +559,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   src={heroBackgroundImage}
                   srcSet={heroPngSrcSet}
                   sizes="100vw"
-                  className={`w-full h-full object-cover transition-opacity duration-1000 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  className="w-full h-full object-cover"
                   alt={seoConfig?.imageAltText || displayH1}
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
@@ -578,7 +578,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             {!heroBackgroundImage && !heroVideo && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580] via-[#0047AB] to-[#003580]"></div>
             )}
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.1px]"></div>
+            <div className="absolute inset-0 bg-black/5"></div>
           </div>
 
           <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10">

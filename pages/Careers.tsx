@@ -64,7 +64,7 @@ const Careers: React.FC = () => {
             />
 
             {/* Hero Section */}
-            <section className="bg-[#003580] text-white py-20">
+            <section className="bg-[#003580] text-white py-12 md:py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Build the Future of Travel</h1>
                     <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8">

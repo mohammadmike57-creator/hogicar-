@@ -199,12 +199,12 @@ const DynamicPage: React.FC = () => {
   const content = (
     <div className="bg-white min-h-screen">
       {/* Standard Page Hero */}
-      <div className={`relative text-white py-12 md:py-16 overflow-hidden ${!heroBackgroundImage ? 'bg-[#003580]' : ''}`}>
+      <div className={`relative text-white py-8 md:py-12 overflow-hidden ${!heroBackgroundImage ? 'bg-[#003580]' : ''}`}>
         {heroBackgroundImage && (
             <>
                 <div className="absolute inset-0 z-0">
                     <img src={heroBackgroundImage} alt={page?.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.1px]"></div>
+                    <div className="absolute inset-0 bg-black/5"></div>
                 </div>
             </>
         )}
