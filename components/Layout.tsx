@@ -75,7 +75,6 @@ const FullFooter = () => (
             <ul className="space-y-3 text-xs font-bold">
                <li><Link to="/about-us" className="text-white hover:text-accent transition-colors">About Us</Link></li>
                <li><Link to="/blog" className="text-white hover:text-accent transition-colors">Travel Blog</Link></li>
-               <li><Link to="/sitemap" className="text-white hover:text-accent transition-colors">Sitemap</Link></li>
             </ul>
           </div>
           <div>
@@ -83,6 +82,7 @@ const FullFooter = () => (
             <ul className="space-y-3 text-xs font-bold">
               <li><Link to="/help" className="text-white hover:text-accent transition-colors">Help Center</Link></li>
               <li><Link to="/contact" className="text-white hover:text-accent transition-colors">Contact Us</Link></li>
+              <li><Link to="/cancellation-policy" className="text-white hover:text-accent transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
           <div>
@@ -98,7 +98,6 @@ const FullFooter = () => (
               <li><Link to="/terms-and-conditions" className="text-white hover:text-accent transition-colors">Terms & Conditions</Link></li>
               <li><Link to="/privacy-policy" className="text-white hover:text-accent transition-colors">Privacy Policy</Link></li>
               <li><Link to="/cookies-policy" className="text-white hover:text-accent transition-colors">Cookies Policy</Link></li>
-              <li><Link to="/cancellation-policy" className="text-white hover:text-accent transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
         </div>
