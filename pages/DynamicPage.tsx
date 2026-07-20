@@ -199,19 +199,19 @@ const DynamicPage: React.FC = () => {
   const content = (
     <div className="bg-white min-h-screen">
       {/* Standard Page Hero */}
-      <div className={`relative text-white py-16 md:py-24 overflow-hidden ${!heroBackgroundImage ? 'bg-[#003580]' : ''}`}>
+      <div className={`relative text-white py-12 md:py-16 overflow-hidden ${!heroBackgroundImage ? 'bg-[#003580]' : ''}`}>
         {heroBackgroundImage && (
             <>
                 <div className="absolute inset-0 z-0">
                     <img src={heroBackgroundImage} alt={page?.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[0.5px]"></div>
+                    <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.1px]"></div>
                 </div>
             </>
         )}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <Breadcrumbs items={breadcrumbItems} variant="light" />
-            <h1 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight">{page?.title}</h1>
-            <div className="flex items-center justify-center gap-4 text-blue-200 text-xs font-bold uppercase tracking-[0.2em]">
+            <h1 className="text-2xl md:text-4xl font-extrabold mb-4 tracking-tight">{page?.title}</h1>
+            <div className="flex items-center justify-center gap-4 text-blue-100 text-[10px] font-bold uppercase tracking-[0.2em]">
                 <div className="flex items-center gap-1.5">
                     <CheckCircle className="w-4 h-4 text-emerald-400" />
                     <span>Verified Info</span>

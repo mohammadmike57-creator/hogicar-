@@ -532,7 +532,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-16 pb-10 sm:pt-24 sm:pb-16 lg:pt-36 lg:pb-32 text-white overflow-visible min-h-[500px] sm:min-h-[600px] flex flex-col justify-center" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-12 pb-8 sm:pt-16 sm:pb-10 lg:pt-20 lg:pb-16 text-white overflow-visible min-h-[350px] sm:min-h-[450px] flex flex-col justify-center" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0">
             {heroVideo ? (
               <video 
@@ -578,15 +578,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             {!heroBackgroundImage && !heroVideo && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580] via-[#0047AB] to-[#003580]"></div>
             )}
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-[0.5px]"></div>
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.1px]"></div>
           </div>
 
           <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10">
-            {isCustomLanding && <div className="mb-6"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black mb-4 lg:mb-8 leading-[1.05] tracking-tight drop-shadow-2xl max-w-5xl mx-auto uppercase px-4">
+            {isCustomLanding && <div className="mb-4"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 lg:mb-4 leading-tight tracking-tight drop-shadow-xl max-w-4xl mx-auto px-4">
               {displayH1}
             </h1>
-            <p className="text-white/90 mb-8 lg:mb-14 max-w-2xl mx-auto text-sm sm:text-lg lg:text-xl font-medium leading-relaxed px-6 drop-shadow-md">
+            <p className="text-white/95 mb-6 lg:mb-8 max-w-2xl mx-auto text-xs sm:text-base lg:text-lg font-medium leading-relaxed px-6 drop-shadow-md">
               {displaySubtitle}
             </p>
             
