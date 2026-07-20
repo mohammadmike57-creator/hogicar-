@@ -3,14 +3,59 @@ import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'reac
 const getPromoCode = (code: string): PromoCode | undefined => {
   return undefined; // Mock data removed
 };
-import {
-  Check, ShieldCheck, User, Users, Briefcase, Fuel, Info, CreditCard as CreditCardIcon,
-  ShieldAlert, Calendar, Tag, Car as CarIcon, Snowflake, XCircle, FileText, Clock,
-  Navigation, Baby, PlusCircle, Star, Sparkles, MapPin, CheckCircle, GaugeCircle, Hash, X,
-  ArrowRight, Shield, Wifi, Wind, Thermometer, Smartphone, Battery, Coffee, Gift, Award,
-  Heart, Share2, ChevronDown, ChevronUp, Phone, Building, Bus, Handshake, Loader2,
-  DollarSign, Zap, ThumbsUp, Globe, Headphones, Plane, PlaneLanding, PlaneTakeoff
-} from 'lucide-react';
+import Check from 'lucide-react/dist/esm/icons/check';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import User from 'lucide-react/dist/esm/icons/user';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import Fuel from 'lucide-react/dist/esm/icons/fuel';
+import Info from 'lucide-react/dist/esm/icons/info';
+import CreditCardIcon from 'lucide-react/dist/esm/icons/credit-card';
+import ShieldAlert from 'lucide-react/dist/esm/icons/shield-alert';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Tag from 'lucide-react/dist/esm/icons/tag';
+import CarIcon from 'lucide-react/dist/esm/icons/car';
+import Snowflake from 'lucide-react/dist/esm/icons/snowflake';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Navigation from 'lucide-react/dist/esm/icons/navigation';
+import Baby from 'lucide-react/dist/esm/icons/baby';
+import PlusCircle from 'lucide-react/dist/esm/icons/plus-circle';
+import Star from 'lucide-react/dist/esm/icons/star';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import GaugeCircle from 'lucide-react/dist/esm/icons/gauge-circle';
+import Hash from 'lucide-react/dist/esm/icons/hash';
+import X from 'lucide-react/dist/esm/icons/x';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Wifi from 'lucide-react/dist/esm/icons/wifi';
+import Wind from 'lucide-react/dist/esm/icons/wind';
+import Thermometer from 'lucide-react/dist/esm/icons/thermometer';
+import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
+import Battery from 'lucide-react/dist/esm/icons/battery';
+import Coffee from 'lucide-react/dist/esm/icons/coffee';
+import Gift from 'lucide-react/dist/esm/icons/gift';
+import Award from 'lucide-react/dist/esm/icons/award';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import Building from 'lucide-react/dist/esm/icons/building';
+import Bus from 'lucide-react/dist/esm/icons/bus';
+import Handshake from 'lucide-react/dist/esm/icons/handshake';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import ThumbsUp from 'lucide-react/dist/esm/icons/thumbs-up';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import Headphones from 'lucide-react/dist/esm/icons/headphones';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import PlaneLanding from 'lucide-react/dist/esm/icons/plane-landing';
+import PlaneTakeoff from 'lucide-react/dist/esm/icons/plane-takeoff';
 import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings } from '../utils/ratings';

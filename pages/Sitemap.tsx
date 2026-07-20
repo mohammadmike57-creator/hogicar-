@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../lib/config';
-import { MapPin, Globe, Plane, FileText, ChevronRight } from 'lucide-react';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import SEOMetadata from '../components/SEOMetadata';
 
 interface SitemapRoute {

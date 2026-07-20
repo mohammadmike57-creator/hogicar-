@@ -3,7 +3,27 @@ import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
-import { ShieldCheck, User, CreditCard, Shield, Info, Mail, Phone, Plane, Clock, ArrowRight, Check, MapPin, CalendarDays, Headphones, BadgeCheck, Award, Zap, ArrowLeft, UserPlus, Users, Briefcase } from 'lucide-react';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import User from 'lucide-react/dist/esm/icons/user';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Info from 'lucide-react/dist/esm/icons/info';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Check from 'lucide-react/dist/esm/icons/check';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import CalendarDays from 'lucide-react/dist/esm/icons/calendar-days';
+import Headphones from 'lucide-react/dist/esm/icons/headphones';
+import BadgeCheck from 'lucide-react/dist/esm/icons/badge-check';
+import Award from 'lucide-react/dist/esm/icons/award';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import { Car, PromoCode } from '../types';
 
 // A custom icon component for Automatic Transmission to match the design

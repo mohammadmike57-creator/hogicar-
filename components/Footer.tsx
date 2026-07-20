@@ -1,6 +1,12 @@
 import React from 'react';
 import { Logo } from './Logo';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import Facebook from 'lucide-react/dist/esm/icons/facebook';
+import Twitter from 'lucide-react/dist/esm/icons/twitter';
+import Instagram from 'lucide-react/dist/esm/icons/instagram';
+import Linkedin from 'lucide-react/dist/esm/icons/linkedin';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 
 export default function Footer() {
   return (

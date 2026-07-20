@@ -3,7 +3,12 @@ import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 const MOCK_BOOKINGS: any[] = [];
 const MOCK_CARS: any[] = [];
-import { Star, ArrowLeft, Send, CheckCircle, LoaderCircle, AlertCircle } from 'lucide-react';
+import Star from 'lucide-react/dist/esm/icons/star';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import Send from 'lucide-react/dist/esm/icons/send';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 

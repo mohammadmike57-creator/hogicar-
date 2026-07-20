@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { adminFetch } from '../../lib/adminApi';
-import { Plus, Edit, Trash2, LoaderCircle, Power, PowerOff, Shield } from 'lucide-react';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Edit from 'lucide-react/dist/esm/icons/edit';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import Power from 'lucide-react/dist/esm/icons/power';
+import PowerOff from 'lucide-react/dist/esm/icons/power-off';
+import Shield from 'lucide-react/dist/esm/icons/shield';
 
 interface Supplier {
     id: number;

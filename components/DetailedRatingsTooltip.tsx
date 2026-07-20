@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { CarRatings } from '../types';
-import { Sparkles, Clock, ThumbsUp, Users, ShieldCheck, MapPin, RotateCcw } from 'lucide-react';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import ThumbsUp from 'lucide-react/dist/esm/icons/thumbs-up';
+import Users from 'lucide-react/dist/esm/icons/users';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 
 interface DetailedRatingsTooltipProps {
     ratings: CarRatings;

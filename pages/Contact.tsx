@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Send, CheckCircle } from 'lucide-react';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Send from 'lucide-react/dist/esm/icons/send';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import SEOMetadata from '../components/SEOMetadata';
 import { API_BASE_URL } from '../lib/config';
 

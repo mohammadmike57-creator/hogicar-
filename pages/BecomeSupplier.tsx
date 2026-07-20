@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 import SEOMetadata from '../components/SEOMetadata';
-import { Building, Car, Globe, CheckCircle, ArrowRight, BarChart3, ShieldCheck, Database, Send } from 'lucide-react';
+import Building from 'lucide-react/dist/esm/icons/building';
+import Car from 'lucide-react/dist/esm/icons/car';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Database from 'lucide-react/dist/esm/icons/database';
+import Send from 'lucide-react/dist/esm/icons/send';
 import { api } from '../api';
 import { SupplierApplication } from '../types';
 import { API_BASE_URL } from '../lib/config';

@@ -2,7 +2,17 @@ import * as React from 'react';
 import { Booking, Car, Extra } from '../types';
 import { calculatePrice, calculateBookingFinancials } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { X, Calendar, Clock, Phone, Plane, PlusCircle, Check, Save, ArrowRight, RefreshCw, CreditCard } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import PlusCircle from 'lucide-react/dist/esm/icons/plus-circle';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Save from 'lucide-react/dist/esm/icons/save';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 
 interface ModifyBookingModalProps {
   booking: Booking;

@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Building, LogOut, Shield, Menu, X, LoaderCircle } from 'lucide-react';
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
+import Building from 'lucide-react/dist/esm/icons/building';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import { clearAdminToken, adminFetch } from '../../lib/adminApi';
 import { Logo } from '../../components/Logo';
 

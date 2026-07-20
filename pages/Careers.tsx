@@ -1,6 +1,12 @@
 import * as React from 'react';
 import SEOMetadata from '../components/SEOMetadata';
-import { Briefcase, MapPin, Clock, Upload, ArrowRight, CheckCircle, Search } from 'lucide-react';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Upload from 'lucide-react/dist/esm/icons/upload';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import Search from 'lucide-react/dist/esm/icons/search';
 
 const OPEN_POSITIONS = [
     {

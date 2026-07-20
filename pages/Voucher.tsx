@@ -2,12 +2,24 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Booking, Car } from '../types';
-import { 
-  CheckCircle, Printer, User, CreditCard, FileText, 
-  MapPin, Calendar, Car as CarIcon, AlertCircle, 
-  LoaderCircle, Award, Zap, Phone, Mail, Info,
-  ChevronRight, ShieldCheck, Clock
-} from 'lucide-react';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import Printer from 'lucide-react/dist/esm/icons/printer';
+import User from 'lucide-react/dist/esm/icons/user';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import CarIcon from 'lucide-react/dist/esm/icons/car';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import Award from 'lucide-react/dist/esm/icons/award';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Info from 'lucide-react/dist/esm/icons/info';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from '../components/Logo';

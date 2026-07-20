@@ -6,7 +6,9 @@ import { loadCars } from '../utils/loadCars';
 import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from '../utils/storage';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
-import { Check, Gift, MapPin } from 'lucide-react';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Gift from 'lucide-react/dist/esm/icons/gift';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const animationStyles = `

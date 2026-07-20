@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Star, User, Quote, CheckCircle } from 'lucide-react';
+import Star from 'lucide-react/dist/esm/icons/star';
+import User from 'lucide-react/dist/esm/icons/user';
+import Quote from 'lucide-react/dist/esm/icons/quote';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 
 interface Review {
   id: number;

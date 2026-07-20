@@ -32,19 +32,10 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('lucide-react')) {
                   return 'vendor-icons';
                 }
-                if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-                  return 'vendor-core';
-                }
-                if (id.includes('framer-motion')) {
-                  return 'vendor-motion';
-                }
                 if (id.includes('recharts')) {
                   return 'vendor-charts';
                 }
-                if (id.includes('@stripe')) {
-                  return 'vendor-stripe';
-                }
-                return 'vendor-others';
+                return 'vendor';
               }
             },
           },

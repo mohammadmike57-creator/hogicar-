@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { Search, Car, List, CreditCard, CheckCircle } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
+import Car from 'lucide-react/dist/esm/icons/car';
+import List from 'lucide-react/dist/esm/icons/list';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 
 interface BookingStepperProps {
   currentStep: number;

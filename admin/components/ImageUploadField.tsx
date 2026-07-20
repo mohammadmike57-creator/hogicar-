@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
-import { Upload, RefreshCw, X } from 'lucide-react';
+import Upload from 'lucide-react/dist/esm/icons/upload';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import X from 'lucide-react/dist/esm/icons/x';
 import { adminFetch } from '../../lib/adminApi';
 import { API_BASE_URL } from '../../lib/config';
 

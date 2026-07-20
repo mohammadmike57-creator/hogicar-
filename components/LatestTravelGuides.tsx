@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Clock, Calendar, User } from 'lucide-react';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import User from 'lucide-react/dist/esm/icons/user';
 import { Link } from 'react-router-dom';
 import { fetchRelatedBlogs, fetchHomepageFeaturedBlogs } from '../api';
 import { BlogArticle } from '../types';

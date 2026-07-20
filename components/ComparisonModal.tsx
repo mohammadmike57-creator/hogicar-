@@ -1,32 +1,30 @@
 import * as React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-    X,
-    Check,
-    Users,
-    Briefcase,
-    Fuel,
-    Zap,
-    Shield,
-    Award,
-    Building,
-    CreditCard,
-    ArrowLeftRight,
-    Plane,
-    Handshake,
-    Bus,
-    GaugeCircle,
-    Wind,
-    Star,
-    ArrowRight,
-    Info,
-    Calendar,
-    Key,
-    Lock,
-    Clock,
-    MapPin,
-    FileText,
-} from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import Fuel from 'lucide-react/dist/esm/icons/fuel';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Award from 'lucide-react/dist/esm/icons/award';
+import Building from 'lucide-react/dist/esm/icons/building';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import ArrowLeftRight from 'lucide-react/dist/esm/icons/arrow-left-right';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Handshake from 'lucide-react/dist/esm/icons/handshake';
+import Bus from 'lucide-react/dist/esm/icons/bus';
+import GaugeCircle from 'lucide-react/dist/esm/icons/gauge-circle';
+import Wind from 'lucide-react/dist/esm/icons/wind';
+import Star from 'lucide-react/dist/esm/icons/star';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import Info from 'lucide-react/dist/esm/icons/info';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Key from 'lucide-react/dist/esm/icons/key';
+import Lock from 'lucide-react/dist/esm/icons/lock';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
 import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
 import { Car, PickupType } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';

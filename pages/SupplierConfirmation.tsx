@@ -2,7 +2,17 @@
 import * as React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { Booking, Car as CarType } from '../types';
-import { Car, CheckCircle, AlertTriangle, FileText, Calendar, User, Hash, Send, LoaderCircle, XCircle, Printer } from 'lucide-react';
+import Car from 'lucide-react/dist/esm/icons/car';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import User from 'lucide-react/dist/esm/icons/user';
+import Hash from 'lucide-react/dist/esm/icons/hash';
+import Send from 'lucide-react/dist/esm/icons/send';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import Printer from 'lucide-react/dist/esm/icons/printer';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 import { Logo } from '../components/Logo';
