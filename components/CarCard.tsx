@@ -29,6 +29,7 @@ import Check from 'lucide-react/dist/esm/icons/check';
 import CalendarCheck from 'lucide-react/dist/esm/icons/calendar-check';
 import Wind from 'lucide-react/dist/esm/icons/wind';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
 import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
