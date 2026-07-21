@@ -3,8 +3,6 @@ import { createReadStream } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createGzip, createBrotliCompress, constants } from 'node:zlib';
-import { pipeline } from 'node:stream';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, 'dist');
@@ -58,6 +56,7 @@ async function proxyToBackend(req, res, url) {
   const target = new URL(url.pathname + url.search, backendOrigin);
   const headers = new Headers(req.headers);
   headers.set('host', target.host);
+  headers.set('accept-encoding', 'identity');
 
   const chunks = [];
   for await (const chunk of req) {
@@ -72,9 +71,9 @@ async function proxyToBackend(req, res, url) {
   });
 
   const responseHeaders = new Headers(response.headers);
-  // Keep content-encoding if present to allow compressed responses
+  responseHeaders.delete('content-encoding');
+  responseHeaders.delete('content-length');
   responseHeaders.delete('transfer-encoding');
-  responseHeaders.delete('content-length'); // Let Node handle content length or chunking
 
   res.writeHead(response.status, Object.fromEntries(responseHeaders.entries()));
   if (response.body) {
@@ -102,49 +101,23 @@ async function serveStatic(req, res, url) {
         if (normalizedPath.includes('/assets/') || normalizedPath.startsWith('/assets/')) {
           cacheHeaders['Cache-Control'] = 'public, max-age=31536000, immutable';
         } else {
-          cacheHeaders['Cache-Control'] = 'public, max-age=86400';
+          cacheHeaders['Cache-Control'] = 'public, max-age=3600';
         }
       }
 
       // Special case for llms.txt as requested for agentic browsing
       if (normalizedPath === '/llms.txt') {
         contentType = 'text/markdown';
-        cacheHeaders['Cache-Control'] = 'public, max-age=86400';
       } else if (normalizedPath === '/robots.txt') {
         contentType = 'text/plain; charset=utf-8';
-        cacheHeaders['Cache-Control'] = 'public, max-age=86400';
       }
 
-      const headers = {
+      res.writeHead(200, {
         ...securityHeaders,
         ...cacheHeaders,
-        'Content-Type': contentType
-      };
-
-      // Compression logic
-      const acceptEncoding = req.headers['accept-encoding'] || '';
-      const isCompressible = /text|javascript|json|xml|markdown/i.test(contentType);
-
-      if (isCompressible && acceptEncoding.includes('br')) {
-        headers['Content-Encoding'] = 'br';
-        headers['Vary'] = 'Accept-Encoding';
-        res.writeHead(200, headers);
-        pipeline(createReadStream(filePath), createBrotliCompress(), res, (err) => {
-          if (err) console.error('[br error]', err);
-        });
-        return;
-      } else if (isCompressible && acceptEncoding.includes('gzip')) {
-        headers['Content-Encoding'] = 'gzip';
-        headers['Vary'] = 'Accept-Encoding';
-        res.writeHead(200, headers);
-        pipeline(createReadStream(filePath), createGzip(), res, (err) => {
-          if (err) console.error('[gzip error]', err);
-        });
-        return;
-      }
-
-      headers['Content-Length'] = fileStat.size;
-      res.writeHead(200, headers);
+        'Content-Type': contentType,
+        'Content-Length': fileStat.size
+      });
       createReadStream(filePath).pipe(res);
       return;
     }
@@ -153,10 +126,7 @@ async function serveStatic(req, res, url) {
   }
 
   const html = await readFile(path.join(distDir, 'index.html'));
-  send(res, 200, html, { 
-    'Content-Type': contentTypes['.html'],
-    'Cache-Control': 'no-cache, no-store, must-revalidate'
-  });
+  send(res, 200, html, { 'Content-Type': contentTypes['.html'] });
 }
 
 createServer(async (req, res) => {

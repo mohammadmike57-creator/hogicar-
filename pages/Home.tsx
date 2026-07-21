@@ -35,7 +35,6 @@ import SEOMetadata from '../components/SEOMetadata';
 const Reviews = React.lazy(() => import('../components/Reviews'));
 const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
 const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
-const Footer = React.lazy(() => import('../components/Footer'));
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -585,8 +584,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   alt={seoConfig?.imageAltText || displayH1}
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
-                  width="1920"
-                  height="1080"
                   onLoad={() => setHeroLoaded(true)}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -606,13 +603,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
 
           <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10 mt-2 sm:mt-0">
-            {isCustomLanding ? (
-              <div className="mb-4 min-h-[24px] sm:min-h-[32px] flex items-center justify-center">
-                <Breadcrumbs items={breadcrumbItems} variant="light" />
-              </div>
-            ) : (
-              <div className="mb-4 min-h-[24px] sm:min-h-[32px]"></div>
-            )}
+            {isCustomLanding && <div className="mb-4"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
             <div className="min-h-[80px] sm:min-h-[96px] lg:min-h-[112px] flex items-center justify-center">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 leading-[1.1] tracking-tight drop-shadow-2xl max-w-4xl mx-auto px-4 uppercase">
                   {displayH1}
@@ -625,7 +616,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </div>
             
             {sections.search && (
-              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[950px] mx-auto min-h-[460px] lg:min-h-[236px]">
+              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[950px] mx-auto min-h-[380px] lg:min-h-[180px]">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
@@ -664,7 +655,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 4. POPULAR SUPPLIERS */}
       {sections.suppliers && (
-        <React.Suspense fallback={<div className="h-[220px] bg-white border-b border-slate-100"></div>}>
+        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
           <TrustedSuppliers />
         </React.Suspense>
       )}
@@ -673,14 +664,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {!isCustomLanding && (
         <section className="py-24 bg-slate-50 overflow-hidden relative">
             <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <header className="text-center mb-16">
+                <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
                         How to find a <span className="text-blue-600">great car rental deal</span>
                     </h2>
                     <p className="text-slate-700 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
-                </header>
+                </div>
 
-                <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {[
                         { 
                             title: 'Book Early', 
@@ -711,15 +702,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                             shadow: 'shadow-rose-500/20'
                         },
                     ].map((step, i) => (
-                        <article key={i} className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-200/60 transition-all duration-500 hover:-translate-y-2">
+                        <div key={i} className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-200/60 transition-all duration-500 hover:-translate-y-2">
                             <div className={`w-16 h-16 rounded-2xl ${step.color} ${step.shadow} flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                                 <step.icon className="w-8 h-8" />
                             </div>
                             <h3 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h3>
                             <p className="text-slate-700 text-sm font-bold leading-relaxed">{step.desc}</p>
-                        </article>
+                        </div>
                     ))}
-                </nav>
+                </div>
             </div>
         </section>
       )}
@@ -876,7 +867,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 6. CUSTOMER REVIEWS */}
       {sections.reviews && (
-        <React.Suspense fallback={<div className="h-[400px] bg-white border-b border-slate-100"></div>}>
+        <React.Suspense fallback={<div className="h-64 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
           <Reviews 
             customReviews={seoConfig ? builderConfig?.sections?.reviews?.items : homepageContent?.selectedReviews}
             accentColor={customStyles.accentColor}
@@ -971,7 +962,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
       {/* 15. RELATED ARTICLES */}
-      <React.Suspense fallback={<div className="h-[600px] bg-slate-50 border-t border-slate-100"></div>}>
+      <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
         <LatestTravelGuides 
           variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
           route={seoConfig?.route || '/'} 
@@ -985,31 +976,29 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       {/* FOOTER is outside the Home component usually or at the bottom of the main layout. 
           Assuming Newsletter section is the last part before the real footer. */}
       {sections.cta && (
-        <React.Suspense fallback={<div className="h-64 bg-slate-950"></div>}>
-          <section className="py-16 bg-slate-950 text-white">
-            <div className="max-w-4xl mx-auto px-4 text-center">
-              <h2 className="text-3xl md:text-4xl font-black mb-6 uppercase tracking-tight">Get Exclusive Car Rental Deals</h2>
-              <p className="text-slate-400 mb-10 font-bold uppercase text-sm tracking-widest">Join 10,000+ travelers receiving insider offers</p>
-              <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                  <input 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-accent"
-                  />
-                  <button type="submit" className="bg-accent hover:brightness-110 text-white font-black px-8 py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
-                      Join Now
-                  </button>
-              </form>
-            </div>
-          </section>
-        </React.Suspense>
+        <section className="py-16 bg-slate-950 text-white">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-black mb-6 uppercase tracking-tight">Get Exclusive Car Rental Deals</h2>
+            <p className="text-slate-400 mb-10 font-bold uppercase text-sm tracking-widest">Join 10,000+ travelers receiving insider offers</p>
+            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-accent"
+                />
+                <button type="submit" className="bg-accent hover:brightness-110 text-white font-black px-8 py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
+                    Join Now
+                </button>
+            </form>
+          </div>
+        </section>
       )}
 
       {/* 16. POPULAR DESTINATIONS (Extra, not explicitly requested in order but good for SEO internal linking) */}
       {!isCustomLanding && sections.popularDestinations && (
         <section className="bg-slate-50 py-16">
           <div className="max-w-7xl mx-auto px-4">
-             <header className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
                  <div>
                      <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Popular Destinations</h2>
                      <p className="text-slate-700 font-bold uppercase text-xs tracking-widest">Explore our most booked locations</p>
@@ -1017,18 +1006,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                  <Link to="/search" className="text-accent font-black uppercase text-xs tracking-widest flex items-center gap-2 hover:gap-3 transition-all">
                      View All <ArrowRight className="w-4 h-4" />
                  </Link>
-             </header>
+             </div>
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                  {destinations.slice(0, 5).map((dest, index) => (
                     <Link to={`/search?location=${encodeURIComponent(dest.name)}`} key={index} className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-slate-900">
-                        <img 
-                          src={dest.image} 
-                          alt={dest.name} 
-                          className="h-full w-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" 
-                          width="400"
-                          height="500"
-                          loading="lazy"
-                        />
+                        <img src={dest.image} alt={dest.name} className="h-full w-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
                         <div className="absolute bottom-6 left-6 right-6">
                             <h3 className="text-xl font-black text-white uppercase tracking-tight">{dest.name}</h3>
