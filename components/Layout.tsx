@@ -43,11 +43,11 @@ const AmexIcon = () => (
 );
 
 const PciDssIcon = () => (
-    <div className="flex items-center gap-1.5 text-blue-300">
-        <Shield className="w-6 h-6 text-blue-400" />
+    <div className="flex items-center gap-1.5 text-blue-100">
+        <Shield className="w-6 h-6 text-blue-300" />
         <div className="text-left leading-tight">
-            <span className="font-bold text-[9px] block">PCI DSS</span>
-            <span className="font-medium text-[8px] block opacity-80">COMPLIANT</span>
+            <span className="font-black text-[9px] block">PCI DSS</span>
+            <span className="font-bold text-[8px] block opacity-90 uppercase tracking-tighter">COMPLIANT</span>
         </div>
     </div>
 );
@@ -57,65 +57,65 @@ const FullFooter = () => (
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16" aria-label="Footer Navigation">
           <div className="col-span-2 lg:col-span-1">
-            <Link to="/" className="inline-block mb-6" aria-label="Hogicar Home">
-              <Logo className="h-8 w-auto" variant="light" />
+            <Link to="/" className="inline-block mb-6 w-[160px] h-[30px]" aria-label="Hogicar Home">
+              <Logo className="w-full h-full" variant="light" />
             </Link>
             <p className="text-blue-100 text-sm leading-relaxed opacity-95 mb-8 max-w-xs">
               Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
             </p>
             <div className="flex space-x-5">
-              <a href="#" aria-label="Follow us on Facebook" className="text-blue-200 hover:text-white transition-colors">
+              <a href="#" aria-label="Follow us on Facebook" className="text-blue-100 hover:text-white transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" aria-label="Follow us on Twitter" className="text-blue-200 hover:text-white transition-colors">
+              <a href="#" aria-label="Follow us on Twitter" className="text-blue-100 hover:text-white transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" aria-label="Follow us on Instagram" className="text-blue-200 hover:text-white transition-colors">
+              <a href="#" aria-label="Follow us on Instagram" className="text-blue-100 hover:text-white transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-base mb-6">Company</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/about-us" className="text-blue-50 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link to="/blog" className="text-blue-50 hover:text-white transition-colors">Travel Blog</Link></li>
+            <h3 className="text-white font-black uppercase text-[10px] tracking-[0.2em] mb-6">Company</h3>
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest">
+              <li><Link to="/about-us" className="text-blue-100 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/blog" className="text-blue-100 hover:text-white transition-colors">Travel Blog</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-base mb-6">Support</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/contact" className="text-blue-50 hover:text-white transition-colors">Contact Us</Link></li>
-              <li><Link to="/help" className="text-blue-50 hover:text-white transition-colors">Help Center</Link></li>
-              <li><Link to="/my-bookings" className="text-blue-50 hover:text-white transition-colors">Manage Booking</Link></li>
-              <li><Link to="/cancellation-policy" className="text-blue-50 hover:text-white transition-colors">Cancellation Policy</Link></li>
+            <h3 className="text-white font-black uppercase text-[10px] tracking-[0.2em] mb-6">Support</h3>
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest">
+              <li><Link to="/contact" className="text-blue-100 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/help" className="text-blue-100 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/my-bookings" className="text-blue-100 hover:text-white transition-colors">Manage Booking</Link></li>
+              <li><Link to="/cancellation-policy" className="text-blue-100 hover:text-white transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-base mb-6">Partners</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/become-supplier" className="text-blue-50 hover:text-white transition-colors">Become a Supplier</Link></li>
-              <li><Link to="/affiliate-program" className="text-blue-50 hover:text-white transition-colors">Affiliate Program</Link></li>
+            <h3 className="text-white font-black uppercase text-[10px] tracking-[0.2em] mb-6">Partners</h3>
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest">
+              <li><Link to="/become-supplier" className="text-blue-100 hover:text-white transition-colors">Become a Supplier</Link></li>
+              <li><Link to="/affiliate-program" className="text-blue-100 hover:text-white transition-colors">Affiliate Program</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-base mb-6">Legal</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/terms-and-conditions" className="text-blue-50 hover:text-white transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="text-blue-50 hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cookies-policy" className="text-blue-50 hover:text-white transition-colors">Cookies Policy</Link></li>
-              <li><Link to="/sitemap" className="text-blue-50 hover:text-white transition-colors">Sitemap</Link></li>
+            <h3 className="text-white font-black uppercase text-[10px] tracking-[0.2em] mb-6">Legal</h3>
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest">
+              <li><Link to="/terms-and-conditions" className="text-blue-100 hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/privacy-policy" className="text-blue-100 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/cookies-policy" className="text-blue-100 hover:text-white transition-colors">Cookies Policy</Link></li>
+              <li><Link to="/sitemap" className="text-blue-100 hover:text-white transition-colors">Sitemap</Link></li>
             </ul>
           </div>
         </nav>
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-blue-800/50 gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-            <p className="text-blue-300 text-sm">&copy; 2026 Hogicar. All rights reserved.</p>
+            <p className="text-blue-100 text-sm font-bold">&copy; 2026 Hogicar. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <VisaIcon />
               <MastercardIcon />
@@ -125,13 +125,13 @@ const FullFooter = () => (
             </div>
           </div>
           
-          <div className="bg-blue-900/40 px-4 py-2 rounded-lg border border-blue-700/50 flex items-center gap-3">
+          <div className="bg-blue-900/60 px-4 py-2 rounded-lg border border-blue-400/30 flex items-center gap-3">
              <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 text-green-400 fill-current" />
+                  <Star key={i} className="w-3 h-3 text-[#4ade80] fill-current" />
                 ))}
              </div>
-             <span className="text-xs font-bold text-blue-100">Trustpilot Excellent</span>
+             <span className="text-xs font-black text-white uppercase tracking-wider">Trustpilot Excellent</span>
           </div>
         </div>
       </div>
@@ -181,8 +181,8 @@ const Layout: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500" aria-label="Hogicar Home">
-            <Logo className="w-full h-auto" variant="light" />
+          <Link to="/" className="flex items-center w-[140px] lg:w-[160px] h-[26px] lg:h-[30px] transition-all duration-500" aria-label="Hogicar Home">
+            <Logo className="w-full h-full" variant="light" />
           </Link>
 
           {/* Desktop right side */}

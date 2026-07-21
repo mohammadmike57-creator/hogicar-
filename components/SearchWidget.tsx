@@ -588,7 +588,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all focus-within:border-accent/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
                                 <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 text-[#003580]" />
+                                        <Calendar className="w-3.5 h-3.5 text-accent" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
                                     </div>
                                     <input
@@ -604,7 +604,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 </div>
                                 <div className="p-3 pt-2 flex flex-col">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Clock className="w-3.5 h-3.5 text-[#003580]" />
+                                        <Clock className="w-3.5 h-3.5 text-accent" />
                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
                                     </div>
                                     <select

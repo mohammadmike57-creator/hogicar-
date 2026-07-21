@@ -118,22 +118,22 @@ const CurrencyContext = React.createContext<CurrencyContextType | undefined>(und
 export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedCurrency, setSelectedCurrency] = React.useState<string>('USD');
 
-  const convertPrice = (price: number): number => {
+  const convertPrice = React.useCallback((price: number): number => {
     const rate = CONVERSION_RATES[selectedCurrency] || 1;
     return price * rate;
-  };
+  }, [selectedCurrency]);
 
-  const getCurrencySymbol = (): string => {
+  const getCurrencySymbol = React.useCallback(() => {
     return CURRENCIES.find(c => c.code === selectedCurrency)?.symbol || '$';
-  };
+  }, [selectedCurrency]);
 
-  const value = {
+  const value = React.useMemo(() => ({
     selectedCurrency,
     setSelectedCurrency,
     convertPrice,
     getCurrencySymbol,
     currencies: CURRENCIES,
-  };
+  }), [selectedCurrency, convertPrice, getCurrencySymbol]);
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
 };

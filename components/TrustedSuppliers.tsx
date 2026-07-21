@@ -37,9 +37,9 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = ({
   if (suppliers.length === 0) return null;
 
   return (
-    <section className="py-10 bg-white overflow-hidden border-b border-slate-100" style={{ backgroundColor }}>
+    <section className="py-10 bg-white overflow-hidden border-b border-slate-100 min-h-[220px]" style={{ backgroundColor }}>
       <div className="max-w-7xl mx-auto px-4 text-center mb-8">
-        <div className="text-[10px] font-extrabold uppercase tracking-[0.5em] mb-4" style={{ color: accentColor }}>Partnered with the World's Best</div>
+        <div className="text-[10px] font-extrabold uppercase tracking-[0.5em] mb-4 min-h-[14px]" style={{ color: accentColor }}>Partnered with the World's Best</div>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
       </div>
       
