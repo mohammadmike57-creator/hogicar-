@@ -3,7 +3,7 @@ import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { zlibSync, gzipSync, deflateSync } from 'node:zlib';
+import { gzipSync, deflateSync } from 'node:zlib';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, 'dist');
