@@ -665,69 +665,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
             <div className="max-w-[950px] mx-auto">
                 <form onSubmit={handleSearch} className="relative bg-[#ffda44] p-1.5 rounded-3xl shadow-2xl overflow-visible border-[3px] border-[#ffda44]">
                     <div className="flex flex-col gap-2">
-                        {/* Locations Row */}
-                        <div className={`grid grid-cols-1 ${differentDropoff ? 'md:grid-cols-2' : ''} gap-2 transition-all duration-300`}>
-                            {/* Pick-up location */}
-                            <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                                <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
-                                    <label htmlFor="desktop-pickup-location" className="text-[11px] text-slate-700 mb-0.5 font-bold">Pick-up location</label>
-                                    <input
-                                        id="desktop-pickup-location"
-                                        name="pickupLocation"
-                                        type="text"
-                                        role="combobox"
-                                        aria-autocomplete="list"
-                                        aria-expanded={isSuggestionsOpen}
-                                        aria-haspopup="listbox"
-                                        placeholder="Enter airport or city"
-                                        className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
-                                        value={pickupQuery}
-                                        onChange={handleLocationChange}
-                                        onFocus={handleFocus}
-                                        autoComplete="off"
-                                        aria-controls="pickup-suggestions"
-                                        required
-                                    />
-                                </div>
-                                {isSuggestionsOpen && (
-                                    <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
-                                        {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
-                                    </div>
-                                )}
-                            </div>
-    
-                            {/* Drop-off location (Conditional) */}
-                            {differentDropoff && (
-                                <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
-                                        <label htmlFor="desktop-dropoff-location" className="text-[11px] text-slate-700 mb-0.5 font-bold">Drop-off location</label>
-                                        <input
-                                            id="desktop-dropoff-location"
-                                            name="dropoffLocation"
-                                            type="text"
-                                            role="combobox"
-                                            aria-autocomplete="list"
-                                            aria-expanded={isDropoffSuggestionsOpen}
-                                            aria-haspopup="listbox"
-                                            placeholder="Enter airport or city"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
-                                            value={dropoffQuery}
-                                            onChange={handleDropoffLocationChange}
-                                            onFocus={handleDropoffFocus}
-                                            autoComplete="off"
-                                            aria-controls="dropoff-suggestions"
-                                            required={differentDropoff}
-                                        />
-                                    </div>
-                                    {isDropoffSuggestionsOpen && (
-                                        <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
-                                            {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
                         {/* Checkboxes Row */}
                         <div className="flex flex-wrap items-center gap-6 px-1">
                             <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
@@ -753,8 +690,73 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             </label>
                         </div>
 
-                        {/* Dates & Times row */}
-                        <div className="flex flex-col md:flex-row gap-2">
+                        {/* Search Bar Content */}
+                        <div className="flex flex-col lg:flex-row gap-2">
+                            {/* Locations Row */}
+                            <div className={`flex-[3] grid grid-cols-1 ${differentDropoff ? 'md:grid-cols-2' : ''} gap-2 transition-all duration-300`}>
+                                {/* Pick-up location */}
+                                <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
+                                    <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
+                                        <label htmlFor="desktop-pickup-location" className="text-[11px] text-slate-700 mb-0.5 font-bold">Pick-up location</label>
+                                        <input
+                                            id="desktop-pickup-location"
+                                            name="pickupLocation"
+                                            type="text"
+                                            role="combobox"
+                                            aria-autocomplete="list"
+                                            aria-expanded={isSuggestionsOpen}
+                                            aria-haspopup="listbox"
+                                            placeholder="Enter airport or city"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
+                                            value={pickupQuery}
+                                            onChange={handleLocationChange}
+                                            onFocus={handleFocus}
+                                            autoComplete="off"
+                                            aria-controls="pickup-suggestions"
+                                            required
+                                        />
+                                    </div>
+                                    {isSuggestionsOpen && (
+                                        <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                            {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+                                        </div>
+                                    )}
+                                </div>
+        
+                                {/* Drop-off location (Conditional) */}
+                                {differentDropoff && (
+                                    <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
+                                        <div className="px-4 pt-2.5 pb-2 flex flex-col min-h-[60px] justify-center">
+                                            <label htmlFor="desktop-dropoff-location" className="text-[11px] text-slate-700 mb-0.5 font-bold">Drop-off location</label>
+                                            <input
+                                                id="desktop-dropoff-location"
+                                                name="dropoffLocation"
+                                                type="text"
+                                                role="combobox"
+                                                aria-autocomplete="list"
+                                                aria-expanded={isDropoffSuggestionsOpen}
+                                                aria-haspopup="listbox"
+                                                placeholder="Enter airport or city"
+                                                className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
+                                                value={dropoffQuery}
+                                                onChange={handleDropoffLocationChange}
+                                                onFocus={handleDropoffFocus}
+                                                autoComplete="off"
+                                                aria-controls="dropoff-suggestions"
+                                                required={differentDropoff}
+                                            />
+                                        </div>
+                                        {isDropoffSuggestionsOpen && (
+                                            <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                                {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Dates & Times row */}
+                            <div className="flex-[4] flex flex-col md:flex-row gap-2">
                                 <DesktopGroupedDateTimeField
                                     idPrefix="pickup"
                                     dateLabel="Pick-up date"
@@ -779,16 +781,17 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                     timeOptions={TIME_OPTIONS}
                                     iconType="dropoff"
                                 />
-                        </div>
+                            </div>
 
-                        {/* Driver info & Search button row */}
-                        <div className="flex items-center justify-end mt-1">
-                            <button 
-                                type="submit" 
-                                className="bg-[#008009] text-white px-12 h-[60px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center"
-                            >
-                                Search now
-                            </button>
+                            {/* Search button */}
+                            <div className="flex items-center">
+                                <button 
+                                    type="submit" 
+                                    className="bg-[#008009] text-white px-8 h-[64px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center min-w-[160px]"
+                                >
+                                    Search
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
