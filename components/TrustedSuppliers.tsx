@@ -48,7 +48,7 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
         <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }}></div>
 
         <div className="animate-marquee flex items-center hover:[animation-play-state:paused]">
-          {[...suppliers, ...suppliers, ...suppliers, ...suppliers].map((s, idx) => (
+          {[...suppliers, ...suppliers].map((s, idx) => (
             <div 
               key={`${s.id || s.name}-${idx}`}
               className="flex-shrink-0 flex items-center justify-center"
@@ -61,6 +61,7 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
                 width="160"
                 height="48"
                 loading="lazy"
+                decoding="async"
                 style={{ 
                     transform: `scale(${(s.scale || 100) / 100})`,
                 } as any}

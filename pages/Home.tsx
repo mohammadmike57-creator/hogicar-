@@ -32,11 +32,14 @@ import Wallet from 'lucide-react/dist/esm/icons/wallet';
 import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
+
+// Lazy load almost everything below the fold
 const Reviews = React.lazy(() => import('../components/Reviews'));
 const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
-import TrustedSuppliers from '../components/TrustedSuppliers';
+const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
+const SearchWidget = React.lazy(() => import('../components/SearchWidget'));
+
 import { useCurrency } from '../contexts/CurrencyContext';
-import SearchWidget from '../components/SearchWidget';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
 import { LocationSuggestion } from '../api';
@@ -604,7 +607,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
           <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10 mt-2 sm:mt-0">
             {isCustomLanding && <div className="mb-4"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
-            <div className="min-h-[60px] sm:min-h-[70px] lg:min-h-[80px] flex items-center justify-center">
+            <div className="min-h-[60px] sm:min-h-[80px] lg:min-h-[100px] flex items-center justify-center">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-2 lg:mb-3 leading-[1.1] tracking-tight drop-shadow-2xl max-w-4xl mx-auto px-4 uppercase">
                   {displayH1}
                 </h1>
@@ -617,20 +620,22 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             
             {sections.search && (
               <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1200px] mx-auto min-h-[380px] lg:min-h-[180px]">
-                <SearchWidget
-                  onSearch={handleSearch}
-                  showTitle={false}
-                  initialValues={{
-                    pickup: pickupCode,
-                    pickupName: pickupName,
-                    dropoff: dropoffCode,
-                    dropoffName: dropoffName
-                  }}
-                  accentColor={accentColor}
-                  style={seoConfig?.searchWidgetStyle}
-                  customColor={seoConfig?.searchWidgetColor}
-                  buttonColor={seoConfig?.searchWidgetButtonColor}
-                />
+                <React.Suspense fallback={<div className="h-[380px] lg:h-[180px] w-full bg-white/5 backdrop-blur-sm rounded-3xl animate-pulse"></div>}>
+                  <SearchWidget
+                    onSearch={handleSearch}
+                    showTitle={false}
+                    initialValues={{
+                      pickup: pickupCode,
+                      pickupName: pickupName,
+                      dropoff: dropoffCode,
+                      dropoffName: dropoffName
+                    }}
+                    accentColor={accentColor}
+                    style={seoConfig?.searchWidgetStyle}
+                    customColor={seoConfig?.searchWidgetColor}
+                    buttonColor={seoConfig?.searchWidgetButtonColor}
+                  />
+                </React.Suspense>
                 
                 {/* Mobile Features Bar */}
                 <div className="lg:hidden mt-6 flex flex-wrap justify-center gap-2 px-4">

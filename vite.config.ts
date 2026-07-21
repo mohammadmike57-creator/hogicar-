@@ -34,8 +34,9 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('lucide-react')) return 'vendor-icons';
                 if (id.includes('recharts')) return 'vendor-charts';
                 if (id.includes('framer-motion')) return 'vendor-animation';
-                if (id.includes('axios') || id.includes('date-fns')) return 'vendor-utils';
-                return 'vendor-core';
+                if (id.includes('axios')) return 'vendor-network';
+                if (id.includes('date-fns')) return 'vendor-date';
+                return 'vendor-core'; // Merged vendor-libs into vendor-core to fix circularity
               }
             },
           },

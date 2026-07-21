@@ -123,7 +123,7 @@ async function serveStatic(req, res, url) {
       
       const cacheHeaders = {};
       if (['.js', '.css', '.png', '.jpg', '.jpeg', '.webp', '.svg', '.woff', '.woff2'].includes(ext)) {
-        if (normalizedPath.includes('/assets/') || normalizedPath.startsWith('/assets/')) {
+        if (filePath.includes('/assets/') || filePath.includes('\\assets\\')) {
           cacheHeaders['Cache-Control'] = 'public, max-age=31536000, immutable';
         } else {
           cacheHeaders['Cache-Control'] = 'public, max-age=86400'; // 1 day
