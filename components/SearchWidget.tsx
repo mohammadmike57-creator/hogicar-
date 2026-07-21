@@ -271,7 +271,7 @@ interface SearchWidgetProps {
     buttonColor?: string;
 }
 
-const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, showTitle = false, accentColor, style: widgetStyle = 'DEFAULT', customColor, buttonColor }) => {
+const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, onSearch, showTitle = false, accentColor, style: widgetStyle = 'DEFAULT', customColor, buttonColor }) => {
     const today = new Date();
     const nextThreeDays = new Date(today);
     nextThreeDays.setDate(today.getDate() + 3);
@@ -823,6 +823,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         </div>
         </>
     )
-};
+});
 
 export default SearchWidget;

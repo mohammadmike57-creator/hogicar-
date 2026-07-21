@@ -54,7 +54,7 @@ const DEFAULT_REVIEWS: Review[] = [
   }
 ];
 
-export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] }> = ({ accentColor = '#007ac2', customReviews }) => {
+export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] }> = React.memo(({ accentColor = '#007ac2', customReviews }) => {
   const reviews = customReviews && customReviews.length > 0 ? customReviews : DEFAULT_REVIEWS;
   
   return (
@@ -125,6 +125,6 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
       </div>
     </section>
   );
-};
+});
 
 export default Reviews;

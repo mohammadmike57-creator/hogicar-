@@ -1,8 +1,9 @@
 import { createServer } from 'node:http';
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { zlibSync, gzipSync, deflateSync } from 'node:zlib';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, 'dist');
@@ -21,7 +22,9 @@ const contentTypes = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
-  '.webp': 'image/webp'
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff'
 };
 
 function shouldProxy(pathname) {
@@ -47,9 +50,31 @@ const securityHeaders = {
   'Cross-Origin-Resource-Policy': 'cross-origin'
 };
 
-function send(res, status, body, headers = {}) {
-  res.writeHead(status, { ...securityHeaders, ...headers });
-  res.end(body);
+function compress(data, encoding) {
+  if (encoding === 'gzip') return gzipSync(data);
+  if (encoding === 'deflate') return deflateSync(data);
+  return data;
+}
+
+function send(res, status, body, headers = {}, req = null) {
+  let finalBody = body;
+  const finalHeaders = { ...securityHeaders, ...headers };
+
+  if (req && body && body.length > 1024) {
+    const acceptEncoding = req.headers['accept-encoding'] || '';
+    if (acceptEncoding.includes('gzip')) {
+      finalHeaders['Content-Encoding'] = 'gzip';
+      finalBody = compress(body, 'gzip');
+    } else if (acceptEncoding.includes('deflate')) {
+      finalHeaders['Content-Encoding'] = 'deflate';
+      finalBody = compress(body, 'deflate');
+    }
+    finalHeaders['Content-Length'] = Buffer.byteLength(finalBody);
+    finalHeaders['Vary'] = 'Accept-Encoding';
+  }
+
+  res.writeHead(status, finalHeaders);
+  res.end(finalBody);
 }
 
 async function proxyToBackend(req, res, url) {
@@ -88,7 +113,7 @@ async function serveStatic(req, res, url) {
   const decodedPath = decodeURIComponent(url.pathname);
   const normalizedPath = path.normalize(decodedPath).replace(/^(\.\.[/\\])+/, '');
   const requestedPath = path.join(distDir, normalizedPath);
-  let filePath = requestedPath.startsWith(distDir) ? requestedPath : path.join(distDir, 'index.html');
+  let filePath = requestedPath.startsWith(distDir) && existsSync(requestedPath) ? requestedPath : path.join(distDir, 'index.html');
 
   try {
     const fileStat = await stat(filePath);
@@ -101,32 +126,41 @@ async function serveStatic(req, res, url) {
         if (normalizedPath.includes('/assets/') || normalizedPath.startsWith('/assets/')) {
           cacheHeaders['Cache-Control'] = 'public, max-age=31536000, immutable';
         } else {
-          cacheHeaders['Cache-Control'] = 'public, max-age=3600';
+          cacheHeaders['Cache-Control'] = 'public, max-age=86400'; // 1 day
         }
       }
 
-      // Special case for llms.txt as requested for agentic browsing
       if (normalizedPath === '/llms.txt') {
         contentType = 'text/markdown';
       } else if (normalizedPath === '/robots.txt') {
         contentType = 'text/plain; charset=utf-8';
       }
 
-      res.writeHead(200, {
-        ...securityHeaders,
-        ...cacheHeaders,
+      const headers = {
         'Content-Type': contentType,
-        'Content-Length': fileStat.size
-      });
-      createReadStream(filePath).pipe(res);
+        ...cacheHeaders
+      };
+
+      // For static assets, we read and compress if appropriate
+      if (fileStat.size > 1024 && ['.html', '.js', '.css', '.json', '.svg', '.txt'].includes(ext)) {
+        const body = await readFile(filePath);
+        send(res, 200, body, headers, req);
+      } else {
+        res.writeHead(200, {
+          ...securityHeaders,
+          ...headers,
+          'Content-Length': fileStat.size
+        });
+        createReadStream(filePath).pipe(res);
+      }
       return;
     }
-  } catch {
-    // Fall through to SPA shell.
+  } catch (e) {
+    console.error('Static serve error:', e);
   }
 
   const html = await readFile(path.join(distDir, 'index.html'));
-  send(res, 200, html, { 'Content-Type': contentTypes['.html'] });
+  send(res, 200, html, { 'Content-Type': contentTypes['.html'] }, req);
 }
 
 createServer(async (req, res) => {

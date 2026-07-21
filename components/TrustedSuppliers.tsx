@@ -16,7 +16,7 @@ interface TrustedSuppliersProps {
   backgroundColor?: string;
 }
 
-export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = ({ 
+export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({ 
   accentColor = '#007ac2',
   backgroundColor = '#ffffff'
 }) => {
@@ -71,6 +71,6 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = ({
       </div>
     </section>
   );
-};
+});
 
 export default TrustedSuppliers;
