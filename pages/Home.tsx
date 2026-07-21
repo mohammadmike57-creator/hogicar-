@@ -616,7 +616,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </div>
             
             {sections.search && (
-              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[950px] mx-auto min-h-[380px] lg:min-h-[180px]">
+              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1050px] mx-auto min-h-[380px] lg:min-h-[180px]">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
@@ -652,13 +652,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-
-      {/* 4. POPULAR SUPPLIERS */}
-      {sections.suppliers && (
-        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
-          <TrustedSuppliers />
-        </React.Suspense>
-      )}
 
       {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
       {!isCustomLanding && (
@@ -714,6 +707,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </div>
         </section>
       )}
+
+      {/* 4. POPULAR SUPPLIERS */}
+      {sections.suppliers && (
+        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+          <TrustedSuppliers />
+        </React.Suspense>
+      )}
+
 
       {/* 4.5 POPULAR COUNTRIES & LOCATIONS */}
       {!isCustomLanding && (
