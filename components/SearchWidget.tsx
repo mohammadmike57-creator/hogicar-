@@ -10,6 +10,7 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import X from 'lucide-react/dist/esm/icons/x';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { fetchLocations, LocationSuggestion } from '../api';
+import CalendarPicker from './CalendarPicker';
 
 const SearchOverlay = React.lazy(() => import('./SearchOverlay'));
 
@@ -77,6 +78,70 @@ const renderSuggestions = (
   </>
 );
 
+const MobileDateTimeField = ({
+    label,
+    dateValue,
+    onDateChange,
+    minDate,
+    timeValue,
+    onTimeChange,
+    iconColor
+}: {
+    label: string;
+    dateValue: string;
+    onDateChange: (date: string) => void;
+    minDate: string;
+    timeValue: string;
+    onTimeChange: (time: string) => void;
+    iconColor: string;
+}) => {
+    const [showCalendar, setShowCalendar] = React.useState(false);
+    return (
+        <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">{label}</label>
+            <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all shadow-sm overflow-hidden">
+                <div 
+                    className="p-3 pb-2 flex flex-col border-b border-slate-100 cursor-pointer active:bg-slate-100 transition-colors"
+                    onClick={() => setShowCalendar(true)}
+                >
+                    <div className="flex items-center gap-2 mb-1">
+                        <Calendar className={`w-3.5 h-3.5 ${iconColor}`} />
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
+                    </div>
+                    <div className="text-[13px] font-black text-slate-950">
+                        {formatDateForDisplay(dateValue)}
+                    </div>
+                </div>
+                <div className="p-3 pt-2 flex flex-col relative">
+                    <div className="flex items-center gap-2 mb-1">
+                        <Clock className={`w-3.5 h-3.5 ${iconColor}`} />
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
+                    </div>
+                    <select
+                        value={timeValue}
+                        onChange={e => onTimeChange(e.target.value)}
+                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
+                    >
+                        {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                </div>
+            </div>
+            {showCalendar && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowCalendar(false)}>
+                    <div onClick={e => e.stopPropagation()}>
+                        <CalendarPicker 
+                            selectedDate={dateValue}
+                            minDate={minDate}
+                            onDateSelect={onDateChange}
+                            onClose={() => setShowCalendar(false)}
+                        />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const DesktopGroupedDateTimeField = ({ 
     dateLabel, 
     dateValue, 
@@ -91,7 +156,7 @@ const DesktopGroupedDateTimeField = ({
 }: { 
     dateLabel: string; 
     dateValue: string; 
-    onDateChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
+    onDateChange: (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string, value: string } }) => void; 
     minDate: string;
     timeLabel: string;
     timeValue: string;
@@ -99,74 +164,88 @@ const DesktopGroupedDateTimeField = ({
     timeOptions: string[];
     iconType?: 'pickup' | 'dropoff';
     idPrefix: string;
-}) => (
-    <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 overflow-hidden shadow-sm border border-slate-200/50">
-        {/* Date Part */}
-        <div 
-            className="flex-[2] relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
-            onClick={(e) => {
-                const input = e.currentTarget.querySelector('input');
-                if (input) {
-                    try { (input as any).showPicker(); } catch (err) { input.focus(); }
-                }
-            }}
-        >
-            <label htmlFor={`${idPrefix}-date`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{dateLabel}</label>
-            <div className="flex items-center gap-2">
-                <div className="flex items-center text-slate-900 font-bold text-[15px]">
-                    {iconType === 'pickup' ? (
-                        <span className="mr-3 flex items-center gap-1.5 text-slate-900">
-                            <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
-                            <ArrowRight className="w-4 h-4 stroke-[3px]" />
-                        </span>
-                    ) : (
-                        <span className="mr-3 flex items-center gap-1.5 text-slate-900">
-                            <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
-                            <ArrowRight className="w-4 h-4 stroke-[3px] rotate-180" />
-                        </span>
-                    )}
-                    {formatDateForDisplay(dateValue)}
-                </div>
-            </div>
-            <input
-                id={`${idPrefix}-date`}
-                name={`${idPrefix}Date`}
-                type="date"
-                value={dateValue}
-                onChange={onDateChange}
-                min={minDate}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-                style={{ colorScheme: 'light' }}
-            />
-        </div>
+}) => {
+    const [showCalendar, setShowCalendar] = React.useState(false);
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
-        {/* Time Part */}
-        <div 
-            className="flex-1 relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
-            onClick={(e) => {
-                const select = e.currentTarget.querySelector('select');
-                if (select) {
-                    try { (select as any).showPicker(); } catch (err) { select.focus(); }
-                }
-            }}
-        >
-            <label htmlFor={`${idPrefix}-time`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{timeLabel}</label>
-            <div className="text-[15px] font-bold text-slate-900 flex items-center justify-between">
-                {timeValue}
-                <ChevronDown className="w-4 h-4 text-slate-600 group-hover:text-slate-800 transition-colors" />
-            </div>
-            <select
-                id={`${idPrefix}-time`}
-                name={`${idPrefix}Time`}
-                value={timeValue}
-                onChange={onTimeChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setShowCalendar(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 overflow-hidden shadow-sm border border-slate-200/50">
+            {/* Date Part */}
+            <div 
+                ref={containerRef}
+                className="flex-[2] relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
+                onClick={() => setShowCalendar(!showCalendar)}
             >
-                {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+                <label htmlFor={`${idPrefix}-date`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{dateLabel}</label>
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center text-slate-900 font-bold text-[15px]">
+                        {iconType === 'pickup' ? (
+                            <span className="mr-3 flex items-center gap-1.5 text-slate-900">
+                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
+                                <ArrowRight className="w-4 h-4 stroke-[3px]" />
+                            </span>
+                        ) : (
+                            <span className="mr-3 flex items-center gap-1.5 text-slate-900">
+                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
+                                <ArrowRight className="w-4 h-4 stroke-[3px] rotate-180" />
+                            </span>
+                        )}
+                        {formatDateForDisplay(dateValue)}
+                    </div>
+                </div>
+                
+                {showCalendar && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 mt-2 z-[100]" onClick={(e) => e.stopPropagation()}>
+                        <CalendarPicker 
+                            selectedDate={dateValue}
+                            minDate={minDate}
+                            onDateSelect={(date) => {
+                                onDateChange({ target: { name: `${idPrefix}Date`, value: date } });
+                            }}
+                            onClose={() => setShowCalendar(false)}
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* Time Part */}
+            <div 
+                className="flex-1 relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
+                onClick={(e) => {
+                    const select = e.currentTarget.querySelector('select');
+                    if (select) {
+                        try { (select as any).showPicker(); } catch (err) { select.focus(); }
+                    }
+                }}
+            >
+                <label htmlFor={`${idPrefix}-time`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{timeLabel}</label>
+                <div className="text-[15px] font-bold text-slate-900 flex items-center justify-between">
+                    {timeValue}
+                    <ChevronDown className="w-4 h-4 text-slate-600 group-hover:text-slate-800 transition-colors" />
+                </div>
+                <select
+                    id={`${idPrefix}-time`}
+                    name={`${idPrefix}Time`}
+                    value={timeValue}
+                    onChange={onTimeChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                >
+                    {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 interface SearchParams {
     location: string;
@@ -546,79 +625,24 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
 
                     {/* Date/Time Section */}
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1.5">
-                            <label id="mobile-pickup-date-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Pick-up</label>
-                            <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all focus-within:border-accent/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
-                                <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 text-accent" />
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                                    </div>
-                                    <input
-                                        id="mobile-pickup-date"
-                                        name="pickupDate"
-                                        type="date"
-                                        value={pickupDate}
-                                        onChange={e => setPickupDate(e.target.value)}
-                                        min={today.toISOString().split('T')[0]}
-                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer"
-                                        style={{ colorScheme: 'light' }}
-                                    />
-                                </div>
-                                <div className="p-3 pt-2 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Clock className="w-3.5 h-3.5 text-accent" />
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
-                                    </div>
-                                    <select
-                                        id="mobile-pickup-time"
-                                        name="pickupTime"
-                                        value={pickupTime}
-                                        onChange={e => setPickupTime(e.target.value)}
-                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
-                                    >
-                                        {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label id="mobile-dropoff-date-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Drop-off</label>
-                            <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all focus-within:border-accent/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
-                                <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 text-[#003580]" />
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                                    </div>
-                                    <input
-                                        id="mobile-dropoff-date"
-                                        name="dropoffDate"
-                                        type="date"
-                                        value={dropoffDate}
-                                        onChange={e => setDropoffDate(e.target.value)}
-                                        min={pickupDate}
-                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer"
-                                        style={{ colorScheme: 'light' }}
-                                    />
-                                </div>
-                                <div className="p-3 pt-2 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Clock className="w-3.5 h-3.5 text-[#003580]" />
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
-                                    </div>
-                                    <select
-                                        id="mobile-dropoff-time"
-                                        name="dropoffTime"
-                                        value={dropoffTime}
-                                        onChange={e => setDropoffTime(e.target.value)}
-                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
-                                    >
-                                        {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <MobileDateTimeField 
+                            label="Pick-up"
+                            dateValue={pickupDate}
+                            onDateChange={setPickupDate}
+                            minDate={today.toISOString().split('T')[0]}
+                            timeValue={pickupTime}
+                            onTimeChange={setPickupTime}
+                            iconColor="text-accent"
+                        />
+                        <MobileDateTimeField 
+                            label="Drop-off"
+                            dateValue={dropoffDate}
+                            onDateChange={setDropoffDate}
+                            minDate={pickupDate}
+                            timeValue={dropoffTime}
+                            onTimeChange={setDropoffTime}
+                            iconColor="text-[#003580]"
+                        />
                     </div>
 
                     <div className="space-y-3 mt-1 px-1">
