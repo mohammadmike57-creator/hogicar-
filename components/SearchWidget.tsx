@@ -662,7 +662,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
         </React.Suspense>
 
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[1050px] mx-auto">
+            <div className="max-w-[1200px] mx-auto">
                 <form onSubmit={handleSearch} className="relative bg-[#ffda44] p-1.5 rounded-3xl shadow-2xl overflow-visible border-[3px] border-[#ffda44]">
                     <div className="flex flex-col gap-2">
                         {/* Checkboxes Row */}

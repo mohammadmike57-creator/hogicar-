@@ -553,7 +553,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-10 pb-6 sm:pt-12 sm:pb-8 lg:pt-16 lg:pb-10 text-white overflow-visible flex flex-col justify-center min-h-[400px] sm:min-h-[380px] lg:min-h-[350px]" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-12 pb-10 sm:pt-16 sm:pb-12 lg:pt-24 lg:pb-16 text-white overflow-visible flex flex-col justify-center min-h-[500px] sm:min-h-[480px] lg:min-h-[450px]" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0 bg-[#003580]">
             {heroVideo ? (
               <video 
@@ -616,7 +616,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </div>
             
             {sections.search && (
-              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1050px] mx-auto min-h-[380px] lg:min-h-[180px]">
+              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1200px] mx-auto min-h-[380px] lg:min-h-[180px]">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
