@@ -103,7 +103,7 @@ const DesktopGroupedDateTimeField = ({
     <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 overflow-hidden shadow-sm border border-slate-200/50">
         {/* Date Part */}
         <div 
-            className="flex-[2] relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[72px] flex flex-col justify-center"
+            className="flex-[2] relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
             onClick={(e) => {
                 const input = e.currentTarget.querySelector('input');
                 if (input) {
@@ -142,7 +142,7 @@ const DesktopGroupedDateTimeField = ({
 
         {/* Time Part */}
         <div 
-            className="flex-1 relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[72px] flex flex-col justify-center"
+            className="flex-1 relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
             onClick={(e) => {
                 const select = e.currentTarget.querySelector('select');
                 if (select) {
@@ -696,7 +696,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <div className={`flex-[3] grid grid-cols-1 ${differentDropoff ? 'md:grid-cols-2' : ''} gap-2 transition-all duration-300`}>
                                 {/* Pick-up location */}
                                 <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                                    <div className="px-5 pt-3 pb-2.5 flex flex-col min-h-[72px] justify-center">
+                                    <div className="px-5 pt-3 pb-2.5 flex flex-col min-h-[84px] justify-center">
                                         <label htmlFor="desktop-pickup-location" className="text-[11px] text-slate-700 mb-0.5 font-bold uppercase tracking-wider">Pick-up location</label>
                                         <input
                                             id="desktop-pickup-location"
@@ -726,7 +726,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                 {/* Drop-off location (Conditional) */}
                                 {differentDropoff && (
                                     <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
-                                        <div className="px-5 pt-3 pb-2.5 flex flex-col min-h-[72px] justify-center">
+                                        <div className="px-5 pt-3 pb-2.5 flex flex-col min-h-[84px] justify-center">
                                             <label htmlFor="desktop-dropoff-location" className="text-[11px] text-slate-700 mb-0.5 font-bold uppercase tracking-wider">Drop-off location</label>
                                             <input
                                                 id="desktop-dropoff-location"
@@ -787,7 +787,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             <div className="flex items-center">
                                 <button 
                                     type="submit" 
-                                    className="bg-[#008009] text-white px-10 h-[72px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center min-w-[180px]"
+                                    className="bg-[#008009] text-white px-10 h-[84px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center min-w-[180px]"
                                 >
                                     Search
                                 </button>

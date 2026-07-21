@@ -653,6 +653,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       )}
 
 
+      {/* 4. POPULAR SUPPLIERS */}
+      {sections.suppliers && (
+        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+          <TrustedSuppliers />
+        </React.Suspense>
+      )}
+
       {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
       {!isCustomLanding && (
         <section className="py-24 bg-slate-50 overflow-hidden relative">
@@ -707,14 +714,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             </div>
         </section>
       )}
-
-      {/* 4. POPULAR SUPPLIERS */}
-      {sections.suppliers && (
-        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
-          <TrustedSuppliers />
-        </React.Suspense>
-      )}
-
 
       {/* 4.5 POPULAR COUNTRIES & LOCATIONS */}
       {!isCustomLanding && (
