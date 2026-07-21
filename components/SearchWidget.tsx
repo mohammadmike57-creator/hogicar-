@@ -179,7 +179,7 @@ const DesktopGroupedDateTimeField = ({
     }, []);
 
     return (
-        <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 overflow-hidden shadow-sm border border-slate-200/50">
+        <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 shadow-sm border border-slate-200/50">
             {/* Date Part */}
             <div 
                 ref={containerRef}
