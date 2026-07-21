@@ -453,19 +453,23 @@ const CarCard: React.FC<CarCardProps> = ({
             </div>
           )}
 
-          <div className="p-4 md:hidden">
-              <div className="mb-3 flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+          <div className="p-5 md:hidden">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
                       {car.isHogicarChoiceBranded && (
-                        <span className="mb-2 inline-flex rounded-md bg-blue-900 px-2.5 py-1 text-xs font-bold text-white">Recommended</span>
+                        <div className="mb-2.5 flex items-center gap-1.5">
+                            <span className="inline-flex rounded-full bg-slate-950 px-3 py-1 text-[10px] font-black uppercase tracking-[0.15em] text-amber-400 border border-amber-400/30">Hogicar Choice</span>
+                        </div>
                       )}
                       <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                          <h3 className="text-[1.7rem] font-black leading-tight tracking-tight text-slate-950">
+                          <h3 className="text-2xl font-black leading-tight tracking-tight text-slate-950 uppercase">
                               {car.displayName || `${car.make} ${car.model}`}
                           </h3>
                       </Link>
-                      <p className="mt-1 flex items-center gap-1 text-sm font-semibold text-accent">
-                          or similar {car.category.toString().toLowerCase()} car <Info className="h-4 w-4" />
+                      <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+                        <span className="text-accent">or similar {car.category.toString().toLowerCase()}</span>
+                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                        <span className="flex items-center gap-1">Specs <Info className="h-3 w-3" /></span>
                       </p>
                   </div>
 
@@ -478,29 +482,35 @@ const CarCard: React.FC<CarCardProps> = ({
                       }}
                       aria-pressed={isComparing}
                       aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                      className="flex shrink-0 items-center gap-2 pt-1 text-base font-semibold text-slate-900"
+                      className="flex shrink-0 flex-col items-center gap-1 pt-1"
                     >
-                        <span>Compare</span>
-                        <span className={`relative flex h-7 w-12 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-accent shadow-[0_8px_18px_-10px_rgba(0,122,194,0.8)]' : 'bg-slate-300'}`}>
-                            <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Compare</span>
+                        <span className={`relative flex h-6 w-11 items-center rounded-full p-1 transition-colors ${isComparing ? 'bg-accent shadow-lg shadow-accent/20' : 'bg-slate-200'}`}>
+                            <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-5' : 'translate-x-0'}`} />
                         </span>
                     </button>
                   )}
               </div>
 
-              <div className="grid grid-cols-[1fr_45%] items-center gap-3">
-                  <div className="space-y-3 text-slate-950">
-                      <div className="flex items-center gap-3 text-lg font-semibold">
-                          <Users className="h-6 w-6 stroke-[1.8px] text-accent" />
-                          <span>{car.passengers} seats</span>
+              <div className="grid grid-cols-[1fr_48%] items-center gap-4 py-4 border-y border-slate-100 mb-5">
+                  <div className="space-y-4 text-slate-900">
+                      <div className="flex items-center gap-3.5">
+                          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
+                            <Users className="h-4.5 w-4.5 text-accent" />
+                          </div>
+                          <span className="text-sm font-black uppercase tracking-tight">{car.passengers} Seats</span>
                       </div>
-                      <div className="flex items-center gap-3 text-lg font-semibold">
-                          <AutomaticIcon className="w-6 h-6 text-accent stroke-[1.8px]" />
-                          <span>{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
+                      <div className="flex items-center gap-3.5">
+                          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
+                            <AutomaticIcon className="w-4.5 h-4.5 text-accent" />
+                          </div>
+                          <span className="text-sm font-black uppercase tracking-tight">{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-lg font-semibold">
-                          <GaugeCircle className="h-6 w-6 stroke-[1.8px] text-amber-600" />
-                          <span>{car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</span>
+                      <div className="flex items-center gap-3.5">
+                          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
+                            <GaugeCircle className="h-4.5 w-4.5 text-amber-600" />
+                          </div>
+                          <span className="text-sm font-black uppercase tracking-tight">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} KM</span>
                       </div>
                   </div>
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex items-center justify-center relative group/img-link">
@@ -509,38 +519,36 @@ const CarCard: React.FC<CarCardProps> = ({
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
-                        className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-500 ease-out"
+                        className="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(15,23,42,0.15)] transition-all duration-500 ease-out active:scale-110"
                       />
-                      <div className="absolute top-[-18px] right-0 flex flex-col items-end gap-1 z-20">
-                          <div className="bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md flex items-center gap-1 border border-emerald-400">
+                      <div className="absolute -bottom-4 right-0 flex flex-col items-end gap-1.5 z-20">
+                          <div className="bg-emerald-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-widest border border-emerald-400/30">
                               <CalendarCheck className="w-3 h-3" />
                               <span>Free Cancellation</span>
                           </div>
                           {promotionLabel && (
-                              <div className="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md flex items-center gap-1 border border-red-500">
-                                  <Tag className="w-3 h-3 fill-white/20"/> {promotionLabel}
+                              <div className="bg-rose-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-widest border border-rose-400/30">
+                                  <Tag className="w-3 h-3 fill-white/10"/> {promotionLabel}
                               </div>
                           )}
                       </div>
                   </Link>
               </div>
 
-              {/* Pickup location removed for mobile as per user request */}
-
-              <div className="mt-5 grid grid-cols-[1fr_auto] items-end gap-4">
+              <div className="grid grid-cols-[1fr_auto] items-end gap-4">
                   <div className="min-w-0">
                       {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
-                          <Logo className="mb-3 h-7 w-auto max-w-[135px]" />
+                          <Logo className="mb-4 h-8 w-auto max-w-[140px]" />
                       ) : (
                           <img
                               src={car.supplier.logo || (car.supplier as any).logoUrl}
                               alt={car.supplier.name}
-                              className="mb-3 h-10 max-w-[135px] object-contain"
+                              className="mb-4 h-10 max-w-[140px] object-contain"
                           />
                       )}
                       <button
                         type="button"
-                        className="group/rating relative flex items-center gap-2 text-left bg-slate-50 hover:bg-white p-1.5 pr-2.5 -m-1.5 rounded-2xl transition-all active:scale-[0.98] border border-transparent hover:border-slate-200"
+                        className="group/rating relative flex items-center gap-3 text-left bg-white hover:bg-slate-50 p-2 pr-4 rounded-2xl transition-all active:scale-[0.98] border border-slate-200 shadow-sm"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -548,26 +556,36 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                         aria-label="Show supplier rating details"
                       >
-                          <div className={`flex h-10 min-w-12 items-center justify-center rounded-md border-2 bg-white px-2 text-lg font-black leading-none shadow-sm ${getRatingBorderColor(ratingToDisplay)}`}>
+                          <div className={`flex h-11 min-w-[50px] items-center justify-center rounded-xl border-2 bg-white px-2 text-xl font-black leading-none shadow-sm ${getRatingBorderColor(ratingToDisplay)}`}>
                               {ratingToDisplay.toFixed(1)}
                           </div>
                           <div className="flex flex-col">
                               <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className={`text-[13px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
+                                  <span className={`text-[14px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
                                       {getRatingDescription(ratingToDisplay)}
                                   </span>
-                                  <Info className="w-3 h-3 text-slate-400 group-hover/rating:text-slate-600 transition-colors" />
+                                  <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                               </div>
-                              <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.12em] flex items-center gap-1">
-                                  <Check className="w-2.5 h-2.5 text-accent" />
-                                  Trusted Supplier
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                  <Check className="w-3 h-3 text-accent" />
+                                  Verified
                               </p>
                           </div>
                       </button>
                   </div>
                   <div className="text-right">
-                      <p className="text-base font-medium text-slate-500">Price for {days} days:</p>
-                      <p className="text-[2rem] font-black leading-none text-slate-950">{getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(0)}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total for {days} days</p>
+                      <div className="flex flex-col items-end">
+                        {car.promotionPercent > 0 && (
+                            <span className="text-xs text-slate-400 line-through font-bold mb-0.5">
+                                {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(0)}
+                            </span>
+                        )}
+                        <p className="text-4xl font-black leading-none text-slate-950 tracking-tighter">
+                            <span className="text-lg align-top mt-1 inline-block mr-0.5 font-bold">{getCurrencySymbol()}</span>
+                            {convertPrice(totalFinalPrice).toFixed(0)}
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={(e) => {
@@ -575,7 +593,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           e.stopPropagation();
                           setIsConditionsModalOpen(true);
                         }}
-                        className="mt-2 text-right text-lg font-medium text-green-700 underline underline-offset-4 active:scale-[0.98]"
+                        className="mt-3 text-right text-[11px] font-black text-accent uppercase tracking-widest hover:underline underline-offset-4 active:scale-[0.98]"
                       >
                           Rental terms
                       </button>
@@ -586,9 +604,9 @@ const CarCard: React.FC<CarCardProps> = ({
                 to={`/car/${car.id}?${searchParams}`}
                 state={{ cars: cars }}
                 onClick={handleSelectCar}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-lg active:scale-[0.98]"
+                className="mt-6 flex w-full h-16 items-center justify-center gap-3 rounded-2xl bg-accent px-6 py-4 text-base font-black uppercase tracking-[0.15em] text-white shadow-[0_15px_35px_-12px_rgba(0,122,194,0.6)] active:scale-[0.97] transition-all"
               >
-                  View deal <ChevronRight className="h-5 w-5" />
+                  Choose this car <ArrowRight className="h-5 w-5 stroke-[3px]" />
               </Link>
           </div>
 

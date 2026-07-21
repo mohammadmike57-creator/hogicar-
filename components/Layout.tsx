@@ -287,7 +287,7 @@ const Layout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main id="main-content" className={`flex-grow ${location.pathname === '/' ? '' : 'pt-16 sm:pt-20'}`} tabIndex={-1}>
+      <main id="main-content" className="flex-grow" tabIndex={-1}>
         <Outlet />
       </main>
 

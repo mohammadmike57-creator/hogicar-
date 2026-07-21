@@ -553,7 +553,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (
-        <section className="relative z-30 pt-10 pb-6 sm:pt-12 sm:pb-8 lg:pt-16 lg:pb-12 text-white overflow-visible flex flex-col justify-center min-h-[550px] sm:min-h-[500px] lg:min-h-[480px]" style={{ color: heroTextColor }}>
+        <section className="relative z-30 pt-16 pb-8 sm:pt-20 sm:pb-12 lg:pt-24 lg:pb-16 text-white overflow-visible flex flex-col justify-center min-h-[580px] sm:min-h-[520px] lg:min-h-[500px]" style={{ color: heroTextColor }}>
           <div className="absolute inset-0 z-0 bg-[#003580]">
             {heroVideo ? (
               <video 
@@ -599,18 +599,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             {!heroBackgroundImage && !heroVideo && (
               <div className="absolute inset-0 bg-gradient-to-b from-[#003580] via-[#0047AB] to-[#003580]"></div>
             )}
-            <div className="absolute inset-0 bg-black/5"></div>
+            <div className="absolute inset-0 bg-black/10"></div>
           </div>
 
-          <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10">
+          <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10 mt-2 sm:mt-0">
             {isCustomLanding && <div className="mb-4"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
-            <div className="min-h-[64px] sm:min-h-[80px] lg:min-h-[96px] flex items-center justify-center">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 lg:mb-4 leading-tight tracking-tight drop-shadow-xl max-w-4xl mx-auto px-4">
+            <div className="min-h-[80px] sm:min-h-[96px] lg:min-h-[112px] flex items-center justify-center">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 lg:mb-4 leading-[1.1] tracking-tight drop-shadow-2xl max-w-4xl mx-auto px-4 uppercase">
                   {displayH1}
                 </h1>
             </div>
-            <div className="min-h-[48px] sm:min-h-[60px] lg:min-h-[72px] flex items-center justify-center">
-                <p className="text-white/95 mb-6 lg:mb-8 max-w-2xl mx-auto text-xs sm:text-base lg:text-lg font-medium leading-relaxed px-6 drop-shadow-md">
+            <div className="min-h-[56px] sm:min-h-[72px] lg:min-h-[84px] flex items-center justify-center">
+                <p className="text-white/95 mb-8 lg:mb-10 max-w-2xl mx-auto text-sm sm:text-lg lg:text-xl font-bold leading-relaxed px-6 drop-shadow-lg">
                   {displaySubtitle}
                 </p>
             </div>

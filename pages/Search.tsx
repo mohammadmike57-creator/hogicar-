@@ -659,30 +659,36 @@ export const Search: React.FC = () => {
     />
     <div className="bg-white min-h-screen pb-12">
       {/* Search Header */}
-      <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[80px] z-30">
-        <div className="max-w-[1600px] mx-auto px-2 py-1.5 sm:px-6 sm:py-2.5 lg:px-8">
-            <div className="rounded-xl border border-slate-700/80 bg-slate-900 shadow-[0_14px_34px_-30px_rgba(0,0,0,0.85)] px-2.5 py-2 sm:px-3 md:py-2">
+      <div className="bg-slate-950 shadow-lg border-b border-slate-800 md:sticky md:top-[72px] z-30">
+        <div className="max-w-[1600px] mx-auto px-2 py-2 sm:px-6 sm:py-3 lg:px-8">
+            <div className="rounded-2xl border border-slate-700/60 bg-slate-900/50 shadow-2xl px-3 py-3 sm:px-4 md:py-2.5">
               <div className="md:hidden">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-sm font-black text-white truncate">{location || 'Select Location'}</p>
-                    <p className="mt-0.5 truncate text-[10px] font-bold text-slate-400">
-                      {pickupIata || 'Pickup'} to {dropoffIata || pickupIata || 'Dropoff'} · {days} day{days > 1 ? 's' : ''}
+                    <p className="text-base font-black text-white truncate uppercase tracking-tight">{location || 'Select Location'}</p>
+                    <p className="mt-0.5 truncate text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                      {pickupIata || 'Pickup'} <ArrowRight className="inline w-3 h-3 mx-1 text-slate-600" /> {dropoffIata || pickupIata || 'Dropoff'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white shadow-md shadow-accent/20 active:scale-[0.98]"
+                    className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-accent px-4 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-lg shadow-accent/20 active:scale-[0.96] transition-all"
                   >
-                    <Edit className="h-3 w-3" />
+                    <Edit className="h-4 w-4" />
                     <span>{isSearchOpen ? 'Close' : 'Modify'}</span>
                   </button>
                 </div>
-                <div className="mt-2 flex items-center gap-2 overflow-hidden rounded-lg border border-slate-700 bg-slate-800/70 px-2.5 py-1.5">
-                  <Calendar className="h-3.5 w-3.5 shrink-0 text-accent" />
-                  <p className="min-w-0 truncate text-[10px] font-black text-white">
-                    {startDateTimeDisplay} - {endDateTimeDisplay}
+                <div className="mt-3 flex items-center justify-between gap-2 overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800/40 px-3.5 py-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Calendar className="h-4 w-4 shrink-0 text-accent" />
+                    <p className="min-w-0 truncate text-[11px] font-black text-white uppercase tracking-wider">
+                        {days} Days trip
+                    </p>
+                  </div>
+                  <div className="h-4 w-[1px] bg-slate-700"></div>
+                  <p className="text-[11px] font-bold text-slate-300 truncate">
+                    {startDateTimeDisplay.split('•')[0]}
                   </p>
                 </div>
               </div>

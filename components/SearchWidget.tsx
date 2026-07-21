@@ -483,80 +483,76 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
     return (
         <>
         {/* --- MOBILE WIDGET --- */}
-        <div className="lg:hidden w-full px-3 sm:px-6" ref={mobileWidgetRef}>
-            <div className="bg-white p-6 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] relative z-10 border border-white/20">
-                <form onSubmit={handleSearch} className="flex flex-col gap-3">
+        <div className="lg:hidden w-full px-2 sm:px-6" ref={mobileWidgetRef}>
+            <div className="bg-white p-5 sm:p-7 rounded-[2.5rem] shadow-[0_32px_64px_-24px_rgba(0,0,0,0.35)] relative z-10 border border-slate-100">
+                <form onSubmit={handleSearch} className="flex flex-col gap-4">
                     {/* Pick-up location button */}
-                    <div className="flex flex-col gap-1">
-                        <label id="mobile-pickup-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Pick-up Location</label>
+                    <div className="flex flex-col gap-1.5">
+                        <label id="mobile-pickup-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Pick-up Location</label>
                         <button
                             type="button"
                             onClick={() => openSearchOverlay('pickup')}
                             aria-labelledby="mobile-pickup-label"
-                            className="relative h-[62px] bg-white rounded-2xl border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
+                            className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-left px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
                         >
-                            <div className="flex items-center gap-3 w-full min-w-0">
-                                {pickupSelection ? (
-                                    <div className="flex-shrink-0 bg-white p-1.5 rounded-none shadow-sm border border-slate-100">
-                                        {getLocationIcon(pickupSelection.type, 'w-5 h-5')}
-                                    </div>
-                                ) : null}
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-extrabold text-slate-900 text-[12px] leading-tight">
-                                        {pickupSelection?.label || pickupQuery || 'City, airport, or station'}
-                                    </div>
-                                    <div className="text-[10px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">Where do you want to start?</div>
+                            <div className="flex items-center gap-4 w-full min-w-0">
+                                <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
+                                    {pickupSelection ? getLocationIcon(pickupSelection.type, 'w-6 h-6') : <MapPin className="w-6 h-6 text-accent" />}
                                 </div>
-                                {pickupSelection ? (
-                                    <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
-                                        <SearchIcon className="w-3 h-3" />
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-black text-slate-950 text-[14px] leading-tight truncate">
+                                        {pickupSelection?.label || pickupQuery || 'Airport, city or station'}
                                     </div>
-                                ) : null}
+                                    <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">Start your journey here</div>
+                                </div>
+                                {pickupSelection && (
+                                    <div className="text-accent flex-shrink-0 bg-accent/5 p-1.5 rounded-full border border-accent/10">
+                                        <ArrowRight className="w-4 h-4 stroke-[3px]" />
+                                    </div>
+                                )}
                             </div>
                         </button>
                     </div>
 
                     {/* Drop-off location button */}
                     {differentDropoff && (
-                        <div className="flex flex-col gap-1 -mt-1 animate-in slide-in-from-top-2 duration-300">
-                            <label id="mobile-dropoff-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.15em] ml-1">Drop-off Location</label>
+                        <div className="flex flex-col gap-1.5 -mt-1 animate-in slide-in-from-top-3 duration-500">
+                            <label id="mobile-dropoff-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Drop-off Location</label>
                             <button
                                 type="button"
                                 onClick={() => openSearchOverlay('dropoff')}
                                 aria-labelledby="mobile-dropoff-label"
-                                className="relative h-[62px] bg-slate-50 rounded-2xl border border-slate-200/60 flex items-center w-full text-left px-4 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/50 shadow-sm"
+                                className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-left px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
                             >
-                                <div className="flex items-center gap-3 w-full min-w-0">
-                                    {dropoffSelection ? (
-                                        <div className="flex-shrink-0 bg-white p-1.5 rounded-none shadow-sm border border-slate-100">
-                                            {getLocationIcon(dropoffSelection.type, 'w-5 h-5')}
-                                        </div>
-                                    ) : null}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-extrabold text-slate-900 text-[12px] leading-tight">
-                                            {dropoffSelection?.label || dropoffQuery || 'City, airport, or station'}
-                                        </div>
-                                        <div className="text-[8px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">Where do you want to end?</div>
+                                <div className="flex items-center gap-4 w-full min-w-0">
+                                    <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
+                                        {dropoffSelection ? getLocationIcon(dropoffSelection.type, 'w-6 h-6') : <MapPin className="w-6 h-6 text-[#003580]" />}
                                     </div>
-                                    {dropoffSelection ? (
-                                        <div className="text-accent flex-shrink-0 bg-emerald-50 p-1.5 rounded-full">
-                                            <SearchIcon className="w-3 h-3" />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-black text-slate-950 text-[14px] leading-tight truncate">
+                                            {dropoffSelection?.label || dropoffQuery || 'Airport, city or station'}
                                         </div>
-                                    ) : null}
+                                        <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">Where will you finish?</div>
+                                    </div>
+                                    {dropoffSelection && (
+                                        <div className="text-[#003580] flex-shrink-0 bg-[#003580]/5 p-1.5 rounded-full border border-[#003580]/10">
+                                            <ArrowRight className="w-4 h-4 stroke-[3px] rotate-90" />
+                                        </div>
+                                    )}
                                 </div>
                             </button>
                         </div>
                     )}
 
                     {/* Date/Time Section */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <div className="flex flex-col gap-1">
-                            <label id="mobile-pickup-date-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Pick-up Date & Time</label>
-                            <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
-                                <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                            <label id="mobile-pickup-date-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Pick-up</label>
+                            <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all focus-within:border-accent/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
+                                <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Calendar className="w-3.5 h-3.5 text-accent" />
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
                                     </div>
                                     <input
                                         id="mobile-pickup-date"
@@ -565,21 +561,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={pickupDate}
                                         onChange={e => setPickupDate(e.target.value)}
                                         min={today.toISOString().split('T')[0]}
-                                        className={`w-full bg-transparent p-0 text-[13px] font-extrabold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer ${!pickupSelection ? 'opacity-80' : ''}`}
+                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer"
                                         style={{ colorScheme: 'light' }}
                                     />
                                 </div>
-                                <div className="p-2 pt-1 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
+                                <div className="p-3 pt-2 flex flex-col">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Clock className="w-3.5 h-3.5 text-accent" />
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
                                     </div>
                                     <select
                                         id="mobile-pickup-time"
                                         name="pickupTime"
                                         value={pickupTime}
                                         onChange={e => setPickupTime(e.target.value)}
-                                        className={`w-full bg-transparent p-0 text-[13px] font-extrabold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none ${!pickupSelection ? 'opacity-80' : ''}`}
+                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                                     >
                                         {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
                                     </select>
@@ -587,13 +583,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                            <label id="mobile-dropoff-date-label" className="text-[11px] font-black text-slate-700 uppercase tracking-[0.12em] ml-1">Drop-off Date & Time</label>
-                            <div className="relative bg-slate-50 rounded-2xl border border-slate-200/60 flex flex-col transition-all focus-within:border-accent/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
-                                <div className="p-2 pb-1 flex flex-col border-b border-slate-100">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        {pickupSelection && <Calendar className="w-3 h-3 text-accent" />}
-                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Date</span>
+                        <div className="flex flex-col gap-1.5">
+                            <label id="mobile-dropoff-date-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Drop-off</label>
+                            <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all focus-within:border-accent/40 focus-within:bg-white focus-within:ring-4 focus-within:ring-accent/5 shadow-sm overflow-hidden">
+                                <div className="p-3 pb-2 flex flex-col border-b border-slate-100">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Calendar className="w-3.5 h-3.5 text-[#003580]" />
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
                                     </div>
                                     <input
                                         id="mobile-dropoff-date"
@@ -602,21 +598,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                                         value={dropoffDate}
                                         onChange={e => setDropoffDate(e.target.value)}
                                         min={pickupDate}
-                                        className={`w-full bg-transparent p-0 text-[13px] font-extrabold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer ${!pickupSelection ? 'opacity-80' : ''}`}
+                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer"
                                         style={{ colorScheme: 'light' }}
                                     />
                                 </div>
-                                <div className="p-2 pt-1 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        {pickupSelection && <Clock className="w-3 h-3 text-accent" />}
-                                        <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Time</span>
+                                <div className="p-3 pt-2 flex flex-col">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Clock className="w-3.5 h-3.5 text-[#003580]" />
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
                                     </div>
                                     <select
                                         id="mobile-dropoff-time"
                                         name="dropoffTime"
                                         value={dropoffTime}
                                         onChange={e => setDropoffTime(e.target.value)}
-                                        className={`w-full bg-transparent p-0 text-[13px] font-extrabold text-slate-900 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none ${!pickupSelection ? 'opacity-80' : ''}`}
+                                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                                     >
                                         {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
                                     </select>
@@ -625,23 +621,29 @@ const SearchWidget: React.FC<SearchWidgetProps> = ({ initialValues, onSearch, sh
                         </div>
                     </div>
 
-                    <div className="space-y-2.5 mt-1 px-1">
-                        <label className="flex items-center text-[12px] font-extrabold text-slate-700 cursor-pointer select-none">
-                            <input id="mobile-different-dropoff" name="differentDropoff" type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
+                    <div className="space-y-3 mt-1 px-1">
+                        <label className="flex items-center text-[12px] font-bold text-slate-800 cursor-pointer select-none group">
+                            <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all ${differentDropoff ? 'bg-accent border-accent text-white' : 'border-slate-300 bg-white group-active:scale-90'}`}>
+                                {differentDropoff && <ArrowRight className="w-3 h-3 stroke-[4px]" />}
+                            </div>
+                            <input id="mobile-different-dropoff" name="differentDropoff" type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="hidden" />
                             Different drop-off location
                         </label>
-                        <label className="flex items-center text-[12px] font-extrabold text-slate-700 cursor-pointer select-none">
-                            <input id="mobile-driver-age" name="driverAgeValid" type="checkbox" defaultChecked className="h-4.5 w-4.5 rounded border-2 border-slate-300 text-accent focus:ring-0 mr-2.5" />
+                        <label className="flex items-center text-[12px] font-bold text-slate-800 cursor-pointer select-none group">
+                            <div className="w-5 h-5 rounded border-2 border-accent bg-accent text-white mr-3 flex items-center justify-center transition-all group-active:scale-90">
+                                <ArrowRight className="w-3 h-3 stroke-[4px]" />
+                            </div>
+                            <input id="mobile-driver-age" name="driverAgeValid" type="checkbox" defaultChecked className="hidden" />
                             Driver age between 30 - 65?
                         </label>
                     </div>
 
                     <button 
                         type="submit" 
-                        className="w-full text-white font-black h-16 rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4 text-[17px] uppercase tracking-[0.05em] hover:bg-[#006407] shadow-xl shadow-green-900/20"
+                        className="w-full text-white font-black h-16 rounded-[1.25rem] active:scale-[0.97] transition-all flex items-center justify-center gap-4 mt-4 text-[18px] uppercase tracking-[0.1em] hover:brightness-110 shadow-[0_20px_40px_-12px_rgba(0,128,9,0.45)]"
                         style={{ backgroundColor: '#008009' }}
                     >
-                        <SearchIcon className="w-5 h-5 stroke-[3px]" />
+                        <SearchIcon className="w-6 h-6 stroke-[3.5px]" />
                         Search now
                     </button>
                 </form>
