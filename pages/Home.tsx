@@ -33,6 +33,7 @@ import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
 const Reviews = React.lazy(() => import('../components/Reviews'));
+const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
 import TrustedSuppliers from '../components/TrustedSuppliers';
 import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
