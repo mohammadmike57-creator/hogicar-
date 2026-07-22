@@ -175,7 +175,7 @@ const normalizeHomepageContent = (content: any) => {
     hero: {
       title: 'Car Hire – Search, Compare & Save',
       subtitle: 'Free cancellations on most bookings',
-      backgroundImage: '/hero-home.png',
+      backgroundImage: '',
       ...(safeContent.hero || {})
     },
     howItWorks: {
