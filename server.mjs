@@ -127,7 +127,27 @@ async function serveStatic(req, res, url) {
   const decodedPath = decodeURIComponent(url.pathname);
   const normalizedPath = path.normalize(decodedPath).replace(/^(\.\.[/\\])+/, '');
   const requestedPath = path.join(distDir, normalizedPath);
-  let filePath = requestedPath.startsWith(distDir) && existsSync(requestedPath) ? requestedPath : path.join(distDir, 'index.html');
+  
+  // Ensure the requested path stays within the dist directory
+  const safeRequestedPath = requestedPath.startsWith(distDir) ? requestedPath : path.join(distDir, 'index.html');
+  
+  // Identify if this request looks like a static asset that should not fallback to SPA
+  const isStaticRequest = normalizedPath !== '/' && (
+    /\.(ico|png|jpg|jpeg|gif|svg|webp|woff2?|js|css|json|txt|xml|webmanifest|map|pdf|mp4|webm)$/i.test(normalizedPath) ||
+    normalizedPath.startsWith('/assets/') ||
+    normalizedPath.startsWith('/uploads/') ||
+    normalizedPath.startsWith('/logos/') ||
+    normalizedPath.startsWith('/icons/') ||
+    ['/favicon.ico', '/site.webmanifest', '/manifest.webmanifest', '/robots.txt', '/apple-touch-icon.png'].includes(normalizedPath)
+  );
+
+  // If it's a static request but the file doesn't exist, return 404 instead of SPA fallback
+  if (isStaticRequest && !existsSync(safeRequestedPath)) {
+    send(res, 404, 'Not Found', { 'Content-Type': 'text/plain' });
+    return;
+  }
+
+  const filePath = isStaticRequest ? safeRequestedPath : (existsSync(safeRequestedPath) ? safeRequestedPath : path.join(distDir, 'index.html'));
 
   try {
     const fileStat = await stat(filePath);

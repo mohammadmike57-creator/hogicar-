@@ -47,7 +47,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const title = defaultTitle || config?.title || "Hogicar - Compare Car Rental Deals Worldwide";
   const description = defaultDescription || config?.description || "Compare and book affordable car rentals worldwide with Hogicar. Find trusted rental cars, airport rentals, and travel deals.";
   const keywords = defaultKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
-  const ogImage = defaultOgImage || config?.ogImage || 'https://www.hogicar.com/favicon-512.png';
+  const ogImage = defaultOgImage || config?.ogImage || 'https://www.hogicar.com/android-chrome-512x512.png';
   const canonical = defaultCanonical || config?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
   const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
 
