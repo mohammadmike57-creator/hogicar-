@@ -84,7 +84,8 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
 
     let isMounted = true;
     const fetchConfig = async () => {
-      if (normalizedPathname.endsWith('.xml') || normalizedPathname.endsWith('.txt')) {
+      const isStaticAsset = /\.(png|jpg|jpeg|gif|svg|ico|webmanifest|xml|txt|js|css|map)$/i.test(normalizedPathname);
+      if (isStaticAsset) {
         return;
       }
       try {
