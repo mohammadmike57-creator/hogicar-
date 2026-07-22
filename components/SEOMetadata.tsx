@@ -207,19 +207,28 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
 
     // 8. Preload Image (Hero)
     if (preloadImageUrl && preloadImageUrl.length > 2) {
-      let preloadTag = document.querySelector('link[rel="preload"][as="image"]#hero-preload');
-      if (!preloadTag) {
+      let preloadTag = document.querySelector('link[rel="preload"][as="image"]#hero-preload') as HTMLLinkElement;
+      const isNew = !preloadTag;
+      if (isNew) {
         preloadTag = document.createElement('link');
         preloadTag.setAttribute('rel', 'preload');
         preloadTag.setAttribute('as', 'image');
         preloadTag.id = 'hero-preload';
+        preloadTag.setAttribute('fetchpriority', 'high');
         document.head.appendChild(preloadTag);
       }
-      preloadTag.setAttribute('href', preloadImageUrl);
+      
+      // ONLY update if it has changed to prevent duplicate requests
+      if (preloadTag.getAttribute('href') !== preloadImageUrl) {
+        preloadTag.setAttribute('href', preloadImageUrl);
+      }
+
       if (preloadImageSrcSet) {
-        preloadTag.setAttribute('imagesrcset', preloadImageSrcSet);
-        preloadTag.setAttribute('imagesizes', '100vw');
-      } else {
+        if (preloadTag.getAttribute('imagesrcset') !== preloadImageSrcSet) {
+          preloadTag.setAttribute('imagesrcset', preloadImageSrcSet);
+          preloadTag.setAttribute('imagesizes', '100vw');
+        }
+      } else if (preloadTag.hasAttribute('imagesrcset')) {
         preloadTag.removeAttribute('imagesrcset');
         preloadTag.removeAttribute('imagesizes');
       }

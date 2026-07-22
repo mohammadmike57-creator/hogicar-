@@ -78,7 +78,7 @@ const renderSuggestions = (
   </>
 );
 
-const MobileDateTimeField = ({
+const MobileDateTimeField = React.memo(({
     label,
     dateValue,
     onDateChange,
@@ -140,9 +140,9 @@ const MobileDateTimeField = ({
             )}
         </div>
     );
-};
+});
 
-const DesktopGroupedDateTimeField = ({ 
+const DesktopGroupedDateTimeField = React.memo(({ 
     dateLabel, 
     dateValue, 
     onDateChange, 
@@ -245,7 +245,7 @@ const DesktopGroupedDateTimeField = ({
             </div>
         </div>
     );
-};
+});
 
 interface SearchParams {
     location: string;

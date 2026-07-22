@@ -458,7 +458,16 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const [heroLoaded, setHeroLoaded] = React.useState(false);
   // PRIORITIZE SEO CONFIG HERO IMAGE FOR DESTINATION PAGES
   const initialHeroImage = seoConfig?.heroImage || heroImageUrl || content.hero.backgroundImage;
-  const heroBackgroundImage = (initialHeroImage?.startsWith('/') && !initialHeroImage?.startsWith('http') ? `${API_BASE_URL}${initialHeroImage}` : initialHeroImage);
+  
+  // FIXED: Only prefix with API_BASE_URL if it's an uploaded asset. 
+  // Local assets like /hero-home.png should be loaded from the frontend origin.
+  const heroBackgroundImage = React.useMemo(() => {
+    if (!initialHeroImage) return '';
+    if (initialHeroImage.startsWith('http')) return initialHeroImage;
+    if (initialHeroImage.startsWith('/uploads/')) return `${API_BASE_URL}${initialHeroImage}`;
+    return initialHeroImage; // Keep as relative path for local assets
+  }, [initialHeroImage]);
+
   const isLocalHero = heroBackgroundImage?.includes('/uploads/hero/');
   
   // Use .webp only if the source is already .webp
@@ -537,6 +546,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     });
     return items;
   }, [seoConfig]);
+
+  const searchInitialValues = React.useMemo(() => ({
+    pickup: pickupCode,
+    pickupName: pickupName,
+    dropoff: dropoffCode,
+    dropoffName: dropoffName
+  }), [pickupCode, pickupName, dropoffCode, dropoffName]);
 
   return (
     <div className="bg-white font-sans">
@@ -626,12 +642,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
-                  initialValues={{
-                    pickup: pickupCode,
-                    pickupName: pickupName,
-                    dropoff: dropoffCode,
-                    dropoffName: dropoffName
-                  }}
+                  initialValues={searchInitialValues}
                   accentColor={accentColor}
                   style={seoConfig?.searchWidgetStyle}
                   customColor={seoConfig?.searchWidgetColor}

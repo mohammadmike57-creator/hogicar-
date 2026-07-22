@@ -10,6 +10,9 @@ const distDir = path.join(__dirname, 'dist');
 const backendOrigin = process.env.BACKEND_ORIGIN || 'https://hogicar-backend.onrender.com';
 const port = Number(process.env.PORT || 3000);
 
+const fileCache = new Map();
+const compressedCache = new Map();
+
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.gif': 'image/gif',
@@ -57,22 +60,29 @@ function compress(data, encoding) {
   return data;
 }
 
-function send(res, status, body, headers = {}, req = null) {
+function send(res, status, body, headers = {}, req = null, filePath = null) {
   let finalBody = body;
   const finalHeaders = { ...securityHeaders, ...headers };
 
   if (req && body && body.length > 1024) {
     const acceptEncoding = req.headers['accept-encoding'] || '';
-    if (acceptEncoding.includes('br')) {
-      finalHeaders['Content-Encoding'] = 'br';
-      finalBody = compress(body, 'br');
-    } else if (acceptEncoding.includes('gzip')) {
-      finalHeaders['Content-Encoding'] = 'gzip';
-      finalBody = compress(body, 'gzip');
-    } else if (acceptEncoding.includes('deflate')) {
-      finalHeaders['Content-Encoding'] = 'deflate';
-      finalBody = compress(body, 'deflate');
+    let encoding = '';
+    
+    if (acceptEncoding.includes('br')) encoding = 'br';
+    else if (acceptEncoding.includes('gzip')) encoding = 'gzip';
+    else if (acceptEncoding.includes('deflate')) encoding = 'deflate';
+
+    if (encoding) {
+      const cacheKey = filePath ? `${filePath}:${encoding}` : null;
+      if (cacheKey && compressedCache.has(cacheKey)) {
+        finalBody = compressedCache.get(cacheKey);
+      } else {
+        finalBody = compress(body, encoding);
+        if (cacheKey) compressedCache.set(cacheKey, finalBody);
+      }
+      finalHeaders['Content-Encoding'] = encoding;
     }
+    
     finalHeaders['Content-Length'] = Buffer.byteLength(finalBody);
     finalHeaders['Vary'] = 'Accept-Encoding';
   }
@@ -147,8 +157,12 @@ async function serveStatic(req, res, url) {
 
       // For static assets, we read and compress if appropriate
       if (fileStat.size > 1024 && ['.html', '.js', '.css', '.json', '.svg', '.txt'].includes(ext)) {
-        const body = await readFile(filePath);
-        send(res, 200, body, headers, req);
+        let body = fileCache.get(filePath);
+        if (!body) {
+          body = await readFile(filePath);
+          fileCache.set(filePath, body);
+        }
+        send(res, 200, body, headers, req, filePath);
       } else {
         res.writeHead(200, {
           ...securityHeaders,

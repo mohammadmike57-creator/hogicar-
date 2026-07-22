@@ -48,7 +48,31 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     <link rel="preconnect" href="https://hogicar-backend.onrender.com">
+    <style>
+      :root {
+        --color-accent: #007ac2;
+        --color-primary: #003580;
+      }
+      body {
+        margin: 0;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background-color: #ffffff;
+      }
+      #root { min-height: 100vh; display: flex; flex-direction: column; }
+      .hero-placeholder {
+        background-color: var(--color-primary);
+        min-height: 500px;
+        width: 100%;
+      }
+      @media (max-width: 640px) {
+        .hero-placeholder { min-height: 480px; }
+      }
+    </style>
     <link rel="preload" as="image" href="/hero-home.png" fetchpriority="high" id="hero-preload">
     <link
       rel="preload"
@@ -78,13 +102,15 @@
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-MHN6Q99H');
         };
-        // Load GTM after first interaction or 3s delay
-        const loadOnInteraction = () => {
-          window.loadGTM();
-          ['touchstart', 'mousemove', 'scroll', 'keydown'].forEach(e => window.removeEventListener(e, loadOnInteraction));
-        };
-        ['touchstart', 'mousemove', 'scroll', 'keydown'].forEach(e => window.addEventListener(e, loadOnInteraction, {passive: true}));
-        setTimeout(window.loadGTM, 3500);
+        // Load GTM after window.load + interaction or fallback delay
+        window.addEventListener('load', function() {
+          const loadOnInteraction = () => {
+            window.loadGTM();
+            ['touchstart', 'mousemove', 'scroll', 'keydown'].forEach(e => window.removeEventListener(e, loadOnInteraction));
+          };
+          ['touchstart', 'mousemove', 'scroll', 'keydown'].forEach(e => window.addEventListener(e, loadOnInteraction, {passive: true}));
+          setTimeout(window.loadGTM, 5000);
+        });
       })();
     </script>
   </head>
