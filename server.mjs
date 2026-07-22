@@ -3,7 +3,7 @@ import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { gzipSync, deflateSync } from 'node:zlib';
+import { gzipSync, deflateSync, brotliCompressSync } from 'node:zlib';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, 'dist');
@@ -51,6 +51,7 @@ const securityHeaders = {
 };
 
 function compress(data, encoding) {
+  if (encoding === 'br') return brotliCompressSync(data);
   if (encoding === 'gzip') return gzipSync(data);
   if (encoding === 'deflate') return deflateSync(data);
   return data;
@@ -62,7 +63,10 @@ function send(res, status, body, headers = {}, req = null) {
 
   if (req && body && body.length > 1024) {
     const acceptEncoding = req.headers['accept-encoding'] || '';
-    if (acceptEncoding.includes('gzip')) {
+    if (acceptEncoding.includes('br')) {
+      finalHeaders['Content-Encoding'] = 'br';
+      finalBody = compress(body, 'br');
+    } else if (acceptEncoding.includes('gzip')) {
       finalHeaders['Content-Encoding'] = 'gzip';
       finalBody = compress(body, 'gzip');
     } else if (acceptEncoding.includes('deflate')) {

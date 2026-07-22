@@ -160,6 +160,7 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
             src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'}
             alt={article.title}
             loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           {article.category && (
@@ -206,4 +207,4 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
   );
 };
 
-export default LatestTravelGuides;
+export default React.memo(LatestTravelGuides);

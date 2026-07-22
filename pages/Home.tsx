@@ -32,12 +32,14 @@ import Wallet from 'lucide-react/dist/esm/icons/wallet';
 import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
+import SearchWidget from '../components/SearchWidget';
 
-// Lazy load almost everything below the fold
+// Lazy load truly below-the-fold components
 const Reviews = React.lazy(() => import('../components/Reviews'));
 const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
 const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
-const SearchWidget = React.lazy(() => import('../components/SearchWidget'));
+const PopularDestinations = React.lazy(() => import('../components/PopularDestinations'));
+const FAQSection = React.lazy(() => import('../components/FAQSection'));
 
 import { useCurrency } from '../contexts/CurrencyContext';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -173,7 +175,7 @@ const normalizeHomepageContent = (content: any) => {
     hero: {
       title: 'Car Hire – Search, Compare & Save',
       subtitle: 'Free cancellations on most bookings',
-      backgroundImage: '',
+      backgroundImage: '/hero-home.png',
       ...(safeContent.hero || {})
     },
     howItWorks: {
@@ -587,6 +589,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   alt={seoConfig?.imageAltText || displayH1}
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
+                  decoding="async"
                   onLoad={() => setHeroLoaded(true)}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -620,22 +623,20 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             
             {sections.search && (
               <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1200px] mx-auto min-h-[380px] lg:min-h-[180px]">
-                <React.Suspense fallback={<div className="h-[380px] lg:h-[180px] w-full bg-white/5 backdrop-blur-sm rounded-3xl animate-pulse"></div>}>
-                  <SearchWidget
-                    onSearch={handleSearch}
-                    showTitle={false}
-                    initialValues={{
-                      pickup: pickupCode,
-                      pickupName: pickupName,
-                      dropoff: dropoffCode,
-                      dropoffName: dropoffName
-                    }}
-                    accentColor={accentColor}
-                    style={seoConfig?.searchWidgetStyle}
-                    customColor={seoConfig?.searchWidgetColor}
-                    buttonColor={seoConfig?.searchWidgetButtonColor}
-                  />
-                </React.Suspense>
+                <SearchWidget
+                  onSearch={handleSearch}
+                  showTitle={false}
+                  initialValues={{
+                    pickup: pickupCode,
+                    pickupName: pickupName,
+                    dropoff: dropoffCode,
+                    dropoffName: dropoffName
+                  }}
+                  accentColor={accentColor}
+                  style={seoConfig?.searchWidgetStyle}
+                  customColor={seoConfig?.searchWidgetColor}
+                  buttonColor={seoConfig?.searchWidgetButtonColor}
+                />
                 
                 {/* Mobile Features Bar */}
                 <div className="lg:hidden mt-6 flex flex-wrap justify-center gap-2 px-4">
@@ -901,69 +902,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
       {/* 14. FREQUENTLY ASKED QUESTIONS */}
       {sections.faq && (
-        <section className="py-20 bg-slate-50/50">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-accent/10 text-accent mb-6">
-                <ShieldCheck className="w-8 h-8" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Frequently Asked Questions</h2>
-              <p className="text-slate-700 font-bold uppercase text-xs tracking-widest max-w-lg mx-auto leading-relaxed">Everything you need to know about renting in {displayH1.replace('Car Rental in ', '')} for a smooth journey.</p>
-            </div>
-
-            <div className="grid gap-4">
-                {faqs.map((faq, index) => {
-                  const Icon = iconMap[faq.icon] || HelpCircle;
-                  const isOpen = openFaqIndex === index;
-                  
-                  return (
-                    <div 
-                      key={faq.id || index} 
-                      className={`group rounded-3xl transition-all duration-300 border ${isOpen ? 'bg-white shadow-xl shadow-slate-200/50 border-accent/20' : 'bg-white border-slate-100 hover:border-slate-200 shadow-sm'}`}
-                    >
-                      <button 
-                        onClick={() => toggleFaq(index)} 
-                        className="w-full flex items-center text-left p-5 sm:p-7 focus:outline-none"
-                      >
-                        <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${isOpen ? (faq.color || 'bg-accent') : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
-                          <Icon className={`w-6 h-6 ${isOpen ? 'text-white' : 'text-slate-500'}`} />
-                        </div>
-                        <div className="ml-5 flex-1 pr-4">
-                          <span className={`block font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-slate-900 text-lg' : 'text-slate-700 group-hover:text-slate-900'}`}>
-                            {faq.question}
-                          </span>
-                        </div>
-                        <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-accent border-accent text-white rotate-180' : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-300'}`}>
-                          <ChevronDown className="w-4 h-4" />
-                        </div>
-                      </button>
-                      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-5 sm:px-7 pb-7 ml-0 sm:ml-12">
-                          <div className="h-px w-10 bg-slate-100 mb-6 hidden sm:block"></div>
-                          <p className="text-slate-600 leading-relaxed font-medium text-base">
-                            {faq.answer}
-                          </p>
-                          {isOpen && (
-                            <div className="mt-6 flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
-                              <Sparkles className="w-3 h-3" />
-                              Was this helpful?
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-
-            <div className="mt-16 text-center">
-              <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mb-4">Still have questions?</p>
-              <a href="mailto:support@hogicar.com" className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
-                Contact Support <Mail className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-        </section>
+        <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+          <FAQSection 
+            faqs={faqs}
+            title="Frequently Asked Questions"
+            subtitle={`Everything you need to know about renting in ${displayH1.replace('Car Rental in ', '')} for a smooth journey.`}
+          />
+        </React.Suspense>
       )}
 
       {/* 15. RELATED ARTICLES */}
@@ -999,33 +944,15 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </section>
       )}
 
-      {/* 16. POPULAR DESTINATIONS (Extra, not explicitly requested in order but good for SEO internal linking) */}
+      {/* 16. POPULAR DESTINATIONS */}
       {!isCustomLanding && sections.popularDestinations && (
-        <section className="bg-slate-50 py-16">
-          <div className="max-w-7xl mx-auto px-4">
-             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-                 <div>
-                     <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Popular Destinations</h2>
-                     <p className="text-slate-700 font-bold uppercase text-xs tracking-widest">Explore our most booked locations</p>
-                 </div>
-                 <Link to="/search" className="text-accent font-black uppercase text-xs tracking-widest flex items-center gap-2 hover:gap-3 transition-all">
-                     View All <ArrowRight className="w-4 h-4" />
-                 </Link>
-             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                 {destinations.slice(0, 5).map((dest, index) => (
-                    <Link to={`/search?location=${encodeURIComponent(dest.name)}`} key={index} className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-slate-900">
-                        <img src={dest.image} alt={dest.name} className="h-full w-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                        <div className="absolute bottom-6 left-6 right-6">
-                            <h3 className="text-xl font-black text-white uppercase tracking-tight">{dest.name}</h3>
-                            <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mt-1">{dest.country}</p>
-                        </div>
-                    </Link>
-                 ))}
-             </div>
-          </div>
-        </section>
+        <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+          <PopularDestinations 
+            destinations={destinations}
+            title="Popular Destinations"
+            subtitle="Explore our most booked locations"
+          />
+        </React.Suspense>
       )}
 
     </div>

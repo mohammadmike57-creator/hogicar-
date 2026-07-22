@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
+import Home from './pages/Home';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 // Lazy load pages for performance
 const AdminProtectedRoute = React.lazy(() => import('./admin/components/AdminProtectedRoute'));
-const Home = React.lazy(() => import('./pages/Home'));
 const Search = React.lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
 const CarDetails = React.lazy(() => import('./pages/CarDetails'));
 const SupplierDashboard = React.lazy(() => import('./pages/SupplierDashboard'));
