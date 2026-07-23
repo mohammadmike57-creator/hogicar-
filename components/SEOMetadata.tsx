@@ -237,7 +237,43 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       const existingPreload = document.querySelector('link[rel="preload"][as="image"]#hero-preload');
       if (existingPreload) existingPreload.remove();
     }
-  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema, structuredData, config, preloadImageUrl, preloadImageSrcSet]);
+
+    // 9. Hreflang and Language attributes
+    const lang = config?.lang || 'en';
+    const alternateRoute = config?.alternateRoute;
+    const html = document.documentElement;
+    html.setAttribute('lang', lang);
+    html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+    // Remove existing hreflang tags
+    document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+
+    // Add current
+    const currentHref = PUBLIC_BASE_URL + normalizedPathname;
+    const linkCurrent = document.createElement('link');
+    linkCurrent.rel = 'alternate';
+    linkCurrent.hreflang = lang;
+    linkCurrent.href = currentHref;
+    document.head.appendChild(linkCurrent);
+
+    if (alternateRoute) {
+      const altLang = lang === 'en' ? 'ar' : 'en';
+      const altHref = PUBLIC_BASE_URL + alternateRoute;
+      const linkAlt = document.createElement('link');
+      linkAlt.rel = 'alternate';
+      linkAlt.hreflang = altLang;
+      linkAlt.href = altHref;
+      document.head.appendChild(linkAlt);
+
+      // x-default
+      const xDefaultHref = lang === 'en' ? currentHref : altHref;
+      const linkXDefault = document.createElement('link');
+      linkXDefault.rel = 'alternate';
+      linkXDefault.hreflang = 'x-default';
+      linkXDefault.href = xDefaultHref;
+      document.head.appendChild(linkXDefault);
+    }
+  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema, structuredData, config, preloadImageUrl, preloadImageSrcSet, normalizedPathname]);
 
   return null;
 };
