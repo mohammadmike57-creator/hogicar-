@@ -80,6 +80,7 @@ const App: React.FC = () => {
           {/* Customer-facing application with main Layout */}
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/ar" element={<Home />} />
             <Route path="/searching" element={<Searching />} />
             <Route path="/search" element={<Search />} />
             <Route path="/car/:id" element={<CarDetails />} />
@@ -94,11 +95,16 @@ const App: React.FC = () => {
             <Route path="/become-supplier" element={<BecomeSupplier />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/ar/اتصل-بنا" element={<Contact />} />
+            <Route path="/about" element={<Contact />} />
+            <Route path="/ar/من-نحن" element={<Contact />} />
             <Route path="/blog" element={<BlogIndex />} />
+            <Route path="/ar/blog" element={<BlogIndex />} />
             <Route path="/blog/category/:categorySlug" element={<BlogIndex />} />
             <Route path="/blog/tag/:tag" element={<BlogIndex />} />
             <Route path="/blog/author/:author" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogArticle />} />
+            <Route path="/ar/blog/:slug" element={<BlogArticle />} />
             <Route path="/sitemap" element={<Sitemap />} />
             <Route path="*" element={<DynamicPage />} />
           </Route>

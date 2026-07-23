@@ -25,7 +25,8 @@ const Layout: React.FC = () => {
   const currentCurrency = currencies.find(c => c.code === selectedCurrency);
   const location = useLocation();
 
-  const isHomePage = location.pathname === '/';
+  const isHomePage = location.pathname === '/' || location.pathname === '/ar';
+  const isArabic = location.pathname.startsWith('/ar');
   const isSearchingPage = location.pathname === '/searching';
 
   React.useEffect(() => {
@@ -66,6 +67,16 @@ const Layout: React.FC = () => {
 
           {/* Desktop right side */}
           <nav className="hidden md:flex items-center space-x-6" aria-label="Main Navigation">
+            {/* Language Switcher */}
+            <div className="flex items-center space-x-2 border-r border-white/20 pr-6">
+              <Link 
+                to={isArabic ? '/' : '/ar'} 
+                className="text-sm font-bold text-white hover:text-blue-200 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"
+              >
+                {isArabic ? 'English' : 'العربية'}
+              </Link>
+            </div>
+
             <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
               <User className="w-4 h-4" />
               Manage Booking
