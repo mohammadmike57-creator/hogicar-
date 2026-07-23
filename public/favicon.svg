@@ -1,5 +1,7 @@
 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="230" fill="#123C69"/>
-  <path d="M 88.8 314.9 Q 256 147.7 423.2 273.1" stroke="#F57C00" stroke-width="85" fill="none" stroke-linecap="round"/>
-  <line x1="151.5" y1="377.6" x2="360.5" y2="377.6" stroke="#F57C00" stroke-width="56" stroke-linecap="round"/>
+  <!-- Increased radius for better filling in Google Search circular favicons (occupies ~94% of canvas) -->
+  <circle cx="256" cy="256" r="240" fill="#123C69"/>
+  <!-- Enlarged orange car symbol for better visibility at small sizes (16x16, 32x32) -->
+  <path d="M 75 310 Q 256 125 437 265" stroke="#F57C00" stroke-width="92" fill="none" stroke-linecap="round"/>
+  <line x1="145" y1="385" x2="367" y2="385" stroke="#F57C00" stroke-width="62" stroke-linecap="round"/>
 </svg>

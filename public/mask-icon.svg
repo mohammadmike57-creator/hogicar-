@@ -1,5 +1,5 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="100" cy="100" r="55" fill="black"/>
-  <path d="M60 105 Q100 65 140 95" stroke="black" stroke-width="18" fill="none" stroke-linecap="round"/>
-  <line x1="75" y1="120" x2="125" y2="120" stroke="black" stroke-width="12" stroke-linecap="round"/>
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Monochrome version of the car logo for Safari mask-icon -->
+  <path d="M 75 310 Q 256 125 437 265" stroke="black" stroke-width="92" fill="none" stroke-linecap="round"/>
+  <line x1="145" y1="385" x2="367" y2="385" stroke="black" stroke-width="62" stroke-linecap="round"/>
 </svg>
