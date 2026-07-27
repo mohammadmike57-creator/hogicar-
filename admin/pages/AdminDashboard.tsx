@@ -88,6 +88,7 @@ import {
     updateHogicarChoice 
 } from '../../lib/adminApi';
 import { API_BASE_URL } from '../../lib/config';
+import ExternalSuppliersPage from './ExternalSuppliers';
 import { calculatePrice } from '../../utils/bookingUtils';
 import { 
   Supplier, CommissionType, BookingMode, PickupType, ApiConnection, ApiPartner, 
@@ -280,7 +281,7 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: {
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
-                'homepagelogos' | 'searchinglogos' | 'blog' | 'sitemap';
+                'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap';
 
 // ==================== UI Components ====================
 const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => {
@@ -572,6 +573,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <NavItem section="globallocations" label="Global Locations" icon={Globe} />
           <NavItem section="homepagelogos" label="Homepage Logos" icon={ImageIcon} />
           <NavItem section="searchinglogos" label="Searching Logos" icon={Search} />
+          <NavItem section="externalsuppliers" label="External Suppliers" icon={Building} />
         </nav>
 
         <div className="mt-5 rounded-card bg-white/[0.06] border border-white/10 p-4">
@@ -4973,6 +4975,7 @@ export const AdminDashboard: React.FC = () => {
       case 'globallocations': return <GlobalLocationsContent />;
       case 'homepagelogos': return <HomepageLogosContent />;
       case 'searchinglogos': return <SearchingLogosContent />;
+      case 'externalsuppliers': return <ExternalSuppliersPage />;
       default: return null;
     }
   };
