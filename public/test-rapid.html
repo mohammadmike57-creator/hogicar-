@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hogicar – CheapTickets Search</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f7f7f7; }
+    h1 { color: #333; }
+    .search-bar { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+    .search-bar label { font-weight: bold; display: flex; flex-direction: column; }
+    input { padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin-top: 4px; }
+    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; height: fit-content; }
+    .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .car-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: transform 0.2s; }
+    .car-card:hover { transform: translateY(-3px); }
+    .car-image { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+    .car-details { padding: 15px; }
+    .car-name { font-size: 18px; font-weight: bold; margin: 0 0 5px; display: flex; align-items: center; gap: 8px; }
+    .car-category { color: #666; font-size: 14px; margin-bottom: 10px; }
+    .car-price { display: flex; justify-content: space-between; align-items: baseline; margin: 10px 0; }
+    .price-total { font-size: 24px; font-weight: bold; color: #007bff; }
+    .price-daily { font-size: 14px; color: #555; }
+    .supplier-logo { height: 24px; }
+    .features { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; min-height: 24px; }
+    .feature { background: #e9f5e9; color: #2a7d2a; padding: 3px 8px; border-radius: 20px; font-size: 12px; }
+    .no-results { color: #999; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>🚗 Hogicar – CheapTickets Search</h1>
+  <div class="search-bar">
+    <label>Pick-up <input id="pickup" value="AMM"></label>
+    <label>Drop-off <input id="dropoff" value="AMM"></label>
+    <label>From <input type="date" id="pickupDate" value="2026-08-01"></label>
+    <label>To <input type="date" id="dropoffDate" value="2026-08-05"></label>
+    <button onclick="search()">Search Cars</button>
+  </div>
+  <div id="results" class="car-grid">
+    <p class="no-results">Click Search to find cars from CheapTickets.</p>
+  </div>
+
+  <script>
+    const PROXY = 'http://localhost:8080/api/rapid/cars';
+
+    async function search() {
+      const params = new URLSearchParams({
+        pickUpLocation: document.getElementById('pickup').value,
+        dropOffLocation: document.getElementById('dropoff').value,
+        pickUpDate: document.getElementById('pickupDate').value,
+        dropOffDate: document.getElementById('dropoffDate').value,
+        locale: 'en_US',
+        currency: 'USD'
+      });
+
+      const res = await fetch(`${PROXY}/search?${params}`);
+      const json = await res.json();
+      const listings = json?.data?.carSearchResults?.carSearchListings;
+      const grid = document.getElementById('results');
+
+      if (!listings || listings.length === 0) {
+        grid.innerHTML = '<p class="no-results">No cars found for these dates.</p>';
+        return;
+      }
+
+      let html = '';
+      listings.forEach(car => {
+        const v = car.vehicle;
+        const price = car.priceSummary;
+        const vendor = car.vendor;
+        const features = car.actionableConfidenceMessages || [];
+        
+        // Clean features (remove nulls/undefined)
+        const cleanFeatures = features
+          .map(f => f && f.value ? f.value : null)
+          .filter(Boolean);
+
+        html += `
+          <div class="car-card">
+            <img class="car-image" src="${v.image?.url || ''}" alt="${v.description || 'Car'}" 
+                 onerror="this.onerror=null;this.src='https://via.placeholder.com/300x180?text=No+Image'">
+            <div class="car-details">
+              <div class="car-name">
+                <span>${v.description || 'Unknown Car'}</span>
+                ${vendor?.image?.url ? `<img class="supplier-logo" src="${vendor.image.url}" alt="">` : ''}
+              </div>
+              <div class="car-category">${v.category || 'N/A'}</div>
+              <div class="car-price">
+                <span class="price-total">${price?.total?.formattedValue || 'N/A'}</span>
+                <span class="price-daily">${price?.lead?.formattedValue || ''} ${price?.lead?.qualifier || ''}</span>
+              </div>
+              <div class="features">
+                ${cleanFeatures.map(f => `<span class="feature">${f}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      grid.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

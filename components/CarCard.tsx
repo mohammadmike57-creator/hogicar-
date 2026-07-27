@@ -89,6 +89,7 @@ const VisaIcon = () => (
 // --- RENTAL CONDITIONS MODAL ---
 const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, supplier: Supplier, onClose: () => void }) => {
     const { convertPrice, getCurrencySymbol } = useCurrency();
+  const promotionLabel = null;
     const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
     const gracePeriodInfo = supplier.gracePeriodDays ? `${supplier.gracePeriodDays} day(s)` : `${supplier.gracePeriodHours} hour(s)`;
     const depositText = car.deposit > 0 ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'No deposit listed';
@@ -377,15 +378,15 @@ const CarCard: React.FC<CarCardProps> = ({
 }) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
   const { convertPrice, getCurrencySymbol } = useCurrency();
+  const promotionLabel = null;
 
-  const { promotionLabel } = calculatePrice(car, days, startDate);
 
   // Use the single source of truth for pricing
   const search = { pickupDate: startDate, dropoffDate: endDate };
-  const price = calcPricing(car, search);
+  // price calculation removed
   // FIX: Access the correct property 'finalTotal' instead of 'finalPrice'.
-  const totalFinalPrice = price.finalTotal;
-  const totalCommissionAmount = price.payNow;
+  const totalFinalPrice = car.finalPrice ?? 0;
+  const totalCommissionAmount = car.commissionAmount ?? 0;
   const payAtPickup = Math.max(totalFinalPrice - totalCommissionAmount, 0);
 
 
@@ -676,7 +677,7 @@ const CarCard: React.FC<CarCardProps> = ({
                             align="right"
                             supplierName={car.supplier.name}
                             rating={ratingToDisplay}
-                            reviewCount={car.supplier.ratingReviewCount}
+                            reviewCount={car.supplier.reviewCount}
                             className="hidden md:block"
                           />
                       </div>
@@ -892,7 +893,7 @@ const CarCard: React.FC<CarCardProps> = ({
                 align="center"
                 supplierName={car.supplier.name}
                 rating={ratingToDisplay}
-                reviewCount={car.supplier.ratingReviewCount}
+                reviewCount={car.supplier.reviewCount}
                 compact
                 className="!static !mb-0 !w-full !translate-x-0 !translate-y-0 !scale-100 !opacity-100"
               />

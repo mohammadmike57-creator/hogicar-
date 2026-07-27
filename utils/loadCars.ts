@@ -26,7 +26,7 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
     appState.search = { pickupCode: pickup, dropoffCode: dropoff, pickupDate, dropoffDate };
     sessionStorage.setItem("hogicar_search", JSON.stringify(appState.search));
 
-    const url = `${API_URL}/api/cars?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
+    const url = `${API_URL}/api/search/all?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
 
     try {
         const response = await fetch(url, { 
