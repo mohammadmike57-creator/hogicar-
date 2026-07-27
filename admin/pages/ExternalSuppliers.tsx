@@ -12,8 +12,11 @@ import {
   Car, 
   X,
   ChevronRight,
-  Info
+  Info,
+  Ban,
+  Star
 } from 'lucide-react';
+import { adminFetch } from '../../lib/adminApi';
 
 interface ExternalSupplier {
   id?: number;
@@ -24,9 +27,13 @@ interface ExternalSupplier {
   carDepositOverrides: string;
   contactEmail: string;
   logoUrl: string;
+  active?: boolean;
+  excludedCarModels?: string;
+  rating?: number;
+  reviewCount?: number;
 }
 
-const API = '/api/admin/external-suppliers';
+const API_PATH = '/api/admin/external-suppliers';
 
 const DEFAULT_DEPOSITS = {
   MINI: 350,
@@ -48,7 +55,11 @@ const ExternalSuppliersPage: React.FC = () => {
     depositSettings: JSON.stringify(DEFAULT_DEPOSITS),
     carDepositOverrides: '{}',
     contactEmail: '',
-    logoUrl: ''
+    logoUrl: '',
+    active: true,
+    excludedCarModels: '',
+    rating: undefined,
+    reviewCount: undefined
   });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [overrideKey, setOverrideKey] = useState('');
@@ -57,8 +68,7 @@ const ExternalSuppliersPage: React.FC = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const res = await fetch(API);
-      const data = await res.json();
+      const data = await adminFetch(API_PATH);
       setSuppliers(data);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
@@ -71,15 +81,13 @@ const ExternalSuppliersPage: React.FC = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await fetch(`${API}/${editingId}`, {
+        await adminFetch(`${API_PATH}/${editingId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form)
         });
       } else {
-        await fetch(API, {
+        await adminFetch(API_PATH, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form)
         });
       }
@@ -98,8 +106,12 @@ const ExternalSuppliersPage: React.FC = () => {
       markupPercent: 0, 
       depositSettings: JSON.stringify(DEFAULT_DEPOSITS), 
       carDepositOverrides: '{}', 
-      contactEmail: '', 
-      logoUrl: '' 
+      contactEmail: '',
+      logoUrl: '',
+      active: true,
+      excludedCarModels: '',
+      rating: undefined,
+      reviewCount: undefined
     });
     setEditingId(null);
   };
@@ -114,7 +126,7 @@ const ExternalSuppliersPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this external supplier? This action cannot be undone.')) {
       try {
-        await fetch(`${API}/${id}`, { method: 'DELETE' });
+        await adminFetch(`${API_PATH}/${id}`, { method: 'DELETE' });
         fetchSuppliers();
       } catch (error) {
         console.error('Error deleting supplier:', error);
@@ -273,6 +285,15 @@ const ExternalSuppliersPage: React.FC = () => {
                       <img src={form.logoUrl} alt="Preview" className="h-8 object-contain" onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/100x40?text=Invalid+Logo")} />
                     </div>
                   )}
+                  <label className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2">
+                    <span className="text-sm font-medium text-gray-700">Show this supplier in search</span>
+                    <input
+                      type="checkbox"
+                      checked={form.active !== false}
+                      onChange={e => setForm({...form, active: e.target.checked})}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </label>
                 </div>
               </div>
 
@@ -286,6 +307,7 @@ const ExternalSuppliersPage: React.FC = () => {
                     <li>Vendor code must match the API response.</li>
                     <li>Markup applies to the net price fetched.</li>
                     <li>Deposits are shown to users in search results.</li>
+                    <li>Excluded models are hidden immediately from customer search.</li>
                   </ul>
                 </div>
                 <button 
@@ -367,6 +389,53 @@ const ExternalSuppliersPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                  <Star className="w-3 h-3" /> Manual Rating
+                </h4>
+                <div className="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-xl">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase">Rating</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      placeholder="e.g., 8.7"
+                      className="mt-1 w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                      value={form.rating ?? ''}
+                      onChange={e => setForm({...form, rating: e.target.value === '' ? undefined : parseFloat(e.target.value)})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase">Review Count</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Reviews"
+                      className="mt-1 w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                      value={form.reviewCount ?? ''}
+                      onChange={e => setForm({...form, reviewCount: e.target.value === '' ? undefined : parseInt(e.target.value, 10)})}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                  <Ban className="w-3 h-3" /> Hidden Car Models
+                </h4>
+                <textarea
+                  placeholder={'One model per line, e.g.:\nToyota Camry'}
+                  className="min-h-[110px] w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  value={form.excludedCarModels || ''}
+                  onChange={e => setForm({...form, excludedCarModels: e.target.value})}
+                />
+                <p className="text-xs text-gray-400">Exact model names listed here will not appear in customer search results for this supplier.</p>
+              </div>
+            </div>
           </form>
         </div>
       )}
@@ -395,6 +464,11 @@ const ExternalSuppliersPage: React.FC = () => {
               ) : (
                 suppliers.map(s => {
                   let overrideCount = 0;
+                  const excludedCount = (s.excludedCarModels || '')
+                    .split(/[,;\n\r]+/)
+                    .map(item => item.trim())
+                    .filter(Boolean)
+                    .length;
                   try { overrideCount = Object.keys(JSON.parse(s.carDepositOverrides || '{}')).length; } catch(e) {}
                   
                   return (
@@ -409,9 +483,21 @@ const ExternalSuppliersPage: React.FC = () => {
                             )}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">{s.name}</div>
-                            <div className="text-xs font-mono text-gray-400 px-1.5 py-0.5 bg-gray-100 rounded inline-block mt-1">
-                              {s.vendorCode}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <div className="font-semibold text-gray-900">{s.name}</div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.active === false ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                                {s.active === false ? 'Hidden' : 'Live'}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 mt-1">
+                              <span className="text-xs font-mono text-gray-400 px-1.5 py-0.5 bg-gray-100 rounded">
+                                {s.vendorCode}
+                              </span>
+                              {s.rating !== undefined && s.rating !== null && (
+                                <span className="text-xs font-bold text-amber-700 px-1.5 py-0.5 bg-amber-50 rounded">
+                                  {s.rating.toFixed(1)} rating
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -430,6 +516,11 @@ const ExternalSuppliersPage: React.FC = () => {
                           {overrideCount > 0 && (
                             <div className="flex items-center gap-1.5 text-blue-600 font-medium">
                               <Car className="w-3 h-3" /> {overrideCount} Car Overrides
+                            </div>
+                          )}
+                          {excludedCount > 0 && (
+                            <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                              <Ban className="w-3 h-3" /> {excludedCount} Hidden Models
                             </div>
                           )}
                         </div>
