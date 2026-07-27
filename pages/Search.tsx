@@ -35,7 +35,7 @@ import SearchWidget from '../components/SearchWidget';
 import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
-import { PREFETCHED_RESULTS_KEY } from '../utils/storage';
+import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch } from '../utils/searchPrefetch';
 
 const ratingToPercent = (rating: number | undefined) => {
     const safeRating = Number(rating || 4.5);
@@ -138,8 +138,28 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     };
 };
 
+const apiCarsToCars = (data: ApiSearchResult[]): Car[] => {
+    const mappedCars = data.map(apiCarToCar);
+    const finalCars: Car[] = [];
+
+    mappedCars.forEach(car => {
+        finalCars.push({ ...car, isHogicarChoiceBranded: false });
+        if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
+            const choiceCar = JSON.parse(JSON.stringify(car));
+            choiceCar.id = `choice-${car.id}`;
+            choiceCar.supplier.name = 'Hogi Car Choice';
+            choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
+            choiceCar.isHogicarChoiceBranded = true;
+            finalCars.push(choiceCar);
+        }
+    });
+
+    return finalCars;
+};
+
 export const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const searchParamsString = searchParams.toString();
   const navigate = useNavigate();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata;
@@ -150,106 +170,86 @@ export const Search: React.FC = () => {
   const endTimeParam = searchParams.get('endTime');
   const dropoffIata = searchParams.get('dropoff');
   const dropoffName = searchParams.get('dropoffName');
-  
-  const [apiCars, setApiCars] = React.useState<Car[]>(() => {
-    if (typeof window === 'undefined') return [];
-    const prefetched = sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
-    if (prefetched) {
-      try {
-        const data = JSON.parse(prefetched);
-        if (data && Array.isArray(data) && data.length > 0) {
-          const mappedCars = data.map(apiCarToCar);
-          const finalCars: Car[] = [];
-          mappedCars.forEach(car => {
-            finalCars.push({ ...car, isHogicarChoiceBranded: false });
-            if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
-              const choiceCar = JSON.parse(JSON.stringify(car));
-              choiceCar.id = `choice-${car.id}`;
-              choiceCar.supplier.name = 'Hogi Car Choice';
-              choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
-              choiceCar.isHogicarChoiceBranded = true;
-              finalCars.push(choiceCar);
-            }
-          });
-          return finalCars;
-        }
-      } catch (e) {
-        console.warn("Search: Initializer failed to parse prefetched results", e);
-        sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
-      }
-    }
-    return [];
-  });
-
-  const [loading, setLoading] = React.useState(() => {
-    if (typeof window === 'undefined') return true;
-    return !sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
-  });
-  const [error, setError] = React.useState<string | null>(null);
-
-  const { convertPrice, getCurrencySymbol } = useCurrency();
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
-  
   const today = new Date();
   const defaultStart = today.toISOString().split('T')[0];
   const defaultEnd = new Date(new Date().setDate(today.getDate() + 3)).toISOString().split('T')[0];
 
   const startDate = pickupDateParam || defaultStart;
   const endDate = dropoffDateParam || defaultEnd;
+  const searchPrefetchParams = React.useMemo(() => ({
+    pickupCode: pickupIata,
+    dropoffCode: dropoffIata || pickupIata,
+    pickupDate: startDate,
+    dropoffDate: endDate,
+  }), [pickupIata, dropoffIata, startDate, endDate]);
+  
+  const [apiCars, setApiCars] = React.useState<Car[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
+    if (prefetched) {
+      return apiCarsToCars(prefetched);
+    }
+    return [];
+  });
 
+  const [loading, setLoading] = React.useState(() => {
+    if (typeof window === 'undefined') return true;
+    return !getMatchingPrefetchedResults(searchPrefetchParams);
+  });
+  const [error, setError] = React.useState<string | null>(null);
+
+  const { convertPrice, getCurrencySymbol } = useCurrency();
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  
   const startD = new Date(startDate);
   const endD = new Date(endDate);
   const diffTime = Math.abs(endD.getTime() - startD.getTime());
   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   
   React.useEffect(() => {
+    let cancelled = false;
+
     const fetchApiCars = async () => {
-        // Use a ref to prevent double execution in Strict Mode if we already have cars from prefetch
-        if (apiCars.length > 0 && !loading) {
+        let directFetchNeeded = false;
+
+        // Check for pre-fetched results from the click/searching screen to prevent redundant buffering.
+        const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
+        if (prefetched) {
+            console.log("Search: Using pre-fetched results from session storage.");
+            if (cancelled) return;
+            setApiCars(apiCarsToCars(prefetched));
+            setLoading(false);
+
+            // Delay removal so React Strict Mode's second pass can still find the same matching data.
+            setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
             return;
         }
 
-        // Check for pre-fetched results from Searching page to prevent redundant buffering
-        const prefetched = sessionStorage.getItem(PREFETCHED_RESULTS_KEY);
-        if (prefetched) {
+        const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
+        if (pendingPrefetch) {
+            setLoading(true);
+            setError(null);
             try {
-                const data = JSON.parse(prefetched);
-                
-                if (data && Array.isArray(data) && data.length > 0) {
-                    console.log("Search: Using pre-fetched results from session storage.");
-                    const mappedCars = data.map(apiCarToCar);
-                    const finalCars: Car[] = [];
-                    mappedCars.forEach(car => {
-                        const originalCar = { ...car, isHogicarChoiceBranded: false };
-                        finalCars.push(originalCar);
-                        if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
-                            const choiceCar = JSON.parse(JSON.stringify(car));
-                            choiceCar.id = `choice-${car.id}`;
-                            choiceCar.supplier.name = 'Hogi Car Choice';
-                            choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
-                            choiceCar.isHogicarChoiceBranded = true;
-                            finalCars.push(choiceCar);
-                        }
-                    });
-                    setApiCars(finalCars);
-                    setLoading(false);
-                    
-                    // Delay removal to allow React Strict Mode to run twice and still find the data
-                    // Or just let it be, it will be overwritten by next search anyway
-                    // But to be safe and clean:
-                    setTimeout(() => {
-                        sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
-                    }, 2000);
-                    return;
-                }
-            } catch (e) {
-                console.warn("Search: Failed to parse prefetched results", e);
+                console.log("Search: Waiting for in-flight prefetch from search click.");
+                const data = await pendingPrefetch;
+                const storedData = getMatchingPrefetchedResults(searchPrefetchParams);
+                if (cancelled) return;
+                setApiCars(apiCarsToCars(storedData || data));
+                setLoading(false);
+                setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
+                return;
+            } catch (error) {
+                console.warn("Search: In-flight prefetch failed, falling back to direct fetch.", error);
+                directFetchNeeded = true;
             }
         }
 
         setLoading(true);
         setError(null);
         try {
+            if (directFetchNeeded) {
+                console.log("Search: Retrying car load with direct fetch.");
+            }
             const data = await loadCars({
                 locationsOptions: [],
                 pickupCode: pickupIata,
@@ -257,38 +257,25 @@ export const Search: React.FC = () => {
                 pickupDate: startDate,
                 dropoffDate: endDate,
             });
-            const mappedCars = data.map(apiCarToCar);
-            
-            // Duplicate cars for "Hogi Car Choice" branding in the frontend
-            const finalCars: Car[] = [];
-            mappedCars.forEach(car => {
-                // The original car should NOT be branded as Hogi Car Choice in the UI
-                const originalCar = { ...car, isHogicarChoiceBranded: false };
-                finalCars.push(originalCar);
-                
-                if (car.hogicarChoice && car.supplier.name !== 'Hogi Car Choice') {
-                    // Create a duplicated entry with Hogi Car Choice branding
-                    const choiceCar = JSON.parse(JSON.stringify(car));
-                    choiceCar.id = `choice-${car.id}`;
-                    choiceCar.supplier.name = 'Hogi Car Choice';
-                    choiceCar.supplier.logo = 'HOGICAR_CHOICE_LOGO';
-                    choiceCar.isHogicarChoiceBranded = true;
-                    finalCars.push(choiceCar);
-                }
-            });
-            
-            setApiCars(finalCars);
+            if (cancelled) return;
+            setApiCars(apiCarsToCars(data));
         } catch (err) {
+            if (cancelled) return;
             console.error("Failed to fetch search results:", err);
             setError("We couldn't retrieve car results at the moment. Please try again later.");
             setApiCars([]);
         } finally {
+            if (cancelled) return;
             setLoading(false);
         }
     };
 
     fetchApiCars();
-  }, [searchParams]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParamsString, searchPrefetchParams]);
 
   const formatDateTime = (date: Date, time: string) => {
     return `${date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${time}`;

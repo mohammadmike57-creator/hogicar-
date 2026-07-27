@@ -11,6 +11,7 @@ import X from 'lucide-react/dist/esm/icons/x';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { fetchLocations, LocationSuggestion } from '../api';
 import CalendarPicker from './CalendarPicker';
+import { startCarSearchPrefetch } from '../utils/searchPrefetch';
 
 const SearchOverlay = React.lazy(() => import('./SearchOverlay'));
 
@@ -544,18 +545,30 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
 
         setIsSuggestionsOpen(false);
         setIsDropoffSuggestionsOpen(false);
+
+        const finalPickupCode = pickupLocation;
+        if (!finalPickupCode) return;
         
-        onSearch({
-            pickup: pickupLocation,
+        const searchPayload = {
+            pickup: finalPickupCode,
             pickupName: finalPickupName,
             pickupDate: pickupDate,
             dropoffDate: dropoffDate,
             startTime: pickupTime,
             endTime: dropoffTime,
-            dropoff: dropoffLocation,
+            dropoff: dropoffLocation || finalPickupCode,
             dropoffName: finalDropoffName,
             differentDropoff: differentDropoff
+        };
+
+        startCarSearchPrefetch({
+            pickupCode: finalPickupCode,
+            dropoffCode: dropoffLocation || finalPickupCode,
+            pickupDate,
+            dropoffDate,
         });
+
+        onSearch(searchPayload);
     };
     
 

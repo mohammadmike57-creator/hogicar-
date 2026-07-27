@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
-import { loadCars } from '../utils/loadCars';
-import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from '../utils/storage';
+import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSearchPrefetch } from '../utils/searchPrefetch';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import Check from 'lucide-react/dist/esm/icons/check';
@@ -81,8 +80,15 @@ const animationStyles = `
 const Searching: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const searchParamsString = searchParams.toString();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
+  const searchPrefetchParams = React.useMemo(() => ({
+    pickupCode: pickupIata,
+    dropoffCode: searchParams.get('dropoff') || pickupIata,
+    pickupDate: searchParams.get('pickupDate') || '',
+    dropoffDate: searchParams.get('dropoffDate') || '',
+  }), [pickupIata, searchParamsString]);
   const [duration, setDuration] = React.useState(5000); 
   const MIN_ANIMATION_TIME = 2500; // Allow proceeding after 2.5s if data is ready
   const [progress, setProgress] = React.useState(0);
@@ -105,29 +111,11 @@ const Searching: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    const prefetchCars = async () => {
-      // If data is already there (from Home.tsx background fetch), don't fetch again
-      if (sessionStorage.getItem(PREFETCHED_RESULTS_KEY)) {
-        console.log("Searching: Results already found in storage (likely from Home background fetch).");
-        return;
-      }
+    if (!pickupIata) return;
 
-      try {
-        console.log("Searching: Pre-fetching car results while animating...");
-        const data = await loadCars({
-          pickupCode: pickupIata,
-          dropoffCode: searchParams.get('dropoff') || pickupIata,
-          pickupDate: searchParams.get('pickupDate') || '',
-          dropoffDate: searchParams.get('dropoffDate') || '',
-        });
-        const stored = safeSessionStorageSetItem(PREFETCHED_RESULTS_KEY, JSON.stringify(compactPrefetchedResults(data)));
-        console.log(stored ? "Searching: Pre-fetch complete. Results cached." : "Searching: Pre-fetch complete. Cache skipped to protect browser storage.");
-      } catch (err) {
-        console.warn("Searching: Pre-fetch failed:", err);
-      }
-    };
-    if (pickupIata) prefetchCars();
-  }, [pickupIata, searchParams]);
+    console.log("Searching: ensuring car results are loading while animation runs...");
+    startCarSearchPrefetch(searchPrefetchParams);
+  }, [pickupIata, searchPrefetchParams]);
 
   React.useEffect(() => {
     const loadSuppliers = async () => {
@@ -302,14 +290,14 @@ const Searching: React.FC = () => {
     document.head.appendChild(styleSheet);
 
     let start: number | null = null;
-    let isDataReady = false;
-    let isAnimationMinTimePassed = false;
+    let isDataReady = !!getMatchingPrefetchedResults(searchPrefetchParams);
     let isNavigated = false;
+    let isDisposed = false;
     const MAX_WAIT_TIME = 10000; // 10 seconds max
 
     const tryNavigate = () => {
       // Ensure we only navigate once
-      if (isNavigated) return;
+      if (isNavigated || isDisposed) return;
 
       const elapsed = Date.now() - (start || Date.now());
       const isDataWaitFinished = isDataReady || elapsed > MAX_WAIT_TIME;
@@ -324,7 +312,7 @@ const Searching: React.FC = () => {
         isNavigated = true;
         // Small delay to let the 100% state be visible
         setTimeout(() => {
-          const forwardParams = new URLSearchParams(searchParams);
+          const forwardParams = new URLSearchParams(searchParamsString);
           navigate(`/search?${forwardParams.toString()}`);
         }, 300);
       }
@@ -345,7 +333,6 @@ const Searching: React.FC = () => {
       if (elapsed < duration && !isNavigated) {
         requestAnimationFrame(animate);
       } else if (!isNavigated) {
-        isAnimationMinTimePassed = true;
         tryNavigate();
       }
     };
@@ -356,21 +343,31 @@ const Searching: React.FC = () => {
     }, duration / searchMessages.length);
 
     // Monitoring for data readiness
+    const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
+    pendingPrefetch?.then(() => {
+      if (isDisposed) return;
+      if (getMatchingPrefetchedResults(searchPrefetchParams)) {
+        isDataReady = true;
+        tryNavigate();
+      }
+    }).catch(() => undefined);
+
     const checkDataInterval = setInterval(() => {
-      if (sessionStorage.getItem('hogicar_prefetched_results')) {
+      if (getMatchingPrefetchedResults(searchPrefetchParams)) {
         isDataReady = true;
         tryNavigate();
       }
     }, 100);
 
     return () => {
+      isDisposed = true;
       clearInterval(messageInterval);
       clearInterval(checkDataInterval);
       if (document.head.contains(styleSheet)) {
         document.head.removeChild(styleSheet);
       }
     };
-  }, [navigate, searchParams, duration]);
+  }, [navigate, searchParamsString, duration, searchPrefetchParams]);
 
   const suppliersScanned = Math.floor(progress * totalSuppliers);
 

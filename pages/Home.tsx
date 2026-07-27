@@ -44,7 +44,6 @@ const FAQSection = React.lazy(() => import('../components/FAQSection'));
 import { useCurrency } from '../contexts/CurrencyContext';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
-import { loadCars } from '../utils/loadCars';
 import { LocationSuggestion } from '../api';
 import { API_BASE_URL } from '../lib/config';
 
@@ -386,15 +385,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       return;
     }
     const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
-    
-    // Start loading cars immediately in the background
-    console.log("Home: Starting background load for cars...");
-    loadCars({
-      pickupCode: pickup,
-      dropoffCode: dropoff || pickup,
-      pickupDate: pickupDate || '',
-      dropoffDate: dropoffDate || '',
-    }).catch(err => console.warn("Home: Background load failed:", err));
 
     const searchParams = new URLSearchParams();
     searchParams.set('pickup', pickup);
