@@ -58,7 +58,7 @@ import PlaneLanding from 'lucide-react/dist/esm/icons/plane-landing';
 import PlaneTakeoff from 'lucide-react/dist/esm/icons/plane-takeoff';
 import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '../types';
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings, normalizeRatingScore } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -144,6 +144,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
     supplier.commissionType === 'FULL_PREPAID' ? 'Full prepayment online' :
     supplier.commissionType === 'PARTIAL_PREPAID' ? 'Partial payment online' :
     'Pay at rental desk';
+  const supplierRatingDisplay = parseFloat(normalizeRatingScore(supplier.rating).toFixed(1));
 
   const PolicyRow = ({ label, value, tone = 'default' }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn' }) => (
     <div className="flex items-start justify-between gap-3 border-b border-slate-100 py-2.5 last:border-b-0">
@@ -243,7 +244,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
             <aside className="space-y-4">
               <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
                 <PolicyRow label="Supplier" value={supplier.name} />
-                <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone={supplier.rating >= 4 ? 'good' : supplier.rating >= 3 ? 'default' : 'warn'} />
+                <PolicyRow label="Rating" value={`${supplierRatingDisplay.toFixed(1)}/10 - ${getRatingDescription(supplierRatingDisplay)}`} tone={supplierRatingDisplay >= 8 ? 'good' : supplierRatingDisplay >= 6 ? 'default' : 'warn'} />
                 <PolicyRow label="Pickup type" value={pickupTypeLabel} />
                 {supplier.address && <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><p className="text-xs font-semibold leading-relaxed text-slate-600">{supplier.address}</p></div>}
               </ConditionCard>
@@ -543,6 +544,8 @@ const CarDetails: React.FC = () => {
     );
   }
 
+  const ratingToDisplay = parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
+
   return (
     <>
       <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={car.isHogicarChoiceBranded ? `Book ${car.make} ${car.model} from our exclusive verified fleet. Best price guaranteed.` : `Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
@@ -607,14 +610,14 @@ const CarDetails: React.FC = () => {
                                     setShowRatingsTooltip(!showRatingsTooltip);
                                   }}
                                 >
-                                    <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
+                                    <div className={`relative ${getRatingColor(ratingToDisplay)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                        <span className="relative z-10 text-xl font-black">{car.supplier.rating}</span>
+                                        <span className="relative z-10 text-xl font-black">{ratingToDisplay.toFixed(1)}</span>
                                     </div> 
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-2 mb-0.5">
-                                            <span className={`font-black text-lg leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight`}>
-                                                {getRatingDescription(car.supplier.rating)}
+                                            <span className={`font-black text-lg leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
+                                                {getRatingDescription(ratingToDisplay)}
                                             </span>
                                             <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                         </div>
@@ -627,6 +630,8 @@ const CarDetails: React.FC = () => {
                                        ratings={getCarRatings(car)}
                                        visible={showRatingsTooltip}
                                        align="left"
+                                       rating={ratingToDisplay}
+                                       reviewCount={car.supplier.reviewCount}
                                        className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
                                      />
                                 </div>
@@ -874,14 +879,14 @@ const CarDetails: React.FC = () => {
                             setShowRatingsTooltip(!showRatingsTooltip);
                           }}
                         >
-                             <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
+                             <div className={`relative ${getRatingColor(ratingToDisplay)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
                                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                 <span className="relative z-10 text-xl font-black">{car.supplier.rating}</span>
+                                 <span className="relative z-10 text-xl font-black">{ratingToDisplay.toFixed(1)}</span>
                              </div>
                              <div className="flex flex-col min-w-0">
                                  <div className="flex items-center gap-2 mb-0.5">
-                                     <span className={`text-lg font-black leading-none truncate whitespace-nowrap tracking-tight ${getRatingTextColor(car.supplier.rating)}`}>
-                                         {getRatingDescription(car.supplier.rating)}
+                                     <span className={`text-lg font-black leading-none truncate whitespace-nowrap tracking-tight ${getRatingTextColor(ratingToDisplay)}`}>
+                                         {getRatingDescription(ratingToDisplay)}
                                      </span>
                                      <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
                                  </div>
@@ -894,6 +899,8 @@ const CarDetails: React.FC = () => {
                                ratings={getCarRatings(car)}
                                visible={showRatingsTooltip}
                                align="left"
+                               rating={ratingToDisplay}
+                               reviewCount={car.supplier.reviewCount}
                                className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
                              />
                         </div>

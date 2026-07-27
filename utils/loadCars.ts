@@ -15,6 +15,18 @@ interface LoadCarsParams {
     dropoffDate: string;
 }
 
+const normalizeForMatch = (value: unknown) => (
+    String(value || '').toUpperCase().replace(/[^A-Z0-9]+/g, '')
+);
+
+const isBlockedExternalCar = (car: ApiSearchResult) => {
+    const supplierName = normalizeForMatch(car.supplier?.name || (car as any).supplierName || (car as any).supplier_name);
+    const vendorCode = normalizeForMatch((car as any)._vendorCode || (car as any).vendorCode);
+    const carName = normalizeForMatch(car.name || `${car.brand || ''} ${car.model || ''}`);
+
+    return (supplierName.includes('URDRIVEJO') || vendorCode.includes('URDRIVEJO')) && carName.includes('TOYOTACAMRY');
+};
+
 export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[]> => {
     const { locationsOptions, pickupCode, dropoffCode, pickupDate, dropoffDate } = params;
 
@@ -99,7 +111,7 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
             return normalizedCar;
         });
 
-        return normalizedCars;
+        return normalizedCars.filter(car => !isBlockedExternalCar(car));
 
     } catch (error) {
         console.error("Error in loadCars:", error);

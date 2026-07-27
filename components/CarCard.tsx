@@ -439,14 +439,14 @@ const CarCard: React.FC<CarCardProps> = ({
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className={`rounded-2xl transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50] 
+      <div className={`rounded-xl md:rounded-2xl transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50]
         ${car.isHogicarChoiceBranded 
           ? 'bg-accent/5 border-accent shadow-[0_20px_50px_-20px_rgba(0,122,194,0.35)]' 
           : 'bg-white border-accent/45 hover:border-accent shadow-[0_10px_28px_-22px_rgba(0,122,194,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,122,194,0.45)]'
         } 
         border-2 
         ${isComparing ? 'border-accent ring-4 ring-accent/5 shadow-[0_18px_42px_-20px_rgba(0,122,194,0.85)]' : ''}`}>
-        <div className="relative flex flex-col h-full w-full rounded-2xl">
+        <div className="relative flex flex-col h-full w-full rounded-xl md:rounded-2xl">
           {/* Header Badge */}
           {car.isHogicarChoiceBranded && (
             <div className="bg-gradient-to-r from-accent via-accent-400 to-accent text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
@@ -455,8 +455,8 @@ const CarCard: React.FC<CarCardProps> = ({
             </div>
           )}
 
-          <div className="p-4 md:hidden">
-              <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="p-3.5 md:hidden">
+              <div className="mb-2.5 flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                       {car.isHogicarChoiceBranded && (
                         <div className="mb-2 flex items-center gap-1.5">
@@ -464,7 +464,7 @@ const CarCard: React.FC<CarCardProps> = ({
                         </div>
                       )}
                       <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                          <h3 className="text-xl font-black leading-tight tracking-tight text-slate-950 uppercase">
+                          <h3 className="text-lg font-black leading-tight tracking-tight text-slate-950 uppercase">
                               {car.displayName || `${car.make} ${car.model}`}
                           </h3>
                       </Link>
@@ -494,25 +494,25 @@ const CarCard: React.FC<CarCardProps> = ({
                   )}
               </div>
 
-              <div className="grid grid-cols-[1fr_42%] items-center gap-3 py-3 border-y border-slate-100 mb-4">
-                  <div className="space-y-3 text-slate-900">
+              <div className="grid grid-cols-[1fr_38%] items-center gap-3 py-2.5 border-y border-slate-100 mb-3.5">
+                  <div className="space-y-2.5 text-slate-900">
                       <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
                             <Users className="h-4 w-4 text-accent" />
                           </div>
-                          <span className="text-xs font-black uppercase tracking-tight">{car.passengers} Seats</span>
+                          <span className="text-[11px] font-black uppercase tracking-tight">{car.passengers} Seats</span>
                       </div>
                       <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
                             <AutomaticIcon className="w-4 h-4 text-accent" />
                           </div>
-                          <span className="text-xs font-black uppercase tracking-tight">{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
+                          <span className="text-[11px] font-black uppercase tracking-tight">{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
                       </div>
                       <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
                             <GaugeCircle className="h-4 w-4 text-amber-600" />
                           </div>
-                          <span className="text-xs font-black uppercase tracking-tight">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} KM</span>
+                          <span className="text-[11px] font-black uppercase tracking-tight">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} KM</span>
                       </div>
                   </div>
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex items-center justify-center relative group/img-link">
@@ -521,10 +521,10 @@ const CarCard: React.FC<CarCardProps> = ({
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
-                        className="max-h-28 w-full h-auto object-contain drop-shadow-[0_16px_30px_rgba(15,23,42,0.14)] transition-all duration-500 ease-out active:scale-105"
+                        className="max-h-24 w-full h-auto object-contain drop-shadow-[0_14px_24px_rgba(15,23,42,0.14)] transition-all duration-500 ease-out active:scale-105"
                       />
-                      <div className="absolute -bottom-3 right-0 flex flex-col items-end gap-1 z-20">
-                          <div className="bg-emerald-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-widest border border-emerald-400/30">
+                      <div className="absolute -bottom-2.5 right-0 flex flex-col items-end gap-1 z-20">
+                          <div className="bg-emerald-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-widest border border-emerald-400/30">
                               <CalendarCheck className="w-2.5 h-2.5" />
                               <span>Free Cancellation</span>
                           </div>
@@ -537,15 +537,15 @@ const CarCard: React.FC<CarCardProps> = ({
                   </Link>
               </div>
 
-              <div className="grid grid-cols-[1fr_auto] items-end gap-3">
+              <div className="grid grid-cols-[1fr_auto] items-end gap-2.5">
                   <div className="min-w-0">
                       {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
-                          <Logo className="mb-3 h-7 w-auto max-w-[120px]" />
+                          <Logo className="mb-2.5 h-6 w-auto max-w-[110px]" />
                       ) : (
                           <img
                               src={car.supplier.logo || (car.supplier as any).logoUrl}
                               alt={car.supplier.name}
-                              className="mb-3 h-8 max-w-[120px] object-contain"
+                              className="mb-2.5 h-7 max-w-[110px] object-contain"
                           />
                       )}
                       <button
@@ -558,7 +558,7 @@ const CarCard: React.FC<CarCardProps> = ({
                         }}
                         aria-label="Show supplier rating details"
                       >
-                          <div className={`flex h-9 min-w-11 items-center justify-center rounded-lg border-2 bg-white px-2 text-lg font-black leading-none shadow-sm ${getRatingBorderColor(ratingToDisplay)}`}>
+                          <div className={`flex h-8 min-w-10 items-center justify-center rounded-lg border-2 bg-white px-1.5 text-base font-black leading-none shadow-sm ${getRatingBorderColor(ratingToDisplay)}`}>
                               {ratingToDisplay.toFixed(1)}
                           </div>
                           <div className="flex flex-col">
@@ -583,8 +583,8 @@ const CarCard: React.FC<CarCardProps> = ({
                                 {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(0)}
                             </span>
                         )}
-                        <p className="text-3xl font-black leading-none text-slate-950 tracking-tighter">
-                            <span className="text-base align-top mt-1 inline-block mr-0.5 font-bold">{getCurrencySymbol()}</span>
+                        <p className="text-2xl font-black leading-none text-slate-950 tracking-tighter">
+                            <span className="text-sm align-top mt-1 inline-block mr-0.5 font-bold">{getCurrencySymbol()}</span>
                             {convertPrice(totalFinalPrice).toFixed(0)}
                         </p>
                       </div>
@@ -606,7 +606,7 @@ const CarCard: React.FC<CarCardProps> = ({
                 to={`/car/${car.id}?${searchParams}`}
                 state={{ cars: cars }}
                 onClick={handleSelectCar}
-                className="mt-5 flex w-full h-14 items-center justify-center gap-3 rounded-xl bg-accent px-5 py-3 text-sm font-black uppercase tracking-[0.15em] text-white shadow-[0_15px_35px_-12px_rgba(0,122,194,0.6)] active:scale-[0.97] transition-all"
+                className="mt-4 flex w-full h-12 items-center justify-center gap-2.5 rounded-xl bg-accent px-5 py-3 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_15px_35px_-12px_rgba(0,122,194,0.6)] active:scale-[0.97] transition-all"
               >
                   Choose this car <ArrowRight className="h-5 w-5 stroke-[3px]" />
               </Link>

@@ -42,6 +42,18 @@ const ratingToPercent = (rating: number | undefined) => {
     return Math.round(Math.max(0, Math.min(100, safeRating > 5 ? safeRating * 10 : safeRating * 20)));
 };
 
+const normalizeForMatch = (value: unknown) => (
+    String(value || '').toUpperCase().replace(/[^A-Z0-9]+/g, '')
+);
+
+const isBlockedExternalCar = (apiCar: ApiSearchResult) => {
+    const supplierName = normalizeForMatch(apiCar.supplier?.name || (apiCar as any).supplierName || (apiCar as any).supplier_name);
+    const vendorCode = normalizeForMatch((apiCar as any)._vendorCode || (apiCar as any).vendorCode);
+    const carName = normalizeForMatch(apiCar.name || `${apiCar.brand || ''} ${apiCar.model || ''}`);
+
+    return (supplierName.includes('URDRIVEJO') || vendorCode.includes('URDRIVEJO')) && carName.includes('TOYOTACAMRY');
+};
+
 const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
     const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
@@ -139,7 +151,7 @@ const apiCarToCar = (apiCar: ApiSearchResult): Car => {
 };
 
 const apiCarsToCars = (data: ApiSearchResult[]): Car[] => {
-    const mappedCars = data.map(apiCarToCar);
+    const mappedCars = data.filter(apiCar => !isBlockedExternalCar(apiCar)).map(apiCarToCar);
     const finalCars: Car[] = [];
 
     mappedCars.forEach(car => {
@@ -1223,12 +1235,12 @@ export const Search: React.FC = () => {
               </div>
             ) : (
                 <>
-                <div className="flex items-center justify-between gap-3 mb-4 bg-white border border-slate-200 rounded-2xl shadow-sm p-4 md:p-4">
+                <div className="flex items-center justify-between gap-2 mb-3 bg-white border border-slate-200 rounded-xl shadow-sm p-3 md:mb-4 md:rounded-2xl md:p-4">
                     <div className="min-w-0">
-                      <p className="text-base md:text-sm text-slate-900 font-black uppercase tracking-tight md:tracking-wide">
+                      <p className="text-sm md:text-sm text-slate-900 font-black uppercase tracking-tight md:tracking-wide">
                           <span className="text-accent">{sortedAndFilteredCars.length}</span> cars available
                       </p>
-                      <p className="text-[11px] text-slate-500 font-bold mt-1">
+                      <p className="text-[10px] md:text-[11px] text-slate-500 font-bold mt-1">
                         {pickupIata || location || 'Selected location'} • {days} day{days > 1 ? 's' : ''} • {sortBy}
                       </p>
                     </div>
@@ -1236,7 +1248,7 @@ export const Search: React.FC = () => {
                         <Check className="w-3 h-3 text-accent" /> Taxes & fees included
                     </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:gap-3 px-0">
+                <div className="grid grid-cols-1 gap-3 md:gap-3 px-0">
                     {sortedAndFilteredCars.map(car => (
                         <CarCard 
                             key={car.id} 
