@@ -83,7 +83,8 @@ const Searching: React.FC = () => {
   const [searchParams] = useSearchParams();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
-  const [duration, setDuration] = React.useState(5000); // Increased default to 5s for better UX
+  const [duration, setDuration] = React.useState(5000); 
+  const MIN_ANIMATION_TIME = 2500; // Allow proceeding after 2.5s if data is ready
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
@@ -105,6 +106,12 @@ const Searching: React.FC = () => {
 
   React.useEffect(() => {
     const prefetchCars = async () => {
+      // If data is already there (from Home.tsx background fetch), don't fetch again
+      if (sessionStorage.getItem(PREFETCHED_RESULTS_KEY)) {
+        console.log("Searching: Results already found in storage (likely from Home background fetch).");
+        return;
+      }
+
       try {
         console.log("Searching: Pre-fetching car results while animating...");
         const data = await loadCars({
@@ -304,10 +311,16 @@ const Searching: React.FC = () => {
       // Ensure we only navigate once
       if (isNavigated) return;
 
-      const isDataWaitFinished = isDataReady || Date.now() - (start || Date.now()) > MAX_WAIT_TIME;
-      const isMinTimeFinished = isAnimationMinTimePassed;
+      const elapsed = Date.now() - (start || Date.now());
+      const isDataWaitFinished = isDataReady || elapsed > MAX_WAIT_TIME;
+      
+      // If data is ready, we can proceed after MIN_ANIMATION_TIME instead of full duration
+      const currentMinTime = isDataReady ? MIN_ANIMATION_TIME : duration;
+      const isMinTimeFinished = elapsed >= currentMinTime;
 
       if (isDataWaitFinished && isMinTimeFinished) {
+        // Force progress to 100% if we're navigating early
+        setProgress(1);
         isNavigated = true;
         // Small delay to let the 100% state be visible
         setTimeout(() => {
@@ -320,11 +333,18 @@ const Searching: React.FC = () => {
     const animate = (timestamp: number) => {
       if (!start) start = timestamp;
       const elapsed = timestamp - start;
+      
+      // Check if we should navigate early on every frame if data is ready
+      if (isDataReady && elapsed >= MIN_ANIMATION_TIME) {
+        tryNavigate();
+      }
+
       const newProgress = Math.min(elapsed / duration, 1);
       setProgress(newProgress);
-      if (elapsed < duration) {
+      
+      if (elapsed < duration && !isNavigated) {
         requestAnimationFrame(animate);
-      } else {
+      } else if (!isNavigated) {
         isAnimationMinTimePassed = true;
         tryNavigate();
       }
