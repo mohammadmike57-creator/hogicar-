@@ -48,6 +48,28 @@ const animationStyles = `
   }
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 40s linear infinite;
+}
+
 .shimmer-text::after {
   content: '';
   position: absolute;
@@ -416,6 +438,66 @@ const Searching: React.FC = () => {
                 {searchMessages[currentMessageIndex]}
              </p>
           </div>
+
+          {/* Professional Two-Line Logo Buffer */}
+          <div className="mt-8 mb-8 relative w-full overflow-hidden py-4 pointer-events-none">
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0c152b] to-transparent z-10" />
+            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#1e40af] to-transparent z-10" />
+            
+            <div className="flex flex-col gap-6">
+              {/* Row 1: Moving Right to Left */}
+              <div className="flex whitespace-nowrap overflow-hidden">
+                <div className="animate-marquee flex gap-4 px-2">
+                  {[...suppliers, ...suppliers].map((supplier, idx) => (
+                    <div
+                      key={`r1-${supplier.id}-${idx}`}
+                      className="flex-shrink-0 w-24 h-24 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-4 flex items-center justify-center shadow-xl relative group overflow-hidden"
+                    >
+                      {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                        <Logo className="w-full h-full object-contain" />
+                      ) : (
+                        <img
+                          src={supplier.logoUrl || supplier.logo}
+                          alt={supplier.name}
+                          className="w-full h-full object-contain"
+                          style={{ 
+                              transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
+                          } as any}
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ animation: 'shimmer 2s infinite' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 2: Moving Left to Right */}
+              <div className="flex whitespace-nowrap overflow-hidden">
+                <div className="animate-marquee-reverse flex gap-4 px-2">
+                  {[...suppliers, ...suppliers].reverse().map((supplier, idx) => (
+                    <div
+                      key={`r2-${supplier.id}-${idx}`}
+                      className="flex-shrink-0 w-24 h-24 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-4 flex items-center justify-center shadow-xl relative group overflow-hidden"
+                    >
+                      {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                        <Logo className="w-full h-full object-contain" />
+                      ) : (
+                        <img
+                          src={supplier.logoUrl || supplier.logo}
+                          alt={supplier.name}
+                          className="w-full h-full object-contain"
+                          style={{ 
+                              transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
+                          } as any}
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ animation: 'shimmer 2s infinite' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div className="mt-4 flex items-center justify-center gap-3 text-sm text-accent-200 font-medium bg-white/5 py-2.5 px-5 rounded-xl max-w-md mx-auto backdrop-blur-sm border border-white/10 shadow-lg min-h-[60px]">
             <Check className="w-5 h-5 flex-shrink-0 text-emerald-400" />
@@ -461,61 +543,6 @@ const Searching: React.FC = () => {
               <span className="text-[8px] font-black text-accent-300/30 uppercase tracking-[0.2em] mb-0.5">Results</span>
               <span className="text-[10px] font-black text-amber-400 tracking-tighter uppercase">{suppliersScanned} Found</span>
             </div>
-          </div>
-
-          <div className="mt-8 grid grid-cols-6 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-14 xl:grid-cols-16 gap-1.5 max-w-7xl mx-auto px-2">
-            {suppliers.map((supplier, index) => {
-              const isChecked = progress * totalSuppliers > index + 0.5;
-              const isChecking = progress * totalSuppliers > index && !isChecked;
-
-              return (
-                <div
-                  key={supplier.isLocal ? `local-${supplier.id}` : `real-${supplier.id}`}
-                  className="relative flex items-center justify-center aspect-square rounded-2xl transition-all duration-700 shadow-sm hover:shadow-xl group overflow-hidden"
-                  style={{
-                    backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.45)',
-                    backdropFilter: 'blur(8px)',
-                    border: isChecked ? '1px solid rgba(255, 255, 255, 0.6)' : '1px solid rgba(255, 255, 255, 0.2)',
-                    padding: '6px',
-                    opacity: 1,
-                    transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(5px)',
-                    animation: `pop-in-box 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                    animationDelay: `${index * 40}ms`
-                  }}
-                >
-                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                    <Logo className="w-full h-full object-contain transition-all duration-1000" />
-                  ) : (
-                    <img
-                      src={supplier.logoUrl || supplier.logo}
-                      alt={supplier.name}
-                      width="100"
-                      height="100"
-                      className="w-full h-full object-contain transition-all duration-1000"
-                      style={{ 
-                          opacity: isChecked ? 1 : 0.6,
-                          filter: isChecked ? 'brightness(1)' : 'brightness(0.9) blur(0.3px)',
-                          transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                      } as any}
-                    />
-                  )}
-                  {isChecking && (
-                    <div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-2xl"
-                      style={{ animation: `shimmer 1s infinite` }}
-                    />
-                  )}
-                  {isChecked && (
-                    <div
-                      className="absolute top-1 right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white"
-                      style={{ animation: 'pop-in-check 0.4s ease-out forwards' }}
-                    >
-                      <Check className="w-3 h-3 text-white" strokeWidth={3}/>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
           </div>
         </div>
       </div>
