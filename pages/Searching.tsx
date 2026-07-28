@@ -476,7 +476,7 @@ const Searching: React.FC = () => {
                     backgroundColor: isChecked ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.45)',
                     backdropFilter: 'blur(8px)',
                     border: isChecked ? '1px solid rgba(255, 255, 255, 0.6)' : '1px solid rgba(255, 255, 255, 0.2)',
-                    padding: `${(supplier.spacing || 24) / 4}px`,
+                    padding: '6px',
                     opacity: 1,
                     transform: isChecked ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(5px)',
                     animation: `pop-in-box 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,

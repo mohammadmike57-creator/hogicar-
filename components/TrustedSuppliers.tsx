@@ -52,7 +52,7 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
             <div 
               key={`${s.id || s.name}-${idx}`}
               className="flex-shrink-0 flex items-center justify-center"
-              style={{ marginRight: `${s.spacing || 40}px` }}
+              style={{ marginRight: '64px' }}
             >
               <img 
                 src={s.logo || s.logoUrl} 
