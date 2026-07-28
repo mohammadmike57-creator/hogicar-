@@ -48,28 +48,6 @@ const animationStyles = `
   }
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-@keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 40s linear infinite;
-}
-
-.animate-marquee-reverse {
-  display: flex;
-  width: max-content;
-  animation: marquee-reverse 40s linear infinite;
-}
-
 .shimmer-text::after {
   content: '';
   position: absolute;
@@ -439,63 +417,62 @@ const Searching: React.FC = () => {
              </p>
           </div>
 
-          {/* Professional Two-Line Logo Buffer */}
-          <div className="mt-8 mb-8 relative w-full overflow-hidden py-4 pointer-events-none">
-            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0c152b] to-transparent z-10" />
-            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#1e40af] to-transparent z-10" />
+          {/* Professional Two-Row Logo Grid */}
+          <div className="mt-10 mb-10 flex flex-col gap-4 sm:gap-6 items-center w-full px-4 min-h-[280px]">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 w-full">
+              {suppliers.slice(0, Math.ceil(Math.min(suppliers.length, 12) / 2)).map((supplier, index) => (
+                <div
+                  key={`row1-${supplier.id}`}
+                  className="w-20 h-20 sm:w-32 sm:h-32 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-3 sm:p-6 flex items-center justify-center shadow-xl transform transition-all duration-500 hover:scale-105 group relative overflow-hidden"
+                  style={{ 
+                    animation: `pop-in-box 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, 
+                    animationDelay: `${index * 100}ms`,
+                    opacity: 0 
+                  }}
+                >
+                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                    <Logo className="w-full h-full object-contain" />
+                  ) : (
+                    <img
+                      src={supplier.logoUrl || supplier.logo}
+                      alt={supplier.name}
+                      className="w-full h-full object-contain"
+                      style={{ 
+                          transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
+                      } as any}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ animation: 'shimmer 3s infinite' }} />
+                </div>
+              ))}
+            </div>
             
-            <div className="flex flex-col gap-6">
-              {/* Row 1: Moving Right to Left */}
-              <div className="flex whitespace-nowrap overflow-hidden">
-                <div className="animate-marquee flex gap-4 px-2">
-                  {[...suppliers, ...suppliers].map((supplier, idx) => (
-                    <div
-                      key={`r1-${supplier.id}-${idx}`}
-                      className="flex-shrink-0 w-24 h-24 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-4 flex items-center justify-center shadow-xl relative group overflow-hidden"
-                    >
-                      {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                        <Logo className="w-full h-full object-contain" />
-                      ) : (
-                        <img
-                          src={supplier.logoUrl || supplier.logo}
-                          alt={supplier.name}
-                          className="w-full h-full object-contain"
-                          style={{ 
-                              transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                          } as any}
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ animation: 'shimmer 2s infinite' }} />
-                    </div>
-                  ))}
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 w-full">
+              {suppliers.slice(Math.ceil(Math.min(suppliers.length, 12) / 2), Math.min(suppliers.length, 12)).map((supplier, index) => (
+                <div
+                  key={`row2-${supplier.id}`}
+                  className="w-20 h-20 sm:w-32 sm:h-32 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-3 sm:p-6 flex items-center justify-center shadow-xl transform transition-all duration-500 hover:scale-105 group relative overflow-hidden"
+                  style={{ 
+                    animation: `pop-in-box 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, 
+                    animationDelay: `${(index + 3) * 100}ms`,
+                    opacity: 0 
+                  }}
+                >
+                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                    <Logo className="w-full h-full object-contain" />
+                  ) : (
+                    <img
+                      src={supplier.logoUrl || supplier.logo}
+                      alt={supplier.name}
+                      className="w-full h-full object-contain"
+                      style={{ 
+                          transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
+                      } as any}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ animation: 'shimmer 3s infinite' }} />
                 </div>
-              </div>
-
-              {/* Row 2: Moving Left to Right */}
-              <div className="flex whitespace-nowrap overflow-hidden">
-                <div className="animate-marquee-reverse flex gap-4 px-2">
-                  {[...suppliers, ...suppliers].reverse().map((supplier, idx) => (
-                    <div
-                      key={`r2-${supplier.id}-${idx}`}
-                      className="flex-shrink-0 w-24 h-24 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-4 flex items-center justify-center shadow-xl relative group overflow-hidden"
-                    >
-                      {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                        <Logo className="w-full h-full object-contain" />
-                      ) : (
-                        <img
-                          src={supplier.logoUrl || supplier.logo}
-                          alt={supplier.name}
-                          className="w-full h-full object-contain"
-                          style={{ 
-                              transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                          } as any}
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ animation: 'shimmer 2s infinite' }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           
