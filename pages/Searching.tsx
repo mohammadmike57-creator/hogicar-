@@ -47,6 +47,12 @@ const animationStyles = `
   }
 }
 
+@keyframes supplier-scan-sweep {
+  0% { transform: translateX(-130%); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(130%); opacity: 0; }
+}
+
 .shimmer-text::after {
   content: '';
   position: absolute;
@@ -433,40 +439,63 @@ const Searching: React.FC = () => {
               {visibleSuppliers.map((supplier, index) => {
                 const isComplete = progress >= 1 || index < suppliersScanned;
                 const isActive = !isComplete && index === Math.min(suppliersScanned, totalSuppliers - 1);
-                const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
-                const cardStateClass = isComplete
-                  ? 'border-emerald-300/70 bg-white shadow-md opacity-100'
+                const scanFill = isComplete
+                  ? 100
                   : isActive
-                    ? 'border-amber-300/90 bg-white shadow-lg shadow-amber-400/15 opacity-100 scale-[1.04]'
-                    : 'border-white/10 bg-white/85 opacity-45 grayscale';
+                    ? Math.max(10, Math.min(100, (progress * totalSuppliers - index) * 100))
+                    : 0;
+                const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
+                const logoSrc = supplier.logoUrl || supplier.logo;
+                const supplierInitials = String(supplier.name || 'Supplier')
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map(part => part.charAt(0))
+                  .join('')
+                  .toUpperCase();
+                const cardStateClass = isComplete
+                  ? 'border-white/25 bg-white shadow-sm opacity-100'
+                  : isActive
+                    ? 'border-amber-300/80 bg-white shadow-lg shadow-amber-400/15 opacity-100 scale-[1.025]'
+                    : 'border-white/10 bg-white/70 opacity-60 saturate-50';
+                const logoStateClass = isActive || isComplete ? 'opacity-100' : 'opacity-65';
 
                 return (
                   <div
                     key={`supplier-scan-${supplier.id}-${supplier.name}`}
-                    className={`relative flex h-12 min-w-0 items-center justify-center overflow-hidden rounded-lg border p-2 transition-all duration-300 sm:h-14 sm:p-2.5 ${cardStateClass}`}
+                    className={`relative flex h-11 min-w-0 items-center justify-center overflow-hidden rounded-md border p-2 transition-all duration-300 sm:h-12 sm:p-2.5 ${cardStateClass}`}
                     title={supplier.name}
+                    aria-label={`${supplier.name || 'Supplier'} ${isComplete ? 'checked' : isActive ? 'checking' : 'pending'}`}
                   >
                     {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
                       <div
-                        className={`flex h-full w-full items-center justify-center transition-opacity duration-300 ${isActive || isComplete ? 'opacity-100' : 'opacity-70'}`}
+                        className={`flex h-full w-full items-center justify-center transition-opacity duration-300 ${logoStateClass}`}
                         style={{ transform: `scale(${logoScale})` }}
                       >
                         <Logo className="h-full w-full object-contain" />
                       </div>
-                    ) : (
+                    ) : logoSrc ? (
                       <img
-                        src={supplier.logoUrl || supplier.logo}
+                        src={logoSrc}
                         alt={supplier.name}
-                        className={`h-full w-full object-contain transition-opacity duration-300 ${isActive || isComplete ? 'opacity-100' : 'opacity-70'}`}
+                        className={`h-full w-full object-contain transition-opacity duration-300 ${logoStateClass}`}
                         style={{ transform: `scale(${logoScale})` }}
                       />
+                    ) : (
+                      <span className={`text-[10px] font-black tracking-wide text-slate-600 transition-opacity duration-300 ${logoStateClass}`}>
+                        {supplierInitials}
+                      </span>
                     )}
                     {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/70 to-transparent" style={{ animation: 'loading-shimmer 1.4s infinite' }} />
+                      <div className="pointer-events-none absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-transparent via-amber-100/70 to-transparent" style={{ animation: 'supplier-scan-sweep 1.35s ease-in-out infinite' }} />
                     )}
+                    <div className="absolute bottom-0 left-0 h-0.5 bg-slate-200/70 w-full" />
+                    <div
+                      className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ${isComplete ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                      style={{ width: `${scanFill}%` }}
+                    />
                     {isComplete && (
-                      <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm">
-                        <Check className="h-2.5 w-2.5" />
+                      <div className="absolute right-1 top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm">
+                        <Check className="h-2 w-2" />
                       </div>
                     )}
                   </div>
