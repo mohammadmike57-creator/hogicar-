@@ -448,31 +448,34 @@ const Searching: React.FC = () => {
             </div>
             
             <div className="flex flex-wrap justify-center gap-3 sm:gap-6 w-full">
-              {suppliers.slice(Math.ceil(Math.min(suppliers.length, 12) / 2), Math.min(suppliers.length, 12)).map((supplier, index) => (
-                <div
-                  key={`row2-${supplier.id}`}
-                  className="w-20 h-20 sm:w-32 sm:h-32 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-3 sm:p-6 flex items-center justify-center shadow-xl transform transition-all duration-500 hover:scale-105 group relative overflow-hidden"
-                  style={{ 
-                    animation: `pop-in-box 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, 
-                    animationDelay: `${(index + 3) * 100}ms`,
-                    opacity: 0 
-                  }}
-                >
-                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                    <Logo className="w-full h-full object-contain" />
-                  ) : (
-                    <img
-                      src={supplier.logoUrl || supplier.logo}
-                      alt={supplier.name}
-                      className="w-full h-full object-contain"
-                      style={{ 
-                          transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                      } as any}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ animation: 'shimmer 3s infinite' }} />
-                </div>
-              ))}
+              {suppliers.slice(Math.ceil(Math.min(suppliers.length, 12) / 2), Math.min(suppliers.length, 12)).map((supplier, index) => {
+                const itemsInFirstRow = Math.ceil(Math.min(suppliers.length, 12) / 2);
+                return (
+                  <div
+                    key={`row2-${supplier.id}`}
+                    className="w-20 h-20 sm:w-32 sm:h-32 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-3 sm:p-6 flex items-center justify-center shadow-xl transform transition-all duration-500 hover:scale-105 group relative overflow-hidden"
+                    style={{ 
+                      animation: `pop-in-box 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, 
+                      animationDelay: `${(index + itemsInFirstRow) * 100}ms`,
+                      opacity: 0 
+                    }}
+                  >
+                    {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                      <Logo className="w-full h-full object-contain" />
+                    ) : (
+                      <img
+                        src={supplier.logoUrl || supplier.logo}
+                        alt={supplier.name}
+                        className="w-full h-full object-contain"
+                        style={{ 
+                            transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
+                        } as any}
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ animation: 'shimmer 3s infinite' }} />
+                  </div>
+                );
+              })}
             </div>
           </div>
           
