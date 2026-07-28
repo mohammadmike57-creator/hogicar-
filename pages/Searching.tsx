@@ -6,9 +6,8 @@ import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSe
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import Check from 'lucide-react/dist/esm/icons/check';
-import Gift from 'lucide-react/dist/esm/icons/gift';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const animationStyles = `
 @keyframes background-pan {
@@ -94,7 +93,17 @@ const Searching: React.FC = () => {
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+  React.useEffect(() => {
+    const updateViewport = () => setIsMobileViewport(window.innerWidth < 640);
+
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
 
   React.useEffect(() => {
     const loadSettings = async () => {
@@ -195,8 +204,6 @@ const Searching: React.FC = () => {
     }, 4000);
     return () => clearInterval(tipInterval);
   }, []);
-
-  const totalSuppliers = suppliers.length; // Target scan count
 
   const searchMessages = [
     "Initializing secure connection to Global Distribution Systems...",
@@ -369,7 +376,11 @@ const Searching: React.FC = () => {
     };
   }, [navigate, searchParamsString, duration, searchPrefetchParams]);
 
-  const suppliersScanned = Math.floor(progress * totalSuppliers);
+  const visibleSuppliers = React.useMemo(() => suppliers, [suppliers]);
+  const totalSuppliers = visibleSuppliers.length;
+  const suppliersScanned = totalSuppliers > 0
+    ? Math.min(totalSuppliers, Math.floor(progress * totalSuppliers))
+    : 0;
 
   return (
     <>
@@ -417,62 +428,47 @@ const Searching: React.FC = () => {
              </p>
           </div>
 
-          {/* Professional Two-Row Logo Grid */}
-          <div className="mt-10 mb-10 flex flex-col gap-4 sm:gap-6 items-center w-full px-4 min-h-[280px]">
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 w-full">
-              {suppliers.slice(0, Math.ceil(Math.min(suppliers.length, 12) / 2)).map((supplier, index) => (
-                <div
-                  key={`row1-${supplier.id}`}
-                  className="w-20 h-20 sm:w-32 sm:h-32 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-3 sm:p-6 flex items-center justify-center shadow-xl transform transition-all duration-500 hover:scale-105 group relative overflow-hidden"
-                  style={{ 
-                    animation: `pop-in-box 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, 
-                    animationDelay: `${index * 100}ms`,
-                    opacity: 0 
-                  }}
-                >
-                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                    <Logo className="w-full h-full object-contain" />
-                  ) : (
-                    <img
-                      src={supplier.logoUrl || supplier.logo}
-                      alt={supplier.name}
-                      className="w-full h-full object-contain"
-                      style={{ 
-                          transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                      } as any}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ animation: 'shimmer 3s infinite' }} />
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 w-full">
-              {suppliers.slice(Math.ceil(Math.min(suppliers.length, 12) / 2), Math.min(suppliers.length, 12)).map((supplier, index) => {
-                const itemsInFirstRow = Math.ceil(Math.min(suppliers.length, 12) / 2);
+          <div className="mt-8 mb-8 w-full px-3">
+            <div className="mx-auto grid w-full max-w-6xl grid-cols-4 gap-2 sm:grid-cols-6 sm:gap-2.5 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12">
+              {visibleSuppliers.map((supplier, index) => {
+                const isComplete = progress >= 1 || index < suppliersScanned;
+                const isActive = !isComplete && index === Math.min(suppliersScanned, totalSuppliers - 1);
+                const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
+                const cardStateClass = isComplete
+                  ? 'border-emerald-300/70 bg-white shadow-md opacity-100'
+                  : isActive
+                    ? 'border-amber-300/90 bg-white shadow-lg shadow-amber-400/15 opacity-100 scale-[1.04]'
+                    : 'border-white/10 bg-white/85 opacity-45 grayscale';
+
                 return (
                   <div
-                    key={`row2-${supplier.id}`}
-                    className="w-20 h-20 sm:w-32 sm:h-32 bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 p-3 sm:p-6 flex items-center justify-center shadow-xl transform transition-all duration-500 hover:scale-105 group relative overflow-hidden"
-                    style={{ 
-                      animation: `pop-in-box 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, 
-                      animationDelay: `${(index + itemsInFirstRow) * 100}ms`,
-                      opacity: 0 
-                    }}
+                    key={`supplier-scan-${supplier.id}-${supplier.name}`}
+                    className={`relative flex h-12 min-w-0 items-center justify-center overflow-hidden rounded-lg border p-2 transition-all duration-300 sm:h-14 sm:p-2.5 ${cardStateClass}`}
+                    title={supplier.name}
                   >
                     {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                      <Logo className="w-full h-full object-contain" />
+                      <div
+                        className={`flex h-full w-full items-center justify-center transition-opacity duration-300 ${isActive || isComplete ? 'opacity-100' : 'opacity-70'}`}
+                        style={{ transform: `scale(${logoScale})` }}
+                      >
+                        <Logo className="h-full w-full object-contain" />
+                      </div>
                     ) : (
                       <img
                         src={supplier.logoUrl || supplier.logo}
                         alt={supplier.name}
-                        className="w-full h-full object-contain"
-                        style={{ 
-                            transform: `scale(${(window.innerWidth < 640 ? (supplier.mobileScale || 100) : (supplier.scale || 100)) / 100})`,
-                        } as any}
+                        className={`h-full w-full object-contain transition-opacity duration-300 ${isActive || isComplete ? 'opacity-100' : 'opacity-70'}`}
+                        style={{ transform: `scale(${logoScale})` }}
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ animation: 'shimmer 3s infinite' }} />
+                    {isActive && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/70 to-transparent" style={{ animation: 'loading-shimmer 1.4s infinite' }} />
+                    )}
+                    {isComplete && (
+                      <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm">
+                        <Check className="h-2.5 w-2.5" />
+                      </div>
+                    )}
                   </div>
                 );
               })}
