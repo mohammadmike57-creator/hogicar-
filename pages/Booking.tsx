@@ -33,7 +33,7 @@ const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: s
   </svg>
 );
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings } from '../utils/ratings';
+import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings, normalizeRatingScore } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -247,11 +247,24 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const search = JSON.parse(sessionStorage.getItem('hogicar_search') || '{}');
+  const search = React.useMemo(() => {
+    const fromStorage = JSON.parse(sessionStorage.getItem('hogicar_search') || '{}');
+    return {
+        pickupCode: searchParams.get('pickup') || fromStorage.pickupCode,
+        dropoffCode: searchParams.get('dropoff') || fromStorage.dropoffCode || searchParams.get('pickup') || fromStorage.pickupCode,
+        pickupName: searchParams.get('pickupName') || fromStorage.pickupName,
+        dropoffName: searchParams.get('dropoffName') || fromStorage.dropoffName,
+        pickupDate: searchParams.get('pickupDate') || fromStorage.pickupDate,
+        dropoffDate: searchParams.get('dropoffDate') || fromStorage.dropoffDate,
+        startTime: searchParams.get('startTime') || fromStorage.startTime || fromStorage.pickupTime || '10:00',
+        endTime: searchParams.get('endTime') || fromStorage.endTime || fromStorage.dropoffTime || '10:00',
+    };
+  }, [searchParams]);
+
   const startDate = search.pickupDate || new Date().toISOString().split('T')[0];
   const endDate = search.dropoffDate || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
-  const startTime = search.startTime || search.pickupTime || '10:00';
-  const endTime = search.endTime || search.dropoffTime || '10:00';
+  const startTime = search.startTime;
+  const endTime = search.endTime;
   const days = rentalDays(startDate, endDate);
   const pickupLabel = search.pickupName || search.pickup || search.pickupCode || car?.location || 'Pickup location';
   const dropoffLabel = search.dropoffName || search.dropoff || search.dropoffCode || pickupLabel;
@@ -286,6 +299,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         supplierName: car.supplier?.name || 'Supplier',
         pickupCode: search.pickupCode,
         dropoffCode: search.dropoffCode,
+        pickupLocationName: search.pickupName,
+        dropoffLocationName: search.dropoffName,
         pickupDate: startDate,
         dropoffDate: endDate,
         startTime,
@@ -706,7 +721,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                             >
                                <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
                                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                   <span className="relative z-10 text-base font-black tracking-tight">{car.supplier.rating}</span>
+                                   <span className="relative z-10 text-base font-black tracking-tight">{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
                                </div>
                                <div className="flex flex-col">
                                    <span className={`text-sm font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight mb-1`}>{getRatingDescription(car.supplier.rating)}</span>

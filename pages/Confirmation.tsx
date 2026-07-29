@@ -134,6 +134,8 @@ const Confirmation: React.FC = () => {
     category: booking.carCategory || storedCar?.category || "Standard",
     image: booking.carImage || storedCar?.image || (storedCar as any)?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle',
     location: storedCar?.location || booking.pickupCode || "Airport",
+    pickupLocation: booking.pickupLocationName || booking.pickupCode || storedCar?.location || 'Rental Desk',
+    dropoffLocation: booking.dropoffLocationName || booking.dropoffCode || booking.pickupLocationName || booking.pickupCode || storedCar?.location || 'Rental Desk',
     sippCode: booking.carSippCode || (storedCar as any)?.sippCode,
     passengers: booking.carPassengers || storedCar?.passengers || 5,
     bags: booking.carBags || storedCar?.bags || 2,
@@ -263,7 +265,7 @@ const Confirmation: React.FC = () => {
                     <div className="bg-accent/5 p-2 rounded text-accent"><Calendar className="w-5 h-5" /></div>
                     <div>
                       <p className="font-bold text-slate-900">{new Date(booking.pickupDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.startTime || '10:00'}</p>
-                      <p className="text-sm text-slate-600 mt-1">{carDisplay.location}</p>
+                      <p className="text-sm text-slate-600 mt-1">{carDisplay.pickupLocation}</p>
                     </div>
                   </div>
                 </div>
@@ -273,7 +275,7 @@ const Confirmation: React.FC = () => {
                     <div className="bg-accent/5 p-2 rounded text-accent"><Calendar className="w-5 h-5" /></div>
                     <div>
                       <p className="font-bold text-slate-900">{new Date(booking.dropoffDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.endTime || '10:00'}</p>
-                      <p className="text-sm text-slate-600 mt-1">{carDisplay.location}</p>
+                      <p className="text-sm text-slate-600 mt-1">{carDisplay.dropoffLocation}</p>
                     </div>
                   </div>
                 </div>
