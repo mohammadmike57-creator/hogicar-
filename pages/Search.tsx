@@ -1261,6 +1261,8 @@ export const Search: React.FC = () => {
                             days={days}
                             startDate={startDate}
                             endDate={endDate}
+                            startTime={startTimeParam || '10:00'}
+                            endTime={endTimeParam || '10:00'}
                             pickupCode={pickupIata}
                             dropoffCode={dropoffIata || pickupIata}
                             isComparing={selectedCompareCars.some(c => c.id === car.id)}

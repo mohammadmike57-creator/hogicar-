@@ -355,6 +355,8 @@ interface CarCardProps {
   days: number;
   startDate: string;
   endDate: string;
+  startTime?: string;
+  endTime?: string;
   pickupCode: string;
   dropoffCode: string;
   isComparing?: boolean;
@@ -369,6 +371,8 @@ const CarCard: React.FC<CarCardProps> = ({
     days, 
     startDate, 
     endDate, 
+    startTime,
+    endTime,
     pickupCode, 
     dropoffCode,
     isComparing = false,
@@ -393,6 +397,8 @@ const CarCard: React.FC<CarCardProps> = ({
   const searchParams = new URLSearchParams({ 
     startDate, 
     endDate,
+    startTime: startTime || '',
+    endTime: endTime || '',
     pickup: pickupCode,
     dropoff: dropoffCode
   }).toString();
