@@ -9,6 +9,8 @@ export interface CarSearchPrefetchParams {
   dropoffCode?: string;
   pickupDate: string;
   dropoffDate: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 interface SearchPrefetchMeta {
@@ -30,7 +32,14 @@ const canUseSessionStorage = () => (
 export const buildSearchPrefetchSignature = (params: CarSearchPrefetchParams) => {
   const pickup = (params.pickupCode || '').trim().toUpperCase();
   const dropoff = (params.dropoffCode || params.pickupCode || '').trim().toUpperCase();
-  return [pickup, dropoff, params.pickupDate || '', params.dropoffDate || ''].join('|');
+  return [
+    pickup, 
+    dropoff, 
+    params.pickupDate || '', 
+    params.dropoffDate || '',
+    params.startTime || '10:00',
+    params.endTime || '10:00'
+  ].join('|');
 };
 
 const readPrefetchMeta = (): SearchPrefetchMeta | null => {
@@ -122,6 +131,8 @@ export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
     dropoffCode: params.dropoffCode || params.pickupCode,
     pickupDate: params.pickupDate,
     dropoffDate: params.dropoffDate,
+    startTime: params.startTime,
+    endTime: params.endTime,
   }).then((data) => {
     const currentMeta = readPrefetchMeta();
     if (currentMeta?.signature !== signature) {

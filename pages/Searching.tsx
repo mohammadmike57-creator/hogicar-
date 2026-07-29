@@ -93,6 +93,8 @@ const Searching: React.FC = () => {
     dropoffCode: searchParams.get('dropoff') || pickupIata,
     pickupDate: searchParams.get('pickupDate') || '',
     dropoffDate: searchParams.get('dropoffDate') || '',
+    startTime: searchParams.get('startTime') || '',
+    endTime: searchParams.get('endTime') || '',
   }), [pickupIata, searchParamsString]);
   const [duration, setDuration] = React.useState(5000); 
   const MIN_ANIMATION_TIME = 2500; // Allow proceeding after 2.5s if data is ready

@@ -193,7 +193,9 @@ export const Search: React.FC = () => {
     dropoffCode: dropoffIata || pickupIata,
     pickupDate: startDate,
     dropoffDate: endDate,
-  }), [pickupIata, dropoffIata, startDate, endDate]);
+    startTime: startTimeParam || '10:00',
+    endTime: endTimeParam || '10:00',
+  }), [pickupIata, dropoffIata, startDate, endDate, startTimeParam, endTimeParam]);
   
   const [apiCars, setApiCars] = React.useState<Car[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -268,6 +270,8 @@ export const Search: React.FC = () => {
                 dropoffCode: dropoffIata || pickupIata,
                 pickupDate: startDate,
                 dropoffDate: endDate,
+                startTime: startTimeParam || '10:00',
+                endTime: endTimeParam || '10:00',
             });
             if (cancelled) return;
             setApiCars(apiCarsToCars(data));

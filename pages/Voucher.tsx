@@ -86,6 +86,15 @@ const Voucher: React.FC = () => {
     return `${booking.currency} ${safeAmount.toFixed(2)}`;
   };
 
+  // Helper to safely format date strings without timezone shifts
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    // Split YYYY-MM-DD and create date object at noon to avoid any midnight timezone shifts
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
   return (
     <div className="voucher-page bg-white min-h-screen py-4 sm:py-10 print:bg-white print:py-0">
       <SEOMetadata 
@@ -226,7 +235,7 @@ const Voucher: React.FC = () => {
                         <div className="h-1 w-1 rounded-full bg-slate-300" />
                         <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.pickupLocationName?.split(',')[0]}</span>
                       </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.pickupDate}</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatDate(booking.pickupDate)}</span>
                     </div>
                   </div>
 
@@ -256,7 +265,7 @@ const Voucher: React.FC = () => {
                         <div className="h-1 w-1 rounded-full bg-slate-300" />
                         <span className="text-lg font-black text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
                       </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.dropoffDate}</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatDate(booking.dropoffDate)}</span>
                     </div>
                   </div>
                 </div>

@@ -268,6 +268,15 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const days = rentalDays(startDate, endDate);
   const pickupLabel = search.pickupName || search.pickup || search.pickupCode || car?.location || 'Pickup location';
   const dropoffLabel = search.dropoffName || search.dropoff || search.dropoffCode || pickupLabel;
+
+  // Helper to safely format date strings without timezone shifts
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    // Split YYYY-MM-DD and create date object at noon to avoid any midnight timezone shifts
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  };
   
   const priceDetails = React.useMemo(() => {
     if (!car) {
@@ -317,6 +326,16 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         payAtDesk: priceDetails.payAtDesk,
         flightNumber,
         carImage: car.image || car.imageUrl,
+        carMake: car.brand || car.make,
+        carModel: car.model,
+        carCategory: car.category,
+        carTransmission: car.transmission,
+        carFuelPolicy: car.fuelPolicy,
+        carSippCode: car.sippCode,
+        carPassengers: car.passengers,
+        carBags: car.bags,
+        carAirConditioning: car.airConditioning,
+        supplierLogoUrl: car.supplier?.logo || car.supplier?.logoUrl,
         hogicarChoice: car.hogicarChoice,
         isHogicarChoiceBranded: car.isHogicarChoiceBranded,
         selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
@@ -757,7 +776,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         <div className="h-1 w-1 rounded-full bg-slate-300" />
                         <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{pickupLabel.split(',')[0]}</span>
                       </div>
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{startDate}</span>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{formatDate(startDate)}</span>
                     </div>
                   </div>
 
@@ -787,7 +806,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         <div className="h-1 w-1 rounded-full bg-slate-300" />
                         <span className="text-xl font-black text-[#003580] tracking-tight">{search.dropoffCode || search.pickupCode}</span>
                       </div>
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{endDate}</span>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{formatDate(endDate)}</span>
                     </div>
                   </div>
                 </div>

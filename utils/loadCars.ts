@@ -13,6 +13,8 @@ interface LoadCarsParams {
     dropoffCode?: string;
     pickupDate: string;
     dropoffDate: string;
+    startTime?: string;
+    endTime?: string;
 }
 
 const normalizeForMatch = (value: unknown) => (
@@ -28,17 +30,19 @@ const isBlockedExternalCar = (car: ApiSearchResult) => {
 };
 
 export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[]> => {
-    const { locationsOptions, pickupCode, dropoffCode, pickupDate, dropoffDate } = params;
+    const { locationsOptions, pickupCode, dropoffCode, pickupDate, dropoffDate, startTime, endTime } = params;
 
     const defaultCode = locationsOptions?.[0]?.value || "AMM";
     // Use default code if the provided code is falsy (null, undefined, or empty string)
     const pickup = pickupCode || defaultCode;
     const dropoff = dropoffCode || defaultCode;
+    const start = startTime || '10:00';
+    const end = endTime || '10:00';
     
-    appState.search = { pickupCode: pickup, dropoffCode: dropoff, pickupDate, dropoffDate };
+    appState.search = { pickupCode: pickup, dropoffCode: dropoff, pickupDate, dropoffDate, startTime: start, endTime: end };
     sessionStorage.setItem("hogicar_search", JSON.stringify(appState.search));
 
-    const url = `${API_URL}/api/search/all?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}`;
+    const url = `${API_URL}/api/search/all?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}&startTime=${start}&endTime=${end}`;
 
     try {
         const response = await fetch(url, { 
