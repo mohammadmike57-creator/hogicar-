@@ -395,8 +395,8 @@ const CarCard: React.FC<CarCardProps> = ({
 
 
   const searchParams = new URLSearchParams({ 
-    startDate, 
-    endDate,
+    pickupDate: startDate, 
+    dropoffDate: endDate,
     startTime: startTime || '',
     endTime: endTime || '',
     pickup: pickupCode,

@@ -303,8 +303,8 @@ const CarDetails: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null);
 
   // Extract search params
-  const startDate = searchParams.get('startDate') || new Date().toISOString().split('T')[0];
-  const endDate = searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const startDate = searchParams.get('pickupDate') || searchParams.get('startDate') || new Date().toISOString().split('T')[0];
+  const endDate = searchParams.get('dropoffDate') || searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
   const startTime = searchParams.get('startTime') || '10:00';
   const endTime = searchParams.get('endTime') || '10:00';
   const pickupCode = searchParams.get('pickup');
@@ -513,7 +513,16 @@ const CarDetails: React.FC = () => {
     }
   };
 
-  const bookingParams = new URLSearchParams({ startDate, endDate, ...(pickupCode && { pickup: pickupCode }), ...(dropoffCode && { dropoff: dropoffCode }), ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), ...(appliedPromo && { promo: appliedPromo.code }) }).toString();
+  const bookingParams = new URLSearchParams({ 
+    pickupDate: startDate, 
+    dropoffDate: endDate, 
+    startTime, 
+    endTime, 
+    ...(pickupCode && { pickup: pickupCode }), 
+    ...(dropoffCode && { dropoff: dropoffCode }), 
+    ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), 
+    ...(appliedPromo && { promo: appliedPromo.code }) 
+  }).toString();
 
   const [imageError, setImageError] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');

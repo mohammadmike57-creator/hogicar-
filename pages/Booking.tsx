@@ -928,12 +928,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                            <div className="relative pl-6 border-l-2 border-accent">
                               <p className="text-[10px] font-black text-accent uppercase tracking-widest mb-1">Pick-up Location & Time</p>
                               <p className="text-slate-900 font-bold text-base leading-snug">{pickupLabel}</p>
-                              <p className="text-slate-500 text-sm mt-1 font-medium">{startDate} @ {startTime}</p>
+                              <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(startDate)} @ {startTime}</p>
                            </div>
                            <div className="relative pl-6 border-l-2 border-slate-200">
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Drop-off Location & Time</p>
                               <p className="text-slate-900 font-bold text-base leading-snug">{dropoffLabel}</p>
-                              <p className="text-slate-500 text-sm mt-1 font-medium">{endDate} @ {endTime}</p>
+                              <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(endDate)} @ {endTime}</p>
                            </div>
                            <div className="relative pl-6 border-l-2 border-slate-200">
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle Selection</p>
