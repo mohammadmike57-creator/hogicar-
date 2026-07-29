@@ -271,14 +271,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
   const buildBookingPayload = () => {
     if (!car) return null;
-    // Strip "choice-" prefix from carId if present (from Hogi Car Choice duplication)
-    const carId = Number(String(car.id).replace('choice-', ''));
-    const supplierId = Number(String(car.supplierId ?? car.supplier?.id).replace('choice-', ''));
+    const carId = String(car.id).replace('choice-', '');
+    const supplierId = String(car.supplierId ?? car.supplier?.id).replace('choice-', '');
     
-    if (!Number.isFinite(carId) || carId <= 0) {
+    if (!carId) {
       throw new Error('Invalid car id. Please go back to search and select the car again.');
     }
-    if (!Number.isFinite(supplierId) || supplierId <= 0) {
+    if (!supplierId) {
       throw new Error('Invalid supplier id. Please go back to search and select the car again.');
     }
     return {
