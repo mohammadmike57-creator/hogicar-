@@ -101,10 +101,30 @@ export const getRouteSEO = (routeType: string, cityOrCountry: string, fullPath: 
     airportSpecific: `${displayName} airport car rental – Compare and book rental cars directly at the airport terminal. Secure the best rates with Hogicar.`,
   };
 
+  const introTexts: Record<string, string> = {
+    country: `Find the best car rental deals in ${displayName}. Compare prices from over 900 trusted suppliers and enjoy free cancellation and 24/7 support.`,
+    carRental: `Looking for car rental in ${displayName}? Compare cheap rates from trusted suppliers, with free cancellation and 24/7 support. Book with Hogicar.`,
+    airportCarRental: `Pick up your rental car at ${displayName} Airport. Compare airport car rental deals and save up to 30% with Hogicar.`,
+    bestCarRental: `Discover the best car rental services in ${displayName}. Top-rated, reliable, and affordable – compare and book in minutes with Hogicar.`,
+    cheapCarRental: `Get the cheapest car rental in ${displayName}. Compare low-cost deals and exclusive discounts, book online with Hogicar.`,
+    cheapAirport: `Find cheap car rental at ${displayName} Airport. Exclusive low-price deals, no hidden fees. Book online and save with Hogicar.`,
+    economyCarRental: `Rent an economy car in ${displayName} at the best price. Compact, fuel-efficient vehicles perfect for city driving. Compare and save with Hogicar.`,
+    luxuryCarRental: `Experience luxury car rental in ${displayName}. Choose from premium sedans, sports cars, and SUVs. Book with Hogicar for top-tier service.`,
+    monthlyCarRental: `Need a car for a month in ${displayName}? Compare monthly car rental deals, long-term discounts, and flexible terms with Hogicar.`,
+    longTermRental: `Long-term car rental in ${displayName} made easy. Compare extended rental rates and enjoy no hidden costs with Hogicar.`,
+    suvRental: `Rent an SUV in ${displayName} – perfect for families, desert trips, or extra space. Compare 4x4 rental prices and book with Hogicar.`,
+    vanRental: `Van rental in ${displayName} for passenger transport or cargo. Find affordable minivans and full-size vans. Book with Hogicar.`,
+    rentACar: `Rent a car in ${displayName} quickly and easily. Compare hundreds of deals from trusted suppliers and book your perfect car with Hogicar.`,
+    airportSpecific: `${displayName} airport car rental – compare and book rental cars directly at the terminal. Secure the best rates with Hogicar.`,
+  };
+
   return {
     title: titles[routeType] || `Car Rental ${displayName} | Hogicar`,
     description:
       descriptions[routeType] ||
+      `Find affordable car rental in ${displayName}. Compare prices and book online with Hogicar.`,
+    introText:
+      introTexts[routeType] ||
       `Find affordable car rental in ${displayName}. Compare prices and book online with Hogicar.`,
     canonical: `https://www.hogicar.com${fullPath}`,
   };

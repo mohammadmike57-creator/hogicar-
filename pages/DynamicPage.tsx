@@ -140,6 +140,7 @@ const DynamicPage: React.FC = () => {
             routeType: seoRouteType,
             title: dynamicSEO.title,
             description: dynamicSEO.description,
+            introText: dynamicSEO.introText,
             h1Title: dynamicSEO.title.split(' – ')[0], // Extract H1 from title
             destinationName: locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
             indexable: true,

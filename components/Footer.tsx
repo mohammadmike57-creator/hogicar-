@@ -101,6 +101,73 @@ export const Footer = React.memo(() => (
           </div>
         </nav>
 
+        {/* SEO City Links Section */}
+        <div className="border-t border-blue-800/50 pt-12 mb-12">
+            <h3 className="text-white font-black text-lg mb-8 uppercase tracking-tight">Car Rental by City</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-10">
+                {[
+                    {
+                        country: 'UAE',
+                        links: [
+                            { name: 'Car Rental Dubai', path: '/car-rental-dubai' },
+                            { name: 'Car Rental Abu Dhabi', path: '/car-rental-abu-dhabi' },
+                            { name: 'Airport Car Rental Dubai', path: '/airport-car-rental-dubai' },
+                            { name: 'Cheap Car Rental Dubai', path: '/cheap-car-rental-dubai' },
+                            { name: 'Luxury Car Rental Dubai', path: '/luxury-car-rental-dubai' },
+                            { name: 'Car Rental Sharjah', path: '/car-rental-sharjah' },
+                            { name: 'Car Rental Ras Al Khaimah', path: '/car-rental-ras-al-khaimah' },
+                        ]
+                    },
+                    {
+                        country: 'Egypt',
+                        links: [
+                            { name: 'Car Rental Cairo', path: '/car-rental-cairo' },
+                            { name: 'Airport Car Rental Cairo', path: '/airport-car-rental-cairo' },
+                            { name: 'Car Rental Hurghada', path: '/car-rental-hurghada' },
+                            { name: 'Car Rental Sharm El Sheikh', path: '/car-rental-sharm-el-sheikh' },
+                            { name: 'Car Rental Alexandria', path: '/car-rental-alexandria' },
+                            { name: 'Car Rental Giza', path: '/car-rental-giza' },
+                        ]
+                    },
+                    {
+                        country: 'Saudi Arabia',
+                        links: [
+                            { name: 'Car Rental Riyadh', path: '/car-rental-riyadh' },
+                            { name: 'Car Rental Jeddah', path: '/car-rental-jeddah' },
+                            { name: 'Airport Car Rental Riyadh', path: '/airport-car-rental-riyadh' },
+                            { name: 'Car Rental Dammam', path: '/car-rental-dammam' },
+                            { name: 'Car Rental Medina', path: '/car-rental-medina' },
+                            { name: 'Car Rental Mecca', path: '/car-rental-mecca' },
+                        ]
+                    },
+                    {
+                        country: 'Other Destinations',
+                        links: [
+                            { name: 'Car Rental Amman', path: '/car-rental-amman' },
+                            { name: 'Airport Car Rental Amman', path: '/airport-car-rental-amman' },
+                            { name: 'Car Rental Doha', path: '/car-rental-doha' },
+                            { name: 'Car Rental Muscat', path: '/car-rental-muscat' },
+                            { name: 'Car Rental Manama', path: '/car-rental-manama' },
+                            { name: 'Car Rental Kuwait City', path: '/car-rental-kuwait-city' },
+                            { name: 'Car Rental Salalah', path: '/car-rental-salalah' },
+                            { name: 'Car Rental Aqaba', path: '/car-rental-aqaba' },
+                        ]
+                    }
+                ].map((group, idx) => (
+                    <div key={idx} className="space-y-4">
+                        <h4 className="text-blue-300 font-black text-xs uppercase tracking-[0.2em] mb-4">{group.country}</h4>
+                        <div className="flex flex-col gap-3">
+                            {group.links.map((link, lIdx) => (
+                                <Link key={lIdx} to={link.path} className="text-blue-100/70 hover:text-white text-xs font-bold transition-colors">
+                                    {link.name}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-blue-800/50 gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
             <p className="text-blue-300 text-sm">&copy; 2026 Hogicar. All rights reserved.</p>

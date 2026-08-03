@@ -633,7 +633,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                 </h1>
             </div>
             <div className="min-h-[40px] sm:min-h-[50px] lg:min-h-[60px] flex items-center justify-center">
-                <p className="text-white/95 mb-4 lg:mb-6 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg font-bold leading-relaxed px-6 drop-shadow-lg">
+                <p className="route-description text-white/95 mb-4 lg:mb-6 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg font-bold leading-relaxed px-6 drop-shadow-lg">
                   {displaySubtitle}
                 </p>
             </div>
@@ -965,6 +965,43 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             subtitle="Explore our most booked locations"
           />
         </React.Suspense>
+      )}
+
+      {/* SEO Popular Links Grid */}
+      {!isCustomLanding && (
+        <section className="py-16 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-2xl font-black text-slate-900 mb-8 uppercase tracking-tight">Popular Car Rental Destinations</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-4 gap-x-8">
+              {[
+                { name: 'Car Rental Dubai', path: '/car-rental-dubai' },
+                { name: 'Car Rental Abu Dhabi', path: '/car-rental-abu-dhabi' },
+                { name: 'Car Rental Cairo', path: '/car-rental-cairo' },
+                { name: 'Car Rental Amman', path: '/car-rental-amman' },
+                { name: 'Car Rental Riyadh', path: '/car-rental-riyadh' },
+                { name: 'Car Rental Manama', path: '/car-rental-manama' },
+                { name: 'Car Rental Doha', path: '/car-rental-doha' },
+                { name: 'Car Rental Muscat', path: '/car-rental-muscat' },
+                { name: 'Car Rental Kuwait City', path: '/car-rental-kuwait-city' },
+                { name: 'Car Rental Jeddah', path: '/car-rental-jeddah' },
+                { name: 'Car Rental Sharjah', path: '/car-rental-sharjah' },
+                { name: 'Car Rental Hurghada', path: '/car-rental-hurghada' },
+                { name: 'Car Rental Aqaba', path: '/car-rental-aqaba' },
+                { name: 'Car Rental Dammam', path: '/car-rental-dammam' },
+                { name: 'Car Rental Salalah', path: '/car-rental-salalah' },
+                { name: 'Car Rental Alexandria', path: '/car-rental-alexandria' },
+                { name: 'Car Rental Giza', path: '/car-rental-giza' },
+                { name: 'Car Rental Ras Al Khaimah', path: '/car-rental-ras-al-khaimah' },
+                { name: 'Car Rental Fujairah', path: '/car-rental-fujairah' },
+                { name: 'Car Rental Ajman', path: '/car-rental-ajman' }
+              ].map((link, idx) => (
+                <Link key={idx} to={link.path} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors">
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
     </div>

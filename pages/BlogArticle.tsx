@@ -358,6 +358,15 @@ const BlogArticle: React.FC = () => {
               dangerouslySetInnerHTML={{ __html: enrichedContent }}
             />
 
+            {/* Contextual CTA for SEO */}
+            {(article.primaryRoute || article.destinations) && (
+              <div className="mt-12 p-8 bg-slate-50 rounded-3xl border border-slate-100">
+                <p className="text-slate-900 font-bold text-lg mb-0">
+                  Ready to book? <Link to={article.primaryRoute?.route || `/car-rental-${(article.destinations?.split(',')[0] || '').toLowerCase().replace(/\s+/g, '-')}`} className="text-emerald-600 underline hover:text-emerald-500 transition-colors">Compare car rental deals in {article.primaryRoute?.destinationName || article.destinations?.split(',')[0] || 'your destination'}</Link> with Hogicar.
+                </p>
+              </div>
+            )}
+
             {/* FAQ Section */}
             {faqs.length > 0 && (
               <div className="mt-16 bg-slate-50 rounded-card p-8 border border-slate-100">
