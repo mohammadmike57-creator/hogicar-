@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { api } from '../api';
 import { PUBLIC_BASE_URL } from '../lib/config';
-import { getRouteSEO } from '../utils/seo';
+import { getRouteSEO, detectRouteType } from '../utils/seo';
 
 interface SEOMetadataProps {
   title?: string;
@@ -49,60 +49,8 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const config = propConfig || apiConfig;
 
   // 1. Determine Dynamic SEO Defaults based on path
-  let routeType = '';
-  let locationSlug = '';
   const path = location.pathname;
-
-  if (path.startsWith('/car-rental-')) {
-    routeType = 'carRental';
-    locationSlug = path.replace('/car-rental-', '');
-  } else if (path.startsWith('/airport-car-rental-')) {
-    routeType = 'airportCarRental';
-    locationSlug = path.replace('/airport-car-rental-', '');
-  } else if (path.startsWith('/best-car-rental-')) {
-    routeType = 'bestCarRental';
-    locationSlug = path.replace('/best-car-rental-', '');
-  } else if (path.startsWith('/cheap-car-rental-')) {
-    const slug = path.replace('/cheap-car-rental-', '');
-    if (slug.includes('airport')) {
-      routeType = 'cheapAirport';
-    } else {
-      routeType = 'cheapCarRental';
-    }
-    locationSlug = slug;
-  } else if (path.startsWith('/economy-car-rental-')) {
-    routeType = 'economyCarRental';
-    locationSlug = path.replace('/economy-car-rental-', '');
-  } else if (path.startsWith('/luxury-car-rental-')) {
-    routeType = 'luxuryCarRental';
-    locationSlug = path.replace('/luxury-car-rental-', '');
-  } else if (path.startsWith('/monthly-car-rental-')) {
-    routeType = 'monthlyCarRental';
-    locationSlug = path.replace('/monthly-car-rental-', '');
-  } else if (path.startsWith('/long-term-rental-')) {
-    routeType = 'longTermRental';
-    locationSlug = path.replace('/long-term-rental-', '');
-  } else if (path.startsWith('/suv-rental-')) {
-    routeType = 'suvRental';
-    locationSlug = path.replace('/suv-rental-', '');
-  } else if (path.startsWith('/van-rental-')) {
-    routeType = 'vanRental';
-    locationSlug = path.replace('/van-rental-', '');
-  } else if (path.startsWith('/rent-a-car-')) {
-    routeType = 'rentACar';
-    locationSlug = path.replace('/rent-a-car-', '');
-  } else if (path.endsWith('-airport-car-rental')) {
-    routeType = 'airportSpecific';
-    locationSlug = path.substring(1).replace('-airport-car-rental', '');
-  } else {
-    const countries = ['bahrain', 'egypt', 'jordan', 'kuwait', 'oman', 'qatar', 'saudi-arabia', 'united-arab-emirates'];
-    const slug = path.substring(1).toLowerCase();
-    if (countries.includes(slug)) {
-      routeType = 'country';
-      locationSlug = slug;
-    }
-  }
-
+  const { routeType, locationSlug } = detectRouteType(path);
   const dynamicSEO = getRouteSEO(routeType, locationSlug, path);
 
   // 2. Resolve final values

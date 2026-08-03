@@ -14,6 +14,7 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { API_BASE_URL } from '../lib/config';
+import { detectRouteType, getRouteSEO } from '../utils/seo';
 
 const Home = React.lazy(() => import('./Home'));
 const Reviews = React.lazy(() => import('../components/Reviews'));
@@ -120,6 +121,36 @@ const DynamicPage: React.FC = () => {
              setLoading(false);
              return;
            }
+        }
+
+        // 3. CLIENT-SIDE FALLBACK for SEO Routes
+        // If the backend doesn't have the config yet, but it matches our SEO patterns,
+        // we should still render the landing page (Home component) to avoid soft 404s.
+        const { routeType, locationSlug } = detectRouteType(route);
+        if (routeType) {
+          const dynamicSEO = getRouteSEO(routeType, locationSlug, route);
+          const fallbackConfig = {
+            route: route,
+            routeType: routeType.toUpperCase(),
+            title: dynamicSEO.title,
+            description: dynamicSEO.description,
+            h1Title: dynamicSEO.title.split(' – ')[0], // Extract H1 from title
+            destinationName: locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            indexable: true,
+            showHero: true,
+            showSearch: true,
+            showBenefits: true,
+            showSuppliers: true,
+            showReviews: true,
+            showFaq: true,
+            showSeoContent: true,
+            showRelatedDestinations: true,
+            showFeaturedCars: true
+          };
+          setSeoConfig(fallbackConfig);
+          setIsLandingPage(true);
+          setLoading(false);
+          return;
         }
 
         throw new Error('Page not found');

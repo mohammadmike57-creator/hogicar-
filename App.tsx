@@ -106,6 +106,30 @@ const App: React.FC = () => {
             <Route path="/blog/:slug" element={<BlogArticle />} />
             <Route path="/ar/blog/:slug" element={<BlogArticle />} />
             <Route path="/sitemap" element={<Sitemap />} />
+            
+            {/* SEO Landing Pages (Explicitly defined for Googlebot) */}
+            <Route path="/bahrain" element={<DynamicPage />} />
+            <Route path="/egypt" element={<DynamicPage />} />
+            <Route path="/jordan" element={<DynamicPage />} />
+            <Route path="/kuwait" element={<DynamicPage />} />
+            <Route path="/oman" element={<DynamicPage />} />
+            <Route path="/qatar" element={<DynamicPage />} />
+            <Route path="/saudi-arabia" element={<DynamicPage />} />
+            <Route path="/united-arab-emirates" element={<DynamicPage />} />
+            
+            <Route path="/car-rental-:city" element={<DynamicPage />} />
+            <Route path="/airport-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/best-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/cheap-car-rental-:slug" element={<DynamicPage />} />
+            <Route path="/economy-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/luxury-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/monthly-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/long-term-rental-:city" element={<DynamicPage />} />
+            <Route path="/suv-rental-:city" element={<DynamicPage />} />
+            <Route path="/van-rental-:city" element={<DynamicPage />} />
+            <Route path="/rent-a-car-:country" element={<DynamicPage />} />
+            <Route path="/:airport-airport-car-rental" element={<DynamicPage />} />
+
             <Route path="*" element={<DynamicPage />} />
           </Route>
         </Routes>
