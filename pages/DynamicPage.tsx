@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { getRouteSEO } from '../utils/seo';
 import SEOMetadata from '../components/SEOMetadata';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
@@ -22,6 +24,79 @@ const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGu
 
 const DynamicPage: React.FC = () => {
   const location = useLocation();
+  const path = location.pathname;
+
+  // Determine route type and location tag for SEO
+  let routeType = '';
+  let locationSlug = '';
+
+  if (path.startsWith('/car-rental-')) {
+    routeType = 'carRental';
+    locationSlug = path.replace('/car-rental-', '');
+  } else if (path.startsWith('/airport-car-rental-')) {
+    routeType = 'airportCarRental';
+    locationSlug = path.replace('/airport-car-rental-', '');
+  } else if (path.startsWith('/best-car-rental-')) {
+    routeType = 'bestCarRental';
+    locationSlug = path.replace('/best-car-rental-', '');
+  } else if (path.startsWith('/cheap-car-rental-')) {
+    const slug = path.replace('/cheap-car-rental-', '');
+    // Airports often have 'airport' in their slug
+    if (slug.includes('airport')) {
+      routeType = 'cheapAirport';
+    } else {
+      routeType = 'cheapCarRental';
+    }
+    locationSlug = slug;
+  } else if (path.startsWith('/economy-car-rental-')) {
+    routeType = 'economyCarRental';
+    locationSlug = path.replace('/economy-car-rental-', '');
+  } else if (path.startsWith('/luxury-car-rental-')) {
+    routeType = 'luxuryCarRental';
+    locationSlug = path.replace('/luxury-car-rental-', '');
+  } else if (path.startsWith('/monthly-car-rental-')) {
+    routeType = 'monthlyCarRental';
+    locationSlug = path.replace('/monthly-car-rental-', '');
+  } else if (path.startsWith('/long-term-rental-')) {
+    routeType = 'longTermRental';
+    locationSlug = path.replace('/long-term-rental-', '');
+  } else if (path.startsWith('/suv-rental-')) {
+    routeType = 'suvRental';
+    locationSlug = path.replace('/suv-rental-', '');
+  } else if (path.startsWith('/van-rental-')) {
+    routeType = 'vanRental';
+    locationSlug = path.replace('/van-rental-', '');
+  } else if (path.startsWith('/rent-a-car-')) {
+    routeType = 'rentACar';
+    locationSlug = path.replace('/rent-a-car-', '');
+  } else if (path.endsWith('-airport-car-rental')) {
+    routeType = 'airportSpecific';
+    locationSlug = path.substring(1).replace('-airport-car-rental', '');
+  } else {
+    // Check if it's one of the country hubs
+    const countries = ['bahrain', 'egypt', 'jordan', 'kuwait', 'oman', 'qatar', 'saudi-arabia', 'united-arab-emirates'];
+    const slug = path.substring(1).toLowerCase();
+    if (countries.includes(slug)) {
+      routeType = 'country';
+      locationSlug = slug;
+    }
+  }
+
+  const seo = getRouteSEO(routeType, locationSlug, path);
+
+  const seoTags = (
+    <Helmet>
+      <title>{seo.title}</title>
+      <meta name="description" content={seo.description} />
+      <link rel="canonical" href={seo.canonical} />
+      <meta property="og:title" content={seo.title} />
+      <meta property="og:description" content={seo.description} />
+      <meta property="og:url" content={seo.canonical} />
+      <meta name="twitter:title" content={seo.title} />
+      <meta name="twitter:description" content={seo.description} />
+    </Helmet>
+  );
+
   const [page, setPage] = useState<any>(null);
   const [seoConfig, setSeoConfig] = useState<any>(null);
   const [isLandingPage, setIsLandingPage] = useState(false);
@@ -135,6 +210,7 @@ const DynamicPage: React.FC = () => {
   if (loading) {
     return (
       <>
+        {seoTags}
         <SEOMetadata title="" description="" />
         <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
            <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
@@ -166,6 +242,7 @@ const DynamicPage: React.FC = () => {
 
     return (
       <div className="bg-slate-50 min-h-screen">
+        {seoTags}
         <SEOMetadata config={seoConfig} />
         <React.Suspense fallback={<div className="min-h-[60vh] flex flex-col items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" /></div>}>
           <Home seoConfig={seoConfig} />
@@ -177,6 +254,7 @@ const DynamicPage: React.FC = () => {
   if (error || !page) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center bg-slate-50 text-center px-4">
+         {seoTags}
          <h1 className="text-2xl font-bold text-slate-800">Page Not Found</h1>
          <p className="text-slate-500 mt-2">The page you're looking for doesn't exist or has been moved.</p>
          <Link to="/" className="mt-6 bg-[#003580] text-white px-6 py-2 rounded-card hover:bg-blue-800 transition-colors flex items-center gap-2 mx-auto"><ArrowLeft className="w-4 h-4"/> Return Home</Link>
@@ -348,6 +426,7 @@ const DynamicPage: React.FC = () => {
 
   return (
     <>
+      {seoTags}
       {!isLandingPage && (
         <SEOMetadata 
           title={seoConfig?.title || (page ? `${page.title} | Hogicar` : undefined)} 

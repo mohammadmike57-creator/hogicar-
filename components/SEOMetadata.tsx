@@ -1,13 +1,15 @@
 
 import * as React from 'react';
-import { useState, useEffect, useLayoutEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { api } from '../api';
 import { PUBLIC_BASE_URL } from '../lib/config';
+import { getRouteSEO } from '../utils/seo';
 
 interface SEOMetadataProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   keywords?: string;
   canonicalUrl?: string;
   ogImage?: string;
@@ -20,262 +22,181 @@ interface SEOMetadataProps {
   structuredData?: string;
   preloadImageUrl?: string;
   preloadImageSrcSet?: string;
+  config?: any; 
 }
 
 const SEOMetadata: React.FC<SEOMetadataProps> = ({ 
-  title: defaultTitle, 
-  description: defaultDescription, 
-  keywords: defaultKeywords,
-  canonicalUrl: defaultCanonical,
-  ogImage: defaultOgImage,
-  ogTitle: defaultOgTitle,
-  ogDescription: defaultOgDescription,
-  twitterTitle: defaultTwitterTitle,
-  twitterDescription: defaultTwitterDescription,
-  noIndex: defaultNoIndex,
+  title: propTitle, 
+  description: propDescription, 
+  keywords: propKeywords,
+  canonicalUrl: propCanonical,
+  ogImage: propOgImage,
+  ogTitle: propOgTitle,
+  ogDescription: propOgDescription,
+  twitterTitle: propTwitterTitle,
+  twitterDescription: propTwitterDescription,
+  noIndex: propNoIndex,
   schema,
   structuredData,
   preloadImageUrl,
-  preloadImageSrcSet
+  preloadImageSrcSet,
+  config: propConfig
 }) => {
   const location = useLocation();
-  const [config, setConfig] = useState<any>(null);
+  const [apiConfig, setApiConfig] = useState<any>(null);
 
   const normalizedPathname = location.pathname.replace(/\/$/, '') || '/';
+  const config = propConfig || apiConfig;
 
-  // Use props if they exist, otherwise fallback to config fetched from API
-  const title = defaultTitle || config?.title || "Hogicar - Compare Car Rental Deals Worldwide";
-  const description = defaultDescription || config?.description || "Compare and book affordable car rentals worldwide with Hogicar. Find trusted rental cars, airport rentals, and travel deals.";
-  const keywords = defaultKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
-  const ogImage = defaultOgImage || config?.ogImage || 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
-  const canonical = defaultCanonical || config?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
-  const isNoIndex = defaultNoIndex !== undefined ? defaultNoIndex : (config ? (config.indexable === false) : false);
+  // 1. Determine Dynamic SEO Defaults based on path
+  let routeType = '';
+  let locationSlug = '';
+  const path = location.pathname;
 
-  // AUTHORITATIVE TITLE SETTER
-  useLayoutEffect(() => {
-    if (title) {
-      document.title = title;
-      console.log('[SEO DEBUG] AUTHORITATIVE SET - document.title =', title);
+  if (path.startsWith('/car-rental-')) {
+    routeType = 'carRental';
+    locationSlug = path.replace('/car-rental-', '');
+  } else if (path.startsWith('/airport-car-rental-')) {
+    routeType = 'airportCarRental';
+    locationSlug = path.replace('/airport-car-rental-', '');
+  } else if (path.startsWith('/best-car-rental-')) {
+    routeType = 'bestCarRental';
+    locationSlug = path.replace('/best-car-rental-', '');
+  } else if (path.startsWith('/cheap-car-rental-')) {
+    const slug = path.replace('/cheap-car-rental-', '');
+    if (slug.includes('airport')) {
+      routeType = 'cheapAirport';
+    } else {
+      routeType = 'cheapCarRental';
     }
-  }, [title, location.pathname]);
+    locationSlug = slug;
+  } else if (path.startsWith('/economy-car-rental-')) {
+    routeType = 'economyCarRental';
+    locationSlug = path.replace('/economy-car-rental-', '');
+  } else if (path.startsWith('/luxury-car-rental-')) {
+    routeType = 'luxuryCarRental';
+    locationSlug = path.replace('/luxury-car-rental-', '');
+  } else if (path.startsWith('/monthly-car-rental-')) {
+    routeType = 'monthlyCarRental';
+    locationSlug = path.replace('/monthly-car-rental-', '');
+  } else if (path.startsWith('/long-term-rental-')) {
+    routeType = 'longTermRental';
+    locationSlug = path.replace('/long-term-rental-', '');
+  } else if (path.startsWith('/suv-rental-')) {
+    routeType = 'suvRental';
+    locationSlug = path.replace('/suv-rental-', '');
+  } else if (path.startsWith('/van-rental-')) {
+    routeType = 'vanRental';
+    locationSlug = path.replace('/van-rental-', '');
+  } else if (path.startsWith('/rent-a-car-')) {
+    routeType = 'rentACar';
+    locationSlug = path.replace('/rent-a-car-', '');
+  } else if (path.endsWith('-airport-car-rental')) {
+    routeType = 'airportSpecific';
+    locationSlug = path.substring(1).replace('-airport-car-rental', '');
+  } else {
+    const countries = ['bahrain', 'egypt', 'jordan', 'kuwait', 'oman', 'qatar', 'saudi-arabia', 'united-arab-emirates'];
+    const slug = path.substring(1).toLowerCase();
+    if (countries.includes(slug)) {
+      routeType = 'country';
+      locationSlug = slug;
+    }
+  }
+
+  const dynamicSEO = getRouteSEO(routeType, locationSlug, path);
+
+  // 2. Resolve final values
+  const title = propTitle || config?.title || (routeType ? dynamicSEO.title : "Hogicar - Compare Car Rental Deals Worldwide");
+  const description = propDescription || config?.description || (routeType ? dynamicSEO.description : "Compare and book affordable car rentals worldwide with Hogicar. Find trusted rental cars, airport rentals, and travel deals.");
+  const keywords = propKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
+  const ogImage = propOgImage || config?.ogImage || 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
+  const canonical = propCanonical || config?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
+  const isNoIndex = propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false);
+
+  const finalOgTitle = propOgTitle || config?.ogTitle || title;
+  const finalOgDesc = propOgDescription || config?.ogDescription || description;
+  const finalTwitterTitle = propTwitterTitle || config?.twitterTitle || title;
+  const finalTwitterDesc = propTwitterDescription || config?.twitterDescription || description;
+
+  const schemaToInject = structuredData || config?.structuredData || (schema ? JSON.stringify(schema) : null);
+  const lang = config?.lang || 'en';
+  const alternateRoute = config?.alternateRoute;
 
   useEffect(() => {
-    // DEBUG LOGS
-    console.log('[SEO DEBUG] Current URL:', window.location.href);
-    console.log('[SEO DEBUG] Loaded SEO title:', title);
-    console.log('[SEO DEBUG] Props - Title:', defaultTitle);
-    console.log('[SEO DEBUG] API Config - Title:', config?.title);
-
-    if (title) {
-      document.title = title;
-      console.log('[SEO DEBUG] Final document.title check:', document.title);
-    }
-  }, [title, location.pathname]);
-
-  useEffect(() => {
-    // RESET state when pathname changes to avoid showing stale data from previous route
-    setConfig(null);
-
-    // If props are provided, we don't necessarily need to fetch
-    // But we fetch if the title is missing to ensure we have some metadata
-    if (defaultTitle && defaultDescription) {
+    if (propConfig || (propTitle && propDescription)) {
+      setApiConfig(null);
       return;
     }
 
     let isMounted = true;
     const fetchConfig = async () => {
       const isStaticAsset = /\.(png|jpg|jpeg|gif|svg|ico|webmanifest|xml|txt|js|css|map)$/i.test(normalizedPathname);
-      if (isStaticAsset) {
-        return;
-      }
+      if (isStaticAsset) return;
       try {
         const res = await api.fetchSeoConfig(normalizedPathname);
         if (isMounted) {
-          if (res.data) {
-            setConfig(res.data);
-          } else {
-            setConfig(null);
-          }
+          setApiConfig(res.data || null);
         }
       } catch (e) {
-        if (isMounted) {
-          console.error('Failed to fetch SEO config for', normalizedPathname);
-          setConfig(null);
-        }
+        if (isMounted) setApiConfig(null);
       }
     };
     fetchConfig();
     return () => { isMounted = false; };
-  }, [normalizedPathname]);
+  }, [normalizedPathname, propConfig, propTitle, propDescription]);
 
   useEffect(() => {
-    // Handle robots/noindex separately
-    const robotsTag = document.querySelector('meta[name="robots"]');
-    if (isNoIndex) {
-      if (robotsTag) {
-        robotsTag.setAttribute('content', 'noindex, nofollow');
-      } else {
-        const meta = document.createElement('meta');
-        meta.name = 'robots';
-        meta.content = 'noindex, nofollow';
-        document.head.appendChild(meta);
-      }
-    } else if (robotsTag) {
-      robotsTag.setAttribute('content', 'index, follow');
-    }
-  }, [isNoIndex]);
-
-  useLayoutEffect(() => {
-    // 1. Set Page Title IMMEDIATELY
-    if (title) {
-      document.title = title;
-      if (typeof window !== 'undefined') {
-        window.document.title = title;
-      }
-    }
-
-    // Helper to update or create meta tags
-    const setMetaTag = (name: string, content: string, attribute = 'name') => {
-      if (!content) return;
-      let element = document.querySelector(`meta[${attribute}="${name}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attribute, name);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
-    };
-
-    // 2. Standard Meta Tags
-    if (description) setMetaTag('description', description);
-    if (keywords) setMetaTag('keywords', keywords);
-
-    // 3. Open Graph Tags
-    const finalOgTitle = defaultOgTitle || config?.ogTitle || title;
-    const finalOgDesc = defaultOgDescription || config?.ogDescription || description;
-    setMetaTag('og:site_name', 'Hogicar', 'property');
-    if (finalOgTitle) setMetaTag('og:title', finalOgTitle, 'property');
-    if (finalOgDesc) setMetaTag('og:description', finalOgDesc, 'property');
-    setMetaTag('og:url', PUBLIC_BASE_URL + location.pathname, 'property');
-    setMetaTag('og:type', 'website', 'property');
-    if (ogImage) setMetaTag('og:image', ogImage, 'property');
-
-    // 4. Twitter Card Tags
-    setMetaTag('twitter:card', 'summary_large_image');
-    const finalTwitterTitle = defaultTwitterTitle || config?.twitterTitle || title;
-    const finalTwitterDesc = defaultTwitterDescription || config?.twitterDescription || description;
-    if (finalTwitterTitle) setMetaTag('twitter:title', finalTwitterTitle);
-    if (finalTwitterDesc) setMetaTag('twitter:description', finalTwitterDesc);
-    if (ogImage) setMetaTag('twitter:image', ogImage);
-
-    // 5. Canonical URL
-    let canonicalTag = document.querySelector('link[rel="canonical"]');
-    if (!canonicalTag) {
-      canonicalTag = document.createElement('link');
-      canonicalTag.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonicalTag);
-    }
-    canonicalTag.setAttribute('href', canonical);
-
-    // 6. Handle Robots tag (noindex)
-    if (isNoIndex) {
-      setMetaTag('robots', 'noindex, nofollow');
-    } else {
-      const robotsTag = document.querySelector('meta[name="robots"]');
-      if (robotsTag) {
-        robotsTag.setAttribute('content', 'index, follow');
-      }
-    }
-
-    // 7. Schema Markup (JSON-LD)
-    if (schema || structuredData || config?.structuredData) {
-      let scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
-      if (!scriptTag) {
-        scriptTag = document.createElement('script');
-        scriptTag.setAttribute('type', 'application/ld+json');
-        scriptTag.id = 'seo-schema';
-        document.head.appendChild(scriptTag);
-      }
-      
-      const schemaToInject = structuredData || config?.structuredData || (schema ? JSON.stringify(schema) : null);
-      if (schemaToInject) {
-        scriptTag.textContent = typeof schemaToInject === 'string' ? schemaToInject : JSON.stringify(schemaToInject);
-      }
-    } else {
-      const scriptTag = document.querySelector('script[type="application/ld+json"]#seo-schema');
-      if (scriptTag) scriptTag.remove();
-    }
-
-    // 8. Preload Image (Hero)
-    if (preloadImageUrl && preloadImageUrl.length > 2) {
-      let preloadTag = document.querySelector('link[rel="preload"][as="image"]#hero-preload') as HTMLLinkElement;
-      const isNew = !preloadTag;
-      if (isNew) {
-        preloadTag = document.createElement('link');
-        preloadTag.setAttribute('rel', 'preload');
-        preloadTag.setAttribute('as', 'image');
-        preloadTag.id = 'hero-preload';
-        preloadTag.setAttribute('fetchpriority', 'high');
-        document.head.appendChild(preloadTag);
-      }
-      
-      // ONLY update if it has changed to prevent duplicate requests
-      if (preloadTag.getAttribute('href') !== preloadImageUrl) {
-        preloadTag.setAttribute('href', preloadImageUrl);
-      }
-
-      if (preloadImageSrcSet) {
-        if (preloadTag.getAttribute('imagesrcset') !== preloadImageSrcSet) {
-          preloadTag.setAttribute('imagesrcset', preloadImageSrcSet);
-          preloadTag.setAttribute('imagesizes', '100vw');
-        }
-      } else if (preloadTag.hasAttribute('imagesrcset')) {
-        preloadTag.removeAttribute('imagesrcset');
-        preloadTag.removeAttribute('imagesizes');
-      }
-    } else {
-      const existingPreload = document.querySelector('link[rel="preload"][as="image"]#hero-preload');
-      if (existingPreload) existingPreload.remove();
-    }
-
-    // 9. Hreflang and Language attributes
-    const lang = config?.lang || 'en';
-    const alternateRoute = config?.alternateRoute;
     const html = document.documentElement;
     html.setAttribute('lang', lang);
     html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  }, [lang]);
 
-    // Remove existing hreflang tags
-    document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <link rel="canonical" href={canonical} />
+      <meta name="robots" content={isNoIndex ? 'noindex, nofollow' : 'index, follow'} />
 
-    // Add current
-    const currentHref = PUBLIC_BASE_URL + normalizedPathname;
-    const linkCurrent = document.createElement('link');
-    linkCurrent.rel = 'alternate';
-    linkCurrent.hreflang = lang;
-    linkCurrent.href = currentHref;
-    document.head.appendChild(linkCurrent);
+      <meta property="og:site_name" content="Hogicar" />
+      <meta property="og:title" content={finalOgTitle} />
+      <meta property="og:description" content={finalOgDesc} />
+      <meta property="og:url" content={PUBLIC_BASE_URL + location.pathname} />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content={ogImage} />
 
-    if (alternateRoute) {
-      const altLang = lang === 'en' ? 'ar' : 'en';
-      const altHref = PUBLIC_BASE_URL + alternateRoute;
-      const linkAlt = document.createElement('link');
-      linkAlt.rel = 'alternate';
-      linkAlt.hreflang = altLang;
-      linkAlt.href = altHref;
-      document.head.appendChild(linkAlt);
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={finalTwitterTitle} />
+      <meta name="twitter:description" content={finalTwitterDesc} />
+      <meta name="twitter:image" content={ogImage} />
 
-      // x-default
-      const xDefaultHref = lang === 'en' ? currentHref : altHref;
-      const linkXDefault = document.createElement('link');
-      linkXDefault.rel = 'alternate';
-      linkXDefault.hreflang = 'x-default';
-      linkXDefault.href = xDefaultHref;
-      document.head.appendChild(linkXDefault);
-    }
-  }, [title, description, keywords, ogImage, isNoIndex, canonical, location.pathname, schema, structuredData, config, preloadImageUrl, preloadImageSrcSet, normalizedPathname]);
+      {schemaToInject && (
+        <script type="application/ld+json" id="seo-schema">
+          {typeof schemaToInject === 'string' ? schemaToInject : JSON.stringify(schemaToInject)}
+        </script>
+      )}
 
-  return null;
+      {preloadImageUrl && preloadImageUrl.length > 2 && (
+        <link 
+          rel="preload" 
+          as="image" 
+          id="hero-preload" 
+          href={preloadImageUrl} 
+          imagesrcset={preloadImageSrcSet} 
+          imagesizes={preloadImageSrcSet ? '100vw' : undefined}
+        />
+      )}
+
+      <link rel="alternate" hreflang={lang} href={PUBLIC_BASE_URL + normalizedPathname} />
+      {alternateRoute && (
+        <>
+          <link rel="alternate" hreflang={lang === 'en' ? 'ar' : 'en'} href={PUBLIC_BASE_URL + alternateRoute} />
+          <link rel="alternate" hreflang="x-default" href={PUBLIC_BASE_URL + (lang === 'en' ? normalizedPathname : alternateRoute)} />
+        </>
+      )}
+    </Helmet>
+  );
 };
 
 export default SEOMetadata;
