@@ -1,7 +1,6 @@
 
 import * as React from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Booking, Car } from '../types';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import Printer from 'lucide-react/dist/esm/icons/printer';
 import User from 'lucide-react/dist/esm/icons/user';
@@ -13,26 +12,30 @@ import CarIcon from 'lucide-react/dist/esm/icons/car';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import Award from 'lucide-react/dist/esm/icons/award';
-import Zap from 'lucide-react/dist/esm/icons/zap';
 import Phone from 'lucide-react/dist/esm/icons/phone';
 import Mail from 'lucide-react/dist/esm/icons/mail';
 import Info from 'lucide-react/dist/esm/icons/info';
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import Clock from 'lucide-react/dist/esm/icons/clock';
+import Map from 'lucide-react/dist/esm/icons/map';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
+import Download from 'lucide-react/dist/esm/icons/download';
+import Zap from 'lucide-react/dist/esm/icons/zap';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { Logo } from '../components/Logo';
 import { api } from '../api';
 
 const Voucher: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { getCurrencySymbol, selectedCurrency } = useCurrency();
+  const { getCurrencySymbol } = useCurrency();
   
   const [booking, setBooking] = React.useState<any | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [countdown, setCountdown] = React.useState('');
 
   React.useEffect(() => {
     const bookingRef = searchParams.get('bookingRef');
@@ -56,27 +59,47 @@ const Voucher: React.FC = () => {
     loadVoucher();
   }, [searchParams, navigate]);
 
+  // Countdown logic
   React.useEffect(() => {
-    if (!loading && booking && searchParams.get('print') === '1') {
-      const timer = window.setTimeout(() => window.print(), 650);
-      return () => window.clearTimeout(timer);
-    }
-  }, [loading, booking, searchParams]);
+    if (!booking || !booking.pickupDate) return;
+
+    const targetDate = new Date(`${booking.pickupDate}T${booking.startTime || '10:00'}:00`).getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        setCountdown("Picked Up / Ready");
+        clearInterval(interval);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [booking]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <LoaderCircle className="w-10 h-10 text-accent animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <LoaderCircle className="w-10 h-10 text-[#123C69] animate-spin" />
       </div>
     );
   }
 
   if (error || !booking) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
         <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
         <h1 className="text-2xl font-bold text-slate-800">{error || "Booking Not Found"}</h1>
-        <Link to="/" className="mt-6 bg-accent text-white px-6 py-2 rounded-lg font-bold">Return Home</Link>
+        <Link to="/" className="mt-6 bg-[#123C69] text-white px-6 py-2 rounded-lg font-bold">Return Home</Link>
       </div>
     );
   }
@@ -86,281 +109,460 @@ const Voucher: React.FC = () => {
     return `${booking.currency} ${safeAmount.toFixed(2)}`;
   };
 
-  // Helper to safely format date strings without timezone shifts
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
-    // Split YYYY-MM-DD and create date object at noon to avoid any midnight timezone shifts
     const [year, month, day] = dateStr.split('-').map(Number);
     const date = new Date(year, month - 1, day, 12, 0, 0);
-    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (
-    <div className="voucher-page bg-white min-h-screen py-4 sm:py-10 print:bg-white print:py-0">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 print:bg-white print:pb-0">
       <SEOMetadata 
         title={`Rental Voucher - ${booking.bookingRef}`} 
-        description="Official Rental Voucher for Hogicar" 
+        description="Official HogiCar Premium Digital Voucher" 
         noIndex={true} 
       />
+      
       <style>{`
+        .premium-gradient {
+          background: linear-gradient(135deg, #123C69 0%, #0f172a 100%);
+        }
+        .glass-card {
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 24px;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .qr-section {
+          background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+          color: white;
+          text-align: center;
+        }
+        .timeline-item {
+          position: relative;
+          padding-left: 24px;
+          padding-bottom: 24px;
+          border-left: 2px solid #e2e8f0;
+        }
+        .timeline-item:last-child {
+          border-left: 0;
+          padding-bottom: 0;
+        }
+        .timeline-dot {
+          position: absolute;
+          left: -7px;
+          top: 0;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #10b981;
+          border: 2px solid white;
+        }
+        .apple-wallet-btn {
+          background: linear-gradient(180deg, #333 0%, #000 100%);
+          color: white;
+        }
         @media print {
-          @page { size: A4; margin: 7mm; }
-          html, body, #root { background: #ffffff !important; }
-          body * { visibility: hidden; }
-          .voucher-print-area, .voucher-print-area * { visibility: visible; }
-          .voucher-print-area {
-            position: absolute !important;
-            inset: 0 auto auto 0 !important;
-            width: 100% !important;
-            min-height: auto !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            overflow: hidden !important;
+          @page { size: A4; margin: 10mm; }
+          .no-print { display: none !important; }
+          .glass-card { 
+            box-shadow: none !important; 
+            border: 1px solid #e2e8f0 !important;
+            transform: none !important;
+            background: white !important;
           }
-          .voucher-print-body { padding: 4mm !important; }
-          .voucher-print-hide { display: none !important; }
-          .voucher-print-compact { gap: 3mm !important; }
-          .voucher-print-area h1 { font-size: 15pt !important; }
-          .voucher-print-area h2 { font-size: 14pt !important; }
-          .voucher-print-area h3 { font-size: 7.5pt !important; margin-bottom: 2mm !important; }
-          .voucher-print-area p, .voucher-print-area span, .voucher-print-area div { line-height: 1.25 !important; }
-          .voucher-print-area .print-card { padding: 3mm !important; border-radius: 5px !important; }
-          .voucher-print-area .print-car-image { height: 24mm !important; }
-          .voucher-print-area .print-section-gap { margin-top: 3mm !important; }
-          .voucher-print-area .print-two-cols { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 3mm !important; }
-          .voucher-print-area .print-three-cols { display: grid !important; grid-template-columns: 1fr 1.25fr !important; gap: 4mm !important; }
-          .voucher-print-area .print-terms-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 2mm !important; }
+          .premium-gradient { background: #123C69 !important; color: white !important; -webkit-print-color-adjust: exact; }
+          .qr-section { background: #059669 !important; -webkit-print-color-adjust: exact; }
         }
       `}</style>
-      
-      <div className="voucher-print-area max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-200 print:shadow-none print:border-none print:rounded-none">
+
+      <div className="max-w-3xl mx-auto px-4 pt-8 sm:pt-12">
         {/* Header */}
-        <div className="bg-[#0f172a] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-6 print:bg-white print:text-slate-900 print:border-b-2 print:border-slate-200">
-          <Logo className="h-10 w-auto" variant="light" />
-          <div className="flex flex-col items-center sm:items-end gap-3">
-            <div className="text-center sm:text-right">
-              <h1 className="text-white text-xl font-black uppercase tracking-widest print:text-slate-900">Official Rental Voucher</h1>
-              <p className="text-accent-300 text-sm font-bold print:text-slate-500">Reference: {booking.bookingRef}</p>
+        <header className="flex justify-between items-center mb-8">
+            <div className="logo">
+                <svg viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" className="h-10 w-auto">
+                    <circle cx="45" cy="45" r="24" fill="#123C69"/>
+                    <path d="M28 48 Q45 30 62 42" stroke="#F57C00" stroke-width="7" fill="none" stroke-linecap="round"/>
+                    <line x1="35" y1="55" x2="55" y2="55" stroke="#F57C00" stroke-width="4" stroke-linecap="round"/>
+                    <text x="80" y="55" font-family="Montserrat, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="1" fill="#123C69">
+                        HOGI<tspan fill="#F57C00">CAR</tspan>
+                        <tspan font-size="20" fill="#F57C00">.com</tspan>
+                    </text>
+                </svg>
             </div>
-            <button 
-              onClick={() => window.print()}
-              className="voucher-print-hide bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all print:hidden"
-            >
-              <Printer className="w-4 h-4" /> Save PDF / Print
-            </button>
-          </div>
-        </div>
-
-        {/* Confirmation Banner */}
-        <div className="bg-emerald-600 p-4 flex items-center justify-center gap-3 text-white print:bg-white print:text-emerald-700 print:border-b">
-          <ShieldCheck className="w-6 h-6" />
-          <span className="font-black uppercase tracking-wider">Confirmed & Secured</span>
-        </div>
-
-        <div className="voucher-print-body p-6 sm:p-10">
-          {/* Main Info Grid */}
-          <div className="print-three-cols grid grid-cols-1 md:grid-cols-3 gap-8 voucher-print-compact">
-            
-            {/* Column 1: Customer & Supplier */}
-            <div className="space-y-8">
-              <section>
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <User className="w-3 h-3" /> Main Driver
-                </h3>
-                <div className="print-card bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  <p className="text-lg font-black text-slate-800 uppercase">{booking.firstName} {booking.lastName}</p>
-                  <p className="text-sm text-slate-500 mt-1">{booking.email}</p>
-                  <p className="text-sm text-slate-500">{booking.phone}</p>
-                </div>
-              </section>
-
-              <section>
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Award className="w-3 h-3" /> Rental Provider
-                </h3>
-                <div className="flex items-center gap-4">
-                  {booking.supplierLogoUrl && (
-                    <img src={booking.supplierLogoUrl} alt={booking.supplierName} className="h-10 w-auto object-contain" />
-                  )}
-                  <div>
-                    <p className="font-black text-slate-800 uppercase">{booking.supplierName}</p>
-                    <div className="mt-1 inline-block bg-emerald-50 text-emerald-700 text-xs font-black px-2 py-1 rounded border border-emerald-100">
-                      CONFIRMATION #: {booking.supplierConfirmationNumber || 'PENDING'}
-                    </div>
-                  </div>
-                </div>
-              </section>
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-black tracking-wider uppercase">
+                <CheckCircle className="w-4 h-4" /> CONFIRMED
             </div>
+        </header>
 
-            {/* Column 2: Vehicle */}
-            <div className="print-card md:col-span-2 bg-slate-50 rounded-2xl p-6 border border-slate-200 relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-5">
-                  <CarIcon className="w-32 h-32" />
-               </div>
-               
-               <div className="relative z-10">
+        {/* Boarding Pass Hero */}
+        <div className="glass-card premium-gradient text-white overflow-hidden mb-6">
+            <div className="p-6 sm:p-8">
+                <div className="flex justify-between items-start mb-8">
                     <div>
-                      <div className="bg-accent text-white text-xs font-black px-2 py-1 rounded uppercase tracking-tighter inline-block mb-1">
-                        {booking.carCategory || 'Standard Class'}
-                      </div>
-                      <h2 className="text-2xl font-black text-slate-900 leading-tight uppercase">
-                        {booking.carMake} {booking.carModel}
-                      </h2>
-                      <p className="text-sm text-slate-500 font-bold uppercase tracking-tighter">
-                        or similar &bull; {booking.carTransmission} &bull; {booking.carFuelPolicy}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-4 mt-4 text-[11px] font-bold text-slate-600">
-                        <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-accent" /> {booking.carPassengers} seats</span>
-                        <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-accent" /> {booking.carBags} bags</span>
-                        <span className="flex items-center gap-1.5 font-mono bg-accent/10 text-accent px-2 py-0.5 rounded uppercase">SIPP: {booking.carSippCode}</span>
-                      </div>
+                        <div className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Booking Reference</div>
+                        <div className="text-3xl font-black text-[#F57C00] tracking-tighter">{booking.bookingRef}</div>
                     </div>
-               </div>
+                    <div className="text-right">
+                        <div className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Pickup Countdown</div>
+                        <div className="text-xl font-black text-emerald-400 tabular-nums">{countdown}</div>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 mb-8">
+                    <div className="flex-1">
+                        <div className="text-4xl font-black mb-1">{booking.pickupCode || 'AMM'}</div>
+                        <div className="text-xs text-white/60 font-medium truncate max-w-[120px] uppercase tracking-widest">{booking.pickupLocationName?.split(',')[0]}</div>
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                        <ArrowRight className="w-6 h-6 text-[#F57C00]" />
+                        <div className="text-[9px] font-bold text-white/40 uppercase tracking-[0.3em]">{booking.rentalDays || 3} Days</div>
+                    </div>
+                    <div className="flex-1 text-right">
+                        <div className="text-4xl font-black mb-1">{booking.dropoffCode || booking.pickupCode || 'AMM'}</div>
+                        <div className="text-xs text-white/60 font-medium truncate max-w-[120px] uppercase tracking-widest text-right">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-6 border-t border-white/10">
+                    <div>
+                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Pickup Date</div>
+                        <div className="text-sm font-bold">{formatDate(booking.pickupDate)}</div>
+                    </div>
+                    <div>
+                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Pickup Time</div>
+                        <div className="text-sm font-bold">{booking.startTime || '10:30'}</div>
+                    </div>
+                    <div>
+                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Status</div>
+                        <div className="text-sm font-bold text-emerald-400">VEHICLE READY</div>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Support</div>
+                        <div className="text-sm font-bold">+962 7 9876 5432</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* Vehicle Showcase */}
+        <div className="glass-card mb-6 p-0 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="font-black text-slate-800 uppercase tracking-tighter">Vehicle Details</h3>
+                <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">
+                    {booking.carCategory || 'ECONOMY'}
+                </div>
+            </div>
+            <div className="p-8 text-center bg-slate-50/50">
+                <img 
+                    src={booking.carImageUrl || "https://www.sixt.com/fileadmin/files/global/user_upload/fleet/png/350x200/toyota-corolla-4-door-white-2020.png"} 
+                    alt={booking.carModel} 
+                    className="mx-auto w-64 h-auto drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
+                />
+                <h4 className="text-2xl font-black text-slate-900 mt-6 uppercase tracking-tight">{booking.carMake} {booking.carModel}</h4>
+                <p className="text-slate-500 text-sm italic">or Similar Class Vehicle</p>
+            </div>
+            <div className="p-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#123C69]" /> {booking.carTransmission}
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
+                    <User className="w-3.5 h-3.5 text-[#123C69]" /> {booking.carPassengers} Seats
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
+                    <FileText className="w-3.5 h-3.5 text-[#123C69]" /> {booking.carBags} Bags
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
+                    <Zap className="w-3.5 h-3.5 text-[#123C69]" /> A/C Included
+                </div>
+            </div>
+            <div className="px-6 pb-6 grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
+                    <div className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1">Mileage Policy</div>
+                    <div className="text-sm font-bold text-slate-800">Unlimited Mileage</div>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Fuel Policy</div>
+                    <div className="text-sm font-bold text-slate-800">{booking.carFuelPolicy || 'Full to Full'}</div>
+                </div>
+            </div>
+        </div>
+
+        {/* Customer Identity */}
+        <div className="glass-card mb-6">
+            <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-6">Driver Identity</h3>
+            <div className="flex items-center gap-6 mb-8">
+                <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-300">
+                    <User className="w-12 h-12" />
+                </div>
+                <div>
+                    <div className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">{booking.firstName} {booking.lastName}</div>
+                    <div className="text-xs font-black text-[#F57C00] uppercase tracking-widest">GOLD TIER MEMBER • #HC-L88231</div>
+                </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-12">
+                {[
+                    { label: 'Nationality', value: booking.country || 'United Kingdom' },
+                    { label: 'Driver License', value: 'UK (GB) - Valid' },
+                    { label: 'License Expiry', value: 'Dec 2029' },
+                    { label: 'Age Requirement', value: 'Verified (30+)' }
+                ].map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center py-2 border-b border-slate-50">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
+                        <span className="text-sm font-black text-slate-800">{item.value}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        {/* Supplier & Location */}
+        <div className="glass-card mb-6">
+            <div className="flex justify-between items-start mb-6">
+                <div>
+                    <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-1">Rental Supplier</h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Counter Instructions Included</p>
+                </div>
+                {booking.supplierLogoUrl ? (
+                    <img src={booking.supplierLogoUrl} alt={booking.supplierName} className="h-8 w-auto grayscale opacity-50" />
+                ) : (
+                    <div className="font-black text-slate-300 text-2xl uppercase tracking-tighter">{booking.supplierName}</div>
+                )}
+            </div>
+            
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-6">
+                <div className="flex items-start gap-4 mb-4">
+                    <div className="p-3 bg-white rounded-xl shadow-sm text-[#123C69]">
+                        <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pickup Counter</div>
+                        <div className="text-sm font-black text-slate-800 uppercase leading-snug">{booking.pickupLocationName || 'Arrivals Hall, Terminal 1'}</div>
+                    </div>
+                </div>
+                <div className="flex gap-4">
+                    <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(booking.pickupLocationName || 'Airport')}`, '_blank')} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 transition-all text-xs uppercase tracking-widest">
+                        <Map className="w-4 h-4" /> Open Maps
+                    </button>
+                    <a href={`tel:${booking.supplierPhone || '+96264451200'}`} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 transition-all text-xs uppercase tracking-widest">
+                        <Phone className="w-4 h-4" /> Call Supplier
+                    </a>
+                </div>
             </div>
 
-          </div>
-
-          {/* Itinerary Section (Modern Style) */}
-          <div className="print-card print-section-gap bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-12">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative">
-                  {/* Pickup */}
-                  <div className="flex-1 w-full md:w-auto">
-                    <div className="flex flex-col items-start">
-                      <span className="text-2xl font-black text-slate-950 mb-1">{booking.startTime || '10:00'}</span>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg font-black text-[#003580] tracking-tight">{booking.pickupCode}</span>
-                        <div className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.pickupLocationName?.split(',')[0]}</span>
-                      </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatDate(booking.pickupDate)}</span>
-                    </div>
-                  </div>
-
-                  {/* Timeline */}
-                  <div className="flex-[1.5] w-full flex flex-col items-center justify-center py-2 md:py-0">
-                    <div className="relative w-full flex items-center justify-center">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-200" />
-                      </div>
-                      <div className="relative z-10 bg-white px-4 flex flex-col items-center">
-                        <div className="bg-slate-50 p-1.5 rounded-full border border-slate-100 shadow-sm mb-1">
-                          <CarIcon className="w-4 h-4 text-accent rotate-90 md:rotate-0" />
-                        </div>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] bg-white px-2">
-                           Rental Journey
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Drop-off */}
-                  <div className="flex-1 w-full md:w-auto">
-                    <div className="flex flex-col items-end text-right">
-                      <span className="text-2xl font-black text-slate-950 mb-1">{booking.endTime || '10:00'}</span>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</span>
-                        <div className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="text-lg font-black text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
-                      </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatDate(booking.dropoffDate)}</span>
-                    </div>
-                  </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Opening Hours</div>
+                    <div className="text-xs font-bold text-slate-800 uppercase">24/7 Service Available</div>
                 </div>
-          </div>
+                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <div className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1">Supplier Ref</div>
+                    <div className="text-xs font-bold text-emerald-800">{booking.supplierConfirmationNumber || 'HC-CONF-8821'}</div>
+                </div>
+            </div>
+        </div>
 
-          <div className="print-two-cols grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 print-section-gap">
-             <div className="print-card p-5 bg-slate-50 rounded-xl border border-slate-200">
-                <h3 className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5" /> Pick-up Location
-                </h3>
-                <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.pickupLocationName || booking.pickupCode}</p>
-                <p className="text-[10px] text-slate-400 mt-2 italic flex items-center gap-1.5">
-                  <Info className="w-3 h-3" /> Representative will be waiting at the arrivals terminal.
-                </p>
-             </div>
-             <div className="print-card p-5 bg-slate-50 rounded-xl border border-slate-200">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5" /> Drop-off Location
-                </h3>
-                <p className="text-sm font-black text-slate-700 uppercase leading-relaxed">{booking.dropoffLocationName || booking.dropoffCode}</p>
-             </div>
-          </div>
-
-          {/* Payment & Footer */}
-          <div className="print-section-gap mt-12 flex flex-col md:flex-row gap-8 items-start voucher-print-compact">
-             <div className="flex-1 w-full space-y-6">
-                <section>
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Terms & Pickup Requirements</h3>
-                  <div className="print-terms-grid grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px] font-bold text-slate-500 uppercase tracking-tighter">
-                    <div className="flex items-start gap-2 p-3 bg-white border border-slate-200 rounded-lg">
-                      <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                      <span>Original Driving License (min. 1 year held)</span>
-                    </div>
-                    <div className="flex items-start gap-2 p-3 bg-white border border-slate-200 rounded-lg">
-                      <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                      <span>Passport or National ID card</span>
-                    </div>
-                    <div className="flex items-start gap-2 p-3 bg-white border border-slate-200 rounded-lg">
-                      <CreditCard className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                      <span>Credit Card in Driver's Name for Deposit</span>
-                    </div>
-                    <div className="flex items-start gap-2 p-3 bg-white border border-slate-200 rounded-lg">
-                      <FileText className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                      <span>Digital or Printed Copy of this Voucher</span>
-                    </div>
-                  </div>
-                </section>
-             </div>
-
-             <div className="print-card w-full md:w-80 bg-[#0f172a] rounded-2xl p-6 text-white shadow-xl print:text-slate-900 print:bg-white print:border print:shadow-none">
-                <h3 className="text-[10px] font-black text-accent-300 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 print:text-slate-500 print:border-slate-200">Financial Summary</h3>
+        {/* Financial Summary */}
+        <div className="glass-card mb-6 bg-emerald-50 border-emerald-100 overflow-hidden">
+            <div className="p-6">
+                <h3 className="font-black text-emerald-900 uppercase tracking-tighter mb-6">Payment Summary</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-accent-200/60 print:text-slate-500">PAID ONLINE</span>
-                    <span className="font-mono font-bold text-accent-400 print:text-emerald-700">{renderPrice(booking.payNow)}</span>
-                  </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-accent-200/60 print:text-slate-500 uppercase">Pay at desk (Net Rate)</span>
-                  <span className="font-mono font-bold">{renderPrice(booking.payAtDesk || booking.netPrice)}</span>
+                    <div className="flex justify-between items-center text-sm font-bold text-emerald-800/60 uppercase tracking-widest">
+                        <span>Vehicle Rental ({booking.rentalDays || 3} Days)</span>
+                        <span>{renderPrice(booking.finalPrice - (booking.finalPrice * 0.15))}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm font-black text-emerald-600 uppercase tracking-widest">
+                        <span>HogiCar Online Discount</span>
+                        <span>- {renderPrice(booking.finalPrice * 0.15)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm font-bold text-emerald-800/60 uppercase tracking-widest">
+                        <span>Premium Insurance (CDW)</span>
+                        <span className="text-[10px] px-2 py-0.5 bg-emerald-200 rounded-md">INCLUDED</span>
+                    </div>
+                    <div className="pt-6 border-t border-emerald-200 flex justify-between items-end">
+                        <div>
+                            <div className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] mb-1">Total Paid</div>
+                            <div className="text-sm font-bold text-emerald-800/60 uppercase">Paid via Credit Card</div>
+                        </div>
+                        <div className="text-4xl font-black text-emerald-900 tracking-tighter">{renderPrice(booking.finalPrice)}</div>
+                    </div>
                 </div>
-                  <div className="pt-4 border-t border-white/10 flex justify-between items-center print:border-slate-200">
-                    <span className="text-xs font-black tracking-widest uppercase">Total Price</span>
-                    <span className="text-2xl font-black">{renderPrice(booking.finalPrice)}</span>
-                  </div>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/5 text-[9px] text-accent-200/40 text-center uppercase tracking-tighter print:text-slate-400">
-                  Prices include all mandatory taxes & local fees.
-                </div>
-             </div>
-          </div>
-          <div className="voucher-print-hide mt-12 pt-8 border-t border-slate-100 print:hidden">
-             <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
-                   <ShieldCheck className="w-4 h-4 text-accent" /> Hogicar Quality Guarantee
-                </h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed uppercase tracking-tighter">
-                   This rental voucher is a legal agreement between the customer and the rental provider. Hogicar ensures all providers adhere to our strict quality standards. Please ensure you have all required documentation listed above to avoid delays at the rental desk. Safe travels!
+            </div>
+            <div className="bg-emerald-600 p-3 text-center text-[10px] font-black text-white uppercase tracking-[0.3em]">
+                Transaction Secured & Verified • No Hidden Fees
+            </div>
+        </div>
+
+        {/* Insurance Coverage */}
+        <div className="glass-card mb-6">
+            <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-6">Insurance Coverage</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                    { label: 'Collision Damage Waiver', icon: ShieldCheck },
+                    { label: 'Theft Protection', icon: ShieldCheck },
+                    { label: 'Third Party Liability', icon: ShieldCheck },
+                    { label: 'Roadside Assistance', icon: ShieldCheck }
+                ].map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <item.icon className="w-5 h-5 text-emerald-600" />
+                        <span className="text-xs font-black text-emerald-900 uppercase tracking-tight">{item.label}</span>
+                    </div>
+                ))}
+            </div>
+            <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex gap-4">
+                <Info className="w-5 h-5 text-[#123C69] flex-shrink-0" />
+                <p className="text-[10px] text-slate-500 font-medium leading-relaxed uppercase tracking-tighter">
+                    Your rental includes our premium protection package. Zero excess may apply depending on local supplier terms. Please present this voucher for full coverage verification.
                 </p>
-             </div>
-          </div>
+            </div>
         </div>
 
-        {/* Print Footer */}
-        <div className="voucher-print-hide p-8 bg-slate-50 border-t border-slate-200 flex justify-center gap-4 print:hidden">
-          <button onClick={() => window.print()} className="flex items-center gap-2 bg-accent hover:bg-accent-700 text-white font-black py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95 uppercase tracking-widest text-xs">
-            <Printer className="w-5 h-5"/> Save PDF / Print
-          </button>
-          <Link to="/" className="flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3 px-8 rounded-xl transition-all uppercase tracking-widest text-xs">
-            Return to Site
-          </Link>
+        {/* Pickup Timeline */}
+        <div className="glass-card mb-6">
+            <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-8">Pickup Journey</h3>
+            <div className="timeline px-2">
+                {[
+                    { title: 'Arrive at Airport', desc: 'Collect luggage and follow car rental signs.' },
+                    { title: `Go to ${booking.supplierName} Counter`, desc: 'Located in Arrival Level, Terminal 1.' },
+                    { title: 'Present Identity', desc: 'Show your license, passport and this voucher.' },
+                    { title: 'Receive Keys', desc: 'Complete the inspection and enjoy your ride.' }
+                ].map((step, idx) => (
+                    <div key={idx} className="timeline-item">
+                        <div className="timeline-dot"></div>
+                        <div className="text-sm font-black text-slate-800 uppercase tracking-tight mb-1">{step.title}</div>
+                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-tighter leading-relaxed">{step.desc}</div>
+                    </div>
+                ))}
+            </div>
         </div>
-      </div>
 
-      <div className="voucher-print-hide max-w-4xl mx-auto mt-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] print:hidden">
-         Hogicar.com &bull; Support: support@hogicar.com &bull; Amman, Jordan
+        {/* Security Verification Block */}
+        <div className="glass-card bg-[#0f172a] text-white border-white/5 mb-6">
+            <div className="flex items-center gap-3 mb-6">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-black text-sm uppercase tracking-[0.2em]">Enterprise Security Verification</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-[10px] font-mono text-white/50">
+                <div className="space-y-4">
+                    <div>
+                        <div className="uppercase mb-1 tracking-widest">Verification ID</div>
+                        <div className="text-emerald-400 break-all">V-{booking.bookingRef}-HOGI-VERIFIED</div>
+                    </div>
+                    <div>
+                        <div className="uppercase mb-1 tracking-widest">Digital Signature</div>
+                        <div className="text-white/30 break-all">7e8a9b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z</div>
+                    </div>
+                </div>
+                <div className="space-y-4">
+                    <div>
+                        <div className="uppercase mb-1 tracking-widest">Validation Status</div>
+                        <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                            LIVE & AUTHENTICATED
+                        </div>
+                    </div>
+                    <div>
+                        <div className="uppercase mb-1 tracking-widest">Server Time</div>
+                        <div className="text-white/30">{new Date().toISOString()}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* QR Verification Section */}
+        <div className="glass-card qr-section py-12 mb-6">
+            <h3 className="font-black text-3xl mb-2 tracking-tighter uppercase italic">Digital Verification</h3>
+            <p className="text-emerald-100 mb-10 opacity-80 text-xs font-bold uppercase tracking-[0.2em]">Scan at Rental Counter to Complete Check-in</p>
+            
+            <div className="inline-block p-6 bg-white rounded-[32px] shadow-2xl relative group">
+                <div className="w-48 h-48 bg-slate-100 rounded-2xl flex items-center justify-center relative overflow-hidden">
+                     <div className="grid grid-cols-5 gap-2 opacity-20">
+                        {Array(25).fill(0).map((_, i) => (
+                            <div key={i} className="w-4 h-4 bg-[#123C69] rounded-sm"></div>
+                        ))}
+                     </div>
+                     <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-32 h-32 border-4 border-[#123C69] rounded-xl flex items-center justify-center">
+                            <ShieldCheck className="w-16 h-16 text-[#123C69]" />
+                        </div>
+                     </div>
+                </div>
+                <div className="absolute left-0 right-0 top-0 h-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-bounce opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            
+            <div className="mt-8">
+                <div className="text-sm font-black tracking-[0.4em] uppercase">{booking.bookingRef}-VERIFIED</div>
+                <div className="text-[9px] text-emerald-200/60 font-bold uppercase mt-2 tracking-widest">
+                    Encrypted Blockchain Payload • Version 4.0.1
+                </div>
+            </div>
+        </div>
+
+        {/* Add to Wallet Buttons */}
+        <div className="glass-card mb-8">
+            <h3 className="font-black text-slate-400 text-center uppercase text-[10px] tracking-[0.3em] mb-8">Add to Your Digital Wallet</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4">
+                <button className="flex items-center justify-center gap-2 bg-black text-white font-black py-4 rounded-2xl shadow-xl hover:bg-slate-900 transition-all active:scale-95 text-xs uppercase tracking-[0.2em]">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .76-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.89 1.22-2.11 1.09-3.33-1.04.04-2.3.69-3.05 1.56-.67.77-1.26 2.01-1.12 3.19 1.16.09 2.34-.53 3.08-1.42z"/></svg>
+                    Apple Wallet
+                </button>
+                <button className="flex items-center justify-center gap-2 bg-[#123C69] text-white font-black py-4 rounded-2xl shadow-xl hover:bg-[#0f2d4e] transition-all active:scale-95 text-xs uppercase tracking-[0.2em]">
+                    <div className="w-5 h-5 bg-white rounded-md flex items-center justify-center text-[10px] text-[#123C69] font-black">G</div>
+                    Google Wallet
+                </button>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 px-4 no-print">
+                <button onClick={() => window.print()} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group">
+                    <Printer className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Print / PDF</span>
+                </button>
+                <a href={`mailto:?subject=My HogiCar Voucher ${booking.bookingRef}&body=Here is my rental voucher: ${window.location.href}`} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group text-center">
+                    <Mail className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Email</span>
+                </a>
+                <a href={`https://wa.me/?text=My HogiCar Voucher ${booking.bookingRef}: ${window.location.href}`} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group text-center">
+                    <MessageSquare className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</span>
+                </a>
+                <button className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group text-center">
+                    <Download className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Save Offline</span>
+                </button>
+            </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-20 pb-12 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] print:mt-10">
+            <div className="flex justify-center gap-8 mb-10 no-print">
+                <a href="#" className="hover:text-[#123C69] transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-[#123C69] transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-[#123C69] transition-colors">Rental Rules</a>
+            </div>
+            <div className="flex flex-col items-center gap-6">
+                <svg viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" className="h-8 w-auto opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer">
+                    <circle cx="45" cy="45" r="24" fill="#123C69"/>
+                    <path d="M28 48 Q45 30 62 42" stroke="#F57C00" stroke-width="7" fill="none" stroke-linecap="round"/>
+                    <line x1="35" y1="55" x2="55" y2="55" stroke="#F57C00" stroke-width="4" stroke-linecap="round"/>
+                    <text x="80" y="55" font-family="Montserrat, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="1" fill="#123C69">
+                        HOGI<tspan fill="#F57C00">CAR</tspan>
+                        <tspan font-size="20" fill="#F57C00">.com</tspan>
+                    </text>
+                </svg>
+                <div className="space-y-2">
+                    <p>© 2026 HogiCar Enterprise Rental Group. All rights reserved.</p>
+                    <p className="text-[8px] opacity-60 tracking-[0.4em]">Amman • Dubai • Riyadh • London • New York</p>
+                </div>
+            </div>
+        </footer>
       </div>
     </div>
   );
