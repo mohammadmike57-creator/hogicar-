@@ -129,9 +129,15 @@ const DynamicPage: React.FC = () => {
         const { routeType, locationSlug } = detectRouteType(route);
         if (routeType) {
           const dynamicSEO = getRouteSEO(routeType, locationSlug, route);
+          
+          // Map granular routeType to canonical types expected by Home component
+          let seoRouteType = 'CITY';
+          if (routeType === 'country' || routeType === 'rentACar') seoRouteType = 'COUNTRY';
+          if (routeType === 'airportCarRental' || routeType === 'cheapAirport' || routeType === 'airportSpecific') seoRouteType = 'AIRPORT';
+
           const fallbackConfig = {
             route: route,
-            routeType: routeType.toUpperCase(),
+            routeType: seoRouteType,
             title: dynamicSEO.title,
             description: dynamicSEO.description,
             h1Title: dynamicSEO.title.split(' – ')[0], // Extract H1 from title
