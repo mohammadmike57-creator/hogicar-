@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
@@ -31,7 +30,7 @@ const Voucher: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { getCurrencySymbol } = useCurrency();
-  
+
   const [booking, setBooking] = React.useState<any | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -49,8 +48,8 @@ const Voucher: React.FC = () => {
         const data = await api.getBookingByRef(bookingRef);
         setBooking(data);
       } catch (err: any) {
-        console.error("Voucher load error:", err);
-        setError("Voucher not found. Please verify your booking reference.");
+        console.error('Voucher load error:', err);
+        setError('Voucher not found. Please verify your booking reference.');
       } finally {
         setLoading(false);
       }
@@ -59,25 +58,30 @@ const Voucher: React.FC = () => {
     loadVoucher();
   }, [searchParams, navigate]);
 
-  // Countdown logic
   React.useEffect(() => {
     if (!booking || !booking.pickupDate) return;
 
-    const targetDate = new Date(`${booking.pickupDate}T${booking.startTime || '10:00'}:00`).getTime();
+    const targetDate = new Date(
+      `${booking.pickupDate}T${booking.startTime || '10:00'}:00`
+    ).getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate - now;
 
       if (distance < 0) {
-        setCountdown("Picked Up / Ready");
+        setCountdown('Picked Up / Ready');
         clearInterval(interval);
         return;
       }
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor(
+        (distance % (1000 * 60 * 60)) / (1000 * 60)
+      );
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
       setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
@@ -88,18 +92,25 @@ const Voucher: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <LoaderCircle className="w-10 h-10 text-[#123C69] animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f3ec]">
+        <LoaderCircle className="h-10 w-10 animate-spin text-[#e88b4a]" />
       </div>
     );
   }
 
   if (error || !booking) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
-        <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-        <h1 className="text-2xl font-bold text-slate-800">{error || "Booking Not Found"}</h1>
-        <Link to="/" className="mt-6 bg-[#123C69] text-white px-6 py-2 rounded-lg font-bold">Return Home</Link>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#f7f3ec] p-4 text-center">
+        <AlertCircle className="mb-4 h-16 w-16 text-red-500" />
+        <h1 className="text-2xl font-bold text-slate-800">
+          {error || 'Booking Not Found'}
+        </h1>
+        <Link
+          to="/"
+          className="mt-6 rounded-lg bg-[#e88b4a] px-6 py-2 font-bold text-white hover:bg-[#d97a35]"
+        >
+          Return Home
+        </Link>
       </div>
     );
   }
@@ -113,457 +124,1463 @@ const Voucher: React.FC = () => {
     if (!dateStr) return '';
     const [year, month, day] = dateStr.split('-').map(Number);
     const date = new Date(year, month - 1, day, 12, 0, 0);
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const formatTime = (timeStr: string) => {
+    if (!timeStr) return '';
+    const [h, m] = timeStr.split(':');
+    const hour = parseInt(h, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${m} ${ampm}`;
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 print:bg-white print:pb-0">
-      <SEOMetadata 
-        title={`Rental Voucher - ${booking.bookingRef}`} 
-        description="Official HogiCar Premium Digital Voucher" 
-        noIndex={true} 
+    <div className="min-h-screen bg-[#f7f3ec] pb-20 text-[#1a1a1a] transition-colors duration-300 dark:bg-[#0f0e0d] dark:text-[#e8e0d8]">
+      <SEOMetadata
+        title={`Travel Credential - ${booking.bookingRef}`}
+        description="Official HogiCar premium travel credential"
+        noIndex
       />
-      
+
       <style>{`
-        .premium-gradient {
-          background: linear-gradient(135deg, #123C69 0%, #0f172a 100%);
+        /* ---------- TRAVEL CREDENTIAL STYLES ---------- */
+        .credential {
+          max-width: 820px;
+          width: 100%;
+          margin: 0 auto;
         }
-        .glass-card {
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 24px;
-          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        .chapter {
+          background: #ffffff;
+          border-radius: 2rem;
+          padding: 1.75rem 2rem 2rem;
+          margin-bottom: 1.25rem;
+          border: 1px solid rgba(0, 0, 0, 0.02);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+          transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .glass-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+
+        .dark .chapter {
+          background: #1c1816;
+          border-color: #2c2622;
         }
-        .qr-section {
-          background: linear-gradient(135deg, #059669 0%, #065f46 100%);
-          color: white;
-          text-align: center;
+
+        .index {
+          font-size: 0.55rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #b8a99a;
+          margin-bottom: 0.75rem;
         }
-        .timeline-item {
+
+        .dark .index {
+          color: #6b5f55;
+        }
+
+        /* Opening */
+        .opening {
+          background: linear-gradient(145deg, #1a1a1a 0%, #2d2a26 100%);
+          border-radius: 2rem;
+          padding: 2.5rem 2.5rem 2rem;
+          margin-bottom: 1.25rem;
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
           position: relative;
-          padding-left: 24px;
-          padding-bottom: 24px;
-          border-left: 2px solid #e2e8f0;
+          overflow: hidden;
         }
-        .timeline-item:last-child {
-          border-left: 0;
-          padding-bottom: 0;
+
+        .dark .opening {
+          background: linear-gradient(145deg, #0f0e0d 0%, #1c1816 100%);
         }
-        .timeline-dot {
-          position: absolute;
-          left: -7px;
-          top: 0;
-          width: 12px;
-          height: 12px;
+
+        .brand-lockup {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-weight: 800;
+          font-size: 1.3rem;
+          color: #fff;
+          letter-spacing: -0.02em;
+          margin-bottom: 0.5rem;
+        }
+
+        .brand-lockup b {
+          color: #e88b4a;
+        }
+
+        .brand-mark {
+          display: inline-block;
+          width: 30px;
+          height: 30px;
+          background: #e88b4a;
           border-radius: 50%;
-          background: #10b981;
-          border: 2px solid white;
+          position: relative;
+          flex-shrink: 0;
         }
-        .apple-wallet-btn {
-          background: linear-gradient(180deg, #333 0%, #000 100%);
-          color: white;
+
+        .brand-mark::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 14px;
+          height: 7px;
+          background: #fff;
+          border-radius: 3px 3px 0 0;
+          box-shadow: 0 5px 0 #fff;
         }
-        @media print {
-          @page { size: A4; margin: 10mm; }
-          .no-print { display: none !important; }
-          .glass-card { 
-            box-shadow: none !important; 
-            border: 1px solid #e2e8f0 !important;
-            transform: none !important;
-            background: white !important;
+
+        .opening .status {
+          font-size: 0.6rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: #7ccf9e;
+          background: rgba(124, 207, 158, 0.12);
+          display: inline-block;
+          padding: 0.2rem 0.8rem;
+          border-radius: 100px;
+          border: 1px solid rgba(124, 207, 158, 0.15);
+        }
+
+        .opening .reference {
+          font-size: 2.8rem;
+          font-weight: 900;
+          color: #e88b4a;
+          letter-spacing: -0.02em;
+          margin-top: 0.25rem;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .hero-car {
+          width: 100%;
+          max-width: 380px;
+          height: auto;
+          display: block;
+          margin: 0.5rem auto 0;
+          filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.4));
+          transition: transform 0.6s ease;
+        }
+
+        .hero-car:hover {
+          transform: scale(1.02);
+        }
+
+        /* Vehicle name */
+        .vehicle-name {
+          display: flex;
+          align-items: baseline;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+        }
+
+        .vehicle-name h1 {
+          font-size: 2rem;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+          color: #1a1a1a;
+        }
+
+        .dark .vehicle-name h1 {
+          color: #f0e8e0;
+        }
+
+        .vehicle-name span {
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: #b8a99a;
+          font-style: italic;
+        }
+
+        .quiet-specs {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+        }
+
+        .quiet-specs div {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .quiet-specs dt {
+          font-size: 0.55rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #b8a99a;
+        }
+
+        .quiet-specs dd {
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .dark .quiet-specs dd {
+          color: #e8e0d8;
+        }
+
+        @media (max-width: 480px) {
+          .quiet-specs {
+            grid-template-columns: repeat(2, 1fr);
           }
-          .premium-gradient { background: #123C69 !important; color: white !important; -webkit-print-color-adjust: exact; }
-          .qr-section { background: #059669 !important; -webkit-print-color-adjust: exact; }
+        }
+
+        /* Gate panel */
+        .gate-panel {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 1rem 1.5rem;
+        }
+
+        .gate-panel div {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .gate-panel .label {
+          font-size: 0.55rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #b8a99a;
+        }
+
+        .gate-panel strong {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .dark .gate-panel strong {
+          color: #e8e0d8;
+        }
+
+        @media (max-width: 560px) {
+          .gate-panel {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
+        /* Supplier */
+        .supplier-lockup {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .supplier-lockup img {
+          height: 32px;
+          width: auto;
+          filter: brightness(0);
+        }
+
+        .dark .supplier-lockup img {
+          filter: brightness(0) invert(1) opacity(0.8);
+        }
+
+        .supplier-lockup h2 {
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: #1a1a1a;
+        }
+
+        .dark .supplier-lockup h2 {
+          color: #e8e0d8;
+        }
+
+        .supplier-lines {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          font-size: 0.85rem;
+        }
+
+        .supplier-lines p {
+          color: #4a4440;
+          font-weight: 500;
+        }
+
+        .dark .supplier-lines p {
+          color: #b0a89e;
+        }
+
+        .supplier-lines a {
+          color: #e88b4a;
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.2s;
+        }
+
+        .supplier-lines a:hover {
+          color: #d97a35;
+        }
+
+        .supplier-lines span {
+          color: #b8a99a;
+          font-weight: 500;
+        }
+
+        /* Member card */
+        .member-card {
+          background: #f7f3ec;
+          border-radius: 1.5rem;
+          padding: 1.25rem 1.5rem;
+        }
+
+        .dark .member-card {
+          background: #2c2622;
+        }
+
+        .member-card > span {
+          font-size: 0.55rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #b8a99a;
+        }
+
+        .member-card strong {
+          display: block;
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 0.75rem;
+        }
+
+        .dark .member-card strong {
+          color: #f0e8e0;
+        }
+
+        .member-card dl {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 0.5rem 1rem;
+        }
+
+        .member-card dl div {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .member-card dl dt {
+          font-size: 0.5rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #b8a99a;
+        }
+
+        .member-card dl dd {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        .dark .member-card dl dd {
+          color: #e8e0d8;
+        }
+
+        @media (max-width: 480px) {
+          .member-card dl {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* Line ledger */
+        .line-ledger {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem 1.5rem;
+        }
+
+        .line-ledger div {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .line-ledger span {
+          font-size: 0.55rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #b8a99a;
+        }
+
+        .line-ledger strong {
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .dark .line-ledger strong {
+          color: #e8e0d8;
+        }
+
+        @media (max-width: 480px) {
+          .line-ledger {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .insurance {
+          margin-top: -0.75rem;
+        }
+
+        /* QR Check In */
+        .checkin-section {
+          text-align: center;
+          background: linear-gradient(145deg, #1a1a1a 0%, #2d2a26 100%);
+          border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .dark .checkin-section {
+          background: linear-gradient(145deg, #0f0e0d 0%, #1c1816 100%);
+        }
+
+        .checkin-section .index {
+          color: #6b5f55;
+        }
+
+        .checkin-section h2 {
+          color: #fff;
+          font-size: 1.4rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          margin-top: 0.5rem;
+        }
+
+        .qr-credential {
+          display: inline-block;
+          padding: 1rem;
+          background: #fff;
+          border-radius: 1.5rem;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+          transition: transform 0.2s ease;
+        }
+
+        .qr-credential:hover {
+          transform: scale(1.03);
+        }
+
+        .qr-credential svg {
+          display: block;
+          width: 120px;
+          height: 120px;
+          color: #1a1a1a;
+        }
+
+        /* Wallet World */
+        .wallet-world {
+          background: #ffffff;
+          border-radius: 2rem;
+          padding: 1.75rem 2rem 2rem;
+          margin-bottom: 1.25rem;
+          border: 1px solid rgba(0, 0, 0, 0.02);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .dark .wallet-world {
+          background: #1c1816;
+          border-color: #2c2622;
+        }
+
+        .wallet-intro h2 {
+          font-size: 1.6rem;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          color: #1a1a1a;
+        }
+
+        .dark .wallet-intro h2 {
+          color: #f0e8e0;
+        }
+
+        .wallet-intro p {
+          color: #8a8078;
+          font-size: 0.9rem;
+          max-width: 500px;
+          margin-bottom: 1.5rem;
+        }
+
+        .dark .wallet-intro p {
+          color: #9a9088;
+        }
+
+        .phones {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5rem;
+        }
+
+        .phone {
+          border-radius: 2.5rem;
+          padding: 1rem 0.75rem 1.25rem;
+          background: #0f0e0d;
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.3);
+          transition: transform 0.3s ease;
+        }
+
+        .phone:hover {
+          transform: translateY(-4px);
+        }
+
+        .iphone {
+          background: #000;
+        }
+
+        .island {
+          width: 90px;
+          height: 24px;
+          background: #000;
+          border-radius: 0 0 14px 14px;
+          margin: 0 auto 0.6rem;
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          border-top: none;
+        }
+
+        .notification {
+          background: rgba(255, 255, 255, 0.04);
+          border-radius: 100px;
+          padding: 0.3rem 0.8rem;
+          font-size: 0.55rem;
+          color: rgba(255, 255, 255, 0.5);
+          text-align: center;
+          margin-bottom: 0.6rem;
+          border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .apple-pass {
+          background: #fff;
+          border-radius: 1.5rem;
+          padding: 1rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .pass-glow {
+          position: absolute;
+          top: -30%;
+          right: -20%;
+          width: 80px;
+          height: 80px;
+          background: radial-gradient(
+            circle,
+            rgba(232, 139, 74, 0.15),
+            transparent
+          );
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        .pass-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #e88b4a;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .pass-head strong {
+          color: #7ccf9e;
+          font-weight: 700;
+        }
+
+        .apple-pass img {
+          width: 100%;
+          max-height: 70px;
+          object-fit: contain;
+          margin: 0.25rem 0;
+        }
+
+        .wallet-ref {
+          font-size: 0.8rem;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.01em;
+        }
+
+        .wallet-route {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 700;
+        }
+
+        .wallet-route span:first-child {
+          color: #e88b4a;
+        }
+
+        .wallet-route i {
+          flex: 1;
+          height: 2px;
+          background: repeating-linear-gradient(
+            90deg,
+            #d0c8c0 0px,
+            #d0c8c0 4px,
+            transparent 4px,
+            transparent 8px
+          );
+        }
+
+        .wallet-meta {
+          font-size: 0.6rem;
+          color: #8a8078;
+          font-weight: 500;
+        }
+
+        .wallet-qr {
+          height: 32px;
+          background: repeating-linear-gradient(
+            90deg,
+            #1a1a1a 0px,
+            #1a1a1a 4px,
+            transparent 4px,
+            transparent 8px
+          );
+          border-radius: 4px;
+          margin-top: 0.4rem;
+          opacity: 0.6;
+        }
+
+        .wallet-back {
+          background: #f7f3ec;
+          border-radius: 1rem;
+          padding: 0.6rem 1rem;
+          margin-top: 0.6rem;
+          border: 1px dashed #d0c8c0;
+        }
+
+        .wallet-back strong {
+          display: block;
+          font-size: 0.6rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #8a8078;
+        }
+
+        .wallet-back span {
+          display: inline-block;
+          font-size: 0.6rem;
+          color: #4a4440;
+          background: #fff;
+          padding: 0.1rem 0.6rem;
+          border-radius: 100px;
+          margin: 0.15rem 0.2rem 0 0;
+          font-weight: 500;
+        }
+
+        .android {
+          background: #1c1816;
+        }
+
+        .android-camera {
+          height: 4px;
+          width: 50px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 4px;
+          margin: 0 auto 0.5rem;
+        }
+
+        .material-notification {
+          font-size: 0.5rem;
+          color: rgba(255, 255, 255, 0.4);
+          text-align: center;
+          margin-bottom: 0.5rem;
+          background: rgba(255, 255, 255, 0.03);
+          padding: 0.2rem;
+          border-radius: 100px;
+        }
+
+        .google-pass {
+          background: #fff;
+          border-radius: 1.5rem;
+          padding: 1rem;
+          border-left: 4px solid #4285f4;
+          position: relative;
+        }
+
+        .google-ribbon {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 40px;
+          height: 40px;
+          background: #4285f4;
+          border-radius: 0 1.5rem 0 0;
+          opacity: 0.08;
+        }
+
+        .google-pass > span {
+          font-size: 0.55rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #4285f4;
+          background: #e8f0fe;
+          display: inline-block;
+          padding: 0.05rem 0.6rem;
+          border-radius: 100px;
+        }
+
+        .google-pass img {
+          width: 100%;
+          max-height: 60px;
+          object-fit: contain;
+          margin: 0.25rem 0;
+        }
+
+        .google-pass strong {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .google-pass em {
+          font-size: 0.7rem;
+          font-style: normal;
+          color: #8a8078;
+          font-weight: 500;
+        }
+
+        .material-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin-top: 0.25rem;
+        }
+
+        .google-qr {
+          width: 40px;
+          height: 32px;
+          background: repeating-linear-gradient(
+            45deg,
+            #1a1a1a 0px,
+            #1a1a1a 4px,
+            transparent 4px,
+            transparent 8px
+          );
+          border-radius: 4px;
+          margin-top: 0.4rem;
+          opacity: 0.5;
+        }
+
+        .material-details {
+          display: flex;
+          justify-content: space-around;
+          margin-top: 0.6rem;
+          font-size: 0.5rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 680px) {
+          .phones {
+            grid-template-columns: 1fr;
+            max-width: 380px;
+            margin: 0 auto;
+          }
+          .opening {
+            padding: 1.75rem 1.5rem 1.5rem;
+          }
+          .opening .reference {
+            font-size: 2.2rem;
+          }
+          .hero-car {
+            max-width: 280px;
+          }
+          .chapter {
+            padding: 1.25rem 1.25rem 1.5rem;
+          }
+          .wallet-world {
+            padding: 1.25rem 1.25rem 1.5rem;
+          }
+          .gate-panel {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1rem;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .gate-panel {
+            grid-template-columns: 1fr;
+          }
+          .quiet-specs {
+            grid-template-columns: 1fr 1fr;
+          }
+          .vehicle-name h1 {
+            font-size: 1.5rem;
+          }
+        }
+
+        /* Actions */
+        .actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          justify-content: center;
+          margin-top: 0.25rem;
+        }
+
+        .actions button {
+          padding: 0.6rem 1.2rem;
+          border-radius: 100px;
+          border: 1px solid #e0d8d0;
+          background: #ffffff;
+          color: #1a1a1a;
+          font-weight: 600;
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .dark .actions button {
+          background: #2c2622;
+          color: #e8e0d8;
+          border-color: #4a4440;
+        }
+
+        .actions button:hover {
+          transform: scale(0.94);
+          background: #f0ece6;
+        }
+
+        .dark .actions button:hover {
+          background: #3a3430;
+        }
+
+        /* Toast */
+        .toast {
+          position: fixed;
+          bottom: 2rem;
+          left: 50%;
+          transform: translateX(-50%) translateY(80px);
+          background: #1a1a1a;
+          color: #f0e8e0;
+          padding: 0.6rem 1.5rem;
+          border-radius: 100px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+          opacity: 0;
+          transition: all 0.4s ease;
+          z-index: 1000;
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          pointer-events: none;
+          white-space: nowrap;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .toast.show {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 480px) {
+          .toast {
+            white-space: normal;
+            max-width: 90%;
+            text-align: center;
+            bottom: 1rem;
+            font-size: 0.7rem;
+          }
+        }
+
+        /* Print */
+        @media print {
+          body {
+            background: #fff !important;
+            padding: 0.5in !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          .chapter,
+          .opening,
+          .wallet-world {
+            box-shadow: none !important;
+            border: 1px solid #e0d8d0 !important;
+            break-inside: avoid;
+          }
+          .opening {
+            background: #f7f3ec !important;
+          }
+          .opening .reference {
+            color: #1a1a1a !important;
+          }
+          .opening .status {
+            color: #1a1a1a !important;
+            border-color: #1a1a1a !important;
+            background: transparent !important;
+          }
+          .brand-lockup {
+            color: #1a1a1a !important;
+          }
+          .hero-car {
+            filter: none !important;
+          }
+          .qr-credential svg {
+            color: #1a1a1a !important;
+          }
+          .checkin-section {
+            background: #f7f3ec !important;
+          }
+          .checkin-section h2 {
+            color: #1a1a1a !important;
+          }
+          .checkin-section .index {
+            color: #b8a99a !important;
+          }
+          .supplier-lockup img {
+            filter: brightness(0) !important;
+          }
+          .phone {
+            background: #f7f3ec !important;
+            border: 1px solid #d0c8c0 !important;
+          }
+          .iphone,
+          .android {
+            background: #f7f3ec !important;
+          }
+          .apple-pass,
+          .google-pass {
+            background: #fff !important;
+          }
+          .island,
+          .android-camera {
+            display: none !important;
+          }
+          .notification,
+          .material-notification,
+          .wallet-back,
+          .material-details {
+            display: none !important;
+          }
+          .pass-glow {
+            display: none !important;
+          }
+          .wallet-qr,
+          .google-qr {
+            opacity: 0.3 !important;
+          }
+          .wallet-back {
+            display: none !important;
+          }
+          .dark .chapter {
+            background: #fff !important;
+            border-color: #e0d8d0 !important;
+          }
+          .dark .wallet-world {
+            background: #fff !important;
+          }
+          .dark .member-card {
+            background: #f7f3ec !important;
+          }
+          .dark .member-card strong,
+          .dark .member-card dl dd {
+            color: #1a1a1a !important;
+          }
+          .dark .vehicle-name h1,
+          .dark .gate-panel strong,
+          .dark .line-ledger strong,
+          .dark .supplier-lockup h2,
+          .dark .wallet-intro h2,
+          .dark .supplier-lines p {
+            color: #1a1a1a !important;
+          }
+          .dark .supplier-lockup img {
+            filter: brightness(0) !important;
+          }
         }
       `}</style>
 
-      <div className="max-w-3xl mx-auto px-4 pt-8 sm:pt-12">
-        {/* Header */}
-        <header className="flex justify-between items-center mb-8">
-            <div className="logo">
-                <svg viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" className="h-10 w-auto">
-                    <circle cx="45" cy="45" r="24" fill="#123C69"/>
-                    <path d="M28 48 Q45 30 62 42" stroke="#F57C00" stroke-width="7" fill="none" stroke-linecap="round"/>
-                    <line x1="35" y1="55" x2="55" y2="55" stroke="#F57C00" stroke-width="4" stroke-linecap="round"/>
-                    <text x="80" y="55" font-family="Montserrat, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="1" fill="#123C69">
-                        HOGI<tspan fill="#F57C00">CAR</tspan>
-                        <tspan font-size="20" fill="#F57C00">.com</tspan>
-                    </text>
-                </svg>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-black tracking-wider uppercase">
-                <CheckCircle className="w-4 h-4" /> CONFIRMED
-            </div>
-        </header>
+      <div className="credential">
+        {/* ===== OPENING ===== */}
+        <section className="opening" aria-label="Reservation summary">
+          <div className="brand-lockup">
+            <span className="brand-mark"></span>
+            <span>
+              HOGI<b>CAR</b>
+            </span>
+          </div>
+          <div className="status">Confirmed</div>
+          <div className="reference">{booking.bookingRef}</div>
+          <img
+            className="hero-car"
+            src={
+              booking.carImageUrl ||
+              'https://platform.cstatic-images.com/xxlarge/in/v2/stock_photos/71e0a363-bc0a-42ff-9f20-efa039bce8ca/13138638-3b68-4598-9585-d24866066be2.png'
+            }
+            alt={`${booking.carMake} ${booking.carModel} or similar`}
+          />
+        </section>
 
-        {/* Boarding Pass Hero */}
-        <div className="glass-card premium-gradient text-white overflow-hidden mb-6">
-            <div className="p-6 sm:p-8">
-                <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <div className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Booking Reference</div>
-                        <div className="text-3xl font-black text-[#F57C00] tracking-tighter">{booking.bookingRef}</div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Pickup Countdown</div>
-                        <div className="text-xl font-black text-emerald-400 tabular-nums">{countdown}</div>
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 mb-8">
-                    <div className="flex-1">
-                        <div className="text-4xl font-black mb-1">{booking.pickupCode || 'AMM'}</div>
-                        <div className="text-xs text-white/60 font-medium truncate max-w-[120px] uppercase tracking-widest">{booking.pickupLocationName?.split(',')[0]}</div>
-                    </div>
-                    <div className="flex flex-col items-center gap-2">
-                        <ArrowRight className="w-6 h-6 text-[#F57C00]" />
-                        <div className="text-[9px] font-bold text-white/40 uppercase tracking-[0.3em]">{booking.rentalDays || 3} Days</div>
-                    </div>
-                    <div className="flex-1 text-right">
-                        <div className="text-4xl font-black mb-1">{booking.dropoffCode || booking.pickupCode || 'AMM'}</div>
-                        <div className="text-xs text-white/60 font-medium truncate max-w-[120px] uppercase tracking-widest text-right">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-6 border-t border-white/10">
-                    <div>
-                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Pickup Date</div>
-                        <div className="text-sm font-bold">{formatDate(booking.pickupDate)}</div>
-                    </div>
-                    <div>
-                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Pickup Time</div>
-                        <div className="text-sm font-bold">{booking.startTime || '10:30'}</div>
-                    </div>
-                    <div>
-                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Status</div>
-                        <div className="text-sm font-bold text-emerald-400">VEHICLE READY</div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Support</div>
-                        <div className="text-sm font-bold">+962 7 9876 5432</div>
-                    </div>
-                </div>
+        {/* ===== VEHICLE ===== */}
+        <section className="vehicle chapter" aria-label="Vehicle">
+          <p className="index">01 / Vehicle</p>
+          <div className="vehicle-name">
+            <h1>
+              {booking.carMake} {booking.carModel}
+            </h1>
+            <span>or Similar</span>
+          </div>
+          <dl className="quiet-specs">
+            <div>
+              <dt>Class</dt>
+              <dd>{booking.carCategory || 'Economy Elite'}</dd>
             </div>
-        </div>
-
-        {/* Vehicle Showcase */}
-        <div className="glass-card mb-6 p-0 overflow-hidden">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="font-black text-slate-800 uppercase tracking-tighter">Vehicle Details</h3>
-                <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">
-                    {booking.carCategory || 'ECONOMY'}
-                </div>
+            <div>
+              <dt>Transmission</dt>
+              <dd>{booking.carTransmission || 'Automatic'}</dd>
             </div>
-            <div className="p-8 text-center bg-slate-50/50">
-                <img 
-                    src={booking.carImageUrl || "https://www.sixt.com/fileadmin/files/global/user_upload/fleet/png/350x200/toyota-corolla-4-door-white-2020.png"} 
-                    alt={booking.carModel} 
-                    className="mx-auto w-64 h-auto drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
+            <div>
+              <dt>Seats</dt>
+              <dd>{booking.carPassengers || 5}</dd>
+            </div>
+            <div>
+              <dt>Bags</dt>
+              <dd>{booking.carBags || 2}</dd>
+            </div>
+          </dl>
+        </section>
+
+        {/* ===== PICKUP ===== */}
+        <section className="pickup chapter" aria-label="Pickup experience">
+          <p className="index">02 / Pickup</p>
+          <div className="gate-panel">
+            <div>
+              <span className="label">Airport</span>
+              <strong>{booking.pickupLocationName || 'Queen Alia International Airport'}</strong>
+            </div>
+            <div>
+              <span className="label">Terminal</span>
+              <strong>{booking.pickupTerminal || '1'}</strong>
+            </div>
+            <div>
+              <span className="label">Counter</span>
+              <strong>{booking.counter || 'B22'}</strong>
+            </div>
+            <div>
+              <span className="label">Meet & Greet</span>
+              <strong>Representative Waiting</strong>
+            </div>
+            <div>
+              <span className="label">Pickup Time</span>
+              <strong id="pickup-display">
+                {formatDate(booking.pickupDate)} · {formatTime(booking.startTime || '10:30')}
+              </strong>
+            </div>
+            <div>
+              <span className="label">Walking Time</span>
+              <strong>4 min</strong>
+            </div>
+            <div>
+              <span className="label">Office Hours</span>
+              <strong>24 hours</strong>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== SUPPLIER ===== */}
+        <section className="supplier chapter" aria-label="Supplier">
+          <p className="index">03 / Supplier</p>
+          <div className="supplier-lockup">
+            {booking.supplierLogoUrl ? (
+              <img src={booking.supplierLogoUrl} alt={`${booking.supplierName} logo`} />
+            ) : (
+              <img
+                src="https://logos-world.net/wp-content/uploads/2021/08/Hertz-Logo.png"
+                alt="Hertz logo"
+              />
+            )}
+            <h2>{booking.supplierName || 'Hertz Rent A Car'}</h2>
+          </div>
+          <div className="supplier-lines">
+            <p>
+              {booking.pickupAddress ||
+                `${booking.pickupLocationName || 'Queen Alia International Airport'}, Terminal ${booking.pickupTerminal || '1'}, Arrival Level, Counter ${booking.counter || 'B22'}`}
+            </p>
+            <a href={`tel:${booking.supplierPhone || '+96264711771'}`}>
+              {booking.supplierPhone || '+962 6 471 1771'}
+            </a>
+            <a
+              href={`https://wa.me/${(booking.supplierPhone || '+96264711771').replace(/[^\d]/g, '')}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp
+            </a>
+            <a
+              href={`mailto:${booking.supplierEmail || 'CustomerRelationsMEA@hertz.com'}?subject=HogiCar%20Booking%20${booking.bookingRef}`}
+            >
+              {booking.supplierEmail || 'CustomerRelationsMEA@hertz.com'}
+            </a>
+            <span>Business Hours · 24 hours</span>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(booking.pickupLocationName || 'Hertz Queen Alia International Airport')}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Map
+            </a>
+          </div>
+        </section>
+
+        {/* ===== CUSTOMER ===== */}
+        <section className="customer chapter" aria-label="Customer">
+          <p className="index">04 / Customer</p>
+          <div className="member-card">
+            <span>Primary Driver</span>
+            <strong>
+              {booking.firstName} {booking.lastName}
+            </strong>
+            <dl>
+              <div>
+                <dt>Nationality</dt>
+                <dd>{booking.country || 'United Kingdom'}</dd>
+              </div>
+              <div>
+                <dt>License Country</dt>
+                <dd>{booking.licenseCountry || 'United Kingdom'}</dd>
+              </div>
+              <div>
+                <dt>Contact</dt>
+                <dd>{booking.phone || '+44 7700 900123'}</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        {/* ===== PAYMENT ===== */}
+        <section className="financial chapter" aria-label="Payment and insurance">
+          <p className="index">05 / Payment</p>
+          <div className="line-ledger">
+            <div>
+              <span>Payment</span>
+              <strong>Prepaid rental</strong>
+            </div>
+            <div>
+              <span>Deposit</span>
+              <strong>{renderPrice(booking.depositRequired || 500)} pre-authorization</strong>
+            </div>
+            <div>
+              <span>Fuel</span>
+              <strong>{booking.carFuelPolicy || 'Full to Full'}</strong>
+            </div>
+            <div>
+              <span>Mileage</span>
+              <strong>
+                {booking.unlimitedMileage ? 'Unlimited within Jordan' : booking.mileage || 'Unlimited'}
+              </strong>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== INSURANCE ===== */}
+        <section className="financial chapter insurance" aria-label="Insurance">
+          <p className="index">06 / Insurance</p>
+          <div className="line-ledger">
+            <div>
+              <span>Included</span>
+              <strong>CDW + Theft Protection</strong>
+            </div>
+            <div>
+              <span>Documents</span>
+              <strong>License · Passport · Credit Card</strong>
+            </div>
+            <div>
+              <span>Age</span>
+              <strong>Minimum {booking.minimumDriverAge || 21}</strong>
+            </div>
+            <div>
+              <span>Border Crossing</span>
+              <strong>Supplier approval required</strong>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== QR CHECK IN ===== */}
+        <section className="checkin-section chapter" aria-label="QR check in">
+          <p className="index">07 / Check In</p>
+          <a
+            className="qr-credential"
+            href={`https://hogicar.com/voucher/${booking.bookingRef}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open live booking"
+          >
+            <svg viewBox="0 0 128 128" aria-hidden="true">
+              <path
+                d="M10 10h34v34H10zM84 10h34v34H84zM10 84h34v34H10z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="6"
+              />
+              <path
+                d="M20 20h14v14H20zM94 20h14v14H94zM20 94h14v14H20zM56 10h10v10H56zM72 10h8v8H72zM54 30h14v12H54zM76 30h8v8H76zM52 52h24v24H52zM84 52h10v10H84zM104 52h14v8h-14zM52 86h8v32h-8zM68 84h16v10H68zM92 82h26v10H92zM72 102h12v16H72zM94 102h8v8h-8zM110 110h8v8h-8z"
+                fill="currentColor"
+              />
+            </svg>
+          </a>
+          <h2>Scan to Check In</h2>
+        </section>
+
+        {/* ===== WALLET EXPERIENCE ===== */}
+        <section className="wallet-world" aria-label="Digital wallet experience">
+          <p className="index">08 / Wallet Experience</p>
+          <div className="wallet-intro">
+            <h2>Designed to live in Wallet.</h2>
+            <p>
+              Lock screen, opened pass, expanded details and QR screen are part of
+              the same premium travel credential.
+            </p>
+          </div>
+
+          <div className="phones">
+            {/* Apple Wallet */}
+            <article className="phone iphone" aria-label="Apple Wallet preview">
+              <div className="island"></div>
+              <div className="notification">
+                HogiCar · Pickup at {booking.pickupCode || 'AMM'} in 4 min
+              </div>
+              <div className="apple-pass">
+                <div className="pass-glow"></div>
+                <div className="pass-head">
+                  <span>HogiCar</span>
+                  <strong>Confirmed</strong>
+                </div>
+                <img
+                  src={
+                    booking.carImageUrl ||
+                    'https://platform.cstatic-images.com/xxlarge/in/v2/stock_photos/71e0a363-bc0a-42ff-9f20-efa039bce8ca/13138638-3b68-4598-9585-d24866066be2.png'
+                  }
+                  alt=""
                 />
-                <h4 className="text-2xl font-black text-slate-900 mt-6 uppercase tracking-tight">{booking.carMake} {booking.carModel}</h4>
-                <p className="text-slate-500 text-sm italic">or Similar Class Vehicle</p>
-            </div>
-            <div className="p-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#123C69]" /> {booking.carTransmission}
+                <div className="wallet-ref">{booking.bookingRef}</div>
+                <div className="wallet-route">
+                  <span>{booking.pickupCode || 'AMM'}</span>
+                  <i></i>
+                  <span>{formatTime(booking.startTime || '10:30')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
-                    <User className="w-3.5 h-3.5 text-[#123C69]" /> {booking.carPassengers} Seats
+                <div className="wallet-meta">
+                  {booking.supplierName || 'Hertz'} · Terminal {booking.pickupTerminal || '1'} · Counter{' '}
+                  {booking.counter || 'B22'}
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
-                    <FileText className="w-3.5 h-3.5 text-[#123C69]" /> {booking.carBags} Bags
-                </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl">
-                    <Zap className="w-3.5 h-3.5 text-[#123C69]" /> A/C Included
-                </div>
-            </div>
-            <div className="px-6 pb-6 grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
-                    <div className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1">Mileage Policy</div>
-                    <div className="text-sm font-bold text-slate-800">Unlimited Mileage</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Fuel Policy</div>
-                    <div className="text-sm font-bold text-slate-800">{booking.carFuelPolicy || 'Full to Full'}</div>
-                </div>
-            </div>
-        </div>
+                <div className="wallet-qr"></div>
+              </div>
+              <div className="wallet-back">
+                <strong>Details</strong>
+                <span>
+                  Customer · {booking.firstName} {booking.lastName}
+                </span>
+                <span>
+                  Vehicle · {booking.carMake} {booking.carModel}
+                </span>
+                <span>Pickup · Representative Waiting</span>
+              </div>
+            </article>
 
-        {/* Customer Identity */}
-        <div className="glass-card mb-6">
-            <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-6">Driver Identity</h3>
-            <div className="flex items-center gap-6 mb-8">
-                <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-300">
-                    <User className="w-12 h-12" />
+            {/* Google Wallet */}
+            <article className="phone android" aria-label="Google Wallet preview">
+              <div className="android-camera"></div>
+              <div className="material-notification">
+                Google Wallet · {booking.supplierName || 'Hertz'} counter nearby
+              </div>
+              <div className="google-pass">
+                <div className="google-ribbon"></div>
+                <span>HogiCar Rental Pass</span>
+                <img
+                  src={
+                    booking.carImageUrl ||
+                    'https://platform.cstatic-images.com/xxlarge/in/v2/stock_photos/71e0a363-bc0a-42ff-9f20-efa039bce8ca/13138638-3b68-4598-9585-d24866066be2.png'
+                  }
+                  alt=""
+                />
+                <strong>
+                  {booking.firstName} {booking.lastName}
+                </strong>
+                <em>{booking.bookingRef}</em>
+                <div className="material-row">
+                  <span>{booking.pickupCode || 'AMM'}</span>
+                  <span>
+                    {formatDate(booking.pickupDate)} · {formatTime(booking.startTime || '10:30')}
+                  </span>
                 </div>
-                <div>
-                    <div className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">{booking.firstName} {booking.lastName}</div>
-                    <div className="text-xs font-black text-[#F57C00] uppercase tracking-widest">GOLD TIER MEMBER • #HC-L88231</div>
-                </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-12">
-                {[
-                    { label: 'Nationality', value: booking.country || 'United Kingdom' },
-                    { label: 'Driver License', value: 'UK (GB) - Valid' },
-                    { label: 'License Expiry', value: 'Dec 2029' },
-                    { label: 'Age Requirement', value: 'Verified (30+)' }
-                ].map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center py-2 border-b border-slate-50">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
-                        <span className="text-sm font-black text-slate-800">{item.value}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
+                <div className="google-qr"></div>
+              </div>
+              <div className="material-details">
+                <span>Expanded pass</span>
+                <span>QR screen</span>
+                <span>Pickup reminder</span>
+              </div>
+            </article>
+          </div>
+        </section>
 
-        {/* Supplier & Location */}
-        <div className="glass-card mb-6">
-            <div className="flex justify-between items-start mb-6">
-                <div>
-                    <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-1">Rental Supplier</h3>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Counter Instructions Included</p>
-                </div>
-                {booking.supplierLogoUrl ? (
-                    <img src={booking.supplierLogoUrl} alt={booking.supplierName} className="h-8 w-auto grayscale opacity-50" />
-                ) : (
-                    <div className="font-black text-slate-300 text-2xl uppercase tracking-tighter">{booking.supplierName}</div>
-                )}
-            </div>
-            
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-6">
-                <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 bg-white rounded-xl shadow-sm text-[#123C69]">
-                        <MapPin className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pickup Counter</div>
-                        <div className="text-sm font-black text-slate-800 uppercase leading-snug">{booking.pickupLocationName || 'Arrivals Hall, Terminal 1'}</div>
-                    </div>
-                </div>
-                <div className="flex gap-4">
-                    <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(booking.pickupLocationName || 'Airport')}`, '_blank')} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 transition-all text-xs uppercase tracking-widest">
-                        <Map className="w-4 h-4" /> Open Maps
-                    </button>
-                    <a href={`tel:${booking.supplierPhone || '+96264451200'}`} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 transition-all text-xs uppercase tracking-widest">
-                        <Phone className="w-4 h-4" /> Call Supplier
-                    </a>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Opening Hours</div>
-                    <div className="text-xs font-bold text-slate-800 uppercase">24/7 Service Available</div>
-                </div>
-                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                    <div className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1">Supplier Ref</div>
-                    <div className="text-xs font-bold text-emerald-800">{booking.supplierConfirmationNumber || 'HC-CONF-8821'}</div>
-                </div>
-            </div>
-        </div>
-
-        {/* Financial Summary */}
-        <div className="glass-card mb-6 bg-emerald-50 border-emerald-100 overflow-hidden">
-            <div className="p-6">
-                <h3 className="font-black text-emerald-900 uppercase tracking-tighter mb-6">Payment Summary</h3>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm font-bold text-emerald-800/60 uppercase tracking-widest">
-                        <span>Vehicle Rental ({booking.rentalDays || 3} Days)</span>
-                        <span>{renderPrice(booking.finalPrice - (booking.finalPrice * 0.15))}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm font-black text-emerald-600 uppercase tracking-widest">
-                        <span>HogiCar Online Discount</span>
-                        <span>- {renderPrice(booking.finalPrice * 0.15)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm font-bold text-emerald-800/60 uppercase tracking-widest">
-                        <span>Premium Insurance (CDW)</span>
-                        <span className="text-[10px] px-2 py-0.5 bg-emerald-200 rounded-md">INCLUDED</span>
-                    </div>
-                    <div className="pt-6 border-t border-emerald-200 flex justify-between items-end">
-                        <div>
-                            <div className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] mb-1">Total Paid</div>
-                            <div className="text-sm font-bold text-emerald-800/60 uppercase">Paid via Credit Card</div>
-                        </div>
-                        <div className="text-4xl font-black text-emerald-900 tracking-tighter">{renderPrice(booking.finalPrice)}</div>
-                    </div>
-                </div>
-            </div>
-            <div className="bg-emerald-600 p-3 text-center text-[10px] font-black text-white uppercase tracking-[0.3em]">
-                Transaction Secured & Verified • No Hidden Fees
-            </div>
-        </div>
-
-        {/* Insurance Coverage */}
-        <div className="glass-card mb-6">
-            <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-6">Insurance Coverage</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                    { label: 'Collision Damage Waiver', icon: ShieldCheck },
-                    { label: 'Theft Protection', icon: ShieldCheck },
-                    { label: 'Third Party Liability', icon: ShieldCheck },
-                    { label: 'Roadside Assistance', icon: ShieldCheck }
-                ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                        <item.icon className="w-5 h-5 text-emerald-600" />
-                        <span className="text-xs font-black text-emerald-900 uppercase tracking-tight">{item.label}</span>
-                    </div>
-                ))}
-            </div>
-            <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex gap-4">
-                <Info className="w-5 h-5 text-[#123C69] flex-shrink-0" />
-                <p className="text-[10px] text-slate-500 font-medium leading-relaxed uppercase tracking-tighter">
-                    Your rental includes our premium protection package. Zero excess may apply depending on local supplier terms. Please present this voucher for full coverage verification.
-                </p>
-            </div>
-        </div>
-
-        {/* Pickup Timeline */}
-        <div className="glass-card mb-6">
-            <h3 className="font-black text-slate-800 uppercase tracking-tighter mb-8">Pickup Journey</h3>
-            <div className="timeline px-2">
-                {[
-                    { title: 'Arrive at Airport', desc: 'Collect luggage and follow car rental signs.' },
-                    { title: `Go to ${booking.supplierName} Counter`, desc: 'Located in Arrival Level, Terminal 1.' },
-                    { title: 'Present Identity', desc: 'Show your license, passport and this voucher.' },
-                    { title: 'Receive Keys', desc: 'Complete the inspection and enjoy your ride.' }
-                ].map((step, idx) => (
-                    <div key={idx} className="timeline-item">
-                        <div className="timeline-dot"></div>
-                        <div className="text-sm font-black text-slate-800 uppercase tracking-tight mb-1">{step.title}</div>
-                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-tighter leading-relaxed">{step.desc}</div>
-                    </div>
-                ))}
-            </div>
-        </div>
-
-        {/* Security Verification Block */}
-        <div className="glass-card bg-[#0f172a] text-white border-white/5 mb-6">
-            <div className="flex items-center gap-3 mb-6">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-black text-sm uppercase tracking-[0.2em]">Enterprise Security Verification</h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-[10px] font-mono text-white/50">
-                <div className="space-y-4">
-                    <div>
-                        <div className="uppercase mb-1 tracking-widest">Verification ID</div>
-                        <div className="text-emerald-400 break-all">V-{booking.bookingRef}-HOGI-VERIFIED</div>
-                    </div>
-                    <div>
-                        <div className="uppercase mb-1 tracking-widest">Digital Signature</div>
-                        <div className="text-white/30 break-all">7e8a9b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z</div>
-                    </div>
-                </div>
-                <div className="space-y-4">
-                    <div>
-                        <div className="uppercase mb-1 tracking-widest">Validation Status</div>
-                        <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                            LIVE & AUTHENTICATED
-                        </div>
-                    </div>
-                    <div>
-                        <div className="uppercase mb-1 tracking-widest">Server Time</div>
-                        <div className="text-white/30">{new Date().toISOString()}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {/* QR Verification Section */}
-        <div className="glass-card qr-section py-12 mb-6">
-            <h3 className="font-black text-3xl mb-2 tracking-tighter uppercase italic">Digital Verification</h3>
-            <p className="text-emerald-100 mb-10 opacity-80 text-xs font-bold uppercase tracking-[0.2em]">Scan at Rental Counter to Complete Check-in</p>
-            
-            <div className="inline-block p-6 bg-white rounded-[32px] shadow-2xl relative group">
-                <div className="w-48 h-48 bg-slate-100 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                     <div className="grid grid-cols-5 gap-2 opacity-20">
-                        {Array(25).fill(0).map((_, i) => (
-                            <div key={i} className="w-4 h-4 bg-[#123C69] rounded-sm"></div>
-                        ))}
-                     </div>
-                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-32 h-32 border-4 border-[#123C69] rounded-xl flex items-center justify-center">
-                            <ShieldCheck className="w-16 h-16 text-[#123C69]" />
-                        </div>
-                     </div>
-                </div>
-                <div className="absolute left-0 right-0 top-0 h-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-bounce opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </div>
-            
-            <div className="mt-8">
-                <div className="text-sm font-black tracking-[0.4em] uppercase">{booking.bookingRef}-VERIFIED</div>
-                <div className="text-[9px] text-emerald-200/60 font-bold uppercase mt-2 tracking-widest">
-                    Encrypted Blockchain Payload • Version 4.0.1
-                </div>
-            </div>
-        </div>
-
-        {/* Add to Wallet Buttons */}
-        <div className="glass-card mb-8">
-            <h3 className="font-black text-slate-400 text-center uppercase text-[10px] tracking-[0.3em] mb-8">Add to Your Digital Wallet</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4">
-                <button className="flex items-center justify-center gap-2 bg-black text-white font-black py-4 rounded-2xl shadow-xl hover:bg-slate-900 transition-all active:scale-95 text-xs uppercase tracking-[0.2em]">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .76-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.89 1.22-2.11 1.09-3.33-1.04.04-2.3.69-3.05 1.56-.67.77-1.26 2.01-1.12 3.19 1.16.09 2.34-.53 3.08-1.42z"/></svg>
-                    Apple Wallet
-                </button>
-                <button className="flex items-center justify-center gap-2 bg-[#123C69] text-white font-black py-4 rounded-2xl shadow-xl hover:bg-[#0f2d4e] transition-all active:scale-95 text-xs uppercase tracking-[0.2em]">
-                    <div className="w-5 h-5 bg-white rounded-md flex items-center justify-center text-[10px] text-[#123C69] font-black">G</div>
-                    Google Wallet
-                </button>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 px-4 no-print">
-                <button onClick={() => window.print()} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group">
-                    <Printer className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Print / PDF</span>
-                </button>
-                <a href={`mailto:?subject=My HogiCar Voucher ${booking.bookingRef}&body=Here is my rental voucher: ${window.location.href}`} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group text-center">
-                    <Mail className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Email</span>
-                </a>
-                <a href={`https://wa.me/?text=My HogiCar Voucher ${booking.bookingRef}: ${window.location.href}`} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group text-center">
-                    <MessageSquare className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</span>
-                </a>
-                <button className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group text-center">
-                    <Download className="w-6 h-6 text-slate-400 group-hover:text-[#123C69] transition-colors" />
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Save Offline</span>
-                </button>
-            </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="mt-20 pb-12 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] print:mt-10">
-            <div className="flex justify-center gap-8 mb-10 no-print">
-                <a href="#" className="hover:text-[#123C69] transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-[#123C69] transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-[#123C69] transition-colors">Rental Rules</a>
-            </div>
-            <div className="flex flex-col items-center gap-6">
-                <svg viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" className="h-8 w-auto opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer">
-                    <circle cx="45" cy="45" r="24" fill="#123C69"/>
-                    <path d="M28 48 Q45 30 62 42" stroke="#F57C00" stroke-width="7" fill="none" stroke-linecap="round"/>
-                    <line x1="35" y1="55" x2="55" y2="55" stroke="#F57C00" stroke-width="4" stroke-linecap="round"/>
-                    <text x="80" y="55" font-family="Montserrat, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="1" fill="#123C69">
-                        HOGI<tspan fill="#F57C00">CAR</tspan>
-                        <tspan font-size="20" fill="#F57C00">.com</tspan>
-                    </text>
-                </svg>
-                <div className="space-y-2">
-                    <p>© 2026 HogiCar Enterprise Rental Group. All rights reserved.</p>
-                    <p className="text-[8px] opacity-60 tracking-[0.4em]">Amman • Dubai • Riyadh • London • New York</p>
-                </div>
-            </div>
-        </footer>
+        {/* ===== ACTIONS ===== */}
+        <nav className="actions no-print" aria-label="Actions">
+          <button type="button" data-action="apple">
+            Apple Wallet
+          </button>
+          <button type="button" data-action="google">
+            Google Wallet
+          </button>
+          <button type="button" data-action="calendar">
+            Calendar
+          </button>
+          <button type="button" data-action="share">
+            Share
+          </button>
+          <button type="button" data-action="pdf">
+            PDF
+          </button>
+          <button type="button" data-action="dark">
+            Dark
+          </button>
+        </nav>
       </div>
+
+      {/* ===== TOAST ===== */}
+      <div id="toast" className="toast" role="status" aria-live="polite"></div>
+
+      {/* ===== SCRIPT ===== */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              'use strict';
+
+              const toastEl = document.getElementById('toast');
+              let toastTimeout;
+
+              function showToast(message) {
+                if (!toastEl) return;
+                toastEl.textContent = message;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                  toastEl.classList.remove('show');
+                }, 2800);
+              }
+
+              function addToCalendar() {
+                const start = new Date(2026, 7, 15, 10, 30);
+                const end = new Date(2026, 7, 18, 9, 30);
+                const ics = [
+                  'BEGIN:VCALENDAR',
+                  'VERSION:2.0',
+                  'BEGIN:VEVENT',
+                  'SUMMARY:HogiCar Rental - Toyota Corolla Hybrid (HC-8KD93XQ)',
+                  'LOCATION:Queen Alia International Airport, Terminal 1, Counter B22, Amman, Jordan',
+                  'DESCRIPTION:Pickup your rental vehicle. Booking ref: HC-8KD93XQ. Supplier: Hertz.',
+                  'DTSTART:' + start.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
+                  'DTEND:' + end.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
+                  'END:VEVENT',
+                  'END:VCALENDAR'
+                ].join('\\n');
+                const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'HogiCar_pickup.ics';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+                showToast('📅 Calendar event downloaded (.ics)');
+              }
+
+              function shareVoucher() {
+                const text = 'My HogiCar rental voucher HC-8KD93XQ for Toyota Corolla Hybrid pickup Aug 15 at Amman Airport.';
+                if (navigator.share) {
+                  navigator.share({
+                    title: 'HogiCar Rental Voucher',
+                    text: text,
+                    url: window.location.href,
+                  }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(text + ' ' + window.location.href).then(() => {
+                    showToast('📋 Voucher details copied to clipboard!');
+                  }).catch(() => {
+                    showToast('📋 Please copy manually: ' + text);
+                  });
+                }
+              }
+
+              function downloadPDF() {
+                showToast('📄 PDF ready – use Print > Save as PDF');
+                window.print();
+              }
+
+              function walletAction(type) {
+                if (type === 'apple') {
+                  showToast('🧾 Apple Wallet pass generated (simulated)');
+                } else if (type === 'google') {
+                  showToast('📱 Google Wallet pass generated (simulated)');
+                }
+              }
+
+              function toggleDarkMode() {
+                document.body.classList.toggle('dark');
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark') || document.body.classList.contains('dark-mode');
+                showToast(isDark ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
+              }
+
+              document.addEventListener('click', function(e) {
+                const button = e.target.closest('[data-action]');
+                if (!button) return;
+                const action = button.getAttribute('data-action');
+                switch (action) {
+                  case 'apple': walletAction('apple'); break;
+                  case 'google': walletAction('google'); break;
+                  case 'calendar': addToCalendar(); break;
+                  case 'share': shareVoucher(); break;
+                  case 'pdf': downloadPDF(); break;
+                  case 'dark': toggleDarkMode(); break;
+                  default: showToast('Action: ' + action);
+                }
+              });
+
+              document.querySelectorAll('a[href="#"]').forEach(el => {
+                el.addEventListener('click', function(e) { e.preventDefault(); });
+              });
+
+              document.addEventListener('keydown', function(e) {
+                if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.metaKey) {
+                  toggleDarkMode();
+                }
+              });
+
+              console.log('✅ HogiCar Travel Credential ready.');
+            })();
+          `,
+        }}
+      />
     </div>
   );
 };
