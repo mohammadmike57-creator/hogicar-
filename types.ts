@@ -763,6 +763,7 @@ export interface PushToken {
   appVersion?: string;
   language?: string;
   country?: string;
+  city?: string;
   timezone?: string;
   lastSeen?: string;
   active: boolean;
@@ -814,5 +815,11 @@ export interface PushStats {
   androidDevices: number;
   last24Hours: number;
   failedTokens: number;
+  campaignsSent: number;
+  scheduledCampaigns: number;
+  deliveredNotifications: number;
+  failedNotifications: number;
+  deliveryRate: number;
   recentCampaigns: PushCampaign[];
+  recentLogs: any[];
 }

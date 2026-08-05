@@ -27,27 +27,34 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Play from 'lucide-react/dist/esm/icons/play';
 import { motion, AnimatePresence } from 'framer-motion';
 import { adminFetch } from '../../lib/adminApi';
-import { PushStats, PushCampaign } from '../../types';
+import { PushStats, PushCampaign, PushToken } from '../../types';
 
 const PushNotificationManagement = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'campaigns' | 'audience' | 'history' | 'logs'>('dashboard');
-  const [stats, setStats] = useState<any | null>(null);
+  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'campaigns' | 'audience' | 'history' | 'logs' | 'devices' | 'analytics'>('dashboard');
+  const [stats, setStats] = useState<PushStats | null>(null);
+  const [tokens, setTokens] = useState<PushToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState<PushCampaign | null>(null);
   const [testToken, setTestToken] = useState('');
   const [isTesting, setIsTesting] = useState(false);
+  const [searchToken, setSearchToken] = useState('');
   const [newCampaign, setNewCampaign] = useState<Partial<PushCampaign>>({
     name: '',
     title: '',
     body: '',
+    imageUrl: '',
+    deepLink: '',
     type: 'MARKETING',
     priority: 'high',
     schedule: 'IMMEDIATE',
-    audience: 'EVERYONE'
+    audience: 'EVERYONE',
+    sound: 'default'
   });
 
   useEffect(() => {
     fetchStats();
+    fetchTokens();
   }, []);
 
   const fetchStats = async () => {
@@ -61,20 +68,57 @@ const PushNotificationManagement = () => {
     }
   };
 
+  const fetchTokens = async () => {
+    try {
+      const data = await adminFetch('/api/push/tokens');
+      setTokens(data);
+    } catch (err) {
+      console.error('Failed to fetch tokens', err);
+    }
+  };
+
   const handleCreateCampaign = async () => {
     try {
       setLoading(true);
-      await adminFetch('/api/push/campaigns', {
-        method: 'POST',
-        body: JSON.stringify(newCampaign)
-      });
+      if (editingCampaign) {
+        await adminFetch(`/api/push/campaigns/${editingCampaign.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(newCampaign)
+        });
+      } else {
+        await adminFetch('/api/push/campaigns', {
+          method: 'POST',
+          body: JSON.stringify(newCampaign)
+        });
+      }
       setIsCreating(false);
+      setEditingCampaign(null);
       fetchStats();
       setActiveSubTab('history');
     } catch (err) {
-      console.error('Failed to create campaign', err);
+      console.error('Failed to save campaign', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelCampaign = async (id: number) => {
+    try {
+      await adminFetch(`/api/push/campaigns/${id}/cancel`, { method: 'POST' });
+      fetchStats();
+    } catch (err) {
+      console.error('Failed to cancel campaign', err);
+    }
+  };
+
+  const handleDeleteToken = async (id: number) => {
+    if (!confirm('Are you sure you want to remove this device?')) return;
+    try {
+      await adminFetch(`/api/push/tokens/${id}`, { method: 'DELETE' });
+      fetchTokens();
+      fetchStats();
+    } catch (err) {
+      console.error('Failed to delete token', err);
     }
   };
 
@@ -147,12 +191,14 @@ const PushNotificationManagement = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-card w-fit">
+      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-card w-fit overflow-x-auto max-w-full">
         {[
           { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
           { id: 'campaigns', label: 'Campaigns', icon: Send },
-          { id: 'audience', label: 'Audience', icon: Target },
-          { id: 'history', label: 'History', icon: History },
+          { id: 'audience', label: 'Audience Targeting', icon: Target },
+          { id: 'devices', label: 'Registered Devices', icon: Smartphone },
+          { id: 'history', label: 'Campaign History', icon: History },
+          { id: 'analytics', label: 'Analytics', icon: TrendingUp },
           { id: 'logs', label: 'System Logs', icon: Activity }
         ].map(tab => (
           <button
@@ -168,12 +214,135 @@ const PushNotificationManagement = () => {
 
       {activeSubTab === 'dashboard' && stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard title="Total Devices" value={stats.totalDevices} icon={Smartphone} color="blue" />
-          <StatCard title="Active Tokens" value={stats.activeTokens} icon={CheckCircle} color="emerald" />
+          <StatCard title="Total Registered" value={stats.totalDevices} icon={Smartphone} color="blue" />
+          <StatCard title="Active Devices" value={stats.activeTokens} icon={CheckCircle} color="emerald" />
           <StatCard title="iOS Devices" value={stats.iosDevices} icon={Smartphone} color="slate" />
           <StatCard title="Android Devices" value={stats.androidDevices} icon={Smartphone} color="green" />
-          <StatCard title="Last 24 Hours" value={stats.last24Hours} icon={Activity} color="orange" />
-          <StatCard title="Failed Tokens" value={stats.failedTokens} icon={AlertCircle} color="red" />
+          <StatCard title="Campaigns Sent" value={stats.campaignsSent} icon={Send} color="blue" />
+          <StatCard title="Scheduled" value={stats.scheduledCampaigns} icon={Calendar} color="orange" />
+          <StatCard title="Delivered" value={stats.deliveredNotifications} icon={CheckCircle} color="emerald" />
+          <StatCard title="Failed" value={stats.failedNotifications} icon={AlertCircle} color="red" />
+        </div>
+      )}
+
+      {activeSubTab === 'analytics' && stats && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-card border border-slate-100 shadow-sm">
+              <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4">Platform Distribution</h4>
+              <div className="space-y-4">
+                 <div>
+                    <div className="flex justify-between text-[11px] font-bold mb-1.5">
+                       <span className="text-slate-600">iOS</span>
+                       <span className="text-slate-900">{Math.round((stats.iosDevices / stats.totalDevices) * 100) || 0}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                       <div className="h-full bg-slate-600" style={{ width: `${(stats.iosDevices / stats.totalDevices) * 100}%` }}></div>
+                    </div>
+                 </div>
+                 <div>
+                    <div className="flex justify-between text-[11px] font-bold mb-1.5">
+                       <span className="text-slate-600">Android</span>
+                       <span className="text-slate-900">{Math.round((stats.androidDevices / stats.totalDevices) * 100) || 0}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                       <div className="h-full bg-emerald-500" style={{ width: `${(stats.androidDevices / stats.totalDevices) * 100}%` }}></div>
+                    </div>
+                 </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-card border border-slate-100 shadow-sm">
+              <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4">Delivery Success Rate</h4>
+              <div className="flex flex-col items-center justify-center h-full py-4">
+                 <div className="text-4xl font-black text-blue-600">{stats.deliveryRate}%</div>
+                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-2 tracking-widest">Average Across All Campaigns</p>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-card border border-slate-100 shadow-sm">
+              <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4">Last 24h Activity</h4>
+              <div className="flex flex-col items-center justify-center h-full py-4">
+                 <div className="text-4xl font-black text-orange-500">{stats.last24Hours}</div>
+                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-2 tracking-widest">Devices Active Recently</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'devices' && (
+        <div className="bg-white rounded-card shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+            <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-widest">Registered Devices</h3>
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                placeholder="Search Device ID or Token..."
+                value={searchToken}
+                onChange={e => setSearchToken(e.target.value)}
+                className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-card text-xs outline-none focus:ring-2 focus:ring-blue-500/20 w-64"
+              />
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/50">
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Device</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Platform</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">App Version</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Last Active</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {tokens.filter(t => !searchToken || t.deviceId.includes(searchToken) || t.expoToken.includes(searchToken)).map((token: any) => (
+                  <tr key={token.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-slate-900 text-xs font-mono">{token.deviceId.substring(0, 16)}...</div>
+                      <div className="text-slate-400 text-[10px] font-medium mt-0.5">{token.deviceModel || 'Unknown Device'}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className={`w-3.5 h-3.5 ${token.platform === 'ios' ? 'text-slate-600' : 'text-emerald-500'}`} />
+                        <span className="text-xs font-bold text-slate-700 uppercase">{token.platform}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-bold text-slate-500">{token.appVersion || '1.0.0'}</td>
+                    <td className="px-6 py-4 text-xs text-slate-400">
+                      {token.lastSeen ? new Date(token.lastSeen).toLocaleDateString() : 'Never'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded text-[9px] font-extrabold uppercase tracking-tighter ${token.active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                        {token.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                       <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => { setTestToken(token.expoToken); setActiveSubTab('audience'); }}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-card transition-all"
+                            title="Send Test"
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteToken(token.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-card transition-all"
+                            title="Remove"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                       </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -211,7 +380,8 @@ const PushNotificationManagement = () => {
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-[9px] font-extrabold uppercase tracking-tighter ${
                         campaign.status === 'SENT' ? 'bg-emerald-100 text-emerald-600' : 
-                        campaign.status === 'FAILED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                        campaign.status === 'FAILED' ? 'bg-red-100 text-red-600' : 
+                        campaign.status === 'CANCELLED' ? 'bg-slate-100 text-slate-400' : 'bg-amber-100 text-amber-600'
                       }`}>
                         {campaign.status}
                       </span>
@@ -223,6 +393,22 @@ const PushNotificationManagement = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {campaign.status === 'PENDING' && (
+                          <button 
+                            onClick={() => handleCancelCampaign(campaign.id)}
+                            className="p-2 text-amber-600 hover:bg-amber-50 rounded-card transition-all"
+                            title="Cancel"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => { setNewCampaign(campaign); setEditingCampaign(campaign); setIsCreating(true); }}
+                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-card transition-all"
+                          title="Edit"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </button>
                         <button 
                           onClick={() => handleDuplicateCampaign(campaign.id)}
                           className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-card transition-all"
@@ -327,10 +513,12 @@ const PushNotificationManagement = () => {
             >
               <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
                 <div>
-                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Create New Campaign</h2>
+                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                    {editingCampaign ? 'Edit Campaign' : 'Create New Campaign'}
+                  </h2>
                   <p className="text-slate-500 text-xs font-medium">Design and target your push notification</p>
                 </div>
-                <button onClick={() => setIsCreating(false)} className="p-2 hover:bg-white rounded-full transition-colors border border-transparent hover:border-slate-200">
+                <button onClick={() => { setIsCreating(false); setEditingCampaign(null); }} className="p-2 hover:bg-white rounded-full transition-colors border border-transparent hover:border-slate-200">
                   <X className="w-5 h-5 text-slate-500" />
                 </button>
               </div>
@@ -408,6 +596,9 @@ const PushNotificationManagement = () => {
                             <option value="ACTIVE_USERS">Active Users (7 days)</option>
                             <option value="NEW_USERS">New Users (24h)</option>
                             <option value="ABANDONED_CHECKOUT">Abandoned Checkout</option>
+                            <option value="UPCOMING_RENTALS">Upcoming Rentals</option>
+                            <option value="RETURNING_CUSTOMERS">Returning Customers</option>
+                            <option value="SEARCHED">Searched Destination</option>
                           </select>
                         </div>
                         <div>
@@ -419,6 +610,71 @@ const PushNotificationManagement = () => {
                             placeholder="e.g. United Kingdom"
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
                           />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Smartphone className="w-3 h-3" />
+                        Advanced Options
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Image URL (Optional)</label>
+                          <input 
+                            type="text" 
+                            value={newCampaign.imageUrl}
+                            onChange={e => setNewCampaign({...newCampaign, imageUrl: e.target.value})}
+                            placeholder="https://example.com/image.jpg"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Deep Link / URL</label>
+                          <input 
+                            type="text" 
+                            value={newCampaign.deepLink}
+                            onChange={e => setNewCampaign({...newCampaign, deepLink: e.target.value})}
+                            placeholder="hogicar://booking/123"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Type</label>
+                          <select 
+                            value={newCampaign.type}
+                            onChange={e => setNewCampaign({...newCampaign, type: e.target.value})}
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-extrabold text-xs"
+                          >
+                            <option value="MARKETING">Marketing</option>
+                            <option value="TRANSACTIONAL">Transactional</option>
+                            <option value="SYSTEM">System</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Priority</label>
+                          <select 
+                            value={newCampaign.priority}
+                            onChange={e => setNewCampaign({...newCampaign, priority: e.target.value})}
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-extrabold text-xs"
+                          >
+                            <option value="high">High</option>
+                            <option value="normal">Normal</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Sound</label>
+                          <select 
+                            value={newCampaign.sound}
+                            onChange={e => setNewCampaign({...newCampaign, sound: e.target.value})}
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-extrabold text-xs"
+                          >
+                            <option value="default">Default</option>
+                            <option value="none">None</option>
+                          </select>
                         </div>
                       </div>
                     </div>
@@ -522,7 +778,7 @@ const PushNotificationManagement = () => {
 
               <div className="p-6 border-t bg-slate-50/50 flex justify-end gap-3">
                 <button 
-                  onClick={() => setIsCreating(false)}
+                  onClick={() => { setIsCreating(false); setEditingCampaign(null); }}
                   className="px-6 py-2.5 text-slate-600 hover:text-slate-800 text-xs font-extrabold uppercase tracking-widest"
                 >
                   Discard
@@ -533,7 +789,7 @@ const PushNotificationManagement = () => {
                   className="flex items-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-card text-xs font-extrabold uppercase tracking-widest transition-all shadow-lg shadow-blue-200"
                 >
                   {loading ? <Clock className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  Launch Campaign
+                  {editingCampaign ? 'Save Changes' : 'Launch Campaign'}
                 </button>
               </div>
             </motion.div>
