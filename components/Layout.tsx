@@ -14,8 +14,9 @@ import Check from 'lucide-react/dist/esm/icons/check';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
+import { lazyRetry } from '../utils/lazyRetry';
 
-const Footer = React.lazy(() => import('./Footer'));
+const Footer = lazyRetry(() => import('./Footer'));
 
 const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);

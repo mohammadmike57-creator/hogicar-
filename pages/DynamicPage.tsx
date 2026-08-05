@@ -15,11 +15,12 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { API_BASE_URL } from '../lib/config';
 import { detectRouteType, getRouteSEO } from '../utils/seo';
+import { lazyRetry } from '../utils/lazyRetry';
 
-const Home = React.lazy(() => import('./Home'));
-const Reviews = React.lazy(() => import('../components/Reviews'));
-const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
-const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
+const Home = lazyRetry(() => import('./Home'));
+const Reviews = lazyRetry(() => import('../components/Reviews'));
+const TrustedSuppliers = lazyRetry(() => import('../components/TrustedSuppliers'));
+const LatestTravelGuides = lazyRetry(() => import('../components/LatestTravelGuides'));
 
 const DynamicPage: React.FC = () => {
   const location = useLocation();

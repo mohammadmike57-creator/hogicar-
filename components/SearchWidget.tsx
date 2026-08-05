@@ -12,8 +12,9 @@ import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { fetchLocations, LocationSuggestion } from '../api';
 import CalendarPicker from './CalendarPicker';
 import { startCarSearchPrefetch } from '../utils/searchPrefetch';
+import { lazyRetry } from '../utils/lazyRetry';
 
-const SearchOverlay = React.lazy(() => import('./SearchOverlay'));
+const SearchOverlay = lazyRetry(() => import('./SearchOverlay'));
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
     const hour = Math.floor(i / 2);

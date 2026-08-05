@@ -33,13 +33,14 @@ import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import { TRUSTED_BRANDS } from '../constants';
 import SEOMetadata from '../components/SEOMetadata';
 import SearchWidget from '../components/SearchWidget';
+import { lazyRetry } from '../utils/lazyRetry';
 
 // Lazy load truly below-the-fold components
-const Reviews = React.lazy(() => import('../components/Reviews'));
-const LatestTravelGuides = React.lazy(() => import('../components/LatestTravelGuides'));
-const TrustedSuppliers = React.lazy(() => import('../components/TrustedSuppliers'));
-const PopularDestinations = React.lazy(() => import('../components/PopularDestinations'));
-const FAQSection = React.lazy(() => import('../components/FAQSection'));
+const Reviews = lazyRetry(() => import('../components/Reviews'));
+const LatestTravelGuides = lazyRetry(() => import('../components/LatestTravelGuides'));
+const TrustedSuppliers = lazyRetry(() => import('../components/TrustedSuppliers'));
+const PopularDestinations = lazyRetry(() => import('../components/PopularDestinations'));
+const FAQSection = lazyRetry(() => import('../components/FAQSection'));
 
 import { useCurrency } from '../contexts/CurrencyContext';
 import Breadcrumbs from '../components/Breadcrumbs';
