@@ -22,15 +22,20 @@ import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 import Mail from 'lucide-react/dist/esm/icons/mail';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import Zap from 'lucide-react/dist/esm/icons/zap';
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Play from 'lucide-react/dist/esm/icons/play';
 import { motion, AnimatePresence } from 'framer-motion';
 import { adminFetch } from '../../lib/adminApi';
 import { PushStats, PushCampaign } from '../../types';
 
 const PushNotificationManagement = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'campaigns' | 'audience' | 'history'>('dashboard');
-  const [stats, setStats] = useState<PushStats | null>(null);
+  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'campaigns' | 'audience' | 'history' | 'logs'>('dashboard');
+  const [stats, setStats] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [testToken, setTestToken] = useState('');
+  const [isTesting, setIsTesting] = useState(false);
   const [newCampaign, setNewCampaign] = useState<Partial<PushCampaign>>({
     name: '',
     title: '',
@@ -73,6 +78,42 @@ const PushNotificationManagement = () => {
     }
   };
 
+  const handleDeleteCampaign = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this campaign?')) return;
+    try {
+      await adminFetch(`/api/push/campaigns/${id}`, { method: 'DELETE' });
+      fetchStats();
+    } catch (err) {
+      console.error('Failed to delete campaign', err);
+    }
+  };
+
+  const handleDuplicateCampaign = async (id: number) => {
+    try {
+      await adminFetch(`/api/push/campaigns/${id}/duplicate`, { method: 'POST' });
+      fetchStats();
+      setActiveSubTab('history');
+    } catch (err) {
+      console.error('Failed to duplicate campaign', err);
+    }
+  };
+
+  const handleTestPush = async () => {
+    if (!testToken) return;
+    try {
+      setIsTesting(true);
+      await adminFetch('/api/push/test', {
+        method: 'POST',
+        body: JSON.stringify({ tokens: [testToken] })
+      });
+      alert('Test push sent successfully!');
+    } catch (err) {
+      alert('Failed to send test push');
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   if (loading && !stats) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -111,7 +152,8 @@ const PushNotificationManagement = () => {
           { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
           { id: 'campaigns', label: 'Campaigns', icon: Send },
           { id: 'audience', label: 'Audience', icon: Target },
-          { id: 'history', label: 'History', icon: History }
+          { id: 'history', label: 'History', icon: History },
+          { id: 'logs', label: 'System Logs', icon: Activity }
         ].map(tab => (
           <button
             key={tab.id}
@@ -151,10 +193,11 @@ const PushNotificationManagement = () => {
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Sent</th>
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Opened</th>
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Created</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {stats?.recentCampaigns.map(campaign => (
+                {stats?.recentCampaigns.map((campaign: any) => (
                   <tr key={campaign.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-bold text-slate-900 text-sm">{campaign.name}</div>
@@ -167,20 +210,107 @@ const PushNotificationManagement = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-[9px] font-extrabold uppercase tracking-tighter ${
-                        campaign.status === 'SENT' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                        campaign.status === 'SENT' ? 'bg-emerald-100 text-emerald-600' : 
+                        campaign.status === 'FAILED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
                       }`}>
                         {campaign.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-bold text-slate-700 text-sm">{campaign.sentCount.toLocaleString()}</td>
-                    <td className="px-6 py-4 font-bold text-slate-700 text-sm">{campaign.openedCount.toLocaleString()}</td>
+                    <td className="px-6 py-4 font-bold text-slate-700 text-sm">{(campaign.sentCount || 0).toLocaleString()}</td>
+                    <td className="px-6 py-4 font-bold text-slate-700 text-sm">{(campaign.openedCount || 0).toLocaleString()}</td>
                     <td className="px-6 py-4 text-slate-400 text-xs font-medium">
                       {campaign.createdAt ? new Date(campaign.createdAt).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleDuplicateCampaign(campaign.id)}
+                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-card transition-all"
+                          title="Duplicate"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteCampaign(campaign.id)}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-card transition-all"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'logs' && (
+        <div className="bg-white rounded-card shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6 border-b border-slate-50">
+            <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-widest">System Delivery Logs</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/50">
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Level</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Message</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Time</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {stats?.recentLogs.map((log: any) => (
+                  <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded text-[9px] font-extrabold uppercase tracking-tighter ${
+                        log.level === 'ERROR' ? 'bg-red-100 text-red-600' : 
+                        log.level === 'WARN' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'
+                      }`}>
+                        {log.level}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600 font-medium">{log.message}</td>
+                    <td className="px-6 py-4 text-slate-400 text-xs font-medium">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'audience' && (
+        <div className="bg-white p-8 rounded-card border border-slate-100 shadow-sm">
+          <div className="max-w-md">
+            <h3 className="text-lg font-extrabold text-slate-900 mb-2">Test Push Notification</h3>
+            <p className="text-slate-500 text-sm mb-6">Send a test notification to a specific Expo Push Token.</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Expo Push Token</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={testToken}
+                    onChange={e => setTestToken(e.target.value)}
+                    placeholder="ExponentPushToken[...]"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-card focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
+                  />
+                  <button 
+                    onClick={handleTestPush}
+                    disabled={isTesting || !testToken}
+                    className="px-6 py-3 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white rounded-card text-xs font-extrabold uppercase tracking-widest transition-all"
+                  >
+                    {isTesting ? <Clock className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -274,7 +404,10 @@ const PushNotificationManagement = () => {
                             <option value="EVERYONE">Everyone</option>
                             <option value="COUNTRY">Specific Country</option>
                             <option value="CITY">Specific City</option>
+                            <option value="PLATFORM">Device Platform</option>
                             <option value="ACTIVE_USERS">Active Users (7 days)</option>
+                            <option value="NEW_USERS">New Users (24h)</option>
+                            <option value="ABANDONED_CHECKOUT">Abandoned Checkout</option>
                           </select>
                         </div>
                         <div>
