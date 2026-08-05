@@ -751,3 +751,68 @@ export interface BlogArticle {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface PushToken {
+  id?: number;
+  deviceId: string;
+  userId?: number;
+  expoToken: string;
+  platform?: string;
+  deviceModel?: string;
+  osVersion?: string;
+  appVersion?: string;
+  language?: string;
+  country?: string;
+  timezone?: string;
+  lastSeen?: string;
+  active: boolean;
+  prefOffers: boolean;
+  prefBookings: boolean;
+  prefPayments: boolean;
+  prefTravelTips: boolean;
+  prefPickupReminder: boolean;
+  prefReturnReminder: boolean;
+  prefNews: boolean;
+  prefSystemAlerts: boolean;
+  prefEmergency: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PushCampaign {
+  id?: number;
+  name: string;
+  title: string;
+  subtitle?: string;
+  body: string;
+  imageUrl?: string;
+  deepLink?: string;
+  buttonText?: string;
+  type: string;
+  priority: string;
+  expirationDate?: string;
+  sound?: string;
+  badgeCount?: number;
+  schedule: string;
+  scheduleTime?: string;
+  timezone?: string;
+  audience: string;
+  targetValue?: string;
+  status: string;
+  sentCount: number;
+  deliveredCount: number;
+  openedCount: number;
+  failedCount: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PushStats {
+  totalDevices: number;
+  activeTokens: number;
+  iosDevices: number;
+  androidDevices: number;
+  last24Hours: number;
+  failedTokens: number;
+  recentCampaigns: PushCampaign[];
+}

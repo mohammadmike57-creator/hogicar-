@@ -78,6 +78,7 @@ import { Logo } from '../../components/Logo';
 import ImageUploadField from '../components/ImageUploadField';
 import BlogManagement from '../components/BlogManagement';
 import SitemapManagement from '../components/SitemapManagement';
+import PushNotificationManagement from '../components/PushNotificationManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
     adminFetch, 
@@ -562,6 +563,9 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <NavItem section="carlibrary" label="Global Library" icon={Car} />
           <NavItem section="apipartners" label="Integrations" icon={Share2} />
           <NavItem section="affiliates" label="Affiliate Hub" icon={DollarSign} />
+
+          <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">Marketing</div>
+          <NavItem section="push" label="Push Notifications" icon={Bell} />
 
           <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">System</div>
           <NavItem section="cms" label="Pages" icon={FileText} />
@@ -4965,6 +4969,7 @@ export const AdminDashboard: React.FC = () => {
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;
       case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} />;
+      case 'push': return <PushNotificationManagement />;
       case 'homepage':
         if (loadingHomepageEditor) {
           return <div className="p-8 text-center text-slate-500 font-extrabold uppercase tracking-widest text-xs">Loading Homepage Editor...</div>;
