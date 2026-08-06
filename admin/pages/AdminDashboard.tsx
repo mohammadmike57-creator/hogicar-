@@ -91,6 +91,7 @@ import {
 import { API_BASE_URL } from '../../lib/config';
 import ExternalSuppliersPage from './ExternalSuppliers';
 import { calculatePrice } from '../../utils/bookingUtils';
+import { detectRouteType, getDefaultSEOPage } from '../../utils/seo';
 import { 
   Supplier, CommissionType, BookingMode, PickupType, ApiConnection, ApiPartner, 
   PageContent, SEOConfig, HomepageContent, CarModel, CarCategory, 
@@ -335,6 +336,16 @@ const InputField = ({ label, error, helperText, ...props }: any) => (
     {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
     {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
   </div>
+);
+
+const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) => (
+  <button
+    type="button"
+    onClick={() => onChange(!checked)}
+    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${checked ? 'bg-[#007ac2]' : 'bg-gray-300'}`}
+  >
+    <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+  </button>
 );
 
 
@@ -2424,7 +2435,7 @@ const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
 );
 
 // ==================== Fleet ====================
-const FleetContent = ({ cars, onRefresh }: any) => (
+const FleetContent = ({ cars, onRefresh, setManagingPromosForCar, setIsPromotionModalOpen }: any) => (
   <div className="bg-white rounded-card shadow-lg border border-gray-100 overflow-hidden">
     <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
         <SectionHeader title="Global Fleet" icon={Car} subtitle="Fleet availability across all suppliers" />
@@ -2513,7 +2524,7 @@ const PageEditorModal = ({ page, isOpen, onClose, onSave }: any) => {
   if (!isOpen) return null;
   return (<Modal isOpen={isOpen} onClose={onClose} title={`Edit ${page?.slug || 'Page'}`}><InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} /><TextAreaField label="Content" value={content} onChange={e => setContent(e.target.value)} rows={10} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={handleSave} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
 };
-const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
+const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => {
   const [activeTab, setActiveTab] = useState<'seo' | 'layout' | 'builder' | 'style' | 'links'>('seo');
   const [route, setRoute] = useState(config?.route || '');
   const [title, setTitle] = useState(config?.title || '');
@@ -2689,6 +2700,50 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave }: any) => {
         setActiveTab('seo');
     }
   }, [config, isOpen]);
+
+  useEffect(() => {
+    if (!route || route === '/' || !isOpen) return;
+
+    const { routeType, locationSlug } = detectRouteType(route);
+    if (!routeType || !locationSlug) return;
+
+    // Find location data if available
+    const matchedLocation = locations?.find((l: any) => 
+      l.iataCode?.toLowerCase() === locationSlug.toLowerCase() ||
+      l.municipality?.toLowerCase()?.replace(/\s+/g, '-') === locationSlug.toLowerCase() ||
+      l.name?.toLowerCase()?.replace(/\s+/g, '-') === locationSlug.toLowerCase()
+    );
+
+    const defaults = getDefaultSEOPage(routeType, locationSlug, matchedLocation);
+
+    // Apply defaults only if fields are empty
+    if (!title) setTitle(defaults.title);
+    if (!metaTitle) setMetaTitle(defaults.ogTitle);
+    if (!description) setDescription(defaults.description);
+    if (!keywords) setKeywords(defaults.keywords);
+    if (!focusKeyword) setFocusKeyword(defaults.focusKeyword);
+    if (!canonicalUrl) setCanonicalUrl(defaults.canonicalUrl);
+    if (!breadcrumbTitle) setBreadcrumbTitle(defaults.breadcrumbTitle);
+    if (!ogTitle) setOgTitle(defaults.ogTitle);
+    if (!twitterTitle) setTwitterTitle(defaults.twitterTitle);
+    if (!imageAltText) setImageAltText(defaults.imageAltText);
+    if (!imageTitle) setImageTitle(defaults.imageTitle);
+    if (!destinationName) setDestinationName(defaults.destinationName);
+    if (!countryTag) setCountryTag(defaults.countryTag);
+    if (!airportTags) setAirportTags(defaults.airportTags);
+    
+    // OG Image defaults to site-wide if empty
+    if (!ogImage) setOgImage(defaults.ogImage);
+    
+    // Defaults for search intent, indexing, and published
+    if (!searchIntent) setSearchIntent(defaults.searchIntent);
+    
+    // For booleans, we only set if it's a new config (no id)
+    if (!config?.id) {
+        setIndexable(defaults.indexable);
+        setPublished(defaults.published);
+    }
+  }, [route, isOpen, locations]);
 
   const handleSave = () => {
     if (!route || !title || !description) {
@@ -4525,6 +4580,8 @@ export const AdminDashboard: React.FC = () => {
   const [editingSeoConfig, setEditingSeoConfig] = useState<any>(null);
   const [seoConfigs, setSeoConfigs] = useState<SEOConfig[]>([]);
   const [loadingSeo, setLoadingSeo] = useState(false);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
   const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
   const [editingCarModel, setEditingCarModel] = useState<any>(null);
   const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
@@ -4640,6 +4697,19 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchLocations = async () => {
+    setLoadingLocations(true);
+    try {
+      const res = await adminFetch('/api/admin/locations');
+      setLocations(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('Failed to fetch locations', e);
+      setLocations([]);
+    } finally {
+      setLoadingLocations(false);
+    }
+  };
+
   const fetchBookings = async (supplierId?: string | null) => {
     setLoadingBookings(true);
     try {
@@ -4731,6 +4801,7 @@ export const AdminDashboard: React.FC = () => {
     }
     if (activeSection === 'seo') {
       fetchSeoConfigs();
+      fetchLocations();
     }
   }, [activeSection]);
 
@@ -4961,7 +5032,7 @@ export const AdminDashboard: React.FC = () => {
       case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
-      case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} />;
+      case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
       case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
       case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
@@ -4990,7 +5061,7 @@ export const AdminDashboard: React.FC = () => {
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} onSave={handleSavePage} />}
-      {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} onSave={handleSaveSeoConfig} />}
+      {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} onSave={handleSaveSeoConfig} locations={locations} />}
       {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       
