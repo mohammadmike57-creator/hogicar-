@@ -2731,6 +2731,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
     if (!destinationName) setDestinationName(defaults.destinationName);
     if (!countryTag) setCountryTag(defaults.countryTag);
     if (!airportTags) setAirportTags(defaults.airportTags);
+    if (!introText) setIntroText(defaults.introText);
     
     // OG Image defaults to site-wide if empty
     if (!ogImage) setOgImage(defaults.ogImage);

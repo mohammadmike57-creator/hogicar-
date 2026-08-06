@@ -120,17 +120,34 @@ const App: React.FC = () => {
             <Route path="/united-arab-emirates" element={<DynamicPage />} />
             
             <Route path="/car-rental-:city" element={<DynamicPage />} />
+            <Route path="/car-hire-:city" element={<DynamicPage type="carHire" />} />
             <Route path="/airport-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/airport-car-hire-:city" element={<DynamicPage type="airportCarHire" />} />
             <Route path="/best-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/best-car-hire-:city" element={<DynamicPage type="bestCarHire" />} />
             <Route path="/cheap-car-rental-:slug" element={<DynamicPage />} />
+            <Route path="/cheap-car-hire-:slug" element={<DynamicPage type="cheapCarHire" />} />
             <Route path="/economy-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/economy-car-hire-:city" element={<DynamicPage type="economyCarHire" />} />
             <Route path="/luxury-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/luxury-car-hire-:city" element={<DynamicPage type="luxuryCarHire" />} />
             <Route path="/monthly-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/monthly-car-hire-:city" element={<DynamicPage type="monthlyCarHire" />} />
             <Route path="/long-term-rental-:city" element={<DynamicPage />} />
+            <Route path="/long-term-car-hire-:city" element={<DynamicPage type="longTermCarHire" />} />
             <Route path="/suv-rental-:city" element={<DynamicPage />} />
+            <Route path="/suv-hire-:city" element={<DynamicPage type="suvHire" />} />
             <Route path="/van-rental-:city" element={<DynamicPage />} />
+            <Route path="/van-hire-:city" element={<DynamicPage type="vanHire" />} />
             <Route path="/rent-a-car-:country" element={<DynamicPage />} />
             <Route path="/:airport-airport-car-rental" element={<DynamicPage />} />
+
+            {/* New high-intent keyword patterns */}
+            <Route path="/weekly-car-rental-:slug" element={<DynamicPage type="weeklyCarRental" />} />
+            <Route path="/daily-car-rental-:slug" element={<DynamicPage type="dailyCarRental" />} />
+            <Route path="/electric-car-rental-:slug" element={<DynamicPage type="electricCarRental" />} />
+            <Route path="/convertible-rental-:slug" element={<DynamicPage type="convertibleRental" />} />
+            <Route path="/one-way-car-rental-:slug" element={<DynamicPage type="oneWayCarRental" />} />
 
             <Route path="*" element={<DynamicPage />} />
           </Route>
