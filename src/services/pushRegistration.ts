@@ -3,8 +3,11 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import axios from 'axios';
 import * as Localization from 'expo-localization';
+import Constants from 'expo-constants';
 
-const API_BASE_URL = 'https://api.hogicar.com'; // Replace with actual API URL
+// Architecture Note: In a production environment, use expo-secure-store 
+// to persist the deviceId so it survives app reinstalls.
+const API_BASE_URL = 'https://api.hogicar.com'; 
 
 export interface PushRegistrationData {
   expoToken: string;
@@ -29,12 +32,14 @@ export async function registerForPushNotificationsAsync(userId?: number) {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      console.log('Failed to get push token for push notification!');
+      console.warn('HogiCar: Failed to get push token - Permission not granted');
       return;
     }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
+    token = (await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+    })).data;
   } else {
-    console.log('Must use physical device for Push Notifications');
+    console.warn('HogiCar: Must use physical device for Push Notifications');
     return;
   }
 
@@ -49,24 +54,28 @@ export async function registerForPushNotificationsAsync(userId?: number) {
 
   const registrationData: PushRegistrationData = {
     expoToken: token,
-    deviceId: Device.osBuildId || 'unknown',
+    // FALLBACK: Using osBuildId, but SecureStore + UUID is recommended for production consistency
+    deviceId: Device.osBuildId || Device.modelId || 'unknown-device',
     platform: Platform.OS.toUpperCase(),
-    deviceModel: Device.modelName || 'unknown',
-    appVersion: '1.0.0', // Should come from Constants.manifest.version
+    deviceModel: Device.modelName || 'Unknown Model',
+    appVersion: Constants.expoConfig?.version || '1.0.0',
     osVersion: Device.osVersion || 'unknown',
     language: Localization.locale,
     country: Localization.region || 'unknown',
-    timezone: Localization.timezone,
+    timezone: Localization.timezone || 'UTC',
     userId: userId
   };
 
   try {
-    await axios.post(`${API_BASE_URL}/api/push/register`, registrationData);
-    console.log('Push notification registration successful');
+    const response = await axios.post(`${API_BASE_URL}/api/push/register`, registrationData, {
+      timeout: 10000,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    console.log('HogiCar: Push registration successful', response.status);
   } catch (error) {
-    console.error('Failed to register for push notifications', error);
-    // Retry logic could be implemented here
-    setTimeout(() => registerForPushNotificationsAsync(userId), 5000);
+    console.error('HogiCar: Failed to register for push notifications', error);
+    // Exponential backoff or simple retry
+    setTimeout(() => registerForPushNotificationsAsync(userId), 15000);
   }
 
   return token;
