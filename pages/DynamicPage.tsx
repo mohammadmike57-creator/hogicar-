@@ -138,7 +138,7 @@ const DynamicPage: React.FC = () => {
 
           // Robust H1 extraction
           const rawTitle = dynamicSEO.title || '';
-          const h1Parts = rawTitle.split(/ [–\-|] /);
+          const h1Parts = rawTitle.split(/\s+[–\-|]\s+/);
           const h1Title = h1Parts[0] || 'Car Rental';
 
           const fallbackConfig = {
@@ -192,22 +192,24 @@ const DynamicPage: React.FC = () => {
 
   // If it's a landing page, render the Home component with SEO config
   if (isLandingPage && seoConfig) {
-    const breadcrumbItems = [];
-    if (seoConfig.countryTag && seoConfig.routeType !== 'COUNTRY') {
+    const breadcrumbItems = [{ name: 'Home', route: '/' }];
+    if (seoConfig && seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
       breadcrumbItems.push({ 
         name: seoConfig.countryTag, 
         route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
       });
     }
-    if (seoConfig.cityTag && seoConfig.routeType === 'AIRPORT') {
+
+    if (seoConfig && seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
       breadcrumbItems.push({ 
         name: seoConfig.cityTag, 
         route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
       });
     }
+
     breadcrumbItems.push({ 
-      name: seoConfig.destinationName || seoConfig.h1Title || 'Car Rental', 
-      route: seoConfig.route 
+      name: seoConfig?.destinationName || seoConfig?.h1Title || 'Car Rental', 
+      route: seoConfig?.route || location.pathname 
     });
 
     return (

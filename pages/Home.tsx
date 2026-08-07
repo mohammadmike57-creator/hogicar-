@@ -529,7 +529,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
   const breadcrumbItems = React.useMemo(() => {
     if (!seoConfig) return [];
-    const items = [];
+    const items = [{ name: 'Home', route: '/' }];
     if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
       items.push({ 
         name: seoConfig.countryTag, 
@@ -543,11 +543,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       });
     }
     items.push({ 
-      name: seoConfig.h1Title || seoConfig.title, 
-      route: seoConfig.route 
+      name: seoConfig.h1Title || seoConfig.title || 'Car Rental', 
+      route: seoConfig.route || location.pathname 
     });
     return items;
-  }, [seoConfig]);
+  }, [seoConfig, location.pathname]);
 
   const searchInitialValues = React.useMemo(() => ({
     pickup: pickupCode,

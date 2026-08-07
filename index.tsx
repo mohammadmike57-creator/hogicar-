@@ -21,6 +21,17 @@ if (typeof window !== 'undefined' && (window as any).trustedTypes && (window as 
 // IMMEDIATE BYPASS FOR STATIC FILES (SITEMAP, ROBOTS)
 // This must run before ANY React initialization to prevent the SPA from taking over.
 (function() {
+  // Clear any existing service workers that might be causing "Content unavailable" errors
+  if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      for (const registration of registrations) {
+        registration.unregister().then(success => {
+          if (success) console.log('[SPA] Unregistered stale service worker');
+        });
+      }
+    }).catch(err => console.warn('[SPA] Failed to get service worker registrations', err));
+  }
+
   const pathname = window.location.pathname.toLowerCase();
   const search = window.location.search || "";
   
