@@ -110,7 +110,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       <meta property="og:site_name" content="Hogicar" />
       <meta property="og:title" content={finalOgTitle} />
       <meta property="og:description" content={finalOgDesc} />
-      <meta property="og:url" content={PUBLIC_BASE_URL + location.pathname} />
+      <meta property="og:url" content={canonical} />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={ogImage} />
 
@@ -137,11 +137,11 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
         />
       )}
 
-      <link rel="alternate" hreflang={lang} href={PUBLIC_BASE_URL + normalizedPathname} />
+      <link rel="alternate" hrefLang={lang} href={PUBLIC_BASE_URL + normalizedPathname} />
       {alternateRoute && (
         <>
-          <link rel="alternate" hreflang={lang === 'en' ? 'ar' : 'en'} href={PUBLIC_BASE_URL + alternateRoute} />
-          <link rel="alternate" hreflang="x-default" href={PUBLIC_BASE_URL + (lang === 'en' ? normalizedPathname : alternateRoute)} />
+          <link rel="alternate" hrefLang={lang === 'en' ? 'ar' : 'en'} href={PUBLIC_BASE_URL + alternateRoute} />
+          <link rel="alternate" hrefLang="x-default" href={PUBLIC_BASE_URL + (lang === 'en' ? normalizedPathname : alternateRoute)} />
         </>
       )}
     </Helmet>

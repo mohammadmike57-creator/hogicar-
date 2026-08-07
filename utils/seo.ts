@@ -351,6 +351,7 @@ export const getRouteSEO = (routeType: string, cityOrCountry: string, fullPath: 
     title: defaults.title,
     description: defaults.description,
     introText: defaults.introText,
+    canonicalUrl: canonical,
     canonical: canonical,
   };
 };

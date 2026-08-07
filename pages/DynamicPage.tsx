@@ -147,6 +147,7 @@ const DynamicPage: React.FC = () => {
             routeType: seoRouteType,
             title: dynamicSEO.title,
             description: dynamicSEO.description,
+            canonicalUrl: dynamicSEO.canonicalUrl,
             introText: dynamicSEO.introText,
             h1Title: h1Title,
             destinationName: locationSlug ? locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Destination',

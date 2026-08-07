@@ -497,6 +497,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     link: seoConfig?.heroPromotionLink || '',
     color: seoConfig?.heroPromotionColor || '#E11D48'
   };
+  const shouldPreloadHeroImage = sections.hero && !heroVideo && !!heroBackgroundImage && (!isCustomLanding || !!seoConfig?.heroImage);
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
   const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
@@ -577,8 +578,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         twitterDescription={seoConfig?.twitterDescription}
         noIndex={seoConfig ? !seoConfig.indexable : undefined}
         structuredData={seoConfig?.structuredData}
-        preloadImageUrl={heroBackgroundImage}
-        preloadImageSrcSet={heroWebpSrcSet || heroPngSrcSet}
+        preloadImageUrl={shouldPreloadHeroImage ? heroBackgroundImage : undefined}
+        preloadImageSrcSet={shouldPreloadHeroImage ? (heroWebpSrcSet || heroPngSrcSet) : undefined}
       />
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
