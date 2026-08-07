@@ -530,13 +530,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const breadcrumbItems = React.useMemo(() => {
     if (!seoConfig) return [];
     const items = [];
-    if (seoConfig.countryTag && seoConfig.routeType !== 'COUNTRY') {
+    if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
       items.push({ 
         name: seoConfig.countryTag, 
         route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
       });
     }
-    if (seoConfig.cityTag && seoConfig.routeType === 'AIRPORT') {
+    if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
       items.push({ 
         name: seoConfig.cityTag, 
         route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
@@ -630,7 +630,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
             {isCustomLanding && (
               <div className="flex flex-col items-center mb-4">
                 <Breadcrumbs items={breadcrumbItems} variant="light" />
-                {seoConfig.countryTag && seoConfig.routeType !== 'COUNTRY' && (
+                {seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY' && (
                   <div className="mt-4">
                     <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-full border border-white/20">
                       {seoConfig.countryTag}

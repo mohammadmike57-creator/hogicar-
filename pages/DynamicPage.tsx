@@ -6,7 +6,7 @@ import SEOMetadata from '../components/SEOMetadata';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import Clock from 'lucide-react/dist/esm/icons/clock';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import Shield from 'lucide-react/dist/esm/icons/shield';
 import Award from 'lucide-react/dist/esm/icons/award';
@@ -136,14 +136,19 @@ const DynamicPage: React.FC = () => {
           if (routeType === 'country' || routeType === 'rentACar') seoRouteType = 'COUNTRY';
           if (routeType === 'airportCarRental' || routeType === 'cheapAirport' || routeType === 'airportSpecific') seoRouteType = 'AIRPORT';
 
+          // Robust H1 extraction
+          const rawTitle = dynamicSEO.title || '';
+          const h1Parts = rawTitle.split(/ [–-|] /);
+          const h1Title = h1Parts[0] || 'Car Rental';
+
           const fallbackConfig = {
             route: route,
             routeType: seoRouteType,
             title: dynamicSEO.title,
             description: dynamicSEO.description,
             introText: dynamicSEO.introText,
-            h1Title: dynamicSEO.title.split(' – ')[0], // Extract H1 from title
-            destinationName: locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            h1Title: h1Title,
+            destinationName: locationSlug ? locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Destination',
             indexable: true,
             showHero: true,
             showSearch: true,
@@ -178,7 +183,7 @@ const DynamicPage: React.FC = () => {
       <>
         <SEOMetadata />
         <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
-           <Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" />
+           <LoaderCircle className="w-8 h-8 text-[#007ac2] animate-spin" />
            <p className="mt-4 text-slate-500 font-medium text-sm">Loading page...</p>
         </div>
       </>
@@ -207,7 +212,7 @@ const DynamicPage: React.FC = () => {
 
     return (
       <div className="bg-slate-50 min-h-screen">
-        <React.Suspense fallback={<div className="min-h-[60vh] flex flex-col items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-[#007ac2] animate-spin" /></div>}>
+        <React.Suspense fallback={<div className="min-h-[60vh] flex flex-col items-center justify-center bg-white"><LoaderCircle className="w-8 h-8 text-[#007ac2] animate-spin" /></div>}>
           <Home seoConfig={seoConfig} />
         </React.Suspense>
       </div>

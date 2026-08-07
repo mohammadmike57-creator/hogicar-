@@ -47,7 +47,7 @@ import Phone from 'lucide-react/dist/esm/icons/phone';
 import Building from 'lucide-react/dist/esm/icons/building';
 import Bus from 'lucide-react/dist/esm/icons/bus';
 import Handshake from 'lucide-react/dist/esm/icons/handshake';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import Zap from 'lucide-react/dist/esm/icons/zap';
 import ThumbsUp from 'lucide-react/dist/esm/icons/thumbs-up';
@@ -535,7 +535,7 @@ const CarDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-accent mx-auto" /><p className="mt-4 text-slate-600">Loading car details...</p></div>
+        <div className="text-center"><LoaderCircle className="w-12 h-12 animate-spin text-accent mx-auto" /><p className="mt-4 text-slate-600">Loading car details...</p></div>
       </div>
     );
   }

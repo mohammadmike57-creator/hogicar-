@@ -125,14 +125,11 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
         </script>
       )}
 
-      {preloadImageUrl && preloadImageUrl.length > 2 && (
+      {preloadImageUrl && typeof preloadImageUrl === 'string' && preloadImageUrl.length > 2 && (
         <link 
           rel="preload" 
           as="image" 
-          id="hero-preload" 
           href={preloadImageUrl} 
-          imagesrcset={preloadImageSrcSet} 
-          imagesizes={preloadImageSrcSet ? '100vw' : undefined}
         />
       )}
 
