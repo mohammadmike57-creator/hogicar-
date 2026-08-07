@@ -627,7 +627,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </div>
 
           <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10 mt-2 sm:mt-0">
-            {isCustomLanding && <div className="mb-4"><Breadcrumbs items={breadcrumbItems} variant="light" /></div>}
+            {isCustomLanding && (
+              <div className="flex flex-col items-center mb-4">
+                <Breadcrumbs items={breadcrumbItems} variant="light" />
+                {seoConfig.countryTag && seoConfig.routeType !== 'COUNTRY' && (
+                  <div className="mt-4">
+                    <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-full border border-white/20">
+                      {seoConfig.countryTag}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="min-h-[60px] sm:min-h-[80px] lg:min-h-[100px] flex items-center justify-center">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-2 lg:mb-3 leading-[1.1] tracking-tight drop-shadow-2xl max-w-4xl mx-auto px-4 uppercase">
                   {displayH1}
@@ -884,6 +895,85 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
           </section>
       )}
 
+      {/* 5.5 POPULAR CAR RENTAL DESTINATIONS (NEW SECTION) */}
+      {!isCustomLanding && (
+        <section className="py-24 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-20">
+              <p className="text-blue-600 font-black uppercase text-xs tracking-[0.3em] mb-4">Worldwide Network</p>
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">Popular Car Rental Destinations</h2>
+              <p className="text-slate-500 font-bold uppercase text-xs tracking-[0.2em]">Top-rated locations across our global network</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+              {[
+                {
+                  country: 'United Arab Emirates',
+                  cities: [
+                    { name: 'Dubai', slug: 'dubai' },
+                    { name: 'Abu Dhabi', slug: 'abu-dhabi' },
+                    { name: 'Sharjah', slug: 'sharjah' },
+                    { name: 'Ras Al Khaimah', slug: 'ras-al-khaimah' },
+                    { name: 'Fujairah', slug: 'fujairah' },
+                    { name: 'Ajman', slug: 'ajman' }
+                  ]
+                },
+                {
+                  country: 'Saudi Arabia',
+                  cities: [
+                    { name: 'Riyadh', slug: 'riyadh' },
+                    { name: 'Jeddah', slug: 'jeddah' },
+                    { name: 'Dammam', slug: 'dammam' }
+                  ]
+                },
+                {
+                  country: 'Egypt',
+                  cities: [
+                    { name: 'Cairo', slug: 'cairo' },
+                    { name: 'Hurghada', slug: 'hurghada' },
+                    { name: 'Alexandria', slug: 'alexandria' },
+                    { name: 'Giza', slug: 'giza' }
+                  ]
+                },
+                {
+                  country: 'Jordan & Others',
+                  cities: [
+                    { name: 'Amman', slug: 'amman' },
+                    { name: 'Aqaba', slug: 'aqaba' },
+                    { name: 'Muscat', slug: 'muscat' },
+                    { name: 'Salalah', slug: 'salalah' },
+                    { name: 'Doha', slug: 'doha' },
+                    { name: 'Manama', slug: 'manama' },
+                    { name: 'Kuwait City', slug: 'kuwait-city' }
+                  ]
+                }
+              ].map((group, idx) => (
+                <div key={idx} className="space-y-8">
+                  <div className="relative">
+                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight pb-3 inline-block">
+                      {group.country}
+                    </h3>
+                    <div className="absolute bottom-0 left-0 w-12 h-1 bg-accent rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    {group.cities.map((city, cIdx) => (
+                      <Link 
+                        key={cIdx} 
+                        to={`/car-rental-${city.slug}`} 
+                        className="text-slate-600 hover:text-accent font-bold text-[13px] transition-all flex items-center gap-2 group whitespace-nowrap"
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-accent transition-colors"></div>
+                        Car Rental {city.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 6. CUSTOMER REVIEWS */}
       {sections.reviews && (
         <React.Suspense fallback={<div className="h-64 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
@@ -968,42 +1058,6 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         </React.Suspense>
       )}
 
-      {/* SEO Popular Links Grid */}
-      {!isCustomLanding && (
-        <section className="py-16 bg-white border-t border-slate-100">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-2xl font-black text-slate-900 mb-8 uppercase tracking-tight">Popular Car Rental Destinations</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-4 gap-x-8">
-              {[
-                { name: 'Car Rental Dubai', path: '/car-rental-dubai' },
-                { name: 'Car Rental Abu Dhabi', path: '/car-rental-abu-dhabi' },
-                { name: 'Car Rental Cairo', path: '/car-rental-cairo' },
-                { name: 'Car Rental Amman', path: '/car-rental-amman' },
-                { name: 'Car Rental Riyadh', path: '/car-rental-riyadh' },
-                { name: 'Car Rental Manama', path: '/car-rental-manama' },
-                { name: 'Car Rental Doha', path: '/car-rental-doha' },
-                { name: 'Car Rental Muscat', path: '/car-rental-muscat' },
-                { name: 'Car Rental Kuwait City', path: '/car-rental-kuwait-city' },
-                { name: 'Car Rental Jeddah', path: '/car-rental-jeddah' },
-                { name: 'Car Rental Sharjah', path: '/car-rental-sharjah' },
-                { name: 'Car Rental Hurghada', path: '/car-rental-hurghada' },
-                { name: 'Car Rental Aqaba', path: '/car-rental-aqaba' },
-                { name: 'Car Rental Dammam', path: '/car-rental-dammam' },
-                { name: 'Car Rental Salalah', path: '/car-rental-salalah' },
-                { name: 'Car Rental Alexandria', path: '/car-rental-alexandria' },
-                { name: 'Car Rental Giza', path: '/car-rental-giza' },
-                { name: 'Car Rental Ras Al Khaimah', path: '/car-rental-ras-al-khaimah' },
-                { name: 'Car Rental Fujairah', path: '/car-rental-fujairah' },
-                { name: 'Car Rental Ajman', path: '/car-rental-ajman' }
-              ].map((link, idx) => (
-                <Link key={idx} to={link.path} className="text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors">
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
     </div>
   );

@@ -101,9 +101,9 @@ export const Footer = React.memo(() => (
           </div>
         </nav>
 
-        {/* SEO City Links Section */}
+        {/* Worldwide Car Rental Destinations Section */}
         <div className="border-t border-blue-800/50 pt-12 mb-12">
-            <h3 className="text-white font-black text-lg mb-8 uppercase tracking-tight">Car Rental by City</h3>
+            <h3 className="text-white font-black text-lg mb-8 uppercase tracking-tight">Worldwide Car Rental Destinations</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-10">
                 {[
                     {
@@ -141,16 +141,16 @@ export const Footer = React.memo(() => (
                         ]
                     },
                     {
-                        country: 'Other Destinations',
+                        country: 'Jordan & Others',
                         links: [
                             { name: 'Car Rental Amman', path: '/car-rental-amman' },
                             { name: 'Airport Car Rental Amman', path: '/airport-car-rental-amman' },
+                            { name: 'Car Rental Aqaba', path: '/car-rental-aqaba' },
                             { name: 'Car Rental Doha', path: '/car-rental-doha' },
                             { name: 'Car Rental Muscat', path: '/car-rental-muscat' },
+                            { name: 'Car Rental Salalah', path: '/car-rental-salalah' },
                             { name: 'Car Rental Manama', path: '/car-rental-manama' },
                             { name: 'Car Rental Kuwait City', path: '/car-rental-kuwait-city' },
-                            { name: 'Car Rental Salalah', path: '/car-rental-salalah' },
-                            { name: 'Car Rental Aqaba', path: '/car-rental-aqaba' },
                         ]
                     }
                 ].map((group, idx) => (
