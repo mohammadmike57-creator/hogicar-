@@ -136,9 +136,9 @@ const DynamicPage: React.FC = () => {
           if (routeType === 'country' || routeType === 'rentACar') seoRouteType = 'COUNTRY';
           if (routeType === 'airportCarRental' || routeType === 'cheapAirport' || routeType === 'airportSpecific') seoRouteType = 'AIRPORT';
 
-          // Robust H1 extraction
+          // Robust H1 extraction using unicode escapes for en-dash, hyphen and pipe
           const rawTitle = dynamicSEO.title || '';
-          const h1Parts = rawTitle.split(/\s+[–\-|]\s+/);
+          const h1Parts = rawTitle.split(/\s+[\u2013\-\|]\s+/);
           const h1Title = h1Parts[0] || 'Car Rental';
 
           const fallbackConfig = {
@@ -193,24 +193,29 @@ const DynamicPage: React.FC = () => {
   // If it's a landing page, render the Home component with SEO config
   if (isLandingPage && seoConfig) {
     const breadcrumbItems = [{ name: 'Home', route: '/' }];
-    if (seoConfig && seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
-      breadcrumbItems.push({ 
-        name: seoConfig.countryTag, 
-        route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
-      });
-    }
+    
+    try {
+      if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
+        breadcrumbItems.push({ 
+          name: seoConfig.countryTag, 
+          route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
+        });
+      }
 
-    if (seoConfig && seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
-      breadcrumbItems.push({ 
-        name: seoConfig.cityTag, 
-        route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
-      });
-    }
+      if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
+        breadcrumbItems.push({ 
+          name: seoConfig.cityTag, 
+          route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
+        });
+      }
 
-    breadcrumbItems.push({ 
-      name: seoConfig?.destinationName || seoConfig?.h1Title || 'Car Rental', 
-      route: seoConfig?.route || location.pathname 
-    });
+      breadcrumbItems.push({ 
+        name: seoConfig?.destinationName || seoConfig?.h1Title || 'Car Rental', 
+        route: seoConfig?.route || location.pathname 
+      });
+    } catch (e) {
+      console.warn("Failed to build breadcrumbs:", e);
+    }
 
     return (
       <div className="bg-slate-50 min-h-screen">

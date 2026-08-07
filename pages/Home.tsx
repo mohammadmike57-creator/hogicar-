@@ -530,22 +530,26 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const breadcrumbItems = React.useMemo(() => {
     if (!seoConfig) return [];
     const items = [{ name: 'Home', route: '/' }];
-    if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
+    try {
+      if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
+        items.push({ 
+          name: seoConfig.countryTag, 
+          route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
+        });
+      }
+      if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
+        items.push({ 
+          name: seoConfig.cityTag, 
+          route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
+        });
+      }
       items.push({ 
-        name: seoConfig.countryTag, 
-        route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
+        name: seoConfig.destinationName || seoConfig.h1Title || 'Car Rental', 
+        route: seoConfig.route || location.pathname 
       });
+    } catch (e) {
+      console.warn("Home: Failed to build breadcrumbs:", e);
     }
-    if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
-      items.push({ 
-        name: seoConfig.cityTag, 
-        route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
-      });
-    }
-    items.push({ 
-      name: seoConfig.h1Title || seoConfig.title || 'Car Rental', 
-      route: seoConfig.route || location.pathname 
-    });
     return items;
   }, [seoConfig, location.pathname]);
 

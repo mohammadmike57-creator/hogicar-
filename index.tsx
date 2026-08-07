@@ -5,6 +5,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import './index.css';
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 // Trusted Types Policy for third-party scripts (GTM, Clarity, etc)
 if (typeof window !== 'undefined' && (window as any).trustedTypes && (window as any).trustedTypes.createPolicy) {
   try {
@@ -59,11 +61,13 @@ if (!rootElement) {
     const root = createRoot(rootElement);
     root.render(
       <React.StrictMode>
-        <HelmetProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </HelmetProvider>
+        <ErrorBoundary>
+          <HelmetProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </HelmetProvider>
+        </ErrorBoundary>
       </React.StrictMode>
     );
   } catch (error) {
