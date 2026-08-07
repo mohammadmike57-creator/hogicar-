@@ -532,19 +532,22 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     const items = [{ name: 'Home', route: '/' }];
     try {
       if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
+        const countrySlug = seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-');
         items.push({ 
           name: seoConfig.countryTag, 
-          route: `/car-rental-${seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-')}` 
+          route: `/car-rental-${countrySlug}` 
         });
       }
       if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
+        const citySlug = seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-');
         items.push({ 
           name: seoConfig.cityTag, 
-          route: `/car-rental-${seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-')}` 
+          route: `/car-rental-${citySlug}` 
         });
       }
+      const destName = seoConfig.destinationName || seoConfig.h1Title || 'Car Rental';
       items.push({ 
-        name: seoConfig.destinationName || seoConfig.h1Title || 'Car Rental', 
+        name: destName, 
         route: seoConfig.route || location.pathname 
       });
     } catch (e) {
