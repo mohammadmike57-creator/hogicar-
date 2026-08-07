@@ -138,7 +138,7 @@ const DynamicPage: React.FC = () => {
 
           // Robust H1 extraction
           const rawTitle = dynamicSEO.title || '';
-          const h1Parts = rawTitle.split(/ [–-|] /);
+          const h1Parts = rawTitle.split(/ [–\-|] /);
           const h1Title = h1Parts[0] || 'Car Rental';
 
           const fallbackConfig = {
