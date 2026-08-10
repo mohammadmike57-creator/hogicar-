@@ -567,6 +567,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
             dropoffCode: dropoffLocation || finalPickupCode,
             pickupDate,
             dropoffDate,
+            startTime: pickupTime,
+            endTime: dropoffTime,
         });
 
         onSearch(searchPayload);

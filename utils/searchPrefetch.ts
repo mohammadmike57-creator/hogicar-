@@ -3,6 +3,7 @@ import { loadCars } from './loadCars';
 import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from './storage';
 
 export const PREFETCHED_RESULTS_META_KEY = 'hogicar_prefetched_results_meta';
+export const PREFETCHED_RESULTS_NAVIGATION_KEY = 'hogicar_prefetched_results_navigation';
 
 export interface CarSearchPrefetchParams {
   pickupCode: string;
@@ -43,6 +44,7 @@ interface SearchPrefetchMeta {
   status: 'pending' | 'fulfilled' | 'failed';
   startedAt: number;
   completedAt?: number;
+  errorMessage?: string;
 }
 
 let activePrefetch: {
@@ -98,6 +100,7 @@ export const clearMatchingPrefetchedResults = (params: CarSearchPrefetchParams) 
 
   sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
   sessionStorage.removeItem(PREFETCHED_RESULTS_META_KEY);
+  sessionStorage.removeItem(PREFETCHED_RESULTS_NAVIGATION_KEY);
   if (activePrefetch?.signature === signature) {
     activePrefetch = null;
   }
@@ -133,9 +136,47 @@ export const getPrefetchStatus = (params: CarSearchPrefetchParams): 'pending' | 
   return meta.status;
 };
 
+export const getPrefetchErrorMessage = (params: CarSearchPrefetchParams): string | null => {
+  const signature = buildSearchPrefetchSignature(params);
+  const meta = readPrefetchMeta();
+  if (meta?.signature !== signature || meta.status !== 'failed') return null;
+  return meta.errorMessage || "We couldn't retrieve car results at the moment. Please try again later.";
+};
+
 export const waitForMatchingSearchPrefetch = (params: CarSearchPrefetchParams) => {
   const signature = buildSearchPrefetchSignature(params);
   return activePrefetch?.signature === signature ? activePrefetch.promise : null;
+};
+
+export const markSearchResultsNavigationReady = (params: CarSearchPrefetchParams) => {
+  const signature = buildSearchPrefetchSignature(params);
+  if (!canUseSessionStorage()) return;
+  safeSessionStorageSetItem(PREFETCHED_RESULTS_NAVIGATION_KEY, JSON.stringify({
+    signature,
+    readyAt: Date.now(),
+  }));
+};
+
+export const hasMatchingSearchResultsNavigation = (params: CarSearchPrefetchParams) => {
+  if (!canUseSessionStorage()) return false;
+  const signature = buildSearchPrefetchSignature(params);
+  try {
+    const raw = sessionStorage.getItem(PREFETCHED_RESULTS_NAVIGATION_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed?.signature === signature;
+  } catch {
+    return false;
+  }
+};
+
+export const consumeMatchingSearchResultsNavigation = (params: CarSearchPrefetchParams) => {
+  if (!canUseSessionStorage()) return false;
+  const matches = hasMatchingSearchResultsNavigation(params);
+  if (matches) {
+    sessionStorage.removeItem(PREFETCHED_RESULTS_NAVIGATION_KEY);
+  }
+  return matches;
 };
 
 export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
@@ -203,6 +244,7 @@ export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
       status: 'failed',
       startedAt: currentMeta.startedAt || Date.now(),
       completedAt: Date.now(),
+      errorMessage: error instanceof Error ? error.message : String(error || ''),
     });
   });
 

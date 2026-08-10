@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchPublicSuppliers } from '../api';
 import { CATEGORY_IMAGES } from '../constants';
-import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
@@ -35,7 +34,7 @@ import SearchWidget from '../components/SearchWidget';
 import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
-import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
+import { clearMatchingPrefetchedResults, consumeMatchingSearchResultsNavigation, getMatchingPrefetchedResults, getPrefetchErrorMessage, getPrefetchParamsFromUrl, getPrefetchStatus, hasMatchingSearchResultsNavigation, startCarSearchPrefetch, waitForMatchingSearchPrefetch } from '../utils/searchPrefetch';
 
 const ratingToPercent = (rating: number | undefined) => {
     const safeRating = Number(rating || 4.5);
@@ -193,11 +192,7 @@ export const Search: React.FC = () => {
     if (typeof window === 'undefined') return true;
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
     if (prefetched) return false;
-    // If there's an in-flight prefetch, we also don't want to show the loader immediately 
-    // because Searching.tsx already showed a loader.
-    // However, for the very first frame, we stay in "not loading" and let useEffect decide.
-    // This prevents the dual-buffer effect.
-    return false; 
+    return !hasMatchingSearchResultsNavigation(searchPrefetchParams);
   });
   const [error, setError] = React.useState<string | null>(null);
 
@@ -213,9 +208,8 @@ export const Search: React.FC = () => {
     let cancelled = false;
 
     const fetchApiCars = async () => {
-        let directFetchNeeded = false;
+        const isNormalSearchNavigation = consumeMatchingSearchResultsNavigation(searchPrefetchParams);
 
-        // Check for pre-fetched results from the click/searching screen to prevent redundant buffering.
         const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
         if (prefetched) {
             console.log("Search: Using pre-fetched results from session storage.");
@@ -228,10 +222,18 @@ export const Search: React.FC = () => {
             return;
         }
 
+        const prefetchStatus = getPrefetchStatus(searchPrefetchParams);
+        if (isNormalSearchNavigation && prefetchStatus === 'failed') {
+            if (cancelled) return;
+            setError(getPrefetchErrorMessage(searchPrefetchParams));
+            setApiCars([]);
+            setLoading(false);
+            return;
+        }
+
         const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
         if (pendingPrefetch) {
-            // Only set loading if we don't already have results to prevent flicker
-            if (apiCars.length === 0) {
+            if (!isNormalSearchNavigation && apiCars.length === 0) {
                 setLoading(true);
             }
             setError(null);
@@ -245,21 +247,23 @@ export const Search: React.FC = () => {
                 setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
                 return;
             } catch (error) {
+                if (cancelled) return;
+                if (isNormalSearchNavigation) {
+                    setError(getPrefetchErrorMessage(searchPrefetchParams));
+                    setApiCars([]);
+                    setLoading(false);
+                    return;
+                }
                 console.warn("Search: In-flight prefetch failed, falling back to direct fetch.", error);
-                directFetchNeeded = true;
             }
         }
 
-        if (apiCars.length === 0) {
+        if (!isNormalSearchNavigation && apiCars.length === 0) {
             setLoading(true);
         }
         setError(null);
         try {
-            if (directFetchNeeded) {
-                console.log("Search: Retrying car load with direct fetch.");
-            }
-            const data = await loadCars({
-                locationsOptions: [],
+            const data = await startCarSearchPrefetch({
                 pickupCode: searchPrefetchParams.pickupCode,
                 dropoffCode: searchPrefetchParams.dropoffCode,
                 pickupDate: searchPrefetchParams.pickupDate,

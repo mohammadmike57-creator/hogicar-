@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
-import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl, getPrefetchStatus } from '../utils/searchPrefetch';
+import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl, getPrefetchStatus, markSearchResultsNavigationReady } from '../utils/searchPrefetch';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import Check from 'lucide-react/dist/esm/icons/check';
@@ -298,27 +298,19 @@ const Searching: React.FC = () => {
     document.head.appendChild(styleSheet);
 
     let start: number | null = null;
-    let isDataReady = !!getMatchingPrefetchedResults(searchPrefetchParams);
+    let elapsedMs = 0;
+    let isSearchSettled = !!getMatchingPrefetchedResults(searchPrefetchParams) || getPrefetchStatus(searchPrefetchParams) === 'failed';
     let isNavigated = false;
     let isDisposed = false;
-    const MAX_WAIT_TIME = 10000; // 10 seconds max
 
     const tryNavigate = () => {
-      // Ensure we only navigate once
       if (isNavigated || isDisposed) return;
 
-      const elapsed = Date.now() - (start || Date.now());
-      const isDataWaitFinished = isDataReady || elapsed > MAX_WAIT_TIME;
-      
-      // If data is ready, we can proceed after MIN_ANIMATION_TIME instead of full duration
-      const currentMinTime = isDataReady ? MIN_ANIMATION_TIME : duration;
-      const isMinTimeFinished = elapsed >= currentMinTime;
-
-      if (isDataWaitFinished && isMinTimeFinished) {
-        // Force progress to 100% if we're navigating early
+      const isMinTimeFinished = elapsedMs >= MIN_ANIMATION_TIME;
+      if (isSearchSettled && isMinTimeFinished) {
         setProgress(1);
         isNavigated = true;
-        // Small delay to let the 100% state be visible
+        markSearchResultsNavigationReady(searchPrefetchParams);
         setTimeout(() => {
           const forwardParams = new URLSearchParams(searchParamsString);
           navigate(`/search?${forwardParams.toString()}`);
@@ -329,19 +321,15 @@ const Searching: React.FC = () => {
     const animate = (timestamp: number) => {
       if (!start) start = timestamp;
       const elapsed = timestamp - start;
-      
-      // Check if we should navigate early on every frame if data is ready
-      if (isDataReady && elapsed >= MIN_ANIMATION_TIME) {
-        tryNavigate();
-      }
+      elapsedMs = elapsed;
 
       const newProgress = Math.min(elapsed / duration, 1);
       setProgress(newProgress);
-      
-      if (elapsed < duration && !isNavigated) {
+
+      tryNavigate();
+
+      if (!isNavigated) {
         requestAnimationFrame(animate);
-      } else if (!isNavigated) {
-        tryNavigate();
       }
     };
     requestAnimationFrame(animate);
@@ -351,20 +339,24 @@ const Searching: React.FC = () => {
     }, duration / searchMessages.length);
 
     // Monitoring for data readiness
-    const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
-    pendingPrefetch?.then(() => {
+    const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams) || startCarSearchPrefetch(searchPrefetchParams);
+    pendingPrefetch.then(() => {
       if (isDisposed) return;
       const status = getPrefetchStatus(searchPrefetchParams);
       if (status === 'fulfilled') {
-        isDataReady = true;
+        isSearchSettled = true;
         tryNavigate();
       }
-    }).catch(() => undefined);
+    }).catch(() => {
+      if (isDisposed) return;
+      isSearchSettled = true;
+      tryNavigate();
+    });
 
     const checkDataInterval = setInterval(() => {
       const status = getPrefetchStatus(searchPrefetchParams);
-      if (status === 'fulfilled') {
-        isDataReady = true;
+      if (status === 'fulfilled' || status === 'failed') {
+        isSearchSettled = true;
         tryNavigate();
       }
     }, 100);
