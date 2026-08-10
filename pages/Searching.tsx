@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
-import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSearchPrefetch } from '../utils/searchPrefetch';
+import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl, getPrefetchStatus } from '../utils/searchPrefetch';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import Check from 'lucide-react/dist/esm/icons/check';
@@ -88,14 +88,7 @@ const Searching: React.FC = () => {
   const searchParamsString = searchParams.toString();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
-  const searchPrefetchParams = React.useMemo(() => ({
-    pickupCode: pickupIata,
-    dropoffCode: searchParams.get('dropoff') || pickupIata,
-    pickupDate: searchParams.get('pickupDate') || '',
-    dropoffDate: searchParams.get('dropoffDate') || '',
-    startTime: searchParams.get('startTime') || '',
-    endTime: searchParams.get('endTime') || '',
-  }), [pickupIata, searchParamsString]);
+  const searchPrefetchParams = React.useMemo(() => getPrefetchParamsFromUrl(searchParams), [searchParamsString]);
   const [duration, setDuration] = React.useState(5000); 
   const MIN_ANIMATION_TIME = 2500; // Allow proceeding after 2.5s if data is ready
   const [progress, setProgress] = React.useState(0);
@@ -361,14 +354,16 @@ const Searching: React.FC = () => {
     const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
     pendingPrefetch?.then(() => {
       if (isDisposed) return;
-      if (getMatchingPrefetchedResults(searchPrefetchParams)) {
+      const status = getPrefetchStatus(searchPrefetchParams);
+      if (status === 'fulfilled') {
         isDataReady = true;
         tryNavigate();
       }
     }).catch(() => undefined);
 
     const checkDataInterval = setInterval(() => {
-      if (getMatchingPrefetchedResults(searchPrefetchParams)) {
+      const status = getPrefetchStatus(searchPrefetchParams);
+      if (status === 'fulfilled') {
         isDataReady = true;
         tryNavigate();
       }

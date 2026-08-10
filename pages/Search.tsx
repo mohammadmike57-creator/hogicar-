@@ -35,7 +35,7 @@ import SearchWidget from '../components/SearchWidget';
 import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
-import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch } from '../utils/searchPrefetch';
+import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
 
 const ratingToPercent = (rating: number | undefined) => {
     const safeRating = Number(rating || 4.5);
@@ -175,27 +175,10 @@ export const Search: React.FC = () => {
   const navigate = useNavigate();
   const pickupIata = searchParams.get('pickup') || '';
   const pickupName = searchParams.get('pickupName') || pickupIata;
-  const location = pickupName;
-  const pickupDateParam = searchParams.get('pickupDate');
-  const dropoffDateParam = searchParams.get('dropoffDate');
-  const startTimeParam = searchParams.get('startTime');
-  const endTimeParam = searchParams.get('endTime');
-  const dropoffIata = searchParams.get('dropoff');
   const dropoffName = searchParams.get('dropoffName');
-  const today = new Date();
-  const defaultStart = today.toISOString().split('T')[0];
-  const defaultEnd = new Date(new Date().setDate(today.getDate() + 3)).toISOString().split('T')[0];
-
-  const startDate = pickupDateParam || defaultStart;
-  const endDate = dropoffDateParam || defaultEnd;
-  const searchPrefetchParams = React.useMemo(() => ({
-    pickupCode: pickupIata,
-    dropoffCode: dropoffIata || pickupIata,
-    pickupDate: startDate,
-    dropoffDate: endDate,
-    startTime: startTimeParam || '10:00',
-    endTime: endTimeParam || '10:00',
-  }), [pickupIata, dropoffIata, startDate, endDate, startTimeParam, endTimeParam]);
+  const location = pickupName;
+  const searchPrefetchParams = React.useMemo(() => getPrefetchParamsFromUrl(searchParams), [searchParamsString]);
+  const { pickupDate: startDate, dropoffDate: endDate, dropoffCode: dropoffIata, startTime: startTimeParam, endTime: endTimeParam } = searchPrefetchParams;
   
   const [apiCars, setApiCars] = React.useState<Car[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -208,7 +191,13 @@ export const Search: React.FC = () => {
 
   const [loading, setLoading] = React.useState(() => {
     if (typeof window === 'undefined') return true;
-    return !getMatchingPrefetchedResults(searchPrefetchParams);
+    const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
+    if (prefetched) return false;
+    // If there's an in-flight prefetch, we also don't want to show the loader immediately 
+    // because Searching.tsx already showed a loader.
+    // However, for the very first frame, we stay in "not loading" and let useEffect decide.
+    // This prevents the dual-buffer effect.
+    return false; 
   });
   const [error, setError] = React.useState<string | null>(null);
 
@@ -241,7 +230,10 @@ export const Search: React.FC = () => {
 
         const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
         if (pendingPrefetch) {
-            setLoading(true);
+            // Only set loading if we don't already have results to prevent flicker
+            if (apiCars.length === 0) {
+                setLoading(true);
+            }
             setError(null);
             try {
                 console.log("Search: Waiting for in-flight prefetch from search click.");
@@ -258,7 +250,9 @@ export const Search: React.FC = () => {
             }
         }
 
-        setLoading(true);
+        if (apiCars.length === 0) {
+            setLoading(true);
+        }
         setError(null);
         try {
             if (directFetchNeeded) {
@@ -266,12 +260,12 @@ export const Search: React.FC = () => {
             }
             const data = await loadCars({
                 locationsOptions: [],
-                pickupCode: pickupIata,
-                dropoffCode: dropoffIata || pickupIata,
-                pickupDate: startDate,
-                dropoffDate: endDate,
-                startTime: startTimeParam || '10:00',
-                endTime: endTimeParam || '10:00',
+                pickupCode: searchPrefetchParams.pickupCode,
+                dropoffCode: searchPrefetchParams.dropoffCode,
+                pickupDate: searchPrefetchParams.pickupDate,
+                dropoffDate: searchPrefetchParams.dropoffDate,
+                startTime: searchPrefetchParams.startTime,
+                endTime: searchPrefetchParams.endTime,
             });
             if (cancelled) return;
             setApiCars(apiCarsToCars(data));

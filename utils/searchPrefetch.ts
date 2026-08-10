@@ -13,6 +13,31 @@ export interface CarSearchPrefetchParams {
   endTime?: string;
 }
 
+/**
+ * Standardizes search parameters from URL search params for consistent prefetching across pages.
+ */
+export const getPrefetchParamsFromUrl = (searchParams: URLSearchParams): CarSearchPrefetchParams => {
+  const pickup = searchParams.get('pickup') || '';
+  const dropoff = searchParams.get('dropoff') || pickup;
+  
+  // Default dates: today and today + 3 days
+  const today = new Date();
+  const nextThreeDays = new Date(today);
+  nextThreeDays.setDate(today.getDate() + 3);
+  
+  const defaultStart = today.toISOString().split('T')[0];
+  const defaultEnd = nextThreeDays.toISOString().split('T')[0];
+
+  return {
+    pickupCode: pickup,
+    dropoffCode: dropoff,
+    pickupDate: searchParams.get('pickupDate') || defaultStart,
+    dropoffDate: searchParams.get('dropoffDate') || defaultEnd,
+    startTime: searchParams.get('startTime') || '10:00',
+    endTime: searchParams.get('endTime') || '10:00',
+  };
+};
+
 interface SearchPrefetchMeta {
   signature: string;
   status: 'pending' | 'fulfilled' | 'failed';
@@ -32,13 +57,18 @@ const canUseSessionStorage = () => (
 export const buildSearchPrefetchSignature = (params: CarSearchPrefetchParams) => {
   const pickup = (params.pickupCode || '').trim().toUpperCase();
   const dropoff = (params.dropoffCode || params.pickupCode || '').trim().toUpperCase();
+  const start = (params.startTime || '10:00').trim();
+  const end = (params.endTime || '10:00').trim();
+  const pickupDate = (params.pickupDate || '').trim();
+  const dropoffDate = (params.dropoffDate || '').trim();
+
   return [
     pickup, 
     dropoff, 
-    params.pickupDate || '', 
-    params.dropoffDate || '',
-    params.startTime || '10:00',
-    params.endTime || '10:00'
+    pickupDate, 
+    dropoffDate,
+    start,
+    end
   ].join('|');
 };
 
@@ -94,6 +124,13 @@ export const getMatchingPrefetchedResults = (params: CarSearchPrefetchParams): A
     sessionStorage.removeItem(PREFETCHED_RESULTS_META_KEY);
     return null;
   }
+};
+
+export const getPrefetchStatus = (params: CarSearchPrefetchParams): 'pending' | 'fulfilled' | 'failed' | 'none' => {
+  const signature = buildSearchPrefetchSignature(params);
+  const meta = readPrefetchMeta();
+  if (meta?.signature !== signature) return 'none';
+  return meta.status;
 };
 
 export const waitForMatchingSearchPrefetch = (params: CarSearchPrefetchParams) => {
