@@ -58,7 +58,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const description = propDescription || config?.description || (routeType ? dynamicSEO.description : "Compare and book affordable car rentals worldwide with Hogicar. Find trusted rental cars, airport rentals, and travel deals.");
   const keywords = propKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
   const ogImage = propOgImage || config?.ogImage || 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
-  const canonical = propCanonical || config?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
+  const canonical = propCanonical || config?.canonicalUrl || dynamicSEO?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
   const isNoIndex = propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false);
 
   const finalOgTitle = propOgTitle || config?.ogTitle || title;

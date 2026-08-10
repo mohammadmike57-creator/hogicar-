@@ -294,6 +294,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     economyCarHire: `/economy-car-rental-${slug}`,
     monthlyCarHire: `/monthly-car-rental-${slug}`,
     longTermCarHire: `/long-term-rental-${slug}`,
+    rentACar: `/car-rental-${slug}`,
   };
 
   let canonical = canonicalMap[routeType] ? `https://www.hogicar.com${canonicalMap[routeType]}` : `https://www.hogicar.com/${slug}`;
@@ -341,6 +342,7 @@ export const getRouteSEO = (routeType: string, cityOrCountry: string, fullPath: 
     economyCarHire: `/economy-car-rental-${cityOrCountry}`,
     monthlyCarHire: `/monthly-car-rental-${cityOrCountry}`,
     longTermCarHire: `/long-term-rental-${cityOrCountry}`,
+    rentACar: `/car-rental-${cityOrCountry}`,
   };
 
   const canonical = canonicalMap[routeType] 
