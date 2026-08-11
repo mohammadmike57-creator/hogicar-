@@ -26,8 +26,24 @@ const Layout: React.FC = () => {
   const currentCurrency = currencies.find(c => c.code === selectedCurrency);
   const location = useLocation();
 
-  const isHomePage = location.pathname === '/' || location.pathname === '/ar';
-  const isSearchingPage = location.pathname === '/searching';
+  const isHomePage = location.pathname === '/' || location.pathname === '/ar' || location.pathname === '/ar/';
+  const isAppPage = location.pathname.startsWith('/search') || 
+                    location.pathname.startsWith('/searching') || 
+                    location.pathname.startsWith('/car/') || 
+                    location.pathname.startsWith('/book/') ||
+                    location.pathname.startsWith('/my-bookings') ||
+                    location.pathname.startsWith('/confirmation') ||
+                    location.pathname.startsWith('/voucher') ||
+                    location.pathname.startsWith('/leave-review/') ||
+                    location.pathname.startsWith('/affiliate-program') ||
+                    location.pathname.startsWith('/become-supplier') ||
+                    location.pathname.startsWith('/careers') ||
+                    location.pathname.startsWith('/contact') ||
+                    location.pathname.startsWith('/about') ||
+                    location.pathname.startsWith('/blog') ||
+                    location.pathname.startsWith('/sitemap');
+
+  const shouldShowFooter = isHomePage && !isAppPage;
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -172,7 +188,7 @@ const Layout: React.FC = () => {
       </main>
 
       {/* Footer – only shown on the home page */}
-      {isHomePage && (
+      {shouldShowFooter && (
         <React.Suspense fallback={<div className="h-64 bg-[#003580] animate-pulse"></div>}>
           <Footer />
         </React.Suspense>
