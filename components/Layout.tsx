@@ -171,8 +171,8 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* Footer – shown on all pages except searching */}
-      {!isSearchingPage && (
+      {/* Footer – only shown on the home page */}
+      {isHomePage && (
         <React.Suspense fallback={<div className="h-64 bg-[#003580] animate-pulse"></div>}>
           <Footer />
         </React.Suspense>
