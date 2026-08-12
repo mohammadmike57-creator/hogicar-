@@ -60,6 +60,9 @@ interface SupplierConfig {
 
 type ViewMode = 'countries' | 'locations' | 'suppliers';
 
+const normalizeSearchText = (value: unknown) =>
+  typeof value === 'string' ? value.toLowerCase() : '';
+
 const ExternalSuppliersPage: React.FC = () => {
   const [view, setView] = useState<ViewMode>('countries');
   const [loading, setLoading] = useState(false);
@@ -187,8 +190,8 @@ const ExternalSuppliersPage: React.FC = () => {
     try {
       const allLocs = await adminFetch(`/api/admin/external-suppliers/countries/${countryCode}/locations`);
       const filtered = allLocs.filter((l: Location) => 
-        (l.name || '').toLowerCase().includes(val.toLowerCase()) || 
-        (l.iataCode || '').toLowerCase().includes(val.toLowerCase())
+        normalizeSearchText(l.name).includes(normalizeSearchText(val)) ||
+        normalizeSearchText(l.iataCode).includes(normalizeSearchText(val))
       );
       setLocationSuggestions(filtered);
       setShowSuggestions(true);
@@ -219,21 +222,21 @@ const ExternalSuppliersPage: React.FC = () => {
   };
 
   const filteredItems = useMemo(() => {
-    const term = (searchTerm || '').toLowerCase();
+    const term = normalizeSearchText(searchTerm);
     if (view === 'countries') {
       return countries.filter(c => 
-        (c.name || '').toLowerCase().includes(term) || 
-        (c.code || '').toLowerCase().includes(term)
+        normalizeSearchText(c.name).includes(term) ||
+        normalizeSearchText(c.code).includes(term)
       );
     } else if (view === 'locations') {
       return locations.filter(l => 
-        (l.name || '').toLowerCase().includes(term) || 
-        (l.iataCode || '').toLowerCase().includes(term)
+        normalizeSearchText(l.name).includes(term) ||
+        normalizeSearchText(l.iataCode).includes(term)
       );
     } else {
       return suppliers.filter(s => 
-        (s.supplierName || '').toLowerCase().includes(term) || 
-        (s.vendorCode || '').toLowerCase().includes(term)
+        normalizeSearchText(s.supplierName).includes(term) ||
+        normalizeSearchText(s.vendorCode).includes(term)
       );
     }
   }, [view, countries, locations, suppliers, searchTerm]);
@@ -344,9 +347,11 @@ const ExternalSuppliersPage: React.FC = () => {
                   if (c) {
                     setSelectedCountry(c);
                     fetchLocations(e.target.value);
+                    setView('locations');
                   }
                   setLocationSearch('');
                   setSelectedLocation(null);
+                  setSuppliers([]);
                 }}
               >
                 <option value="">Select Country</option>
@@ -372,7 +377,7 @@ const ExternalSuppliersPage: React.FC = () => {
               />
               {selectedLocation && (
                 <button 
-                  onClick={() => { setSelectedLocation(null); setLocationSearch(''); }}
+                  onClick={() => { setSelectedLocation(null); setLocationSearch(''); setSuppliers([]); setView('locations'); }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full"
                 >
                   <XCircle className="w-4 h-4 text-slate-400" />
