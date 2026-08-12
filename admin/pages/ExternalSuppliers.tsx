@@ -58,10 +58,24 @@ interface SupplierConfig {
   lastDiscoveredAt?: string;
 }
 
+interface SupplierSearchResponse {
+  totalSuppliers?: number;
+  totalCars?: number;
+  suppliers?: SupplierConfig[];
+}
+
 type ViewMode = 'countries' | 'locations' | 'suppliers';
 
 const normalizeSearchText = (value: unknown) =>
   typeof value === 'string' ? value.toLowerCase() : '';
+
+const extractSupplierList = (value: unknown): SupplierConfig[] => {
+  if (Array.isArray(value)) {
+    return value as SupplierConfig[];
+  }
+  const response = value as SupplierSearchResponse;
+  return Array.isArray(response?.suppliers) ? response.suppliers : [];
+};
 
 const ExternalSuppliersPage: React.FC = () => {
   const [view, setView] = useState<ViewMode>('countries');
@@ -133,9 +147,16 @@ const ExternalSuppliersPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await adminFetch(`/api/admin/external-suppliers/search?locationCode=${locationCode}`);
-      setSuppliers(data);
-      const totalCars = data.reduce((acc: number, s: SupplierConfig) => acc + (s.carCount || 0), 0);
-      setLastSyncInfo({ count: data.length, cars: totalCars });
+      const supplierList = extractSupplierList(data);
+      const response = data as SupplierSearchResponse;
+      setSuppliers(supplierList);
+      const totalCars = typeof response?.totalCars === 'number'
+        ? response.totalCars
+        : supplierList.reduce((acc: number, s: SupplierConfig) => acc + (s.carCount || 0), 0);
+      const totalSuppliers = typeof response?.totalSuppliers === 'number'
+        ? response.totalSuppliers
+        : supplierList.length;
+      setLastSyncInfo({ count: totalSuppliers, cars: totalCars });
       setView('suppliers');
     } catch (error) {
       console.error('Failed to perform supplier search', error);
@@ -212,7 +233,7 @@ const ExternalSuppliersPage: React.FC = () => {
       });
       // Refresh current list from database (no live discovery needed after save)
       const data = await adminFetch(`/api/admin/external-suppliers/locations/${selectedLocation.iataCode}/suppliers`);
-      setSuppliers(data);
+      setSuppliers(extractSupplierList(data));
       setEditingSupplier(null);
     } catch (error) {
       alert('Failed to save configuration: ' + error);
@@ -303,7 +324,7 @@ const ExternalSuppliersPage: React.FC = () => {
           <div className="flex items-center gap-3">
             {view === 'suppliers' && suppliers.length > 0 && (
               <div className="text-right mr-4 hidden md:block">
-                <div className="text-sm font-bold text-slate-700">{suppliers.length} suppliers · {suppliers.reduce((acc, s) => acc + (s.carCount || 0), 0)} cars</div>
+                <div className="text-sm font-bold text-slate-700">{lastSyncInfo?.count ?? suppliers.length} suppliers · {lastSyncInfo?.cars ?? suppliers.reduce((acc, s) => acc + (s.carCount || 0), 0)} cars</div>
                 <div className="text-[10px] text-slate-400 uppercase tracking-tighter">
                   Last checked: {suppliers[0]?.lastDiscoveredAt ? new Date(suppliers[0].lastDiscoveredAt).toLocaleString() : 'Never'}
                 </div>
