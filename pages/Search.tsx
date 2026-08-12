@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { fetchPublicSuppliers } from '../api';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
@@ -180,26 +180,40 @@ export const Search: React.FC = () => {
   const searchPrefetchParams = React.useMemo(() => getPrefetchParamsFromUrl(searchParams), [searchParamsString]);
   const { pickupDate: startDate, dropoffDate: endDate, dropoffCode: dropoffIata, startTime: startTimeParam, endTime: endTimeParam } = searchPrefetchParams;
   
-  const [apiCars, setApiCars] = React.useState<Car[]>(() => {
+  // Pagination & Loading States
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const loaderRef = useRef<HTMLDivElement>(null);
+  const [apiCars, setApiCars] = useState<Car[]>(() => {
     if (typeof window === 'undefined') return [];
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
     if (prefetched) {
-      return apiCarsToCars(prefetched);
+      return apiCarsToCars(prefetched.cars);
     }
     return [];
   });
 
-  const [loading, setLoading] = React.useState(() => {
+  const [loading, setLoading] = useState(() => {
     if (typeof window === 'undefined') return true;
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
     if (prefetched) return false;
-    // If there's an in-flight prefetch, we also don't want to show the loader immediately 
-    // because Searching.tsx already showed a loader.
-    // However, for the very first frame, we stay in "not loading" and let useEffect decide.
-    // This prevents the dual-buffer effect.
     return false; 
   });
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filter States (moved up so fetchApiCars can use them)
+  const [priceRange, setPriceRange] = useState(5000);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
+  const [selectedTransmissions, setSelectedTransmissions] = useState<string[]>([]);
+  const [selectedFuelPolicies, setSelectedFuelPolicies] = useState<string[]>([]);
+  const [passengerCapacity, setPassengerCapacity] = useState<number>(0);
+  const [sortBy, setSortBy] = useState('Price: Low to High');
+  const [selectedPaymentTypes, setSelectedPaymentTypes] = useState<string[]>([]);
+  const [maxDeposit, setMaxDeposit] = useState<number>(0);
+  const [selectedLocationTypes, setSelectedLocationTypes] = useState<string[]>([]);
+  const [specialOffersOnly, setSpecialOffersOnly] = useState<boolean>(false);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -209,83 +223,118 @@ export const Search: React.FC = () => {
   const diffTime = Math.abs(endD.getTime() - startD.getTime());
   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   
-  React.useEffect(() => {
-    let cancelled = false;
+  const fetchApiCars = useCallback(async (isLoadMore = false) => {
+    if (!isLoadMore && apiCars.length === 0) {
+      setLoading(true);
+    } else if (isLoadMore) {
+      setIsFetchingMore(true);
+    }
 
-    const fetchApiCars = async () => {
-        let directFetchNeeded = false;
-
-        // Check for pre-fetched results from the click/searching screen to prevent redundant buffering.
+    try {
+      const currentPage = isLoadMore ? page + 1 : 0;
+      
+      // Check for pre-fetched results from the click/searching screen on initial load
+      if (!isLoadMore && page === 0) {
         const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
         if (prefetched) {
-            console.log("Search: Using pre-fetched results from session storage.");
-            if (cancelled) return;
-            setApiCars(apiCarsToCars(prefetched));
-            setLoading(false);
-
-            // Delay removal so React Strict Mode's second pass can still find the same matching data.
-            setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
-            return;
+          console.log("Search: Using pre-fetched results from session storage.");
+          setApiCars(apiCarsToCars(prefetched.cars));
+          setHasNext(prefetched.hasNext);
+          setPage(0);
+          setLoading(false);
+          setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
+          return;
         }
 
         const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
         if (pendingPrefetch) {
-            // Only set loading if we don't already have results to prevent flicker
-            if (apiCars.length === 0) {
-                setLoading(true);
-            }
-            setError(null);
-            try {
-                console.log("Search: Waiting for in-flight prefetch from search click.");
-                const data = await pendingPrefetch;
-                const storedData = getMatchingPrefetchedResults(searchPrefetchParams);
-                if (cancelled) return;
-                setApiCars(apiCarsToCars(storedData || data));
-                setLoading(false);
-                setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
-                return;
-            } catch (error) {
-                console.warn("Search: In-flight prefetch failed, falling back to direct fetch.", error);
-                directFetchNeeded = true;
-            }
-        }
-
-        if (apiCars.length === 0) {
-            setLoading(true);
-        }
-        setError(null);
-        try {
-            if (directFetchNeeded) {
-                console.log("Search: Retrying car load with direct fetch.");
-            }
-            const data = await loadCars({
-                locationsOptions: [],
-                pickupCode: searchPrefetchParams.pickupCode,
-                dropoffCode: searchPrefetchParams.dropoffCode,
-                pickupDate: searchPrefetchParams.pickupDate,
-                dropoffDate: searchPrefetchParams.dropoffDate,
-                startTime: searchPrefetchParams.startTime,
-                endTime: searchPrefetchParams.endTime,
-            });
-            if (cancelled) return;
-            setApiCars(apiCarsToCars(data));
-        } catch (err) {
-            if (cancelled) return;
-            console.error("Failed to fetch search results:", err);
-            setError("We couldn't retrieve car results at the moment. Please try again later.");
-            setApiCars([]);
-        } finally {
-            if (cancelled) return;
+          try {
+            console.log("Search: Waiting for in-flight prefetch.");
+            const data = await pendingPrefetch;
+            setApiCars(apiCarsToCars(data.cars));
+            setHasNext(data.hasNext);
+            setPage(0);
             setLoading(false);
+            setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
+            return;
+          } catch (error) {
+            console.warn("Search: In-flight prefetch failed.", error);
+          }
         }
-    };
+      }
 
-    fetchApiCars();
+      const data = await loadCars({
+        locationsOptions: [],
+        pickupCode: searchPrefetchParams.pickupCode,
+        dropoffCode: searchPrefetchParams.dropoffCode,
+        pickupDate: searchPrefetchParams.pickupDate,
+        dropoffDate: searchPrefetchParams.dropoffDate,
+        startTime: searchPrefetchParams.startTime,
+        endTime: searchPrefetchParams.endTime,
+        page: currentPage,
+        size: 20,
+        sort: sortBy,
+        categories: selectedCategories,
+        suppliers: selectedSuppliers,
+        transmissions: selectedTransmissions,
+        fuelPolicies: selectedFuelPolicies,
+        passengers: passengerCapacity,
+        maxPrice: priceRange
+      });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [searchParamsString, searchPrefetchParams]);
+      if (isLoadMore) {
+        setApiCars(prev => [...prev, ...apiCarsToCars(data.cars)]);
+        setPage(currentPage);
+      } else {
+        setApiCars(apiCarsToCars(data.cars));
+        setPage(0);
+      }
+      setHasNext(data.hasNext);
+      setError(null);
+    } catch (err) {
+      console.error("Failed to fetch search results:", err);
+      if (!isLoadMore) {
+        setError("We couldn't retrieve car results at the moment. Please try again later.");
+        setApiCars([]);
+      }
+    } finally {
+      setLoading(false);
+      setIsFetchingMore(false);
+    }
+  }, [
+    searchPrefetchParams, sortBy, selectedCategories, selectedSuppliers, 
+    selectedTransmissions, selectedFuelPolicies, passengerCapacity, priceRange, page, apiCars.length
+  ]);
+
+  useEffect(() => {
+    fetchApiCars(false);
+  }, [
+    searchParamsString, 
+    sortBy, 
+    selectedCategories, 
+    selectedSuppliers, 
+    selectedTransmissions, 
+    selectedFuelPolicies, 
+    passengerCapacity, 
+    priceRange
+  ]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!hasNext || isFetchingMore || loading) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchApiCars(true);
+      }
+    }, { threshold: 0.1 });
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasNext, isFetchingMore, loading, page, fetchApiCars]);
 
   const formatDateTime = (date: Date, time: string) => {
     return `${date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${time}`;
@@ -293,15 +342,7 @@ export const Search: React.FC = () => {
   const startDateTimeDisplay = formatDateTime(startD, startTimeParam || '10:00');
   const endDateTimeDisplay = formatDateTime(endD, endTimeParam || '10:00');
 
-  // Filter States
-  const [priceRange, setPriceRange] = React.useState(5000);
-  const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
-  const [selectedSuppliers, setSelectedSuppliers] = React.useState<string[]>([]);
-  const [selectedTransmissions, setSelectedTransmissions] = React.useState<string[]>([]);
-  const [selectedFuelPolicies, setSelectedFuelPolicies] = React.useState<string[]>([]);
-  const [passengerCapacity, setPassengerCapacity] = React.useState<number>(0);
-  const [sortBy, setSortBy] = React.useState('Price: Low to High');
-  const [openFilters, setOpenFilters] = React.useState<string[]>([
+  const [openFilters, setOpenFilters] = useState<string[]>([
     'Price',
     'Category',
     'Passengers',
@@ -312,18 +353,14 @@ export const Search: React.FC = () => {
     'Fuel',
     'Supplier',
   ]);
-  const [showMobileFilters, setShowMobileFilters] = React.useState(false);
-  const [showMobileSort, setShowMobileSort] = React.useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMobileSort, setShowMobileSort] = useState(false);
   
-  const [selectedPaymentTypes, setSelectedPaymentTypes] = React.useState<string[]>([]);
-  const [maxDeposit, setMaxDeposit] = React.useState<number>(0);
-  const [selectedLocationTypes, setSelectedLocationTypes] = React.useState<string[]>([]);
-  const [specialOffersOnly, setSpecialOffersOnly] = React.useState<boolean>(false);
-  const [allLocationSuppliers, setAllLocationSuppliers] = React.useState<any[]>([]);
-  const [categoryImages, setCategoryImages] = React.useState<Record<string, string>>(CATEGORY_IMAGES as Record<string, string>);
-  const [selectedCompareCars, setSelectedCompareCars] = React.useState<Car[]>([]);
-  const [isCompareModalOpen, setIsCompareModalOpen] = React.useState(false);
-  const [isCompareMode, setIsCompareMode] = React.useState(false);
+  const [allLocationSuppliers, setAllLocationSuppliers] = useState<any[]>([]);
+  const [categoryImages, setCategoryImages] = useState<Record<string, string>>(CATEGORY_IMAGES as Record<string, string>);
+  const [selectedCompareCars, setSelectedCompareCars] = useState<Car[]>([]);
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [isCompareMode, setIsCompareMode] = useState(false);
 
   const toggleCompare = (car: Car) => {
     setIsCompareMode(true);
@@ -1265,7 +1302,25 @@ export const Search: React.FC = () => {
                             onCompareToggle={() => toggleCompare(car)}
                         />
                     ))}
-                    {sortedAndFilteredCars.length === 0 && (
+
+                    {/* Infinite Scroll Sentinel and Inline Loader */}
+                    <div ref={loaderRef} className="py-8 flex flex-col items-center justify-center w-full min-h-[100px]">
+                        {isFetchingMore ? (
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="h-8 w-8 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading more cars...</p>
+                            </div>
+                        ) : hasNext && sortedAndFilteredCars.length > 0 ? (
+                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Scroll for more deals</p>
+                        ) : sortedAndFilteredCars.length > 0 ? (
+                            <div className="flex flex-col items-center gap-2 py-4">
+                                <div className="h-px w-12 bg-slate-200"></div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">End of results</p>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    {sortedAndFilteredCars.length === 0 && !loading && (
                          <div className="col-span-full text-center bg-white rounded-lg shadow-sm border border-slate-200 py-12 px-6">
                             <CarIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                             <h3 className="text-lg font-bold text-slate-800">No cars found</h3>

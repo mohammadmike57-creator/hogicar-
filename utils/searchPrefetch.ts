@@ -1,5 +1,5 @@
 import { ApiSearchResult } from '../types';
-import { loadCars } from './loadCars';
+import { loadCars, PaginatedCars } from './loadCars';
 import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from './storage';
 
 export const PREFETCHED_RESULTS_META_KEY = 'hogicar_prefetched_results_meta';
@@ -47,7 +47,7 @@ interface SearchPrefetchMeta {
 
 let activePrefetch: {
   signature: string;
-  promise: Promise<ApiSearchResult[]>;
+  promise: Promise<PaginatedCars>;
 } | null = null;
 
 const canUseSessionStorage = () => (
@@ -103,7 +103,7 @@ export const clearMatchingPrefetchedResults = (params: CarSearchPrefetchParams) 
   }
 };
 
-export const getMatchingPrefetchedResults = (params: CarSearchPrefetchParams): ApiSearchResult[] | null => {
+export const getMatchingPrefetchedResults = (params: CarSearchPrefetchParams): PaginatedCars | null => {
   if (!canUseSessionStorage()) return null;
 
   const signature = buildSearchPrefetchSignature(params);
@@ -117,7 +117,20 @@ export const getMatchingPrefetchedResults = (params: CarSearchPrefetchParams): A
     if (!rawResults) return null;
 
     const parsed = JSON.parse(rawResults);
-    return Array.isArray(parsed) ? parsed : null;
+    // Even if it was stored as an array before, we now expect PaginatedCars
+    if (parsed && Array.isArray(parsed.cars)) {
+      return parsed as PaginatedCars;
+    }
+    // Fallback for older format if any
+    if (Array.isArray(parsed)) {
+      return {
+        cars: parsed,
+        page: 0,
+        size: 20,
+        hasNext: true
+      };
+    }
+    return null;
   } catch (error) {
     console.warn('Search prefetch: failed to read cached results', error);
     sessionStorage.removeItem(PREFETCHED_RESULTS_KEY);
@@ -170,15 +183,23 @@ export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
     dropoffDate: params.dropoffDate,
     startTime: params.startTime,
     endTime: params.endTime,
+    page: 0,
+    size: 20
   }).then((data) => {
     const currentMeta = readPrefetchMeta();
     if (currentMeta?.signature !== signature) {
       return data;
     }
 
+    // We only compact the cars list for storage
+    const storageData = {
+        ...data,
+        cars: compactPrefetchedResults(data.cars)
+    };
+
     const stored = safeSessionStorageSetItem(
       PREFETCHED_RESULTS_KEY,
-      JSON.stringify(compactPrefetchedResults(data))
+      JSON.stringify(storageData)
     );
 
     writePrefetchMeta({

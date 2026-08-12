@@ -15,6 +15,16 @@ interface LoadCarsParams {
     dropoffDate: string;
     startTime?: string;
     endTime?: string;
+    page?: number;
+    size?: number;
+    sort?: string;
+    categories?: string[];
+    suppliers?: string[];
+    transmissions?: string[];
+    fuelPolicies?: string[];
+    passengers?: number;
+    minPrice?: number;
+    maxPrice?: number;
 }
 
 const normalizeForMatch = (value: unknown) => (
@@ -29,11 +39,21 @@ const isBlockedExternalCar = (car: ApiSearchResult) => {
     return (supplierName.includes('URDRIVEJO') || vendorCode.includes('URDRIVEJO')) && carName.includes('TOYOTACAMRY');
 };
 
-export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[]> => {
-    const { locationsOptions, pickupCode, dropoffCode, pickupDate, dropoffDate, startTime, endTime } = params;
+export interface PaginatedCars {
+    cars: ApiSearchResult[];
+    page: number;
+    size: number;
+    hasNext: boolean;
+    total?: number;
+}
+
+export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> => {
+    const { 
+        locationsOptions, pickupCode, dropoffCode, pickupDate, dropoffDate, startTime, endTime, 
+        page = 0, size = 20, sort, categories, suppliers, transmissions, fuelPolicies, passengers, minPrice, maxPrice 
+    } = params;
 
     const defaultCode = locationsOptions?.[0]?.value || "AMM";
-    // Use default code if the provided code is falsy (null, undefined, or empty string)
     const pickup = pickupCode || defaultCode;
     const dropoff = dropoffCode || defaultCode;
     const start = startTime || '10:00';
@@ -42,7 +62,16 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
     appState.search = { pickupCode: pickup, dropoffCode: dropoff, pickupDate, dropoffDate, startTime: start, endTime: end };
     sessionStorage.setItem("hogicar_search", JSON.stringify(appState.search));
 
-    const url = `${API_URL}/api/search/all?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}&startTime=${start}&endTime=${end}`;
+    let url = `${API_URL}/api/search/all?pickup=${pickup}&dropoff=${dropoff}&pickupDate=${pickupDate}&dropoffDate=${dropoffDate}&startTime=${start}&endTime=${end}&page=${page}&size=${size}`;
+    
+    if (sort) url += `&sort=${encodeURIComponent(sort)}`;
+    if (categories && categories.length > 0) categories.forEach(c => url += `&categories=${encodeURIComponent(c)}`);
+    if (suppliers && suppliers.length > 0) suppliers.forEach(s => url += `&suppliers=${encodeURIComponent(s)}`);
+    if (transmissions && transmissions.length > 0) transmissions.forEach(t => url += `&transmissions=${encodeURIComponent(t)}`);
+    if (fuelPolicies && fuelPolicies.length > 0) fuelPolicies.forEach(f => url += `&fuelPolicies=${encodeURIComponent(f)}`);
+    if (passengers) url += `&passengers=${passengers}`;
+    if (minPrice !== undefined) url += `&minPrice=${minPrice}`;
+    if (maxPrice !== undefined) url += `&maxPrice=${maxPrice}`;
 
     try {
         const response = await fetch(url, { 
@@ -56,7 +85,8 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
             throw new Error(`Failed to fetch cars. The server responded with status: ${response.status}`);
         }
 
-        const rawCars: any[] = await response.json();
+        const data: { cars: any[], page: number, size: number, hasNext: boolean, total?: number } = await response.json();
+        const rawCars = data.cars || [];
 
         const normalizedCars = rawCars.map(car => {
             const normalizedCar: ApiSearchResult = { ...car };
@@ -85,14 +115,11 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
             const rawImage = car.imageUrl || car.image || "";
             normalizedCar.image = rawImage;
             
-            // Add a cache-busting parameter for external images only if not already containing complex params
-            // This helps bypass potentially stale "expired" images while avoiding breaking signed URLs
             if (rawImage && (rawImage.startsWith('http') || rawImage.startsWith('//')) && 
                 !rawImage.includes('unsplash.com') && 
                 !rawImage.includes('Signature=') && 
                 !rawImage.includes('Expires=')) {
                 const separator = rawImage.includes('?') ? '&' : '?';
-                // Use a timestamp that changes every minute to ensure fresh images while allowing some caching
                 const cacheBuster = Math.floor(Date.now() / (60 * 1000));
                 normalizedCar.image = `${rawImage}${separator}hcb=${cacheBuster}`;
             }
@@ -101,7 +128,6 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
             normalizedCar.brand = car.brand ?? "";
             normalizedCar.model = car.model ?? "";
 
-            // Preserve backend pricing exactly as returned by /api/cars.
             if (normalizedCar.finalPrice === undefined || normalizedCar.finalPrice === null) {
                 normalizedCar.finalPrice = normalizedCar.netPrice ?? 0;
             }
@@ -115,7 +141,13 @@ export const loadCars = async (params: LoadCarsParams): Promise<ApiSearchResult[
             return normalizedCar;
         });
 
-        return normalizedCars.filter(car => !isBlockedExternalCar(car));
+        return {
+            cars: normalizedCars.filter(car => !isBlockedExternalCar(car)),
+            page: data.page,
+            size: data.size,
+            hasNext: data.hasNext,
+            total: data.total
+        };
 
     } catch (error) {
         console.error("Error in loadCars:", error);
