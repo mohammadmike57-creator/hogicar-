@@ -177,11 +177,20 @@ const ExternalSuppliersPage: React.FC = () => {
   const filteredItems = useMemo(() => {
     const term = searchTerm.toLowerCase();
     if (view === 'countries') {
-      return countries.filter(c => c.name.toLowerCase().includes(term) || c.code.toLowerCase().includes(term));
+      return countries.filter(c => 
+        (c.name || '').toLowerCase().includes(term) || 
+        (c.code || '').toLowerCase().includes(term)
+      );
     } else if (view === 'locations') {
-      return locations.filter(l => l.name.toLowerCase().includes(term) || l.iataCode.toLowerCase().includes(term));
+      return locations.filter(l => 
+        (l.name || '').toLowerCase().includes(term) || 
+        (l.iataCode || '').toLowerCase().includes(term)
+      );
     } else {
-      return suppliers.filter(s => s.supplierName.toLowerCase().includes(term) || s.vendorCode.toLowerCase().includes(term));
+      return suppliers.filter(s => 
+        (s.supplierName || '').toLowerCase().includes(term) || 
+        (s.vendorCode || '').toLowerCase().includes(term)
+      );
     }
   }, [view, countries, locations, suppliers, searchTerm]);
 
@@ -233,8 +242,8 @@ const ExternalSuppliersPage: React.FC = () => {
               )}
               <h1 className="text-2xl font-bold text-slate-900">
                 {view === 'countries' && 'External API Suppliers'}
-                {view === 'locations' && `Locations in ${selectedCountry?.name}`}
-                {view === 'suppliers' && `Suppliers in ${selectedLocation?.name}`}
+                {view === 'locations' && `Locations in ${selectedCountry?.name || selectedCountry?.code || 'Country'}`}
+                {view === 'suppliers' && `Suppliers in ${selectedLocation?.name || selectedLocation?.iataCode || 'Location'}`}
               </h1>
             </div>
             <p className="text-slate-500 mt-1">
@@ -275,9 +284,9 @@ const ExternalSuppliersPage: React.FC = () => {
         <>
           {/* Main Grid View */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {view === 'countries' && filteredItems.map((country: Country) => (
+            {view === 'countries' && filteredItems.map((country: Country, index: number) => (
               <div 
-                key={country.code} 
+                key={country.code || index} 
                 onClick={() => handleCountryClick(country)}
                 className="group p-6 bg-white border border-slate-200 rounded-xl hover:border-accent hover:shadow-md transition-all cursor-pointer relative overflow-hidden"
               >
@@ -285,7 +294,7 @@ const ExternalSuppliersPage: React.FC = () => {
                   <div className="p-3 bg-slate-50 rounded-lg group-hover:bg-accent/10 transition-colors">
                     <Globe className="w-6 h-6 text-slate-600 group-hover:text-accent" />
                   </div>
-                  <span className="text-2xl">{country.code.split('').map((char: string) => String.fromCodePoint(char.charCodeAt(0) + 127397)).join('')}</span>
+                  <span className="text-2xl">{(country.code || '').split('').map((char: string) => String.fromCodePoint(char.charCodeAt(0) + 127397)).join('')}</span>
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">{country.name}</h3>
                 <div className="grid grid-cols-3 gap-2">
@@ -308,9 +317,9 @@ const ExternalSuppliersPage: React.FC = () => {
               </div>
             ))}
 
-            {view === 'locations' && filteredItems.map((location: Location) => (
+            {view === 'locations' && filteredItems.map((location: Location, index: number) => (
               <div 
-                key={location.iataCode} 
+                key={location.iataCode || index} 
                 onClick={() => handleLocationClick(location)}
                 className="group p-6 bg-white border border-slate-200 rounded-xl hover:border-accent hover:shadow-md transition-all cursor-pointer"
               >
@@ -349,8 +358,8 @@ const ExternalSuppliersPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredItems.map((supplier: SupplierConfig) => (
-                    <tr key={supplier.supplierId} className="bg-slate-50/50 hover:bg-slate-50 transition-colors group">
+                  {filteredItems.map((supplier: SupplierConfig, index: number) => (
+                    <tr key={supplier.supplierId || index} className="bg-slate-50/50 hover:bg-slate-50 transition-colors group">
                       <td className="py-4 pl-4 rounded-l-xl">
                         <div className="flex items-center gap-3">
                           {supplier.logoUrl ? (
