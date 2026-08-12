@@ -188,7 +188,8 @@ export const Search: React.FC = () => {
   const [apiCars, setApiCars] = useState<Car[]>(() => {
     if (typeof window === 'undefined') return [];
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
-    if (prefetched) {
+    if (prefetched && prefetched.cars) {
+      console.log("Search: Initializing state with prefetched cars:", prefetched.cars.length);
       return apiCarsToCars(prefetched.cars);
     }
     return [];
@@ -196,9 +197,19 @@ export const Search: React.FC = () => {
 
   const [loading, setLoading] = useState(() => {
     if (typeof window === 'undefined') return true;
+    
+    // If we already initialized apiCars in the line above, we're not loading!
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
     if (prefetched) return false;
-    // For direct URL access, we should start with loading: true
+    
+    // Check if there's an in-flight prefetch we should wait for
+    const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
+    if (pendingPrefetch) {
+        console.log("Search: In-flight prefetch detected, starting in loading state.");
+        return true;
+    }
+
+    // For direct URL access with no prefetch, we must start as loading
     return true; 
   });
   const [error, setError] = useState<string | null>(null);
@@ -233,9 +244,14 @@ export const Search: React.FC = () => {
       const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
       if (prefetched) {
         console.log("Search: Using pre-fetched results from session storage.");
-        setApiCars(apiCarsToCars(prefetched.cars));
-        setHasNext(prefetched.hasNext);
-        setPage(0);
+        const cars = apiCarsToCars(prefetched.cars);
+        
+        // Only update if we don't already have these cars (from initial state)
+        if (apiCars.length === 0) {
+            setApiCars(cars);
+            setHasNext(prefetched.hasNext);
+        }
+        
         setLoading(false);
         setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
         return;
@@ -245,18 +261,22 @@ export const Search: React.FC = () => {
       if (pendingPrefetch) {
         try {
           console.log("Search: Waiting for in-flight prefetch.");
-          // We set loading=true here because we ARE waiting, but only if we don't have cars yet
+          // Only show loading if we really don't have cars yet
           if (apiCars.length === 0) setLoading(true);
-          const data = await pendingPrefetch;
-          setApiCars(apiCarsToCars(data.cars));
-          setHasNext(data.hasNext);
-          setPage(0);
+          
+          const result = await pendingPrefetch;
+          console.log("Search: In-flight prefetch completed.", { count: result.cars?.length });
+          
+          const cars = apiCarsToCars(result.cars);
+          setApiCars(cars);
+          setHasNext(result.hasNext);
           setLoading(false);
+          
           setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
           return;
-        } catch (error) {
-          console.warn("Search: In-flight prefetch failed.", error);
-          // Fall through to normal load
+        } catch (e) {
+          console.warn("Search: In-flight prefetch failed.", e);
+          // Continue to regular fetch as fallback
         }
       }
     }

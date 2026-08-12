@@ -96,6 +96,8 @@ const Searching: React.FC = () => {
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const [isMobileViewport, setIsMobileViewport] = React.useState(false);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const [isChunkLoaded, setIsChunkLoaded] = React.useState(false);
+  const [isDataFinished, setIsDataFinished] = React.useState(false);
 
   React.useEffect(() => {
     const updateViewport = () => setIsMobileViewport(window.innerWidth < 640);
@@ -131,13 +133,15 @@ const Searching: React.FC = () => {
     
     // Pre-load the Search component chunk while we're on the buffer page
     // This reduces the flash caused by lazy loading in App.tsx
-    try {
-      import('./Search').then(() => {
-        console.log("Searching: Search component pre-loaded successfully");
-      }).catch(err => {
+    console.log("Searching: Starting pre-load of Search component chunk...");
+    import('./Search').then(() => {
+        console.log("Searching: Search component chunk LOADED.");
+        setIsChunkLoaded(true);
+    }).catch(err => {
         console.warn("Searching: Search component pre-load failed", err);
-      });
-    } catch (e) {}
+        // We still allow navigation even if pre-load fails, but it might flash
+        setIsChunkLoaded(true); 
+    });
   }, [pickupIata, searchPrefetchParams]);
 
   React.useEffect(() => {
@@ -327,11 +331,12 @@ const Searching: React.FC = () => {
       const isDataWaitFinished = isDataFinished || elapsed > MAX_WAIT_TIME;
       
       // If data is ready, we can proceed after MIN_ANIMATION_TIME instead of full duration
+      // AND the component chunk must be loaded to avoid Suspense flash
       const currentMinTime = isDataFinished ? MIN_ANIMATION_TIME : duration;
       const isMinTimeFinished = elapsed >= currentMinTime;
 
-      if (isDataWaitFinished && isMinTimeFinished) {
-        console.log("Searching: proceeding to results page.", { isDataFinished, elapsed });
+      if (isDataWaitFinished && isMinTimeFinished && isChunkLoaded) {
+        console.log("Searching: proceeding to results page.", { isDataFinished, isChunkLoaded, elapsed });
         // Force progress to 100% if we're navigating early
         setProgress(1);
         isNavigated = true;
@@ -347,8 +352,8 @@ const Searching: React.FC = () => {
       if (!start) start = timestamp;
       const elapsed = timestamp - start;
       
-      // Check if we should navigate early on every frame if data is ready
-      if (isDataFinished && elapsed >= MIN_ANIMATION_TIME) {
+      // Check if we should navigate early on every frame if data and chunk are ready
+      if (isDataFinished && isChunkLoaded && elapsed >= MIN_ANIMATION_TIME) {
         tryNavigate();
       }
 
@@ -402,7 +407,7 @@ const Searching: React.FC = () => {
         document.head.removeChild(styleSheet);
       }
     };
-  }, [navigate, searchParamsString, duration, searchPrefetchParams]);
+  }, [navigate, searchParamsString, duration, searchPrefetchParams, isChunkLoaded]);
 
   const visibleSuppliers = React.useMemo(() => suppliers, [suppliers]);
   const totalSuppliers = visibleSuppliers.length;

@@ -62,6 +62,7 @@ export const buildSearchPrefetchSignature = (params: CarSearchPrefetchParams) =>
   const pickupDate = (params.pickupDate || '').trim();
   const dropoffDate = (params.dropoffDate || '').trim();
 
+  // Return a stable stringified object or joined array
   return [
     pickup, 
     dropoff, 
@@ -69,7 +70,7 @@ export const buildSearchPrefetchSignature = (params: CarSearchPrefetchParams) =>
     dropoffDate,
     start,
     end
-  ].join('|');
+  ].map(s => s || 'default').join('|');
 };
 
 const readPrefetchMeta = (): SearchPrefetchMeta | null => {
