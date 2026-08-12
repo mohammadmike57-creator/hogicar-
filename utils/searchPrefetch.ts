@@ -176,6 +176,7 @@ export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
     startedAt: Date.now(),
   });
 
+  console.log("CAR SEARCH API REQUEST STARTING", { signature });
   const promise = loadCars({
     pickupCode: params.pickupCode,
     dropoffCode: params.dropoffCode || params.pickupCode,
@@ -186,6 +187,11 @@ export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
     page: 0,
     size: 20
   }).then((data) => {
+    console.log("CAR SEARCH API COMPLETED", { 
+        signature, 
+        carsCount: data.cars?.length,
+        hasNext: data.hasNext
+    });
     const currentMeta = readPrefetchMeta();
     if (currentMeta?.signature !== signature) {
       return data;
@@ -214,6 +220,7 @@ export const startCarSearchPrefetch = (params: CarSearchPrefetchParams) => {
 
   promise.catch((error) => {
     const currentMeta = readPrefetchMeta();
+    console.error("CAR SEARCH API FAILED", { signature, error });
     if (currentMeta?.signature !== signature) {
       return;
     }

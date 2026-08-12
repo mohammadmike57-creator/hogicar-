@@ -90,7 +90,7 @@ const Searching: React.FC = () => {
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
   const searchPrefetchParams = React.useMemo(() => getPrefetchParamsFromUrl(searchParams), [searchParamsString]);
   const [duration, setDuration] = React.useState(5000); 
-  const MIN_ANIMATION_TIME = 2500; // Allow proceeding after 2.5s if data is ready
+  const MIN_ANIMATION_TIME = 0; // Proceded immediately when data is ready per requirements
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
@@ -123,7 +123,10 @@ const Searching: React.FC = () => {
   React.useEffect(() => {
     if (!pickupIata) return;
 
-    console.log("Searching: ensuring car results are loading while animation runs...");
+    console.log("Searching: MOUNTED. Ensuring car results are loading...", {
+        pickupIata,
+        params: searchPrefetchParams
+    });
     startCarSearchPrefetch(searchPrefetchParams);
     
     // Pre-load the Search component chunk while we're on the buffer page
@@ -308,31 +311,35 @@ const Searching: React.FC = () => {
     document.head.appendChild(styleSheet);
 
     let start: number | null = null;
-    let isDataReady = !!getMatchingPrefetchedResults(searchPrefetchParams);
+    const initialStatus = getPrefetchStatus(searchPrefetchParams);
+    let isDataFinished = initialStatus === 'fulfilled' || initialStatus === 'failed';
     let isNavigated = false;
     let isDisposed = false;
-    const MAX_WAIT_TIME = 10000; // 10 seconds max
+    const MAX_WAIT_TIME = 15000; // 15 seconds max
+
+    console.log("Searching: initial data status:", initialStatus);
 
     const tryNavigate = () => {
       // Ensure we only navigate once
       if (isNavigated || isDisposed) return;
 
       const elapsed = Date.now() - (start || Date.now());
-      const isDataWaitFinished = isDataReady || elapsed > MAX_WAIT_TIME;
+      const isDataWaitFinished = isDataFinished || elapsed > MAX_WAIT_TIME;
       
       // If data is ready, we can proceed after MIN_ANIMATION_TIME instead of full duration
-      const currentMinTime = isDataReady ? MIN_ANIMATION_TIME : duration;
+      const currentMinTime = isDataFinished ? MIN_ANIMATION_TIME : duration;
       const isMinTimeFinished = elapsed >= currentMinTime;
 
       if (isDataWaitFinished && isMinTimeFinished) {
+        console.log("Searching: proceeding to results page.", { isDataFinished, elapsed });
         // Force progress to 100% if we're navigating early
         setProgress(1);
         isNavigated = true;
-        // Small delay to let the 100% state be visible
+        // Small delay to let the 100% state be visible if it was very fast
         setTimeout(() => {
           const forwardParams = new URLSearchParams(searchParamsString);
           navigate(`/search?${forwardParams.toString()}`);
-        }, 300);
+        }, 100);
       }
     };
 
@@ -341,7 +348,7 @@ const Searching: React.FC = () => {
       const elapsed = timestamp - start;
       
       // Check if we should navigate early on every frame if data is ready
-      if (isDataReady && elapsed >= MIN_ANIMATION_TIME) {
+      if (isDataFinished && elapsed >= MIN_ANIMATION_TIME) {
         tryNavigate();
       }
 
@@ -365,16 +372,24 @@ const Searching: React.FC = () => {
     pendingPrefetch?.then(() => {
       if (isDisposed) return;
       const status = getPrefetchStatus(searchPrefetchParams);
-      if (status === 'fulfilled') {
-        isDataReady = true;
+      console.log("Searching: prefetch promise resolved with status:", status);
+      if (status === 'fulfilled' || status === 'failed') {
+        isDataFinished = true;
         tryNavigate();
       }
-    }).catch(() => undefined);
+    }).catch(() => {
+        if (isDisposed) return;
+        isDataFinished = true;
+        tryNavigate();
+    });
 
     const checkDataInterval = setInterval(() => {
       const status = getPrefetchStatus(searchPrefetchParams);
-      if (status === 'fulfilled') {
-        isDataReady = true;
+      if (status === 'fulfilled' || status === 'failed') {
+        if (!isDataFinished) {
+            console.log("Searching: data status changed to finished via interval:", status);
+        }
+        isDataFinished = true;
         tryNavigate();
       }
     }, 100);

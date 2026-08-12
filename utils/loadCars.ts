@@ -73,6 +73,8 @@ export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> =
     if (minPrice !== undefined) url += `&minPrice=${minPrice}`;
     if (maxPrice !== undefined) url += `&maxPrice=${maxPrice}`;
 
+    console.log("CAR SEARCH API URL:", url);
+
     try {
         const response = await fetch(url, { 
             credentials: 'omit',
@@ -86,6 +88,11 @@ export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> =
         }
 
         const data: { cars: any[], page: number, size: number, hasNext: boolean, total?: number } = await response.json();
+        console.log("CAR SEARCH API RAW RESPONSE RECEIVED:", {
+            carsCount: data.cars?.length,
+            page: data.page,
+            hasNext: data.hasNext
+        });
         const rawCars = data.cars || [];
 
         const normalizedCars = rawCars.map(car => {
