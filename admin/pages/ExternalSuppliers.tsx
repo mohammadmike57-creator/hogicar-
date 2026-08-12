@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   Loader2,
   TrendingUp,
-  Save
+  Save,
+  RefreshCw
 } from 'lucide-react';
 import { adminFetch } from '../../lib/adminApi';
 
@@ -69,6 +70,7 @@ const ExternalSuppliersPage: React.FC = () => {
   // Modal state
   const [editingSupplier, setEditingSupplier] = useState<SupplierConfig | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     fetchCountries();
@@ -133,6 +135,23 @@ const ExternalSuppliersPage: React.FC = () => {
       setSelectedCountry(null);
     }
     setSearchTerm('');
+  };
+
+  const handleSync = async () => {
+    if (!confirm('This will perform a real-time car availability search for all locations to discover suppliers. This may take a few minutes. Continue?')) {
+      return;
+    }
+    
+    setIsSyncing(true);
+    try {
+      const result = await adminFetch('/api/admin/external-suppliers/sync', { method: 'POST' });
+      alert(`Sync complete!\nLocations processed: ${result.locationsProcessed}\nRelationships created: ${result.relationshipsCreated}\nUpdated: ${result.relationshipsUpdated}`);
+      fetchCountries();
+    } catch (error) {
+      alert('Sync failed: ' + error);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -225,15 +244,25 @@ const ExternalSuppliersPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder={`Search ${view}...`} 
-              className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all w-full md:w-64"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-all font-medium disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Syncing...' : 'Sync Catalog'}
+            </button>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder={`Search ${view}...`} 
+                className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all w-full md:w-64"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -259,14 +288,18 @@ const ExternalSuppliersPage: React.FC = () => {
                   <span className="text-2xl">{country.code.split('').map((char: string) => String.fromCodePoint(char.charCodeAt(0) + 127397)).join('')}</span>
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">{country.name}</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-2">
                   <div className="text-sm">
                     <span className="block text-slate-400">Suppliers</span>
                     <span className="font-medium text-slate-700">{country.supplierCount}</span>
                   </div>
                   <div className="text-sm">
-                    <span className="block text-slate-400">Locations</span>
+                    <span className="block text-slate-400">Loc.</span>
                     <span className="font-medium text-slate-700">{country.locationCount}</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="block text-slate-400">Cars</span>
+                    <span className="font-medium text-slate-700">{country.carCount > 1000 ? `${(country.carCount/1000).toFixed(1)}k` : country.carCount}</span>
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-sm text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity">
