@@ -198,7 +198,8 @@ export const Search: React.FC = () => {
     if (typeof window === 'undefined') return true;
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
     if (prefetched) return false;
-    return false; 
+    // For direct URL access, we should start with loading: true
+    return true; 
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -224,6 +225,42 @@ export const Search: React.FC = () => {
   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   
   const fetchApiCars = useCallback(async (isLoadMore = false) => {
+    const currentPage = isLoadMore ? page + 1 : 0;
+
+    // PRE-FETCH CHECK: Before setting loading=true, check if we already have the data 
+    // or if a pre-fetch is in flight for the same signature.
+    if (!isLoadMore && page === 0) {
+      const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
+      if (prefetched) {
+        console.log("Search: Using pre-fetched results from session storage.");
+        setApiCars(apiCarsToCars(prefetched.cars));
+        setHasNext(prefetched.hasNext);
+        setPage(0);
+        setLoading(false);
+        setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
+        return;
+      }
+
+      const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
+      if (pendingPrefetch) {
+        try {
+          console.log("Search: Waiting for in-flight prefetch.");
+          // We set loading=true here because we ARE waiting, but only if we don't have cars yet
+          if (apiCars.length === 0) setLoading(true);
+          const data = await pendingPrefetch;
+          setApiCars(apiCarsToCars(data.cars));
+          setHasNext(data.hasNext);
+          setPage(0);
+          setLoading(false);
+          setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
+          return;
+        } catch (error) {
+          console.warn("Search: In-flight prefetch failed.", error);
+          // Fall through to normal load
+        }
+      }
+    }
+
     if (!isLoadMore && apiCars.length === 0) {
       setLoading(true);
     } else if (isLoadMore) {
@@ -231,38 +268,6 @@ export const Search: React.FC = () => {
     }
 
     try {
-      const currentPage = isLoadMore ? page + 1 : 0;
-      
-      // Check for pre-fetched results from the click/searching screen on initial load
-      if (!isLoadMore && page === 0) {
-        const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
-        if (prefetched) {
-          console.log("Search: Using pre-fetched results from session storage.");
-          setApiCars(apiCarsToCars(prefetched.cars));
-          setHasNext(prefetched.hasNext);
-          setPage(0);
-          setLoading(false);
-          setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
-          return;
-        }
-
-        const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
-        if (pendingPrefetch) {
-          try {
-            console.log("Search: Waiting for in-flight prefetch.");
-            const data = await pendingPrefetch;
-            setApiCars(apiCarsToCars(data.cars));
-            setHasNext(data.hasNext);
-            setPage(0);
-            setLoading(false);
-            setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
-            return;
-          } catch (error) {
-            console.warn("Search: In-flight prefetch failed.", error);
-          }
-        }
-      }
-
       const data = await loadCars({
         locationsOptions: [],
         pickupCode: searchPrefetchParams.pickupCode,

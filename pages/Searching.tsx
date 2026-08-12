@@ -125,6 +125,16 @@ const Searching: React.FC = () => {
 
     console.log("Searching: ensuring car results are loading while animation runs...");
     startCarSearchPrefetch(searchPrefetchParams);
+    
+    // Pre-load the Search component chunk while we're on the buffer page
+    // This reduces the flash caused by lazy loading in App.tsx
+    try {
+      import('./Search').then(() => {
+        console.log("Searching: Search component pre-loaded successfully");
+      }).catch(err => {
+        console.warn("Searching: Search component pre-load failed", err);
+      });
+    } catch (e) {}
   }, [pickupIata, searchPrefetchParams]);
 
   React.useEffect(() => {
