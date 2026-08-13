@@ -227,13 +227,13 @@ const ExternalSuppliersPage: React.FC = () => {
 
     setIsSaving(true);
     try {
-      await adminFetch(`/api/admin/external-suppliers/locations/${selectedLocation.iataCode}/suppliers/${editingSupplier.supplierId}`, {
+      const savedDto = await adminFetch(`/api/admin/external-suppliers/locations/${selectedLocation.iataCode}/suppliers/${editingSupplier.supplierId}`, {
         method: 'PUT',
         body: JSON.stringify(editingSupplier)
       });
-      // Refresh current list from database (no live discovery needed after save)
-      const data = await adminFetch(`/api/admin/external-suppliers/locations/${selectedLocation.iataCode}/suppliers`);
-      setSuppliers(extractSupplierList(data));
+      
+      // Update local state with the saved data
+      setSuppliers(prev => prev.map(s => s.supplierId === savedDto.supplierId ? savedDto : s));
       setEditingSupplier(null);
     } catch (error) {
       alert('Failed to save configuration: ' + error);
