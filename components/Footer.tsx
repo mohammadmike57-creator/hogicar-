@@ -70,6 +70,7 @@ export const Footer = React.memo(() => (
             <ul className="space-y-4 text-sm">
               <li><Link to="/about-us" className="text-blue-50 hover:text-white transition-colors">About Us</Link></li>
               <li><Link to="/blog" className="text-blue-50 hover:text-white transition-colors">Travel Blog</Link></li>
+              <li><Link to="/sitemap" className="text-blue-50 hover:text-white transition-colors">Sitemap</Link></li>
             </ul>
           </div>
 
