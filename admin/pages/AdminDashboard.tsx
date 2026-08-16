@@ -5005,7 +5005,22 @@ export const AdminDashboard: React.FC = () => {
     }
   };
   const handleNewSeo = () => { setEditingSeoConfig({}); setIsSeoEditorOpen(true); };
-  const handleEditSeo = (config: any) => { setEditingSeoConfig(config); setIsSeoEditorOpen(true); };
+  const handleEditSeo = async (config: any) => {
+    if (!config?.route) {
+      setEditingSeoConfig(config || {});
+      setIsSeoEditorOpen(true);
+      return;
+    }
+
+    try {
+      const fullConfig = await adminFetch(`/api/admin/seo?route=${encodeURIComponent(config.route)}`);
+      setEditingSeoConfig(fullConfig || config);
+      setIsSeoEditorOpen(true);
+    } catch (e: any) {
+      console.error('Failed to fetch SEO config detail', e);
+      alert(`Failed to open SEO config: ${e.message}`);
+    }
+  };
   const handleSaveHomepage = async (content: any, images: Record<string, string>) => {
     setSavingHomepageEditor(true);
     try {
