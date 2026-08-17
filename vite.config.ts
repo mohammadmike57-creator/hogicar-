@@ -14,15 +14,6 @@ export default defineConfig(({ mode }) => {
       plugins: [
         react(),
         tailwindcss(),
-        {
-          name: 'async-css',
-          transformIndexHtml(html) {
-            return html.replace(
-              /<link rel="stylesheet" crossorigin href="(.*?)">/g,
-              '<link rel="preload" href="$1" as="style" onload="this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="$1"></noscript>'
-            );
-          }
-        }
       ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -38,13 +29,11 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks(id) {
               if (id.includes('node_modules')) {
-                if (id.includes('react')) return 'vendor-core';
                 if (id.includes('lucide-react')) return 'vendor-icons';
                 if (id.includes('recharts')) return 'vendor-charts';
                 if (id.includes('framer-motion')) return 'vendor-animation';
                 if (id.includes('stripe')) return 'vendor-stripe';
-                if (id.includes('date-fns') || id.includes('lodash')) return 'vendor-utils';
-                return 'vendor-others';
+                return 'vendor';
               }
             },
           },

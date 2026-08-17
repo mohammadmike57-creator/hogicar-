@@ -32,7 +32,6 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
-import { getOptimizedImageUrl, getImageSrcSet } from '../utils/imageOptimizer';
 import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../utils/bookingUtils';
@@ -536,7 +535,7 @@ const CarCard: React.FC<CarCardProps> = ({
                   </div>
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex items-center justify-center relative group/img-link">
                       <img
-                        src={getOptimizedImageUrl(displayImage, 300, 128)}
+                        src={displayImage}
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
@@ -566,9 +565,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           <Logo className="mb-2.5 h-6 w-auto max-w-[110px]" />
                       ) : (
                           <img
-                              src={getOptimizedImageUrl(car.supplier.logo || (car.supplier as any).logoUrl, 110, 28)}
-                              srcSet={getImageSrcSet(car.supplier.logo || (car.supplier as any).logoUrl, 110)}
-                              sizes="110px"
+                              src={car.supplier.logo || (car.supplier as any).logoUrl}
                               alt={car.supplier.name}
                               className="mb-2.5 h-7 max-w-[110px] object-contain"
                               loading="lazy"
@@ -646,7 +643,7 @@ const CarCard: React.FC<CarCardProps> = ({
               <div className={`relative md:w-[28%] ${car.isHogicarChoiceBranded ? 'bg-gradient-to-br from-emerald-50 to-white' : 'bg-gradient-to-br from-slate-50 to-white'} border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
                   <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.35/1] flex items-center justify-center mb-2 group/img-link">
                       <img
-                        src={getOptimizedImageUrl(displayImage, 400, 170)}
+                        src={displayImage}
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
@@ -670,9 +667,7 @@ const CarCard: React.FC<CarCardProps> = ({
                           <Logo className="h-6 w-auto max-w-[105px]" />
                       ) : (
                           <img
-                              src={getOptimizedImageUrl(car.supplier.logo || (car.supplier as any).logoUrl, 105, 32)}
-                              srcSet={getImageSrcSet(car.supplier.logo || (car.supplier as any).logoUrl, 105)}
-                              sizes="105px"
+                              src={car.supplier.logo || (car.supplier as any).logoUrl}
                               alt={car.supplier.name}
                               className="h-8 w-auto object-contain max-w-[105px]"
                               loading="lazy"
@@ -709,17 +704,15 @@ const CarCard: React.FC<CarCardProps> = ({
                           </div>
 
                           {/* Desktop Tooltip */}
-                          {showRatingsTooltip && (
-                            <DetailedRatingsTooltip 
-                              ratings={displayRatings} 
-                              visible={showRatingsTooltip} 
-                              align="right"
-                              supplierName={car.supplier.name}
-                              rating={ratingToDisplay}
-                              reviewCount={car.supplier.reviewCount}
-                              className="hidden md:block"
-                            />
-                          )}
+                          <DetailedRatingsTooltip 
+                            ratings={displayRatings} 
+                            visible={showRatingsTooltip} 
+                            align="right"
+                            supplierName={car.supplier.name}
+                            rating={ratingToDisplay}
+                            reviewCount={car.supplier.reviewCount}
+                            className="hidden md:block"
+                          />
                       </div>
                   </div>
               </div>

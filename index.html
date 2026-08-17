@@ -50,9 +50,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://cdn.phototourl.com">
+    <link rel="preconnect" href="https://js.stripe.com">
+    <link rel="preconnect" href="https://q.clarity.ms">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="preconnect" href="https://hogicar-backend.onrender.com">
     <style>
       :root {
         --color-accent: #007ac2;
@@ -63,11 +66,8 @@
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         -webkit-font-smoothing: antialiased;
         background-color: #ffffff;
-        color: #0f172a;
       }
       #root { min-height: 100vh; display: flex; flex-direction: column; }
-      .header-placeholder { height: 72px; background: white; border-bottom: 1px solid #f1f5f9; position: sticky; top: 0; z-index: 50; }
-      .hero-placeholder { height: 500px; background: #003580; position: relative; overflow: hidden; }
     </style>
     <link
       rel="preload"
@@ -114,10 +114,7 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MHN6Q99H"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <div id="root">
-      <div class="header-placeholder"></div>
-      <div class="hero-placeholder"></div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
