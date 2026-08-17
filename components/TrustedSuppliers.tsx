@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchHomepageLogos } from '../api';
+import { getOptimizedImageUrl, getImageSrcSet } from '../utils/imageOptimizer';
 
 interface Supplier {
   id: number;
@@ -48,26 +49,31 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
         <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }}></div>
 
         <div className="animate-marquee flex items-center hover:[animation-play-state:paused]">
-          {[...suppliers, ...suppliers].map((s, idx) => (
-            <div 
-              key={`${s.id || s.name}-${idx}`}
-              className="flex-shrink-0 flex items-center justify-center"
-              style={{ marginRight: '64px' }}
-            >
-              <img 
-                src={s.logo || s.logoUrl} 
-                alt={s.name} 
-                className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 hover:scale-110" 
-                width="160"
-                height="48"
-                loading="lazy"
-                decoding="async"
-                style={{ 
-                    transform: `scale(${(s.scale || 100) / 100})`,
-                } as any}
-              />
-            </div>
-          ))}
+          {[...suppliers, ...suppliers].map((s, idx) => {
+            const logoUrl = s.logo || s.logoUrl;
+            return (
+              <div 
+                key={`${s.id || s.name}-${idx}`}
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{ marginRight: '64px' }}
+              >
+                <img 
+                  src={getOptimizedImageUrl(logoUrl, 160, 48)}
+                  srcSet={getImageSrcSet(logoUrl, 160)}
+                  sizes="160px"
+                  alt={s.name} 
+                  className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 hover:scale-110" 
+                  width="160"
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
+                  style={{ 
+                      transform: `scale(${(s.scale || 100) / 100})`,
+                  } as any}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

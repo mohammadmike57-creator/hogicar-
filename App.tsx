@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
-import Home from './pages/Home';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { lazyRetry } from './utils/lazyRetry';
 
 // Lazy load pages for performance
+const Home = lazyRetry(() => import('./pages/Home'));
 const AdminProtectedRoute = lazyRetry(() => import('./admin/components/AdminProtectedRoute'));
 const Search = lazyRetry(() => import('./pages/Search').then(m => ({ default: m.Search })));
 const CarDetails = lazyRetry(() => import('./pages/CarDetails'));

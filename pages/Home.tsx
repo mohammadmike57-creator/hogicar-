@@ -616,6 +616,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
                   decoding="async"
+                  width="1920"
+                  height="600"
                   onLoad={() => setHeroLoaded(true)}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;

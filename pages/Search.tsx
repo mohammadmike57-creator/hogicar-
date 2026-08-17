@@ -31,6 +31,7 @@ import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchRe
 import { calculatePrice } from '../utils/bookingUtils';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { getOptimizedImageUrl, getImageSrcSet } from '../utils/imageOptimizer';
 import SearchWidget from '../components/SearchWidget';
 import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
@@ -897,7 +898,7 @@ export const Search: React.FC = () => {
                                 </div>
                                 <div className="relative mx-2 mt-1 hidden aspect-[1.65/1] overflow-hidden sm:block">
                                     <img 
-                                      src={categoryImage} 
+                                      src={getOptimizedImageUrl(categoryImage, 120, 72)} 
                                       alt={category} 
                                       className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
                                       loading="lazy"
@@ -1202,7 +1203,9 @@ export const Search: React.FC = () => {
                                           <Logo className="w-10 h-6 ml-2" />
                                       ) : supplierLogos.get(name) ? (
                                           <img 
-                                            src={supplierLogos.get(name)} 
+                                            src={getOptimizedImageUrl(supplierLogos.get(name), 80, 64)} 
+                                            srcSet={getImageSrcSet(supplierLogos.get(name), 80)}
+                                            sizes="40px"
                                             alt={name} 
                                             className="w-10 h-8 ml-2 object-contain" 
                                             loading="lazy"
@@ -1428,7 +1431,7 @@ export const Search: React.FC = () => {
                                 <div key={car.id} className="relative group/comp">
                                     <div className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-slate-50 p-1.5 shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:ring-accent/40 sm:h-14 sm:w-14 md:h-16 md:w-16">
                                         <img 
-                                            src={car.image} 
+                                            src={getOptimizedImageUrl(car.image, 128, 128)} 
                                             alt={car.model} 
                                             className="w-full h-full object-contain drop-shadow-md" 
                                             loading="lazy"
