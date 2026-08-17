@@ -901,6 +901,9 @@ export const Search: React.FC = () => {
                                       alt={category} 
                                       className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
                                       loading="lazy"
+                                      decoding="async"
+                                      width="120"
+                                      height="72"
                                     />
                                 </div>
                                 <div className="mt-auto border-t border-slate-100 px-2 py-1.5 sm:px-2.5 sm:py-2 text-center">
@@ -1198,7 +1201,15 @@ export const Search: React.FC = () => {
                                       {supplierLogos.get(name) === 'HOGICAR_CHOICE_LOGO' ? (
                                           <Logo className="w-10 h-6 ml-2" />
                                       ) : supplierLogos.get(name) ? (
-                                          <img src={supplierLogos.get(name)} alt={name} className="w-10 h-8 ml-2 object-contain" width="40" height="32" />
+                                          <img 
+                                            src={supplierLogos.get(name)} 
+                                            alt={name} 
+                                            className="w-10 h-8 ml-2 object-contain" 
+                                            loading="lazy"
+                                            decoding="async"
+                                            width="40"
+                                            height="32"
+                                          />
                                       ) : null}
                                        <span className="ml-2 text-xs text-slate-600 font-medium">{name}</span>
                                       <span className="ml-auto text-[10px] text-slate-400">({filterCounts.supplier.get(name) || 0})</span>
@@ -1416,7 +1427,15 @@ export const Search: React.FC = () => {
                             {selectedCompareCars.map(car => (
                                 <div key={car.id} className="relative group/comp">
                                     <div className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-slate-50 p-1.5 shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:ring-accent/40 sm:h-14 sm:w-14 md:h-16 md:w-16">
-                                        <img src={car.image} alt={car.model} className="w-full h-full object-contain drop-shadow-md" />
+                                        <img 
+                                            src={car.image} 
+                                            alt={car.model} 
+                                            className="w-full h-full object-contain drop-shadow-md" 
+                                            loading="lazy"
+                                            decoding="async"
+                                            width="64"
+                                            height="64"
+                                        />
                                     </div>
                                     <button 
                                         onClick={() => toggleCompare(car)}

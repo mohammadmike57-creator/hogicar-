@@ -29,21 +29,19 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks(id) {
               if (id.includes('node_modules')) {
-                if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) return 'vendor-core';
-                if (id.includes('stripe')) return 'vendor-stripe';
                 if (id.includes('lucide-react')) return 'vendor-icons';
                 if (id.includes('recharts')) return 'vendor-charts';
                 if (id.includes('framer-motion')) return 'vendor-animation';
-                if (id.includes('axios')) return 'vendor-network';
-                if (id.includes('date-fns')) return 'vendor-date';
-                return 'vendor-core'; // Merged vendor-libs into vendor-core to fix circularity
+                if (id.includes('stripe')) return 'vendor-stripe';
+                return 'vendor';
               }
             },
           },
         },
-        chunkSizeWarningLimit: 1000,
+        chunkSizeWarningLimit: 800,
         sourcemap: false,
         minify: 'esbuild',
+        treeshake: true,
       },
       esbuild: {
         drop: ['console', 'debugger'],

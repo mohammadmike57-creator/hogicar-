@@ -81,6 +81,10 @@ const VisaIcon = () => (
       src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg"
       alt="Visa"
       className="w-full h-auto object-contain"
+      loading="lazy"
+      decoding="async"
+      width="38"
+      height="24"
     />
   </div>
 );
@@ -135,7 +139,15 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                             <>
                                 <div className="flex h-14 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-sm">
                                     {supplierLogo ? (
-                                        <img src={supplierLogo} alt={supplierName} className="max-h-10 max-w-full object-contain" />
+                                        <img 
+                                            src={supplierLogo} 
+                                            alt={supplierName} 
+                                            className="max-h-10 max-w-full object-contain" 
+                                            loading="lazy"
+                                            decoding="async"
+                                            width="100"
+                                            height="40"
+                                        />
                                     ) : (
                                         <Building className="h-7 w-7 text-slate-600" />
                                     )}
@@ -527,6 +539,10 @@ const CarCard: React.FC<CarCardProps> = ({
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
+                        width="300"
+                        height="128"
                         className="max-h-24 w-full h-auto object-contain drop-shadow-[0_14px_24px_rgba(15,23,42,0.14)] transition-all duration-500 ease-out active:scale-105"
                       />
                       <div className="absolute -bottom-2.5 right-0 flex flex-col items-end gap-1 z-20">
@@ -552,6 +568,10 @@ const CarCard: React.FC<CarCardProps> = ({
                               src={car.supplier.logo || (car.supplier as any).logoUrl}
                               alt={car.supplier.name}
                               className="mb-2.5 h-7 max-w-[110px] object-contain"
+                              loading="lazy"
+                              decoding="async"
+                              width="110"
+                              height="28"
                           />
                       )}
                       <button
@@ -627,7 +647,10 @@ const CarCard: React.FC<CarCardProps> = ({
                         alt={`${car.make} ${car.model}`}
                         onError={() => setImageError(true)}
                         referrerPolicy="no-referrer"
-                        loading="eager"
+                        loading="lazy"
+                        decoding="async"
+                        width="400"
+                        height="170"
                         className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 ease-out z-10"
                       />
 
@@ -647,6 +670,10 @@ const CarCard: React.FC<CarCardProps> = ({
                               src={car.supplier.logo || (car.supplier as any).logoUrl}
                               alt={car.supplier.name}
                               className="h-8 w-auto object-contain max-w-[105px]"
+                              loading="lazy"
+                              decoding="async"
+                              width="105"
+                              height="32"
                           />
                       )}
                       <div
