@@ -1,33 +1,29 @@
-
 import * as React from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { Booking, Car as CarType } from '../types';
-import Car from 'lucide-react/dist/esm/icons/car';
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
-import FileText from 'lucide-react/dist/esm/icons/file-text';
-import Calendar from 'lucide-react/dist/esm/icons/calendar';
-import User from 'lucide-react/dist/esm/icons/user';
-import Hash from 'lucide-react/dist/esm/icons/hash';
-import Send from 'lucide-react/dist/esm/icons/send';
-import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
-import Printer from 'lucide-react/dist/esm/icons/printer';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { 
+  Car, CheckCircle, AlertTriangle, FileText, Calendar, 
+  User, Hash, Send, LoaderCircle, XCircle, Printer, 
+  MapPin, Clock, Phone, Mail, Shield, Zap, Info, 
+  CreditCard, ChevronRight, MessageSquare, HelpCircle, 
+  Download, ExternalLink, Globe, Award
+} from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api } from '../api';
 import { Logo } from '../components/Logo';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const SupplierConfirmation: React.FC = () => {
     const { bookingId } = useParams<{ bookingId: string }>();
     const location = useLocation();
+    const navigate = useNavigate();
+    const { getCurrencySymbol } = useCurrency();
     
-    // Parse query params for token and action
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get('token');
     const action = queryParams.get('action');
     const shouldAutoPrint = queryParams.get('print') === '1';
 
-    const [booking, setBooking] = React.useState<Booking | null>(null);
+    const [booking, setBooking] = React.useState<any | null>(null);
     const [confirmationNumber, setConfirmationNumber] = React.useState('');
     const [isConfirmed, setIsConfirmed] = React.useState(false);
     const [isRejected, setIsRejected] = React.useState(false);
@@ -35,6 +31,7 @@ const SupplierConfirmation: React.FC = () => {
     const [error, setError] = React.useState('');
     const [isLoading, setIsLoading] = React.useState(true);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = React.useState(false);
 
     React.useEffect(() => {
         const loadData = async () => {
@@ -54,10 +51,11 @@ const SupplierConfirmation: React.FC = () => {
                 
                 setBooking(fetchedBooking);
                 
-                if (fetchedBooking.status === 'confirmed' || fetchedBooking.status === 'CONFIRMED') {
+                const status = fetchedBooking.status?.toLowerCase();
+                if (status === 'confirmed') {
                     setIsConfirmed(true);
-                    setConfirmationNumber(fetchedBooking.supplierConfirmationNumber || 'N/A');
-                } else if (fetchedBooking.status === 'cancelled' || fetchedBooking.status === 'CANCELLED') {
+                    setConfirmationNumber(fetchedBooking.supplierConfirmationNumber || '');
+                } else if (status === 'cancelled') {
                     setIsRejected(true);
                 }
             } catch (err: any) {
@@ -73,7 +71,7 @@ const SupplierConfirmation: React.FC = () => {
 
     React.useEffect(() => {
         if (!isLoading && booking && shouldAutoPrint) {
-            const timer = window.setTimeout(() => window.print(), 650);
+            const timer = window.setTimeout(() => window.print(), 800);
             return () => window.clearTimeout(timer);
         }
     }, [isLoading, booking, shouldAutoPrint]);
@@ -92,12 +90,13 @@ const SupplierConfirmation: React.FC = () => {
             if (token) {
                 await api.confirmBookingByToken(token, confirmationNumber);
             } else if (bookingId) {
-                await api.supplierConfirm(bookingId, confirmationNumber);
+                await api.confirmBookingByToken(bookingId as string, confirmationNumber);
             }
             setIsConfirmed(true);
+            const updatedBooking = await (token ? api.getBookingByToken(token) : api.getBookingByRef(bookingId!));
+            setBooking(updatedBooking);
         } catch (err: any) {
-            console.error(err);
-            setError(err.message || 'Could not confirm booking. It may have been cancelled or already confirmed.');
+            setError(err.message || 'Could not confirm booking.');
         } finally {
             setIsSubmitting(false);
         }
@@ -106,7 +105,7 @@ const SupplierConfirmation: React.FC = () => {
     const handleReject = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!token) {
-            setError('Token is required to decline a booking via this page.');
+            setError('Action link expired or invalid.');
             return;
         }
 
@@ -117,7 +116,6 @@ const SupplierConfirmation: React.FC = () => {
             await api.rejectBookingByToken(token, rejectionReason || 'Declined by supplier');
             setIsRejected(true);
         } catch (err: any) {
-            console.error(err);
             setError(err.message || 'Could not decline booking.');
         } finally {
             setIsSubmitting(false);
@@ -125,347 +123,314 @@ const SupplierConfirmation: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen bg-white flex justify-center items-center"><LoaderCircle className="w-8 h-8 animate-spin text-accent"/></div>;
+        return (
+          <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
+            <LoaderCircle className="h-10 w-10 animate-spin text-[#123C69]" />
+          </div>
+        );
     }
 
     if (error && !booking) {
         return (
-            <div className="min-h-screen bg-white flex flex-col justify-center items-center p-4">
-                <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
-                <h1 className="text-xl font-bold text-slate-800">Error</h1>
-                <p className="text-slate-500">{error}</p>
-                <Link to="/" className="mt-6 text-sm text-accent hover:underline">Return to Hogicar Home</Link>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8FAFC] p-4 text-center">
+                <AlertTriangle className="mb-4 h-16 w-16 text-[#EF4444]" />
+                <h1 className="text-2xl font-bold text-[#123C69]">Error</h1>
+                <p className="mt-2 text-slate-500">{error}</p>
+                <Link to="/" className="mt-6 rounded-xl bg-[#123C69] px-6 py-3 font-bold text-white">Return Home</Link>
             </div>
         );
     }
-    
-    // Fallback for car visual
-    const displayCar = {
-        make: booking?.carMake || "Vehicle",
-        model: booking?.carModel || "Rental",
-        category: booking?.carCategory || "Standard",
-        sippCode: booking?.carSippCode || "????",
-        transmission: booking?.carTransmission || "Automatic"
-    } as any;
 
     if (!booking) return null;
 
     const isRejectAction = action === 'reject';
+    const statusColor = isConfirmed ? 'text-[#22C55E]' : (isRejected ? 'text-[#EF4444]' : 'text-[#F59E0B]');
+    const statusBg = isConfirmed ? 'bg-[#22C55E]/10' : (isRejected ? 'bg-[#EF4444]/10' : 'bg-[#F59E0B]/10');
 
     return (
-        <div className="supplier-print-page min-h-screen bg-white font-sans print:bg-white">
-            <SEOMetadata title="Confirm Booking Request" description="Supplier confirmation page for Hogicar rental request." noIndex={true} />
+        <div className={`min-h-screen ${isDarkMode ? 'dark bg-[#0f172a]' : 'bg-[#F8FAFC]'} pb-20 transition-colors duration-300`}>
+            <SEOMetadata title={`Rental Request - ${booking.bookingRef}`} noIndex />
+            
             <style>{`
                 @media print {
-                    @page { size: A4; margin: 7mm; }
-                    html, body, #root { background: #ffffff !important; }
-                    body * { visibility: hidden; }
-                    .supplier-print-area, .supplier-print-area * { visibility: visible; }
-                    .supplier-print-area {
-                        position: absolute !important;
-                        inset: 0 auto auto 0 !important;
-                        width: 100% !important;
-                        margin: 0 !important;
-                        box-shadow: none !important;
-                        border: 0 !important;
-                        border-radius: 0 !important;
-                        overflow: hidden !important;
-                    }
-                    .supplier-print-hide { display: none !important; }
-                    .supplier-print-body { padding: 4mm !important; }
-                    .supplier-print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 4mm !important; }
-                    .supplier-print-card { padding: 3mm !important; border-radius: 5px !important; }
-                    .supplier-print-area h1 { font-size: 15pt !important; }
-                    .supplier-print-area h2 { font-size: 13pt !important; }
-                    .supplier-print-area h3 { font-size: 7.5pt !important; margin-bottom: 2mm !important; }
-                    .supplier-print-area p, .supplier-print-area span, .supplier-print-area strong, .supplier-print-area div { line-height: 1.25 !important; }
-                    .supplier-print-area .supplier-print-car-image { height: 24mm !important; }
-                    .supplier-print-area .supplier-print-status { display: block !important; padding: 3mm !important; margin-top: 3mm !important; }
+                    @page { size: A4; margin: 10mm; }
+                    body { background: white !important; -webkit-print-color-adjust: exact; }
+                    .no-print { display: none !important; }
+                    .print-area { width: 100% !important; margin: 0 !important; box-shadow: none !important; border: 0 !important; }
+                    .card { break-inside: avoid; border: 1px solid #e2e8f0 !important; }
                 }
             `}</style>
-            
-            <header className="supplier-print-hide bg-white shadow-sm print:hidden">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Logo className="h-12 w-auto" variant="dark" />
-                        <span className="text-slate-400 font-light text-xl mx-2">|</span>
-                        <span className="text-sm font-semibold text-slate-500">Supplier Dashboard</span>
+
+            <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-[#1e293b]/80 no-print">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+                    <div className="flex items-center gap-4">
+                        <Logo className="h-8 w-auto" variant={isDarkMode ? 'light' : 'dark'} />
+                        <span className="h-6 w-px bg-slate-200 dark:bg-slate-700"></span>
+                        <span className="text-sm font-bold uppercase tracking-widest text-slate-500">Rental Request</span>
                     </div>
-                    <button 
-                        onClick={() => window.print()}
-                        className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                    >
-                        <Printer className="w-4 h-4" /> Print
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400">
+                            <Printer className="h-4 w-4" />
+                            Print
+                        </button>
+                    </div>
                 </div>
             </header>
-            
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-0 print:px-0">
-                <div className="supplier-print-area bg-white rounded-xl shadow-lg border border-slate-200 print:shadow-none print:border-none print:rounded-none">
-                    <div className="supplier-print-hide p-8 border-b border-slate-100 print:hidden">
-                        <h1 className="text-2xl font-bold text-slate-800">Rental Request Voucher</h1>
-                        <p className="text-sm text-slate-500 mt-1">Please review the details below and take action to finalize this booking.</p>
-                    </div>
 
-                    {/* Print-only Header */}
-                    <div className="hidden print:flex items-center justify-between border-b-2 border-slate-200 p-4 mb-2">
-                        <Logo className="h-12 w-auto" variant="dark" />
-                        <div className="text-right">
-                            <h1 className="text-xl font-black uppercase tracking-widest text-slate-900">Supplier Reservation</h1>
-                            <p className="text-slate-500 font-bold text-sm">Reference: {booking.bookingRef}</p>
-                            <div className="mt-2 inline-block bg-accent/5 text-accent text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
-                                {isConfirmed ? 'CONFIRMED' : (isRejected ? 'CANCELLED' : 'ACTION REQUIRED')}
+            <main className="mx-auto mt-8 w-full max-w-7xl px-4 sm:px-6 lg:px-8 print-area">
+                <div className="mb-8 overflow-hidden rounded-[2rem] bg-white shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 md:p-12">
+                        <div>
+                            <div className={`inline-flex items-center gap-2 rounded-full ${statusBg} px-4 py-1.5 text-xs font-black uppercase tracking-widest ${statusColor} mb-4`}>
+                                <Zap className="h-3 w-3" />
+                                {isConfirmed ? 'Confirmed' : (isRejected ? 'Cancelled' : 'Pending Confirmation')}
+                            </div>
+                            <h1 className="text-4xl font-black tracking-tight text-[#123C69] dark:text-white sm:text-5xl">
+                                Rental Request: <span className="font-mono text-slate-400">#{booking.bookingRef}</span>
+                            </h1>
+                            <div className="mt-6 flex flex-wrap gap-6 text-sm">
+                                <InfoItem label="Date Created" value={new Date(booking.createdAt).toLocaleDateString()} />
+                                <InfoItem label="Channel" value="HogiCar Online" />
+                                <InfoItem label="Currency" value={booking.currency} />
+                                <InfoItem label="Status" value={isConfirmed ? 'CONFIRMED' : (isRejected ? 'CANCELLED' : 'AWAITING RESPONSE')} />
                             </div>
                         </div>
-                    </div>
-
-                    <div className="supplier-print-body p-8 supplier-print-grid grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Left Column: Booking Details */}
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Booking Details</h3>
-                                <div className="supplier-print-card bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Hogicar Reference:</span> <strong className="font-mono">{booking.bookingRef || booking.id}</strong></p>
-                                    <p className="flex justify-between"><span>Customer Name:</span> <strong>{booking.firstName} {booking.lastName}</strong></p>
-                                    <p className="flex justify-between"><span>Customer Email:</span> <strong>{booking.email}</strong></p>
-                                    <p className="flex justify-between"><span>Customer Phone:</span> <strong>{booking.phone}</strong></p>
-                                </div>
-                            </div>
-                            {/* Rental Itinerary (Modern Style) */}
-                            <div className="supplier-print-card md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-4">
-                                <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative">
-                                    {/* Pickup */}
-                                    <div className="flex-1 w-full md:w-auto">
-                                        <div className="flex flex-col items-start">
-                                            <span className="text-2xl font-black text-slate-950 mb-1">{booking.startTime || '10:00'}</span>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-lg font-black text-[#003580] tracking-tight">{booking.pickupCode}</span>
-                                                <div className="h-1 w-1 rounded-full bg-slate-300" />
-                                                <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.pickupLocationName?.split(',')[0]}</span>
-                                            </div>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.pickupDate}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Timeline */}
-                                    <div className="flex-[1.5] w-full flex flex-col items-center justify-center py-2 md:py-0">
-                                        <div className="relative w-full flex items-center justify-center">
-                                            <div className="absolute inset-0 flex items-center">
-                                                <div className="w-full border-t border-slate-200" />
-                                            </div>
-                                            <div className="relative z-10 bg-white px-4 flex flex-col items-center text-center">
-                                                <div className="bg-slate-50 p-1.5 rounded-full border border-slate-100 shadow-sm mb-1">
-                                                    <Hash className="w-4 h-4 text-accent" />
-                                                </div>
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] bg-white px-2">
-                                                    Reservation Request
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Drop-off */}
-                                    <div className="flex-1 w-full md:w-auto">
-                                        <div className="flex flex-col items-end text-right">
-                                            <span className="text-2xl font-black text-slate-950 mb-1">{booking.endTime || '10:00'}</span>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{booking.dropoffLocationName?.split(',')[0] || booking.pickupLocationName?.split(',')[0]}</span>
-                                                <div className="h-1 w-1 rounded-full bg-slate-300" />
-                                                <span className="text-lg font-black text-[#003580] tracking-tight">{booking.dropoffCode || booking.pickupCode}</span>
-                                            </div>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.dropoffDate}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Column: Car Details & Price */}
-                        <div className="space-y-6">
-                            <div className="supplier-print-card bg-slate-50 p-6 rounded-lg border border-slate-200">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Specifications</h3>
-                                <div className="flex flex-col sm:flex-row gap-6 items-center mb-4">
-                                    <div className="flex-grow">
-                                        <p className="text-lg font-black text-slate-900 uppercase">{displayCar.make} {displayCar.model}</p>
-                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{displayCar.category} or similar</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-3 text-sm">
-                                    <div className="grid grid-cols-2 gap-y-2 mt-2 border-t border-slate-100 pt-3">
-                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">SIPP Code</span> <span className="font-mono font-bold text-accent uppercase">{displayCar.sippCode}</span></p>
-                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Transmission</span> <span className="font-bold">{displayCar.transmission}</span></p>
-                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Category</span> <span className="font-bold">{displayCar.category}</span></p>
-                                        <p className="flex flex-col"><span className="text-[10px] text-slate-400 uppercase">Fuel Policy</span> <span className="font-bold">{booking.carFuelPolicy || 'N/A'}</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="supplier-print-card bg-accent/5 p-6 rounded-lg border border-accent/10">
-                                <h3 className="text-xs font-bold text-accent-800 uppercase tracking-wider mb-2">Financial Breakdown</h3>
-                                <div className="space-y-2 text-sm">
-                                    <p className="flex justify-between"><span>Supplier Net Rate:</span> <strong className="text-lg text-accent">{booking.currency} {booking.netPrice?.toFixed(2)}</strong></p>
-                                    <p className="text-[10px] text-accent-400 italic">This is the amount you will receive for this rental.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {isConfirmed ? (
-                        <div className="supplier-print-status p-8 bg-green-50 border-t border-green-200 rounded-b-xl">
-                            <div className="text-center mb-6">
-                                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                                <h2 className="text-xl font-bold text-green-800">Booking Confirmed!</h2>
-                                <p className="text-sm text-green-700 mt-2">
-                                    The customer has been notified and sent the updated voucher.
+                        <div className="flex flex-col items-center gap-4 text-center md:items-end md:text-right">
+                             <div className="rounded-2xl bg-slate-50 p-6 dark:bg-slate-900/50">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Supplier Net Rate</p>
+                                <p className="text-3xl font-black text-[#123C69] dark:text-white">
+                                    {getCurrencySymbol(booking.currency)} {booking.netPrice?.toFixed(2)}
                                 </p>
-                            </div>
-                            
-                            {(!booking.supplierConfirmationNumber || booking.supplierConfirmationNumber === 'PENDING' || booking.supplierConfirmationNumber === 'N/A') && (
-                                <div className="supplier-print-hide max-w-md mx-auto bg-white p-6 rounded-xl border border-green-200 shadow-sm print:hidden">
-                                    <h3 className="text-sm font-bold text-slate-700 mb-4 text-center uppercase tracking-wider">Provide Your Confirmation Number</h3>
-                                    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                                        <div className="relative">
-                                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                            <input
-                                                type="text"
-                                                value={confirmationNumber === 'N/A' ? '' : confirmationNumber}
-                                                onChange={e => setConfirmationNumber(e.target.value)}
-                                                className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase text-sm"
-                                                placeholder="Your System ID"
-                                                required
-                                            />
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                    <div className="lg:col-span-2 space-y-8">
+                        <section className="rounded-[2rem] bg-white p-8 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800 card">
+                             <div className="mb-8 flex items-center justify-between">
+                                <h3 className="text-xl font-black text-[#123C69] dark:text-white">Rental Itinerary</h3>
+                                <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center dark:bg-slate-900">
+                                    <MapPin className="h-5 w-5 text-[#F57C00]" />
+                                </div>
+                             </div>
+                             <div className="relative">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+                                    <div className="space-y-4">
+                                        <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                            <div className="h-2 w-2 rounded-full bg-[#22C55E]"></div> Pickup
                                         </div>
-                                        <button 
-                                            type="submit" 
-                                            disabled={isSubmitting}
-                                            className="bg-accent hover:bg-accent-700 text-white font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-                                        >
-                                            {isSubmitting ? <LoaderCircle className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
-                                            Update Confirmation #
-                                        </button>
-                                        {error && <p className="text-red-600 text-center text-xs">{error}</p>}
-                                    </form>
-                                </div>
-                            )}
-                            
-                            {(booking.supplierConfirmationNumber && booking.supplierConfirmationNumber !== 'PENDING' && booking.supplierConfirmationNumber !== 'N/A') && (
-                                <div className="text-center">
-                                    <p className="text-sm text-green-700">
-                                        Supplier Confirmation Number: 
-                                        <strong className="font-mono bg-green-100 p-1 rounded ml-1 text-lg">{booking.supplierConfirmationNumber}</strong>
-                                    </p>
-                                    <button 
-                                        onClick={() => window.print()} 
-                                        className="supplier-print-hide mt-6 flex items-center gap-2 mx-auto bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all print:hidden"
-                                    >
-                                        <Printer className="w-4 h-4" /> Print Updated Voucher
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ) : isRejected ? (
-                        <div className="supplier-print-status p-8 bg-red-50 border-t border-red-200 rounded-b-xl text-center">
-                            <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                            <h2 className="text-xl font-bold text-red-800">Booking Declined</h2>
-                            <p className="text-sm text-red-700 mt-2">
-                                This booking request has been declined. The customer has been notified.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="supplier-print-hide p-8 bg-slate-50 border-t border-slate-200 rounded-b-xl print:hidden">
-                            {isRejectAction ? (
-                                <div className="space-y-4">
-                                    <h2 className="text-lg font-bold text-red-900 mb-2">Decline Booking Request</h2>
-                                    <p className="text-sm text-slate-600">Are you sure you want to decline this booking? This action cannot be undone.</p>
-                                    <form onSubmit={handleReject} className="flex flex-col gap-4">
                                         <div>
-                                            <label htmlFor="reason" className="block text-sm font-bold text-slate-700 mb-2">Reason for Declining</label>
-                                            <textarea
-                                                id="reason"
-                                                value={rejectionReason}
-                                                onChange={e => setRejectionReason(e.target.value)}
-                                                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm"
-                                                placeholder="Please explain why this request is being declined (e.g., Vehicle out of stock, maintenance issue)"
-                                                rows={3}
-                                                required
-                                            />
+                                            <h4 className="text-xl font-bold dark:text-white">{booking.pickupLocationName}</h4>
+                                            <div className="mt-4 flex items-center gap-6">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="h-4 w-4 text-slate-300" />
+                                                    <span className="text-sm font-bold dark:text-white">{booking.pickupDate}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="h-4 w-4 text-slate-300" />
+                                                    <span className="text-sm font-bold dark:text-white">{booking.startTime}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        {error && <p className="text-red-600 text-xs">{error}</p>}
-                                        <div className="flex gap-4">
-                                            <button 
-                                                type="submit" 
-                                                disabled={isSubmitting}
-                                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
-                                            >
-                                                {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <XCircle className="w-5 h-5"/>}
-                                                Decline Booking
-                                            </button>
-                                            <button 
-                                                type="button"
-                                                onClick={() => {
-                                                    const url = new URL(window.location.href);
-                                                    url.searchParams.delete('action');
-                                                    window.history.pushState({}, '', url.toString());
-                                                    window.location.reload();
-                                                }}
-                                                className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-8 rounded-lg transition-all"
-                                            >
-                                                Back to Confirm
-                                            </button>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                            <div className="h-2 w-2 rounded-full bg-[#EF4444]"></div> Return
                                         </div>
-                                    </form>
+                                        <div>
+                                            <h4 className="text-xl font-bold dark:text-white">{booking.dropoffLocationName}</h4>
+                                            <div className="mt-4 flex items-center gap-6">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="h-4 w-4 text-slate-300" />
+                                                    <span className="text-sm font-bold dark:text-white">{booking.dropoffDate}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="h-4 w-4 text-slate-300" />
+                                                    <span className="text-sm font-bold dark:text-white">{booking.endTime}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            ) : (
-                                <div>
-                                    <h2 className="text-lg font-bold text-accent-900 mb-4">Action Required</h2>
-                                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-end gap-4">
-                                        <div className="flex-grow w-full">
-                                            <label htmlFor="confirmationNumber" className="block text-sm font-bold text-slate-700 mb-2">Your Confirmation Number</label>
+                                <div className="hidden md:block absolute top-4 left-1/2 -translate-x-1/2 w-px h-24 border-l border-dashed border-slate-200 dark:border-slate-700"></div>
+                             </div>
+                        </section>
+
+                        <section className="rounded-[2rem] bg-white p-8 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800 card">
+                             <div className="mb-8 flex items-center justify-between">
+                                <h3 className="text-xl font-black text-[#123C69] dark:text-white">Requested Vehicle</h3>
+                                <Car className="h-6 w-6 text-[#F57C00]" />
+                             </div>
+                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                                <SpecItem label="Vehicle Group" value={booking.carCategory} />
+                                <SpecItem label="SIPP Code" value={booking.carSippCode} />
+                                <SpecItem label="Transmission" value={booking.carTransmission} />
+                                <SpecItem label="Fuel Type" value={booking.carFuelPolicy} />
+                                <SpecItem label="A/C" value={booking.carAirConditioning ? 'YES' : 'NO'} />
+                                <SpecItem label="Seats" value={booking.carPassengers} />
+                                <SpecItem label="Doors" value={booking.carDoors} />
+                                <SpecItem label="Luggage" value={booking.carBags} />
+                             </div>
+                        </section>
+
+                        <section className="rounded-[2rem] bg-white p-8 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800 card">
+                             <div className="mb-8 flex items-center justify-between">
+                                <h3 className="text-xl font-black text-[#123C69] dark:text-white">Customer Information</h3>
+                                <User className="h-6 w-6 text-[#F57C00]" />
+                             </div>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <DetailRow label="Primary Driver" value={`${booking.firstName} ${booking.lastName}`} bold />
+                                    <DetailRow label="Nationality" value={booking.nationality || 'Not Provided'} />
+                                    <DetailRow label="Contact Phone" value={booking.phone} />
+                                    <DetailRow label="Contact Email" value={booking.email} />
+                                </div>
+                                <div className="space-y-4">
+                                    <DetailRow label="Flight Number" value={booking.flightNumber || 'Not Provided'} />
+                                    <DetailRow label="License Country" value="Not Provided" />
+                                    <DetailRow label="Special Requests" value="None" />
+                                    <div className="pt-2">
+                                        <span className="inline-flex items-center gap-2 rounded-full bg-[#123C69] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-white">
+                                            <Award className="h-3 w-3 text-[#F57C00]" /> Verified Driver
+                                        </span>
+                                    </div>
+                                </div>
+                             </div>
+                        </section>
+                    </div>
+
+                    <div className="space-y-8">
+                        <section className="rounded-[2rem] bg-white p-8 shadow-xl border-2 border-slate-100 dark:bg-[#1e293b] dark:border-slate-800 no-print">
+                             {!isConfirmed && !isRejected ? (
+                                <>
+                                    <h3 className="text-xl font-black text-[#123C69] dark:text-white mb-2">Reservation Action</h3>
+                                    <p className="text-sm text-slate-500 mb-6">Confirm availability to finalize this reservation.</p>
+                                    
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Supplier Confirmation #</label>
                                             <div className="relative">
-                                                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                <input
-                                                    id="confirmationNumber"
-                                                    type="text"
+                                                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
+                                                <input 
+                                                    type="text" 
                                                     value={confirmationNumber}
-                                                    onChange={e => setConfirmationNumber(e.target.value)}
-                                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all uppercase"
-                                                    placeholder="Enter your system's ID"
+                                                    onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
+                                                    placeholder="Enter your system ID"
+                                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 font-bold focus:border-[#123C69] focus:ring-0 dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                                                     required
                                                 />
                                             </div>
-                                            {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
                                         </div>
-                                        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                                            <button 
-                                                type="submit" 
-                                                disabled={isSubmitting}
-                                                className="flex-grow bg-accent hover:bg-accent-700 text-white font-bold py-3 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50"
-                                            >
-                                                {isSubmitting ? <LoaderCircle className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
-                                                Confirm Booking
-                                            </button>
-                                            <button 
-                                                type="button"
-                                                onClick={() => {
-                                                    const url = new URL(window.location.href);
-                                                    url.searchParams.set('action', 'reject');
-                                                    window.history.pushState({}, '', url.toString());
-                                                    window.location.reload();
-                                                }}
-                                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2"
-                                            >
-                                                <XCircle className="w-5 h-5"/>
-                                                Decline
-                                            </button>
-                                        </div>
+                                        <button 
+                                            disabled={isSubmitting}
+                                            className="w-full rounded-xl bg-[#123C69] py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-[#1e293b] active:scale-95 disabled:opacity-50"
+                                        >
+                                            {isSubmitting ? 'Processing...' : 'Confirm Reservation'}
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => navigate(`${location.pathname}?token=${token}&action=reject`)}
+                                            className="w-full rounded-xl border border-slate-200 py-3 text-xs font-bold text-red-600 hover:bg-red-50 dark:border-slate-700 dark:hover:bg-red-900/10"
+                                        >
+                                            Decline Request
+                                        </button>
                                     </form>
+                                </>
+                             ) : isConfirmed ? (
+                                <div className="text-center">
+                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#22C55E]/10 text-[#22C55E]">
+                                        <CheckCircle className="h-8 w-8" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-[#123C69] dark:text-white">Confirmed</h3>
+                                    <p className="mt-2 text-sm text-slate-500">Booking finalized with ID: <strong>{booking.supplierConfirmationNumber}</strong></p>
+                                    <button onClick={() => window.print()} className="mt-6 w-full rounded-xl bg-slate-100 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                                        Print Voucher
+                                    </button>
                                 </div>
-                            )}
-                        </div>
-                    )}
+                             ) : (
+                                <div className="text-center">
+                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EF4444]/10 text-[#EF4444]">
+                                        <XCircle className="h-8 w-8" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-[#123C69] dark:text-white">Cancelled</h3>
+                                    <p className="mt-2 text-sm text-slate-500">This request has been declined.</p>
+                                </div>
+                             )}
+                        </section>
+
+                        <section className="rounded-[2rem] bg-[#123C69] p-8 text-white shadow-lg no-print">
+                            <h3 className="text-lg font-black mb-4">Partner Support</h3>
+                            <div className="space-y-4">
+                                <SupportItem icon={<Phone className="h-4 w-4" />} label="Supplier Assistance" value="+1 800 HOGICAR" />
+                                <SupportItem icon={<Mail className="h-4 w-4" />} label="Finance Dept" value="finance@hogicar.com" />
+                            </div>
+                        </section>
+                    </div>
                 </div>
+
+                <footer className="mt-12 border-t border-slate-200 py-8 text-center dark:border-slate-800">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Automatically generated by HogiCar System V2.5 &bull; Ref: {booking.bookingRef}
+                    </p>
+                </footer>
             </main>
+
+            {isRejectAction && !isRejected && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm no-print">
+                    <div className="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-2xl dark:bg-[#1e293b]">
+                        <h2 className="text-2xl font-black text-[#123C69] dark:text-white mb-2">Decline Request</h2>
+                        <form onSubmit={handleReject} className="space-y-4">
+                            <textarea 
+                                value={rejectionReason}
+                                onChange={e => setRejectionReason(e.target.value)}
+                                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium focus:border-[#EF4444] focus:ring-0 dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+                                rows={4}
+                                placeholder="Reason for declining..."
+                                required
+                            />
+                            <div className="flex gap-3">
+                                <button type="button" onClick={() => navigate(`${location.pathname}?token=${token}`)} className="flex-1 rounded-xl bg-slate-100 py-3 text-sm font-bold text-slate-700">Back</button>
+                                <button disabled={isSubmitting} className="flex-[2] rounded-xl bg-[#EF4444] py-3 text-sm font-black uppercase tracking-widest text-white">Confirm Decline</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
+
+const InfoItem = ({ label, value }: { label: string; value: string }) => (
+    <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+        <p className="mt-1 font-bold text-slate-900 dark:text-white">{value}</p>
+    </div>
+);
+
+const SpecItem = ({ label, value }: { label: string; value: string | number | undefined }) => (
+    <div className="rounded-xl border border-slate-100 p-4 dark:border-slate-800">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+        <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">{value || 'N/A'}</p>
+    </div>
+);
+
+const DetailRow = ({ label, value, bold }: { label: string; value: string; bold?: boolean }) => (
+    <div className="flex justify-between border-b border-slate-50 pb-3 dark:border-slate-800/50">
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+        <span className={`text-sm ${bold ? 'font-black text-[#123C69] dark:text-white' : 'font-bold text-slate-700 dark:text-slate-300'}`}>{value}</span>
+    </div>
+);
+
+const SupportItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+    <div className="flex items-start gap-3">
+        <div className="mt-1 text-[#F57C00]">{icon}</div>
+        <div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+            <p className="text-sm font-bold">{value}</p>
+        </div>
+    </div>
+);
 
 export default SupplierConfirmation;

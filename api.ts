@@ -222,6 +222,11 @@ export const fetchStripeConfig = async (): Promise<{ publishableKey: string }> =
   return response.data || { publishableKey: '' };
 };
 
+export const getGoogleWalletUrl = async (bookingRef: string): Promise<string> => {
+  const response = await publicAxios.get(`${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/google-wallet-url`);
+  return response.data;
+};
+
 export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]> => {
   try {
     const url = locationCode 
