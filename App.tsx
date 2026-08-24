@@ -61,6 +61,42 @@ if (host.startsWith("admin.")) {
 // --- END SUBDOMAIN REDIRECT ---
 
 const App: React.FC = () => {
+  // --- ACCESSIBILITY FIX: Block aria-hidden on <body> ---
+  // Some third-party scripts (like hCaptcha) may set aria-hidden="true" on the body 
+  // when a challenge is active, but if it gets blocked or fails to clean up, 
+  // it hides the entire app from screen readers.
+  React.useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+          if (document.body.getAttribute('aria-hidden') === 'true') {
+            console.warn('[Accessibility] Blocked aria-hidden="true" on <body> element.');
+            document.body.removeAttribute('aria-hidden');
+          }
+        }
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (document.body.classList.contains('no-selection')) {
+            console.warn('[Accessibility] Removed "no-selection" class from <body> element.');
+            document.body.classList.remove('no-selection');
+          }
+        }
+      });
+    });
+
+    observer.observe(document.body, { attributes: true });
+    
+    // Initial check
+    if (document.body.getAttribute('aria-hidden') === 'true') {
+      document.body.removeAttribute('aria-hidden');
+    }
+    if (document.body.classList.contains('no-selection')) {
+      document.body.classList.remove('no-selection');
+    }
+
+    return () => observer.disconnect();
+  }, []);
+  // --- END ACCESSIBILITY FIX ---
+
   return (
     <CurrencyProvider>
       <ScrollToTop />
