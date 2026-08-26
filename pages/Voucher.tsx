@@ -25,6 +25,7 @@ const Voucher: React.FC = () => {
   const [isWalletModalOpen, setIsWalletModalOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
+  const [walletStatus, setWalletStatus] = React.useState({ appleWallet: false, googleWallet: false });
 
   React.useEffect(() => {
     const bookingRef = searchParams.get('bookingRef');
@@ -37,6 +38,13 @@ const Voucher: React.FC = () => {
       try {
         const data = await api.getBookingByRef(bookingRef);
         setBooking(data);
+        
+        // Load wallet status
+        const statusRes = await fetch(`${API_BASE_URL}/api/vouchers/config-status`);
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          setWalletStatus(status);
+        }
       } catch (err: any) {
         console.error('Voucher load error:', err);
         setError('Voucher not found. Please verify your booking reference.');
@@ -302,24 +310,30 @@ const Voucher: React.FC = () => {
 
       <main className="mx-auto mt-2 w-full max-w-5xl px-3 sm:px-4">
         {/* Hero Section - Even More Compact & Zoomed Out */}
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-[#123C69] p-4 text-white shadow-xl sm:p-6">
-          <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <section className="relative overflow-hidden rounded-[1.25rem] bg-[#123C69] p-4 text-white shadow-xl sm:p-5">
+          <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex-1">
               <div className="mb-2 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E]/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm">
-                  <CheckCircle className="h-2.5 w-2.5" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E]/20 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm border border-[#22C55E]/30">
+                  <CheckCircle className="h-2 w-2" />
                   Confirmed
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-slate-300 backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-slate-300 backdrop-blur-sm border border-white/10">
                   {booking.bookingRef}
                 </span>
               </div>
-              <h1 className="text-xl font-black tracking-tight sm:text-2xl lg:text-3xl">
+              <h1 className="text-xl font-black tracking-tight sm:text-2xl lg:text-3xl leading-tight">
                 {booking.carMake} <span className="text-[#F57C00]">{booking.carModel}</span>
               </h1>
-              <p className="mt-1 text-[11px] font-medium text-slate-400">
-                Official Rental Voucher • {booking.supplierName}
-              </p>
+              <div className="mt-1 flex items-center gap-2">
+                <p className="text-[10px] font-medium text-slate-400">
+                  Official Rental Voucher
+                </p>
+                <div className="h-1 w-1 rounded-full bg-slate-600"></div>
+                <p className="text-[10px] font-bold text-white/80">
+                  {booking.supplierName}
+                </p>
+              </div>
               
               <div className="mt-3 flex flex-wrap gap-2">
                 <div className="flex items-center gap-2 rounded-lg bg-white/10 p-1 pr-3 backdrop-blur-md border border-white/10 shadow-lg">
@@ -330,145 +344,146 @@ const Voucher: React.FC = () => {
                     <TimeUnit value={countdown.seconds} label="s" />
                   </div>
                   <div className="ml-1">
-                    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 leading-none">Pickup In</p>
-                    <p className="mt-0.5 text-[8px] font-bold text-white/80">Countdown</p>
+                    <div className="flex items-center gap-1">
+                      <div className="h-1 w-1 rounded-full bg-[#22C55E] animate-pulse"></div>
+                      <p className="text-[7px] font-black uppercase tracking-widest text-[#22C55E] leading-none">Live</p>
+                    </div>
+                    <p className="mt-0.5 text-[8px] font-bold text-white/80">Pickup Timer</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 backdrop-blur-md border border-white/10">
-                  <div className="h-1.5 w-1.5 rounded-full bg-[#22C55E] animate-pulse"></div>
+                <div className="hidden xs:flex items-center gap-2 rounded-lg bg-white/10 px-2.5 py-1.5 backdrop-blur-md border border-white/10">
+                  <Smartphone className="h-3 w-3 text-slate-400" />
                   <div>
-                    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 leading-none">Status</p>
-                    <p className="mt-0.5 text-[10px] font-black text-white uppercase tracking-tight">Confirmed</p>
+                    <p className="text-[6px] font-black uppercase tracking-widest text-slate-400 leading-none">Mobile</p>
+                    <p className="mt-0.5 text-[8px] font-black text-white uppercase tracking-tight">Ready</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {booking.carImage && (
-              <div className="relative md:w-1/3 lg:w-1/2 flex justify-center">
-                <div className="absolute inset-0 rounded-full bg-[#F57C00]/10 blur-[80px]"></div>
+              <div className="relative md:w-1/3 lg:w-2/5 flex justify-center">
+                <div className="absolute inset-0 rounded-full bg-[#F57C00]/10 blur-[60px]"></div>
                 <img 
                   src={booking.carImage} 
                   alt={booking.carMake} 
-                  className="relative h-auto w-full max-w-[280px] sm:max-w-[340px] drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-transform duration-500 hover:scale-105"
+                  className="relative h-auto w-full max-w-[240px] sm:max-w-[280px] drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-transform duration-500 hover:scale-105"
                 />
               </div>
             )}
           </div>
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#F57C00]/5 blur-3xl"></div>
-          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
+          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#F57C00]/5 blur-3xl"></div>
+          <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5 blur-3xl"></div>
         </section>
 
         <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-12">
           {/* Left Column - Main Details */}
-          <div className="lg:col-span-8 space-y-4">
+          <div className="lg:col-span-8 space-y-3">
             {/* Quick Summary Grid - New for "Zoomed Out" feel */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <SummaryCard icon={<Car />} label="Class" value={booking.carCategory} />
               <SummaryCard icon={<Zap />} label="Transmission" value={booking.carTransmission} />
               <SummaryCard icon={<Globe />} label="Fuel" value={booking.carFuelPolicy} />
-              <SummaryCard icon={<Shield />} label="Insurance" value="Included" />
+              <SummaryCard icon={<ShieldCheck />} label="Protection" value="Standard" />
             </div>
 
-            <section className="rounded-[1rem] bg-white p-4 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                  <MapPin className="h-3.5 w-3.5 text-[#F57C00]" />
-                </div>
-                <h3 className="text-base font-black text-[#123C69] dark:text-white">Trip Itinerary</h3>
-              </div>
-              
-              <div className="relative space-y-0">
-                {/* Pickup */}
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="z-10 flex h-4 w-4 rounded-full border-2 border-[#F57C00] bg-white dark:bg-[#1e293b]"></div>
-                    <div className="h-full w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <section className="rounded-[1rem] bg-white p-3.5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#123C69]/5 dark:bg-white/5">
+                    <MapPin className="h-3 w-3 text-[#F57C00]" />
                   </div>
-                  <div className="pb-6">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#F57C00]">Pickup Location</p>
-                    <h4 className="text-base font-bold dark:text-white">{booking.pickupLocationName}</h4>
-                    <div className="mt-2 flex gap-4">
-                      <div className="text-xs text-slate-500 font-medium">
-                        {formatDisplayDate(booking.pickupDate)} • {formatDisplayTime(booking.startTime)}
+                  <h3 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Trip Details</h3>
+                </div>
+                
+                <div className="relative space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="z-10 flex h-3 w-3 rounded-full border-2 border-[#F57C00] bg-white dark:bg-[#1e293b]"></div>
+                      <div className="h-10 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-black uppercase tracking-widest text-[#F57C00]">Pickup</p>
+                      <h4 className="text-xs font-bold leading-tight dark:text-white">{booking.pickupLocationName}</h4>
+                      <div className="mt-1 text-[10px] text-slate-500 font-bold">
+                        {formatDisplayDate(booking.pickupDate)} @ {formatDisplayTime(booking.startTime)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="z-10 flex h-3 w-3 rounded-full border-2 border-slate-300 bg-white dark:bg-[#1e293b]"></div>
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Return</p>
+                      <h4 className="text-xs font-bold leading-tight dark:text-white">{booking.dropoffLocationName}</h4>
+                      <div className="mt-1 text-[10px] text-slate-500 font-bold">
+                        {formatDisplayDate(booking.dropoffDate)} @ {formatDisplayTime(booking.endTime)}
                       </div>
                     </div>
                   </div>
                 </div>
+              </section>
 
-                {/* Return */}
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="z-10 flex h-4 w-4 rounded-full border-2 border-slate-300 bg-white dark:bg-[#1e293b]"></div>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Return Location</p>
-                    <h4 className="text-base font-bold dark:text-white">{booking.dropoffLocationName}</h4>
-                    <div className="mt-2 text-xs text-slate-500 font-medium">
-                      {formatDisplayDate(booking.dropoffDate)} • {formatDisplayTime(booking.endTime)}
-                    </div>
-                  </div>
+              <section className="rounded-[1rem] bg-white p-3.5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Specifications</h3>
+                  <Car className="h-3.5 w-3.5 text-slate-300" />
                 </div>
-              </div>
-            </section>
-
-            <section className="rounded-[1rem] bg-white p-4 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-black text-[#123C69] dark:text-white">Vehicle Details</h3>
-                <Car className="h-4 w-4 text-slate-300" />
-              </div>
-              <div className="grid grid-cols-2 gap-y-3 sm:grid-cols-4">
-                <SpecItem label="Passengers" value={`${booking.carPassengers} Seats`} />
-                <SpecItem label="Luggage" value={`${booking.carBags} Bags`} />
-                <SpecItem label="Doors" value={`${booking.carDoors} Doors`} />
-                <SpecItem label="Air Con" value={booking.carAirConditioning ? 'Yes' : 'No'} />
-              </div>
-            </section>
+                <div className="grid grid-cols-2 gap-y-3">
+                  <SpecItem label="Passengers" value={`${booking.carPassengers} Seats`} />
+                  <SpecItem label="Luggage" value={`${booking.carBags} Bags`} />
+                  <SpecItem label="Doors" value={`${booking.carDoors} Doors`} />
+                  <SpecItem label="Air Con" value={booking.carAirConditioning ? 'Yes' : 'No'} />
+                </div>
+              </section>
+            </div>
           </div>
 
           {/* Right Column - QR & Quick Info */}
-          <div className="lg:col-span-4 space-y-4">
-            <section className="flex flex-col items-center rounded-[1.25rem] bg-white p-4 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-3 rounded-lg bg-slate-50 p-2.5 dark:bg-white transition-transform hover:scale-105">
+          <div className="lg:col-span-4 space-y-3">
+            <section className="flex flex-col items-center rounded-[1.25rem] bg-white p-4 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800 border border-slate-100">
+              <div className="mb-3 rounded-xl bg-slate-50 p-2 dark:bg-white transition-transform hover:scale-105 border border-slate-100">
                 <img 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`} 
                   alt="Voucher QR Code"
-                  className="h-28 w-28"
+                  className="h-24 w-24"
                 />
               </div>
-              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Scan at Counter</p>
-              <h4 className="mt-0.5 text-xs font-bold text-[#123C69] dark:text-white">Fast-Track Pickup</h4>
+              <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Scan at Counter</p>
+              <h4 className="mt-0.5 text-xs font-bold text-[#123C69] dark:text-white">Secure Verification</h4>
             </section>
 
-            <section className="rounded-[1rem] bg-white p-4 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+            <section className="rounded-[1rem] bg-white p-3.5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
               <div className="mb-3 flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5 text-slate-400" />
-                <h4 className="text-xs font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
+                <ShieldCheck className="h-3 w-3 text-slate-400" />
+                <h4 className="text-[10px] font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
               </div>
-              <div className="space-y-3">
-                <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-900/50">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Provider</p>
-                  <p className="text-xs font-bold dark:text-white">{booking.supplierName}</p>
+              <div className="space-y-2">
+                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-900/50">
+                  <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Provider</p>
+                  <p className="text-[10px] font-bold dark:text-white">{booking.supplierName}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-900/50">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Contact Support</p>
-                  <p className="text-xs font-bold dark:text-white">booking@hogicar.com</p>
+                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-900/50">
+                  <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Emergency Support</p>
+                  <p className="text-[10px] font-bold text-[#123C69] dark:text-[#F57C00]">booking@hogicar.com</p>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-[1.25rem] bg-[#123C69]/5 p-5 dark:bg-[#123C69]/20 border border-[#123C69]/10 space-y-3">
+            <section className="rounded-[1.25rem] bg-[#123C69]/5 p-4 dark:bg-[#123C69]/20 border border-[#123C69]/10 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
-                <span className="text-base font-black text-[#22C55E]">
+                <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
+                <span className="text-sm font-black text-[#22C55E]">
                   {getCurrencySymbol(booking.currency)} {booking.payNow?.toFixed(2) || '0.00'}
                 </span>
               </div>
               {booking.payAtDesk > 0 && (
-                <div className="flex items-center justify-between pt-3 border-t border-[#123C69]/10">
-                  <span className="text-[10px] font-bold text-[#123C69] dark:text-slate-300">Payable at Arrival</span>
-                  <span className="text-base font-black text-[#F57C00]">
+                <div className="flex items-center justify-between pt-2 border-t border-[#123C69]/10">
+                  <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Payable at Arrival</span>
+                  <span className="text-sm font-black text-[#F57C00]">
                     {getCurrencySymbol(booking.currency)} {booking.payAtDesk?.toFixed(2) || '0.00'}
                   </span>
                 </div>
@@ -502,6 +517,7 @@ const Voucher: React.FC = () => {
         onClose={() => setIsWalletModalOpen(false)}
         onAppleWallet={handleAppleWallet}
         onGoogleWallet={handleGoogleWallet}
+        walletStatus={walletStatus}
       />
 
       {toast && (
@@ -521,19 +537,19 @@ const SpecItem = ({ label, value }: { label: string; value: string | number | un
 );
 
 const TimeUnit = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center rounded-xl bg-white/10 px-2.5 py-1.5 backdrop-blur-md min-w-[40px] border border-white/5">
-    <span className="text-sm font-black text-white leading-none">{String(value).padStart(2, '0')}</span>
-    <span className="mt-0.5 text-[8px] font-black uppercase tracking-tighter text-slate-400 leading-none">{label}</span>
+  <div className="flex flex-col items-center rounded-lg bg-white/10 px-2 py-1 backdrop-blur-md min-w-[32px] border border-white/5">
+    <span className="text-xs font-black text-white leading-none">{String(value).padStart(2, '0')}</span>
+    <span className="mt-0.5 text-[6px] font-black uppercase tracking-tighter text-slate-400 leading-none">{label}</span>
   </div>
 );
 
 const SummaryCard = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
-  <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-3 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-    <div className="mb-2 text-[#F57C00]">
-      {React.cloneElement(icon as React.ReactElement, { className: 'h-4 w-4' })}
+  <div className="flex flex-col items-center justify-center rounded-xl bg-white p-2.5 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800 border border-slate-50">
+    <div className="mb-1.5 text-[#F57C00]">
+      {React.cloneElement(icon as React.ReactElement, { className: 'h-3.5 w-3.5' })}
     </div>
-    <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">{label}</p>
-    <p className="mt-0.5 text-[10px] font-bold text-[#123C69] dark:text-white truncate w-full">{value || 'N/A'}</p>
+    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+    <p className="mt-0.5 text-[9px] font-bold text-[#123C69] dark:text-white truncate w-full">{value || 'N/A'}</p>
   </div>
 );
 

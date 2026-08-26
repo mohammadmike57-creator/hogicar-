@@ -7,9 +7,16 @@ interface WalletModalProps {
   onClose: () => void;
   onAppleWallet: () => void;
   onGoogleWallet: () => void;
+  walletStatus?: { appleWallet: boolean; googleWallet: boolean };
 }
 
-const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onAppleWallet, onGoogleWallet }) => {
+const WalletModal: React.FC<WalletModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onAppleWallet, 
+  onGoogleWallet,
+  walletStatus = { appleWallet: false, googleWallet: false }
+}) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -48,20 +55,35 @@ const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onAppleWalle
             <div className="space-y-4">
               <button
                 onClick={onAppleWallet}
-                className="group flex w-full items-center gap-4 rounded-2xl border-2 border-slate-100 bg-slate-50 p-4 transition-all hover:border-[#123C69] hover:bg-white dark:border-white/5 dark:bg-white/5 dark:hover:border-[#F57C00]"
+                className={`group flex w-full items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                  walletStatus.appleWallet 
+                    ? 'border-slate-100 bg-slate-50 hover:border-[#123C69] hover:bg-white dark:border-white/5 dark:bg-white/5 dark:hover:border-[#F57C00]' 
+                    : 'border-slate-100 bg-slate-50 opacity-80'
+                }`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black text-white">
                   <Apple className="h-6 w-6" />
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-1">
                   <div className="text-sm font-bold text-slate-900 dark:text-white">Apple Wallet</div>
-                  <div className="text-xs text-slate-500">Add to Apple Wallet</div>
+                  <div className="text-xs text-slate-500">
+                    {walletStatus.appleWallet ? 'Add to Apple Wallet' : 'Config Required (Admin)'}
+                  </div>
                 </div>
+                {!walletStatus.appleWallet && (
+                  <div className="rounded-full bg-slate-200 px-2 py-0.5 text-[8px] font-bold text-slate-500 uppercase">
+                    Setup
+                  </div>
+                )}
               </button>
               
               <button
                 onClick={onGoogleWallet}
-                className="group flex w-full items-center gap-4 rounded-2xl border-2 border-slate-100 bg-slate-50 p-4 transition-all hover:border-[#123C69] hover:bg-white dark:border-white/5 dark:bg-white/5 dark:hover:border-[#F57C00]"
+                className={`group flex w-full items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                  walletStatus.googleWallet 
+                    ? 'border-slate-100 bg-slate-50 hover:border-[#123C69] hover:bg-white dark:border-white/5 dark:bg-white/5 dark:hover:border-[#F57C00]' 
+                    : 'border-slate-100 bg-slate-50 opacity-80'
+                }`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm">
                   <svg viewBox="0 0 24 24" className="h-6 w-6">
@@ -71,10 +93,17 @@ const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onAppleWalle
                     <path d="M12 5.58c1.57 0 2.98.54 4.09 1.6l3.07-3.07C17.3 2.37 14.89 1.3 12 1.3 7.9 1.3 4.3 3.57 2.52 7.1l3.64 2.8c.82-2.47 3.12-4.32 5.84-4.32z" fill="#EA4335"/>
                   </svg>
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-1">
                   <div className="text-sm font-bold text-slate-900 dark:text-white">Google Wallet</div>
-                  <div className="text-xs text-slate-500">Save to Google Wallet</div>
+                  <div className="text-xs text-slate-500">
+                    {walletStatus.googleWallet ? 'Save to Google Wallet' : 'Config Required (Admin)'}
+                  </div>
                 </div>
+                {!walletStatus.googleWallet && (
+                  <div className="rounded-full bg-slate-200 px-2 py-0.5 text-[8px] font-bold text-slate-500 uppercase">
+                    Setup
+                  </div>
+                )}
               </button>
             </div>
             
