@@ -452,8 +452,8 @@ const Voucher: React.FC = () => {
                   <p className="text-xs font-bold dark:text-white">{booking.supplierName}</p>
                 </div>
                 <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-900/50">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Support Line</p>
-                  <p className="text-xs font-bold dark:text-white">+1 (800) HOGICAR</p>
+                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Contact Support</p>
+                  <p className="text-xs font-bold dark:text-white">booking@hogicar.com</p>
                 </div>
               </div>
             </section>
