@@ -370,7 +370,7 @@ const Voucher: React.FC = () => {
               <div className="mt-4 space-y-3">
                 <div className="flex justify-between border-t border-slate-200 pt-3 dark:border-slate-700">
                   <span className="text-sm font-medium text-slate-900 dark:text-slate-300">Total Paid</span>
-                  <span className="text-sm font-black text-[#22C55E]">{getCurrencySymbol(booking.currency)} {booking.finalPrice.toFixed(2)}</span>
+                  <span className="text-sm font-black text-[#22C55E]">{getCurrencySymbol(booking.currency)} {booking.finalPrice?.toFixed(2) || '0.00'}</span>
                 </div>
               </div>
             </section>
