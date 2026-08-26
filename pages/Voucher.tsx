@@ -51,32 +51,37 @@ const Voucher: React.FC = () => {
   React.useEffect(() => {
     if (!booking || !booking.pickupDate) return;
 
-    const targetDate = new Date(
-      `${booking.pickupDate}T${booking.startTime || '10:00'}:00`
-    ).getTime();
+    const parseDate = (dateStr: string, timeStr: string) => {
+      try {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const [hours, minutes] = (timeStr || '10:00').split(':').map(Number);
+        return new Date(year, month - 1, day, hours, minutes, 0).getTime();
+      } catch (e) {
+        return new Date(`${dateStr}T${timeStr || '10:00'}:00`).getTime();
+      }
+    };
 
-    const interval = setInterval(() => {
+    const targetDate = parseDate(booking.pickupDate, booking.startTime);
+
+    const updateTimer = () => {
       const now = new Date().getTime();
       const distance = targetDate - now;
 
       if (distance < 0) {
-        setCountdown('Picked Up / Ready');
-        clearInterval(interval);
+        setCountdown('READY');
         return;
       }
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      const minutes = Math.floor(
-        (distance % (1000 * 60 * 60)) / (1000 * 60)
-      );
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
       setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-    }, 1000);
+    };
 
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [booking]);
 
@@ -294,172 +299,164 @@ const Voucher: React.FC = () => {
         </div>
       </header>
 
-      <main className="mx-auto mt-8 w-full max-w-5xl px-4 sm:px-6">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-[2.5rem] bg-[#123C69] p-8 text-white shadow-2xl sm:p-12">
-          <div className="relative z-10 flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm">
-                <CheckCircle className="h-3 w-3" />
-                Confirmed
+      <main className="mx-auto mt-6 w-full max-w-5xl px-4 sm:px-6">
+        {/* Hero Section - More Compact & Organized */}
+        <section className="relative overflow-hidden rounded-[2rem] bg-[#123C69] p-6 text-white shadow-xl sm:p-10">
+          <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex-1">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E]/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm">
+                  <CheckCircle className="h-3 w-3" />
+                  Confirmed
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300 backdrop-blur-sm">
+                  {booking.bookingRef}
+                </span>
               </div>
-              <h1 className="text-4xl font-black tracking-tight sm:text-5xl md:text-6xl">
+              <h1 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
                 {booking.carMake} <span className="text-[#F57C00]">{booking.carModel}</span>
               </h1>
-              <p className="mt-4 text-lg font-medium text-slate-300">
-                Booking Reference: <span className="font-mono text-white tracking-tighter">{booking.bookingRef}</span>
+              <p className="mt-2 text-sm font-medium text-slate-400">
+                Official Rental Voucher • {booking.supplierName}
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <div className="rounded-2xl bg-white/5 p-4 backdrop-blur-md">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pickup in</p>
-                  <p className="mt-1 text-xl font-bold text-white">{countdown}</p>
+              
+              <div className="mt-6 flex flex-wrap gap-3">
+                <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-2 backdrop-blur-md">
+                  <Clock className="h-4 w-4 text-[#F57C00]" />
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 leading-none">Pickup in</p>
+                    <p className="mt-0.5 text-sm font-black text-white font-mono">{countdown}</p>
+                  </div>
                 </div>
-                <div className="rounded-2xl bg-white/5 p-4 backdrop-blur-md">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Supplier</p>
-                  <p className="mt-1 text-xl font-bold text-white">{booking.supplierName}</p>
+                <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-2 backdrop-blur-md">
+                  <ShieldCheck className="h-4 w-4 text-[#22C55E]" />
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 leading-none">Status</p>
+                    <p className="mt-0.5 text-sm font-black text-white uppercase tracking-tight">Active Reservation</p>
+                  </div>
                 </div>
               </div>
             </div>
+
             {booking.carImage && (
-              <div className="relative">
-                <div className="absolute -inset-4 rounded-full bg-[#F57C00]/20 blur-3xl"></div>
+              <div className="relative md:w-1/3 lg:w-1/2 flex justify-center">
+                <div className="absolute inset-0 rounded-full bg-[#F57C00]/10 blur-[80px]"></div>
                 <img 
                   src={booking.carImage} 
                   alt={booking.carMake} 
-                  className="relative h-auto w-full max-w-md drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+                  className="relative h-auto w-full max-w-[280px] sm:max-w-[340px] drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-transform duration-500 hover:scale-105"
                 />
               </div>
             )}
           </div>
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#F57C00]/10 blur-3xl"></div>
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#F57C00]/5 blur-3xl"></div>
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
         </section>
 
-        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-8">
-            <section className="group rounded-[2rem] bg-white p-8 shadow-sm transition-all hover:shadow-md dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">01 / Vehicle</span>
-                  <h3 className="text-2xl font-black text-[#123C69] dark:text-white">Rental Specifications</h3>
-                </div>
-                <Car className="h-8 w-8 text-[#F57C00]" />
-              </div>
-              <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-                <SpecItem label="Category" value={booking.carCategory} />
-                <SpecItem label="Transmission" value={booking.carTransmission} />
-                <SpecItem label="Fuel Policy" value={booking.carFuelPolicy} />
-                <SpecItem label="A/C" value={booking.carAirConditioning ? 'Included' : 'Not Included'} />
-                <SpecItem label="Passengers" value={`${booking.carPassengers} Seats`} />
-                <SpecItem label="Doors" value={`${booking.carDoors} Doors`} />
-                <SpecItem label="Luggage" value={`${booking.carBags} Large Bags`} />
-                <SpecItem label="Mileage" value="Unlimited" />
-              </div>
-            </section>
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* Left Column - Main Details */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Quick Summary Grid - New for "Zoomed Out" feel */}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <SummaryCard icon={<Car />} label="Class" value={booking.carCategory} />
+              <SummaryCard icon={<Zap />} label="Transmission" value={booking.carTransmission} />
+              <SummaryCard icon={<Globe />} label="Fuel" value={booking.carFuelPolicy} />
+              <SummaryCard icon={<Shield />} label="Insurance" value="Included" />
+            </div>
 
-            <section className="rounded-[2rem] bg-white p-8 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">02 / Pickup</span>
-                  <h3 className="text-2xl font-black text-[#123C69] dark:text-white">Collection Details</h3>
+            <section className="rounded-[1.5rem] bg-white p-6 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                  <MapPin className="h-4 w-4 text-[#F57C00]" />
                 </div>
-                <MapPin className="h-8 w-8 text-[#F57C00]" />
+                <h3 className="text-lg font-black text-[#123C69] dark:text-white">Trip Itinerary</h3>
               </div>
-              <div className="space-y-6">
-                <div className="rounded-2xl bg-slate-50 p-6 dark:bg-slate-900/50">
-                  <h4 className="text-lg font-bold text-slate-900 dark:text-white">{booking.pickupLocationName}</h4>
-                  <div className="mt-4 flex flex-wrap gap-6">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-slate-400" />
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date</p>
-                        <p className="font-bold dark:text-white">{formatDisplayDate(booking.pickupDate)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-5 w-5 text-slate-400" />
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Time</p>
-                        <p className="font-bold dark:text-white">{formatDisplayTime(booking.startTime)}</p>
+              
+              <div className="relative space-y-0">
+                {/* Pickup */}
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="z-10 flex h-4 w-4 rounded-full border-2 border-[#F57C00] bg-white dark:bg-[#1e293b]"></div>
+                    <div className="h-full w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+                  </div>
+                  <div className="pb-6">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#F57C00]">Pickup Location</p>
+                    <h4 className="text-base font-bold dark:text-white">{booking.pickupLocationName}</h4>
+                    <div className="mt-2 flex gap-4">
+                      <div className="text-xs text-slate-500 font-medium">
+                        {formatDisplayDate(booking.pickupDate)} • {formatDisplayTime(booking.startTime)}
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-4 rounded-2xl border border-dashed border-slate-200 p-6 dark:border-slate-700">
-                  <Info className="mt-1 h-5 w-5 text-[#123C69] dark:text-[#F57C00]" />
+
+                {/* Return */}
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="z-10 flex h-4 w-4 rounded-full border-2 border-slate-300 bg-white dark:bg-[#1e293b]"></div>
+                  </div>
                   <div>
-                    <p className="text-sm font-bold dark:text-white">Pickup Instructions</p>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Please proceed to the {booking.supplierName} counter. Ensure you have your driver's license, passport, and a credit card in the main driver's name.
-                    </p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Return Location</p>
+                    <h4 className="text-base font-bold dark:text-white">{booking.dropoffLocationName}</h4>
+                    <div className="mt-2 text-xs text-slate-500 font-medium">
+                      {formatDisplayDate(booking.dropoffDate)} • {formatDisplayTime(booking.endTime)}
+                    </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-[2rem] bg-white p-8 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">03 / Return</span>
-                  <h3 className="text-2xl font-black text-[#123C69] dark:text-white">Drop-off Details</h3>
-                </div>
-                <ArrowRight className="h-8 w-8 text-[#F57C00]" />
+            <section className="rounded-[1.5rem] bg-white p-6 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-lg font-black text-[#123C69] dark:text-white">Vehicle Details</h3>
+                <Car className="h-5 w-5 text-slate-300" />
               </div>
-              <div className="rounded-2xl bg-slate-50 p-6 dark:bg-slate-900/50">
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white">{booking.dropoffLocationName}</h4>
-                <div className="mt-4 flex flex-wrap gap-6">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date</p>
-                      <p className="font-bold dark:text-white">{formatDisplayDate(booking.dropoffDate)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Time</p>
-                      <p className="font-bold dark:text-white">{formatDisplayTime(booking.endTime)}</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="grid grid-cols-2 gap-y-4 sm:grid-cols-4">
+                <SpecItem label="Passengers" value={`${booking.carPassengers} Seats`} />
+                <SpecItem label="Luggage" value={`${booking.carBags} Bags`} />
+                <SpecItem label="Doors" value={`${booking.carDoors} Doors`} />
+                <SpecItem label="Air Con" value={booking.carAirConditioning ? 'Yes' : 'No'} />
               </div>
             </section>
           </div>
 
-          <div className="space-y-8">
-            <section className="flex flex-col items-center rounded-[2rem] bg-white p-8 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-6 rounded-2xl bg-slate-50 p-4 dark:bg-white">
+          {/* Right Column - QR & Quick Info */}
+          <div className="lg:col-span-4 space-y-6">
+            <section className="flex flex-col items-center rounded-[1.5rem] bg-white p-6 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-4 rounded-xl bg-slate-50 p-3 dark:bg-white transition-transform hover:scale-105">
                 <img 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`} 
                   alt="Voucher QR Code"
-                  className="h-40 w-40"
+                  className="h-32 w-32"
                 />
               </div>
-              <h4 className="text-lg font-black text-[#123C69] dark:text-white">Scan to Check-in</h4>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Scan at Counter</p>
+              <h4 className="mt-1 text-sm font-bold text-[#123C69] dark:text-white">Fast-Track Pickup</h4>
             </section>
 
-            <section className="rounded-[2rem] bg-white p-8 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">04 / Supplier</span>
-              <h4 className="mt-1 text-xl font-black text-[#123C69] dark:text-white">{booking.supplierName}</h4>
-              <div className="mt-6 space-y-4">
-                <div className="flex items-start gap-3">
-                  <Award className="mt-0.5 h-4 w-4 text-[#F57C00]" />
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Confirmation #</p>
-                    <p className="font-bold dark:text-white">{booking.supplierConfirmationNumber || 'Awaiting Confirmation'}</p>
-                  </div>
+            <section className="rounded-[1.5rem] bg-white p-6 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-4 flex items-center gap-2">
+                <Globe className="h-4 w-4 text-slate-400" />
+                <h4 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
+              </div>
+              <div className="space-y-4">
+                <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Provider</p>
+                  <p className="text-sm font-bold dark:text-white">{booking.supplierName}</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Support Line</p>
+                  <p className="text-sm font-bold dark:text-white">+1 (800) HOGICAR</p>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-[2rem] bg-[#f8fafc] p-8 dark:bg-slate-900/50 dark:border dark:border-slate-800">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">05 / Payment</span>
-              <div className="mt-4 space-y-3">
-                <div className="flex justify-between border-t border-slate-200 pt-3 dark:border-slate-700">
-                  <span className="text-sm font-medium text-slate-900 dark:text-slate-300">Total Paid</span>
-                  <span className="text-sm font-black text-[#22C55E]">{getCurrencySymbol(booking.currency)} {booking.finalPrice?.toFixed(2) || '0.00'}</span>
-                </div>
+            <section className="rounded-[1.5rem] bg-[#123C69]/5 p-6 dark:bg-[#123C69]/20 border border-[#123C69]/10">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
+                <span className="text-lg font-black text-[#22C55E]">
+                  {getCurrencySymbol(booking.currency)} {booking.finalPrice?.toFixed(2) || '0.00'}
+                </span>
               </div>
             </section>
           </div>
@@ -505,6 +502,16 @@ const SpecItem = ({ label, value }: { label: string; value: string | number | un
   <div>
     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
     <p className="mt-1 font-bold text-slate-900 dark:text-white">{value || 'N/A'}</p>
+  </div>
+);
+
+const SummaryCard = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+  <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-3 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+    <div className="mb-2 text-[#F57C00]">
+      {React.cloneElement(icon as React.ReactElement, { className: 'h-4 w-4' })}
+    </div>
+    <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+    <p className="mt-0.5 text-[10px] font-bold text-[#123C69] dark:text-white truncate w-full">{value || 'N/A'}</p>
   </div>
 );
 
