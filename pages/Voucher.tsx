@@ -104,7 +104,7 @@ const Voucher: React.FC = () => {
       const text = await response.clone().text();
       
       if (text.includes('CERTIFICATES_NOT_CONFIGURED')) {
-        showToast('Apple Wallet is not configured on the server. Please check the documentation.');
+        showToast('Apple Wallet certificates not configured on server. Please check WALLET_INTEGRATION.md.');
         return;
       }
 
@@ -149,7 +149,7 @@ const Voucher: React.FC = () => {
       url = url.replace(/^"|"$/g, ''); 
       
       if (!url || url === '#' || url.includes('UNCONFIGURED') || url.includes('TODO') || url.length < 10) {
-        showToast('Google Wallet is not configured on the server.');
+        showToast('Google Wallet is not configured on the server. Please check WALLET_INTEGRATION.md.');
         return;
       }
 
@@ -300,46 +300,46 @@ const Voucher: React.FC = () => {
         </div>
       </header>
 
-      <main className="mx-auto mt-4 w-full max-w-5xl px-4 sm:px-6">
-        {/* Hero Section - More Compact & Organized */}
-        <section className="relative overflow-hidden rounded-[1.5rem] bg-[#123C69] p-5 text-white shadow-xl sm:p-8">
-          <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <main className="mx-auto mt-2 w-full max-w-5xl px-3 sm:px-4">
+        {/* Hero Section - Even More Compact & Zoomed Out */}
+        <section className="relative overflow-hidden rounded-[1.25rem] bg-[#123C69] p-4 text-white shadow-xl sm:p-6">
+          <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex-1">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E]/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm">
-                  <CheckCircle className="h-3 w-3" />
+              <div className="mb-2 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E]/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm">
+                  <CheckCircle className="h-2.5 w-2.5" />
                   Confirmed
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300 backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-slate-300 backdrop-blur-sm">
                   {booking.bookingRef}
                 </span>
               </div>
-              <h1 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
+              <h1 className="text-xl font-black tracking-tight sm:text-2xl lg:text-3xl">
                 {booking.carMake} <span className="text-[#F57C00]">{booking.carModel}</span>
               </h1>
-              <p className="mt-2 text-sm font-medium text-slate-400">
+              <p className="mt-1 text-[11px] font-medium text-slate-400">
                 Official Rental Voucher • {booking.supplierName}
               </p>
               
-              <div className="mt-4 flex flex-wrap gap-3">
-                <div className="flex items-center gap-3 rounded-xl bg-white/10 p-1 pr-4 backdrop-blur-md border border-white/10 shadow-lg">
-                  <div className="flex gap-1">
+              <div className="mt-3 flex flex-wrap gap-2">
+                <div className="flex items-center gap-2 rounded-lg bg-white/10 p-1 pr-3 backdrop-blur-md border border-white/10 shadow-lg">
+                  <div className="flex gap-0.5">
                     <TimeUnit value={countdown.days} label="d" />
                     <TimeUnit value={countdown.hours} label="h" />
                     <TimeUnit value={countdown.minutes} label="m" />
                     <TimeUnit value={countdown.seconds} label="s" />
                   </div>
                   <div className="ml-1">
-                    <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Pickup In</p>
-                    <p className="mt-0.5 text-[9px] font-bold text-white/80">Timer</p>
+                    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 leading-none">Pickup In</p>
+                    <p className="mt-0.5 text-[8px] font-bold text-white/80">Countdown</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-3 backdrop-blur-md border border-white/10">
-                  <div className="h-2 w-2 rounded-full bg-[#22C55E] animate-pulse"></div>
+                <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 backdrop-blur-md border border-white/10">
+                  <div className="h-1.5 w-1.5 rounded-full bg-[#22C55E] animate-pulse"></div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none">Status</p>
-                    <p className="mt-0.5 text-xs font-black text-white uppercase tracking-tight">Confirmed</p>
+                    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 leading-none">Status</p>
+                    <p className="mt-0.5 text-[10px] font-black text-white uppercase tracking-tight">Confirmed</p>
                   </div>
                 </div>
               </div>
@@ -360,23 +360,23 @@ const Voucher: React.FC = () => {
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
         </section>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-12">
           {/* Left Column - Main Details */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-4">
             {/* Quick Summary Grid - New for "Zoomed Out" feel */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <SummaryCard icon={<Car />} label="Class" value={booking.carCategory} />
               <SummaryCard icon={<Zap />} label="Transmission" value={booking.carTransmission} />
               <SummaryCard icon={<Globe />} label="Fuel" value={booking.carFuelPolicy} />
               <SummaryCard icon={<Shield />} label="Insurance" value="Included" />
             </div>
 
-            <section className="rounded-[1.25rem] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                  <MapPin className="h-4 w-4 text-[#F57C00]" />
+            <section className="rounded-[1rem] bg-white p-4 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                  <MapPin className="h-3.5 w-3.5 text-[#F57C00]" />
                 </div>
-                <h3 className="text-lg font-black text-[#123C69] dark:text-white">Trip Itinerary</h3>
+                <h3 className="text-base font-black text-[#123C69] dark:text-white">Trip Itinerary</h3>
               </div>
               
               <div className="relative space-y-0">
@@ -413,12 +413,12 @@ const Voucher: React.FC = () => {
               </div>
             </section>
 
-            <section className="rounded-[1.25rem] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-5 flex items-center justify-between">
-                <h3 className="text-lg font-black text-[#123C69] dark:text-white">Vehicle Details</h3>
-                <Car className="h-5 w-5 text-slate-300" />
+            <section className="rounded-[1rem] bg-white p-4 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-base font-black text-[#123C69] dark:text-white">Vehicle Details</h3>
+                <Car className="h-4 w-4 text-slate-300" />
               </div>
-              <div className="grid grid-cols-2 gap-y-4 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-y-3 sm:grid-cols-4">
                 <SpecItem label="Passengers" value={`${booking.carPassengers} Seats`} />
                 <SpecItem label="Luggage" value={`${booking.carBags} Bags`} />
                 <SpecItem label="Doors" value={`${booking.carDoors} Doors`} />
@@ -428,40 +428,40 @@ const Voucher: React.FC = () => {
           </div>
 
           {/* Right Column - QR & Quick Info */}
-          <div className="lg:col-span-4 space-y-6">
-            <section className="flex flex-col items-center rounded-[1.5rem] bg-white p-6 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-4 rounded-xl bg-slate-50 p-3 dark:bg-white transition-transform hover:scale-105">
+          <div className="lg:col-span-4 space-y-4">
+            <section className="flex flex-col items-center rounded-[1.25rem] bg-white p-4 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-3 rounded-lg bg-slate-50 p-2.5 dark:bg-white transition-transform hover:scale-105">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`} 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`} 
                   alt="Voucher QR Code"
-                  className="h-32 w-32"
+                  className="h-28 w-28"
                 />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Scan at Counter</p>
-              <h4 className="mt-1 text-sm font-bold text-[#123C69] dark:text-white">Fast-Track Pickup</h4>
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Scan at Counter</p>
+              <h4 className="mt-0.5 text-xs font-bold text-[#123C69] dark:text-white">Fast-Track Pickup</h4>
             </section>
 
-            <section className="rounded-[1.25rem] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-4 flex items-center gap-2">
-                <Globe className="h-4 w-4 text-slate-400" />
-                <h4 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
+            <section className="rounded-[1rem] bg-white p-4 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+              <div className="mb-3 flex items-center gap-2">
+                <Globe className="h-3.5 w-3.5 text-slate-400" />
+                <h4 className="text-xs font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
               </div>
-              <div className="space-y-4">
-                <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Provider</p>
-                  <p className="text-sm font-bold dark:text-white">{booking.supplierName}</p>
+              <div className="space-y-3">
+                <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-900/50">
+                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Provider</p>
+                  <p className="text-xs font-bold dark:text-white">{booking.supplierName}</p>
                 </div>
-                <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Support Line</p>
-                  <p className="text-sm font-bold dark:text-white">+1 (800) HOGICAR</p>
+                <div className="rounded-lg bg-slate-50 p-2.5 dark:bg-slate-900/50">
+                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Support Line</p>
+                  <p className="text-xs font-bold dark:text-white">+1 (800) HOGICAR</p>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-[1.5rem] bg-[#123C69]/5 p-6 dark:bg-[#123C69]/20 border border-[#123C69]/10">
+            <section className="rounded-[1.25rem] bg-[#123C69]/5 p-5 dark:bg-[#123C69]/20 border border-[#123C69]/10">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
-                <span className="text-lg font-black text-[#22C55E]">
+                <span className="text-[10px] font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
+                <span className="text-base font-black text-[#22C55E]">
                   {getCurrencySymbol(booking.currency)} {booking.finalPrice?.toFixed(2) || '0.00'}
                 </span>
               </div>
