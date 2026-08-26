@@ -95,28 +95,19 @@ const Voucher: React.FC = () => {
         return;
       }
 
+      const text = await response.clone().text();
+      
+      if (text.includes('CERTIFICATES_NOT_CONFIGURED')) {
+        showToast('Apple Wallet is not configured on the server. Please check the documentation.');
+        return;
+      }
+
       if (!response.ok) {
         showToast('Apple Wallet service currently unavailable.');
         return;
       }
-      
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('text/plain')) {
-        const text = await response.text();
-        if (text.includes('CERTIFICATES_NOT_CONFIGURED')) {
-          showToast('Apple Wallet certificates not configured on server.');
-          return;
-        }
-      }
 
       const blob = await response.blob();
-      if (blob.size < 100) { // Unsigned passes or markers are usually very small
-        const text = await blob.text();
-        if (text.includes('CERTIFICATES_NOT_CONFIGURED')) {
-          showToast('Apple Wallet certificates not configured.');
-          return;
-        }
-      }
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
