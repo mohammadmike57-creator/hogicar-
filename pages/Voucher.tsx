@@ -458,13 +458,21 @@ const Voucher: React.FC = () => {
               </div>
             </section>
 
-            <section className="rounded-[1.25rem] bg-[#123C69]/5 p-5 dark:bg-[#123C69]/20 border border-[#123C69]/10">
+            <section className="rounded-[1.25rem] bg-[#123C69]/5 p-5 dark:bg-[#123C69]/20 border border-[#123C69]/10 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
                 <span className="text-base font-black text-[#22C55E]">
-                  {getCurrencySymbol(booking.currency)} {booking.finalPrice?.toFixed(2) || '0.00'}
+                  {getCurrencySymbol(booking.currency)} {booking.payNow?.toFixed(2) || '0.00'}
                 </span>
               </div>
+              {booking.payAtDesk > 0 && (
+                <div className="flex items-center justify-between pt-3 border-t border-[#123C69]/10">
+                  <span className="text-[10px] font-bold text-[#123C69] dark:text-slate-300">Payable at Arrival</span>
+                  <span className="text-base font-black text-[#F57C00]">
+                    {getCurrencySymbol(booking.currency)} {booking.payAtDesk?.toFixed(2) || '0.00'}
+                  </span>
+                </div>
+              )}
             </section>
           </div>
         </div>
