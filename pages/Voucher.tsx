@@ -85,26 +85,84 @@ const Voucher: React.FC = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleAppleWallet = () => {
-    window.location.href = `${API_BASE_URL}/api/vouchers/${booking.bookingRef}/apple-wallet`;
-    setIsWalletModalOpen(false);
+  const handleAppleWallet = async () => {
     showToast('Generating Apple Wallet pass...');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/vouchers/${booking.bookingRef}/apple-wallet`);
+      if (!response.ok) {
+        if (response.status === 503) {
+          showToast('Apple Wallet is not configured on the server.');
+        } else {
+          showToast('Error generating Apple Wallet pass.');
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      if (blob.size === 0 || (await blob.text()) === 'CERTIFICATES_NOT_CONFIGURED') {
+        showToast('Apple Wallet certificates not configured.');
+        return;
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `HogiCar-${booking.bookingRef}.pkpass`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      setIsWalletModalOpen(false);
+    } catch (err) {
+      showToast('Connection error generating Apple Wallet pass.');
+    }
   };
 
   const handleGoogleWallet = async () => {
     try {
-      const url = await getGoogleWalletUrl(booking.bookingRef);
+      showToast('Generating Google Wallet pass...');
+      const response = await fetch(`${API_BASE_URL}/api/vouchers/${booking.bookingRef}/google-wallet-url`);
+      if (!response.ok) {
+        showToast('Error generating Google Wallet pass.');
+        return;
+      }
+      let url = await response.text();
+      url = url.replace(/^"|"$/g, ''); // Remove wrapping quotes if returned as JSON string
+      
+      if (!url || url === '#' || url.includes('UNCONFIGURED') || url.includes('TODO')) {
+        showToast('Google Wallet is not configured on the server.');
+        return;
+      }
+
       window.open(url, '_blank');
       setIsWalletModalOpen(false);
-      showToast('Opening Google Wallet...');
     } catch (err) {
       showToast('Error generating Google Wallet pass');
     }
   };
 
-  const handleDownloadPdf = () => {
-    window.location.href = `${API_BASE_URL}/api/vouchers/${booking.bookingRef}/pdf`;
-    showToast('Downloading PDF Voucher...');
+  const handleDownloadPdf = async () => {
+    showToast('Preparing PDF Voucher...');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/vouchers/${booking.bookingRef}/pdf`);
+      if (!response.ok) {
+        showToast('Error generating PDF Voucher.');
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `HogiCar-Rental-Voucher-${booking.bookingRef}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast('PDF Voucher downloaded successfully.');
+    } catch (err) {
+      showToast('Connection error downloading PDF.');
+    }
   };
 
   const handleCalendar = () => {
