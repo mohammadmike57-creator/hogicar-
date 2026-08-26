@@ -89,19 +89,33 @@ const Voucher: React.FC = () => {
     showToast('Generating Apple Wallet pass...');
     try {
       const response = await fetch(`${API_BASE_URL}/api/vouchers/${booking.bookingRef}/apple-wallet`);
+      
+      if (response.status === 404) {
+        showToast('Booking not found.');
+        return;
+      }
+
       if (!response.ok) {
-        if (response.status === 503) {
-          showToast('Apple Wallet is not configured on the server.');
-        } else {
-          showToast('Error generating Apple Wallet pass.');
-        }
+        showToast('Apple Wallet service currently unavailable.');
         return;
       }
       
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('text/plain')) {
+        const text = await response.text();
+        if (text.includes('CERTIFICATES_NOT_CONFIGURED')) {
+          showToast('Apple Wallet certificates not configured on server.');
+          return;
+        }
+      }
+
       const blob = await response.blob();
-      if (blob.size === 0 || (await blob.text()) === 'CERTIFICATES_NOT_CONFIGURED') {
-        showToast('Apple Wallet certificates not configured.');
-        return;
+      if (blob.size < 100) { // Unsigned passes or markers are usually very small
+        const text = await blob.text();
+        if (text.includes('CERTIFICATES_NOT_CONFIGURED')) {
+          showToast('Apple Wallet certificates not configured.');
+          return;
+        }
       }
 
       const url = window.URL.createObjectURL(blob);
@@ -113,6 +127,7 @@ const Voucher: React.FC = () => {
       a.remove();
       window.URL.revokeObjectURL(url);
       setIsWalletModalOpen(false);
+      showToast('Wallet pass downloaded!');
     } catch (err) {
       showToast('Connection error generating Apple Wallet pass.');
     }
@@ -122,14 +137,21 @@ const Voucher: React.FC = () => {
     try {
       showToast('Generating Google Wallet pass...');
       const response = await fetch(`${API_BASE_URL}/api/vouchers/${booking.bookingRef}/google-wallet-url`);
-      if (!response.ok) {
-        showToast('Error generating Google Wallet pass.');
+      
+      if (response.status === 404) {
+        showToast('Booking not found.');
         return;
       }
+
+      if (!response.ok) {
+        showToast('Google Wallet service unavailable.');
+        return;
+      }
+
       let url = await response.text();
-      url = url.replace(/^"|"$/g, ''); // Remove wrapping quotes if returned as JSON string
+      url = url.replace(/^"|"$/g, ''); 
       
-      if (!url || url === '#' || url.includes('UNCONFIGURED') || url.includes('TODO')) {
+      if (!url || url === '#' || url.includes('UNCONFIGURED') || url.includes('TODO') || url.length < 10) {
         showToast('Google Wallet is not configured on the server.');
         return;
       }
@@ -137,7 +159,7 @@ const Voucher: React.FC = () => {
       window.open(url, '_blank');
       setIsWalletModalOpen(false);
     } catch (err) {
-      showToast('Error generating Google Wallet pass');
+      showToast('Error connecting to Google Wallet service.');
     }
   };
 
@@ -145,12 +167,29 @@ const Voucher: React.FC = () => {
     showToast('Preparing PDF Voucher...');
     try {
       const response = await fetch(`${API_BASE_URL}/api/vouchers/${booking.bookingRef}/pdf`);
+      
+      if (response.status === 404) {
+        showToast('Booking not found.');
+        return;
+      }
+
       if (!response.ok) {
-        showToast('Error generating PDF Voucher.');
+        // Try to get error message if it's not a PDF
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text')) {
+           const errorMsg = await response.text();
+           console.error('PDF generation error:', errorMsg);
+        }
+        showToast('Error generating PDF. Please try again later.');
         return;
       }
       
       const blob = await response.blob();
+      if (blob.size < 500) { // PDF should be larger than this
+         const text = await blob.text();
+         console.warn('PDF response looks too small:', text);
+      }
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
