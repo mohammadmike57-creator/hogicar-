@@ -21,7 +21,7 @@ const Voucher: React.FC = () => {
   const [booking, setBooking] = React.useState<any | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [countdown, setCountdown] = React.useState('');
+  const [countdown, setCountdown] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
   const [isWalletModalOpen, setIsWalletModalOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
@@ -68,16 +68,17 @@ const Voucher: React.FC = () => {
       const distance = targetDate - now;
 
       if (distance < 0) {
-        setCountdown('READY');
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
         return;
       }
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      setCountdown({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+        total: distance
+      });
     };
 
     updateTimer();
@@ -299,9 +300,9 @@ const Voucher: React.FC = () => {
         </div>
       </header>
 
-      <main className="mx-auto mt-6 w-full max-w-5xl px-4 sm:px-6">
+      <main className="mx-auto mt-4 w-full max-w-5xl px-4 sm:px-6">
         {/* Hero Section - More Compact & Organized */}
-        <section className="relative overflow-hidden rounded-[2rem] bg-[#123C69] p-6 text-white shadow-xl sm:p-10">
+        <section className="relative overflow-hidden rounded-[1.5rem] bg-[#123C69] p-5 text-white shadow-xl sm:p-8">
           <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex-1">
               <div className="mb-3 flex items-center gap-2">
@@ -313,26 +314,32 @@ const Voucher: React.FC = () => {
                   {booking.bookingRef}
                 </span>
               </div>
-              <h1 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+              <h1 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
                 {booking.carMake} <span className="text-[#F57C00]">{booking.carModel}</span>
               </h1>
               <p className="mt-2 text-sm font-medium text-slate-400">
                 Official Rental Voucher • {booking.supplierName}
               </p>
               
-              <div className="mt-6 flex flex-wrap gap-3">
-                <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-2 backdrop-blur-md">
-                  <Clock className="h-4 w-4 text-[#F57C00]" />
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 leading-none">Pickup in</p>
-                    <p className="mt-0.5 text-sm font-black text-white font-mono">{countdown}</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <div className="flex items-center gap-3 rounded-xl bg-white/10 p-1 pr-4 backdrop-blur-md border border-white/10 shadow-lg">
+                  <div className="flex gap-1">
+                    <TimeUnit value={countdown.days} label="d" />
+                    <TimeUnit value={countdown.hours} label="h" />
+                    <TimeUnit value={countdown.minutes} label="m" />
+                    <TimeUnit value={countdown.seconds} label="s" />
+                  </div>
+                  <div className="ml-1">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Pickup In</p>
+                    <p className="mt-0.5 text-[9px] font-bold text-white/80">Timer</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-2 backdrop-blur-md">
-                  <ShieldCheck className="h-4 w-4 text-[#22C55E]" />
+                
+                <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-3 backdrop-blur-md border border-white/10">
+                  <div className="h-2 w-2 rounded-full bg-[#22C55E] animate-pulse"></div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 leading-none">Status</p>
-                    <p className="mt-0.5 text-sm font-black text-white uppercase tracking-tight">Active Reservation</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none">Status</p>
+                    <p className="mt-0.5 text-xs font-black text-white uppercase tracking-tight">Confirmed</p>
                   </div>
                 </div>
               </div>
@@ -353,7 +360,7 @@ const Voucher: React.FC = () => {
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Left Column - Main Details */}
           <div className="lg:col-span-8 space-y-6">
             {/* Quick Summary Grid - New for "Zoomed Out" feel */}
@@ -364,7 +371,7 @@ const Voucher: React.FC = () => {
               <SummaryCard icon={<Shield />} label="Insurance" value="Included" />
             </div>
 
-            <section className="rounded-[1.5rem] bg-white p-6 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+            <section className="rounded-[1.25rem] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
               <div className="mb-5 flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
                   <MapPin className="h-4 w-4 text-[#F57C00]" />
@@ -406,7 +413,7 @@ const Voucher: React.FC = () => {
               </div>
             </section>
 
-            <section className="rounded-[1.5rem] bg-white p-6 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+            <section className="rounded-[1.25rem] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
               <div className="mb-5 flex items-center justify-between">
                 <h3 className="text-lg font-black text-[#123C69] dark:text-white">Vehicle Details</h3>
                 <Car className="h-5 w-5 text-slate-300" />
@@ -434,7 +441,7 @@ const Voucher: React.FC = () => {
               <h4 className="mt-1 text-sm font-bold text-[#123C69] dark:text-white">Fast-Track Pickup</h4>
             </section>
 
-            <section className="rounded-[1.5rem] bg-white p-6 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
+            <section className="rounded-[1.25rem] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
               <div className="mb-4 flex items-center gap-2">
                 <Globe className="h-4 w-4 text-slate-400" />
                 <h4 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
@@ -502,6 +509,13 @@ const SpecItem = ({ label, value }: { label: string; value: string | number | un
   <div>
     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
     <p className="mt-1 font-bold text-slate-900 dark:text-white">{value || 'N/A'}</p>
+  </div>
+);
+
+const TimeUnit = ({ value, label }: { value: number; label: string }) => (
+  <div className="flex flex-col items-center rounded-xl bg-white/10 px-2.5 py-1.5 backdrop-blur-md min-w-[40px] border border-white/5">
+    <span className="text-sm font-black text-white leading-none">{String(value).padStart(2, '0')}</span>
+    <span className="mt-0.5 text-[8px] font-black uppercase tracking-tighter text-slate-400 leading-none">{label}</span>
   </div>
 );
 
