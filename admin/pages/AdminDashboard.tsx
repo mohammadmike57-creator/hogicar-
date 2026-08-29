@@ -2259,7 +2259,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                         <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
-                                    <img src={getImageUrl(s.logo || s.logoUrl)} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='https://via.placeholder.com/100?text=Logo'} alt="Logo" width="40" height="40"/>
+                                    <img src={getImageUrl(s.logo || s.logoUrl)} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f1f5f9"/%3E%3C/svg%3E'} alt="Logo" width="40" height="40"/>
                                 </div>
                                 <div>
                                     <div className="text-[13px] font-extrabold text-slate-900 group-hover:text-[#007ac2] transition-colors leading-tight">{s.name}</div>

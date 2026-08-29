@@ -577,7 +577,7 @@ const BlogManagement: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div className="relative flex-shrink-0">
                           <img 
-                            src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://via.placeholder.com/150'} 
+                            src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"%3E%3Crect width="150" height="150" fill="%23f1f5f9"/%3E%3C/svg%3E'} 
                             className="w-10 h-10 rounded-lg object-cover bg-slate-100 shadow-sm border border-slate-200"
                           />
                         </div>
@@ -1043,7 +1043,7 @@ const BlogManagement: React.FC = () => {
                                   }}
                                 >
                                   <div className="flex items-center gap-2">
-                                    <img src={a.featuredImage ? (a.featuredImage.startsWith('/') && !a.featuredImage.startsWith('http') ? `${API_BASE_URL}${a.featuredImage}` : a.featuredImage) : 'https://via.placeholder.com/150'} className="w-6 h-6 rounded object-cover" />
+                                    <img src={a.featuredImage ? (a.featuredImage.startsWith('/') && !a.featuredImage.startsWith('http') ? `${API_BASE_URL}${a.featuredImage}` : a.featuredImage) : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"%3E%3Crect width="150" height="150" fill="%23f1f5f9"/%3E%3C/svg%3E'} className="w-6 h-6 rounded object-cover" />
                                     <span className="text-xs font-bold truncate max-w-[300px]">{a.title}</span>
                                   </div>
                                   {isSelected && <Check size={14} />}
