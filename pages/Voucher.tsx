@@ -432,11 +432,13 @@ const Voucher: React.FC = () => {
                   <h3 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Specifications</h3>
                   <Car className="h-3.5 w-3.5 text-slate-300" />
                 </div>
-                <div className="grid grid-cols-2 gap-y-3">
-                  <SpecItem label="Passengers" value={`${booking.carPassengers} Seats`} />
-                  <SpecItem label="Luggage" value={`${booking.carBags} Bags`} />
-                  <SpecItem label="Doors" value={`${booking.carDoors} Doors`} />
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <SpecItem label="Passengers" value={booking.carPassengers ? `${booking.carPassengers} Seats` : undefined} />
+                  <SpecItem label="Luggage" value={booking.carBags ? `${booking.carBags} Bags` : undefined} />
+                  <SpecItem label="Doors" value={booking.carDoors ? `${booking.carDoors} Doors` : undefined} />
+                  <SpecItem label="SIPP Code" value={booking.carSippCode} />
                   <SpecItem label="Air Con" value={booking.carAirConditioning ? 'Yes' : 'No'} />
+                  <SpecItem label="Mileage" value={booking.carUnlimitedMileage ? 'Unlimited' : 'Limited'} />
                 </div>
               </section>
             </div>
@@ -485,6 +487,14 @@ const Voucher: React.FC = () => {
                   <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Payable at Arrival</span>
                   <span className="text-sm font-black text-[#F57C00]">
                     {getCurrencySymbol(booking.currency)} {booking.payAtDesk?.toFixed(2) || '0.00'}
+                  </span>
+                </div>
+              )}
+              {booking.carDeposit > 0 && (
+                <div className="flex items-center justify-between pt-2 border-t border-[#123C69]/10">
+                  <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Security Deposit</span>
+                  <span className="text-sm font-bold text-slate-500">
+                    {getCurrencySymbol(booking.currency)} {booking.carDeposit?.toFixed(2) || '0.00'}
                   </span>
                 </div>
               )}

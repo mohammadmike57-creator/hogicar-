@@ -357,6 +357,8 @@ export interface Booking {
   carBags?: number;
   carDoors?: number;
   carAirConditioning?: boolean;
+  carDeposit?: number;
+  carUnlimitedMileage?: boolean;
 }
 
 export interface StatsData {
