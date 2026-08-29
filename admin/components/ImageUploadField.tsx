@@ -104,7 +104,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
           hidden 
           ref={fileInputRef} 
           onChange={handleUpload}
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
         />
         <button 
           type="button"

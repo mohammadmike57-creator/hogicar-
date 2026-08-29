@@ -831,7 +831,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               )}
               <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-card cursor-pointer">
                 <ImageIcon className="w-6 h-6 text-white" />
-                <input type="file" className="hidden" accept="image/*" onChange={handleLogo} />
+                <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" onChange={handleLogo} />
               </label>
             </div>
             <p className="text-[10px] text-gray-400 mt-2">Logo (auto-resized)</p>
@@ -1792,7 +1792,7 @@ const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: a
                   <input
                     id={fileInputId}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                     className="hidden"
                     onChange={async (e) => {
                       await handleCategoryImageUpload(category, e.target.files?.[0]);
@@ -3703,7 +3703,7 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
                 <div className="flex gap-2">
                     <input 
                         type="file" 
-                        accept="image/*" 
+                        accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                         id="car-model-image-upload"
                         onChange={async (e) => {
                             const file = e.target.files?.[0];
@@ -4148,7 +4148,7 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                         <div className="flex-1 space-y-3">
                             <InputField value={formData.logoUrl} onChange={(e: any) => setFormData({ ...formData, logoUrl: e.target.value })} placeholder="Paste direct image URL or upload →" />
                         </div>
-                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" className="hidden" />
                         <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-card transition-colors flex items-center justify-center text-slate-400 hover:text-[#007ac2] hover:border-blue-200">
                             <ImageIcon className="w-6 h-6" />
                         </button>
@@ -4278,7 +4278,7 @@ const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
                                 <span>Recommended: 400x200px, Transparent PNG</span>
                             </div>
                         </div>
-                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" className="hidden" />
                         <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-card transition-colors flex items-center justify-center text-slate-400 hover:text-[#007ac2] hover:border-blue-200">
                             <ImageIcon className="w-6 h-6" />
                         </button>
