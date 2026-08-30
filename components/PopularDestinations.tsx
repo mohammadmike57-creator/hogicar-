@@ -34,10 +34,23 @@ const PopularDestinations: React.FC<PopularDestinationsProps> = ({
              </Link>
          </div>
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-             {destinations.slice(0, 5).map((dest, index) => (
-                <Link to={`/search?location=${encodeURIComponent(dest.name)}`} key={index} className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-slate-900">
+             {destinations.slice(0, 5).map((dest, index) => {
+                const imageUrl = dest.image;
+                const isLocalImage = imageUrl.includes('/uploads/hero/');
+                const isWebp = imageUrl.toLowerCase().endsWith('.webp');
+                
+                const srcSet = (isLocalImage && isWebp) ? 
+                  `${imageUrl.replace('.webp', '_thumb.webp')} 400w, ${imageUrl.replace('.webp', '_medium.webp')} 800w` 
+                  : isLocalImage ? 
+                    `${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_thumb.png')} 400w, ${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_medium.png')} 800w`
+                    : undefined;
+
+                return (
+                  <Link to={`/search?location=${encodeURIComponent(dest.name)}`} key={index} className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-slate-900">
                     <img 
-                      src={dest.image} 
+                      src={imageUrl} 
+                      srcSet={srcSet}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
                       alt={dest.name} 
                       className="h-full w-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
@@ -50,8 +63,9 @@ const PopularDestinations: React.FC<PopularDestinationsProps> = ({
                           <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mt-1">{dest.country}</p>
                         )}
                     </div>
-                </Link>
-             ))}
+                  </Link>
+                );
+             })}
          </div>
       </div>
     </section>

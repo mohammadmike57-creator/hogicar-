@@ -48,26 +48,41 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
         <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }}></div>
 
         <div className="animate-marquee flex items-center hover:[animation-play-state:paused]">
-          {[...suppliers, ...suppliers].map((s, idx) => (
-            <div 
-              key={`${s.id || s.name}-${idx}`}
-              className="flex-shrink-0 flex items-center justify-center"
-              style={{ marginRight: '64px' }}
-            >
-              <img 
-                src={s.logo || s.logoUrl} 
-                alt={s.name} 
-                className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 hover:scale-110" 
-                width="160"
-                height="48"
-                loading="lazy"
-                decoding="async"
-                style={{ 
-                    transform: `scale(${(s.scale || 100) / 100})`,
-                } as any}
-              />
-            </div>
-          ))}
+          {[...suppliers, ...suppliers].map((s, idx) => {
+            const logoUrl = s.logo || s.logoUrl;
+            const isLocalImage = logoUrl.includes('/uploads/hero/');
+            const isWebp = logoUrl.toLowerCase().endsWith('.webp');
+            
+            // If it's the _logo variant, thumb is _mini (100px)
+            const srcSet = (isLocalImage && isWebp && logoUrl.includes('_logo')) ? 
+              `${logoUrl.replace('_logo.webp', '_mini.webp')} 100w, ${logoUrl} 200w` 
+              : (isLocalImage && isWebp) ?
+                `${logoUrl.replace('.webp', '_mini.webp')} 100w, ${logoUrl.replace('.webp', '_logo.webp')} 200w`
+                : undefined;
+
+            return (
+              <div 
+                key={`${s.id || s.name}-${idx}`}
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{ marginRight: '64px' }}
+              >
+                <img 
+                  src={logoUrl} 
+                  srcSet={srcSet}
+                  sizes="100px"
+                  alt={s.name} 
+                  className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 hover:scale-110" 
+                  width="160"
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
+                  style={{ 
+                      transform: `scale(${(s.scale || 100) / 100})`,
+                  } as any}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

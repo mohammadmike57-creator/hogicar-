@@ -29,11 +29,15 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks(id) {
               if (id.includes('node_modules')) {
+                if (id.includes('react-router-dom') || id.includes('@remix-run') || id.includes('react-router')) return 'vendor-router';
+                if (id.includes('react-helmet-async')) return 'vendor-helmet';
+                if (id.includes('axios')) return 'vendor-axios';
+                if (id.includes('date-fns')) return 'vendor-date';
                 if (id.includes('lucide-react')) return 'vendor-icons';
                 if (id.includes('recharts')) return 'vendor-charts';
                 if (id.includes('framer-motion')) return 'vendor-animation';
                 if (id.includes('stripe')) return 'vendor-stripe';
-                return 'vendor';
+                return 'vendor-core';
               }
             },
           },
@@ -41,6 +45,7 @@ export default defineConfig(({ mode }) => {
         chunkSizeWarningLimit: 800,
         sourcemap: false,
         minify: 'esbuild',
+        target: 'esnext',
         treeshake: true,
       },
       esbuild: {

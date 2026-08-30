@@ -132,10 +132,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   };
 
   return (
-    <div className={`
-      w-[320px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50
-      ${window.innerWidth < 640 ? 'fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto w-auto max-w-[340px]' : ''}
-    `}>
+    <div className="w-[320px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 max-sm:fixed max-sm:inset-x-4 max-sm:top-1/2 max-sm:-translate-y-1/2 max-sm:mx-auto max-sm:w-auto max-sm:max-w-[340px]">
       {renderHeader()}
       <div className="px-2 pt-2">
         {renderDays()}

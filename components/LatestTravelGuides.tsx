@@ -146,6 +146,17 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
 };
 
 const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boolean }> = ({ article, index, largeImage }) => {
+  const imageUrl = article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800';
+  
+  const isLocalImage = imageUrl.includes('/uploads/hero/');
+  const isWebp = imageUrl.toLowerCase().endsWith('.webp');
+  
+  const srcSet = (isLocalImage && isWebp) ? 
+    `${imageUrl.replace('.webp', '_thumb.webp')} 400w, ${imageUrl.replace('.webp', '_medium.webp')} 800w, ${imageUrl.replace('.webp', '_large.webp')} 1600w` 
+    : isLocalImage ? 
+      `${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_thumb.png')} 400w, ${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_medium.png')} 800w, ${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_large.png')} 1600w`
+      : undefined;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -157,7 +168,9 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
       <Link to={`/blog/${article.slug}`} className="block">
         <div className={`relative ${largeImage ? 'aspect-[16/10]' : 'aspect-[4/3]'} rounded-[2.5rem] overflow-hidden mb-8 shadow-xl shadow-slate-200/50`}>
           <img
-            src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800'}
+            src={imageUrl}
+            srcSet={srcSet}
+            sizes={largeImage ? "(max-width: 768px) 100vw, 800px" : "(max-width: 768px) 100vw, 400px"}
             alt={article.title}
             loading="lazy"
             decoding="async"
