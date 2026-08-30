@@ -78,6 +78,7 @@ import { Logo } from '../../components/Logo';
 import ImageUploadField from '../components/ImageUploadField';
 import BlogManagement from '../components/BlogManagement';
 import SitemapManagement from '../components/SitemapManagement';
+import SeoAuditManagement from '../components/SeoAuditManagement';
 import PushNotificationManagement from '../components/PushNotificationManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
@@ -281,7 +282,7 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: {
 };
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
-                'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 
+                'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
                 'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap';
 
@@ -583,6 +584,7 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
           <NavItem section="blog" label="Blog" icon={MessageSquare} />
           <NavItem section="sitemap" label="Sitemap" icon={Link2} />
           <NavItem section="seo" label="SEO" icon={Globe} />
+          <NavItem section="seoaudit" label="SEO Audit" icon={Activity} />
           <NavItem section="homepage" label="Assets" icon={ImageIcon} />
           <NavItem section="sitesettings" label="Config" icon={Settings} />
           <NavItem section="globallocations" label="Global Locations" icon={Globe} />
@@ -5140,6 +5142,7 @@ export const AdminDashboard: React.FC = () => {
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;
       case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} />;
+      case 'seoaudit': return <SeoAuditManagement />;
       case 'push': return <PushNotificationManagement />;
       case 'homepage':
         if (loadingHomepageEditor) {

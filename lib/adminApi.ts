@@ -97,3 +97,7 @@ export async function updateHogicarChoice(supplierId: number, carId: number, dat
         body: JSON.stringify(data)
     });
 }
+
+export async function performSeoAudit() {
+    return adminFetch('/api/admin/seo/audit');
+}
