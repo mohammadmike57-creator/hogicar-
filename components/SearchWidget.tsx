@@ -10,11 +10,11 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import X from 'lucide-react/dist/esm/icons/x';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { fetchLocations, LocationSuggestion } from '../api';
-import CalendarPicker from './CalendarPicker';
 import { startCarSearchPrefetch } from '../utils/searchPrefetch';
 import { lazyRetry } from '../utils/lazyRetry';
 
 const SearchOverlay = lazyRetry(() => import('./SearchOverlay'));
+const CalendarPicker = lazyRetry(() => import('./CalendarPicker'));
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
     const hour = Math.floor(i / 2);
@@ -131,12 +131,14 @@ const MobileDateTimeField = React.memo(({
             {showCalendar && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowCalendar(false)}>
                     <div onClick={e => e.stopPropagation()}>
-                        <CalendarPicker 
-                            selectedDate={dateValue}
-                            minDate={minDate}
-                            onDateSelect={onDateChange}
-                            onClose={() => setShowCalendar(false)}
-                        />
+                        <React.Suspense fallback={<div className="p-4 bg-white rounded-2xl w-[320px] h-[400px] flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-accent" /></div>}>
+                            <CalendarPicker 
+                                selectedDate={dateValue}
+                                minDate={minDate}
+                                onDateSelect={onDateChange}
+                                onClose={() => setShowCalendar(false)}
+                            />
+                        </React.Suspense>
                     </div>
                 </div>
             )}
@@ -208,14 +210,16 @@ const DesktopGroupedDateTimeField = React.memo(({
                 
                 {showCalendar && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 mt-2 z-[100]" onClick={(e) => e.stopPropagation()}>
-                        <CalendarPicker 
-                            selectedDate={dateValue}
-                            minDate={minDate}
-                            onDateSelect={(date) => {
-                                onDateChange({ target: { name: `${idPrefix}Date`, value: date } });
-                            }}
-                            onClose={() => setShowCalendar(false)}
-                        />
+                        <React.Suspense fallback={<div className="p-4 bg-white rounded-2xl shadow-xl w-[320px] h-[400px] flex items-center justify-center border border-slate-200"><LoaderCircle className="w-8 h-8 animate-spin text-accent" /></div>}>
+                            <CalendarPicker 
+                                selectedDate={dateValue}
+                                minDate={minDate}
+                                onDateSelect={(date) => {
+                                    onDateChange({ target: { name: `${idPrefix}Date`, value: date } });
+                                }}
+                                onClose={() => setShowCalendar(false)}
+                            />
+                        </React.Suspense>
                     </div>
                 )}
             </div>
