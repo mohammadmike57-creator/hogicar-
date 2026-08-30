@@ -13,8 +13,14 @@ import FileText from 'lucide-react/dist/esm/icons/file-text';
 import LinkIcon from 'lucide-react/dist/esm/icons/link';
 import Activity from 'lucide-react/dist/esm/icons/activity';
 import Layers from 'lucide-react/dist/esm/icons/layers';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import Wrench from 'lucide-react/dist/esm/icons/wrench';
+import Play from 'lucide-react/dist/esm/icons/play';
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
+import Ban from 'lucide-react/dist/esm/icons/ban';
 import { motion, AnimatePresence } from 'framer-motion';
-import { adminFetch, performSeoAudit } from '../../lib/adminApi';
+import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob } from '../../lib/adminApi';
 
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
@@ -22,6 +28,16 @@ const SeoAuditManagement: React.FC = () => {
     const [isDeep, setIsDeep] = useState(false);
     const [isLite, setIsLite] = useState(true);
     const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls'>('overview');
+    
+    // Fix System State
+    const [fixJob, setFixJob] = useState<any>(null);
+    const [isFixing, setIsFixing] = useState(false);
+    const [showFixConfirm, setShowFixConfirm] = useState(false);
+    const [fixingIssueId, setFixingIssueId] = useState<string | null>(null);
+
+    // Dismiss Logic
+    const [showDismissPrompt, setShowDismissPrompt] = useState<{ configId: number, issueType: string } | null>(null);
+    const [dismissReason, setDismissReason] = useState('');
 
     const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean) => {
         setLoading(true);
@@ -36,6 +52,96 @@ const SeoAuditManagement: React.FC = () => {
             setLoading(false);
         }
     };
+
+    const handleFixOne = async (issue: any) => {
+        setFixingIssueId(issue.url + issue.issue);
+        try {
+            await fixOneSeoIssue(issue);
+            // Refresh audit for this specific page could be too expensive, 
+            // so we just update the UI optimistically or run lite audit
+            handleRunAudit(false, true);
+        } catch (error) {
+            console.error('Failed to fix issue:', error);
+        } finally {
+            setFixingIssueId(null);
+        }
+    };
+
+    const handleFixAll = async () => {
+        const autoFixableIssues = report?.issues?.filter((i: any) => i.fixType === 'AUTO_FIX') || [];
+        if (autoFixableIssues.length === 0) return;
+
+        setIsFixing(true);
+        setShowFixConfirm(false);
+        try {
+            const job = await fixAllSeoIssues(autoFixableIssues);
+            setFixJob(job);
+        } catch (error) {
+            console.error('Failed to start fix all job:', error);
+            setIsFixing(false);
+        }
+    };
+
+    const handleDismiss = async () => {
+        if (!showDismissPrompt || !dismissReason) return;
+        try {
+            await dismissSeoIssue(showDismissPrompt.configId, showDismissPrompt.issueType, dismissReason);
+            setShowDismissPrompt(null);
+            setDismissReason('');
+            handleRunAudit(false, true); // Fast refresh
+        } catch (error) {
+            console.error('Failed to dismiss issue:', error);
+        }
+    };
+
+    const handleRollback = async () => {
+        if (!fixJob || !fixJob.id) return;
+        if (!confirm('Are you sure you want to rollback all changes from this job?')) return;
+        
+        setLoading(true);
+        try {
+            await rollbackSeoFixJob(fixJob.id);
+            setFixJob(null);
+            handleRunAudit();
+        } catch (error) {
+            console.error('Failed to rollback job:', error);
+            setLoading(false);
+        }
+    };
+
+    const handleFixPage = async (id: number, issues: any[]) => {
+        setLoading(true);
+        try {
+            await fixPageSeo(id, issues);
+            handleRunAudit(false, true);
+        } catch (error) {
+            console.error('Failed to fix page:', error);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let interval: any;
+        if (fixJob && fixJob.status === 'RUNNING') {
+            interval = setInterval(async () => {
+                try {
+                    const updatedJob = await getSeoFixJob(fixJob.id);
+                    setFixJob(updatedJob);
+                    if (updatedJob.status === 'COMPLETED' || updatedJob.status === 'FAILED') {
+                        clearInterval(interval);
+                        setIsFixing(false);
+                        // Re-audit with deep verification after completion
+                        handleRunAudit(true, false); 
+                    }
+                } catch (error) {
+                    console.error('Error polling fix job:', error);
+                    clearInterval(interval);
+                    setIsFixing(false);
+                }
+            }, 2000);
+        }
+        return () => clearInterval(interval);
+    }, [fixJob]);
 
     useEffect(() => {
         handleRunAudit();
@@ -111,16 +217,94 @@ const SeoAuditManagement: React.FC = () => {
                     </div>
                     <button 
                         onClick={() => handleRunAudit()}
-                        disabled={loading}
+                        disabled={loading || isFixing}
                         className="px-6 py-2.5 bg-slate-900 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
                     >
                         {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
                         Run Audit
                     </button>
+                    {report?.issues?.some((i: any) => i.fixType === 'AUTO_FIX') && (
+                        <button 
+                            onClick={() => setShowFixConfirm(true)}
+                            disabled={loading || isFixing}
+                            className="px-6 py-2.5 bg-blue-600 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-50"
+                        >
+                            <Wrench className="w-3.5 h-3.5" />
+                            Fix All Safe Issues
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* Overall Score */}
+            <AnimatePresence>
+                {fixJob && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="bg-blue-600 p-4 rounded-card text-white shadow-xl shadow-blue-100 flex flex-col gap-3"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                {fixJob.status === 'RUNNING' ? (
+                                    <RefreshCw className="w-5 h-5 animate-spin" />
+                                ) : fixJob.status === 'COMPLETED' ? (
+                                    <CheckCircle className="w-5 h-5" />
+                                ) : (
+                                    <AlertCircle className="w-5 h-5" />
+                                )}
+                                <div>
+                                    <p className="text-xs font-extrabold uppercase tracking-widest">
+                                        SEO Fix Job: {fixJob.status}
+                                    </p>
+                                    <p className="text-[10px] font-bold opacity-80">
+                                        {fixJob.status === 'RUNNING' ? `Fixing ${fixJob.currentUrl}...` : `Job finished. ${fixJob.fixedCount} issues fixed.`}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                {fixJob.status === 'COMPLETED' && (
+                                    <button 
+                                        onClick={handleRollback}
+                                        className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-all"
+                                    >
+                                        <RotateCcw className="w-3 h-3" />
+                                        Rollback
+                                    </button>
+                                )}
+                                <p className="text-sm font-extrabold">{Math.round((fixJob.processedIssues / (fixJob.totalIssues || 1)) * 100)}%</p>
+                            </div>
+                        </div>
+                        <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                            <motion.div 
+                                className="h-full bg-white" 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(fixJob.processedIssues / fixJob.totalIssues) * 100}%` }}
+                            />
+                        </div>
+                        <div className="flex gap-6">
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-extrabold uppercase opacity-60">Fixed</span>
+                                <span className="text-xs font-extrabold">{fixJob.fixedCount}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-extrabold uppercase opacity-60">Failed</span>
+                                <span className="text-xs font-extrabold">{fixJob.failedCount}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-extrabold uppercase opacity-60">Review</span>
+                                <span className="text-xs font-extrabold">{fixJob.reviewCount}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-extrabold uppercase opacity-60">Skipped</span>
+                                <span className="text-xs font-extrabold">{fixJob.skippedCount}</span>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="bg-white rounded-card border border-slate-200 overflow-hidden shadow-sm flex flex-col md:flex-row">
                 <div className="md:w-1/3 p-8 bg-slate-50 border-r border-slate-100 flex flex-col items-center justify-center text-center">
                     <div className="relative w-32 h-32 flex items-center justify-center mb-4">
@@ -285,6 +469,7 @@ const SeoAuditManagement: React.FC = () => {
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">URL</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Issue</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Recommended Fix</th>
+                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -301,7 +486,47 @@ const SeoAuditManagement: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 text-xs font-bold text-slate-900">{issue.url}</td>
                                         <td className="px-6 py-4 text-xs font-medium text-slate-600">{issue.issue}</td>
-                                        <td className="px-6 py-4 text-xs font-medium text-blue-600">{issue.recommendedFix}</td>
+                                        <td className="px-6 py-4 text-xs font-medium text-blue-600 italic">
+                                            {issue.fixType === 'AUTO_FIX' ? (
+                                                <div className="flex flex-col">
+                                                    <span>{issue.recommendedFix}</span>
+                                                    <span className="text-[8px] text-slate-400 uppercase tracking-tighter not-italic">Recommendation: {issue.recommendedValue}</span>
+                                                </div>
+                                            ) : issue.recommendedFix}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center gap-2 justify-end">
+                                                {issue.fixType === 'AUTO_FIX' ? (
+                                                    <button 
+                                                        onClick={() => handleFixOne(issue)}
+                                                        disabled={loading || isFixing || fixingIssueId === (issue.url + issue.issue)}
+                                                        className="px-3 py-1 bg-blue-600 text-white rounded-card font-extrabold text-[9px] uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                                                    >
+                                                        {fixingIssueId === (issue.url + issue.issue) ? (
+                                                            <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                                                        ) : (
+                                                            <Wrench className="w-2.5 h-2.5" />
+                                                        )}
+                                                        Auto-Fix
+                                                    </button>
+                                                ) : (
+                                                    <button 
+                                                        className="px-3 py-1 bg-slate-100 text-slate-600 rounded-card font-extrabold text-[9px] uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-1.5"
+                                                    >
+                                                        <Search className="w-2.5 h-2.5" />
+                                                        Review
+                                                    </button>
+                                                )}
+                                                <button 
+                                                    onClick={() => setShowDismissPrompt({ configId: issue.seoConfigId, issueType: issue.issue })}
+                                                    disabled={loading || isFixing}
+                                                    className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                                    title="Dismiss Issue"
+                                                >
+                                                    <Ban className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -360,6 +585,7 @@ const SeoAuditManagement: React.FC = () => {
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Keyword</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Intent</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Health</th>
+                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -426,6 +652,16 @@ const SeoAuditManagement: React.FC = () => {
                                                 )}
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button 
+                                                onClick={() => handleFixPage(audit.id, report.issues.filter((i: any) => i.url === audit.route))}
+                                                disabled={loading || isFixing || !report.issues.some((i: any) => i.url === audit.route && i.fixType === 'AUTO_FIX')}
+                                                className="px-3 py-1 bg-slate-900 text-white rounded-card font-extrabold text-[9px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-1.5 ml-auto shadow-sm disabled:opacity-30"
+                                            >
+                                                <Wrench className="w-2.5 h-2.5" />
+                                                Fix Page
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -433,6 +669,114 @@ const SeoAuditManagement: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            <AnimatePresence>
+                {showDismissPrompt && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white rounded-card shadow-2xl max-w-sm w-full p-8 space-y-6"
+                        >
+                            <div className="flex items-center gap-4 text-slate-400">
+                                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
+                                    <Ban className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-extrabold text-slate-900">Dismiss Issue</h3>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Reason for Dismissal</label>
+                                <textarea 
+                                    value={dismissReason}
+                                    onChange={(e) => setDismissReason(e.target.value)}
+                                    placeholder="e.g. False positive, manual override required..."
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-card text-xs font-bold text-slate-900 focus:ring-2 focus:ring-slate-900 transition-all"
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button 
+                                    onClick={() => setShowDismissPrompt(null)}
+                                    className="flex-1 px-6 py-3 border border-slate-200 rounded-card font-extrabold text-[10px] uppercase tracking-[0.2em] text-slate-600 hover:bg-slate-50 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={handleDismiss}
+                                    disabled={!dismissReason}
+                                    className="flex-1 px-6 py-3 bg-slate-900 text-white rounded-card font-extrabold text-[10px] uppercase tracking-[0.2em] hover:bg-slate-800 transition-all disabled:opacity-50"
+                                >
+                                    Dismiss
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {showFixConfirm && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white rounded-card shadow-2xl max-w-md w-full p-8 space-y-6"
+                        >
+                            <div className="flex items-center gap-4 text-blue-600">
+                                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                                    <Wrench className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-extrabold text-slate-900">Execute Batch Fix?</h3>
+                            </div>
+                            
+                            <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                                You are about to automatically fix <span className="text-slate-900 font-bold">{report?.issues?.filter((i: any) => i.fixType === 'AUTO_FIX').length} issues</span> across the site.
+                                This will update titles, H1 tags, meta descriptions, and keywords in the database based on SEO best practices.
+                            </p>
+
+                            <div className="bg-slate-50 rounded-card p-4 space-y-2">
+                                <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                                    <span>Metadata Fixes</span>
+                                    <span className="text-slate-900">{(report?.issues?.filter((i: any) => i.fixType === 'AUTO_FIX' && (i.issue.includes('Title') || i.issue.includes('Description'))).length) || 0}</span>
+                                </div>
+                                <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                                    <span>H1 & Structure</span>
+                                    <span className="text-slate-900">{(report?.issues?.filter((i: any) => i.fixType === 'AUTO_FIX' && i.issue.includes('H1')).length) || 0}</span>
+                                </div>
+                                <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                                    <span>Keyword & Intent</span>
+                                    <span className="text-slate-900">{(report?.issues?.filter((i: any) => i.fixType === 'AUTO_FIX' && (i.issue.includes('Keyword') || i.issue.includes('Intent'))).length) || 0}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button 
+                                    onClick={() => setShowFixConfirm(false)}
+                                    className="flex-1 px-6 py-3 border border-slate-200 rounded-card font-extrabold text-[10px] uppercase tracking-[0.2em] text-slate-600 hover:bg-slate-50 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={handleFixAll}
+                                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-card font-extrabold text-[10px] uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+                                >
+                                    Start Fixing
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

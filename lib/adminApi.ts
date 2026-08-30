@@ -101,3 +101,27 @@ export async function updateHogicarChoice(supplierId: number, carId: number, dat
 export async function performSeoAudit(lite: boolean = false, deep: boolean = false) {
     return adminFetch(`/api/admin/seo/audit?lite=${lite}&deep=${deep}`);
 }
+
+export async function fixOneSeoIssue(issue: any) {
+    return adminFetch('/api/admin/seo/fix-one', { method: 'POST', body: JSON.stringify(issue) });
+}
+
+export async function fixAllSeoIssues(issues: any[]) {
+    return adminFetch('/api/admin/seo/fix-all', { method: 'POST', body: JSON.stringify(issues) });
+}
+
+export async function getSeoFixJob(id: number) {
+    return adminFetch(`/api/admin/seo/fix-job/${id}`);
+}
+
+export async function fixPageSeo(id: number, issues: any[]) {
+    return adminFetch(`/api/admin/seo/fix-page/${id}`, { method: 'POST', body: JSON.stringify(issues) });
+}
+
+export async function dismissSeoIssue(configId: number, issueType: string, reason: string) {
+    return adminFetch(`/api/admin/seo/dismiss-issue?configId=${configId}&issueType=${encodeURIComponent(issueType)}&reason=${encodeURIComponent(reason)}`, { method: 'POST' });
+}
+
+export async function rollbackSeoFixJob(jobId: number) {
+    return adminFetch(`/api/admin/seo/rollback/${jobId}`, { method: 'POST' });
+}
