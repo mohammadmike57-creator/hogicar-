@@ -20,13 +20,15 @@ const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isDeep, setIsDeep] = useState(false);
+    const [isLite, setIsLite] = useState(true);
     const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls'>('overview');
 
-    const handleRunAudit = async (deepOverride?: boolean) => {
+    const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean) => {
         setLoading(true);
         const deepValue = deepOverride !== undefined ? deepOverride : isDeep;
+        const liteValue = liteOverride !== undefined ? liteOverride : isLite;
         try {
-            const data = await performSeoAudit(false, deepValue);
+            const data = await performSeoAudit(liteValue, deepValue);
             setReport(data);
         } catch (error) {
             console.error('Failed to run SEO audit:', error);
@@ -86,11 +88,20 @@ const SeoAuditManagement: React.FC = () => {
                     <label className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-card cursor-pointer hover:bg-slate-50 transition-colors">
                         <input 
                             type="checkbox" 
+                            checked={isLite} 
+                            onChange={(e) => setIsLite(e.target.checked)}
+                            className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Lite Scan (Faster)</span>
+                    </label>
+                    <label className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-card cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input 
+                            type="checkbox" 
                             checked={isDeep} 
                             onChange={(e) => setIsDeep(e.target.checked)}
                             className="rounded text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Deep Scan (Public Validation)</span>
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Deep Scan (Public)</span>
                     </label>
                     <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${report?.healthGreen ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
                         {report?.healthGreen ? <ShieldCheck className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
