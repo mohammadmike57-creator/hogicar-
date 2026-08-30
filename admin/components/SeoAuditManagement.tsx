@@ -12,6 +12,7 @@ import BarChart from 'lucide-react/dist/esm/icons/bar-chart';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import LinkIcon from 'lucide-react/dist/esm/icons/link';
 import Activity from 'lucide-react/dist/esm/icons/activity';
+import Layers from 'lucide-react/dist/esm/icons/layers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { adminFetch, performSeoAudit } from '../../lib/adminApi';
 
