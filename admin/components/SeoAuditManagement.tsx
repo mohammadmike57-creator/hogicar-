@@ -18,7 +18,7 @@ import { adminFetch, performSeoAudit } from '../../lib/adminApi';
 
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [isDeep, setIsDeep] = useState(false);
     const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls'>('overview');
 
@@ -44,6 +44,21 @@ const SeoAuditManagement: React.FC = () => {
             <div className="flex flex-col items-center justify-center h-96 gap-4">
                 <RefreshCw className="w-12 h-12 text-blue-500 animate-spin" />
                 <p className="text-slate-500 font-extrabold uppercase tracking-[0.2em] text-xs">Scanning Entire Website SEO...</p>
+            </div>
+        );
+    }
+
+    if (!report && !loading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-96 gap-4">
+                <AlertTriangle className="w-12 h-12 text-rose-500" />
+                <p className="text-slate-900 font-extrabold uppercase tracking-[0.2em] text-xs">Failed to load SEO Audit report</p>
+                <button 
+                    onClick={() => handleRunAudit()}
+                    className="px-6 py-2 bg-slate-900 text-white rounded-card font-extrabold text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                >
+                    Try Again
+                </button>
             </div>
         );
     }
@@ -188,7 +203,7 @@ const SeoAuditManagement: React.FC = () => {
                                     { route: '/car-rental-dead-sea', name: 'Dead Sea' },
                                     { route: '/car-rental-wadi-rum', name: 'Wadi Rum' }
                                 ].map(item => {
-                                    const audit = report.auditResults.find((r: any) => r.route === item.route);
+                                    const audit = report?.auditResults?.find((r: any) => r.route === item.route);
                                     return (
                                         <div key={item.route} className="flex items-center justify-between p-3 bg-slate-50 rounded-card border border-slate-100">
                                             <div className="flex items-center gap-3">
@@ -223,8 +238,8 @@ const SeoAuditManagement: React.FC = () => {
                         <div className="bg-white rounded-card border border-slate-200 p-6">
                             <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-widest mb-4">Top SEO Opportunities</h3>
                             <div className="space-y-4">
-                                {report.auditResults
-                                    .filter((r: any) => r.priority === 'P0' || r.priority === 'P1')
+                                {report?.auditResults
+                                    ?.filter((r: any) => r.priority === 'P0' || r.priority === 'P1')
                                     .sort((a: any, b: any) => a.seoScore - b.seoScore)
                                     .slice(0, 8)
                                     .map((r: any) => (
@@ -262,7 +277,7 @@ const SeoAuditManagement: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {report.issues.map((issue: any, index: number) => (
+                                {(report?.issues || []).map((issue: any, index: number) => (
                                     <tr key={index} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest ${
@@ -297,7 +312,7 @@ const SeoAuditManagement: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {Object.entries(report.cannibalizationGroups).map(([keyword, urls]: any) => (
+                            {Object.entries(report?.cannibalizationGroups || {}).map(([keyword, urls]: any) => (
                                 <div key={keyword} className="bg-white rounded-card border border-slate-200 p-6 shadow-sm">
                                     <div className="flex items-center gap-2 mb-4">
                                         <Layers className="w-4 h-4 text-amber-500" />
@@ -337,7 +352,7 @@ const SeoAuditManagement: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {report.auditResults.map((audit: any) => (
+                                {(report?.auditResults || []).map((audit: any) => (
                                     <tr key={audit.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <p className="text-xs font-extrabold text-slate-900">{audit.route}</p>

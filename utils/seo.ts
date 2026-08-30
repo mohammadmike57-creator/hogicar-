@@ -312,7 +312,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     canonicalUrl: canonical,
     introText: introTexts[routeType] || descriptions[routeType] || `Find the best car rental deals in ${displayName}. Book online & save with Hogicar.`,
     ogImage: 'https://www.hogicar.com/android-chrome-512x512.png',
-    focusKeyword: focusKeywords[routeType] || `car rental ${displayName}`,
+    primaryKeyword: focusKeywords[routeType] || `car rental ${displayName}`,
     searchIntent: 'Commercial',
     breadcrumbTitle: displayName,
     ogTitle: title,

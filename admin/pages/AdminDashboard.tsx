@@ -2745,7 +2745,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
         setMetaTitle('');
         setDescription('');
         setKeywords('');
-        setFocusKeyword('');
+        setPrimaryKeyword('');
         setCanonicalUrl('');
         setIndexable(true);
         setOgTitle('');
@@ -2800,7 +2800,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
     if (!metaTitle) setMetaTitle(defaults.ogTitle);
     if (!description) setDescription(defaults.description);
     if (!keywords) setKeywords(defaults.keywords);
-    if (!focusKeyword) setFocusKeyword(defaults.focusKeyword);
+    if (!primaryKeyword) setPrimaryKeyword(defaults.primaryKeyword);
     if (!canonicalUrl) setCanonicalUrl(defaults.canonicalUrl);
     if (!breadcrumbTitle) setBreadcrumbTitle(defaults.breadcrumbTitle);
     if (!ogTitle) setOgTitle(defaults.ogTitle);
