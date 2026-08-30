@@ -19,12 +19,14 @@ import { adminFetch, performSeoAudit } from '../../lib/adminApi';
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
     const [loading, setLoading] = useState(false);
+    const [isDeep, setIsDeep] = useState(false);
     const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls'>('overview');
 
-    const handleRunAudit = async () => {
+    const handleRunAudit = async (deepOverride?: boolean) => {
         setLoading(true);
+        const deepValue = deepOverride !== undefined ? deepOverride : isDeep;
         try {
-            const data = await performSeoAudit();
+            const data = await performSeoAudit(false, deepValue);
             setReport(data);
         } catch (error) {
             console.error('Failed to run SEO audit:', error);
@@ -66,6 +68,15 @@ const SeoAuditManagement: React.FC = () => {
                     <p className="text-sm text-slate-500 font-medium">Automated site-wide audit for indexing, cannibalization, and ranking health.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-card cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input 
+                            type="checkbox" 
+                            checked={isDeep} 
+                            onChange={(e) => setIsDeep(e.target.checked)}
+                            className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Deep Scan (Public Validation)</span>
+                    </label>
                     <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${report?.healthGreen ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
                         {report?.healthGreen ? <ShieldCheck className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                         <span className="text-[10px] font-extrabold uppercase tracking-widest">
@@ -73,12 +84,12 @@ const SeoAuditManagement: React.FC = () => {
                         </span>
                     </div>
                     <button 
-                        onClick={handleRunAudit}
+                        onClick={() => handleRunAudit()}
                         disabled={loading}
                         className="px-6 py-2.5 bg-slate-900 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
                     >
                         {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                        Run Full Audit
+                        Run Audit
                     </button>
                 </div>
             </div>
@@ -189,9 +200,16 @@ const SeoAuditManagement: React.FC = () => {
                                             </div>
                                             {audit && (
                                                 <div className="flex items-center gap-4">
-                                                    <div className="text-right">
-                                                        <p className="text-[10px] font-extrabold text-slate-900">{audit.seoScore}%</p>
-                                                        <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Score</p>
+                                                    <div className="text-right flex flex-col items-end">
+                                                        <div className="flex items-center gap-1.5">
+                                                            {audit.publicHttpStatus === 200 && (
+                                                                <div className={`w-1.5 h-1.5 rounded-full ${audit.publicMatch ? 'bg-emerald-500' : 'bg-rose-500'} animate-pulse`} title={audit.publicMatch ? 'Public page matches DB' : 'Public page mismatch detected'}></div>
+                                                            )}
+                                                            <p className="text-[10px] font-extrabold text-slate-900">{audit.seoScore}%</p>
+                                                        </div>
+                                                        <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
+                                                            {audit.publicHttpStatus === 200 ? (audit.publicMatch ? 'Live: OK' : 'Live: FAIL') : 'Config Score'}
+                                                        </p>
                                                     </div>
                                                     <ChevronRight className="w-4 h-4 text-slate-300" />
                                                 </div>
@@ -310,7 +328,8 @@ const SeoAuditManagement: React.FC = () => {
                             <thead className="bg-slate-50 border-b border-slate-100">
                                 <tr>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">URL</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Score</th>
+                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest center">Score</th>
+                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Validation</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Links (In/Out)</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Keyword</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Intent</th>
@@ -331,6 +350,24 @@ const SeoAuditManagement: React.FC = () => {
                                             }`}>
                                                 {audit.seoScore}%
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="flex flex-col items-center gap-1">
+                                                {audit.publicHttpStatus === 200 ? (
+                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-widest ${audit.publicMatch ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                                                        {audit.publicMatch ? 'MATCH' : 'MISMATCH'}
+                                                    </span>
+                                                ) : audit.publicHttpStatus === 0 ? (
+                                                    <span className="px-2 py-0.5 rounded bg-slate-50 text-slate-400 text-[8px] font-extrabold uppercase tracking-widest">
+                                                        SKIP
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-600 text-[8px] font-extrabold uppercase tracking-widest">
+                                                        ERROR {audit.publicHttpStatus}
+                                                    </span>
+                                                )}
+                                                <p className="text-[7px] text-slate-400 font-bold uppercase tracking-widest">Public vs DB</p>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex items-center justify-center gap-3">

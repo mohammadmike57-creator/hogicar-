@@ -98,6 +98,6 @@ export async function updateHogicarChoice(supplierId: number, carId: number, dat
     });
 }
 
-export async function performSeoAudit() {
-    return adminFetch('/api/admin/seo/audit');
+export async function performSeoAudit(lite: boolean = false, deep: boolean = false) {
+    return adminFetch(`/api/admin/seo/audit?lite=${lite}&deep=${deep}`);
 }
