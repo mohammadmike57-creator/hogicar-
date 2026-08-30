@@ -232,6 +232,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
   const [dropoffCode, setDropoffCode] = React.useState<string>('');
   const [pickupName, setPickupName] = React.useState<string>('');
   const [dropoffName, setDropoffName] = React.useState<string>('');
+  const [suppliers, setSuppliers] = React.useState<any[]>([]);
   const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
   const [homepageContent, setHomepageContent] = React.useState<any>(normalizeHomepageContent(null));
 
@@ -327,6 +328,38 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
          console.error("Failed to load locations on homepage:", error);
       }
     };
+    
+    const loadSuppliers = async () => {
+        try {
+            const [realSuppliers, homepageLogos] = await Promise.all([
+                fetchPublicSuppliers(),
+                fetchHomepageLogos()
+            ]);
+            
+            let allLogos: any[] = [];
+            
+            // 1. Add admin-managed homepage logos first
+            if (homepageLogos && homepageLogos.length > 0) {
+                allLogos = homepageLogos.map(l => ({
+                    name: l.name,
+                    logo: l.logoUrl,
+                    scale: l.scale,
+                    mobileScale: l.mobileScale,
+                    spacing: l.spacing
+                }));
+            }
+            
+            // Fallback to global brands ONLY if no logos are configured at all
+            if (allLogos.length === 0) {
+                allLogos = TRUSTED_BRANDS;
+            }
+            
+            setSuppliers(allLogos);
+        } catch (error) {
+            console.error('Error loading home suppliers:', error);
+            setSuppliers(TRUSTED_BRANDS);
+        }
+    };
 
     const loadHomepageData = async () => {
       try {
@@ -341,25 +374,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
       }
     };
 
-    // SURGICAL: Defer all non-critical data loading to after initial render
-    // This reduces main thread pressure during hydration and first usable search state
-    const scheduleLoad = () => {
-        if ((window as any).requestIdleCallback) {
-            (window as any).requestIdleCallback(() => {
-                loadSettings();
-                loadLocations();
-                loadHomepageData();
-            }, { timeout: 2000 });
-        } else {
-            setTimeout(() => {
-                loadSettings();
-                loadLocations();
-                loadHomepageData();
-            }, 100);
-        }
-    };
-
-    scheduleLoad();
+    loadSettings();
+    loadLocations();
+    loadSuppliers();
+    loadHomepageData();
   }, [seoConfig, location.pathname]);
 
   const handleSearch = (params: any) => {
