@@ -313,6 +313,7 @@ const SeoAuditManagement: React.FC = () => {
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Score</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Links (In/Out)</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Keyword</th>
+                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Intent</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Health</th>
                                 </tr>
                             </thead>
@@ -343,6 +344,11 @@ const SeoAuditManagement: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 text-xs font-bold text-slate-700 italic">
                                             {audit.primaryKeyword || <span className="text-slate-300 font-normal">None</span>}
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-[9px] font-extrabold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                                                {audit.searchIntent || 'N/A'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-wrap gap-1">
