@@ -1249,12 +1249,38 @@ const CmsContent = ({ pages, onEditPage }: any) => (
 
 // ==================== SEO ====================
 const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any) => {
+  const [view, setView] = useState<'list' | 'matrix'>('list');
   const getScore = (c: any) => {
     let score = 0;
-    if (c.title && c.title.length >= 30 && c.title.length <= 60) score += 40;
-    if (c.description && c.description.length >= 120 && c.description.length <= 160) score += 40;
-    if (c.keywords) score += 20;
+    if (c.title && c.title.length >= 30 && c.title.length <= 60) score += 30;
+    if (c.description && c.description.length >= 120 && c.description.length <= 160) score += 30;
+    if (c.primaryKeyword) score += 20;
+    if (c.content && c.content.length > 1000) score += 20;
+    else if (c.content && c.content.length > 500) score += 10;
     return score;
+  };
+
+  const getWarnings = (c: any) => {
+    const warnings = [];
+    if (!c.title || c.title.length < 30) warnings.push("Short Title");
+    if (c.title && c.title.length > 60) warnings.push("Long Title");
+    if (!c.description || c.description.length < 120) warnings.push("Short Desc");
+    if (c.description && c.description.length > 160) warnings.push("Long Desc");
+    if (!c.h1Title) warnings.push("Missing H1");
+    if (!c.primaryKeyword) warnings.push("No Primary Key");
+    if (!c.content || c.content.length < 500) warnings.push("Thin Content");
+    
+    // Duplicate checks
+    const isDuplicateKey = configs.some((other: any) => other.id !== c.id && other.primaryKeyword && other.primaryKeyword === c.primaryKeyword);
+    if (isDuplicateKey) warnings.push("Duplicate Key");
+
+    const isDuplicateTitle = configs.some((other: any) => other.id !== c.id && other.title && other.title === c.title);
+    if (isDuplicateTitle) warnings.push("Duplicate Title");
+
+    const isDuplicateDesc = configs.some((other: any) => other.id !== c.id && other.description && other.description === c.description);
+    if (isDuplicateDesc) warnings.push("Duplicate Desc");
+
+    return warnings;
   };
 
   const getScoreColor = (score: number) => {
@@ -1268,7 +1294,20 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
       <div className="flex justify-between items-center bg-white p-6 rounded-card shadow-sm border border-slate-200">
         <div>
           <SectionHeader title="SEO Management" icon={Globe} />
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Optimize your pages for search engines</p>
+          <div className="flex gap-4 mt-2">
+            <button 
+              onClick={() => setView('list')} 
+              className={`text-[10px] font-extrabold uppercase tracking-widest ${view === 'list' ? 'text-[#007ac2] border-b-2 border-[#007ac2]' : 'text-slate-400'}`}
+            >
+              Pages List
+            </button>
+            <button 
+              onClick={() => setView('matrix')} 
+              className={`text-[10px] font-extrabold uppercase tracking-widest ${view === 'matrix' ? 'text-[#007ac2] border-b-2 border-[#007ac2]' : 'text-slate-400'}`}
+            >
+              Keyword Matrix
+            </button>
+          </div>
         </div>
         <button 
           onClick={onNewSeo} 
@@ -1293,6 +1332,27 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
             <p className="font-extrabold uppercase tracking-widest text-xs">No SEO configurations found</p>
             <p className="text-[10px] mt-1">Start by adding a new route to optimize.</p>
           </div>
+        ) : view === 'matrix' ? (
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {configs.filter((c: any) => c.primaryKeyword).map((c: any) => (
+                <div key={c.route} className="p-4 rounded-card border border-slate-100 bg-slate-50 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <span className="text-xs font-extrabold text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">{c.primaryKeyword}</span>
+                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase ${getScoreColor(getScore(c))}`}>
+                      Score: {getScore(c)}%
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 font-mono truncate">{c.route}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {c.secondaryKeywords?.split(',').map((k: string) => (
+                      <span key={k} className="text-[8px] bg-white text-slate-400 px-1 py-0.5 rounded border border-slate-100">{k.trim()}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -1300,7 +1360,8 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Route & Title</th>
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">SEO Score</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">SEO Health</th>
+                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Score</th>
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
@@ -1354,6 +1415,20 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
                               </span>
                             )}
                           </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          {getWarnings(c).map(w => (
+                            <span key={w} className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-500 border border-rose-100 uppercase">
+                              {w}
+                            </span>
+                          ))}
+                          {getWarnings(c).length === 0 && (
+                            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-500 border border-emerald-100 uppercase">
+                              Healthy
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -2532,7 +2607,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
   const [metaTitle, setMetaTitle] = useState(config?.metaTitle || '');
   const [description, setDescription] = useState(config?.description || '');
   const [keywords, setKeywords] = useState(config?.keywords || '');
-  const [focusKeyword, setFocusKeyword] = useState(config?.focusKeyword || '');
+  const [primaryKeyword, setPrimaryKeyword] = useState(config?.primaryKeyword || '');
+  const [secondaryKeywords, setSecondaryKeywords] = useState(config?.secondaryKeywords || '');
   const [canonicalUrl, setCanonicalUrl] = useState(config?.canonicalUrl || '');
   const [indexable, setIndexable] = useState(config?.indexable !== false);
   const [ogTitle, setOgTitle] = useState(config?.ogTitle || '');
@@ -2621,7 +2697,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
       setMetaTitle(config.metaTitle || '');
       setDescription(config.description || '');
       setKeywords(config.keywords || '');
-      setFocusKeyword(config.focusKeyword || '');
+      setPrimaryKeyword(config.primaryKeyword || '');
+      setSecondaryKeywords(config.secondaryKeywords || '');
       setCanonicalUrl(config.canonicalUrl || '');
       setIndexable(config.indexable !== false);
       setOgTitle(config.ogTitle || '');
@@ -2769,7 +2846,8 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
       metaTitle,
       description, 
       keywords, 
-      focusKeyword,
+      primaryKeyword,
+      secondaryKeywords,
       canonicalUrl, 
       indexable,
       ogTitle,
@@ -2951,10 +3029,16 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
                       <Sparkles className="w-3 h-3" /> Advanced SEO
                     </h4>
                     <InputField 
-                      label="Focus Keyword" 
-                      value={focusKeyword} 
-                      onChange={(e: any) => setFocusKeyword(e.target.value)} 
-                      placeholder="e.g. car rental amman"
+                      label="Primary Keyword" 
+                      value={primaryKeyword} 
+                      onChange={(e: any) => setPrimaryKeyword(e.target.value)} 
+                      placeholder="e.g. car rental Amman"
+                    />
+                    <InputField 
+                      label="Secondary Keywords" 
+                      value={secondaryKeywords} 
+                      onChange={(e: any) => setSecondaryKeywords(e.target.value)} 
+                      placeholder="e.g. rent a car amman airport"
                     />
                     <InputField 
                       label="Search Intent" 
