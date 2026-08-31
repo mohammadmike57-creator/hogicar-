@@ -572,7 +572,8 @@ const SeoAuditManagement: React.FC = () => {
                                     { route: '/car-rental-dead-sea', name: 'Dead Sea' },
                                     { route: '/car-rental-wadi-rum', name: 'Wadi Rum' }
                                 ].map(item => {
-                                    const audit = report?.auditResults?.find((r: any) => r.route === item.route);
+                                    const displayResults = auditResults.length > 0 ? auditResults : (report?.auditResults || []);
+                                    const audit = displayResults.find((r: any) => r.route === item.route);
                                     return (
                                         <div key={item.route} className="flex items-center justify-between p-3 bg-slate-50 rounded-card border border-slate-100">
                                             <div className="flex items-center gap-3">
@@ -607,7 +608,7 @@ const SeoAuditManagement: React.FC = () => {
                         <div className="bg-white rounded-card border border-slate-200 p-6">
                             <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-widest mb-4">Top SEO Opportunities</h3>
                             <div className="space-y-4">
-                                {report?.auditResults
+                                {(auditResults.length > 0 ? auditResults : (report?.auditResults || []))
                                     ?.filter((r: any) => r.priority === 'P0' || r.priority === 'P1')
                                     .sort((a: any, b: any) => a.seoScore - b.seoScore)
                                     .slice(0, 8)
@@ -621,7 +622,7 @@ const SeoAuditManagement: React.FC = () => {
                                                 <div className="h-full bg-rose-500 transition-all duration-500" style={{ width: `${r.seoScore}%` }}></div>
                                             </div>
                                             <div className="mt-2 flex gap-2">
-                                                {r.healthWarnings.slice(0, 2).map((w: string, i: number) => (
+                                                {(r.healthWarnings || []).slice(0, 2).map((w: string, i: number) => (
                                                     <span key={i} className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full uppercase tracking-tighter">
                                                         {w}
                                                     </span>
