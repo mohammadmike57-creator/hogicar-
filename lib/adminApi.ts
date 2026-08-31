@@ -165,3 +165,7 @@ export async function dismissSeoIssue(configId: number, issueType: string, reaso
 export async function rollbackSeoFixJob(jobId: number) {
     return adminFetch(`/api/admin/seo/rollback/${jobId}`, { method: 'POST' });
 }
+
+export async function generateJordanSeoRoutes() {
+    return adminFetch('/api/admin/seo/generate-jordan', { method: 'POST' });
+}

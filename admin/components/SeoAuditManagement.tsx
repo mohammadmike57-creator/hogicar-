@@ -202,6 +202,19 @@ const SeoAuditManagement: React.FC = () => {
         }
     };
 
+    const handleGenerateJordan = async () => {
+        try {
+            setLoading(true);
+            const job = await generateJordanSeoRoutes();
+            setFixJob(job);
+            setIsFixing(true);
+        } catch (error) {
+            console.error('Failed to generate Jordan routes:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleFixCountry = async (country: string) => {
         setIsFixing(true);
         try {
@@ -379,6 +392,14 @@ const SeoAuditManagement: React.FC = () => {
                         {isAuditing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
                         {isAuditing ? 'Auditing...' : 'Run Audit'}
                     </button>
+                    <button 
+                        onClick={handleGenerateJordan}
+                        disabled={loading || isFixing || isAuditing}
+                        className="px-6 py-2.5 bg-amber-500 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-amber-600 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
+                    >
+                        <Globe className="w-3.5 h-3.5" />
+                        Generate Jordan Routes
+                    </button>
                     {report?.issues?.some((i: any) => i.fixType === 'AUTO_FIX') && (
                         <button 
                             onClick={() => setShowFixConfirm(true)}
@@ -511,6 +532,20 @@ const SeoAuditManagement: React.FC = () => {
                         <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Orphans</p>
                         <p className="text-2xl font-extrabold text-rose-500">{report?.orphanPageCount}</p>
                     </div>
+                    <div>
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Locations</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-2xl font-extrabold text-indigo-600">{report?.mapLocationCount}</p>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">({report?.missingMapCoordinatesCount} no GPS)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Reviews</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-2xl font-extrabold text-amber-500">{report?.ratingEnabledCount}</p>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">({report?.zeroReviewCount} empty)</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-4">
@@ -596,6 +631,10 @@ const SeoAuditManagement: React.FC = () => {
                                             </div>
                                             {audit && (
                                                 <div className="flex items-center gap-4">
+                                                    <div className="flex gap-1">
+                                                        {(audit.issues || []).some((i: any) => i.issue === 'Missing Map Coordinates') && <MapPin className="w-3 h-3 text-rose-500" title="Missing GPS Coordinates" />}
+                                                        {(audit.issues || []).some((i: any) => i.issue === 'No Customer Reviews') && <Activity className="w-3 h-3 text-amber-500" title="No Customer Reviews" />}
+                                                    </div>
                                                     <div className="text-right flex flex-col items-end">
                                                         <div className="flex items-center gap-1.5">
                                                             {audit.publicHttpStatus === 200 && (
