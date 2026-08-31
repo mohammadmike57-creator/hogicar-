@@ -67,7 +67,7 @@ const SeoAuditManagement: React.FC = () => {
         
         try {
             // Start background job instead of synchronous audit if deep or full or site-wide
-            if (deepValue || !liteValue || (!countryValue && !langValue)) {
+            if (deepValue || !liteValue || (!countryValue?.trim() && !langValue?.trim())) {
                 const job = await runSeoAuditJob(liteValue, deepValue, countryValue, langValue);
                 setActiveAuditJob(job);
                 if (['COMPLETED', 'PARTIAL'].includes(job.status)) {
@@ -80,11 +80,18 @@ const SeoAuditManagement: React.FC = () => {
                 }
             } else {
                 const data = await performSeoAudit(liteValue, deepValue, countryValue, langValue);
-                setReport(data);
-                // Also set results if provided (usually not for lite but good to have)
-                if (data.auditResults) {
-                    setAuditResults(data.auditResults);
-                    setTotalPages(1);
+                if (data.status === 'PENDING_INITIAL_AUDIT') {
+                    // Site-wide audit is needed but not ready, trigger it in background
+                    const job = await runSeoAuditJob(liteValue, deepValue, countryValue, langValue);
+                    setActiveAuditJob(job);
+                    setIsAuditing(true);
+                } else {
+                    setReport(data);
+                    // Also set results if provided (usually not for lite but good to have)
+                    if (data.auditResults) {
+                        setAuditResults(data.auditResults);
+                        setTotalPages(1);
+                    }
                 }
             }
         } catch (error) {
