@@ -66,8 +66,9 @@ const SeoAuditManagement: React.FC = () => {
         const langValue = langOverride !== undefined ? langOverride : selectedLang;
         
         try {
-            // Start background job instead of synchronous audit if deep or full or site-wide
-            if (deepValue || !liteValue || (!countryValue?.trim() && !langValue?.trim())) {
+            // Start background jobs only for expensive deep/full audits.
+            // The default site-wide lite audit must return a report immediately.
+            if (deepValue || !liteValue) {
                 const job = await runSeoAuditJob(liteValue, deepValue, countryValue, langValue);
                 setActiveAuditJob(job);
                 if (['COMPLETED', 'PARTIAL'].includes(job.status)) {
