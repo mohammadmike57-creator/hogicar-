@@ -33,9 +33,11 @@ const SeoAuditManagement: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [isDeep, setIsDeep] = useState(false);
     const [isLite, setIsLite] = useState(true);
-    const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls' | 'countries'>('overview');
+    const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls' | 'countries' | 'locations'>('overview');
     
-    // Scoping state
+    // Locations state
+    const [locations, setLocations] = useState<any[]>([]);
+    const [locationLoading, setLocationLoading] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState<string>('');
     const [selectedLang, setSelectedLang] = useState<string>('');
 
@@ -59,6 +61,38 @@ const SeoAuditManagement: React.FC = () => {
     const [showDismissPrompt, setShowDismissPrompt] = useState<{ configId: number, issueType: string } | null>(null);
     const [dismissReason, setDismissReason] = useState('');
 
+    const fetchLocations = async () => {
+        setLocationLoading(true);
+        try {
+            const data = await adminFetch('/api/admin/seo/locations');
+            setLocations(data);
+        } catch (error) {
+            console.error('Failed to fetch locations:', error);
+        } finally {
+            setLocationLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (selectedTab === 'locations') {
+            fetchLocations();
+        }
+    }, [selectedTab]);
+
+    const handleGenerateJordanRoutes = async () => {
+        setLoading(true);
+        try {
+            const job = await generateJordanSeoRoutes();
+            setFixJob(job);
+            setIsFixing(true);
+            // Optionally refresh report after job finishes
+        } catch (error) {
+            console.error('Failed to generate Jordan routes:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
     const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean, countryOverride?: string, langOverride?: string, force?: boolean) => {
         setLoading(true);
         const deepValue = deepOverride !== undefined ? deepOverride : isDeep;
@@ -173,6 +207,18 @@ const SeoAuditManagement: React.FC = () => {
 
     const handleFixSite = async () => {
         handleFixAll();
+    };
+
+    const handleUpdateLocation = async (id: number, field: string, value: any) => {
+        try {
+            await adminFetch(`/api/admin/seo/locations/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ [field]: value })
+            });
+            fetchLocations(); // Refresh
+        } catch (error) {
+            console.error('Failed to update location:', error);
+        }
     };
 
     const handleDismiss = async () => {
@@ -630,7 +676,8 @@ const SeoAuditManagement: React.FC = () => {
                     { id: 'issues', label: 'Issues & Fixes', icon: AlertCircle },
                     { id: 'cannibalization', label: 'Cannibalization', icon: Layers },
                     { id: 'all-urls', label: 'Audit Details', icon: Search },
-                    { id: 'countries', label: 'Country Dashboard', icon: Globe }
+                    { id: 'countries', label: 'Country Dashboard', icon: Globe },
+                    { id: 'locations', label: 'Location Map Admin', icon: MapPin }
                 ].map(tab => (
                     <button
                         key={tab.id}
@@ -901,9 +948,140 @@ const SeoAuditManagement: React.FC = () => {
                                         <Wrench className="w-3 h-3" />
                                         Fix All {country.name}
                                     </button>
+                                    {country.name === 'Jordan' && (
+                                        <button 
+                                            onClick={handleGenerateJordanRoutes}
+                                            className="w-full py-2 bg-emerald-600 text-white rounded-card font-extrabold text-[9px] uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 mt-2"
+                                        >
+                                            <Play className="w-3 h-3" />
+                                            Generate Jordan Routes
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {selectedTab === 'locations' && (
+                    <div className="space-y-4">
+                        <div className="bg-white rounded-card border border-slate-200 overflow-hidden shadow-sm">
+                            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest">SEO Location Inventory</h3>
+                                    <p className="text-xs text-slate-500 font-bold mt-1">Manage physical locations, coordinates, and addresses for the interactive map and SEO pages.</p>
+                                </div>
+                                <button 
+                                    onClick={fetchLocations}
+                                    className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+                                    title="Refresh Locations"
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${locationLoading ? 'animate-spin' : ''}`} />
+                                </button>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-slate-50 border-b border-slate-100">
+                                        <tr>
+                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Location Name</th>
+                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Type</th>
+                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Coordinates (Lat, Lng)</th>
+                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Address</th>
+                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
+                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {locations.map((loc: any) => (
+                                            <tr key={loc.id} className="hover:bg-slate-50/50 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <p className="text-xs font-extrabold text-slate-900">{loc.locationName}</p>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{loc.city}, {loc.country}</p>
+                                                    <p className="text-[10px] text-indigo-500 font-bold mt-0.5">{loc.route}</p>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[8px] font-extrabold uppercase tracking-widest">
+                                                        {loc.locationType}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Lat"
+                                                            defaultValue={loc.latitude}
+                                                            onBlur={(e) => handleUpdateLocation(loc.id, 'latitude', parseFloat(e.target.value))}
+                                                            className="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold"
+                                                        />
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Lng"
+                                                            defaultValue={loc.longitude}
+                                                            onBlur={(e) => handleUpdateLocation(loc.id, 'longitude', parseFloat(e.target.value))}
+                                                            className="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold"
+                                                        />
+                                                        {loc.latitude && loc.longitude ? (
+                                                            <MapPin className="w-3 h-3 text-emerald-500" />
+                                                        ) : (
+                                                            <AlertCircle className="w-3 h-3 text-amber-500" />
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="Physical address..."
+                                                        defaultValue={loc.address}
+                                                        onBlur={(e) => handleUpdateLocation(loc.id, 'address', e.target.value)}
+                                                        className="w-full min-w-[200px] px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <select 
+                                                        value={loc.status}
+                                                        onChange={(e) => handleUpdateLocation(loc.id, 'status', e.target.value)}
+                                                        className={`px-2 py-1 rounded-full text-[8px] font-extrabold uppercase tracking-widest border-none cursor-pointer appearance-none ${
+                                                            loc.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                                                        }`}
+                                                    >
+                                                        <option value="ACTIVE">Active</option>
+                                                        <option value="INACTIVE">Inactive</option>
+                                                        <option value="DRAFT">Draft</option>
+                                                    </select>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center gap-2 justify-end">
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedCountry(loc.country);
+                                                                setSelectedTab('all-urls');
+                                                            }}
+                                                            className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors"
+                                                            title="View SEO Audit"
+                                                        >
+                                                            <Search className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <a 
+                                                            href={`https://www.hogicar.com${loc.route}`} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors"
+                                                            title="Preview"
+                                                        >
+                                                            <ExternalLink className="w-3.5 h-3.5" />
+                                                        </a>
+                                                        <button className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors" title="Delete Location">
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -916,6 +1094,8 @@ const SeoAuditManagement: React.FC = () => {
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">URL</th>
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Score</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Complete</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Quality</th>
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Validation</th>
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Keyword</th>
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Action</th>
@@ -963,6 +1143,22 @@ const SeoAuditManagement: React.FC = () => {
                                                     audit.seoScore > 70 ? 'text-amber-600' : 'text-rose-600'
                                                 }`}>
                                                     {audit.seoScore}%
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`text-[10px] font-extrabold ${
+                                                    audit.seoCompleteness > 90 ? 'text-emerald-600' : 
+                                                    audit.seoCompleteness > 70 ? 'text-amber-600' : 'text-rose-600'
+                                                }`}>
+                                                    {audit.seoCompleteness}%
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`text-[10px] font-extrabold ${
+                                                    audit.seoQuality > 90 ? 'text-emerald-600' : 
+                                                    audit.seoQuality > 70 ? 'text-amber-600' : 'text-rose-600'
+                                                }`}>
+                                                    {audit.seoQuality}%
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-center">
