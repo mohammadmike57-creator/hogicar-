@@ -14,6 +14,8 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Edit from 'lucide-react/dist/esm/icons/edit';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
 import Settings from 'lucide-react/dist/esm/icons/settings';
@@ -1250,7 +1252,7 @@ const CmsContent = ({ pages, onEditPage }: any) => (
 );
 
 // ==================== SEO ====================
-const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any) => {
+const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading, currentPage, totalPages, onPageChange }: any) => {
   const [view, setView] = useState<'list' | 'matrix'>('list');
   const getScore = (c: any) => {
     let score = 0;
@@ -1356,8 +1358,9 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Route & Title</th>
@@ -1463,6 +1466,32 @@ const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading }: any)
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center px-6 py-4 bg-slate-50 border-t border-slate-200">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                Page {currentPage + 1} of {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => onPageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className="p-2 text-slate-400 hover:text-[#007ac2] disabled:opacity-30 transition-colors"
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => onPageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className="p-2 text-slate-400 hover:text-[#007ac2] disabled:opacity-30 transition-colors"
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>
@@ -4666,6 +4695,8 @@ export const AdminDashboard: React.FC = () => {
   const [isSeoEditorOpen, setIsSeoEditorOpen] = useState(false);
   const [editingSeoConfig, setEditingSeoConfig] = useState<any>(null);
   const [seoConfigs, setSeoConfigs] = useState<SEOConfig[]>([]);
+  const [seoPage, setSeoPage] = useState(0);
+  const [seoTotalPages, setSeoTotalPages] = useState(0);
   const [loadingSeo, setLoadingSeo] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
@@ -4772,11 +4803,20 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const fetchSeoConfigs = async () => {
+  const fetchSeoConfigs = async (page = 0) => {
     setLoadingSeo(true);
     try {
-      const res = await adminFetch('/api/admin/seo');
-      setSeoConfigs(Array.isArray(res) ? res : []);
+      // Use the paginated endpoint instead of the full list to avoid 502/timeouts
+      const res = await adminFetch(`/api/admin/seo/routes?page=${page}&size=20&sort=route,asc`);
+      if (res && res.content) {
+        setSeoConfigs(res.content);
+        setSeoTotalPages(res.totalPages);
+        setSeoPage(res.number);
+      } else {
+        setSeoConfigs(Array.isArray(res) ? res : []);
+        setSeoTotalPages(1);
+        setSeoPage(0);
+      }
     } catch (e) {
       console.error('Failed to fetch SEO configs', e);
     } finally {
@@ -5141,7 +5181,7 @@ export const AdminDashboard: React.FC = () => {
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;
-      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} />;
+      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} currentPage={seoPage} totalPages={seoTotalPages} onPageChange={fetchSeoConfigs} />;
       case 'seoaudit': return <SeoAuditManagement />;
       case 'push': return <PushNotificationManagement />;
       case 'homepage':
