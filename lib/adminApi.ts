@@ -134,6 +134,10 @@ export async function fixCountrySeo(country: string, lang?: string) {
     return adminFetch(url, { method: 'POST' });
 }
 
+export async function fixSiteSeo() {
+    return adminFetch('/api/admin/seo/fix-site', { method: 'POST' });
+}
+
 export async function setRouteLifecycleStatus(id: number, status: string) {
     return adminFetch(`/api/admin/seo/routes/${id}/status?status=${status}`, { method: 'POST' });
 }

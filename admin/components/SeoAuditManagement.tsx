@@ -25,7 +25,7 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Archive from 'lucide-react/dist/esm/icons/archive';
 import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import { motion, AnimatePresence } from 'framer-motion';
-import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
+import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, fixSiteSeo, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
 
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
@@ -158,18 +158,19 @@ const SeoAuditManagement: React.FC = () => {
     };
 
     const handleFixAll = async () => {
-        const autoFixableIssues = report?.issues?.filter((i: any) => i.fixType === 'AUTO_FIX') || [];
-        if (autoFixableIssues.length === 0) return;
-
         setIsFixing(true);
         setShowFixConfirm(false);
         try {
-            const job = await fixAllSeoIssues(autoFixableIssues);
+            const job = await fixSiteSeo();
             setFixJob(job);
         } catch (error) {
-            console.error('Failed to start fix all job:', error);
+            console.error('Failed to start site-wide fix job:', error);
             setIsFixing(false);
         }
+    };
+
+    const handleFixSite = async () => {
+        handleFixAll();
     };
 
     const handleDismiss = async () => {
@@ -906,6 +907,15 @@ const SeoAuditManagement: React.FC = () => {
                                                     >
                                                         <Wrench className="w-3.5 h-3.5" />
                                                     </button>
+                                                    <a 
+                                                        href={`https://www.hogicar.com${audit.route}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors" 
+                                                        title="Preview Public Page"
+                                                    >
+                                                        <Eye className="w-3.5 h-3.5" />
+                                                    </a>
                                                     <button className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="Merge Routes">
                                                         <Layers className="w-3.5 h-3.5" />
                                                     </button>
