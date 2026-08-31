@@ -51,6 +51,13 @@ const SeoAuditManagement: React.FC = () => {
     const [activeAuditJob, setActiveAuditJob] = useState<any>(null);
     const [isAuditing, setIsAuditing] = useState(false);
     
+    // Auto-refresh when filters change
+    useEffect(() => {
+        if (selectedTab === 'overview' || selectedTab === 'issues') {
+            handleRunAudit(false, true, selectedCountry, selectedLang, false);
+        }
+    }, [selectedCountry, selectedLang]);
+
     // Fix System State
     const [fixJob, setFixJob] = useState<any>(null);
     const [isFixing, setIsFixing] = useState(false);
@@ -752,7 +759,7 @@ const SeoAuditManagement: React.FC = () => {
                             <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-widest mb-4">Top SEO Opportunities</h3>
                             <div className="space-y-4">
                                 {(auditResults.length > 0 ? auditResults : (report?.auditResults || []))
-                                    ?.filter((r: any) => r.priority === 'P0' || r.priority === 'P1')
+                                    ?.filter((r: any) => (r.priority === 'P0' || r.priority === 'P1') && (!selectedCountry || r.country === selectedCountry || r.countryTag === selectedCountry))
                                     .sort((a: any, b: any) => a.seoScore - b.seoScore)
                                     .slice(0, 8)
                                     .map((r: any) => (
@@ -791,7 +798,9 @@ const SeoAuditManagement: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {(report?.issues || []).map((issue: any, index: number) => (
+                                {(report?.issues || [])
+                                    .filter((issue: any) => !selectedCountry || issue.country === selectedCountry || issue.countryTag === selectedCountry)
+                                    .map((issue: any, index: number) => (
                                     <tr key={index} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest ${
