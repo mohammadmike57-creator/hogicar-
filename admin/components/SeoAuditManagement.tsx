@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import Eye from 'lucide-react/dist/esm/icons/eye';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
@@ -58,12 +59,13 @@ const SeoAuditManagement: React.FC = () => {
     const [showDismissPrompt, setShowDismissPrompt] = useState<{ configId: number, issueType: string } | null>(null);
     const [dismissReason, setDismissReason] = useState('');
 
-    const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean, countryOverride?: string, langOverride?: string) => {
+    const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean, countryOverride?: string, langOverride?: string, force?: boolean) => {
         setLoading(true);
         const deepValue = deepOverride !== undefined ? deepOverride : isDeep;
         const liteValue = liteOverride !== undefined ? liteOverride : isLite;
         const countryValue = countryOverride !== undefined ? countryOverride : selectedCountry;
         const langValue = langOverride !== undefined ? langOverride : selectedLang;
+        const forceValue = force !== undefined ? force : false;
         
         try {
             // Start background jobs only for expensive deep/full audits.
@@ -80,7 +82,7 @@ const SeoAuditManagement: React.FC = () => {
                     setIsAuditing(true);
                 }
             } else {
-                const data = await performSeoAudit(liteValue, deepValue, countryValue, langValue);
+                const data = await performSeoAudit(liteValue, deepValue, countryValue, langValue, forceValue);
                 if (data.status === 'PENDING_INITIAL_AUDIT') {
                     // Site-wide audit is needed but not ready, trigger it in background
                     const job = await runSeoAuditJob(liteValue, deepValue, countryValue, langValue);
@@ -149,7 +151,7 @@ const SeoAuditManagement: React.FC = () => {
             await fixOneSeoIssue(issue);
             // Refresh audit for this specific page could be too expensive, 
             // so we just update the UI optimistically or run lite audit
-            handleRunAudit(false, true);
+            handleRunAudit(false, true, undefined, undefined, true);
         } catch (error) {
             console.error('Failed to fix issue:', error);
         } finally {
@@ -179,7 +181,7 @@ const SeoAuditManagement: React.FC = () => {
             await dismissSeoIssue(showDismissPrompt.configId, showDismissPrompt.issueType, dismissReason);
             setShowDismissPrompt(null);
             setDismissReason('');
-            handleRunAudit(false, true); // Fast refresh
+            handleRunAudit(false, true, undefined, undefined, true); // Fast refresh
         } catch (error) {
             console.error('Failed to dismiss issue:', error);
         }
@@ -235,7 +237,7 @@ const SeoAuditManagement: React.FC = () => {
         setLoading(true);
         try {
             await fixPageSeo(id, issues);
-            handleRunAudit(false, true);
+            handleRunAudit(false, true, undefined, undefined, true);
         } catch (error) {
             console.error('Failed to fix page:', error);
             setLoading(false);

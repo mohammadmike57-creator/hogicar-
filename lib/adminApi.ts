@@ -98,8 +98,8 @@ export async function updateHogicarChoice(supplierId: number, carId: number, dat
     });
 }
 
-export async function performSeoAudit(lite: boolean = false, deep: boolean = false, country?: string, lang?: string) {
-    let url = `/api/admin/seo/audit?lite=${lite}&deep=${deep}`;
+export async function performSeoAudit(lite: boolean = false, deep: boolean = false, country?: string, lang?: string, force: boolean = false) {
+    let url = `/api/admin/seo/audit?lite=${lite}&deep=${deep}&force=${force}`;
     if (country) url += `&country=${country}`;
     if (lang) url += `&lang=${lang}`;
     return adminFetch(url);
