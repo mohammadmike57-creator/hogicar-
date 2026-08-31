@@ -413,14 +413,48 @@ const SeoAuditManagement: React.FC = () => {
                 </div>
             </div>
 
-            {/* Overall Score */}
+            {/* Audit Progress */}
+            <AnimatePresence>
+                {activeAuditJob && !['COMPLETED', 'PARTIAL', 'FAILED', 'CANCELLED'].includes(activeAuditJob.status) && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="bg-slate-900 p-4 rounded-card text-white shadow-xl flex flex-col gap-3"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <RefreshCw className="w-5 h-5 animate-spin" />
+                                <div>
+                                    <p className="text-xs font-extrabold uppercase tracking-widest">
+                                        SEO Audit Job: {activeAuditJob.status}
+                                    </p>
+                                    <p className="text-[10px] font-bold opacity-80">
+                                        Scanning {activeAuditJob.processed} of {activeAuditJob.total} URLs...
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="text-sm font-extrabold">{activeAuditJob.progress || 0}%</p>
+                        </div>
+                        <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                            <motion.div 
+                                className="h-full bg-blue-500" 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${activeAuditJob.progress || 0}%` }}
+                            />
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Fix Progress */}
             <AnimatePresence>
                 {fixJob && (
                     <motion.div 
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="bg-blue-600 p-4 rounded-card text-white shadow-xl shadow-blue-100 flex flex-col gap-3"
+                        className={`${fixJob.status === 'FAILED' ? 'bg-rose-600' : 'bg-blue-600'} p-4 rounded-card text-white shadow-xl flex flex-col gap-3`}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -436,7 +470,9 @@ const SeoAuditManagement: React.FC = () => {
                                         SEO Fix Job: {fixJob.status}
                                     </p>
                                     <p className="text-[10px] font-bold opacity-80">
-                                        {fixJob.status === 'RUNNING' ? `Fixing ${fixJob.currentUrl}...` : `Job finished. ${fixJob.fixedCount} issues fixed.`}
+                                        {fixJob.status === 'RUNNING' ? `Fixing ${fixJob.currentUrl}...` : 
+                                         fixJob.status === 'FAILED' ? (fixJob.errorMessage || 'Job failed.') :
+                                         `Job finished. ${fixJob.fixedCount} issues fixed.`}
                                     </p>
                                 </div>
                             </div>
@@ -453,13 +489,15 @@ const SeoAuditManagement: React.FC = () => {
                                 <p className="text-sm font-extrabold">{Math.round((fixJob.processedIssues / (fixJob.totalIssues || 1)) * 100)}%</p>
                             </div>
                         </div>
-                        <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                            <motion.div 
-                                className="h-full bg-white" 
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(fixJob.processedIssues / fixJob.totalIssues) * 100}%` }}
-                            />
-                        </div>
+                        {fixJob.status === 'RUNNING' && (
+                            <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                                <motion.div 
+                                    className="h-full bg-white" 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${(fixJob.processedIssues / fixJob.totalIssues) * 100}%` }}
+                                />
+                            </div>
+                        )}
                         <div className="flex gap-6">
                             <div className="flex flex-col">
                                 <span className="text-[8px] font-extrabold uppercase opacity-60">Fixed</span>
@@ -477,6 +515,14 @@ const SeoAuditManagement: React.FC = () => {
                                 <span className="text-[8px] font-extrabold uppercase opacity-60">Skipped</span>
                                 <span className="text-xs font-extrabold">{fixJob.skippedCount}</span>
                             </div>
+                            {fixJob.status !== 'RUNNING' && (
+                                <button 
+                                    onClick={() => setFixJob(null)}
+                                    className="ml-auto text-[8px] font-extrabold uppercase opacity-60 hover:opacity-100"
+                                >
+                                    Dismiss
+                                </button>
+                            )}
                         </div>
                     </motion.div>
                 )}
