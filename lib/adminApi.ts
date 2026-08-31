@@ -98,8 +98,26 @@ export async function updateHogicarChoice(supplierId: number, carId: number, dat
     });
 }
 
-export async function performSeoAudit(lite: boolean = false, deep: boolean = false) {
-    return adminFetch(`/api/admin/seo/audit?lite=${lite}&deep=${deep}`);
+export async function performSeoAudit(lite: boolean = false, deep: boolean = false, country?: string, lang?: string) {
+    let url = `/api/admin/seo/audit?lite=${lite}&deep=${deep}`;
+    if (country) url += `&country=${country}`;
+    if (lang) url += `&lang=${lang}`;
+    return adminFetch(url);
+}
+
+export async function runSeoAuditJob(lite: boolean = false, deep: boolean = true, country?: string, lang?: string) {
+    let url = `/api/admin/seo/audit/run?lite=${lite}&deep=${deep}`;
+    if (country) url += `&country=${country}`;
+    if (lang) url += `&lang=${lang}`;
+    return adminFetch(url, { method: 'POST' });
+}
+
+export async function getSeoAuditJob(id: number) {
+    return adminFetch(`/api/admin/seo/audit/jobs/${id}`);
+}
+
+export async function getSeoAuditResults(jobId: number, page: number = 0, size: number = 50) {
+    return adminFetch(`/api/admin/seo/audit/results/${jobId}?page=${page}&size=${size}`);
 }
 
 export async function fixOneSeoIssue(issue: any) {
@@ -108,6 +126,24 @@ export async function fixOneSeoIssue(issue: any) {
 
 export async function fixAllSeoIssues(issues: any[]) {
     return adminFetch('/api/admin/seo/fix-all', { method: 'POST', body: JSON.stringify(issues) });
+}
+
+export async function fixCountrySeo(country: string, lang?: string) {
+    let url = `/api/admin/seo/fix-country?country=${country}`;
+    if (lang) url += `&lang=${lang}`;
+    return adminFetch(url, { method: 'POST' });
+}
+
+export async function setRouteLifecycleStatus(id: number, status: string) {
+    return adminFetch(`/api/admin/seo/routes/${id}/status?status=${status}`, { method: 'POST' });
+}
+
+export async function mergeSeoRoutes(primaryId: number, secondaryId: number) {
+    return adminFetch(`/api/admin/seo/routes/${primaryId}/merge/${secondaryId}`, { method: 'POST' });
+}
+
+export async function deleteSeoRoute(id: number) {
+    return adminFetch(`/api/admin/seo/routes/${id}`, { method: 'DELETE' });
 }
 
 export async function getSeoFixJob(id: number) {

@@ -19,15 +19,34 @@ import Wrench from 'lucide-react/dist/esm/icons/wrench';
 import Play from 'lucide-react/dist/esm/icons/play';
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import Ban from 'lucide-react/dist/esm/icons/ban';
+import Filter from 'lucide-react/dist/esm/icons/filter';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import Archive from 'lucide-react/dist/esm/icons/archive';
+import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import { motion, AnimatePresence } from 'framer-motion';
-import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob } from '../../lib/adminApi';
+import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
 
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isDeep, setIsDeep] = useState(false);
     const [isLite, setIsLite] = useState(true);
-    const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls'>('overview');
+    const [selectedTab, setSelectedTab] = useState<'overview' | 'issues' | 'cannibalization' | 'all-urls' | 'countries'>('overview');
+    
+    // Scoping state
+    const [selectedCountry, setSelectedCountry] = useState<string>('');
+    const [selectedLang, setSelectedLang] = useState<string>('');
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(50);
+    const [auditResults, setAuditResults] = useState<any[]>([]);
+    const [totalPages, setTotalPages] = useState(0);
+
+    // Audit Job State
+    const [activeAuditJob, setActiveAuditJob] = useState<any>(null);
+    const [isAuditing, setIsAuditing] = useState(false);
     
     // Fix System State
     const [fixJob, setFixJob] = useState<any>(null);
@@ -39,19 +58,82 @@ const SeoAuditManagement: React.FC = () => {
     const [showDismissPrompt, setShowDismissPrompt] = useState<{ configId: number, issueType: string } | null>(null);
     const [dismissReason, setDismissReason] = useState('');
 
-    const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean) => {
+    const handleRunAudit = async (deepOverride?: boolean, liteOverride?: boolean, countryOverride?: string, langOverride?: string) => {
         setLoading(true);
         const deepValue = deepOverride !== undefined ? deepOverride : isDeep;
         const liteValue = liteOverride !== undefined ? liteOverride : isLite;
+        const countryValue = countryOverride !== undefined ? countryOverride : selectedCountry;
+        const langValue = langOverride !== undefined ? langOverride : selectedLang;
+        
         try {
-            const data = await performSeoAudit(liteValue, deepValue);
-            setReport(data);
+            // Start background job instead of synchronous audit if deep or full
+            if (deepValue || !liteValue) {
+                const job = await runSeoAuditJob(liteValue, deepValue, countryValue, langValue);
+                setActiveAuditJob(job);
+                if (['COMPLETED', 'PARTIAL'].includes(job.status)) {
+                    setIsAuditing(false);
+                    if (job.reportJson) {
+                        setReport(JSON.parse(job.reportJson));
+                    }
+                } else {
+                    setIsAuditing(true);
+                }
+            } else {
+                const data = await performSeoAudit(liteValue, deepValue, countryValue, langValue);
+                setReport(data);
+                // Also set results if provided (usually not for lite but good to have)
+                if (data.auditResults) {
+                    setAuditResults(data.auditResults);
+                    setTotalPages(1);
+                }
+            }
         } catch (error) {
             console.error('Failed to run SEO audit:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchResultsPage = async (page: number) => {
+        if (!activeAuditJob?.id) return;
+        try {
+            const data = await getSeoAuditResults(activeAuditJob.id, page, pageSize);
+            setAuditResults(data.content);
+            setTotalPages(data.totalPages);
+            setCurrentPage(data.number);
+        } catch (error) {
+            console.error('Failed to fetch results page:', error);
+        }
+    };
+
+    useEffect(() => {
+        let interval: any;
+        if (activeAuditJob && !['COMPLETED', 'PARTIAL', 'FAILED', 'CANCELLED'].includes(activeAuditJob.status)) {
+            interval = setInterval(async () => {
+                try {
+                    const updatedJob = await getSeoAuditJob(activeAuditJob.id);
+                    setActiveAuditJob(updatedJob);
+                    if (updatedJob.status === 'COMPLETED' || updatedJob.status === 'PARTIAL') {
+                        clearInterval(interval);
+                        setIsAuditing(false);
+                        if (updatedJob.reportJson) {
+                            setReport(JSON.parse(updatedJob.reportJson));
+                            // Fetch first page of results
+                            fetchResultsPage(0);
+                        }
+                    } else if (updatedJob.status === 'FAILED' || updatedJob.status === 'CANCELLED') {
+                        clearInterval(interval);
+                        setIsAuditing(false);
+                    }
+                } catch (error) {
+                    console.error('Error polling audit job:', error);
+                    clearInterval(interval);
+                    setIsAuditing(false);
+                }
+            }, 2000);
+        }
+        return () => clearInterval(interval);
+    }, [activeAuditJob]);
 
     const handleFixOne = async (issue: any) => {
         setFixingIssueId(issue.url + issue.issue);
@@ -109,6 +191,37 @@ const SeoAuditManagement: React.FC = () => {
         }
     };
 
+    const handleFixCountry = async (country: string) => {
+        setIsFixing(true);
+        try {
+            const job = await fixCountrySeo(country, selectedLang);
+            setFixJob(job);
+        } catch (error) {
+            console.error('Failed to fix country:', error);
+            setIsFixing(false);
+        }
+    };
+
+    const handleSetStatus = async (id: number, status: string) => {
+        try {
+            await setRouteLifecycleStatus(id, status);
+            // Refresh results
+            fetchResultsPage(currentPage);
+        } catch (error) {
+            console.error('Failed to set status:', error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Are you sure you want to delete this route? This cannot be undone.')) return;
+        try {
+            await deleteSeoRoute(id);
+            fetchResultsPage(currentPage);
+        } catch (error) {
+            console.error('Failed to delete route:', error);
+        }
+    };
+
     const handleFixPage = async (id: number, issues: any[]) => {
         setLoading(true);
         try {
@@ -127,7 +240,7 @@ const SeoAuditManagement: React.FC = () => {
                 try {
                     const updatedJob = await getSeoFixJob(fixJob.id);
                     setFixJob(updatedJob);
-                    if (updatedJob.status === 'COMPLETED' || updatedJob.status === 'FAILED') {
+                    if (updatedJob.status === 'COMPLETED' || updatedJob.status === 'PARTIAL' || updatedJob.status === 'FAILED' || updatedJob.status === 'CANCELLED') {
                         clearInterval(interval);
                         setIsFixing(false);
                         // Re-audit with deep verification after completion
@@ -187,10 +300,42 @@ const SeoAuditManagement: React.FC = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">SEO Quality Control</h2>
-                    <p className="text-sm text-slate-500 font-medium">Automated site-wide audit for indexing, cannibalization, and ranking health.</p>
+                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">SEO Control Center</h2>
+                    <p className="text-sm text-slate-500 font-medium">Site-wide and country-specific SEO management and auto-remediation.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    {/* Country Selector */}
+                    <div className="relative group">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                            <MapPin className="w-3.5 h-3.5" />
+                        </div>
+                        <select 
+                            value={selectedCountry}
+                            onChange={(e) => setSelectedCountry(e.target.value)}
+                            className="pl-9 pr-8 py-2.5 bg-white border border-slate-200 rounded-card font-extrabold text-[10px] uppercase tracking-widest text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                        >
+                            <option value="">All Countries</option>
+                            <option value="Jordan">Jordan</option>
+                            <option value="United Arab Emirates">UAE</option>
+                            <option value="Saudi Arabia">Saudi Arabia</option>
+                            <option value="Qatar">Qatar</option>
+                            <option value="Bahrain">Bahrain</option>
+                            <option value="Oman">Oman</option>
+                            <option value="Egypt">Egypt</option>
+                        </select>
+                    </div>
+
+                    {/* Language Selector */}
+                    <select 
+                        value={selectedLang}
+                        onChange={(e) => setSelectedLang(e.target.value)}
+                        className="px-4 py-2.5 bg-white border border-slate-200 rounded-card font-extrabold text-[10px] uppercase tracking-widest text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                    >
+                        <option value="">All Languages</option>
+                        <option value="en">English</option>
+                        <option value="ar">Arabic</option>
+                    </select>
+
                     <label className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-card cursor-pointer hover:bg-slate-50 transition-colors">
                         <input 
                             type="checkbox" 
@@ -198,7 +343,7 @@ const SeoAuditManagement: React.FC = () => {
                             onChange={(e) => setIsLite(e.target.checked)}
                             className="rounded text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Lite Scan (Faster)</span>
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Lite Scan</span>
                     </label>
                     <label className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-card cursor-pointer hover:bg-slate-50 transition-colors">
                         <input 
@@ -207,26 +352,26 @@ const SeoAuditManagement: React.FC = () => {
                             onChange={(e) => setIsDeep(e.target.checked)}
                             className="rounded text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Deep Scan (Public)</span>
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">Deep Scan</span>
                     </label>
                     <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${report?.healthGreen ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
                         {report?.healthGreen ? <ShieldCheck className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                         <span className="text-[10px] font-extrabold uppercase tracking-widest">
-                            SEO Status: {report?.healthGreen ? 'HEALTHY' : 'ACTION REQUIRED'}
+                            {report?.healthGreen ? 'HEALTHY' : 'ACTION REQUIRED'}
                         </span>
                     </div>
                     <button 
                         onClick={() => handleRunAudit()}
-                        disabled={loading || isFixing}
+                        disabled={loading || isFixing || isAuditing}
                         className="px-6 py-2.5 bg-slate-900 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
                     >
-                        {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                        Run Audit
+                        {isAuditing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
+                        {isAuditing ? 'Auditing...' : 'Run Audit'}
                     </button>
                     {report?.issues?.some((i: any) => i.fixType === 'AUTO_FIX') && (
                         <button 
                             onClick={() => setShowFixConfirm(true)}
-                            disabled={loading || isFixing}
+                            disabled={loading || isFixing || isAuditing}
                             className="px-6 py-2.5 bg-blue-600 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-50"
                         >
                             <Wrench className="w-3.5 h-3.5" />
@@ -332,29 +477,57 @@ const SeoAuditManagement: React.FC = () => {
                         <p className="text-2xl font-extrabold text-emerald-600">{report?.indexableCount}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Orphan Pages</p>
-                        <p className="text-2xl font-extrabold text-rose-600">{report?.orphanPageCount}</p>
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Review Required</p>
+                        <p className="text-2xl font-extrabold text-amber-600">{report?.reviewCount}</p>
                     </div>
                     <div>
                         <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Cannibalization</p>
-                        <p className="text-2xl font-extrabold text-amber-600">{report?.cannibalizationGroupCount}</p>
+                        <p className="text-2xl font-extrabold text-rose-600">{report?.cannibalizationGroupCount}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Duplicate Titles</p>
-                        <p className="text-2xl font-extrabold text-rose-500">{report?.duplicateTitleCount}</p>
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Drafts</p>
+                        <p className="text-2xl font-extrabold text-slate-400">{report?.draftCount}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Duplicate H1</p>
-                        <p className="text-2xl font-extrabold text-rose-500">{report?.duplicateH1Count}</p>
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Merged/Redirect</p>
+                        <p className="text-2xl font-extrabold text-blue-500">{(report?.mergedCount || 0) + (report?.redirectCount || 0)}</p>
                     </div>
                     <div>
                         <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Thin Content</p>
-                        <p className="text-2xl font-extrabold text-amber-500">{report?.thinContentCount}</p>
+                        <p className="text-2xl font-extrabold text-orange-500">{report?.thinContentCount}</p>
                     </div>
                     <div>
-                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Meta Errors</p>
-                        <p className="text-2xl font-extrabold text-rose-500">{report?.duplicateDescriptionCount}</p>
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-2">Orphans</p>
+                        <p className="text-2xl font-extrabold text-rose-500">{report?.orphanPageCount}</p>
                     </div>
+                </div>
+
+                <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-4">
+                    <button 
+                        onClick={() => handleRunAudit()}
+                        className="px-6 py-2.5 bg-slate-900 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg"
+                    >
+                        <Play className="w-3.5 h-3.5" />
+                        Run Audit
+                    </button>
+                    <button 
+                        onClick={() => setSelectedTab('countries')}
+                        className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
+                    >
+                        <Globe className="w-3.5 h-3.5" />
+                        Manage Countries
+                    </button>
+                    <button 
+                        onClick={() => setSelectedTab('all-urls')}
+                        className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
+                    >
+                        <Search className="w-3.5 h-3.5" />
+                        Manage Routes
+                    </button>
+                    <button className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2">
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        Sync Sitemap
+                    </button>
                 </div>
             </div>
 
@@ -364,7 +537,8 @@ const SeoAuditManagement: React.FC = () => {
                     { id: 'overview', label: 'Overview', icon: BarChart },
                     { id: 'issues', label: 'Issues & Fixes', icon: AlertCircle },
                     { id: 'cannibalization', label: 'Cannibalization', icon: Layers },
-                    { id: 'all-urls', label: 'Audit Details', icon: Search }
+                    { id: 'all-urls', label: 'Audit Details', icon: Search },
+                    { id: 'countries', label: 'Country Dashboard', icon: Globe }
                 ].map(tab => (
                     <button
                         key={tab.id}
@@ -573,99 +747,197 @@ const SeoAuditManagement: React.FC = () => {
                     </div>
                 )}
 
+                {selectedTab === 'countries' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[
+                            { code: 'Jordan', name: 'Jordan', icon: '🇯🇴' },
+                            { code: 'United Arab Emirates', name: 'UAE', icon: '🇦🇪' },
+                            { code: 'Saudi Arabia', name: 'Saudi Arabia', icon: '🇸🇦' },
+                            { code: 'Qatar', name: 'Qatar', icon: '🇶🇦' },
+                            { code: 'Bahrain', name: 'Bahrain', icon: '🇧🇭' },
+                            { code: 'Oman', name: 'Oman', icon: '🇴🇲' },
+                            { code: 'Egypt', name: 'Egypt', icon: '🇪🇬' }
+                        ].map(country => (
+                            <div key={country.code} className="bg-white rounded-card border border-slate-200 p-6 space-y-4 hover:shadow-md transition-all group">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{country.icon}</span>
+                                        <h3 className="font-extrabold text-slate-900 uppercase tracking-widest text-sm">{country.name}</h3>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            setSelectedCountry(country.code);
+                                            handleRunAudit(undefined, undefined, country.code);
+                                        }}
+                                        className="p-2 text-slate-400 group-hover:text-blue-600 transition-colors"
+                                    >
+                                        <Activity className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-3 bg-slate-50 rounded-card border border-slate-100">
+                                        <p className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">Indexable</p>
+                                        <p className="text-lg font-extrabold text-slate-900">-</p>
+                                    </div>
+                                    <div className="p-3 bg-slate-50 rounded-card border border-slate-100">
+                                        <p className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">Needs Fix</p>
+                                        <p className="text-lg font-extrabold text-rose-500">-</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 space-y-2">
+                                    <button 
+                                        onClick={() => {
+                                            setSelectedCountry(country.code);
+                                            setSelectedTab('all-urls');
+                                        }}
+                                        className="w-full py-2.5 bg-slate-900 text-white rounded-card font-extrabold text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        Manage Inventory
+                                        <ChevronRight className="w-3 h-3" />
+                                    </button>
+                                    <button 
+                                        onClick={() => handleFixCountry(country.code)}
+                                        className="w-full py-2 bg-blue-600 text-white rounded-card font-extrabold text-[9px] uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Wrench className="w-3 h-3" />
+                                        Fix All {country.name}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 {selectedTab === 'all-urls' && (
-                    <div className="bg-white rounded-card border border-slate-200 overflow-hidden shadow-sm">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">URL</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest center">Score</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Validation</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Links (In/Out)</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Keyword</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Intent</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Health</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {(report?.auditResults || []).map((audit: any) => (
-                                    <tr key={audit.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <p className="text-xs font-extrabold text-slate-900">{audit.route}</p>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{audit.routeType} | {audit.lang}</p>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`text-xs font-extrabold ${
-                                                audit.seoScore > 90 ? 'text-emerald-600' : 
-                                                audit.seoScore > 70 ? 'text-amber-600' : 'text-rose-600'
-                                            }`}>
-                                                {audit.seoScore}%
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="flex flex-col items-center gap-1">
-                                                {audit.publicHttpStatus === 200 ? (
-                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-widest ${audit.publicMatch ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                                        {audit.publicMatch ? 'MATCH' : 'MISMATCH'}
-                                                    </span>
-                                                ) : audit.publicHttpStatus === 0 ? (
-                                                    <span className="px-2 py-0.5 rounded bg-slate-50 text-slate-400 text-[8px] font-extrabold uppercase tracking-widest">
-                                                        SKIP
-                                                    </span>
-                                                ) : (
-                                                    <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-600 text-[8px] font-extrabold uppercase tracking-widest">
-                                                        ERROR {audit.publicHttpStatus}
-                                                    </span>
-                                                )}
-                                                <p className="text-[7px] text-slate-400 font-bold uppercase tracking-widest">Public vs DB</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="flex items-center justify-center gap-3">
-                                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600">
-                                                    <LinkIcon className="w-3 h-3 rotate-45" /> {audit.inboundLinksCount}
-                                                </div>
-                                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600">
-                                                    <LinkIcon className="w-3 h-3 -rotate-45" /> {audit.outboundLinksCount}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-xs font-bold text-slate-700 italic">
-                                            {audit.primaryKeyword || <span className="text-slate-300 font-normal">None</span>}
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="text-[9px] font-extrabold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                                                {audit.searchIntent || 'N/A'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-wrap gap-1">
-                                                {audit.healthWarnings.length === 0 ? (
-                                                    <span className="text-[9px] font-extrabold text-emerald-600 uppercase tracking-widest">Healthy</span>
-                                                ) : (
-                                                    audit.healthWarnings.slice(0, 2).map((w: string, i: number) => (
-                                                        <span key={i} className="text-[8px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full uppercase tracking-tighter">
-                                                            {w}
-                                                        </span>
-                                                    ))
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button 
-                                                onClick={() => handleFixPage(audit.id, report.issues.filter((i: any) => i.url === audit.route))}
-                                                disabled={loading || isFixing || !report.issues.some((i: any) => i.url === audit.route && i.fixType === 'AUTO_FIX')}
-                                                className="px-3 py-1 bg-slate-900 text-white rounded-card font-extrabold text-[9px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-1.5 ml-auto shadow-sm disabled:opacity-30"
-                                            >
-                                                <Wrench className="w-2.5 h-2.5" />
-                                                Fix Page
-                                            </button>
-                                        </td>
+                    <div className="space-y-4">
+                        <div className="bg-white rounded-card border border-slate-200 overflow-hidden shadow-sm">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50 border-b border-slate-100">
+                                    <tr>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">URL</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Score</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Validation</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Primary Keyword</th>
+                                        <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {(auditResults.length > 0 ? auditResults : report?.auditResults || []).map((audit: any) => (
+                                        <tr key={audit.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-xs font-extrabold text-slate-900">{audit.route}</p>
+                                                    {audit.inSitemap && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="In Sitemap"></div>}
+                                                </div>
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                    {audit.routeType} | {audit.lang} | {audit.priority}
+                                                </p>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="relative group/status">
+                                                    <select 
+                                                        value={audit.lifecycleStatus || 'PUBLISHED'}
+                                                        onChange={(e) => handleSetStatus(audit.id, e.target.value)}
+                                                        className={`px-2 py-1 rounded-full text-[8px] font-extrabold uppercase tracking-widest cursor-pointer appearance-none border-none ${
+                                                            audit.lifecycleStatus === 'SEO_INDEXABLE' ? 'bg-emerald-100 text-emerald-700' :
+                                                            audit.lifecycleStatus === 'SEO_DRAFT' ? 'bg-slate-100 text-slate-600' :
+                                                            audit.lifecycleStatus === 'REVIEW_REQUIRED' ? 'bg-amber-100 text-amber-700' :
+                                                            audit.lifecycleStatus === 'NOINDEX' ? 'bg-rose-100 text-rose-700' :
+                                                            'bg-blue-100 text-blue-700'
+                                                        }`}
+                                                    >
+                                                        <option value="SEO_INDEXABLE">Indexable</option>
+                                                        <option value="SEO_DRAFT">Draft</option>
+                                                        <option value="REVIEW_REQUIRED">Review</option>
+                                                        <option value="NOINDEX">Noindex</option>
+                                                        <option value="MERGE_CANDIDATE">Merge</option>
+                                                        <option value="REDIRECT">Redirect</option>
+                                                        <option value="ARCHIVED">Archive</option>
+                                                        <option value="PUBLISHED">Published</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`text-xs font-extrabold ${
+                                                    audit.seoScore > 90 ? 'text-emerald-600' : 
+                                                    audit.seoScore > 70 ? 'text-amber-600' : 'text-rose-600'
+                                                }`}>
+                                                    {audit.seoScore}%
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="flex flex-col items-center gap-1">
+                                                    {audit.publicHttpStatus === 200 ? (
+                                                        <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-widest ${audit.publicMatch ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                                                            {audit.publicMatch ? 'MATCH' : 'MISMATCH'}
+                                                        </span>
+                                                    ) : audit.publicHttpStatus === 0 ? (
+                                                        <span className="px-2 py-0.5 rounded bg-slate-50 text-slate-400 text-[8px] font-extrabold uppercase tracking-widest">
+                                                            SKIP
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-600 text-[8px] font-extrabold uppercase tracking-widest">
+                                                            ERROR {audit.publicHttpStatus}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-xs font-bold text-slate-700 italic">
+                                                {audit.primaryKeyword || <span className="text-slate-300 font-normal">None</span>}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center gap-2 justify-end">
+                                                    <button 
+                                                        onClick={() => handleFixPage(audit.id, report?.issues?.filter((i: any) => i.url === audit.route) || [])}
+                                                        className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors"
+                                                        title="Auto-Fix Everything"
+                                                    >
+                                                        <Wrench className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="Merge Routes">
+                                                        <Layers className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button className="p-1.5 text-slate-400 hover:text-amber-600 transition-colors" title="Redirect Route">
+                                                        <RefreshCw className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors" title="Archive/Delete">
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between py-4">
+                                <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
+                                    Page {currentPage + 1} of {totalPages}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        disabled={currentPage === 0}
+                                        onClick={() => fetchResultsPage(currentPage - 1)}
+                                        className="px-4 py-2 bg-white border border-slate-200 rounded-card font-extrabold text-[10px] uppercase tracking-widest disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+                                    <button 
+                                        disabled={currentPage === totalPages - 1}
+                                        onClick={() => fetchResultsPage(currentPage + 1)}
+                                        className="px-4 py-2 bg-white border border-slate-200 rounded-card font-extrabold text-[10px] uppercase tracking-widest disabled:opacity-50"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
