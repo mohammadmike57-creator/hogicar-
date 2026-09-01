@@ -7,6 +7,8 @@ import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import Power from 'lucide-react/dist/esm/icons/power';
 import PowerOff from 'lucide-react/dist/esm/icons/power-off';
 import Shield from 'lucide-react/dist/esm/icons/shield';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off';
 
 interface Supplier {
     id: number;
@@ -16,6 +18,7 @@ interface Supplier {
     logoUrl: string | null;
     role: "SUPPLIER" | "ADMIN";
     active: boolean;
+    visible: boolean;
 }
 
 const AdminSuppliers: React.FC = () => {
@@ -58,12 +61,28 @@ const AdminSuppliers: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm(`Are you sure you want to DELETE supplier #${id}? This action cannot be undone.`)) {
+    const handleToggleVisibility = async (supplier: Supplier) => {
+        try {
+            await adminFetch(`/api/admin/suppliers/${supplier.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ visible: !supplier.visible })
+            });
+            fetchSuppliers(); // Refresh list
+        } catch (err: any) {
+             alert(`Failed to update visibility: ${err.message}`);
+        }
+    };
+
+    const handleDelete = async (supplier: Supplier) => {
+        if (supplier.role === 'ADMIN') {
+            alert('Cannot delete an ADMIN account.');
+            return;
+        }
+        if (!window.confirm(`Are you sure you want to DELETE supplier #${supplier.id}? This action cannot be undone.`)) {
             return;
         }
         try {
-            await adminFetch(`/api/admin/suppliers/${id}`, {
+            await adminFetch(`/api/admin/suppliers/${supplier.id}`, {
                 method: 'DELETE'
             });
             fetchSuppliers();
@@ -115,22 +134,43 @@ const AdminSuppliers: React.FC = () => {
                                     </span>
                                 </td>
                                 <td className="py-3 px-4">
-                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${s.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                                        {s.active ? 'Active' : 'Disabled'}
-                                    </span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase w-fit ${s.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                            {s.active ? 'Active' : 'Disabled'}
+                                        </span>
+                                        {!s.visible && (
+                                            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase w-fit bg-red-100 text-red-700">
+                                                Invisible
+                                            </span>
+                                        )}
+                                    </div>
                                 </td>
                                 <td className="py-3 px-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
                                         <button 
+                                            onClick={() => handleToggleVisibility(s)} 
+                                            className="p-2 rounded-md hover:bg-slate-100"
+                                            title={s.visible ? 'Make Invisible' : 'Make Visible'}
+                                        >
+                                            {s.visible ? <Eye className="w-4 h-4 text-slate-600"/> : <EyeOff className="w-4 h-4 text-red-600"/>}
+                                        </button>
+                                        <button 
                                             onClick={() => handleToggleActive(s)} 
                                             disabled={s.role === 'ADMIN'}
-                                            className="p-2 rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
-                                            title={s.active ? 'Disable' : 'Enable'}
+                                            className="p-2 rounded-md disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100"
+                                            title={s.active ? 'Disable Account' : 'Enable Account'}
                                         >
-                                            {s.active ? <PowerOff className="w-4 h-4 text-orange-600 hover:text-orange-800"/> : <Power className="w-4 h-4 text-green-600 hover:text-green-800"/>}
+                                            {s.active ? <PowerOff className="w-4 h-4 text-orange-600"/> : <Power className="w-4 h-4 text-green-600"/>}
                                         </button>
                                         <button className="p-2 text-slate-500 hover:bg-slate-200 rounded-md" title="Edit"><Edit className="w-4 h-4"/></button>
-                                        <button onClick={() => handleDelete(s.id)} className="p-2 text-red-500 hover:bg-red-100 rounded-md" title="Delete"><Trash2 className="w-4 h-4"/></button>
+                                        <button 
+                                            onClick={() => handleDelete(s)} 
+                                            disabled={s.role === 'ADMIN'}
+                                            className="p-2 text-red-500 hover:bg-red-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed" 
+                                            title="Delete"
+                                        >
+                                            <Trash2 className="w-4 h-4"/>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
