@@ -737,7 +737,11 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     if (isOpen) {
       setEditedSupplier(supplier || {});
       if (supplier?.locations && supplier.locations.length > 0)
-        setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode })) : []);
+        setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ 
+          label: l.displayName || l.location, 
+          value: l.locationCode,
+          status: l.status || 'ACTIVE'
+        })) : []);
       else if (supplier?.location && supplier?.locationCode)
         setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
       else setSelectedLocations([]);
@@ -760,7 +764,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
   const handleLocSelect = (loc: any) => {
     if (loc && !selectedLocations.find(l => l.value === loc.value)) {
-      setSelectedLocations(prev => [...prev, loc]);
+      setSelectedLocations(prev => [...prev, { ...loc, status: 'ACTIVE' }]);
     }
   };
 
@@ -786,7 +790,11 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     const finalSupplier = {
       ...editedSupplier,
       email: editedSupplier.email || editedSupplier.contactEmail,
-      locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
+      locations: selectedLocations.map(l => ({ 
+        displayName: l.label, 
+        locationCode: l.value,
+        status: l.status || 'ACTIVE'
+      })),
       bookingMode: editedSupplier.bookingMode || "FREE_SALE",
       commissionType: editedSupplier.commissionType || "PARTIAL_PREPAID",
       commissionPercent: editedSupplier.commissionPercent || 0.15,
@@ -929,9 +937,27 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
             {selectedLocations.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedLocations.map(loc => (
-                  <div key={loc.value} className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-card">
+                  <div key={loc.value} className="flex items-center gap-3 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-card border border-blue-100">
                     <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
-                    <button onClick={() => removeLocation(loc.value)}><X className="w-3.5 h-3.5" /></button>
+                    <div className="flex items-center gap-1.5 border-l border-blue-200 pl-2 ml-1">
+                      <button 
+                        onClick={() => {
+                          const newStatus = loc.status === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
+                          setSelectedLocations(prev => prev.map(l => l.value === loc.value ? { ...l, status: newStatus } : l));
+                        }}
+                        className={`p-1 rounded-full transition-colors ${loc.status === 'ACTIVE' ? 'text-blue-600 hover:bg-blue-100' : 'text-gray-400 hover:bg-gray-200'}`}
+                        title={loc.status === 'ACTIVE' ? 'Visible in this location' : 'Hidden in this location'}
+                      >
+                        {loc.status === 'ACTIVE' ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                      </button>
+                      <button 
+                        onClick={() => removeLocation(loc.value)}
+                        className="p-1 text-blue-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                        title="Remove Location"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
