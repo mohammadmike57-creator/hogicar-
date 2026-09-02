@@ -92,7 +92,7 @@ export interface Location {
   id: string;
   name: string;
   address: string;
-  status: 'active' | 'pending_approval' | 'rejected';
+  status: 'ACTIVE' | 'HIDDEN' | 'PENDING' | 'REJECTED';
   commissionRate?: number; // Specific commission for this location
 }
 

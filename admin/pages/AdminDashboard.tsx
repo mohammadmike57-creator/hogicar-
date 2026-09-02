@@ -740,7 +740,8 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
         setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ 
           label: l.displayName || l.location, 
           value: l.locationCode,
-          status: l.status || 'ACTIVE'
+          status: l.status || 'ACTIVE',
+          id: l.id
         })) : []);
       else if (supplier?.location && supplier?.locationCode)
         setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
@@ -941,12 +942,20 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
                     <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
                     <div className="flex items-center gap-1.5 border-l border-blue-200 pl-2 ml-1">
                       <button 
-                        onClick={() => {
+                        onClick={async () => {
                           const newStatus = loc.status === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
+                          if (loc.id) {
+                            try {
+                              await adminFetch(`/api/admin/suppliers/locations/${loc.id}/toggle-status`, { method: 'PATCH' });
+                            } catch (e: any) {
+                              alert("Failed to update status: " + e.message);
+                              return;
+                            }
+                          }
                           setSelectedLocations(prev => prev.map(l => l.value === loc.value ? { ...l, status: newStatus } : l));
                         }}
                         className={`p-1 rounded-full transition-colors ${loc.status === 'ACTIVE' ? 'text-blue-600 hover:bg-blue-100' : 'text-gray-400 hover:bg-gray-200'}`}
-                        title={loc.status === 'ACTIVE' ? 'Visible in this location' : 'Hidden in this location'}
+                        title={loc.status === 'ACTIVE' ? 'Visible in this location - Click to Hide' : 'Hidden in this location - Click to Show'}
                       >
                         {loc.status === 'ACTIVE' ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                       </button>
