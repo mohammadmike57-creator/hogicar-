@@ -93,6 +93,7 @@ export interface Location {
   name: string;
   address: string;
   status: 'ACTIVE' | 'HIDDEN' | 'PENDING' | 'REJECTED';
+  isVisible: boolean;
   commissionRate?: number; // Specific commission for this location
 }
 

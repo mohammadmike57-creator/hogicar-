@@ -712,6 +712,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
   const [customLocs, setCustomLocs] = useState<any[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [updatingLocId, setUpdatingLocId] = useState<string | null>(null);
 
   const handleGenerateCredentials = async () => {
     if (!editedSupplier.name) return alert("Please enter company name first");
@@ -741,6 +742,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
           label: l.displayName || l.location, 
           value: l.locationCode,
           status: l.status || 'ACTIVE',
+          isVisible: l.isVisible !== false,
           id: l.id
         })) : []);
       else if (supplier?.location && supplier?.locationCode)
@@ -936,39 +938,99 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <LocationPicker onSelect={handleLocSelect} />
             </div>
             {selectedLocations.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {selectedLocations.map(loc => (
-                  <div key={loc.value} className="flex items-center gap-3 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-card border border-blue-100">
-                    <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
-                    <div className="flex items-center gap-1.5 border-l border-blue-200 pl-2 ml-1">
-                      <button 
-                        onClick={async () => {
-                          const newStatus = loc.status === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
-                          if (loc.id) {
-                            try {
-                              await adminFetch(`/api/admin/suppliers/locations/${loc.id}/toggle-status`, { method: 'PATCH' });
-                            } catch (e: any) {
-                              alert("Failed to update status: " + e.message);
-                              return;
-                            }
-                          }
-                          setSelectedLocations(prev => prev.map(l => l.value === loc.value ? { ...l, status: newStatus } : l));
-                        }}
-                        className={`p-1 rounded-full transition-colors ${loc.status === 'ACTIVE' ? 'text-blue-600 hover:bg-blue-100' : 'text-gray-400 hover:bg-gray-200'}`}
-                        title={loc.status === 'ACTIVE' ? 'Visible in this location - Click to Hide' : 'Hidden in this location - Click to Show'}
-                      >
-                        {loc.status === 'ACTIVE' ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                      </button>
-                      <button 
-                        onClick={() => removeLocation(loc.value)}
-                        className="p-1 text-blue-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                        title="Remove Location"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto border rounded-card">
+                <table className="w-full text-[11px] text-left border-collapse">
+                  <thead>
+                    <tr className="border-b bg-gray-50/50">
+                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Location</th>
+                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Country</th>
+                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Type</th>
+                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedLocations.map(loc => (
+                      <tr key={loc.value} className="border-b last:border-0 hover:bg-gray-50/30 transition-colors">
+                        <td className="px-3 py-3">
+                          <div className="font-bold text-gray-900">{loc.label}</div>
+                          <div className="text-[10px] text-gray-400 font-mono">{loc.value}</div>
+                        </td>
+                        <td className="px-3 py-3 text-gray-500 font-medium">Jordan</td>
+                        <td className="px-3 py-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            loc.value.length === 3 ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'
+                          }`}>
+                            {loc.value.length === 3 ? 'Airport' : 'City'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3">
+                          {loc.isVisible ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-bold border border-green-100">
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                              Visible
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-bold border border-red-100">
+                              <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                              Hidden
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              disabled={updatingLocId === loc.id}
+                              onClick={async () => {
+                                const newVisible = !loc.isVisible;
+                                const confirmMsg = newVisible 
+                                  ? "Show this supplier for this location?\n\nThe supplier's available vehicles can appear in customer searches for this location."
+                                  : "Hide this supplier from this location?\n\nThe supplier will remain configured, but its vehicles will no longer appear in customer searches for this location.";
+                                
+                                if (!window.confirm(confirmMsg)) return;
+
+                                if (loc.id) {
+                                  setUpdatingLocId(loc.id);
+                                  try {
+                                    await adminFetch(`/api/admin/suppliers/locations/${loc.id}/visibility`, { 
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ visible: newVisible })
+                                    });
+                                  } catch (e: any) {
+                                    alert("Failed to update visibility: " + e.message);
+                                    return;
+                                  } finally {
+                                    setUpdatingLocId(null);
+                                  }
+                                }
+                                setSelectedLocations(prev => prev.map(l => l.value === loc.value ? { ...l, isVisible: newVisible } : l));
+                              }}
+                              className={`px-4 py-1.5 rounded-card text-[10px] font-bold transition-all shadow-sm ${
+                                loc.isVisible 
+                                  ? 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 border border-gray-200' 
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              } disabled:opacity-50`}
+                            >
+                              {updatingLocId === loc.id ? (
+                                <LoaderCircle className="w-3.5 h-3.5 animate-spin mx-auto" />
+                              ) : (
+                                loc.isVisible ? 'Hide Supplier' : 'Show Supplier'
+                              )}
+                            </button>
+                            <button 
+                              onClick={() => removeLocation(loc.value)}
+                              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                              title="Remove Location"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
             <div className="border-t pt-4">
