@@ -92,8 +92,7 @@ export interface Location {
   id: string;
   name: string;
   address: string;
-  status: 'ACTIVE' | 'HIDDEN' | 'PENDING' | 'REJECTED';
-  isVisible: boolean;
+  status: 'active' | 'pending_approval' | 'rejected';
   commissionRate?: number; // Specific commission for this location
 }
 
@@ -126,7 +125,6 @@ export interface Supplier {
   commissionPercent: number; // Percentage (e.g., 25.00 for 25%)
   bookingMode: BookingMode;
   status: 'active' | 'pending' | 'rejected';
-  visible: boolean;
   
   // Contact & Location Info
   location: string; // Primary location name (legacy)

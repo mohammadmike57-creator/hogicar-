@@ -51,7 +51,6 @@ interface SupplierConfig {
   currency: string;
   priority: number;
   active: boolean;
-  visible: boolean;
   isConfigured: boolean;
   logoUrl: string;
   carCount: number;
@@ -100,7 +99,6 @@ const ExternalSuppliersPage: React.FC = () => {
   const [editingSupplier, setEditingSupplier] = useState<SupplierConfig | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [updatingSupplierId, setUpdatingSupplierId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCountries();
@@ -544,26 +542,15 @@ const ExternalSuppliersPage: React.FC = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="space-y-1">
-                          {supplier.active ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-medium">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Available
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
-                              <XCircle className="w-3.5 h-3.5" /> Unavailable
-                            </div>
-                          )}
-                          {supplier.visible !== false ? (
-                            <div className="flex items-center gap-1.5 text-blue-600 text-[10px] font-bold">
-                              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Visible
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-red-500 text-[10px] font-bold">
-                              <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Hidden
-                            </div>
-                          )}
-                        </div>
+                        {supplier.active ? (
+                          <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Available
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
+                            <XCircle className="w-3.5 h-3.5" /> Unavailable
+                          </div>
+                        )}
                       </td>
                       <td>
                         {supplier.isConfigured ? (
@@ -595,52 +582,12 @@ const ExternalSuppliersPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="pr-4 rounded-r-xl text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            disabled={updatingSupplierId === supplier.supplierId}
-                            onClick={async () => {
-                              if (!selectedLocation) return;
-                              const newVisible = supplier.visible === false; // toggle
-                              const confirmMsg = newVisible 
-                                ? "Show this supplier for this location?\n\nThe supplier's available vehicles can appear in customer searches for this location."
-                                : "Hide this supplier from this location?\n\nThe supplier will remain configured, but its vehicles will no longer appear in customer searches for this location.";
-                              
-                              if (!window.confirm(confirmMsg)) return;
-
-                              setUpdatingSupplierId(supplier.supplierId);
-                              try {
-                                await adminFetch(`/api/admin/external-suppliers/locations/${selectedLocation.iataCode}/suppliers/${supplier.supplierId}/visibility`, { 
-                                  method: 'PATCH',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ visible: newVisible })
-                                });
-                                // Update local state
-                                setSuppliers(prev => prev.map(s => s.supplierId === supplier.supplierId ? { ...s, visible: newVisible } : s));
-                              } catch (e: any) {
-                                alert("Failed to update visibility: " + e.message);
-                              } finally {
-                                setUpdatingSupplierId(null);
-                              }
-                            }}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border shadow-sm ${
-                              supplier.visible !== false 
-                                ? 'bg-white text-slate-600 hover:bg-red-50 hover:text-red-600 border-slate-200' 
-                                : 'bg-accent text-white hover:bg-accent/90 border-accent'
-                            } disabled:opacity-50`}
-                          >
-                            {updatingSupplierId === supplier.supplierId ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" />
-                            ) : (
-                              supplier.visible !== false ? 'Hide' : 'Show'
-                            )}
-                          </button>
-                          <button 
-                            onClick={() => setEditingSupplier(supplier)}
-                            className="p-2 text-slate-400 hover:text-accent hover:bg-white rounded-lg transition-all"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
-                        </div>
+                        <button 
+                          onClick={() => setEditingSupplier(supplier)}
+                          className="p-2 text-slate-400 hover:text-accent hover:bg-white rounded-lg transition-all"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -786,42 +733,18 @@ const ExternalSuppliersPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-                <div className="flex flex-col gap-4">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative inline-flex items-center">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer"
-                        checked={editingSupplier.active}
-                        onChange={(e) => setEditingSupplier({...editingSupplier, active: e.target.checked})}
-                      />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-                    </div>
-                    <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Active for this location</span>
-                  </label>
-
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative inline-flex items-center">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer"
-                        checked={editingSupplier.visible !== false}
-                        onChange={(e) => {
-                          const newVisible = e.target.checked;
-                          const confirmMsg = newVisible 
-                            ? "Show this supplier for this location?\n\nThe supplier's available vehicles can appear in customer searches for this location."
-                            : "Hide this supplier from this location?\n\nThe supplier will remain configured, but its vehicles will no longer appear in customer searches for this location.";
-                          
-                          if (window.confirm(confirmMsg)) {
-                            setEditingSupplier({...editingSupplier, visible: newVisible});
-                          }
-                        }}
-                      />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-                    </div>
-                    <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Visible in Search</span>
-                  </label>
-                </div>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className="relative inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer"
+                      checked={editingSupplier.active}
+                      onChange={(e) => setEditingSupplier({...editingSupplier, active: e.target.checked})}
+                    />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Active for this location</span>
+                </label>
 
                 <div className="flex items-center gap-3">
                   <button 

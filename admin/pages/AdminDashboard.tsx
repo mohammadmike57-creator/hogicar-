@@ -501,15 +501,6 @@ const Badge = ({ status }: { status: string }) => {
   return <span className={`px-2 py-1 text-xs font-bold rounded-full border ${colors[status] || 'bg-gray-100'}`}>{status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}</span>;
 };
 
-const VisibilityBadge = ({ visible }: { visible: boolean }) => {
-    return (
-        <span className={`px-2 py-1 text-[10px] font-extrabold rounded-full border flex items-center gap-1.5 w-fit uppercase tracking-tighter ${visible ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${visible ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></span>
-            {visible ? 'Visible' : 'Hidden'}
-        </span>
-    );
-};
-
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   if (!isOpen) return null;
   const sizes: any = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-6xl' };
@@ -721,7 +712,6 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
   const [customLocs, setCustomLocs] = useState<any[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [updatingLocId, setUpdatingLocId] = useState<string | null>(null);
 
   const handleGenerateCredentials = async () => {
     if (!editedSupplier.name) return alert("Please enter company name first");
@@ -747,13 +737,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     if (isOpen) {
       setEditedSupplier(supplier || {});
       if (supplier?.locations && supplier.locations.length > 0)
-        setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ 
-          label: l.displayName || l.location, 
-          value: l.locationCode,
-          status: l.status || 'ACTIVE',
-          isVisible: l.isVisible !== false,
-          id: l.id
-        })) : []);
+        setSelectedLocations(Array.isArray(supplier.locations) ? supplier.locations.map((l: any) => ({ label: l.displayName || l.location, value: l.locationCode })) : []);
       else if (supplier?.location && supplier?.locationCode)
         setSelectedLocations([{ label: supplier.location, value: supplier.locationCode }]);
       else setSelectedLocations([]);
@@ -776,7 +760,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
 
   const handleLocSelect = (loc: any) => {
     if (loc && !selectedLocations.find(l => l.value === loc.value)) {
-      setSelectedLocations(prev => [...prev, { ...loc, status: 'ACTIVE' }]);
+      setSelectedLocations(prev => [...prev, loc]);
     }
   };
 
@@ -802,11 +786,7 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
     const finalSupplier = {
       ...editedSupplier,
       email: editedSupplier.email || editedSupplier.contactEmail,
-      locations: selectedLocations.map(l => ({ 
-        displayName: l.label, 
-        locationCode: l.value,
-        status: l.status || 'ACTIVE'
-      })),
+      locations: selectedLocations.map(l => ({ displayName: l.label, locationCode: l.value })),
       bookingMode: editedSupplier.bookingMode || "FREE_SALE",
       commissionType: editedSupplier.commissionType || "PARTIAL_PREPAID",
       commissionPercent: editedSupplier.commissionPercent || 0.15,
@@ -947,99 +927,13 @@ const EditSupplierModal = ({ supplier, isOpen, onClose, onSave, onCopy }: any) =
               <LocationPicker onSelect={handleLocSelect} />
             </div>
             {selectedLocations.length > 0 && (
-              <div className="overflow-x-auto border rounded-card">
-                <table className="w-full text-[11px] text-left border-collapse">
-                  <thead>
-                    <tr className="border-b bg-gray-50/50">
-                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Location</th>
-                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Country</th>
-                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Type</th>
-                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider">Status</th>
-                      <th className="px-3 py-2.5 font-bold text-gray-600 uppercase tracking-wider text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedLocations.map(loc => (
-                      <tr key={loc.value} className="border-b last:border-0 hover:bg-gray-50/30 transition-colors">
-                        <td className="px-3 py-3">
-                          <div className="font-bold text-gray-900">{loc.label}</div>
-                          <div className="text-[10px] text-gray-400 font-mono">{loc.value}</div>
-                        </td>
-                        <td className="px-3 py-3 text-gray-500 font-medium">Jordan</td>
-                        <td className="px-3 py-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            loc.value.length === 3 ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'
-                          }`}>
-                            {loc.value.length === 3 ? 'Airport' : 'City'}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3">
-                          {loc.isVisible ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-bold border border-green-100">
-                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                              Visible
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-bold border border-red-100">
-                              <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                              Hidden
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-3 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button 
-                              disabled={updatingLocId === loc.id}
-                              onClick={async () => {
-                                const newVisible = !loc.isVisible;
-                                const confirmMsg = newVisible 
-                                  ? "Show this supplier for this location?\n\nThe supplier's available vehicles can appear in customer searches for this location."
-                                  : "Hide this supplier from this location?\n\nThe supplier will remain configured, but its vehicles will no longer appear in customer searches for this location.";
-                                
-                                if (!window.confirm(confirmMsg)) return;
-
-                                if (loc.id) {
-                                  setUpdatingLocId(loc.id);
-                                  try {
-                                    await adminFetch(`/api/admin/suppliers/locations/${loc.id}/visibility`, { 
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ visible: newVisible })
-                                    });
-                                  } catch (e: any) {
-                                    alert("Failed to update visibility: " + e.message);
-                                    return;
-                                  } finally {
-                                    setUpdatingLocId(null);
-                                  }
-                                }
-                                setSelectedLocations(prev => prev.map(l => l.value === loc.value ? { ...l, isVisible: newVisible } : l));
-                              }}
-                              className={`px-4 py-1.5 rounded-card text-[10px] font-bold transition-all shadow-sm ${
-                                loc.isVisible 
-                                  ? 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 border border-gray-200' 
-                                  : 'bg-blue-600 text-white hover:bg-blue-700'
-                              } disabled:opacity-50`}
-                            >
-                              {updatingLocId === loc.id ? (
-                                <LoaderCircle className="w-3.5 h-3.5 animate-spin mx-auto" />
-                              ) : (
-                                loc.isVisible ? 'Hide Supplier' : 'Show Supplier'
-                              )}
-                            </button>
-                            <button 
-                              onClick={() => removeLocation(loc.value)}
-                              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                              title="Remove Location"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="flex flex-wrap gap-2">
+                {selectedLocations.map(loc => (
+                  <div key={loc.value} className="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-card">
+                    <span className="text-xs font-bold">{loc.label} ({loc.value})</span>
+                    <button onClick={() => removeLocation(loc.value)}><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                ))}
               </div>
             )}
             <div className="border-t pt-4">
@@ -2397,23 +2291,13 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onManageFleet, onAddSupplier, onRefresh, onDelete, onToggleVisibility, onFixData, revealedPasswords, onCopy }: any) => {
+const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onManageFleet, onAddSupplier, onRefresh, onDelete, onFixData, revealedPasswords, onCopy }: any) => {
     const [searchQuery, setSearchQuery] = useState("");
-    const [visibilityFilter, setVisibilityFilter] = useState("all");
 
     const filteredSuppliers = useMemo(() => {
-        let result = suppliers;
-
-        // Visibility filter
-        if (visibilityFilter === 'visible') {
-            result = result.filter((s: any) => s.visible !== false);
-        } else if (visibilityFilter === 'hidden') {
-            result = result.filter((s: any) => s.visible === false);
-        }
-
-        if (!searchQuery.trim()) return result;
+        if (!searchQuery.trim()) return suppliers;
         const q = searchQuery.toLowerCase().trim();
-        return result.filter((s: any) => 
+        return suppliers.filter((s: any) => 
             s.name.toLowerCase().includes(q) || 
             (s.email && s.email.toLowerCase().includes(q)) ||
             (s.contactEmail && s.contactEmail.toLowerCase().includes(q)) ||
@@ -2422,7 +2306,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                 (l.displayName && l.displayName.toLowerCase().includes(q))
             ))
         );
-    }, [suppliers, searchQuery, visibilityFilter]);
+    }, [suppliers, searchQuery]);
 
     return (
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
@@ -2431,27 +2315,15 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Manage Suppliers</h2>
             <p className="text-sm text-gray-500 font-medium mb-4">Manage your global car rental provider network</p>
             
-            <div className="relative max-w-md flex items-center gap-2">
-                <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input 
-                        type="text" 
-                        placeholder="Search by name, email or location..." 
-                        className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-                <select 
-                    className="pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                    value={visibilityFilter}
-                    onChange={(e) => setVisibilityFilter(e.target.value)}
-                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
-                >
-                    <option value="all">All Visibility</option>
-                    <option value="visible">Visible Only</option>
-                    <option value="hidden">Hidden Only</option>
-                </select>
+            <div className="relative max-w-md">
+                <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input 
+                    type="text" 
+                    placeholder="Search by name, email or location..." 
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
         </div>
         <div className="flex gap-3">
@@ -2482,7 +2354,6 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Provider Details</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Credentials</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Operational Status</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Visibility</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Connectivity</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
@@ -2540,9 +2411,6 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                             <Badge status={s.status || (s.active ? 'active' : 'inactive')}/>
                         </td>
                         <td className="px-8 py-5">
-                            <VisibilityBadge visible={s.visible !== false} />
-                        </td>
-                        <td className="px-8 py-5">
                             <div className="flex items-center gap-2">
                                 <div className={`w-1.5 h-1.5 rounded-full ${s.connectionType === 'api' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'}`} />
                                 <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">
@@ -2565,13 +2433,6 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                         </td>
                         <td className="px-8 py-5 text-right">
                             <div className="flex justify-end gap-2">
-                                <button 
-                                    onClick={() => onToggleVisibility(s, s.visible === false)} 
-                                    className={`p-2 bg-white border rounded-card transition-all shadow-sm ${s.visible === false ? 'text-green-600 border-green-100 hover:bg-green-50' : 'text-slate-400 border-slate-100 hover:text-red-600 hover:border-red-100'}`} 
-                                    title={s.visible === false ? 'Show Supplier' : 'Hide Supplier'}
-                                >
-                                    {s.visible === false ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                                </button>
                                 <button onClick={() => onManageFleet(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm" title="Fleet & Hogicar Choice">
                                     <Zap className="w-3.5 h-3.5" />
                                 </button>
@@ -4851,11 +4712,6 @@ export const AdminDashboard: React.FC = () => {
   const [savingHomepageEditor, setSavingHomepageEditor] = useState(false);
   const [revealedPasswords, setRevealedPasswords] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
-  const [visibilityConfirm, setVisibilityConfirm] = useState<{ isOpen: boolean, supplier: any | null, targetVisible: boolean }>({
-    isOpen: false,
-    supplier: null,
-    targetVisible: false
-  });
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -5161,25 +5017,9 @@ export const AdminDashboard: React.FC = () => {
     if (!confirm('Are you sure you want to delete this supplier? This action cannot be undone.')) return;
     try {
       await adminFetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
-      showToast('Supplier deleted successfully');
+      alert('Supplier deleted successfully');
       await fetchSuppliers();
-    } catch (err: any) { 
-        showToast(`Delete failed: ${err.message}`, 'error'); 
-    }
-  };
-
-  const handleToggleSupplierVisibility = async (supplierId: string, visible: boolean) => {
-    try {
-      await adminFetch(`/api/admin/suppliers/${supplierId}/visibility`, {
-        method: 'PATCH',
-        body: JSON.stringify({ visible })
-      });
-      showToast(visible ? 'Supplier is now visible' : 'Supplier hidden successfully');
-      await fetchSuppliers();
-      setVisibilityConfirm({ isOpen: false, supplier: null, targetVisible: false });
-    } catch (e: any) {
-      showToast(e.message || 'Unable to update supplier visibility', 'error');
-    }
+    } catch (err: any) { alert(`Delete failed: ${err.message}`); }
   };
 
   const handleApproveSupplier = async (id: string) => { 
@@ -5331,21 +5171,7 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
-      case 'suppliers': return <SuppliersContent 
-        suppliers={suppliers} 
-        fetchError={supplierFetchError} 
-        onEdit={setEditingSupplier} 
-        onApprove={handleApproveSupplier} 
-        onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} 
-        onManageFleet={setViewingFleetSupplier} 
-        onAddSupplier={() => setEditingSupplier({} as any)} 
-        onRefresh={fetchSuppliers} 
-        onDelete={handleDeleteSupplier} 
-        onToggleVisibility={(s: any, v: boolean) => setVisibilityConfirm({ isOpen: true, supplier: s, targetVisible: v })}
-        onFixData={handleFixData} 
-        revealedPasswords={revealedPasswords} 
-        onCopy={handleCopy} 
-      />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
@@ -5545,38 +5371,6 @@ export const AdminDashboard: React.FC = () => {
           supplier={viewingFleetSupplier}
           onClose={() => setViewingRatesCar(null)}
         />
-      )}
-
-      {visibilityConfirm.isOpen && (
-        <Modal 
-          isOpen={visibilityConfirm.isOpen} 
-          onClose={() => setVisibilityConfirm({ isOpen: false, supplier: null, targetVisible: false })}
-          title={visibilityConfirm.targetVisible ? "Show Supplier?" : "Hide Supplier?"}
-          size="sm"
-        >
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {visibilityConfirm.targetVisible 
-                ? "Are you sure you want to make this supplier visible to customers again? Once enabled, its eligible vehicles can appear in customer-facing search and booking results."
-                : "Are you sure you want to hide this supplier? This will remove this supplier and its vehicles from all customer-facing search results and booking flows across Hogicar. The supplier will NOT be deleted and will remain available in Manage Suppliers for administration."
-              }
-            </p>
-            <div className="flex gap-3 pt-2">
-              <button 
-                onClick={() => setVisibilityConfirm({ isOpen: false, supplier: null, targetVisible: false })}
-                className="flex-1 px-4 py-2.5 rounded-card bg-white border border-gray-200 text-gray-600 font-bold text-xs hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => handleToggleSupplierVisibility(visibilityConfirm.supplier?.id, visibilityConfirm.targetVisible)}
-                className={`flex-1 px-4 py-2.5 rounded-card text-white font-bold text-xs shadow-lg transition-all ${visibilityConfirm.targetVisible ? 'bg-green-600 hover:bg-green-700 shadow-green-200' : 'bg-red-600 hover:bg-red-700 shadow-red-200'}`}
-              >
-                {visibilityConfirm.targetVisible ? 'Show Supplier' : 'Hide Supplier'}
-              </button>
-            </div>
-          </div>
-        </Modal>
       )}
     </div>
   );
