@@ -126,6 +126,7 @@ export interface Supplier {
   commissionPercent: number; // Percentage (e.g., 25.00 for 25%)
   bookingMode: BookingMode;
   status: 'active' | 'pending' | 'rejected';
+  visible: boolean;
   
   // Contact & Location Info
   location: string; // Primary location name (legacy)
