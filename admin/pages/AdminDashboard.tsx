@@ -497,8 +497,24 @@ const GlobalLocationsContent = () => {
 };
 
 const Badge = ({ status }: { status: string }) => {
-  const colors: any = { active: 'bg-green-100 text-green-700', pending: 'bg-blue-100 text-blue-800', approved: 'bg-blue-100 text-[#007ac2]', rejected: 'bg-red-100 text-red-700' };
-  return <span className={`px-2 py-1 text-xs font-bold rounded-full border ${colors[status] || 'bg-gray-100'}`}>{status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}</span>;
+  const colors: any = { 
+    active: 'bg-green-100 text-green-700 border-green-200', 
+    pending: 'bg-blue-100 text-blue-800 border-blue-200', 
+    approved: 'bg-blue-100 text-[#007ac2] border-blue-200', 
+    rejected: 'bg-red-100 text-red-700 border-red-200',
+    visible: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    hidden: 'bg-rose-50 text-rose-700 border-rose-200'
+  };
+  
+  const isVisibility = status === 'visible' || status === 'hidden';
+  
+  return (
+    <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-full border shadow-sm flex items-center gap-1.5 w-fit uppercase tracking-wider ${colors[status] || 'bg-gray-100 border-gray-200'}`}>
+      {status === 'visible' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+      {status === 'hidden' && <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />}
+      {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}
+    </span>
+  );
 };
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
@@ -2291,13 +2307,22 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onManageFleet, onAddSupplier, onRefresh, onDelete, onFixData, revealedPasswords, onCopy }: any) => {
+const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onManageFleet, onAddSupplier, onRefresh, onDelete, onFixData, onToggleVisibility, revealedPasswords, onCopy }: any) => {
     const [searchQuery, setSearchQuery] = useState("");
+    const [visibilityFilter, setVisibilityFilter] = useState("all");
 
     const filteredSuppliers = useMemo(() => {
-        if (!searchQuery.trim()) return suppliers;
+        let result = suppliers;
+        
+        if (visibilityFilter !== "all") {
+            result = result.filter((s: any) => 
+                visibilityFilter === "visible" ? s.visible : !s.visible
+            );
+        }
+
+        if (!searchQuery.trim()) return result;
         const q = searchQuery.toLowerCase().trim();
-        return suppliers.filter((s: any) => 
+        return result.filter((s: any) => 
             s.name.toLowerCase().includes(q) || 
             (s.email && s.email.toLowerCase().includes(q)) ||
             (s.contactEmail && s.contactEmail.toLowerCase().includes(q)) ||
@@ -2306,7 +2331,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                 (l.displayName && l.displayName.toLowerCase().includes(q))
             ))
         );
-    }, [suppliers, searchQuery]);
+    }, [suppliers, searchQuery, visibilityFilter]);
 
     return (
   <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
@@ -2315,15 +2340,29 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Manage Suppliers</h2>
             <p className="text-sm text-gray-500 font-medium mb-4">Manage your global car rental provider network</p>
             
-            <div className="relative max-w-md">
-                <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                <input 
-                    type="text" 
-                    placeholder="Search by name, email or location..." 
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+            <div className="flex items-center gap-3 relative max-w-2xl w-full">
+                <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                    <input 
+                        type="text" 
+                        placeholder="Search by name, email or location..." 
+                        className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+                <div className="relative">
+                    <select
+                        value={visibilityFilter}
+                        onChange={(e) => setVisibilityFilter(e.target.value)}
+                        className="pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                    >
+                        <option value="all">All Visibility</option>
+                        <option value="visible">Visible Only</option>
+                        <option value="hidden">Hidden Only</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
             </div>
         </div>
         <div className="flex gap-3">
@@ -2354,6 +2393,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Provider Details</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Credentials</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Operational Status</th>
+                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Visibility</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Connectivity</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
                     <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
@@ -2411,6 +2451,9 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                             <Badge status={s.status || (s.active ? 'active' : 'inactive')}/>
                         </td>
                         <td className="px-8 py-5">
+                            <Badge status={s.visible ? 'visible' : 'hidden'}/>
+                        </td>
+                        <td className="px-8 py-5">
                             <div className="flex items-center gap-2">
                                 <div className={`w-1.5 h-1.5 rounded-full ${s.connectionType === 'api' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'}`} />
                                 <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">
@@ -2441,6 +2484,9 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
                                 </button>
                                 <button onClick={() => onEdit(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm" title="Edit Profile">
                                     <Edit className="w-3.5 h-3.5" />
+                                </button>
+                                <button onClick={() => onToggleVisibility(s)} className={`p-2 bg-white border border-slate-100 rounded-card transition-all shadow-sm ${s.visible ? 'text-slate-400 hover:text-amber-600 hover:border-amber-100' : 'text-emerald-500 hover:text-emerald-600 hover:border-emerald-100'}`} title={s.visible ? 'Hide Supplier' : 'Show Supplier'}>
+                                    {s.visible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                                 </button>
                                 <button onClick={() => onDelete(s.id)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm" title="Terminate Partner">
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -5013,6 +5059,26 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleToggleVisibility = async (supplier: any) => {
+    const action = supplier.visible ? 'HIDE' : 'SHOW';
+    const message = supplier.visible 
+        ? "Are you sure you want to hide this supplier?\n\nThis will remove this supplier and its vehicles from all customer-facing search results and booking flows across Hogicar.\n\nThe supplier will NOT be deleted and will remain available in Manage Suppliers for administration."
+        : "Are you sure you want to make this supplier visible to customers again?\n\nOnce enabled, its eligible vehicles can appear in customer-facing search and booking results.";
+    
+    if (!confirm(message)) return;
+    
+    try {
+        await adminFetch(`/api/admin/suppliers/${supplier.id}/visibility`, {
+            method: 'PATCH',
+            body: JSON.stringify({ visible: !supplier.visible })
+        });
+        showToast(`Supplier ${!supplier.visible ? 'is now visible' : 'hidden successfully'}`);
+        fetchSuppliers();
+    } catch (e: any) {
+        alert("Failed to update visibility: " + e.message);
+    }
+  };
+
   const handleDeleteSupplier = async (id: string) => {
     if (!confirm('Are you sure you want to delete this supplier? This action cannot be undone.')) return;
     try {
@@ -5171,7 +5237,7 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
-      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} onToggleVisibility={handleToggleVisibility} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;

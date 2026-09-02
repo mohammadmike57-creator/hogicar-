@@ -7,6 +7,8 @@ import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import Power from 'lucide-react/dist/esm/icons/power';
 import PowerOff from 'lucide-react/dist/esm/icons/power-off';
 import Shield from 'lucide-react/dist/esm/icons/shield';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off';
 
 interface Supplier {
     id: number;
@@ -16,6 +18,7 @@ interface Supplier {
     logoUrl: string | null;
     role: "SUPPLIER" | "ADMIN";
     active: boolean;
+    visible: boolean;
 }
 
 const AdminSuppliers: React.FC = () => {
@@ -55,6 +58,21 @@ const AdminSuppliers: React.FC = () => {
             fetchSuppliers(); // Refresh list
         } catch (err: any) {
              alert(`Failed to update supplier: ${err.message}`);
+        }
+    };
+
+    const handleToggleVisibility = async (supplier: Supplier) => {
+        if (!window.confirm(`Are you sure you want to ${supplier.visible ? 'hide' : 'show'} this supplier from search results?`)) {
+            return;
+        }
+        try {
+            await adminFetch(`/api/admin/suppliers/${supplier.id}/visibility`, {
+                method: 'PATCH',
+                body: JSON.stringify({ visible: !supplier.visible })
+            });
+            fetchSuppliers(); // Refresh list
+        } catch (err: any) {
+             alert(`Failed to update visibility: ${err.message}`);
         }
     };
 
@@ -100,6 +118,7 @@ const AdminSuppliers: React.FC = () => {
                             <th className="py-2 px-4 border-b">Contact</th>
                             <th className="py-2 px-4 border-b">Role</th>
                             <th className="py-2 px-4 border-b">Status</th>
+                            <th className="py-2 px-4 border-b">Visibility</th>
                             <th className="py-2 px-4 border-b text-right">Actions</th>
                         </tr>
                     </thead>
@@ -119,6 +138,11 @@ const AdminSuppliers: React.FC = () => {
                                         {s.active ? 'Active' : 'Disabled'}
                                     </span>
                                 </td>
+                                <td className="py-3 px-4">
+                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-1 ${s.visible ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                        {s.visible ? '🟢 Visible' : '🔴 Hidden'}
+                                    </span>
+                                </td>
                                 <td className="py-3 px-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
                                         <button 
@@ -128,6 +152,13 @@ const AdminSuppliers: React.FC = () => {
                                             title={s.active ? 'Disable' : 'Enable'}
                                         >
                                             {s.active ? <PowerOff className="w-4 h-4 text-orange-600 hover:text-orange-800"/> : <Power className="w-4 h-4 text-green-600 hover:text-green-800"/>}
+                                        </button>
+                                        <button 
+                                            onClick={() => handleToggleVisibility(s)} 
+                                            className="p-2 rounded-md"
+                                            title={s.visible ? 'Hide from Search' : 'Show in Search'}
+                                        >
+                                            {s.visible ? <EyeOff className="w-4 h-4 text-amber-600 hover:text-amber-800"/> : <Eye className="w-4 h-4 text-emerald-600 hover:text-emerald-800"/>}
                                         </button>
                                         <button className="p-2 text-slate-500 hover:bg-slate-200 rounded-md" title="Edit"><Edit className="w-4 h-4"/></button>
                                         <button onClick={() => handleDelete(s.id)} className="p-2 text-red-500 hover:bg-red-100 rounded-md" title="Delete"><Trash2 className="w-4 h-4"/></button>
