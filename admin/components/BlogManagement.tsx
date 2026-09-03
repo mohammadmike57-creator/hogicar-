@@ -120,6 +120,7 @@ const BlogManagement: React.FC = () => {
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [categories, setCategories] = React.useState<BlogCategory[]>([]);
   const [locationImages, setLocationImages] = React.useState<BlogLocationImage[]>([]);
+  const [usedLocations, setUsedLocations] = React.useState<{countryTag: string, cityTag: string | null}[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [isArticleModalOpen, setIsArticleModalOpen] = React.useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = React.useState(false);
@@ -175,6 +176,14 @@ const BlogManagement: React.FC = () => {
     });
   }, [articles, searchTerm, filters]);
 
+  const unmappedLocations = React.useMemo(() => {
+    return usedLocations.filter(loc => 
+      !locationImages.some(img => 
+        img.countryTag === loc.countryTag && img.cityTag === loc.cityTag
+      )
+    );
+  }, [usedLocations, locationImages]);
+
   const toggleSelectAll = () => {
     if (selectedArticles.length === filteredArticles.length) {
       setSelectedArticles([]);
@@ -227,6 +236,12 @@ const BlogManagement: React.FC = () => {
       } else if (activeTab === 'location-images') {
         const res = await adminFetch('/api/admin/blog/location-images');
         setLocationImages(res || []);
+        try {
+          const used = await adminFetch('/api/admin/blog/used-locations');
+          setUsedLocations(used || []);
+        } catch (e) {
+          console.error("Failed to fetch used locations", e);
+        }
       }
       // Always fetch categories as they are needed for article editing
       const catRes = await adminFetch('/api/admin/blog/categories');
@@ -862,37 +877,60 @@ const BlogManagement: React.FC = () => {
                     <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin mx-auto" />
                   </td>
                 </tr>
-              ) : locationImages.length === 0 ? (
+              ) : (locationImages.length === 0 && unmappedLocations.length === 0) ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-20 text-center text-slate-400">
-                    No location images defined.
+                    No locations found in articles or defined in settings.
                   </td>
                 </tr>
-              ) : locationImages.map((img) => (
-                <tr key={img.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <img src={img.imageUrl} alt={img.cityTag || img.countryTag} className="w-16 h-10 object-cover rounded shadow-sm" />
-                  </td>
-                  <td className="px-6 py-4 font-bold text-slate-900 uppercase">{img.countryTag}</td>
-                  <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.cityTag || 'DEFAULT (ALL CITIES)'}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => { setEditingLocationImage(img); setIsLocationImageModalOpen(true); }}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteLocationImage(img.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              ) : (
+                <>
+                  {locationImages.map((img) => (
+                    <tr key={img.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <img src={img.imageUrl} alt={img.cityTag || img.countryTag} className="w-16 h-10 object-cover rounded shadow-sm" />
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-900 uppercase">{img.countryTag}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.cityTag || 'DEFAULT (ALL CITIES)'}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => { setEditingLocationImage(img); setIsLocationImageModalOpen(true); }}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteLocationImage(img.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {unmappedLocations.map((loc, idx) => (
+                    <tr key={`unmapped-${idx}`} className="bg-amber-50/30 hover:bg-amber-50/50 transition-colors border-l-4 border-amber-400">
+                      <td className="px-6 py-4">
+                        <div className="w-16 h-10 bg-slate-100 rounded flex items-center justify-center text-slate-300">
+                          <Image size={20} />
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-900 uppercase opacity-60">{loc.countryTag}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase opacity-60">{loc.cityTag || 'DEFAULT'}</td>
+                      <td className="px-6 py-4 text-right">
+                        <button 
+                          onClick={() => { setEditingLocationImage({ countryTag: loc.countryTag, cityTag: loc.cityTag || '' }); setIsLocationImageModalOpen(true); }}
+                          className="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-tight hover:bg-amber-200 transition-all flex items-center gap-2 ml-auto"
+                        >
+                          <Plus size={14} /> Add Image
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </>
+              )}
             </tbody>
           </table>
         </div>
