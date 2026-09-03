@@ -32,6 +32,7 @@ import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { adminFetch } from '../../lib/adminApi';
 import ImageUploadField from './ImageUploadField';
+import { MediaLibrary } from './MediaLibrary';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../../lib/config';
 
@@ -63,7 +64,12 @@ interface BlogTag {
 interface BlogLocationImage {
   id: number;
   countryTag: string;
-  cityTag: string | null;
+  cityTag?: string;
+  areaTag?: string;
+  topicTag?: string;
+  title?: string;
+  altText?: string;
+  caption?: string;
   imageUrl: string;
 }
 
@@ -141,6 +147,12 @@ const BlogManagement: React.FC = () => {
   const [showFilters, setShowFilters] = React.useState(false);
   const [previewMode, setPreviewMode] = React.useState<'desktop' | 'tablet' | 'mobile' | 'google'>('desktop');
   
+  // Media Library & Suggestions State
+  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = React.useState(false);
+  const [targetImageField, setTargetImageField] = React.useState<string | null>(null);
+  const [suggestedImages, setSuggestedImages] = React.useState<BlogLocationImage[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
+  
   // Pagination State
   const [page, setPage] = React.useState(0);
   const [totalPages, setTotalPages] = React.useState(0);
@@ -156,6 +168,36 @@ const BlogManagement: React.FC = () => {
     search: ''
   });
   const [isRouteSectionOpen, setIsRouteSectionOpen] = React.useState(true);
+
+  const fetchSuggestions = React.useCallback(async (article: Partial<BlogArticle>) => {
+    if (!article.country && !article.primaryRoute?.countryTag) {
+        setSuggestedImages([]);
+        return;
+    }
+    
+    setLoadingSuggestions(true);
+    try {
+        const country = article.primaryRoute?.countryTag || article.country;
+        const city = article.primaryRoute?.cityTag;
+        
+        const params = new URLSearchParams();
+        if (country) params.append('country', country);
+        if (city) params.append('city', city);
+        
+        const data = await adminFetch(`/api/admin/blog/location-images?${params.toString()}`);
+        setSuggestedImages(data || []);
+    } catch (err) {
+        console.error('Failed to fetch suggestions:', err);
+    } finally {
+        setLoadingSuggestions(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (isArticleModalOpen && editingArticle) {
+      fetchSuggestions(editingArticle);
+    }
+  }, [isArticleModalOpen, editingArticle?.primaryRoute?.id, editingArticle?.country]);
 
   React.useEffect(() => {
     fetchData();
@@ -867,19 +909,21 @@ const BlogManagement: React.FC = () => {
                 <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Image</th>
                 <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Country</th>
                 <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">City</th>
+                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Area</th>
+                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Topic</th>
                 <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-20 text-center">
+                  <td colSpan={6} className="px-6 py-20 text-center">
                     <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : (locationImages.length === 0 && unmappedLocations.length === 0) ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-20 text-center text-slate-400">
+                  <td colSpan={6} className="px-6 py-20 text-center text-slate-400">
                     No locations found in articles or defined in settings.
                   </td>
                 </tr>
@@ -891,7 +935,9 @@ const BlogManagement: React.FC = () => {
                         <img src={img.imageUrl} alt={img.cityTag || img.countryTag} className="w-16 h-10 object-cover rounded shadow-sm" />
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900 uppercase">{img.countryTag}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.cityTag || 'DEFAULT (ALL CITIES)'}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.cityTag || 'DEFAULT'}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.areaTag || '-'}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-emerald-600 uppercase">{img.topicTag || '-'}</td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button 
@@ -919,6 +965,8 @@ const BlogManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900 uppercase opacity-60">{loc.countryTag}</td>
                       <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase opacity-60">{loc.cityTag || 'DEFAULT'}</td>
+                      <td className="px-6 py-4 opacity-60">-</td>
+                      <td className="px-6 py-4 opacity-60">-</td>
                       <td className="px-6 py-4 text-right">
                         <button 
                           onClick={() => { setEditingLocationImage({ countryTag: loc.countryTag, cityTag: loc.cityTag || '' }); setIsLocationImageModalOpen(true); }}
@@ -1399,12 +1447,44 @@ const BlogManagement: React.FC = () => {
                       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
                         <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Images</h3>
                         
+                        {/* Image Suggestions */}
+                        {suggestedImages.length > 0 && (
+                          <div className="mb-6">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                              <ImageIcon size={12} className="text-emerald-500" /> Recommended Images for {editingArticle.primaryRoute?.destinationName || editingArticle.country || 'Location'}
+                            </h4>
+                            <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                              {suggestedImages.map(img => (
+                                <button
+                                  key={img.id}
+                                  onClick={() => setEditingArticle({
+                                    ...editingArticle, 
+                                    featuredImage: img.imageUrl,
+                                    imageAltText: img.altText || editingArticle.imageAltText,
+                                    imageCaption: img.caption || editingArticle.imageCaption
+                                  })}
+                                  className="flex-shrink-0 w-24 aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-emerald-500 transition-all group relative"
+                                >
+                                  <img src={img.imageUrl} className="w-full h-full object-cover" alt="Suggested" />
+                                  <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                    <Plus size={16} className="text-white" />
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="space-y-4">
                           <ImageUploadField 
                             label="Hero Image"
                             placeholder="Hero image URL..."
                             value={editingArticle.featuredImage || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, featuredImage: e.target.value})}
+                            onLibraryOpen={() => {
+                              setTargetImageField('featuredImage');
+                              setIsMediaLibraryOpen(true);
+                            }}
                           />
 
                           <ImageUploadField 
@@ -1412,6 +1492,10 @@ const BlogManagement: React.FC = () => {
                             placeholder="Desktop image URL..."
                             value={editingArticle.desktopImage || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, desktopImage: e.target.value})}
+                            onLibraryOpen={() => {
+                              setTargetImageField('desktopImage');
+                              setIsMediaLibraryOpen(true);
+                            }}
                           />
                           
                           <ImageUploadField 
@@ -1419,6 +1503,10 @@ const BlogManagement: React.FC = () => {
                             placeholder="Mobile image URL..."
                             value={editingArticle.mobileImage || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, mobileImage: e.target.value})}
+                            onLibraryOpen={() => {
+                              setTargetImageField('mobileImage');
+                              setIsMediaLibraryOpen(true);
+                            }}
                           />
 
                           <ImageUploadField 
@@ -1426,6 +1514,10 @@ const BlogManagement: React.FC = () => {
                             placeholder="Thumbnail image URL..."
                             value={editingArticle.thumbnailImage || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, thumbnailImage: e.target.value})}
+                            onLibraryOpen={() => {
+                              setTargetImageField('thumbnailImage');
+                              setIsMediaLibraryOpen(true);
+                            }}
                           />
 
                           <ImageUploadField 
@@ -1433,6 +1525,10 @@ const BlogManagement: React.FC = () => {
                             placeholder="Open Graph image URL..."
                             value={editingArticle.openGraphImage || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, openGraphImage: e.target.value})}
+                            onLibraryOpen={() => {
+                              setTargetImageField('openGraphImage');
+                              setIsMediaLibraryOpen(true);
+                            }}
                           />
 
                           <ImageUploadField 
@@ -1440,6 +1536,10 @@ const BlogManagement: React.FC = () => {
                             placeholder="Twitter image URL..."
                             value={editingArticle.twitterCardImage || ''}
                             onChange={(e) => setEditingArticle({...editingArticle, twitterCardImage: e.target.value})}
+                            onLibraryOpen={() => {
+                              setTargetImageField('twitterCardImage');
+                              setIsMediaLibraryOpen(true);
+                            }}
                           />
 
                           <input
@@ -1704,29 +1804,88 @@ const BlogManagement: React.FC = () => {
                   </div>
                   <button type="button" onClick={() => setIsLocationImageModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20} /></button>
                 </div>
-                <div className="p-8 space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country Tag (e.g. jordan)</label>
-                    <input 
-                      type="text" required
-                      placeholder="e.g. jordan"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                      value={editingLocationImage.countryTag || ''}
-                      onChange={(e) => setEditingLocationImage({...editingLocationImage, countryTag: e.target.value.toLowerCase()})}
-                    />
+                <div className="p-8 space-y-6 overflow-y-auto max-h-[60vh]">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country Tag</label>
+                      <input 
+                        type="text" required
+                        placeholder="e.g. jordan"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                        value={editingLocationImage.countryTag || ''}
+                        onChange={(e) => setEditingLocationImage({...editingLocationImage, countryTag: e.target.value.toLowerCase()})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">City Tag</label>
+                      <input 
+                        type="text"
+                        placeholder="e.g. amman"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                        value={editingLocationImage.cityTag || ''}
+                        onChange={(e) => setEditingLocationImage({...editingLocationImage, cityTag: e.target.value.toLowerCase()})}
+                      />
+                    </div>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Area Tag (Neighborhood)</label>
+                      <input 
+                        type="text"
+                        placeholder="e.g. abdoun"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                        value={editingLocationImage.areaTag || ''}
+                        onChange={(e) => setEditingLocationImage({...editingLocationImage, areaTag: e.target.value.toLowerCase()})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Topic Tag</label>
+                      <input 
+                        type="text"
+                        placeholder="e.g. driving, parking, food"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                        value={editingLocationImage.topicTag || ''}
+                        onChange={(e) => setEditingLocationImage({...editingLocationImage, topicTag: e.target.value.toLowerCase()})}
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">City Tag (e.g. amman)</label>
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Image Title</label>
                     <input 
                       type="text"
-                      placeholder="e.g. amman (leave empty for country default)"
+                      placeholder="Descriptive title for the library"
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                      value={editingLocationImage.cityTag || ''}
-                      onChange={(e) => setEditingLocationImage({...editingLocationImage, cityTag: e.target.value.toLowerCase()})}
+                      value={editingLocationImage.title || ''}
+                      onChange={(e) => setEditingLocationImage({...editingLocationImage, title: e.target.value})}
                     />
-                    <p className="text-[9px] text-slate-400 italic">Leave empty to apply this image to all articles in this country that don't have a specific city image.</p>
                   </div>
-                  <div className="space-y-2">
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Alt Text (SEO)</label>
+                      <input 
+                        type="text"
+                        placeholder="SEO friendly alt text"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                        value={editingLocationImage.altText || ''}
+                        onChange={(e) => setEditingLocationImage({...editingLocationImage, altText: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Caption</label>
+                      <input 
+                        type="text"
+                        placeholder="Visible image caption"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                        value={editingLocationImage.caption || ''}
+                        onChange={(e) => setEditingLocationImage({...editingLocationImage, caption: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
                     <ImageUploadField 
                       label="Hero Image URL"
                       placeholder="Select or paste high-quality image URL"
@@ -1746,6 +1905,39 @@ const BlogManagement: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Image Library Modal */}
+      {isMediaLibraryOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-slate-900/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-6xl h-full max-h-[85vh]"
+          >
+            <MediaLibrary 
+              onClose={() => setIsMediaLibraryOpen(false)}
+              initialFilters={{
+                country: editingArticle?.primaryRoute?.countryTag || editingArticle?.country,
+                city: editingArticle?.primaryRoute?.cityTag
+              }}
+              onSelect={(image) => {
+                if (targetImageField && editingArticle) {
+                  setEditingArticle({
+                    ...editingArticle,
+                    [targetImageField]: image.imageUrl,
+                    // Also update alt text/caption if target is hero/featured
+                    ...(targetImageField === 'featuredImage' ? {
+                      imageAltText: image.altText || editingArticle.imageAltText,
+                      imageCaption: image.caption || editingArticle.imageCaption
+                    } : {})
+                  });
+                }
+                setIsMediaLibraryOpen(false);
+              }}
+            />
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

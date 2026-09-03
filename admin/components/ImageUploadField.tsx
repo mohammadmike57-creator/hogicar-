@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import Upload from 'lucide-react/dist/esm/icons/upload';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import X from 'lucide-react/dist/esm/icons/x';
+import ImageIcon from 'lucide-react/dist/esm/icons/image';
 import { adminFetch } from '../../lib/adminApi';
 import { API_BASE_URL } from '../../lib/config';
 
@@ -12,9 +13,10 @@ interface ImageUploadFieldProps {
   onChange: (e: any) => void;
   placeholder?: string;
   helperText?: string;
+  onLibraryOpen?: () => void;
 }
 
-const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onChange, placeholder, helperText }) => {
+const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onChange, placeholder, helperText, onLibraryOpen }) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -115,6 +117,17 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
           {uploading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
           Upload
         </button>
+
+        {onLibraryOpen && (
+          <button 
+            type="button"
+            onClick={onLibraryOpen}
+            className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-card text-[10px] font-extrabold uppercase tracking-widest transition-all flex items-center gap-2"
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            Library
+          </button>
+        )}
       </div>
       {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
     </div>

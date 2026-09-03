@@ -265,6 +265,14 @@ const BlogArticle: React.FC = () => {
         </div>
       </div>
 
+      {article.imageCaption && (
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
+            {article.imageCaption}
+          </p>
+        </div>
+      )}
+
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-16">
           
