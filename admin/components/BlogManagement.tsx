@@ -60,6 +60,13 @@ interface BlogTag {
   slug: string;
 }
 
+interface BlogLocationImage {
+  id: number;
+  countryTag: string;
+  cityTag: string | null;
+  imageUrl: string;
+}
+
 interface BlogArticle {
   id: number;
   title: string;
@@ -109,14 +116,17 @@ interface BlogArticle {
 }
 
 const BlogManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'articles' | 'categories'>('articles');
+  const [activeTab, setActiveTab] = React.useState<'articles' | 'categories' | 'location-images'>('articles');
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [categories, setCategories] = React.useState<BlogCategory[]>([]);
+  const [locationImages, setLocationImages] = React.useState<BlogLocationImage[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [isArticleModalOpen, setIsArticleModalOpen] = React.useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = React.useState(false);
+  const [isLocationImageModalOpen, setIsLocationImageModalOpen] = React.useState(false);
   const [editingArticle, setEditingArticle] = React.useState<Partial<BlogArticle> | null>(null);
   const [editingCategory, setEditingCategory] = React.useState<Partial<BlogCategory> | null>(null);
+  const [editingLocationImage, setEditingLocationImage] = React.useState<Partial<BlogLocationImage> | null>(null);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedArticles, setSelectedArticles] = React.useState<number[]>([]);
   const [filters, setFilters] = React.useState({
@@ -214,6 +224,9 @@ const BlogManagement: React.FC = () => {
         setArticles(res.content || []);
         setTotalPages(res.totalPages || 0);
         setTotalElements(res.totalElements || 0);
+      } else if (activeTab === 'location-images') {
+        const res = await adminFetch('/api/admin/blog/location-images');
+        setLocationImages(res || []);
       }
       // Always fetch categories as they are needed for article editing
       const catRes = await adminFetch('/api/admin/blog/categories');
@@ -282,6 +295,20 @@ const BlogManagement: React.FC = () => {
     }
   };
 
+  const handleSaveLocationImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await adminFetch('/api/admin/blog/location-images', {
+        method: 'POST',
+        body: JSON.stringify(editingLocationImage)
+      });
+      setIsLocationImageModalOpen(false);
+      fetchData();
+    } catch (error) {
+      alert('Failed to save location image');
+    }
+  };
+
   const handleDeleteArticle = async (id: number) => {
     if (!confirm('Are you sure you want to delete this article?')) return;
     try {
@@ -289,6 +316,16 @@ const BlogManagement: React.FC = () => {
       fetchData();
     } catch (error) {
       alert('Failed to delete article');
+    }
+  };
+
+  const handleDeleteLocationImage = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this location image?')) return;
+    try {
+      await adminFetch(`/api/admin/blog/location-images/${id}`, { method: 'DELETE' });
+      fetchData();
+    } catch (error) {
+      alert('Failed to delete location image');
     }
   };
 
@@ -395,6 +432,12 @@ const BlogManagement: React.FC = () => {
           >
             Categories
           </button>
+          <button 
+            onClick={() => setActiveTab('location-images')}
+            className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${activeTab === 'location-images' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            Location Images
+          </button>
         </div>
         <div className="flex gap-2">
           {activeTab === 'articles' && (
@@ -422,19 +465,22 @@ const BlogManagement: React.FC = () => {
                   live: false
                 });
                 setIsArticleModalOpen(true);
-              } else {
+              } else if (activeTab === 'categories') {
                 setEditingCategory({});
                 setIsCategoryModalOpen(true);
+              } else {
+                setEditingLocationImage({});
+                setIsLocationImageModalOpen(true);
               }
             }}
             className="bg-indigo-600 text-white px-6 py-2.5 rounded-card text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 uppercase tracking-widest"
           >
-            <Plus size={18} strokeWidth={3} /> {activeTab === 'articles' ? 'New Article' : 'New Category'}
+            <Plus size={18} strokeWidth={3} /> {activeTab === 'articles' ? 'New Article' : activeTab === 'categories' ? 'New Category' : 'New Location Image'}
           </button>
         </div>
       </div>
 
-      {activeTab === 'articles' ? (
+      {activeTab === 'articles' && (
         <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -744,7 +790,9 @@ const BlogManagement: React.FC = () => {
             </div>
           )}
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'categories' && (
         <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
           <table className="w-full text-left">
             <thead>
@@ -783,6 +831,60 @@ const BlogManagement: React.FC = () => {
                       </button>
                       <button 
                         onClick={() => handleDeleteCategory(cat.id)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {activeTab === 'location-images' && (
+        <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-100">
+                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Image</th>
+                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Country</th>
+                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">City</th>
+                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-20 text-center">
+                    <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin mx-auto" />
+                  </td>
+                </tr>
+              ) : locationImages.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-20 text-center text-slate-400">
+                    No location images defined.
+                  </td>
+                </tr>
+              ) : locationImages.map((img) => (
+                <tr key={img.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <img src={img.imageUrl} alt={img.cityTag || img.countryTag} className="w-16 h-10 object-cover rounded shadow-sm" />
+                  </td>
+                  <td className="px-6 py-4 font-bold text-slate-900 uppercase">{img.countryTag}</td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.cityTag || 'DEFAULT (ALL CITIES)'}</td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => { setEditingLocationImage(img); setIsLocationImageModalOpen(true); }}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteLocationImage(img.id)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                       >
                         <Trash2 size={16} />
@@ -1528,6 +1630,77 @@ const BlogManagement: React.FC = () => {
                   <button type="button" onClick={() => setIsCategoryModalOpen(false)} className="px-6 py-2 text-xs font-bold text-slate-600">Cancel</button>
                   <button type="submit" className="bg-slate-900 text-white px-8 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                     <Save size={16} /> Save Category
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Location Image Modal */}
+      <AnimatePresence>
+        {isLocationImageModalOpen && editingLocationImage && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={() => setIsLocationImageModalOpen(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden"
+            >
+              <form onSubmit={handleSaveLocationImage}>
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-slate-900 p-2 rounded-xl text-white">
+                      <ImageIcon size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                        {editingLocationImage.id ? 'Edit Location Image' : 'New Location Image'}
+                      </h2>
+                      <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Map Country/City to Blog Hero Image</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => setIsLocationImageModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20} /></button>
+                </div>
+                <div className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country Tag (e.g. jordan)</label>
+                    <input 
+                      type="text" required
+                      placeholder="e.g. jordan"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                      value={editingLocationImage.countryTag || ''}
+                      onChange={(e) => setEditingLocationImage({...editingLocationImage, countryTag: e.target.value.toLowerCase()})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">City Tag (e.g. amman)</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. amman (leave empty for country default)"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
+                      value={editingLocationImage.cityTag || ''}
+                      onChange={(e) => setEditingLocationImage({...editingLocationImage, cityTag: e.target.value.toLowerCase()})}
+                    />
+                    <p className="text-[9px] text-slate-400 italic">Leave empty to apply this image to all articles in this country that don't have a specific city image.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <ImageUploadField 
+                      label="Hero Image URL"
+                      placeholder="Select or paste high-quality image URL"
+                      value={editingLocationImage.imageUrl || ''}
+                      onChange={(e) => setEditingLocationImage({...editingLocationImage, imageUrl: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
+                  <button type="button" onClick={() => setIsLocationImageModalOpen(false)} className="px-6 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all">Cancel</button>
+                  <button type="submit" className="bg-slate-900 text-white px-8 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg">
+                    <Save size={16} /> Save Mapping
                   </button>
                 </div>
               </form>
