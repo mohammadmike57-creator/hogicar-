@@ -914,7 +914,7 @@ const BlogManagement: React.FC = () => {
                     <tr key={`unmapped-${idx}`} className="bg-amber-50/30 hover:bg-amber-50/50 transition-colors border-l-4 border-amber-400">
                       <td className="px-6 py-4">
                         <div className="w-16 h-10 bg-slate-100 rounded flex items-center justify-center text-slate-300">
-                          <Image size={20} />
+                          <ImageIcon size={20} />
                         </div>
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900 uppercase opacity-60">{loc.countryTag}</td>
