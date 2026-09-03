@@ -27,23 +27,13 @@ const Layout: React.FC = () => {
   const location = useLocation();
 
   const isHomePage = location.pathname === '/' || location.pathname === '/ar' || location.pathname === '/ar/';
-  const isAppPage = location.pathname.startsWith('/search') || 
-                    location.pathname.startsWith('/searching') || 
-                    location.pathname.startsWith('/car/') || 
-                    location.pathname.startsWith('/book/') ||
-                    location.pathname.startsWith('/my-bookings') ||
-                    location.pathname.startsWith('/confirmation') ||
-                    location.pathname.startsWith('/voucher') ||
-                    location.pathname.startsWith('/leave-review/') ||
-                    location.pathname.startsWith('/affiliate-program') ||
-                    location.pathname.startsWith('/become-supplier') ||
-                    location.pathname.startsWith('/careers') ||
-                    location.pathname.startsWith('/contact') ||
-                    location.pathname.startsWith('/about') ||
-                    location.pathname.startsWith('/blog') ||
-                    location.pathname.startsWith('/sitemap');
+  const isSearchOrBookingPage = location.pathname.startsWith('/search') || 
+                                location.pathname.startsWith('/searching') || 
+                                location.pathname.startsWith('/book/') ||
+                                location.pathname.startsWith('/confirmation') ||
+                                location.pathname.startsWith('/voucher');
 
-  const shouldShowFooter = isHomePage && !isAppPage;
+  const shouldShowFooter = !isSearchOrBookingPage;
 
   React.useEffect(() => {
     const handleScroll = () => {
