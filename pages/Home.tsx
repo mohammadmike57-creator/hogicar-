@@ -578,6 +578,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
         twitterDescription={seoConfig?.twitterDescription}
         noIndex={seoConfig ? !seoConfig.indexable : undefined}
         structuredData={seoConfig?.structuredData}
+        config={seoConfig}
         preloadImageUrl={shouldPreloadHeroImage ? heroBackgroundImage : undefined}
         preloadImageSrcSet={shouldPreloadHeroImage ? (heroWebpSrcSet || heroPngSrcSet) : undefined}
       />

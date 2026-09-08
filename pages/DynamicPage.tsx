@@ -136,21 +136,11 @@ const DynamicPage: React.FC = () => {
           if (routeType === 'country' || routeType === 'rentACar') seoRouteType = 'COUNTRY';
           if (routeType === 'airportCarRental' || routeType === 'cheapAirport' || routeType === 'airportSpecific') seoRouteType = 'AIRPORT';
 
-          // Robust H1 extraction using unicode escapes for en-dash, pipe and hyphen
-          // Hyphen is at the end of the character class to avoid range errors
-          const rawTitle = dynamicSEO.title || '';
-          const h1Parts = rawTitle.split(/\s+[\u2013|\-]\s+/);
-          const h1Title = h1Parts[0] || 'Car Rental';
-
           const fallbackConfig = {
+            ...dynamicSEO,
             route: route,
             routeType: seoRouteType,
-            title: dynamicSEO.title,
-            description: dynamicSEO.description,
-            canonicalUrl: dynamicSEO.canonicalUrl,
-            introText: dynamicSEO.introText,
-            h1Title: h1Title,
-            destinationName: locationSlug ? locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Destination',
+            destinationName: dynamicSEO.destinationName || (locationSlug ? locationSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Destination'),
             indexable: true,
             showHero: true,
             showSearch: true,

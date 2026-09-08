@@ -393,12 +393,10 @@ export const getRouteSEO = (routeType: string, cityOrCountry: string, fullPath: 
 
   const canonical = canonicalMap[routeType] 
     ? `https://www.hogicar.com${canonicalMap[routeType]}`
-    : `https://www.hogicar.com${fullPath}`;
+    : (defaults.canonicalUrl || `https://www.hogicar.com${fullPath}`);
 
   return {
-    title: defaults.title,
-    description: defaults.description,
-    introText: defaults.introText,
+    ...defaults,
     canonicalUrl: canonical,
     canonical: canonical,
   };
