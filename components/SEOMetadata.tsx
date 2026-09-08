@@ -67,6 +67,21 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const finalTwitterDesc = propTwitterDescription || config?.twitterDescription || description;
 
   const schemaToInject = structuredData || config?.structuredData || (schema ? JSON.stringify(schema) : null);
+  
+  // Generate WebPage schema if not already present in schemaToInject
+  const webpageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": title,
+    "description": description,
+    "url": canonical,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Hogicar",
+      "url": "https://www.hogicar.com/"
+    }
+  };
+
   const lang = config?.lang || 'en';
   const alternateRoute = config?.alternateRoute;
 
@@ -122,6 +137,12 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       {schemaToInject && (
         <script type="application/ld+json" id="seo-schema">
           {typeof schemaToInject === 'string' ? schemaToInject : JSON.stringify(schemaToInject)}
+        </script>
+      )}
+      
+      {!schemaToInject?.includes('"WebPage"') && (
+        <script type="application/ld+json" id="webpage-schema">
+          {JSON.stringify(webpageSchema)}
         </script>
       )}
 

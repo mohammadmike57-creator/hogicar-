@@ -147,6 +147,32 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
   const countryName = getCountryName(locationData?.countryCode || slug);
   const airportCode = locationData?.iataCode || '';
 
+  // Specific override for Amman to meet strict requirements
+  if (slug === 'amman' && routeType === 'carRental') {
+    return {
+      title: 'Car Rental in Amman, Jordan | Compare & Book Online | Hogicar',
+      description: 'Rent a car in Amman with Hogicar. Compare best deals from top suppliers, enjoy free cancellation, and find the perfect vehicle for your Jordan trip. Book online today!',
+      keywords: 'car rental amman, rent a car amman, car hire amman, amman car rental jordan',
+      canonicalUrl: 'https://www.hogicar.com/car-rental-amman',
+      introText: 'Experience the best car rental in Amman with Hogicar. Compare top suppliers, enjoy free cancellation, and find the perfect car for your Jordan trip today.',
+      ogImage: 'https://www.hogicar.com/android-chrome-512x512.png',
+      primaryKeyword: 'car rental Amman',
+      searchIntent: 'Commercial',
+      breadcrumbTitle: 'Amman',
+      ogTitle: 'Car Rental in Amman, Jordan | Compare & Book Online | Hogicar',
+      twitterTitle: 'Car Rental in Amman, Jordan | Compare & Book Online | Hogicar',
+      imageAltText: 'Car Rental in Amman',
+      imageTitle: 'Car Rental in Amman',
+      indexable: true,
+      published: true,
+      destinationName: 'Amman',
+      countryTag: 'Jordan',
+      h1Title: 'Car Rental in Amman',
+      airportTags: '',
+      alternateRoute: '/ar/تأجير-سيارات-في-عمان'
+    };
+  }
+
   const titles: Record<string, string> = {
     carRental: `Car Rental in ${displayName} | Best Deals & Rates`,
     carHire: `Car Hire ${displayName} | Compare Best Deals`,

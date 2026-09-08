@@ -530,7 +530,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
   const breadcrumbItems = React.useMemo(() => {
     if (!seoConfig) return [];
-    const items = [{ name: 'Home', route: '/' }];
+    const items = [];
     try {
       if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
         const countrySlug = seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-');
