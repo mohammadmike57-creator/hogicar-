@@ -170,6 +170,24 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
       destinationName: 'Amman',
       countryTag: 'Jordan',
       h1Title: 'Car Rental in Amman',
+      content: `
+        <div class="seo-content-section">
+          <h2>Experience the Best Car Rental in Amman</h2>
+          <p>Renting a car in Amman is the perfect way to explore Jordan's capital and its surrounding historical sites. With Hogicar, you can compare deals from top-rated global and local suppliers to find the ideal vehicle for your journey.</p>
+          
+          <h3>Why Rent a Car in Amman?</h3>
+          <p>Amman is a sprawling city built on seven hills, and having your own vehicle offers unparalleled freedom to visit the Citadel, the Roman Theater, and various upscale neighborhoods at your own pace. Moreover, Amman serves as the perfect base for day trips to the Dead Sea, Mount Nebo, and the ancient city of Jerash.</p>
+          
+          <h3>Top Tips for Car Hire in Amman</h3>
+          <ul>
+            <li><strong>Book Early:</strong> Secure the best rates by booking at least two weeks in advance.</li>
+            <li><strong>Documentation:</strong> Ensure you have a valid driver's license and passport.</li>
+            <li><strong>Insurance:</strong> Consider full coverage for peace of mind while navigating the city's busy streets.</li>
+          </ul>
+          
+          <p>Whether you need a compact car for city driving or a spacious SUV for a family road trip across Jordan, Hogicar provides transparent pricing with no hidden fees and free cancellation on most bookings.</p>
+        </div>
+      `,
       airportTags: '',
       alternateRoute: '/ar/تأجير-سيارات-في-عمان'
     };
