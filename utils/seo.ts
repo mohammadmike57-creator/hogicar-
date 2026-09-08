@@ -150,7 +150,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
   // Specific override for Amman to meet strict requirements
   if (slug === 'amman' && routeType === 'carRental') {
     const title = 'Car Rental in Amman, Jordan | Compare & Book Online | Hogicar';
-    const description = 'Rent a car in Amman with Hogicar. Compare best deals from top suppliers, enjoy free cancellation, and find the perfect vehicle for your Jordan trip. Book online today!';
+    const description = 'Compare car rental deals in Amman, Jordan with Hogicar. Find rental cars at Queen Alia Airport and city locations and book online.';
     const canonicalUrl = 'https://www.hogicar.com/car-rental-amman';
     const imageUrl = 'https://www.hogicar.com/android-chrome-512x512.png';
 
@@ -159,7 +159,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
       description,
       keywords: 'car rental amman, rent a car amman, car hire amman, amman car rental jordan',
       canonicalUrl,
-      introText: 'Experience the best car rental in Amman with Hogicar. Compare top suppliers, enjoy free cancellation, and find the perfect car for your Jordan trip today.',
+      introText: 'Find the best car rental deals in Amman with Hogicar. Compare top suppliers at Queen Alia International Airport and city locations for your Jordan trip.',
       ogImage: imageUrl,
       primaryKeyword: 'car rental Amman',
       searchIntent: 'Commercial',
@@ -175,7 +175,40 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
       lang: 'en',
       destinationName: 'Amman',
       countryTag: 'Jordan',
+      countryRoute: '/car-rental-jo',
       h1Title: 'Car Rental in Amman',
+      faqItems: [
+        {
+          question: 'What documents do I need to rent a car in Amman?',
+          answer: 'You typically need a valid driver\'s license from your home country, your passport, and a major credit card for the security deposit. An International Driving Permit (IDP) is recommended if your license is not in English or Arabic. Requirements can vary by supplier, so always check the specific rental terms.',
+          icon: 'FileText'
+        },
+        {
+          question: 'What is the minimum age to rent a car in Amman?',
+          answer: 'The minimum age is usually 21, but some suppliers may require drivers to be 25 or older for certain vehicle categories. Drivers under 25 may also be subject to a "young driver fee". Specific age requirements depend on the car rental provider.',
+          icon: 'User'
+        },
+        {
+          question: 'Can I rent a car at Queen Alia International Airport?',
+          answer: 'Yes, Queen Alia International Airport (AMM) has several car rental desks located in the arrivals hall. You can book in advance through Hogicar to ensure your vehicle is ready when you land.',
+          icon: 'Plane'
+        },
+        {
+          question: 'Do rental cars in Amman require a security deposit?',
+          answer: 'Yes, almost all car rental suppliers in Amman require a security deposit. This is usually held as a pre-authorization on the main driver\'s credit card and is released after the car is returned without damage.',
+          icon: 'Wallet'
+        },
+        {
+          question: 'Can I rent an automatic car in Amman?',
+          answer: 'Yes, automatic cars are widely available for rent in Amman. While manual cars exist, most rental fleets in Jordan predominantly feature automatic transmissions for comfort and ease of driving.',
+          icon: 'Zap'
+        },
+        {
+          question: 'Can I return my rental car in another city in Jordan?',
+          answer: 'One-way rentals are often possible (e.g., picking up in Amman and dropping off in Aqaba), but they may incur an additional one-way fee. Availability and fees depend on the specific supplier.',
+          icon: 'ArrowRight'
+        }
+      ],
       structuredData: JSON.stringify([
         {
           "@context": "https://schema.org",
@@ -189,52 +222,91 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
             "name": "Hogicar",
             "url": "https://www.hogicar.com/"
           },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Hogicar",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://www.hogicar.com/android-chrome-512x512.png"
+            }
+          },
           "breadcrumb": {
             "@id": "https://www.hogicar.com/car-rental-amman#breadcrumb"
           }
         },
         {
           "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          "@id": "https://www.hogicar.com/car-rental-amman#breadcrumb",
-          "itemListElement": [
+          "@type": "FAQPage",
+          "mainEntity": [
             {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Home",
-              "item": "https://www.hogicar.com/"
+              "@type": "Question",
+              "name": "What documents do I need to rent a car in Amman?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You typically need a valid driver's license from your home country, your passport, and a major credit card for the security deposit. An International Driving Permit (IDP) is recommended if your license is not in English or Arabic. Requirements can vary by supplier, so always check the specific rental terms."
+              }
             },
             {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "Jordan",
-              "item": "https://www.hogicar.com/jordan"
+              "@type": "Question",
+              "name": "What is the minimum age to rent a car in Amman?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The minimum age is usually 21, but some suppliers may require drivers to be 25 or older for certain vehicle categories. Drivers under 25 may also be subject to a \"young driver fee\". Specific age requirements depend on the car rental provider."
+              }
             },
             {
-              "@type": "ListItem",
-              "position": 3,
-              "name": "Amman",
-              "item": canonicalUrl
+              "@type": "Question",
+              "name": "Can I rent a car at Queen Alia International Airport?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, Queen Alia International Airport (AMM) has several car rental desks located in the arrivals hall. You can book in advance through Hogicar to ensure your vehicle is ready when you land."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do rental cars in Amman require a security deposit?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, almost all car rental suppliers in Amman require a security deposit. This is usually held as a pre-authorization on the main driver's credit card and is released after the car is returned without damage."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I rent an automatic car in Amman?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, automatic cars are widely available for rent in Amman. While manual cars exist, most rental fleets in Jordan predominantly feature automatic transmissions for comfort and ease of driving."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I return my rental car in another city in Jordan?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "One-way rentals are often possible (e.g., picking up in Amman and dropping off in Aqaba), but they may incur an additional one-way fee. Availability and fees depend on the specific supplier."
+              }
             }
           ]
         }
       ]),
       content: `
         <div class="seo-content-section">
-          <h2>Experience the Best Car Rental in Amman</h2>
-          <p>Renting a car in Amman is the perfect way to explore Jordan's capital and its surrounding historical sites. With Hogicar, you can compare deals from top-rated global and local suppliers to find the ideal vehicle for your journey.</p>
+          <h2>Car Hire in Amman: Your Gateway to Jordan</h2>
+          <p>Finding a reliable <a href="/car-rental-amman">car rental in Amman</a> is essential for travelers who want to explore Jordan beyond the city limits. Amman is a vibrant city with a rich history, and having a rental car allows you to visit major landmarks like the Citadel and the Roman Theater with ease.</p>
           
-          <h3>Why Rent a Car in Amman?</h3>
-          <p>Amman is a sprawling city built on seven hills, and having your own vehicle offers unparalleled freedom to visit the Citadel, the Roman Theater, and various upscale neighborhoods at your own pace. Moreover, Amman serves as the perfect base for day trips to the Dead Sea, Mount Nebo, and the ancient city of Jerash.</p>
+          <h3>Queen Alia International Airport Car Rental</h3>
+          <p>Most travelers choose to pick up their rental car at <a href="/queen-alia-airport-car-rental">Queen Alia International Airport (AMM)</a>. All major international and local car rental companies have desks at the airport, providing convenient access to your vehicle immediately upon arrival. Alternatively, city locations in West Amman and Abdali offer flexible pickup options.</p>
           
-          <h3>Top Tips for Car Hire in Amman</h3>
-          <ul>
-            <li><strong>Book Early:</strong> Secure the best rates by booking at least two weeks in advance.</li>
-            <li><strong>Documentation:</strong> Ensure you have a valid driver's license and passport.</li>
-            <li><strong>Insurance:</strong> Consider full coverage for peace of mind while navigating the city's busy streets.</li>
-          </ul>
+          <h3>Driving and Parking in Amman</h3>
+          <p>Driving in Amman can be a unique experience with its hilly terrain and busy traffic. Main areas like Abdoun and Shmeisani are well-connected, but be prepared for congestion during peak hours. Most hotels and malls offer parking, though street parking in downtown Amman can be challenging.</p>
           
-          <p>Whether you need a compact car for city driving or a spacious SUV for a family road trip across Jordan, Hogicar provides transparent pricing with no hidden fees and free cancellation on most bookings.</p>
+          <h3>Explore Jordan from Amman</h3>
+          <p>Amman is perfectly situated for day trips. With your rental car, you can drive to the Dead Sea (approx. 1 hour) or the ancient Roman city of Jerash. For longer trips, consider a <a href="/car-rental-jo">car rental in Jordan</a> to visit Petra and Wadi Rum.</p>
+          
+          <h3>Rental Options in Amman</h3>
+          <p>Whether you are looking for a <a href="/cheap-car-rental-amman">cheap car rental in Amman</a> for city errands, a <a href="/luxury-car-rental-amman">luxury car hire</a> for a special occasion, or a <a href="/suv-rental-amman">SUV rental</a> for family adventures, Hogicar connects you with the best options. We also offer <a href="/van-rental-amman">van rentals</a> for larger groups and <a href="/monthly-car-rental-amman">monthly car rentals</a> for extended stays.</p>
+          
+          <p><em>Note: Requirements and rental conditions vary by supplier and vehicle. Check the individual rental terms before booking.</em></p>
         </div>
       `,
       airportTags: '',

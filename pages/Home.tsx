@@ -534,9 +534,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
     try {
       if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
         const countrySlug = seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-');
+        const countryRoute = seoConfig.countryRoute || `/car-rental-${countrySlug}`;
         items.push({ 
           name: seoConfig.countryTag, 
-          route: `/car-rental-${countrySlug}` 
+          route: countryRoute 
         });
       }
       if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {

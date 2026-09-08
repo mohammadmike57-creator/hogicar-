@@ -19,6 +19,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, variant = 'dark' }) =>
   const breadcrumbList = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    "@id": `https://www.hogicar.com${items[items.length - 1]?.route || ''}#breadcrumb`,
     "itemListElement": [
       {
         "@type": "ListItem",
