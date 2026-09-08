@@ -176,6 +176,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
       destinationName: 'Amman',
       countryTag: 'Jordan',
       countryRoute: '/car-rental-jo',
+      alternateRoute: '/ar/تأجير-سيارات-في-عمان',
       h1Title: 'Car Rental in Amman',
       faqItems: [
         {
