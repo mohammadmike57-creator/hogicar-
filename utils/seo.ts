@@ -301,12 +301,15 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
           <h3>Driving and Parking in Amman</h3>
           <p>Driving in Amman can be a unique experience with its hilly terrain and busy traffic. Main areas like Abdoun and Shmeisani are well-connected, but be prepared for congestion during peak hours. Most hotels and malls offer parking, though street parking in downtown Amman can be challenging.</p>
           
+          <h3>Rental Requirements and Policies</h3>
+          <p>To rent a car in Amman, you generally need a valid license, passport, and a credit card for the security deposit. Insurance coverage and fuel policies vary between providers. Most suppliers offer a "full-to-full" fuel policy, ensuring you only pay for the fuel you use.</p>
+          
           <h3>Explore Jordan from Amman</h3>
           <p>Amman is perfectly situated for day trips. With your rental car, you can drive to the Dead Sea (approx. 1 hour) or the ancient Roman city of Jerash. For longer trips, consider a <a href="/car-rental-jo">car rental in Jordan</a> to visit Petra and Wadi Rum.</p>
           
           <h3>Rental Options in Amman</h3>
-          <p>Whether you are looking for a <a href="/cheap-car-rental-amman">cheap car rental in Amman</a> for city errands, a <a href="/luxury-car-rental-amman">luxury car hire</a> for a special occasion, or a <a href="/suv-rental-amman">SUV rental</a> for family adventures, Hogicar connects you with the best options. We also offer <a href="/van-rental-amman">van rentals</a> for larger groups and <a href="/monthly-car-rental-amman">monthly car rentals</a> for extended stays.</p>
-          
+          <p>Whether you are looking for a <a href="/cheap-car-rental-amman">cheap car rental in Amman</a> for city errands, a <a href="/luxury-car-rental-amman">luxury car hire</a> for a special occasion, or a <a href="/suv-rental-amman">SUV rental</a> for family adventures, Hogicar connects you with the best options. We also offer <a href="/van-rental-amman">van rentals</a> for larger groups, <a href="/monthly-car-rental-amman">monthly car rentals</a>, and <a href="/long-term-rental-amman">long-term rentals</a> for extended stays.</p>
+
           <p><em>Note: Requirements and rental conditions vary by supplier and vehicle. Check the individual rental terms before booking.</em></p>
         </div>
       `,
