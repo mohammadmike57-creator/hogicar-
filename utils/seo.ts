@@ -313,8 +313,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
           <p><em>Note: Requirements and rental conditions vary by supplier and vehicle. Check the individual rental terms before booking.</em></p>
         </div>
       `,
-      airportTags: '',
-      alternateRoute: '/ar/تأجير-سيارات-في-عمان'
+      airportTags: ''
     };
   }
 

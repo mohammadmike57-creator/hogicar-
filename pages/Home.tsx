@@ -219,9 +219,10 @@ const normalizeHomepageContent = (content: any) => {
 
 interface HomeProps {
   seoConfig?: any;
+  skipSEO?: boolean;
 }
 
-const Home: React.FC<HomeProps> = ({ seoConfig }) => {
+const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
@@ -567,22 +568,24 @@ const Home: React.FC<HomeProps> = ({ seoConfig }) => {
 
   return (
     <div className="bg-white font-sans">
-      <SEOMetadata
-        title={seoConfig?.title}
-        description={seoConfig?.description}
-        keywords={seoConfig?.keywords}
-        canonicalUrl={seoConfig?.canonicalUrl}
-        ogImage={seoConfig?.ogImage}
-        ogTitle={seoConfig?.ogTitle}
-        ogDescription={seoConfig?.ogDescription}
-        twitterTitle={seoConfig?.twitterTitle}
-        twitterDescription={seoConfig?.twitterDescription}
-        noIndex={seoConfig ? !seoConfig.indexable : undefined}
-        structuredData={seoConfig?.structuredData}
-        config={seoConfig}
-        preloadImageUrl={shouldPreloadHeroImage ? heroBackgroundImage : undefined}
-        preloadImageSrcSet={shouldPreloadHeroImage ? (heroWebpSrcSet || heroPngSrcSet) : undefined}
-      />
+      {!skipSEO && (
+        <SEOMetadata
+          title={seoConfig?.title}
+          description={seoConfig?.description}
+          keywords={seoConfig?.keywords}
+          canonicalUrl={seoConfig?.canonicalUrl}
+          ogImage={seoConfig?.ogImage}
+          ogTitle={seoConfig?.ogTitle}
+          ogDescription={seoConfig?.ogDescription}
+          twitterTitle={seoConfig?.twitterTitle}
+          twitterDescription={seoConfig?.twitterDescription}
+          noIndex={seoConfig ? !seoConfig.indexable : undefined}
+          structuredData={seoConfig?.structuredData}
+          config={seoConfig}
+          preloadImageUrl={shouldPreloadHeroImage ? heroBackgroundImage : undefined}
+          preloadImageSrcSet={shouldPreloadHeroImage ? (heroWebpSrcSet || heroPngSrcSet) : undefined}
+        />
+      )}
       
       {/* 1. HERO & 2. SEARCH WIDGET */}
       {sections.hero && (

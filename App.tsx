@@ -21,6 +21,7 @@ const Contact = lazyRetry(() => import('./pages/Contact'));
 const BlogIndex = lazyRetry(() => import('./pages/BlogIndex'));
 const BlogArticle = lazyRetry(() => import('./pages/BlogArticle'));
 const DynamicPage = lazyRetry(() => import('./pages/DynamicPage'));
+const CarRentalAmman = lazyRetry(() => import('./pages/CarRentalAmman'));
 const Sitemap = lazyRetry(() => import('./pages/Sitemap'));
 const AffiliateProgram = lazyRetry(() => import('./pages/AffiliateProgram'));
 const BecomeSupplier = lazyRetry(() => import('./pages/BecomeSupplier'));
@@ -144,6 +145,9 @@ const App: React.FC = () => {
             <Route path="/blog/:slug" element={<BlogArticle />} />
             <Route path="/ar/blog/:slug" element={<BlogArticle />} />
             <Route path="/sitemap" element={<Sitemap />} />
+            
+            {/* Dedicated route for Amman Car Rental (SEO Priority) */}
+            <Route path="/car-rental-amman" element={<CarRentalAmman />} />
             
             {/* SEO Landing Pages (Explicitly defined for Googlebot) */}
             <Route path="/bahrain" element={<DynamicPage />} />
