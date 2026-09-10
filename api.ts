@@ -293,12 +293,13 @@ export const fetchHomepageFeaturedBlogs = async (): Promise<BlogArticle[]> => {
   }
 };
 
-export const fetchRelatedBlogs = async (route?: string, country?: string, airport?: string, limit: number = 6): Promise<BlogArticle[]> => {
+export const fetchRelatedBlogs = async (route?: string, country?: string, airport?: string, limit: number = 6, lang?: string): Promise<BlogArticle[]> => {
   try {
     const params = new URLSearchParams();
     if (route) params.append('route', route);
     if (country) params.append('country', country);
     if (airport) params.append('airport', airport);
+    if (lang) params.append('lang', lang);
     params.append('limit', limit.toString());
     
     const response = await publicAxios.get(`${API_BASE_URL}/api/public/blog/related?${params.toString()}`);

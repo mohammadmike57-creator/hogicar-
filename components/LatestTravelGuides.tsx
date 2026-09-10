@@ -30,18 +30,20 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
   subtitle,
   variant
 }) => {
-  const isHomepage = variant === 'HOMEPAGE' || route === '/';
+  const isArabic = route.startsWith('/ar') || window.location.pathname.startsWith('/ar');
+  const lang = isArabic ? 'ar' : 'en';
+  const isHomepage = variant === 'HOMEPAGE' || route === '/' || route === '/ar' || route === '/ar/';
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   // Default text based on context
-  const defaultTitle = route === '/' 
-    ? "Latest Travel Guides & Tips" 
-    : "Latest Travel Guides & Tips";
+  const defaultTitle = isArabic
+    ? (isHomepage ? "أحدث أدلة ونصائح السفر" : (destination ? `نصائح السفر إلى ${destination}` : "مقالات ذات صلة"))
+    : (isHomepage ? "Latest Travel Guides & Tips" : (destination ? `Travel Tips for ${destination}` : "Related Travel Guides"));
     
-  const defaultSubtitle = route === '/'
-    ? "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations from around the world."
-    : "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations related to this destination.";
+  const defaultSubtitle = isArabic
+    ? (isHomepage ? "اكتشف نصائح السفر، وأدلة الوجهات، ومعلومات المطارات، ونصائح القيادة، وتوصيات الخبراء من جميع أنحاء العالم." : "اكتشف نصائح السفر وأدلة الوجهات ومعلومات المطارات ونصائح القيادة وتوصيات الخبراء المتعلقة بهذه الوجهة.")
+    : (isHomepage ? "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations from around the world." : "Discover travel advice, destination guides, airport information, driving tips, and expert recommendations related to this destination.");
 
   const displayTitle = title || defaultTitle;
   const displaySubtitle = subtitle || defaultSubtitle;
@@ -51,10 +53,12 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
       setLoading(true);
       try {
         let data: BlogArticle[] = [];
-        if (route === '/') {
+        if (isHomepage) {
+          // fetchHomepageFeaturedBlogs needs to support lang too ideally, or we filter here
           data = await fetchHomepageFeaturedBlogs();
+          data = data.filter(a => a.lang === lang);
         } else {
-          data = await fetchRelatedBlogs(destination || route, country, airport, limit);
+          data = await fetchRelatedBlogs(destination || route, country, airport, limit, lang);
         }
         setArticles(data);
       } catch (error) {
@@ -65,7 +69,22 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
     };
 
     loadBlogs();
-  }, [route, country, airport, limit]);
+  }, [route, country, airport, limit, lang, destination, isHomepage]);
+
+  // Prefetch top article
+  React.useEffect(() => {
+    if (articles.length > 0) {
+      const topArticle = articles[0];
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = `/blog/${topArticle.slug}`;
+      if (isArabic) link.href = `/ar/blog/${topArticle.slug}`;
+      document.head.appendChild(link);
+      return () => {
+        try { document.head.removeChild(link); } catch(e) {}
+      };
+    }
+  }, [articles, isArabic]);
 
   if (!loading && articles.length === 0) return null;
 
@@ -80,7 +99,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
               viewport={{ once: true }}
               className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-black uppercase tracking-widest mb-6"
             >
-              Travel Insights
+              {isArabic ? "رؤى السفر" : "Travel Insights"}
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -108,11 +127,11 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
             viewport={{ once: true }}
           >
             <Link
-              to="/blog"
+              to={isArabic ? "/ar/blog" : "/blog"}
               className="inline-flex items-center px-6 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all group"
             >
-              View All Articles
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {isArabic ? "عرض جميع المقالات" : "View All Articles"}
+              <ArrowRight className={`${isArabic ? 'mr-2 rotate-180' : 'ml-2'} w-5 h-5 group-hover:translate-x-1 transition-transform`} />
             </Link>
           </motion.div>
         </div>
@@ -136,6 +155,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
                 article={article} 
                 index={index} 
                 largeImage={isHomepage}
+                isArabic={isArabic}
               />
             ))}
           </div>
@@ -145,7 +165,7 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
   );
 };
 
-const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boolean }> = ({ article, index, largeImage }) => {
+const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boolean; isArabic?: boolean }> = ({ article, index, largeImage, isArabic }) => {
   const imageUrl = article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800';
   
   const isLocalImage = imageUrl.includes('/uploads/hero/');
@@ -157,6 +177,8 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
       `${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_thumb.png')} 400w, ${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_medium.png')} 800w, ${imageUrl.replace(/\.(png|jpg|jpeg)/i, '_large.png')} 1600w`
       : undefined;
 
+  const blogLink = isArabic ? `/ar/blog/${article.slug}` : `/blog/${article.slug}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -165,7 +187,7 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
       transition={{ delay: index * 0.1 }}
       className="group"
     >
-      <Link to={`/blog/${article.slug}`} className="block">
+      <Link to={blogLink} className="block">
         <div className={`relative ${largeImage ? 'aspect-[16/10]' : 'aspect-[4/3]'} rounded-[2.5rem] overflow-hidden mb-8 shadow-xl shadow-slate-200/50`}>
           <img
             src={imageUrl}
@@ -177,7 +199,7 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           {article.category && (
-            <div className="absolute top-6 left-6">
+            <div className={`absolute top-6 ${isArabic ? 'right-6' : 'left-6'}`}>
               <span className="px-4 py-2 bg-white/95 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-700 shadow-lg">
                 {article.category.name}
               </span>
@@ -186,15 +208,15 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
           <div className="absolute inset-0 bg-emerald-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </div>
         
-        <div className="space-y-4 px-2">
-          <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
+        <div className={`space-y-4 ${isArabic ? 'text-right' : 'text-left'} px-2`}>
+          <div className={`flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400 ${isArabic ? 'flex-row-reverse' : ''}`}>
             <span className="flex items-center gap-2">
               <Calendar className="w-3 h-3 text-emerald-500" />
-              {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}
+              {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}
             </span>
             <span className="flex items-center gap-2">
               <Clock className="w-3 h-3 text-emerald-500" />
-              {article.readingTime || '5 min'}
+              {article.readingTime || (isArabic ? '٥ دقائق' : '5 min')}
             </span>
           </div>
           
@@ -206,11 +228,11 @@ const BlogCard: React.FC<{ article: BlogArticle; index: number; largeImage?: boo
             {article.excerpt}
           </p>
           
-          <div className="flex items-center justify-between pt-4">
+          <div className={`flex items-center justify-between pt-4 ${isArabic ? 'flex-row-reverse' : ''}`}>
              <div className="flex items-center text-emerald-600 font-black text-[10px] uppercase tracking-widest">
-                Explore More
+                {isArabic ? "استكشف المزيد" : "Explore More"}
              </div>
-             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+             <div className={`w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 ${isArabic ? 'rotate-180' : ''}`}>
                 <ArrowRight className="w-5 h-5" />
              </div>
           </div>
