@@ -179,6 +179,8 @@ const App: React.FC = () => {
             <Route path="/suv-hire-:city" element={<DynamicPage type="suvHire" />} />
             <Route path="/van-rental-:city" element={<DynamicPage />} />
             <Route path="/van-hire-:city" element={<DynamicPage type="vanHire" />} />
+            <Route path="/automatic-car-rental-:city" element={<DynamicPage />} />
+            <Route path="/compact-car-rental-:city" element={<DynamicPage />} />
             <Route path="/rent-a-car-:country" element={<DynamicPage />} />
             <Route path="/:airport-airport-car-rental" element={<DynamicPage />} />
 
