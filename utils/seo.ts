@@ -115,7 +115,8 @@ export const detectRouteType = (path: string) => {
   return { routeType, locationSlug };
 };
 
-export const getDefaultSEOPage = (routeType: string, slug: string, locationData?: any, isArabic: boolean = false) => {
+export const getDefaultSEOPage = (routeType: string, slug: string, locationData?: any, isArabic: boolean = false, fullPath?: string) => {
+  const normalizedPath = fullPath || (slug ? (slug.startsWith('/') ? slug : '/' + slug) : '/');
   const capitalize = (str: string) =>
     str
       .replace(/-/g, ' ')
@@ -526,7 +527,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
 
 export const getRouteSEO = (routeType: string, cityOrCountry: string, fullPath: string) => {
   const isArabic = fullPath.startsWith('/ar/') || fullPath === '/ar';
-  const defaults = getDefaultSEOPage(routeType, cityOrCountry, null, isArabic);
+  const defaults = getDefaultSEOPage(routeType, cityOrCountry, null, isArabic, fullPath);
   
   // Handle canonical overrides for synonyms
   const canonicalMap: Record<string, string> = {

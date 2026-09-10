@@ -2868,7 +2868,7 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
       l.name?.toLowerCase()?.replace(/\s+/g, '-') === locationSlug.toLowerCase()
     );
 
-    const defaults = getDefaultSEOPage(routeType, locationSlug, matchedLocation);
+    const defaults = getDefaultSEOPage(routeType, locationSlug, matchedLocation, false, route);
 
     // Apply defaults only if fields are empty
     if (!title) setTitle(defaults.title);
