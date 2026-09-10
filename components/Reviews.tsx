@@ -59,8 +59,8 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
   
   return (
     <section className="py-16 bg-slate-50 overflow-hidden relative">
-      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
-      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60"></div>
+      <div className="absolute top-0 end-0 -mt-20 -me-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
+      <div className="absolute bottom-0 start-0 -mb-20 -ms-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
@@ -86,7 +86,7 @@ export const Reviews: React.FC<{ accentColor?: string, customReviews?: Review[] 
               </div>
               
               <div className="relative mb-6 flex-grow">
-                <Quote className="absolute -top-3 -left-3 w-10 h-10 text-slate-100 opacity-40 z-0 group-hover:text-blue-100 transition-colors" />
+                <Quote className="absolute -top-3 -start-3 w-10 h-10 text-slate-100 opacity-40 z-0 group-hover:text-blue-100 transition-colors" />
                 <p className="text-slate-700 text-[13px] md:text-sm leading-relaxed relative z-10 italic font-medium">
                   "{review.comment}"
                 </p>

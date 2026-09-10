@@ -44,8 +44,8 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
       </div>
       
       <div className="relative flex items-center group">
-        <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to right, ${backgroundColor}, transparent)` }}></div>
-        <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }}></div>
+        <div className="absolute inset-y-0 start-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to right, ${backgroundColor}, transparent)` }}></div>
+        <div className="absolute inset-y-0 end-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }}></div>
 
         <div className="animate-marquee flex items-center hover:[animation-play-state:paused]">
           {[...suppliers, ...suppliers].map((s, idx) => {

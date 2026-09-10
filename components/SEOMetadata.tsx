@@ -84,6 +84,20 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
 
   const lang = config?.lang || 'en';
   const alternateRoute = config?.alternateRoute;
+  const countryTag = config?.countryTag;
+
+  const COUNTRY_CODES: Record<string, string> = {
+    'jordan': 'JO',
+    'united arab emirates': 'AE',
+    'saudi arabia': 'SA',
+    'qatar': 'QA',
+    'bahrain': 'BH',
+    'egypt': 'EG',
+    'oman': 'OM',
+    'kuwait': 'KW'
+  };
+
+  const countryCode = countryTag ? COUNTRY_CODES[countryTag.toLowerCase()] : null;
 
   useEffect(() => {
     if (propConfig || (propTitle && propDescription)) {
@@ -120,7 +134,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
       <link rel="canonical" href={canonical} />
-      <meta name="robots" content={isNoIndex ? 'noindex, nofollow' : 'index, follow'} />
+      <meta name="robots" content={isNoIndex ? 'noindex, follow' : 'index, follow'} />
 
       <meta property="og:site_name" content="Hogicar" />
       <meta property="og:title" content={finalOgTitle} />
@@ -159,11 +173,21 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
       )}
 
       <link rel="alternate" hrefLang={lang} href={PUBLIC_BASE_URL + normalizedPathname} />
+      {countryCode && (
+        <link rel="alternate" hrefLang={`${lang}-${countryCode}`} href={PUBLIC_BASE_URL + normalizedPathname} />
+      )}
+      
       {alternateRoute && (
         <>
           <link rel="alternate" hrefLang={lang === 'en' ? 'ar' : 'en'} href={PUBLIC_BASE_URL + alternateRoute} />
+          {countryCode && (
+            <link rel="alternate" hrefLang={`${lang === 'en' ? 'ar' : 'en'}-${countryCode}`} href={PUBLIC_BASE_URL + alternateRoute} />
+          )}
           <link rel="alternate" hrefLang="x-default" href={PUBLIC_BASE_URL + (lang === 'en' ? normalizedPathname : alternateRoute)} />
         </>
+      )}
+      {!alternateRoute && (
+         <link rel="alternate" hrefLang="x-default" href={PUBLIC_BASE_URL + normalizedPathname} />
       )}
     </Helmet>
   );

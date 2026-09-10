@@ -865,7 +865,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
       {sections.benefits && (
           <section className="py-24 bg-slate-50 overflow-hidden relative">
             <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 text-center md:text-left">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 text-center md:text-start">
                     <div className="max-w-2xl mx-auto md:mx-0">
                         <p className="text-accent font-black uppercase text-sm tracking-[0.2em] mb-4">The HogiCar Advantage</p>
                         <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter">
@@ -892,7 +892,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                         
                         return (
                             <div key={i} className="relative p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[5rem] -mr-16 -mt-16 group-hover:bg-blue-50 transition-colors duration-500" />
+                                <div className="absolute top-0 end-0 w-32 h-32 bg-slate-50 rounded-bl-[5rem] -me-16 -mt-16 group-hover:bg-blue-50 transition-colors duration-500" />
                                 <div className="relative z-10">
                                     <div className={`w-16 h-16 rounded-2xl ${colorClass} shadow-lg flex items-center justify-center mb-8 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 text-white`}>
                                         <Icon className="w-8 h-8" />
@@ -966,7 +966,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                     <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight pb-3 inline-block">
                       {group.country}
                     </h3>
-                    <div className="absolute bottom-0 left-0 w-12 h-1 bg-accent rounded-full"></div>
+                    <div className="absolute bottom-0 start-0 w-12 h-1 bg-accent rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     {group.cities.map((city, cIdx) => (

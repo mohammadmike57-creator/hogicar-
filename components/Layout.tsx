@@ -55,7 +55,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 text-base font-sans">
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-accent focus:text-white focus:rounded-xl focus:shadow-2xl focus:font-bold outline-none"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-accent focus:text-white focus:rounded-xl focus:shadow-2xl focus:font-bold outline-none"
       >
         Skip to main content
       </a>
@@ -101,7 +101,7 @@ const Layout: React.FC = () => {
                   {/* Backdrop */}
                   <div className="fixed inset-0 z-40" onClick={() => setIsCurrencyOpen(false)}></div>
                   {/* Dropdown panel */}
-                  <div id="currency-listbox" role="listbox" className="absolute right-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
+                  <div id="currency-listbox" role="listbox" className="absolute end-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
                       <span className="text-xs font-extrabold text-slate-600 uppercase tracking-widest">Select Currency</span>
                     </div>
@@ -112,7 +112,7 @@ const Layout: React.FC = () => {
                           role="option"
                           aria-selected={selectedCurrency === currency.code}
                           onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
-                          className={`block w-full text-left px-4 py-3 text-sm rounded-card transition-colors ${selectedCurrency === currency.code ? 'text-[#007ac2] font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                          className={`block w-full text-start px-4 py-3 text-sm rounded-card transition-colors ${selectedCurrency === currency.code ? 'text-[#007ac2] font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                         >
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
@@ -146,7 +146,7 @@ const Layout: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-[#003580] bg-[#004099] w-full shadow-xl z-50">
             <div className="pt-2 pb-3 space-y-1">
-              <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 pl-4 pr-4 py-4 border-l-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
+              <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 ps-4 pe-4 py-4 border-s-4 border-transparent text-base font-bold text-white hover:text-blue-200 hover:bg-white/5 hover:border-blue-400 transition-colors">
                 <User className="w-5 h-5" />
                 Manage Booking
               </Link>

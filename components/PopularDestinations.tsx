@@ -57,7 +57,7 @@ const PopularDestinations: React.FC<PopularDestinationsProps> = ({
                       decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6">
+                    <div className="absolute bottom-6 start-6 end-6">
                         <h3 className="text-xl font-black text-white uppercase tracking-tight">{dest.name}</h3>
                         {dest.country && (
                           <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mt-1">{dest.country}</p>

@@ -66,12 +66,12 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, title, subtitle }) => {
                 >
                   <button 
                     onClick={() => toggleFaq(index)}
-                    className="w-full flex items-center text-left p-5 sm:p-7 focus:outline-none"
+                    className="w-full flex items-center text-start p-5 sm:p-7 focus:outline-none"
                   >
                     <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${isOpen ? (faq.color || 'bg-accent') : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
                       <Icon className={`w-6 h-6 ${isOpen ? 'text-white' : 'text-slate-500'}`} />
                     </div>
-                    <div className="ml-5 flex-1 pr-4">
+                    <div className="ms-5 flex-1 pe-4">
                       <span className={`block font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-slate-900 text-lg' : 'text-slate-700 group-hover:text-slate-900'}`}>
                         {faq.question}
                       </span>
@@ -81,7 +81,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, title, subtitle }) => {
                     </div>
                   </button>
                   <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="px-5 sm:px-7 pb-7 ml-0 sm:ml-12">
+                    <div className="px-5 sm:px-7 pb-7 ms-0 sm:ms-12">
                       <div className="h-px w-10 bg-slate-100 mb-6 hidden sm:block"></div>
                       <p className="text-slate-600 leading-relaxed font-medium text-base">
                         {faq.answer}

@@ -66,7 +66,7 @@ const renderSuggestions = (
               role="option"
               aria-selected="false"
               onClick={() => handler(suggestion)}
-              className="w-full text-left px-4 py-2 text-[13px] text-slate-800 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
+              className="w-full text-start px-4 py-2 text-[13px] text-slate-800 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-none bg-slate-100 border border-slate-200 flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
               <div><span className="font-semibold">{suggestion.label}</span></div>
@@ -100,7 +100,7 @@ const MobileDateTimeField = React.memo(({
     const [showCalendar, setShowCalendar] = React.useState(false);
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">{label}</label>
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ms-1">{label}</label>
             <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all shadow-sm overflow-hidden">
                 <div 
                     className="p-3 pb-2 flex flex-col border-b border-slate-100 cursor-pointer active:bg-slate-100 transition-colors"
@@ -194,12 +194,12 @@ const DesktopGroupedDateTimeField = React.memo(({
                 <div className="flex items-center gap-2">
                     <div className="flex items-center text-slate-900 font-bold text-[15px]">
                         {iconType === 'pickup' ? (
-                            <span className="mr-3 flex items-center gap-1.5 text-slate-900">
+                            <span className="me-3 flex items-center gap-1.5 text-slate-900">
                                 <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
                                 <ArrowRight className="w-4 h-4 stroke-[3px]" />
                             </span>
                         ) : (
-                            <span className="mr-3 flex items-center gap-1.5 text-slate-900">
+                            <span className="me-3 flex items-center gap-1.5 text-slate-900">
                                 <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
                                 <ArrowRight className="w-4 h-4 stroke-[3px] rotate-180" />
                             </span>
@@ -209,7 +209,7 @@ const DesktopGroupedDateTimeField = React.memo(({
                 </div>
                 
                 {showCalendar && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 mt-2 z-[100]" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute top-full start-1/2 -translate-x-1/2 sm:start-0 sm:translate-x-0 mt-2 z-[100]" onClick={(e) => e.stopPropagation()}>
                         <React.Suspense fallback={<div className="p-4 bg-white rounded-2xl shadow-xl w-[320px] h-[400px] flex items-center justify-center border border-slate-200"><LoaderCircle className="w-8 h-8 animate-spin text-accent" /></div>}>
                             <CalendarPicker 
                                 selectedDate={dateValue}
@@ -599,12 +599,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                 <form onSubmit={handleSearch} className="flex flex-col gap-4">
                     {/* Pick-up location button */}
                     <div className="flex flex-col gap-1.5">
-                        <label id="mobile-pickup-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Pick-up Location</label>
+                        <label id="mobile-pickup-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ms-1">Pick-up Location</label>
                         <button
                             type="button"
                             onClick={() => openSearchOverlay('pickup')}
                             aria-labelledby="mobile-pickup-label"
-                            className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-left px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
+                            className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-start px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
                         >
                             <div className="flex items-center gap-4 w-full min-w-0">
                                 <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
@@ -628,12 +628,12 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                     {/* Drop-off location button */}
                     {differentDropoff && (
                         <div className="flex flex-col gap-1.5 -mt-1 animate-in slide-in-from-top-3 duration-500">
-                            <label id="mobile-dropoff-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Drop-off Location</label>
+                            <label id="mobile-dropoff-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ms-1">Drop-off Location</label>
                             <button
                                 type="button"
                                 onClick={() => openSearchOverlay('dropoff')}
                                 aria-labelledby="mobile-dropoff-label"
-                                className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-left px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
+                                className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-start px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
                             >
                                 <div className="flex items-center gap-4 w-full min-w-0">
                                     <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
@@ -679,14 +679,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
 
                     <div className="space-y-3 mt-1 px-1">
                         <label className="flex items-center text-[12px] font-bold text-slate-800 cursor-pointer select-none group">
-                            <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all ${differentDropoff ? 'bg-accent border-accent text-white' : 'border-slate-300 bg-white group-active:scale-90'}`}>
+                            <div className={`w-5 h-5 rounded border-2 me-3 flex items-center justify-center transition-all ${differentDropoff ? 'bg-accent border-accent text-white' : 'border-slate-300 bg-white group-active:scale-90'}`}>
                                 {differentDropoff && <ArrowRight className="w-3 h-3 stroke-[4px]" />}
                             </div>
                             <input id="mobile-different-dropoff" name="differentDropoff" type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="hidden" />
                             Different drop-off location
                         </label>
                         <label className="flex items-center text-[12px] font-bold text-slate-800 cursor-pointer select-none group">
-                            <div className="w-5 h-5 rounded border-2 border-accent bg-accent text-white mr-3 flex items-center justify-center transition-all group-active:scale-90">
+                            <div className="w-5 h-5 rounded border-2 border-accent bg-accent text-white me-3 flex items-center justify-center transition-all group-active:scale-90">
                                 <ArrowRight className="w-3 h-3 stroke-[4px]" />
                             </div>
                             <input id="mobile-driver-age" name="driverAgeValid" type="checkbox" defaultChecked className="hidden" />
@@ -730,7 +730,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                     type="checkbox" 
                                     onChange={(e) => setDifferentDropoff(!e.target.checked)} 
                                     checked={!differentDropoff} 
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
+                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 me-2" 
                                 />
                                 Return car in same location
                             </label>
@@ -740,7 +740,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                     name="driverAgeValid"
                                     type="checkbox" 
                                     defaultChecked 
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 mr-2" 
+                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 me-2" 
                                 />
                                 Driver age between 30 - 65?
                             </label>
@@ -773,7 +773,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                         />
                                     </div>
                                     {isSuggestionsOpen && (
-                                        <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                        <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full start-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
                                             {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
                                         </div>
                                     )}
@@ -803,7 +803,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                             />
                                         </div>
                                         {isDropoffSuggestionsOpen && (
-                                            <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
+                                            <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full start-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
                                                 {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                             </div>
                                         )}

@@ -34,7 +34,7 @@ const AmexIcon = () => (
 const PciDssIcon = () => (
     <div className="flex items-center gap-1.5 text-blue-300">
         <Shield className="w-6 h-6 text-blue-400" />
-        <div className="text-left leading-tight">
+        <div className="text-start leading-tight">
             <span className="font-bold text-[9px] block">PCI DSS</span>
             <span className="font-medium text-[8px] block opacity-80">COMPLIANT</span>
         </div>

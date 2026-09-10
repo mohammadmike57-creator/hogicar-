@@ -1,3 +1,6 @@
+import { CITY_CONTENT } from './cityContent';
+import { CITY_CONTENT_AR } from './cityContentAr';
+
 /**
  * SEO Utility for dynamic route metadata
  */
@@ -112,7 +115,7 @@ export const detectRouteType = (path: string) => {
   return { routeType, locationSlug };
 };
 
-export const getDefaultSEOPage = (routeType: string, slug: string, locationData?: any) => {
+export const getDefaultSEOPage = (routeType: string, slug: string, locationData?: any, isArabic: boolean = false) => {
   const capitalize = (str: string) =>
     str
       .replace(/-/g, ' ')
@@ -176,7 +179,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
       destinationName: 'Amman',
       countryTag: 'Jordan',
       countryRoute: '/car-rental-jo',
-      alternateRoute: '/ar/تأجير-سيارات-في-عمان',
+      alternateRoute: '/ar/car-rental-amman',
       h1Title: 'Car Rental in Amman',
       faqItems: [
         {
@@ -475,12 +478,31 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
 
   const title = titles[routeType] || `${displayName} Car Rental | Hogicar`;
 
+  const TOP_CITIES = [
+    'amman', 'dubai', 'abu-dhabi', 'cairo', 'riyadh', 'jeddah', 'doha', 'muscat', 'manama',
+    'kuwait-city', 'aqaba', 'hurghada', 'sharm-el-sheikh', 'alexandria', 'luxor', 'aswan',
+    'salalah', 'sharjah', 'ras-al-khaimah', 'fujairah'
+  ];
+
+  const TOP_COUNTRIES = ['bahrain', 'egypt', 'jordan', 'kuwait', 'oman', 'qatar', 'saudi-arabia', 'united-arab-emirates'];
+
+  const isTopCity = TOP_CITIES.includes(slug.toLowerCase());
+  const isTopCountry = TOP_COUNTRIES.includes(slug.toLowerCase());
+  
+  // Only index primary car rental pages for top cities and country landing pages
+  // All other variations (cheap, luxury, suv, etc.) are deindexed to avoid thin content demotion
+  const isIndexable = (routeType === 'carRental' && isTopCity) || (routeType === 'country' && isTopCountry) || (routeType === '') || (slug === '');
+
+  const cityData = routeType === 'carRental' ? (isArabic ? CITY_CONTENT_AR[slug.toLowerCase()] : CITY_CONTENT[slug.toLowerCase()]) : null;
+
+  const alternateRoute = isArabic ? normalizedPath.replace('/ar/', '/') : '/ar' + normalizedPath;
+
   return {
     title: title,
     description: descriptions[routeType] || `Find the best car rental deals in ${displayName}. Book online & save with Hogicar.`,
     keywords: keywords[routeType] || `car rental ${slug}, rent a car ${slug}`,
     canonicalUrl: canonical,
-    introText: introTexts[routeType] || descriptions[routeType] || `Find the best car rental deals in ${displayName}. Book online & save with Hogicar.`,
+    introText: cityData?.introText || introTexts[routeType] || descriptions[routeType] || `Find the best car rental deals in ${displayName}. Book online & save with Hogicar.`,
     ogImage: 'https://www.hogicar.com/android-chrome-512x512.png',
     primaryKeyword: focusKeywords[routeType] || `car rental ${displayName}`,
     searchIntent: 'Commercial',
@@ -489,16 +511,22 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     twitterTitle: title,
     imageAltText: `Car rental in ${displayName}`,
     imageTitle: `Car rental in ${displayName}`,
-    indexable: true,
+    indexable: isIndexable,
     published: true,
     destinationName: displayName,
     countryTag: countryName || displayName,
-    airportTags: airportCode ? `${airportCode}, ${displayName}` : ''
+    airportTags: airportCode ? `${airportCode}, ${displayName}` : '',
+    content: cityData?.content || '',
+    faqJson: cityData?.faqItems ? JSON.stringify(cityData.faqItems) : '[]',
+    structuredData: cityData?.structuredData ? JSON.stringify(cityData.structuredData) : '',
+    lang: isArabic ? 'ar' : 'en',
+    alternateRoute: alternateRoute
   };
 };
 
 export const getRouteSEO = (routeType: string, cityOrCountry: string, fullPath: string) => {
-  const defaults = getDefaultSEOPage(routeType, cityOrCountry);
+  const isArabic = fullPath.startsWith('/ar/') || fullPath === '/ar';
+  const defaults = getDefaultSEOPage(routeType, cityOrCountry, null, isArabic);
   
   // Handle canonical overrides for synonyms
   const canonicalMap: Record<string, string> = {
