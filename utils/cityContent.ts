@@ -30,7 +30,7 @@ export const CITY_CONTENT: Record<string, CitySEOContent> = {
         <p>For city driving, economy and compact cars are popular due to fuel efficiency and easier parking. However, if you plan to visit the Dead Sea or Petra, a mid-size SUV offers more comfort and better handling on desert roads. Luxury car rentals are also available for business travelers and special occasions.</p>
         
         <h3>Explore Jordan from Amman</h3>
-        <p>Amman is perfectly situated for day trips. With your rental car, you can drive to the Dead Sea (approx. 1 hour) or the ancient Roman city of Jerash. For longer trips, consider a <a href="/car-rental-jo">car rental in Jordan</a> to visit Petra and Wadi Rum.</p>
+        <p>Amman is perfectly situated for day trips. With your rental car, you can drive to the Dead Sea (approx. 1 hour) or the ancient Roman city of Jerash. For longer trips, consider a <a href="/car-rental-jordan">car rental in Jordan</a> to visit Petra and Wadi Rum.</p>
       </div>
     `,
     faqItems: [

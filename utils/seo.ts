@@ -179,7 +179,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
       lang: 'en',
       destinationName: 'Amman',
       countryTag: 'Jordan',
-      countryRoute: '/car-rental-jo',
+      countryRoute: '/car-rental-jordan',
       alternateRoute: '/ar/car-rental-amman',
       h1Title: 'Car Rental in Amman',
       faqItems: [
@@ -309,7 +309,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
           <p>To rent a car in Amman, you generally need a valid license, passport, and a credit card for the security deposit. Insurance coverage and fuel policies vary between providers. Most suppliers offer a "full-to-full" fuel policy, ensuring you only pay for the fuel you use.</p>
           
           <h3>Explore Jordan from Amman</h3>
-          <p>Amman is perfectly situated for day trips. With your rental car, you can drive to the Dead Sea (approx. 1 hour) or the ancient Roman city of Jerash. For longer trips, consider a <a href="/car-rental-jo">car rental in Jordan</a> to visit Petra and Wadi Rum.</p>
+          <p>Amman is perfectly situated for day trips. With your rental car, you can drive to the Dead Sea (approx. 1 hour) or the ancient Roman city of Jerash. For longer trips, consider a <a href="/car-rental-jordan">car rental in Jordan</a> to visit Petra and Wadi Rum.</p>
           
           <h3>Rental Options in Amman</h3>
           <p>Whether you are looking for a <a href="/cheap-car-rental-amman">cheap car rental in Amman</a> for city errands, a <a href="/luxury-car-rental-amman">luxury car hire</a> for a special occasion, or a <a href="/suv-rental-amman">SUV rental</a> for family adventures, Hogicar connects you with the best options. We also offer <a href="/van-rental-amman">van rentals</a> for larger groups, <a href="/monthly-car-rental-amman">monthly car rentals</a>, and <a href="/long-term-rental-amman">long-term rentals</a> for extended stays.</p>
@@ -480,7 +480,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
   const title = titles[routeType] || `${displayName} Car Rental | Hogicar`;
 
   const TOP_CITIES = [
-    'amman', 'dubai', 'abu-dhabi', 'cairo', 'riyadh', 'jeddah', 'doha', 'muscat', 'manama',
+    'amman', 'dubai', 'abu-dhabi', 'cairo', 'riyadh', 'jeddah', 'dammam', 'medina', 'doha', 'muscat', 'manama',
     'kuwait-city', 'aqaba', 'hurghada', 'sharm-el-sheikh', 'alexandria', 'luxor', 'aswan',
     'salalah', 'sharjah', 'ras-al-khaimah', 'fujairah'
   ];
