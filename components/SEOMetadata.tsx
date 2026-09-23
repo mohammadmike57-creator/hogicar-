@@ -57,7 +57,16 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const title = propTitle || config?.title || (routeType ? dynamicSEO.title : "Hogicar - Compare Car Rental Deals Worldwide");
   const description = propDescription || config?.description || (routeType ? dynamicSEO.description : "Compare and book affordable car rentals worldwide with Hogicar. Find trusted rental cars, airport rentals, and travel deals.");
   const keywords = propKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
-  const ogImage = propOgImage || config?.ogImage || 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
+  
+  let ogImage = propOgImage || config?.ogImage;
+  // Use city hero image convention if not explicitly set or if it's the generic logo
+  if ((!ogImage || ogImage.includes('android-chrome-512x512.png')) && locationSlug && routeType) {
+    ogImage = `${PUBLIC_BASE_URL}/uploads/hero/${locationSlug}-hero.webp`;
+  }
+  if (!ogImage) {
+    ogImage = 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
+  }
+
   const canonical = propCanonical || config?.canonicalUrl || dynamicSEO?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
   const isNoIndex = propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false);
 
@@ -172,16 +181,18 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
         />
       )}
 
-      <link rel="alternate" hrefLang={lang} href={PUBLIC_BASE_URL + normalizedPathname} />
-      {countryCode && (
+      {countryCode ? (
         <link rel="alternate" hrefLang={`${lang}-${countryCode}`} href={PUBLIC_BASE_URL + normalizedPathname} />
+      ) : (
+        <link rel="alternate" hrefLang={lang} href={PUBLIC_BASE_URL + normalizedPathname} />
       )}
       
       {alternateRoute && (
         <>
-          <link rel="alternate" hrefLang={lang === 'en' ? 'ar' : 'en'} href={PUBLIC_BASE_URL + alternateRoute} />
-          {countryCode && (
+          {countryCode ? (
             <link rel="alternate" hrefLang={`${lang === 'en' ? 'ar' : 'en'}-${countryCode}`} href={PUBLIC_BASE_URL + alternateRoute} />
+          ) : (
+            <link rel="alternate" hrefLang={lang === 'en' ? 'ar' : 'en'} href={PUBLIC_BASE_URL + alternateRoute} />
           )}
           <link rel="alternate" hrefLang="x-default" href={PUBLIC_BASE_URL + (lang === 'en' ? normalizedPathname : alternateRoute)} />
         </>

@@ -16,7 +16,7 @@ const CarRentalAmman: React.FC = () => {
   const title = "Car Rental Amman – Affordable Deals | Hogicar";
   const description = "Rent a car in Amman with Hogicar. Best prices, full insurance, free cancellation. Book online now.";
   const canonical = "https://www.hogicar.com/car-rental-amman";
-  const ogImage = "https://www.hogicar.com/android-chrome-512x512.png";
+  const ogImage = "https://www.hogicar.com/uploads/hero/amman-hero.webp";
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -29,8 +29,8 @@ const CarRentalAmman: React.FC = () => {
         <meta name="robots" content="index, follow" />
 
         {/* Hreflang Tags */}
-        <link rel="alternate" hrefLang="en" href="https://www.hogicar.com/car-rental-amman" />
-        <link rel="alternate" hrefLang="ar" href="https://www.hogicar.com/ar/تأجير-سيارات-في-عمان" />
+        <link rel="alternate" hrefLang="en-JO" href="https://www.hogicar.com/car-rental-amman" />
+        <link rel="alternate" hrefLang="ar-JO" href="https://www.hogicar.com/ar/تأجير-سيارات-في-عمان" />
         <link rel="alternate" hrefLang="x-default" href="https://www.hogicar.com/car-rental-amman" />
 
         {/* Open Graph Tags */}

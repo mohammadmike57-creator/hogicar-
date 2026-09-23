@@ -13,6 +13,12 @@ export const detectRouteType = (path: string) => {
   if (normalizedPath.startsWith('/car-rental-')) {
     routeType = 'carRental';
     locationSlug = normalizedPath.replace('/car-rental-', '');
+  } else if (normalizedPath.startsWith('/ar/تأجير-سيارات-في-')) {
+    routeType = 'carRental';
+    locationSlug = normalizedPath.replace('/ar/تأجير-سيارات-في-', '');
+  } else if (normalizedPath.startsWith('/ar/تأجير-سيارات-')) {
+    routeType = 'carRental';
+    locationSlug = normalizedPath.replace('/ar/تأجير-سيارات-', '');
   } else if (normalizedPath.startsWith('/car-hire-')) {
     routeType = 'carHire';
     locationSlug = normalizedPath.replace('/car-hire-', '');
@@ -156,7 +162,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     const title = 'Car Rental in Amman, Jordan | Compare & Book Online | Hogicar';
     const description = 'Compare car rental deals in Amman, Jordan with Hogicar. Find rental cars at Queen Alia Airport and city locations and book online.';
     const canonicalUrl = 'https://www.hogicar.com/car-rental-amman';
-    const imageUrl = 'https://www.hogicar.com/android-chrome-512x512.png';
+    const imageUrl = 'https://www.hogicar.com/uploads/hero/amman-hero.webp';
 
     return {
       title,
@@ -504,7 +510,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     keywords: keywords[routeType] || `car rental ${slug}, rent a car ${slug}`,
     canonicalUrl: canonical,
     introText: cityData?.introText || introTexts[routeType] || descriptions[routeType] || `Find the best car rental deals in ${displayName}. Book online & save with Hogicar.`,
-    ogImage: 'https://www.hogicar.com/android-chrome-512x512.png',
+    ogImage: (slug && routeType) ? `https://www.hogicar.com/uploads/hero/${slug}-hero.webp` : 'https://www.hogicar.com/android-chrome-512x512.png',
     primaryKeyword: focusKeywords[routeType] || `car rental ${displayName}`,
     searchIntent: 'Commercial',
     breadcrumbTitle: displayName,
