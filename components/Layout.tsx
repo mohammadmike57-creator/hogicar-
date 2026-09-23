@@ -33,7 +33,7 @@ const Layout: React.FC = () => {
                                 location.pathname.startsWith('/confirmation') ||
                                 location.pathname.startsWith('/voucher');
 
-  const shouldShowFooter = !isSearchOrBookingPage;
+  const shouldShowFooter = isHomePage;
 
   React.useEffect(() => {
     const handleScroll = () => {

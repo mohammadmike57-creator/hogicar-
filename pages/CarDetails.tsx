@@ -561,7 +561,7 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-white min-h-screen pb-32 lg:pb-8 text-slate-800">
+      <div className="bg-white min-h-screen pb-40 lg:pb-12 text-slate-800">
         <div className="max-w-[1500px] mx-auto px-2 sm:px-4 lg:px-6 py-3">
           <BookingStepper currentStep={3} />
 
@@ -571,20 +571,20 @@ const CarDetails: React.FC = () => {
               {/* Hero Section */}
               <div className="overflow-visible bg-white rounded-3xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.3)] border border-slate-200">
                 <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="relative flex min-h-[220px] sm:min-h-[300px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-8 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none group">
+                  <div className="relative flex min-h-[260px] sm:min-h-[340px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 p-6 sm:p-10 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-[2.5rem] lg:rounded-l-[2.5rem] lg:rounded-tr-none group">
                     <img
                       src={displayImage}
                       alt={`${car.make} ${car.model}`}
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="h-auto max-h-[280px] w-full max-w-full object-contain drop-shadow-[0_32px_64px_rgba(15,23,42,0.15)] transition-all duration-700 sm:max-h-[340px] lg:max-h-[460px] group-hover:scale-105"
+                      className="h-auto max-h-[220px] w-full max-w-full object-contain drop-shadow-[0_25px_50px_rgba(15,23,42,0.18)] transition-all duration-700 sm:max-h-[300px] lg:max-h-[460px] group-hover:scale-105"
                     />
                     <div className="absolute top-6 left-6 flex flex-wrap gap-2.5">
-                      <span className="hidden md:inline-block bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg">
+                      <span className="bg-slate-950 text-white text-[9px] md:text-[10px] font-black px-3 md:px-4 py-1.5 md:py-2 rounded-full uppercase tracking-[0.2em] shadow-lg">
                         {formatCategoryName(car.category)}
                       </span>
-                      {car.tags?.[0] && <span className="bg-accent text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-accent/20">{car.tags[0]}</span>}
+                      {car.tags?.[0] && <span className="bg-accent text-white text-[9px] md:text-[10px] font-black px-3 md:px-4 py-1.5 md:py-2 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-accent/20">{car.tags[0]}</span>}
                     </div>
                     <button className="absolute top-6 right-6 bg-white/95 p-2.5 rounded-full shadow-xl border border-slate-100 hover:bg-slate-50 transition-all hover:scale-110 active:scale-95"><Heart className="w-5 h-5 text-slate-400" /></button>
                   </div>
@@ -1113,25 +1113,27 @@ const CarDetails: React.FC = () => {
       </div>
 
       {/* Mobile Sticky Footer */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-200 p-4 shadow-[0_-10px_30px_rgba(15,23,42,0.15)] animate-in slide-in-from-bottom duration-500">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-grow">
-            <div className="flex items-center gap-1.5 mb-0.5">
-                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Total Price</p>
-                <span className="h-1 w-1 bg-slate-300 rounded-full"></span>
-                <span className="text-[9px] font-black text-accent uppercase tracking-wider">{days} days</span>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 pb-safe shadow-[0_-15px_35px_rgba(15,23,42,0.12)] animate-in slide-in-from-bottom duration-500">
+        <div className="max-w-md mx-auto flex items-center justify-between gap-4">
+          <div className="flex-grow min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">{days} days</span>
+                {car.unlimitedMileage && <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Unlimited</span>}
             </div>
-            <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-slate-950 tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
-                <span className="text-[10px] font-bold text-slate-400">Total</span>
+            <div className="flex flex-col">
+                <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-slate-950 tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                </div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total with taxes</p>
             </div>
           </div>
           <Link 
             to={`/book/${car.id}/details?${bookingParams}`} 
             onClick={handleContinue} 
-            className="bg-accent text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-[0.15em] text-xs shadow-[0_12px_24px_-8px_rgba(0,122,194,0.6)] active:scale-95 transition-all"
+            className="flex-shrink-0 bg-slate-950 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_15px_30px_-10px_rgba(15,23,42,0.5)] active:scale-95 transition-all flex items-center gap-2"
           >
-            Book Now
+            Select
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

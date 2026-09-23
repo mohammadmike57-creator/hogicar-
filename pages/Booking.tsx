@@ -55,7 +55,7 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
     </div>
     <input
       {...props}
-      className="block w-full rounded-xl border border-slate-200 bg-white pl-11 sm:pl-12 shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/10 text-[15px] sm:text-base text-slate-900 font-medium py-3.5 transition-all placeholder:text-slate-400 placeholder:font-medium outline-none"
+      className="block w-full rounded-xl border border-slate-200 bg-white pl-10 sm:pl-12 shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/10 text-[15px] sm:text-base text-slate-900 font-medium py-3.5 transition-all placeholder:text-slate-400 placeholder:font-medium outline-none"
     />
   </div>
 );
@@ -619,7 +619,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-white min-h-screen py-2 sm:py-3 pb-32 sm:pb-3 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="bg-white min-h-screen py-2 sm:py-3 pb-40 sm:pb-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
            <div className="w-full max-w-[320px] sm:max-w-md px-6">
@@ -1295,27 +1295,35 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           </div>
           
           {/* Mobile Sticky Footer */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-200 p-4 shadow-[0_-10px_30px_rgba(15,23,42,0.15)] animate-in slide-in-from-bottom duration-500">
-            <div className="flex items-center justify-between gap-4">
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 pb-safe shadow-[0_-15px_35px_rgba(15,23,42,0.12)] animate-in slide-in-from-bottom duration-500">
+            <div className="max-w-md mx-auto flex items-center justify-between gap-4">
               <div className="flex-grow min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 truncate">{car.make} {car.model}</p>
-                    <span className="h-1 w-1 bg-slate-300 rounded-full"></span>
-                    <span className="text-[9px] font-black text-accent uppercase tracking-wider">{days} days</span>
+                <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">{days} days</span>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{car.make} {car.model}</span>
                 </div>
-                <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-black text-slate-950 tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                <div className="flex flex-col">
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-black text-slate-950 tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Secure Checkout</span>
+                    </div>
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={isActionBusy}
-                className="bg-accent text-white px-6 py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-[0_12px_24px_-8px_rgba(0,122,194,0.6)] active:scale-95 transition-all disabled:opacity-50"
+                className="flex-shrink-0 bg-slate-950 text-white px-7 py-4 rounded-2xl font-black uppercase tracking-[0.15em] text-[11px] shadow-[0_15px_30px_-10px_rgba(15,23,42,0.5)] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]"
               >
                 {isActionBusy ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
-                  routeStep === 'details' ? 'Next Step' : 'Confirm'
+                  <span className="flex items-center gap-2">
+                    {routeStep === 'details' ? 'Next Step' : 'Confirm'}
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
                 )}
               </button>
             </div>
