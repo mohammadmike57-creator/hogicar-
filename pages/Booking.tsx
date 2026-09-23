@@ -55,7 +55,7 @@ const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: st
     </div>
     <input
       {...props}
-      className="block w-full rounded-xl border border-slate-200 bg-white pl-10 sm:pl-12 shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/10 text-[15px] sm:text-base text-slate-900 font-medium py-3.5 transition-all placeholder:text-slate-400 placeholder:font-medium outline-none"
+      className="block w-full rounded-xl border border-slate-200 bg-white pl-10 sm:pl-12 shadow-[0_2px_4px_rgba(0,0,0,0.02)] focus:border-accent focus:ring-4 focus:ring-accent/10 text-base text-slate-900 font-medium py-3.5 transition-all placeholder:text-slate-400 placeholder:font-medium outline-none group-hover/input:border-slate-300"
     />
   </div>
 );
@@ -831,6 +831,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                   <li className="flex items-center gap-2"><Headphones className="w-4 h-4 text-indigo-600" /> Live support before pick-up</li>
                 </ul>
               </div>
+            </div>
+
+            {/* Trust Bar */}
+            <div className="flex flex-wrap items-center justify-center gap-6 py-6 border-b border-slate-100">
+                {[
+                    { icon: ShieldCheck, text: "Secure Payment", color: "text-emerald-600" },
+                    { icon: Clock, text: "Instant Confirmation", color: "text-accent" },
+                    { icon: Headphones, text: "24/7 Support", color: "text-indigo-600" }
+                ].map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                        <item.icon className={`w-4 h-4 ${item.color}`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.text}</span>
+                    </div>
+                ))}
             </div>
 
             {routeStep === 'details' ? (

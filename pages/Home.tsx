@@ -1050,7 +1050,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                 <input 
                   type="email" 
                   placeholder="Enter your email" 
-                  className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-accent"
+                  className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-accent text-base"
                 />
                 <button type="submit" className="bg-accent hover:brightness-110 text-white font-black px-8 py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
                     Join Now

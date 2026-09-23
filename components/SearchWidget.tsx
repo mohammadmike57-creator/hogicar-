@@ -122,7 +122,7 @@ const MobileDateTimeField = React.memo(({
                     <select
                         value={timeValue}
                         onChange={e => onTimeChange(e.target.value)}
-                        className="w-full bg-transparent p-0 text-[13px] font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
+                        className="w-full bg-transparent p-0 text-base font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
                     >
                         {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
@@ -763,7 +763,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                             aria-expanded={isSuggestionsOpen}
                                             aria-haspopup="listbox"
                                             placeholder="Enter airport or city"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-base font-bold text-slate-900 placeholder:text-slate-500 p-0"
                                             value={pickupQuery}
                                             onChange={handleLocationChange}
                                             onFocus={handleFocus}
@@ -793,7 +793,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                                 aria-expanded={isDropoffSuggestionsOpen}
                                                 aria-haspopup="listbox"
                                                 placeholder="Enter airport or city"
-                                                className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] font-bold text-slate-900 placeholder-slate-600 p-0"
+                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-base font-bold text-slate-900 placeholder:text-slate-500 p-0"
                                                 value={dropoffQuery}
                                                 onChange={handleDropoffLocationChange}
                                                 onFocus={handleDropoffFocus}

@@ -793,29 +793,32 @@ const CarDetails: React.FC = () => {
               </div>
 
               {/* Key Specifications Grid - rich icons */}
-              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-6">
-                <div className="flex items-start justify-between gap-4 mb-5">
+              <div className="bg-white rounded-3xl shadow-[0_32px_64px_-24px_rgba(15,23,42,0.12)] border border-slate-200 p-6 sm:p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <div className="flex items-start justify-between gap-4 mb-8 relative z-10">
                   <div>
-                    <h2 className="text-xl font-black flex items-center gap-2 text-slate-950"><GaugeCircle className="w-5 h-5 text-accent" /> Vehicle details</h2>
-                    <p className="text-sm font-semibold text-slate-500 mt-1">The most important specs for this rental class.</p>
+                    <h2 className="text-2xl font-black flex items-center gap-3 text-slate-950 uppercase tracking-tight"><GaugeCircle className="w-6 h-6 text-accent" /> Vehicle Overview</h2>
+                    <p className="text-sm font-semibold text-slate-500 mt-1">Core specifications for this rental class.</p>
                   </div>
-                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{formatCategoryName(car.category)}</span>
+                  <span className="hidden sm:inline-flex rounded-full bg-slate-900 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white">{formatCategoryName(car.category)}</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
                   {[
-                    { icon: Users, label: `${car.passengers} Seats`, desc: 'Comfortable seating' },
-                    { icon: CarDoorIcon, label: `${car.doors} Doors`, desc: 'Easy access' },
-                    { icon: Briefcase, label: `${car.bags} Bags`, desc: 'Luggage capacity' },
-                    { icon: AutomaticIcon, label: car.transmission, desc: 'Smooth driving' },
-                    { icon: Snowflake, label: 'A/C', desc: 'Climate control' },
+                    { icon: Users, label: `${car.passengers} Seats`, desc: 'Max passengers' },
+                    { icon: CarDoorIcon, label: `${car.doors} Doors`, desc: 'Vehicle access' },
+                    { icon: Briefcase, label: `${car.bags} Bags`, desc: 'Luggage space' },
+                    { icon: AutomaticIcon, label: car.transmission, desc: 'Driving type' },
+                    { icon: Snowflake, label: 'A/C', desc: 'Air conditioned' },
                     { icon: GaugeCircle, label: car.unlimitedMileage ? 'Unlimited' : 'Limited', desc: 'Mileage policy' },
                     { icon: Fuel, label: car.fuelPolicy.split('_').join(' '), desc: 'Fuel policy' },
-                    { icon: Hash, label: car.sippCode, desc: 'Vehicle code' }
-                  ].map(spec => (
-                    <div key={spec.label} className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-xl hover:shadow-sm transition">
-                      <spec.icon className="w-5 h-5 text-accent mb-2" />
-                      <span className="text-sm font-black text-slate-900 leading-tight">{spec.label}</span>
-                      <span className="text-[11px] font-semibold text-slate-500">{spec.desc}</span>
+                    { icon: ShieldCheck, label: 'Verified', desc: 'Safety checked' }
+                  ].map((spec, idx) => (
+                    <div key={idx} className="flex flex-col p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white hover:border-accent/20 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center mb-3 shadow-sm group-hover:bg-accent group-hover:text-white transition-colors">
+                        <spec.icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-sm font-black text-slate-950 leading-tight uppercase tracking-tight">{spec.label}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{spec.desc}</span>
                     </div>
                   ))}
                 </div>
@@ -1074,21 +1077,43 @@ const CarDetails: React.FC = () => {
                   </div>
                   <div className="mb-5">
                     <div className="flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2">
-                      <input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 bg-transparent px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none placeholder:text-slate-400" />
+                      <input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 bg-transparent px-3 py-2 text-base font-bold uppercase tracking-wider outline-none placeholder:text-slate-400" />
                       <button onClick={handleApplyPromo} className="rounded-xl bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-accent">Apply</button>
                     </div>
                     {promoError && <p className="mt-2 text-xs font-bold text-red-600">{promoError}</p>}
                     {appliedPromo && <p className="mt-2 text-xs font-bold text-green-700">✓ {appliedPromo.code} applied</p>}
                   </div>
-                  <div className="mb-5 grid gap-2">
-                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'basic' ? 'border-accent/30 bg-accent-50' : 'border-slate-200 bg-white'}`}>
-                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="w-4 h-4 text-accent" /><span><span className="block text-sm font-black text-slate-950">Basic cover included</span><span className="text-[11px] font-semibold text-slate-500">Standard supplier coverage</span></span></span>
-                      <span className="text-xs font-black text-accent">Included</span>
-                    </label>
-                    <label className={`flex cursor-pointer items-center justify-between rounded-2xl border p-3 transition ${insuranceOption === 'full' ? 'border-accent/30 bg-accent-50' : 'border-slate-200 bg-white'}`}>
-                      <span className="flex items-center gap-3"><input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="w-4 h-4 text-accent" /><span><span className="block text-sm font-black text-slate-950">Full protection</span><span className="text-[11px] font-semibold text-slate-500">Extra peace of mind</span></span></span>
-                      <span className="text-xs font-black text-slate-950">+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)}</span>
-                    </label>
+                  <div className="mb-6">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Protection options</h3>
+                    <div className="grid gap-3">
+                      <label className={`group relative flex cursor-pointer items-center justify-between rounded-2xl border-2 p-4 transition-all duration-300 ${insuranceOption === 'basic' ? 'border-accent bg-accent/5 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                        <div className="flex items-center gap-4">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${insuranceOption === 'basic' ? 'border-accent bg-accent' : 'border-slate-300'}`}>
+                                {insuranceOption === 'basic' && <div className="w-2 h-2 rounded-full bg-white" />}
+                            </div>
+                            <input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="hidden" />
+                            <div>
+                                <span className="block text-sm font-black text-slate-950 uppercase tracking-tight">Basic protection</span>
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Standard supplier coverage</span>
+                            </div>
+                        </div>
+                        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded-md">Included</span>
+                      </label>
+                      <label className={`group relative flex cursor-pointer items-center justify-between rounded-2xl border-2 p-4 transition-all duration-300 ${insuranceOption === 'full' ? 'border-accent bg-accent/5 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                        <div className="flex items-center gap-4">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${insuranceOption === 'full' ? 'border-accent bg-accent' : 'border-slate-300'}`}>
+                                {insuranceOption === 'full' && <div className="w-2 h-2 rounded-full bg-white" />}
+                            </div>
+                            <input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="hidden" />
+                            <div>
+                                <span className="block text-sm font-black text-slate-950 uppercase tracking-tight">Full protection</span>
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Zero excess & peace of mind</span>
+                            </div>
+                        </div>
+                        <span className="text-xs font-black text-slate-950">+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)}</span>
+                        {insuranceOption !== 'full' && <div className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-lg animate-pulse uppercase tracking-widest">Recommended</div>}
+                      </label>
+                    </div>
                   </div>
                   <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="block w-full rounded-2xl bg-accent py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(0,122,194,0.75)] transition hover:-translate-y-0.5 hover:bg-accent-700 active:scale-[0.98]">Continue to book</Link>
                   <div className="mt-4 flex items-center justify-center gap-2 opacity-75"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
