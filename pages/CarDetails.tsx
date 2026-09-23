@@ -561,7 +561,7 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-white min-h-screen pb-16 lg:pb-8 text-slate-800">
+      <div className="bg-white min-h-screen pb-32 lg:pb-8 text-slate-800">
         <div className="max-w-[1500px] mx-auto px-2 sm:px-4 lg:px-6 py-3">
           <BookingStepper currentStep={3} />
 
@@ -571,7 +571,7 @@ const CarDetails: React.FC = () => {
               {/* Hero Section */}
               <div className="overflow-visible bg-white rounded-3xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.3)] border border-slate-200">
                 <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="relative flex min-h-[300px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-8 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none group">
+                  <div className="relative flex min-h-[220px] sm:min-h-[300px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-8 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none group">
                     <img
                       src={displayImage}
                       alt={`${car.make} ${car.model}`}
@@ -1110,17 +1110,29 @@ const CarDetails: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Floating CTA */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-18px_40px_-24px_rgba(15,23,42,0.65)] backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Total price</div>
-              <div className="text-xl font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</div>
-              <div className="text-[10px] font-bold text-accent">Pay now {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</div>
+      {/* Mobile Sticky Footer */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-200 p-4 shadow-[0_-10px_30px_rgba(15,23,42,0.15)] animate-in slide-in-from-bottom duration-500">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-grow">
+            <div className="flex items-center gap-1.5 mb-0.5">
+                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Total Price</p>
+                <span className="h-1 w-1 bg-slate-300 rounded-full"></span>
+                <span className="text-[9px] font-black text-accent uppercase tracking-wider">{days} days</span>
             </div>
-            <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="shrink-0 rounded-2xl bg-accent px-6 py-3.5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_-16px_rgba(0,122,194,0.8)] transition active:scale-95">Book now</Link>
+            <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-slate-950 tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                <span className="text-[10px] font-bold text-slate-400">Total</span>
+            </div>
           </div>
+          <Link 
+            to={`/book/${car.id}/details?${bookingParams}`} 
+            onClick={handleContinue} 
+            className="bg-accent text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-[0.15em] text-xs shadow-[0_12px_24px_-8px_rgba(0,122,194,0.6)] active:scale-95 transition-all"
+          >
+            Book Now
+          </Link>
         </div>
       </div>
     </>

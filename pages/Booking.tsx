@@ -619,7 +619,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-white min-h-screen py-2 sm:py-3 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="bg-white min-h-screen py-2 sm:py-3 pb-32 sm:pb-3 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
            <div className="w-full max-w-[320px] sm:max-w-md px-6">
@@ -1292,6 +1292,33 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                   <p className="text-sm text-slate-600 leading-relaxed">Our booking specialists can help with payment, documentation, and supplier requirements before pickup time.</p>
                 </div>
              </div>
+          </div>
+          
+          {/* Mobile Sticky Footer */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-200 p-4 shadow-[0_-10px_30px_rgba(15,23,42,0.15)] animate-in slide-in-from-bottom duration-500">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 truncate">{car.make} {car.model}</p>
+                    <span className="h-1 w-1 bg-slate-300 rounded-full"></span>
+                    <span className="text-[9px] font-black text-accent uppercase tracking-wider">{days} days</span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-slate-950 tracking-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={isActionBusy}
+                className="bg-accent text-white px-6 py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-[0_12px_24px_-8px_rgba(0,122,194,0.6)] active:scale-95 transition-all disabled:opacity-50"
+              >
+                {isActionBusy ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  routeStep === 'details' ? 'Next Step' : 'Confirm'
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
