@@ -88,6 +88,7 @@ const money = (symbol: string, value?: number) => {
   if (value === undefined || !Number.isFinite(value)) return 'n/a';
   return `${symbol}${value % 1 ? value.toFixed(2) : value.toFixed(0)}`;
 };
+const catText = (c: { category?: string }) => (/suv/i.test(c.category || '') ? 'SUV' : (c.category || 'similar').toLowerCase());
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const listJoin = (items: string[]) => (items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`);
 const norm = (s?: string) => (s || '').toLowerCase().replace(/[^a-z0-9؀-ۿ ]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -239,16 +240,36 @@ const specs = (c: AdvisorCar) => [
 ].filter(Boolean).join(', ');
 const label = (c: AdvisorCar) => `${c.name}${c.supplier ? ` (${c.supplier})` : ''}`;
 
+const CLASS_RANK: Record<string, number> = {
+  mini: 1, economy: 2, compact: 3, midsize: 4, intermediate: 4, standard: 5, estate: 5, fullsize: 6, 'full size': 6,
+  suv: 6, van: 6, 'people carrier': 6, premium: 7, convertible: 7, luxury: 8,
+};
+export const classRank = (c: AdvisorCar) => {
+  const cat = norm(c.category);
+  const hit = Object.keys(CLASS_RANK).find(k => cat.includes(k));
+  return hit ? CLASS_RANK[hit] : 3;
+};
+
+/** What the customer gets for the money: car class, space and supplier rating. */
+const benefit = (c: AdvisorCar) => classRank(c) * 1.2 + (c.seats ?? 4) * 0.35 + (c.bags ?? 1) * 0.5 + (c.supplierRating ? c.supplierRating * 0.15 : 1.2);
+/** Rental terms that save money or hassle. */
+const terms = (c: AdvisorCar, maxDeposit: number) =>
+  (c.fuelPolicy === 'Full to full' ? 1 : 0) + (c.unlimitedMileage ? 1 : 0) + (c.specialOffer ? 0.6 : 0)
+  + (c.deposit !== undefined && maxDeposit > 0 ? 1 - c.deposit / maxDeposit : 0.4)
+  + (/terminal/i.test(c.pickupLocation || '') ? 0.4 : 0);
+
 function scoreValue(c: AdvisorCar, pool: AdvisorCar[]) {
   const prices = pool.map(x => x.totalPrice);
-  const min = Math.min(...prices), max = Math.max(...prices);
-  const maxDeposit = Math.max(1, ...pool.map(x => x.deposit ?? 0));
-  const priceScore = max > min ? 1 - (c.totalPrice - min) / (max - min) : 1;
-  const ratingScore = c.supplierRating ? Math.min(c.supplierRating, 10) / 10 : 0.6;
-  const depositScore = 1 - (c.deposit ?? maxDeposit / 2) / maxDeposit;
-  const spaceScore = Math.min(1, ((c.seats ?? 4) + (c.bags ?? 1)) / 10);
-  return priceScore * 0.45 + ratingScore * 0.22 + depositScore * 0.1 + spaceScore * 0.08
-    + (c.fuelPolicy === 'Full to full' ? 0.06 : 0) + (c.unlimitedMileage ? 0.05 : 0) + (c.specialOffer ? 0.04 : 0);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+  const benefits = pool.map(benefit);
+  const minB = Math.min(...benefits), maxB = Math.max(...benefits);
+  const maxDeposit = Math.max(0, ...pool.map(x => x.deposit ?? 0));
+  const termScores = pool.map(x => terms(x, maxDeposit));
+  const minT = Math.min(...termScores), maxT = Math.max(...termScores);
+  const pricePct = maxP > minP ? (c.totalPrice - minP) / (maxP - minP) : 0;
+  const benefitPct = maxB > minB ? (benefit(c) - minB) / (maxB - minB) : 0.5;
+  const termPct = maxT > minT ? (terms(c, maxDeposit) - minT) / (maxT - minT) : 0.5;
+  return (1 - pricePct) * 0.55 + benefitPct * 0.32 + termPct * 0.13;
 }
 
 function sortCars(list: AdvisorCar[], sort: Sort, pool: AdvisorCar[]): AdvisorCar[] {
@@ -259,7 +280,7 @@ function sortCars(list: AdvisorCar[], sort: Sort, pool: AdvisorCar[]): AdvisorCa
     case 'deposit': return by.sort((a, b) => (a.deposit ?? Infinity) - (b.deposit ?? Infinity) || a.totalPrice - b.totalPrice);
     case 'excess': return by.sort((a, b) => (a.excess ?? Infinity) - (b.excess ?? Infinity) || a.totalPrice - b.totalPrice);
     case 'rating': return by.sort((a, b) => (b.supplierRating ?? 0) - (a.supplierRating ?? 0) || a.totalPrice - b.totalPrice);
-    case 'space': return by.sort((a, b) => ((b.seats ?? 0) + (b.bags ?? 0)) - ((a.seats ?? 0) + (a.bags ?? 0)) || a.totalPrice - b.totalPrice);
+    case 'space': return by.sort((a, b) => ((b.seats ?? 0) + (b.bags ?? 0) + classRank(b) * 0.6) - ((a.seats ?? 0) + (a.bags ?? 0) + classRank(a) * 0.6) || a.totalPrice - b.totalPrice);
     default: return by.sort((a, b) => scoreValue(b, pool) - scoreValue(a, pool));
   }
 }
@@ -398,6 +419,7 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
   // --- Comparing named cars or suppliers ---
   if (q.compare) {
     let contenders: AdvisorCar[];
+    let supplierSummary: string[] = [];
     if (q.mentioned.length >= 1) {
       // One offer per model (the cheapest), unless the same model is offered by named suppliers.
       const byModel = new Map<string, AdvisorCar>();
@@ -409,13 +431,29 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
       contenders = Array.from(byModel.values());
       if (contenders.length < 2) contenders = sortCars(q.mentioned, 'price', pool);
     } else {
-      contenders = q.mentionedSuppliers.map(s => sortCars(pool.filter(c => c.supplier === s && matches(c, { ...q.constraints, suppliers: undefined })), q.sort || 'value', pool)[0]).filter(Boolean) as AdvisorCar[];
+      // Compare suppliers like-for-like: the cheapest car of a class every named supplier offers.
+      const offers = q.mentionedSuppliers.map(sup => pool.filter(c => c.supplier === sup && matches(c, { ...q.constraints, suppliers: undefined })));
+      const sharedCategories = Array.from(new Set(offers.flat().map(c => norm(c.category))))
+        .filter(cat => offers.every(list => list.some(c => norm(c.category) === cat)))
+        .sort((x, y) => (CLASS_RANK[x] ?? 3) - (CLASS_RANK[y] ?? 3));
+      const shared = sharedCategories[0];
+      contenders = offers.map(list => sortCars(shared !== undefined ? list.filter(c => norm(c.category) === shared) : list, 'price', pool)[0]).filter(Boolean) as AdvisorCar[];
+      const rank = shared;
+      supplierSummary = q.mentionedSuppliers.map((sup, i) => offers[i].length
+        ? `${sup}: ${plural(offers[i].length, 'car')}, ${money(symbol, Math.min(...offers[i].map(c => c.totalPrice)))}–${money(symbol, Math.max(...offers[i].map(c => c.totalPrice)))}${offers[i][0].supplierRating ? `, rated ${offers[i][0].supplierRating.toFixed(1)}` : ''}`
+        : `${sup}: no matching cars in this search`);
+      if (contenders.length >= 2) supplierSummary.push(rank !== undefined ? `Like-for-like, cheapest ${catText(contenders[0])} car from each:` : 'They don\'t offer the same type of car here, so this is the cheapest from each:');
     }
     contenders = contenders.slice(0, 3);
     if (contenders.length >= 2) {
-      const ranked = sortCars(contenders, q.sort || 'value', pool);
+      // Same kind of car? Then the cheaper (or better-rated) offer wins; otherwise weigh overall value.
+      const similar = (x: AdvisorCar, y: AdvisorCar) => classRank(x) === classRank(y) && x.transmission === y.transmission && Math.abs((x.bags ?? 0) - (y.bags ?? 0)) <= 1 && Math.abs((x.seats ?? 0) - (y.seats ?? 0)) <= 1;
+      const ranked = q.sort ? sortCars(contenders, q.sort, pool)
+        : contenders.every(c => similar(c, contenders[0]))
+          ? [...contenders].sort((x, y) => (Math.abs(x.totalPrice - y.totalPrice) / Math.min(x.totalPrice, y.totalPrice) < 0.03 ? (y.supplierRating ?? 0) - (x.supplierRating ?? 0) : 0) || x.totalPrice - y.totalPrice)
+          : sortCars(contenders, 'value', pool);
       const [a, b] = ranked;
-      const lines: string[] = [`Here's how ${contenders.length === 2 ? 'they compare' : 'these compare'} for ${plural(days, 'day')}:`];
+      const lines: string[] = [...(supplierSummary.length ? supplierSummary.map((l, i) => (i < supplierSummary.length - 1 || !l.endsWith(':') ? `- ${l}` : l)) : [`Here's how ${contenders.length === 2 ? 'they compare' : 'these compare'} for ${plural(days, 'day')}:`])];
       for (const car of contenders) {
         lines.push(`- ${label(car)}: ${money(symbol, car.totalPrice)} (${money(symbol, car.pricePerDay)}/day), ${specs(car)}, ${car.deposit !== undefined ? `${money(symbol, car.deposit)} deposit` : 'deposit in terms'}${car.excess !== undefined ? `, ${money(symbol, car.excess)} excess` : ''}, ${(car.fuelPolicy || 'fuel policy in terms').toLowerCase()}${car.supplierRating ? `, rated ${car.supplierRating.toFixed(1)}` : ''}.`);
       }
@@ -423,7 +461,9 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
       if (a.totalPrice < b.totalPrice - 0.5) reasons.push(`is ${money(symbol, b.totalPrice - a.totalPrice)} cheaper`);
       if ((a.deposit ?? Infinity) < (b.deposit ?? Infinity)) reasons.push(`has a lower deposit (${money(symbol, a.deposit)} vs ${money(symbol, b.deposit)})`);
       if ((a.supplierRating ?? 0) > (b.supplierRating ?? 0) + 0.1) reasons.push(`has a better-rated supplier (${a.supplierRating?.toFixed(1)} vs ${b.supplierRating?.toFixed(1)})`);
-      if ((a.seats ?? 0) + (a.bags ?? 0) > (b.seats ?? 0) + (b.bags ?? 0)) reasons.push(`has more room (${specs(a)})`);
+      if (classRank(a) > classRank(b)) reasons.push(`is a bigger ${catText(a)} car`);
+      else if ((a.seats ?? 0) + (a.bags ?? 0) > (b.seats ?? 0) + (b.bags ?? 0)) reasons.push(`has more room (${specs(a)})`);
+      if (!reasons.length && similar(a, b)) reasons.push('is the same kind of car at the best price');
       if (a.fuelPolicy === 'Full to full' && b.fuelPolicy !== 'Full to full') reasons.push('has a full-to-full fuel policy');
       if (a.transmission === 'Automatic' && b.transmission !== 'Automatic' && q.constraints.transmission !== 'Manual') reasons.push('is automatic');
       const unmet = q.requirementText.length && !matches(a, q.constraints) ? ` Note: it doesn't meet all of: ${q.requirementText.join(', ')}.` : '';
@@ -510,12 +550,42 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
     return { reply: lines.join('\n'), picks: top.map((c, i) => ({ carId: c.id, label: i === 0 ? 'Closest match' : 'Alternative', reason: `${specs(c)}, ${describeShort(c, symbol)}.` })) };
   }
 
-  const ranked = sortCars(matching, sort, pool);
+  // Be honest when the data can't separate the cars on what the customer asked about.
+  const notes: string[] = [];
+  let effectiveSort: Sort = sort;
+  const ratings = matching.map(c => c.supplierRating).filter((r): r is number => r !== undefined);
+  if (sort === 'rating' && (ratings.length < 2 || Math.max(...ratings) - Math.min(...ratings) < 0.05)) {
+    notes.push(ratings.length ? `All the suppliers here have the same rating (${ratings[0].toFixed(1)}), so rating doesn't separate them. I ranked them by overall value instead.` : 'Supplier ratings aren\'t available for these cars, so I ranked them by overall value instead.');
+    effectiveSort = 'value';
+  }
+  const deposits = matching.map(c => c.deposit).filter((d): d is number => d !== undefined);
+  if (sort === 'deposit' && (deposits.length < 2 || Math.max(...deposits) === Math.min(...deposits))) {
+    notes.push(deposits.length ? `The listed deposits are the same (${money(symbol, deposits[0])}). Each car's Rental terms confirm the exact amount.` : 'Deposit amounts aren\'t listed in these search results; you\'ll find the exact amount in each car\'s Rental terms. Here\'s the best value meanwhile.');
+    effectiveSort = 'value';
+  }
+  const excesses = matching.map(c => c.excess).filter((d): d is number => d !== undefined);
+  if (sort === 'excess' && excesses.length < 2) {
+    notes.push('The damage excess isn\'t listed for these cars; check each car\'s Rental terms. Here\'s the best value meanwhile.');
+    effectiveSort = 'value';
+  }
+  const ranked = sortCars(matching, effectiveSort, pool);
   const best = ranked[0];
   const intro = q.requirementText.length
     ? `${matching.length} of ${pool.length} cars ${matching.length === 1 ? 'matches' : 'match'} ${listJoin(q.requirementText)} (${matching.length === 1 ? money(symbol, matching[0].totalPrice) : priceRange(matching)}).`
     : `I compared ${plural(pool.length, 'car')} for your ${days}-day rental (${priceRange(pool)}).`;
   lines.push(intro);
+  notes.forEach(n => lines.push(n));
+  const cheapestMatch = sortCars(matching, 'price', pool)[0];
+  const valueWhy = best.id === cheapestMatch.id
+    ? (q.requirementText.length ? `it's the lowest-priced car that fits what you asked for` : `it's the cheapest car in your search${classRank(best) >= 3 ? `, and still a ${catText(best)} car` : ''}`)
+    : `for only ${money(symbol, best.totalPrice - cheapestMatch.totalPrice)} more than the cheapest (${cheapestMatch.name}) you get ${[
+        classRank(best) > classRank(cheapestMatch) ? `a bigger ${catText(best)} car` : '',
+        (best.bags ?? 0) > (cheapestMatch.bags ?? 0) ? `${plural(best.bags ?? 0, 'bag')} of luggage space` : '',
+        (best.seats ?? 0) > (cheapestMatch.seats ?? 0) ? `${best.seats} seats` : '',
+        best.transmission === 'Automatic' && cheapestMatch.transmission !== 'Automatic' ? 'an automatic gearbox' : '',
+        (best.supplierRating ?? 0) > (cheapestMatch.supplierRating ?? 0) + 0.1 ? `a better-rated supplier (${best.supplierRating?.toFixed(1)})` : '',
+        (best.deposit ?? Infinity) < (cheapestMatch.deposit ?? Infinity) ? `a lower deposit (${money(symbol, best.deposit)})` : '',
+      ].filter(Boolean).join(', ') || 'better overall terms'}`;
 
   const why: Record<Sort, string> = {
     price: `the lowest price at ${money(symbol, best.totalPrice)} (${money(symbol, best.pricePerDay)}/day)`,
@@ -523,19 +593,23 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
     deposit: `the lowest deposit${best.deposit !== undefined ? ` (${money(symbol, best.deposit)})` : ''}`,
     excess: `the lowest excess${best.excess !== undefined ? ` (${money(symbol, best.excess)})` : ''}`,
     rating: `the best-rated supplier${best.supplierRating ? ` (${best.supplierRating.toFixed(1)})` : ''}`,
-    space: `the most room: ${specs(best)}`,
-    value: `the best balance of price, supplier rating and rental terms`,
+    space: `the most room of the cars that fit`,
+    value: valueWhy,
   };
-  const extra = [specs(best), best.deposit !== undefined && sort !== 'deposit' ? `${money(symbol, best.deposit)} deposit` : '', sort !== 'price' && sort !== 'priceDesc' ? `${money(symbol, best.totalPrice)} total` : '', best.supplierRating && sort !== 'rating' ? `rated ${best.supplierRating.toFixed(1)}` : ''].filter(Boolean).join(', ');
-  lines.push(`${SORT_LABEL[sort]}: ${label(best)}, with ${why[sort]} (${extra}).`);
+  const extra = [specs(best), best.deposit !== undefined && effectiveSort !== 'deposit' ? `${money(symbol, best.deposit)} deposit` : '', effectiveSort !== 'price' && effectiveSort !== 'priceDesc' ? `${money(symbol, best.totalPrice)} total` : '', best.supplierRating && effectiveSort !== 'rating' ? `rated ${best.supplierRating.toFixed(1)}` : ''].filter(Boolean).join(', ');
+  lines.push(effectiveSort === 'value'
+    ? `${SORT_LABEL.value}: ${label(best)}, because ${why.value} (${extra}).`
+    : `${SORT_LABEL[effectiveSort]}: ${label(best)}, with ${why[effectiveSort]} (${extra}).`);
 
   // Alternatives: the runner-up for this priority, plus the best car for a different priority.
   const alternatives: AdvisorCar[] = [];
   const pushAlt = (c?: AdvisorCar) => { if (c && c.id !== best.id && !alternatives.some(a => a.id === c.id)) alternatives.push(c); };
+  if (effectiveSort !== 'price') pushAlt(cheapestMatch);
   pushAlt(ranked[1]);
-  if (sort !== 'price') pushAlt(sortCars(matching, 'price', pool)[0]);
-  if (sort !== 'value') pushAlt(sortCars(matching, 'value', pool)[0]);
-  if (sort !== 'rating') pushAlt(sortCars(matching, 'rating', pool)[0]);
+  if (effectiveSort !== 'value') pushAlt(sortCars(matching, 'value', pool)[0]);
+  // A different class of car is a more useful alternative than a near-identical one.
+  pushAlt(ranked.find(c => classRank(c) !== classRank(best)));
+  if (effectiveSort !== 'space') pushAlt(sortCars(matching, 'space', pool)[0]);
   const alts = alternatives.slice(0, 2).map(c => ({ car: c, ...tradeOff(c, best, symbol) }));
   if (alts.length === 2 && alts[0].label === alts[1].label) alts[1].label = 'Another option';
   alts.forEach(a => lines.push(`- ${a.label}: ${label(a.car)}. ${a.reason}`));
@@ -546,7 +620,7 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
   return {
     reply: lines.join('\n'),
     picks: [
-      { carId: best.id, label: SORT_LABEL[sort], reason: `${specs(best)}, ${describeShort(best, symbol)}.` },
+      { carId: best.id, label: SORT_LABEL[effectiveSort], reason: `${specs(best)}, ${describeShort(best, symbol)}.` },
       ...alts.map(a => ({ carId: a.car.id, label: a.label, reason: a.reason })),
     ],
   };

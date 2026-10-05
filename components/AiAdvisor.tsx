@@ -394,7 +394,9 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
                   <Send className="h-4 w-4" />
                 </button>
               </div>
-              <p className="mt-2 text-center text-[11px] text-slate-400">AI can make mistakes. Check the car's details before you book.</p>
+              <p className="mt-2 text-center text-[11px] text-slate-400">
+                {cloudAi ? 'Powered by Claude AI. AI can make mistakes.' : 'Compares the cars in your search results.'} Check the car's details before you book.
+              </p>
             </form>
           </motion.section>
         </>

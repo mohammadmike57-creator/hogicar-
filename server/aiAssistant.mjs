@@ -122,6 +122,52 @@ const readBody = async (req) => {
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
 };
 
+const JSON_INSTRUCTION = 'Respond with only a JSON object of the form {"reply": string, "picks": [{"carId": string, "label": string, "reason": string}]} and nothing else.';
+
+/**
+ * Asks Claude for an answer. Tries the full request first (structured output + refusal
+ * fallback); if the API rejects a request option, retries with simpler requests so the
+ * customer still gets an AI answer.
+ */
+async function createAnswer(system, messages) {
+  const client = getClient();
+  const attempts = [
+    () => client.beta.messages.create({
+      model: MODEL,
+      max_tokens: 4000,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: { effort: 'low', format: { type: 'json_schema', schema: OUTPUT_SCHEMA } },
+      system,
+      messages,
+    }),
+    () => client.messages.create({
+      model: MODEL,
+      max_tokens: 4000,
+      output_config: { effort: 'low', format: { type: 'json_schema', schema: OUTPUT_SCHEMA } },
+      system,
+      messages,
+    }),
+    () => client.messages.create({
+      model: MODEL,
+      max_tokens: 4000,
+      system: [...system, { type: 'text', text: JSON_INSTRUCTION }],
+      messages,
+    }),
+  ];
+  let lastError;
+  for (const attempt of attempts) {
+    try {
+      return await attempt();
+    } catch (error) {
+      lastError = error;
+      if (!(error instanceof Anthropic.BadRequestError)) throw error;
+      console.error('[ai-assistant] request rejected, retrying with a simpler request:', error.message);
+    }
+  }
+  throw lastError;
+}
+
 export async function handleAiAssistant(req, res) {
   if (req.method !== 'POST') {
     sendJson(res, 405, { error: 'Method not allowed' });
@@ -168,25 +214,15 @@ export async function handleAiAssistant(req, res) {
   };
 
   try {
-    const response = await getClient().beta.messages.create({
-      model: MODEL,
-      max_tokens: 4000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: {
-        effort: 'low',
-        format: { type: 'json_schema', schema: OUTPUT_SCHEMA },
+    const system = [
+      { type: 'text', text: SYSTEM_PROMPT },
+      {
+        type: 'text',
+        text: `Search data (JSON, prices already include taxes and fees):\n${JSON.stringify(searchData)}`,
+        cache_control: { type: 'ephemeral' },
       },
-      system: [
-        { type: 'text', text: SYSTEM_PROMPT },
-        {
-          type: 'text',
-          text: `Search data (JSON, prices already include taxes and fees):\n${JSON.stringify(searchData)}`,
-          cache_control: { type: 'ephemeral' },
-        },
-      ],
-      messages,
-    });
+    ];
+    const response = await createAnswer(system, messages);
 
     if (response.stop_reason === 'refusal') {
       sendJson(res, 200, { reply: "Sorry, I can't help with that. I can compare the cars in your search, for example by price, deposit or fuel policy.", picks: [] });
@@ -198,7 +234,9 @@ export async function handleAiAssistant(req, res) {
     try {
       parsed = JSON.parse(text);
     } catch {
-      parsed = { reply: text, picks: [] };
+      const match = text.match(/\{[\s\S]*\}/);
+      try { parsed = match ? JSON.parse(match[0]) : null; } catch { parsed = null; }
+      parsed = parsed || { reply: text, picks: [] };
     }
 
     const knownIds = new Set(cars.map(c => c.id));
