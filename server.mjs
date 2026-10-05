@@ -4,6 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync, deflateSync, brotliCompressSync } from 'node:zlib';
+import { handleAiAssistant, isAiConfigured } from './server/aiAssistant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, 'dist');
@@ -207,6 +208,16 @@ createServer(async (req, res) => {
     const typoRedirect = sitemapTypoTarget(url.pathname, url.search);
     if (typoRedirect) {
       send(res, 301, '', { Location: typoRedirect });
+      return;
+    }
+
+    if (url.pathname === '/api/ai/assistant') {
+      await handleAiAssistant(req, res);
+      return;
+    }
+
+    if (url.pathname === '/api/ai/status') {
+      send(res, 200, JSON.stringify({ enabled: isAiConfigured() }), { 'Content-Type': contentTypes['.json'], 'Cache-Control': 'no-store' });
       return;
     }
 

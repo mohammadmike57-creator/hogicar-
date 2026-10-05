@@ -61,14 +61,14 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
             return (
               <div
                 key={`${s.id || s.name}-${idx}`}
-                className="mx-3 flex h-16 w-36 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 shadow-sm md:mx-4 md:h-20 md:w-44"
+                className="mx-2 flex h-16 w-36 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm md:mx-3 md:h-20 md:w-44 md:p-2"
               >
                 <img
                   src={logoUrl}
                   srcSet={srcSet}
                   sizes="160px"
                   alt={s.name}
-                  className="max-h-9 w-auto max-w-full object-contain md:max-h-11"
+                  className="h-full w-full object-contain"
                   width="160"
                   height="48"
                   loading="lazy"

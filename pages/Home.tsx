@@ -688,7 +688,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               </div>
             )}
 
-            <div className="mx-auto max-w-3xl text-center">
+            <div className="mx-auto max-w-6xl text-center">
               {heroPromotion.active ? (
                 <a
                   href={heroPromotion.link || '#search'}
@@ -704,10 +704,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                   <span className="hidden sm:inline">900+ rental companies · 60,000+ locations</span>
                 </span>
               )}
-              <h1 className="mt-5 text-balance text-[2rem] font-extrabold leading-[1.1] tracking-tight drop-shadow-sm sm:text-5xl lg:text-6xl">
+              <h1 className={`mx-auto mt-5 font-extrabold leading-[1.1] tracking-tight drop-shadow-sm ${displayH1.length <= 40
+                ? 'whitespace-nowrap text-[min(3.5rem,calc((100vw-2.75rem)/19.5))]'
+                : 'max-w-4xl text-balance text-[2rem] sm:text-5xl lg:text-6xl'}`}>
                 {displayH1}
               </h1>
-              <p className="route-description mx-auto mt-4 max-w-2xl text-balance text-base text-white/85 sm:text-lg lg:text-xl">
+              <p className="route-description mx-auto mt-3 max-w-2xl text-balance text-sm text-white/85 sm:mt-4 sm:text-lg lg:text-xl">
                 {displaySubtitle}
               </p>
             </div>

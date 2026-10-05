@@ -5,6 +5,7 @@ import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
+import AiAdvisor, { openAiAdvisor } from '../components/AiAdvisor';
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
@@ -231,6 +232,17 @@ export const Search: React.FC = () => {
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [aiEnabled, setAiEnabled] = React.useState(false);
+  const [highlightedCarId, setHighlightedCarId] = React.useState<string | null>(null);
+  const highlightTimer = useRef<number | undefined>(undefined);
+  const showCarFromAdvisor = useCallback((carId: string) => {
+    const el = document.getElementById(`car-${carId}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightedCarId(carId);
+    window.clearTimeout(highlightTimer.current);
+    highlightTimer.current = window.setTimeout(() => setHighlightedCarId(null), 2600);
+  }, []);
   
   const startD = new Date(startDate);
   const endD = new Date(endDate);
@@ -1149,9 +1161,31 @@ export const Search: React.FC = () => {
                   </div>
                 )}
                 <div className={`space-y-3 transition-opacity duration-200 ${isRefreshing ? 'pointer-events-none opacity-60' : ''}`}>
+                  {aiEnabled && sortedAndFilteredCars.length > 1 && (
+                    <div className="flex flex-col gap-3 rounded-xl border border-accent-100 bg-gradient-to-r from-accent-50 via-white to-white p-3.5 sm:flex-row sm:items-center sm:p-4">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#003580] to-accent text-white shadow-sm">
+                          <Sparkles className="h-5 w-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-slate-900">Not sure which car to choose?</p>
+                          <p className="text-xs text-slate-600 sm:text-sm">Our AI advisor compares price, deposit, fuel policy and ratings for you.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 overflow-x-auto pb-0.5 sm:shrink-0 sm:overflow-visible sm:pb-0">
+                        <button type="button" onClick={() => openAiAdvisor('Which car is the best value?')} className="hidden h-9 shrink-0 items-center rounded-full border border-slate-300 bg-white px-3.5 text-xs font-semibold text-slate-700 hover:border-accent hover:text-accent lg:inline-flex">
+                          Best value?
+                        </button>
+                        <button type="button" onClick={() => openAiAdvisor()} className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-accent px-4 text-xs font-semibold text-white hover:bg-accent-700 sm:text-sm">
+                          <Sparkles className="h-4 w-4" /> Ask AI advisor
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {sortedAndFilteredCars.map(car => (
+                    <div key={car.id} id={`car-${car.id}`} className={`scroll-mt-24 rounded-xl transition-shadow duration-500 ${highlightedCarId === car.id ? 'shadow-[0_0_0_3px_rgba(0,122,194,0.55),0_12px_32px_-12px_rgba(0,122,194,0.5)]' : ''}`}>
                     <CarCard
-                      key={car.id}
                       car={car}
                       cars={sortedAndFilteredCars}
                       days={days}
@@ -1167,6 +1201,7 @@ export const Search: React.FC = () => {
                       onCompareToggle={() => toggleCompare(car)}
                       matchedFilters={matchedFilterLabels}
                     />
+                    </div>
                   ))}
 
                   {sortedAndFilteredCars.length === 0 && !loading && (
@@ -1243,6 +1278,21 @@ export const Search: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {!loading && sortedAndFilteredCars.length > 0 && (
+        <AiAdvisor
+          cars={sortedAndFilteredCars}
+          days={days}
+          startDate={startDate}
+          endDate={endDate}
+          pickupName={pickupName}
+          dropoffName={dropoffName}
+          activeFilters={matchedFilterLabels}
+          raised={selectedCompareCars.length > 0}
+          onEnabledChange={setAiEnabled}
+          onViewCar={showCarFromAdvisor}
+        />
       )}
 
       {/* Comparison Modal */}

@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^5.4.0",
     "axios": "^1.13.5",
