@@ -276,6 +276,43 @@ const Searching: React.FC = () => {
     { icon: Headphones, title: '24/7 support', text: 'Before and during your rental' },
   ];
 
+  // Pin the screen between the site header and the bottom of the viewport, and scale the
+  // content down if needed, so this page never scrolls on any device.
+  const [topOffset, setTopOffset] = React.useState(72);
+  const [fitScale, setFitScale] = React.useState(1);
+  const fitRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const measure = () => {
+      const header = document.querySelector('header');
+      const top = header ? Math.max(0, Math.round(header.getBoundingClientRect().bottom)) : 0;
+      setTopOffset(top);
+      const content = fitRef.current;
+      if (content) {
+        const available = window.innerHeight - top - 24;
+        const natural = content.offsetHeight;
+        setFitScale(natural > 0 ? Math.min(1, available / natural) : 1);
+      }
+    };
+    measure();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (ro && fitRef.current) ro.observe(fitRef.current);
+    window.addEventListener('resize', measure);
+    window.visualViewport?.addEventListener('resize', measure);
+    const html = document.documentElement;
+    const prevHtml = html.style.overflow;
+    const prevBody = document.body.style.overflow;
+    html.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    window.scrollTo(0, 0);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', measure);
+      window.visualViewport?.removeEventListener('resize', measure);
+      html.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
+  }, []);
+
   // Slides shown in turn inside a fixed-height panel so the page never scrolls
   const slideKeys = [...(totalSuppliers > 0 ? ['suppliers'] : []), 'included', 'tip'];
   const [slideIndex, setSlideIndex] = React.useState(0);
@@ -303,7 +340,7 @@ const Searching: React.FC = () => {
               return (
                 <div
                   key={`supplier-scan-${supplier.id}-${supplier.name}`}
-                  className={`relative flex h-11 min-w-0 items-center justify-center rounded-lg border bg-white p-2 transition-all duration-300 sm:h-12 ${
+                  className={`relative flex h-10 min-w-0 items-center justify-center rounded-lg border bg-white p-2 transition-all duration-300 ${
                     isComplete ? 'border-slate-200' : isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-200 opacity-40'
                   }`}
                   title={supplier.name}
@@ -340,8 +377,8 @@ const Searching: React.FC = () => {
           <ul className="mt-3 grid gap-3 sm:grid-cols-3">
             {included.map(item => (
               <li key={item.title} className="flex items-center gap-3 sm:block">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                  <item.icon className="h-5 w-5" />
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <item.icon className="h-[18px] w-[18px]" />
                 </span>
                 <span className="sm:mt-2 sm:block">
                   <span className="block text-sm font-semibold text-slate-900">{item.title}</span>
@@ -360,7 +397,7 @@ const Searching: React.FC = () => {
         </span>
         <div>
           <p className="text-sm font-semibold text-slate-900">Good to know</p>
-          <p className="mt-1 text-base text-slate-600">{tips[currentTipIndex]}</p>
+          <p className="mt-1 text-sm text-slate-600">{tips[currentTipIndex]}</p>
         </div>
       </div>
     );
@@ -373,22 +410,22 @@ const Searching: React.FC = () => {
         description="We're comparing hundreds of suppliers to find you the best car rental deal."
         noIndex={true}
       />
-      <div className="relative flex h-[calc(100dvh-73px)] min-h-[560px] flex-col items-center justify-center overflow-hidden bg-slate-50 px-4 py-4 font-sans text-slate-900 sm:px-6">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col items-center justify-center overflow-hidden bg-slate-50 px-4 font-sans text-slate-900 sm:px-6" style={{ top: topOffset }}>
         {/* Blue backdrop behind the top half */}
         <div className="absolute inset-x-0 top-0 h-[46%] overflow-hidden bg-gradient-to-br from-[#003580] via-[#0047a6] to-[#0b5cc4]" aria-hidden="true">
           <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
         </div>
 
-        <div className="relative w-full max-w-3xl">
+        <div ref={fitRef} className="relative w-full max-w-2xl origin-center" style={{ transform: fitScale < 1 ? `scale(${fitScale})` : undefined }}>
           {/* Trip route */}
           <div className="text-white">
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
               <div className="min-w-0">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-white/60">Pick-up</p>
-                <p className="truncate text-xl font-bold leading-tight sm:text-2xl">{pickupIata ? pickupIata.toUpperCase() : pickupName}</p>
+                <p className="truncate text-lg font-bold leading-tight sm:text-xl">{pickupIata ? pickupIata.toUpperCase() : pickupName}</p>
                 <p className="truncate text-xs text-white/75 sm:text-sm">{formatTripDate(searchPrefetchParams.pickupDate, searchPrefetchParams.startTime)}</p>
               </div>
-              <div className="w-20 sm:w-56" aria-hidden="true">
+              <div className="w-20 sm:w-44" aria-hidden="true">
                 <div className="relative h-8">
                   <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/35" />
                   <div className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white" />
@@ -404,33 +441,33 @@ const Searching: React.FC = () => {
               </div>
               <div className="min-w-0 text-right">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-white/60">Drop-off</p>
-                <p className="truncate text-xl font-bold leading-tight sm:text-2xl">{dropoffCode || dropoffLabel}</p>
+                <p className="truncate text-lg font-bold leading-tight sm:text-xl">{dropoffCode || dropoffLabel}</p>
                 <p className="truncate text-xs text-white/75 sm:text-sm">{formatTripDate(searchPrefetchParams.dropoffDate, searchPrefetchParams.endTime)}</p>
               </div>
             </div>
-            <p className="mt-3 truncate text-center text-sm text-white/80">{pickupName}</p>
+            <p className="mt-2 truncate text-center text-xs text-white/80 sm:text-sm">{pickupName}</p>
           </div>
 
         {/* Main card */}
-          <div className="mt-5 flex w-full flex-col rounded-2xl border border-slate-200 bg-white shadow-xl sm:mt-6" role="status" aria-live="polite">
-            <div className="p-5 sm:p-6">
+          <div className="mt-4 flex w-full flex-col rounded-2xl border border-slate-200 bg-white shadow-xl" role="status" aria-live="polite">
+            <div className="p-4 sm:p-5">
               <div className="flex items-end justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-slate-500">Step {stepIndex + 1} of {searchMessages.length}</p>
-                  <p className="mt-0.5 flex items-center gap-2 text-base font-semibold text-slate-900 sm:text-lg">
+                  <p className="mt-0.5 flex items-center gap-2 text-sm font-semibold text-slate-900 sm:text-base">
                     <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true" />
                     <span key={stepIndex} className="truncate animate-in fade-in duration-500">{progress >= 1 ? 'Your results are ready' : searchMessages[stepIndex]}</span>
                   </p>
                 </div>
-                <span className="shrink-0 text-3xl font-bold tabular-nums tracking-tight text-accent">{percent}%</span>
+                <span className="shrink-0 text-2xl font-bold tabular-nums tracking-tight text-accent">{percent}%</span>
               </div>
 
-              <div className="mt-4 grid grid-cols-5 gap-1.5" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Search progress">
+              <div className="mt-3 grid grid-cols-5 gap-1.5" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Search progress">
                 {searchMessages.map((message, i) => {
                   const segStart = i / searchMessages.length;
                   const fill = Math.max(0, Math.min(1, (progress - segStart) * searchMessages.length));
                   return (
-                    <div key={message} className="h-2 overflow-hidden rounded-full bg-slate-100" title={message}>
+                    <div key={message} className="h-1.5 overflow-hidden rounded-full bg-slate-100" title={message}>
                       <div className={`h-full rounded-full ${fill >= 1 ? 'bg-emerald-500' : 'bg-accent'}`} style={{ width: `${fill * 100}%` }} />
                     </div>
                   );
@@ -446,8 +483,8 @@ const Searching: React.FC = () => {
             </div>
 
             {/* Slides */}
-            <div className="border-t border-slate-100 bg-slate-50/60 px-5 pb-4 pt-5 sm:px-6">
-              <div className="relative h-[176px] overflow-hidden sm:h-[150px]">
+            <div className="border-t border-slate-100 bg-slate-50/60 px-4 pb-3 pt-4 sm:px-5">
+              <div className="relative h-[176px] overflow-hidden sm:h-[128px]">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activeSlide}
@@ -476,7 +513,7 @@ const Searching: React.FC = () => {
             </div>
           </div>
 
-          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-xs text-slate-500 sm:gap-x-6">
+          <ul className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-slate-500 sm:gap-x-6">
             <li className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Secure search</li>
             <li className="inline-flex items-center gap-1.5"><Receipt className="h-3.5 w-3.5 text-emerald-600" /> Prices include taxes and fees</li>
             <li className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Free cancellation on most bookings</li>

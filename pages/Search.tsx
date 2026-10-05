@@ -184,6 +184,8 @@ export const Search: React.FC = () => {
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const resultsTopRef = useRef<HTMLDivElement>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const [apiCars, setApiCars] = useState<Car[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -285,6 +287,8 @@ export const Search: React.FC = () => {
       setLoading(true);
     } else if (isLoadMore) {
       setIsFetchingMore(true);
+    } else {
+      setIsRefreshing(true);
     }
 
     try {
@@ -298,13 +302,8 @@ export const Search: React.FC = () => {
         endTime: searchPrefetchParams.endTime,
         page: currentPage,
         size: 20,
+        // Filters are applied on the client so counts stay stable and filtering is instant
         sort: sortBy,
-        categories: selectedCategories,
-        suppliers: selectedSuppliers,
-        transmissions: selectedTransmissions,
-        fuelPolicies: selectedFuelPolicies,
-        passengers: passengerCapacity,
-        maxPrice: priceRange
       });
 
       if (isLoadMore) {
@@ -325,24 +324,13 @@ export const Search: React.FC = () => {
     } finally {
       setLoading(false);
       setIsFetchingMore(false);
+      setIsRefreshing(false);
     }
-  }, [
-    searchPrefetchParams, sortBy, selectedCategories, selectedSuppliers, 
-    selectedTransmissions, selectedFuelPolicies, passengerCapacity, priceRange, page, apiCars.length
-  ]);
+  }, [searchPrefetchParams, sortBy, page, apiCars.length]);
 
   useEffect(() => {
     fetchApiCars(false);
-  }, [
-    searchParamsString, 
-    sortBy, 
-    selectedCategories, 
-    selectedSuppliers, 
-    selectedTransmissions, 
-    selectedFuelPolicies, 
-    passengerCapacity, 
-    priceRange
-  ]);
+  }, [searchParamsString, sortBy]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -710,6 +698,13 @@ export const Search: React.FC = () => {
     (maxDeposit > 0 ? 1 : 0) +
     (specialOffersOnly ? 1 : 0);
 
+  // Price slider covers the real range of daily prices; 5000 means "no limit"
+  const maxDailyPrice = React.useMemo(() => {
+    const prices = baseFilteredCars.map(getCarDailyPrice).filter(p => Number.isFinite(p) && p > 0);
+    return prices.length ? Math.ceil(Math.max(...prices)) : 5000;
+  }, [baseFilteredCars, days, startDate]);
+  const sliderValue = Math.min(priceRange, maxDailyPrice);
+
   const activeFilters: { key: string; label: string; clear: () => void }[] = [
     ...(specialOffersOnly ? [{ key: 'special', label: 'Special offers', clear: () => setSpecialOffersOnly(false) }] : []),
     ...selectedCategories.map(c => ({ key: `cat-${c}`, label: formatCategoryName(c), clear: () => handleCategoryToggle(c) })),
@@ -720,9 +715,20 @@ export const Search: React.FC = () => {
     ...selectedLocationTypes.map(l => ({ key: `loc-${l}`, label: l, clear: () => handleLocationTypeChange(l) })),
     ...selectedFuelPolicies.map(f => ({ key: `fuel-${f}`, label: `Fuel: ${f.replace(/_/g, ' ').toLowerCase()}`, clear: () => handleFuelPolicyChange(f) })),
     ...selectedSuppliers.map(n => ({ key: `sup-${n}`, label: n, clear: () => handleSupplierChange(n) })),
-    ...(priceRange < 5000 ? [{ key: 'price', label: `Up to ${getCurrencySymbol()}${convertPrice(priceRange).toFixed(0)}/day`, clear: () => setPriceRange(5000) }] : []),
+    ...(priceRange < 5000 && priceRange < maxDailyPrice ? [{ key: 'price', label: `Up to ${getCurrencySymbol()}${convertPrice(priceRange).toFixed(0)}/day`, clear: () => setPriceRange(5000) }] : []),
   ];
   const matchedFilterLabels = activeFilters.map(f => f.label);
+
+  // When filters change and the user has scrolled past the top of the results, bring the results back into view
+  const filterKey = matchedFilterLabels.join('|');
+  const isFirstFilterRender = useRef(true);
+  useEffect(() => {
+    if (isFirstFilterRender.current) { isFirstFilterRender.current = false; return; }
+    const el = resultsTopRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 140;
+    if (window.scrollY > top + 40) window.scrollTo({ top, behavior: 'smooth' });
+  }, [filterKey]);
 
   const sortOptions = ['Recommended', 'Price: Low to High', 'Price: High to Low'];
   const sortLabel = (value: string) => value === 'Price: Low to High' ? 'Lowest price' : value === 'Price: High to Low' ? 'Highest price' : 'Recommended';
@@ -859,8 +865,8 @@ export const Search: React.FC = () => {
           >
             <SlidersHorizontal className="h-4 w-4" />
             Filters
-            {activeFilterCount > 0 && (
-              <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-accent px-1 text-xs text-white">{activeFilterCount}</span>
+            {activeFilters.length > 0 && (
+              <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-accent px-1 text-xs text-white">{activeFilters.length}</span>
             )}
           </button>
           <button
@@ -882,10 +888,10 @@ export const Search: React.FC = () => {
               <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3.5">
                 <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
                   Filters
-                  {activeFilterCount > 0 && <span className="rounded-full bg-accent-50 px-2 py-0.5 text-xs font-semibold text-accent">{activeFilterCount}</span>}
+                  {activeFilters.length > 0 && <span className="rounded-full bg-accent-50 px-2 py-0.5 text-xs font-semibold text-accent">{activeFilters.length}</span>}
                 </h2>
                 <div className="flex items-center gap-3">
-                  {activeFilterCount > 0 && (
+                  {activeFilters.length > 0 && (
                     <button type="button" onClick={handleResetFilters} className="text-sm font-medium text-accent hover:underline">Clear all</button>
                   )}
                   <button type="button" onClick={() => setShowMobileFilters(false)} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 md:hidden" aria-label="Close filters">
@@ -903,14 +909,15 @@ export const Search: React.FC = () => {
                   <div>
                     <div className="mb-2 flex items-center justify-between text-sm text-slate-600">
                       <span>Up to</span>
-                      <span className="font-semibold text-slate-900">{getCurrencySymbol()}{convertPrice(priceRange).toFixed(0)}</span>
+                      <span className="font-semibold text-slate-900">{sliderValue >= maxDailyPrice ? 'Any price' : `${getCurrencySymbol()}${convertPrice(sliderValue).toFixed(0)}`}</span>
                     </div>
                     <input
                       type="range"
                       min="0"
-                      max="5000"
-                      value={priceRange}
-                      onChange={(e) => setPriceRange(Number(e.target.value))}
+                      max={maxDailyPrice}
+                      step="1"
+                      value={sliderValue}
+                      onChange={(e) => { const v = Number(e.target.value); setPriceRange(v >= maxDailyPrice ? 5000 : v); }}
                       className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-accent"
                       aria-label="Maximum price per day"
                     />
@@ -1047,6 +1054,7 @@ export const Search: React.FC = () => {
               </div>
             ) : (
               <>
+                <div ref={resultsTopRef} aria-hidden="true" />
                 {/* Car type chips */}
                 <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 no-scrollbar md:mx-0 md:px-0" role="group" aria-label="Filter by car type">
                   <button
@@ -1135,7 +1143,12 @@ export const Search: React.FC = () => {
                   </label>
                 </div>
 
-                <div className="space-y-3">
+                {isRefreshing && (
+                  <div className="mb-3 flex items-center gap-2 text-sm text-slate-500" role="status">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" /> Updating results…
+                  </div>
+                )}
+                <div className={`space-y-3 transition-opacity duration-200 ${isRefreshing ? 'pointer-events-none opacity-60' : ''}`}>
                   {sortedAndFilteredCars.map(car => (
                     <CarCard
                       key={car.id}
@@ -1161,7 +1174,7 @@ export const Search: React.FC = () => {
                       <CarIcon className="mx-auto mb-3 h-10 w-10 text-slate-400" />
                       <h3 className="text-lg font-bold text-slate-900">No cars match your filters</h3>
                       <p className="mt-1 text-sm text-slate-500">Try removing some filters or changing your dates.</p>
-                      {activeFilterCount > 0 && (
+                      {activeFilters.length > 0 && (
                         <button type="button" onClick={handleResetFilters} className="mt-4 inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-accent hover:text-accent">
                           Clear all filters
                         </button>
