@@ -26,10 +26,10 @@ const PopularDestinations: React.FC<PopularDestinationsProps> = ({
       <div className="max-w-7xl mx-auto px-4">
          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
              <div>
-                 <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">{title}</h2>
-                 <p className="text-slate-700 font-bold uppercase text-xs tracking-widest">{subtitle}</p>
+                 <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl mb-2">{title}</h2>
+                 <p className="text-base text-slate-600">{subtitle}</p>
              </div>
-             <Link to="/search" className="text-accent font-black uppercase text-xs tracking-widest flex items-center gap-2 hover:gap-3 transition-all">
+             <Link to="/search" className="text-accent font-semibold text-sm flex items-center gap-1.5 hover:underline">
                  View All <ArrowRight className="w-4 h-4" />
              </Link>
          </div>
@@ -58,9 +58,9 @@ const PopularDestinations: React.FC<PopularDestinationsProps> = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
                     <div className="absolute bottom-6 start-6 end-6">
-                        <h3 className="text-xl font-black text-white uppercase tracking-tight">{dest.name}</h3>
+                        <h3 className="text-lg font-bold text-white">{dest.name}</h3>
                         {dest.country && (
-                          <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mt-1">{dest.country}</p>
+                          <p className="text-white/80 text-sm mt-0.5">{dest.country}</p>
                         )}
                     </div>
                   </Link>

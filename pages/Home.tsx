@@ -566,8 +566,52 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     dropoffName: dropoffName
   }), [pickupCode, pickupName, dropoffCode, dropoffName]);
 
+  const heroHighlights = [
+    { icon: CheckCircle, text: 'Free cancellation on most bookings' },
+    { icon: ShieldCheck, text: 'No hidden fees' },
+    { icon: Clock, text: '24/7 customer support' },
+  ];
+
+  const dealSteps = [
+    { title: 'Book early', desc: 'Reserve 2–4 weeks before pick-up to save on peak-season rates.', icon: Calendar },
+    { title: 'Compare deals', desc: 'See prices from global brands and trusted local suppliers side by side.', icon: SearchIcon },
+    { title: 'Check the conditions', desc: 'Review fuel policy, mileage and insurance before you book.', icon: ShieldCheck },
+    { title: 'Drive away happy', desc: 'Pick up your car with clear instructions and support throughout your trip.', icon: Car },
+  ];
+
+  const stats = [
+    { value: '900+', label: 'Rental suppliers' },
+    { value: '60,000+', label: 'Pick-up locations' },
+    { value: '2M+', label: 'Verified ratings' },
+    { value: '24/7', label: 'Customer support' },
+  ];
+
+  const regionalDestinations = [
+    { country: 'United Arab Emirates', cities: [['Dubai', 'dubai'], ['Abu Dhabi', 'abu-dhabi'], ['Sharjah', 'sharjah'], ['Ras Al Khaimah', 'ras-al-khaimah'], ['Fujairah', 'fujairah'], ['Ajman', 'ajman']] },
+    { country: 'Saudi Arabia', cities: [['Riyadh', 'riyadh'], ['Jeddah', 'jeddah'], ['Dammam', 'dammam']] },
+    { country: 'Egypt', cities: [['Cairo', 'cairo'], ['Hurghada', 'hurghada'], ['Alexandria', 'alexandria'], ['Giza', 'giza']] },
+    { country: 'Jordan & the Gulf', cities: [['Amman', 'amman'], ['Aqaba', 'aqaba'], ['Muscat', 'muscat'], ['Salalah', 'salalah'], ['Doha', 'doha'], ['Manama', 'manama'], ['Kuwait City', 'kuwait-city']] },
+  ];
+
+  const sectionHeading = (title: string, subtitle?: string, align: 'center' | 'left' = 'left') => (
+    <div className={`mb-8 sm:mb-10 ${align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}`}>
+      <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h2>
+      {subtitle && <p className="mt-2 text-base text-slate-600">{subtitle}</p>}
+    </div>
+  );
+
+  const linkList = (items: { label: string; to: string }[]) => (
+    <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+      {items.map(item => (
+        <li key={item.to}>
+          <Link to={item.to} className="text-sm text-slate-600 transition-colors hover:text-accent hover:underline">{item.label}</Link>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
-    <div className="bg-white font-sans">
+    <div className="bg-white font-sans text-slate-900">
       {!skipSEO && (
         <SEOMetadata
           title={seoConfig?.title}
@@ -586,18 +630,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           preloadImageSrcSet={shouldPreloadHeroImage ? (heroWebpSrcSet || heroPngSrcSet) : undefined}
         />
       )}
-      
-      {/* 1. HERO & 2. SEARCH WIDGET */}
+
+      {/* Hero and search */}
       {sections.hero && (
-        <section className="relative z-30 pt-12 pb-10 sm:pt-16 sm:pb-12 lg:pt-24 lg:pb-16 text-white overflow-visible flex flex-col justify-center min-h-[500px] sm:min-h-[480px] lg:min-h-[450px]" style={{ color: heroTextColor }}>
-          <div className="absolute inset-0 z-0 bg-[#003580]">
+        <section className="relative z-30 overflow-visible pb-10 pt-24 sm:pb-14 sm:pt-28 lg:pb-16 lg:pt-32" style={{ color: heroTextColor }}>
+          <div className="absolute inset-0 z-0 overflow-hidden bg-[#003580]">
             {heroVideo ? (
-              <video 
-                autoPlay 
-                muted 
-                loop 
-                playsInline 
-                className="w-full h-full object-cover"
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="h-full w-full object-cover"
                 onCanPlay={() => setHeroLoaded(true)}
               >
                 <source src={heroVideo} type="video/mp4" />
@@ -605,18 +649,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
             ) : heroBackgroundImage && (
               <picture>
                 {isLocalHero && (
-                    <source 
-                        type="image/webp" 
-                        srcSet={heroWebpSrcSet} 
-                        sizes="100vw"
-                    />
+                  <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />
                 )}
-                <img 
+                <img
                   key={heroBackgroundImage}
                   src={heroBackgroundImage}
                   srcSet={heroPngSrcSet}
                   sizes="100vw"
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                   alt={seoConfig?.imageAltText || displayH1}
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
@@ -630,41 +670,44 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                 />
               </picture>
             )}
-            {!heroLoaded && !heroVideo && heroBackgroundImage && (
-              <div className="absolute inset-0 bg-[#003580]"></div>
-            )}
-            {!heroBackgroundImage && !heroVideo && (
-              <div className="absolute inset-0 bg-gradient-to-b from-[#003580] via-[#0047AB] to-[#003580]"></div>
-            )}
-            <div className="absolute inset-0 bg-black/30"></div>
+            {!heroLoaded && !heroVideo && heroBackgroundImage && <div className="absolute inset-0 bg-[#003580]" />}
+            {!heroBackgroundImage && !heroVideo && <div className="absolute inset-0 bg-gradient-to-br from-[#002a66] via-[#003580] to-[#0b4fa3]" />}
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-slate-950/25 to-slate-950/50" />
           </div>
 
-          <div className="max-w-7xl mx-auto w-full px-4 text-center relative z-10 mt-2 sm:mt-0">
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             {isCustomLanding && (
-              <div className="flex flex-col items-center mb-4">
+              <div className="mb-4">
                 <Breadcrumbs items={breadcrumbItems} variant="light" />
                 {seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY' && (
-                  <div className="mt-4">
-                    <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-full border border-white/20">
-                      {seoConfig.countryTag}
-                    </span>
-                  </div>
+                  <span className="mt-3 inline-block rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                    {seoConfig.countryTag}
+                  </span>
                 )}
               </div>
             )}
-            <div className="min-h-[60px] sm:min-h-[80px] lg:min-h-[100px] flex items-center justify-center">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-2 lg:mb-3 leading-[1.1] tracking-tight drop-shadow-2xl max-w-4xl mx-auto px-4 uppercase">
-                  {displayH1}
-                </h1>
+
+            {heroPromotion.active && (
+              <a
+                href={heroPromotion.link || '#search'}
+                className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-white shadow-sm"
+                style={{ backgroundColor: heroPromotion.color }}
+              >
+                <Tag className="h-4 w-4" /> {heroPromotion.text}
+              </a>
+            )}
+
+            <div className="max-w-3xl">
+              <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight drop-shadow-sm sm:text-4xl lg:text-5xl">
+                {displayH1}
+              </h1>
+              <p className="route-description mt-3 max-w-2xl text-base text-white/90 sm:text-lg">
+                {displaySubtitle}
+              </p>
             </div>
-            <div className="min-h-[40px] sm:min-h-[50px] lg:min-h-[60px] flex items-center justify-center">
-                <p className="route-description text-white/95 mb-4 lg:mb-6 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg font-bold leading-relaxed px-6 drop-shadow-lg">
-                  {displaySubtitle}
-                </p>
-            </div>
-            
+
             {sections.search && (
-              <div id="search" className="relative z-20 mt-4 scroll-mt-24 lg:mt-0 max-w-[1200px] mx-auto min-h-[380px] lg:min-h-[180px]">
+              <div id="search" className="relative z-20 mt-6 scroll-mt-24 sm:mt-8">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
@@ -674,312 +717,151 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                   customColor={seoConfig?.searchWidgetColor}
                   buttonColor={seoConfig?.searchWidgetButtonColor}
                 />
-                
-                {/* Mobile Features Bar */}
-                <div className="lg:hidden mt-6 flex flex-wrap justify-center gap-2 px-4">
-                    {[
-                        { icon: Shield, text: 'Fully Insured' },
-                        { icon: Zap, text: 'Free Cancellation' },
-                        { icon: CheckCircle, text: 'No Hidden Fees' },
-                        { icon: Clock, text: '24/7 Support' }
-                    ].map((f, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/10">
-                            <f.icon className="w-3.5 h-3.5 text-blue-200" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white/90">{f.text}</span>
-                        </div>
-                    ))}
-                </div>
               </div>
             )}
+
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/90">
+              {heroHighlights.map(item => (
+                <li key={item.text} className="inline-flex items-center gap-2">
+                  <item.icon className="h-4 w-4 text-emerald-300" /> {item.text}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       )}
 
-
-      {/* 4. POPULAR SUPPLIERS */}
+      {/* Supplier logos */}
       {sections.suppliers && (
-        <React.Suspense fallback={<div className="h-48 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
+        <React.Suspense fallback={<div className="h-28 bg-white" />}>
           <TrustedSuppliers />
         </React.Suspense>
       )}
 
-      {/* 4.6 HOW TO FIND A GREAT CAR RENTAL DEAL */}
-      {!isCustomLanding && (
-        <section className="py-24 bg-slate-50 overflow-hidden relative">
-            <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter mb-4">
-                        How to find a <span className="text-blue-600">great car rental deal</span>
-                    </h2>
-                    <p className="text-slate-700 font-bold uppercase text-sm tracking-[0.2em]">Follow these simple steps to save more on your next trip</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {[
-                        { 
-                            title: 'Book Early', 
-                            desc: 'Secure your vehicle at least 2-4 weeks before pickup to save up to 40% on peak season rates.',
-                            icon: Calendar,
-                            color: 'bg-emerald-500',
-                            shadow: 'shadow-emerald-500/20'
-                        },
-                        { 
-                            title: 'Compare Deals', 
-                            desc: 'We compare prices from 900+ suppliers including global brands like Hertz and local experts.',
-                            icon: Zap,
-                            color: 'bg-blue-600',
-                            shadow: 'shadow-blue-600/20'
-                        },
-                        { 
-                            title: 'Check Conditions', 
-                            desc: 'Always read the rental conditions for fuel policy, mileage, and insurance coverage to avoid surprises.',
-                            icon: ShieldCheck,
-                            color: 'bg-amber-500',
-                            shadow: 'shadow-amber-500/20'
-                        },
-                        { 
-                            title: 'Save Big', 
-                            desc: 'Enjoy your trip with the best price guaranteed and 24/7 support throughout your journey.',
-                            icon: Sparkles,
-                            color: 'bg-rose-500',
-                            shadow: 'shadow-rose-500/20'
-                        },
-                    ].map((step, i) => (
-                        <div key={i} className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-200/60 transition-all duration-500 hover:-translate-y-2">
-                            <div className={`w-16 h-16 rounded-2xl ${step.color} ${step.shadow} flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                                <step.icon className="w-8 h-8" />
-                            </div>
-                            <h3 className="font-black text-slate-900 uppercase text-xl tracking-tight mb-4">{i+1}. {step.title}</h3>
-                            <p className="text-slate-700 text-sm font-bold leading-relaxed">{step.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-      )}
-
-      {/* 4.5 POPULAR COUNTRIES & LOCATIONS */}
-      {!isCustomLanding && (
-        <section className="py-20 bg-white overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">{homepageContent.topDestinations.title}</h2>
-                    <p className="text-slate-700 font-bold uppercase text-sm tracking-[0.2em]">{homepageContent.topDestinations.subtitle}</p>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                    {homepageContent.topDestinations.countries.map((country: any) => (
-                        <Link 
-                          key={country.code} 
-                          to={`/car-rental-${country.name.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="flex flex-col items-center p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-sm hover:shadow-md hover:border-accent transition-all group"
-                        >
-                            <span className="text-5xl mb-4 group-hover:scale-110 transition-transform">{country.flag}</span>
-                            <span className="font-black text-[13px] text-slate-900 uppercase tracking-tighter text-center group-hover:text-accent transition-colors">{country.name}</span>
-                            <span className="text-[10px] text-slate-700 font-bold mt-2 uppercase tracking-widest">{country.count} Cars</span>
-                        </Link>
-                    ))}
-                </div>
-
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <div className="space-y-6">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                            <MapPin className="text-accent" /> Popular Cities
-                        </h3>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {homepageContent.topDestinations.cities.map((city: string) => (
-                                <Link 
-                                  key={city} 
-                                  to={`/car-rental-${city.toLowerCase().replace(/\s+/g, '-')}`}
-                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-accent transition-colors"
-                                >
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {city}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="space-y-6">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                            <Plane className="text-accent" /> Major Airports
-                        </h3>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {homepageContent.topDestinations.airports.map((airport: string) => {
-                                const iataMatch = airport.match(/\(([A-Z]{3})\)/);
-                                const slug = iataMatch ? `car-rental-${iataMatch[1].toLowerCase()}-airport` : `car-rental-${airport.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '')}`;
-                                return (
-                                    <Link 
-                                      key={airport} 
-                                      to={`/${slug}`}
-                                      className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-accent transition-colors"
-                                    >
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {airport}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </div>
-                    <div className="space-y-6">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                            <Compass className="text-accent" /> Trending Regions
-                        </h3>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            {homepageContent.topDestinations.regions.map((region: string) => (
-                                <Link 
-                                  key={region} 
-                                  to={`/car-rental-${region.toLowerCase().replace(/\s+/g, '-')}`}
-                                  className="text-slate-600 font-bold text-sm flex items-center gap-2 hover:text-accent transition-colors"
-                                >
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" /> {region}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-      )}
-
-      {/* 4.7 GLOBAL REACH */}
-      {!isCustomLanding && (
-        <section className="py-20 bg-white">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {[
-                        { label: 'Partners', value: '900+', sub: 'Global & Local Suppliers' },
-                        { label: 'Locations', value: '60,000+', sub: 'In 160+ Countries' },
-                        { label: 'Reviews', value: '2M+', sub: 'Verified Customer Ratings' },
-                        { label: 'Support', value: '24/7', sub: 'In 30+ Languages' },
-                    ].map((stat, i) => (
-                        <div key={i} className="text-center p-8 rounded-[2rem] bg-slate-50 border border-slate-100">
-                            <div className="text-3xl md:text-4xl font-black text-blue-600 mb-2 tracking-tighter">{stat.value}</div>
-                            <div className="text-[12px] font-black text-slate-900 uppercase tracking-widest mb-1">{stat.label}</div>
-                            <div className="text-[10px] text-slate-600 font-bold uppercase">{stat.sub}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-      )}
-
-      {/* 5. WHY CHOOSE HOGICAR */}
+      {/* Why book with us */}
       {sections.benefits && (
-          <section className="py-24 bg-slate-50 overflow-hidden relative">
-            <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 text-center md:text-start">
-                    <div className="max-w-2xl mx-auto md:mx-0">
-                        <p className="text-accent font-black uppercase text-sm tracking-[0.2em] mb-4">The HogiCar Advantage</p>
-                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-[1.1] uppercase tracking-tighter">
-                            Why Travelers <span className="text-blue-600">Choose Us</span> Over Others
-                        </h2>
-                    </div>
-                    <div className="hidden md:block pb-2">
-                        <Link to="/about-us" className="group flex items-center gap-2 text-slate-900 font-black uppercase text-sm tracking-widest hover:text-blue-600 transition-colors">
-                            Learn more about us <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {content.features.map((feature, i) => {
-                        const Icon = iconMap[feature.icon] || CheckCircle;
-                        // Unique brand colors for icons
-                        const iconColors = [
-                            'bg-blue-600 shadow-blue-200',
-                            'bg-accent shadow-accent/20',
-                            'bg-indigo-600 shadow-indigo-200',
-                            'bg-emerald-600 shadow-emerald-200'
-                        ];
-                        const colorClass = iconColors[i % iconColors.length];
-                        
-                        return (
-                            <div key={i} className="relative p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden">
-                                <div className="absolute top-0 end-0 w-32 h-32 bg-slate-50 rounded-bl-[5rem] -me-16 -mt-16 group-hover:bg-blue-50 transition-colors duration-500" />
-                                <div className="relative z-10">
-                                    <div className={`w-16 h-16 rounded-2xl ${colorClass} shadow-lg flex items-center justify-center mb-8 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 text-white`}>
-                                        <Icon className="w-8 h-8" />
-                                    </div>
-                                    <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight leading-none">{feature.title}</h3>
-                                    <p className="text-slate-700 text-sm leading-relaxed font-bold">{feature.description}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+        <section className="bg-white py-14 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              {sectionHeading('Why book with Hogicar', 'Clear prices, trusted suppliers and help whenever you need it.')}
+              <Link to="/about-us" className="mb-8 hidden items-center gap-1.5 text-sm font-semibold text-accent hover:underline sm:mb-10 md:inline-flex">
+                About us <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-          </section>
+            <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+              {content.features.map((feature: any, i: number) => {
+                const Icon = iconMap[feature.icon] || CheckCircle;
+                return (
+                  <div key={feature.id || i} className="flex gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <h3 className="text-base font-semibold text-slate-900">{feature.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-600">{feature.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       )}
 
-      {/* 5.5 POPULAR CAR RENTAL DESTINATIONS (NEW SECTION) */}
+      {/* Stats */}
       {!isCustomLanding && (
-        <section className="py-24 bg-white border-t border-slate-100">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-20">
-              <p className="text-blue-600 font-black uppercase text-xs tracking-[0.3em] mb-4">Worldwide Network</p>
-              <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tight">Popular Car Rental Destinations</h2>
-              <p className="text-slate-500 font-bold uppercase text-xs tracking-[0.2em]">Top-rated locations across our global network</p>
+        <section className="border-y border-slate-200 bg-slate-50">
+          <div className="mx-auto grid max-w-7xl grid-cols-2 divide-slate-200 px-4 sm:px-6 md:grid-cols-4 md:divide-x lg:px-8">
+            {stats.map(stat => (
+              <div key={stat.label} className="px-4 py-8 text-center">
+                <p className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{stat.value}</p>
+                <p className="mt-1 text-sm text-slate-600">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* How to find a great deal */}
+      {!isCustomLanding && (
+        <section className="bg-white py-14 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {sectionHeading('How to find a great car rental deal', 'Four simple steps to save more on your next trip.')}
+            <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {dealSteps.map((step, i) => (
+                <li key={step.title} className="rounded-xl border border-slate-200 bg-white p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">{i + 1}</span>
+                    <step.icon className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <h3 className="mt-4 text-base font-semibold text-slate-900">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600">{step.desc}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
+
+      {/* Top destinations */}
+      {!isCustomLanding && (
+        <section className="bg-slate-50 py-14 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {sectionHeading(homepageContent.topDestinations.title, homepageContent.topDestinations.subtitle)}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {homepageContent.topDestinations.countries.map((country: any) => (
+                <Link
+                  key={country.code}
+                  to={`/car-rental-${country.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 transition-colors hover:border-accent"
+                >
+                  <span className="text-2xl leading-none" aria-hidden="true">{country.flag}</span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold leading-tight text-slate-900">{country.name}</span>
+                    <span className="block text-xs text-slate-500">{country.count} cars</span>
+                  </span>
+                </Link>
+              ))}
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-              {[
-                {
-                  country: 'United Arab Emirates',
-                  cities: [
-                    { name: 'Dubai', slug: 'dubai' },
-                    { name: 'Abu Dhabi', slug: 'abu-dhabi' },
-                    { name: 'Sharjah', slug: 'sharjah' },
-                    { name: 'Ras Al Khaimah', slug: 'ras-al-khaimah' },
-                    { name: 'Fujairah', slug: 'fujairah' },
-                    { name: 'Ajman', slug: 'ajman' }
-                  ]
-                },
-                {
-                  country: 'Saudi Arabia',
-                  cities: [
-                    { name: 'Riyadh', slug: 'riyadh' },
-                    { name: 'Jeddah', slug: 'jeddah' },
-                    { name: 'Dammam', slug: 'dammam' }
-                  ]
-                },
-                {
-                  country: 'Egypt',
-                  cities: [
-                    { name: 'Cairo', slug: 'cairo' },
-                    { name: 'Hurghada', slug: 'hurghada' },
-                    { name: 'Alexandria', slug: 'alexandria' },
-                    { name: 'Giza', slug: 'giza' }
-                  ]
-                },
-                {
-                  country: 'Jordan & Others',
-                  cities: [
-                    { name: 'Amman', slug: 'amman' },
-                    { name: 'Aqaba', slug: 'aqaba' },
-                    { name: 'Muscat', slug: 'muscat' },
-                    { name: 'Salalah', slug: 'salalah' },
-                    { name: 'Doha', slug: 'doha' },
-                    { name: 'Manama', slug: 'manama' },
-                    { name: 'Kuwait City', slug: 'kuwait-city' }
-                  ]
-                }
-              ].map((group, idx) => (
-                <div key={idx} className="space-y-8">
-                  <div className="relative">
-                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight pb-3 inline-block">
-                      {group.country}
-                    </h3>
-                    <div className="absolute bottom-0 start-0 w-12 h-1 bg-accent rounded-full"></div>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4">
-                    {group.cities.map((city, cIdx) => (
-                      <Link 
-                        key={cIdx} 
-                        to={`/car-rental-${city.slug}`} 
-                        className="text-slate-600 hover:text-accent font-bold text-[13px] transition-all flex items-center gap-2 group whitespace-nowrap"
-                      >
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-accent transition-colors"></div>
-                        Car Rental {city.name}
-                      </Link>
+
+            <div className="mt-10 grid grid-cols-1 gap-8 rounded-xl border border-slate-200 bg-white p-6 md:grid-cols-3">
+              <div>
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900"><MapPin className="h-4 w-4 text-accent" /> Popular cities</h3>
+                {linkList(homepageContent.topDestinations.cities.map((city: string) => ({ label: city, to: `/car-rental-${city.toLowerCase().replace(/\s+/g, '-')}` })))}
+              </div>
+              <div>
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900"><Plane className="h-4 w-4 text-accent" /> Major airports</h3>
+                {linkList(homepageContent.topDestinations.airports.map((airport: string) => {
+                  const iataMatch = airport.match(/\(([A-Z]{3})\)/);
+                  const slug = iataMatch ? `car-rental-${iataMatch[1].toLowerCase()}-airport` : `car-rental-${airport.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '')}`;
+                  return { label: airport, to: `/${slug}` };
+                }))}
+              </div>
+              <div>
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900"><Compass className="h-4 w-4 text-accent" /> Trending regions</h3>
+                {linkList(homepageContent.topDestinations.regions.map((region: string) => ({ label: region, to: `/car-rental-${region.toLowerCase().replace(/\s+/g, '-')}` })))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Middle East destinations */}
+      {!isCustomLanding && (
+        <section className="bg-white py-14 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {sectionHeading('Popular car rental destinations', 'Top-rated locations across our network in the Middle East.')}
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {regionalDestinations.map(group => (
+                <div key={group.country}>
+                  <h3 className="border-b border-slate-200 pb-2 text-sm font-semibold text-slate-900">{group.country}</h3>
+                  <ul className="mt-3 space-y-2">
+                    {group.cities.map(([name, slug]) => (
+                      <li key={slug}>
+                        <Link to={`/car-rental-${slug}`} className="text-sm text-slate-600 transition-colors hover:text-accent hover:underline">Car rental {name}</Link>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               ))}
             </div>
@@ -987,21 +869,21 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </section>
       )}
 
-      {/* 6. CUSTOMER REVIEWS */}
+      {/* Customer reviews */}
       {sections.reviews && (
-        <React.Suspense fallback={<div className="h-64 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
-          <Reviews 
+        <React.Suspense fallback={<div className="h-64 bg-slate-50" />}>
+          <Reviews
             customReviews={seoConfig ? builderConfig?.sections?.reviews?.items : homepageContent?.selectedReviews}
             accentColor={customStyles.accentColor}
           />
         </React.Suspense>
       )}
 
-      {/* 7. DESTINATION INFORMATION (Unique Content) */}
+      {/* Destination information (unique content) */}
       {sections.content && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
-        <section id="main-seo-content" className="py-16 bg-white border-t border-slate-100">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="prose prose-slate max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tight prose-p:text-slate-600 prose-p:leading-relaxed prose-strong:text-slate-900">
+        <section id="main-seo-content" className="border-t border-slate-100 bg-white py-14">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+            <div className="prose prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-slate-600 prose-strong:text-slate-900">
               {seoConfig?.content ? (
                 <div dangerouslySetInnerHTML={{ __html: seoConfig.content }} />
               ) : (builderConfig?.sections?.content?.html || builderConfig?.html) ? (
@@ -1014,64 +896,64 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </section>
       )}
 
-
-
-      {/* 14. FREQUENTLY ASKED QUESTIONS */}
+      {/* FAQ */}
       {sections.faq && (
-        <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
-          <FAQSection 
+        <React.Suspense fallback={<div className="h-96 bg-white" />}>
+          <FAQSection
             faqs={faqs}
-            title="Frequently Asked Questions"
-            subtitle={`Everything you need to know about renting in ${displayH1.replace('Car Rental in ', '')} for a smooth journey.`}
+            title="Frequently asked questions"
+            subtitle={`Everything you need to know about renting in ${displayH1.replace('Car Rental in ', '')}.`}
           />
         </React.Suspense>
       )}
 
-      {/* 15. RELATED ARTICLES */}
-      <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
-        <LatestTravelGuides 
+      {/* Related articles */}
+      <React.Suspense fallback={<div className="h-96 bg-white" />}>
+        <LatestTravelGuides
           variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
-          route={seoConfig?.route || '/'} 
+          route={seoConfig?.route || '/'}
           destination={seoConfig?.destinationName}
-          country={seoConfig?.countryTag} 
+          country={seoConfig?.countryTag}
           airport={seoConfig?.airportTags}
-          limit={isCustomLanding ? 3 : 6} 
+          limit={isCustomLanding ? 3 : 6}
         />
       </React.Suspense>
 
-      {/* FOOTER is outside the Home component usually or at the bottom of the main layout. 
-          Assuming Newsletter section is the last part before the real footer. */}
-      {sections.cta && (
-        <section className="py-16 bg-slate-950 text-white">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-black mb-6 uppercase tracking-tight">Get Exclusive Car Rental Deals</h2>
-            <p className="text-slate-400 mb-10 font-bold uppercase text-sm tracking-widest">Join 10,000+ travelers receiving insider offers</p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-accent text-base"
-                />
-                <button type="submit" className="bg-accent hover:brightness-110 text-white font-black px-8 py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
-                    Join Now
-                </button>
-            </form>
-          </div>
-        </section>
-      )}
-
-      {/* 16. POPULAR DESTINATIONS */}
+      {/* Popular destinations (image cards) */}
       {!isCustomLanding && sections.popularDestinations && (
-        <React.Suspense fallback={<div className="h-96 animate-pulse bg-slate-50 rounded-3xl m-8"></div>}>
-          <PopularDestinations 
+        <React.Suspense fallback={<div className="h-96 bg-white" />}>
+          <PopularDestinations
             destinations={destinations}
-            title="Popular Destinations"
+            title="Popular destinations"
             subtitle="Explore our most booked locations"
           />
         </React.Suspense>
       )}
 
-
+      {/* Newsletter */}
+      {sections.cta && (
+        <section className="bg-[#003580] py-14 text-white">
+          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+            <div className="max-w-xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Get exclusive car rental deals</h2>
+              <p className="mt-2 text-white/80">Join 10,000+ travellers who receive our best offers by email.</p>
+            </div>
+            <form className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+              <input
+                id="newsletter-email"
+                type="email"
+                autoComplete="email"
+                placeholder="Your email address"
+                className="h-12 flex-1 rounded-lg border border-white/20 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/60"
+              />
+              <button type="submit" className="h-12 rounded-lg bg-accent px-6 text-base font-semibold text-white transition-colors hover:bg-accent-700">
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

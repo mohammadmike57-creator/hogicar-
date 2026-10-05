@@ -37,10 +37,9 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
   if (suppliers.length === 0) return null;
 
   return (
-    <section className="py-10 bg-white overflow-hidden border-b border-slate-100" style={{ backgroundColor }}>
-      <div className="max-w-7xl mx-auto px-4 text-center mb-8">
-        <div className="text-[10px] font-extrabold uppercase tracking-[0.5em] mb-4" style={{ color: accentColor }}>Partnered with the World's Best</div>
-        <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto"></div>
+    <section className="py-8 sm:py-10 bg-white overflow-hidden border-b border-slate-100" style={{ backgroundColor }}>
+      <div className="max-w-7xl mx-auto px-4 text-center mb-6">
+        <p className="text-sm font-medium text-slate-500">Compare deals from trusted rental brands</p>
       </div>
       
       <div className="relative flex items-center group">
@@ -71,7 +70,7 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
                   srcSet={srcSet}
                   sizes="100px"
                   alt={s.name} 
-                  className="h-8 md:h-12 w-auto max-w-[160px] object-contain transition-all duration-500 hover:scale-110" 
+                  className="h-7 md:h-10 w-auto max-w-[140px] object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0" 
                   width="160"
                   height="48"
                   loading="lazy"

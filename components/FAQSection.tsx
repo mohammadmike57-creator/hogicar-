@@ -49,60 +49,49 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, title, subtitle }) => {
   if (!faqs || faqs.length === 0) return null;
 
   return (
-    <section className="bg-white py-24">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">{title}</h2>
-          <p className="text-slate-600 text-lg font-medium">{subtitle}</p>
-        </div>
-        <div className="space-y-4">
-            {faqs.map((faq, index) => {
-              const Icon = iconMap[faq.icon] || HelpCircle;
-              const isOpen = openFaqIndex === index;
-              return (
-                <div 
-                  key={faq.id || index}
-                  className={`group border-2 transition-all duration-500 rounded-3xl overflow-hidden ${isOpen ? 'border-accent bg-slate-50 shadow-xl shadow-accent/5' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
-                >
-                  <button 
-                    onClick={() => toggleFaq(index)}
-                    className="w-full flex items-center text-start p-5 sm:p-7 focus:outline-none"
-                  >
-                    <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${isOpen ? (faq.color || 'bg-accent') : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
-                      <Icon className={`w-6 h-6 ${isOpen ? 'text-white' : 'text-slate-500'}`} />
-                    </div>
-                    <div className="ms-5 flex-1 pe-4">
-                      <span className={`block font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-slate-900 text-lg' : 'text-slate-700 group-hover:text-slate-900'}`}>
-                        {faq.question}
-                      </span>
-                    </div>
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-accent border-accent text-white rotate-180' : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-300'}`}>
-                      <ChevronDown className="w-4 h-4" />
-                    </div>
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="px-5 sm:px-7 pb-7 ms-0 sm:ms-12">
-                      <div className="h-px w-10 bg-slate-100 mb-6 hidden sm:block"></div>
-                      <p className="text-slate-600 leading-relaxed font-medium text-base">
-                        {faq.answer}
-                      </p>
-                      {isOpen && (
-                        <div className="mt-6 flex items-center gap-2 text-accent font-black text-[10px] uppercase tracking-widest">
-                          <Sparkles className="w-3 h-3" />
-                          Was this helpful?
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+    <section className="bg-slate-50 py-14 sm:py-20">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_2fr] lg:gap-12 lg:px-8">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h2>
+          <p className="mt-2 text-base text-slate-600">{subtitle}</p>
+          <div className="mt-6 hidden rounded-xl border border-slate-200 bg-white p-5 lg:block">
+            <p className="text-sm font-semibold text-slate-900">Still have questions?</p>
+            <p className="mt-1 text-sm text-slate-600">Our support team is here to help, day and night.</p>
+            <a href="mailto:support@hogicar.com" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
+              <Mail className="h-4 w-4" /> Contact support
+            </a>
+          </div>
         </div>
 
-        <div className="mt-16 text-center">
-          <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mb-4">Still have questions?</p>
-          <a href="mailto:support@hogicar.com" className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
-            Contact Support <Mail className="w-4 h-4" />
+        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+          {faqs.map((faq, index) => {
+            const isOpen = openFaqIndex === index;
+            const panelId = `faq-panel-${index}`;
+            return (
+              <div key={faq.id || index}>
+                <h3>
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(index)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-start text-base font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                  >
+                    <span>{faq.question}</span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </h3>
+                <div id={panelId} hidden={!isOpen} className="px-5 pb-5">
+                  <p className="text-sm leading-relaxed text-slate-600 sm:text-base">{faq.answer}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="lg:hidden">
+          <a href="mailto:support@hogicar.com" className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
+            <Mail className="h-4 w-4" /> Still have questions? Contact support
           </a>
         </div>
       </div>
