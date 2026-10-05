@@ -565,11 +565,11 @@ const CarDetails: React.FC = () => {
         <div className="max-w-[1500px] mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
           <BookingStepper currentStep={3} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 xl:gap-6 mt-2 sm:mt-4">
-            {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 xl:gap-6 mt-2 sm:mt-4">
+            {/* Left Column - Main Content (flattened on mobile so sections can be reordered) */}
+            <div className="contents lg:block lg:col-span-2 lg:space-y-8">
               {/* Hero Section */}
-              <div className="overflow-visible bg-white rounded-2xl sm:rounded-3xl shadow-[0_12px_30px_-18px_rgba(15,23,42,0.3)] sm:shadow-[0_20px_50px_-20px_rgba(15,23,42,0.3)] border border-slate-200">
+              <div className="order-1 lg:order-none overflow-visible bg-white rounded-2xl sm:rounded-3xl shadow-[0_12px_30px_-18px_rgba(15,23,42,0.3)] sm:shadow-[0_20px_50px_-20px_rgba(15,23,42,0.3)] border border-slate-200">
                 <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
                   <div className="relative flex min-h-[200px] sm:min-h-[340px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 px-6 pt-12 pb-4 sm:p-10 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl sm:rounded-t-[2.5rem] lg:rounded-l-[2.5rem] lg:rounded-tr-none group">
                     <img
@@ -704,7 +704,7 @@ const CarDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)]">
+              <div className="order-2 lg:order-none overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)]">
                 <div className="border-b border-slate-100 bg-slate-50/50 px-4 py-3.5 sm:px-8 sm:py-5">
                   <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
                   <div>
@@ -793,7 +793,7 @@ const CarDetails: React.FC = () => {
               </div>
 
               {/* Key Specifications Grid - rich icons */}
-              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-24px_rgba(15,23,42,0.12)] border border-slate-200 p-4 sm:p-8 relative overflow-hidden">
+              <div className="order-5 lg:order-none bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-24px_rgba(15,23,42,0.12)] border border-slate-200 p-4 sm:p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                 <div className="flex items-start justify-between gap-4 mb-4 sm:mb-8 relative z-10">
                   <div>
@@ -841,18 +841,18 @@ const CarDetails: React.FC = () => {
 
               {/* Extras Section - modern cards */}
               {car.extras && car.extras.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
+                <div className="order-3 lg:order-none bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
                   <h2 className="text-lg sm:text-xl font-black mb-3 sm:mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-accent" /> Optional extras</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
                     {car.extras.map(extra => (
-                      <div key={extra.id} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedExtraIds.includes(extra.id) ? 'border-accent bg-accent-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
+                      <div key={extra.id} role="checkbox" aria-checked={selectedExtraIds.includes(extra.id)} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleExtra(extra.id); } }} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 cursor-pointer select-none transition-all active:scale-[0.99] ${selectedExtraIds.includes(extra.id) ? 'border-accent bg-accent-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="p-2 shrink-0 bg-slate-100 rounded-lg"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" /></div>
                           <div className="min-w-0"><div className="text-sm sm:text-base font-semibold truncate">{extra.name}</div><div className="text-xs sm:text-sm text-slate-500">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
                         </div>
                         <div className="flex shrink-0 items-center gap-2 sm:gap-4">
                           <div className="text-sm sm:text-base font-bold">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</div>
-                          {selectedExtraIds.includes(extra.id) && <Check className="w-5 h-5 text-accent" />}
+                          <span className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-colors ${selectedExtraIds.includes(extra.id) ? 'border-accent bg-accent text-white' : 'border-slate-300 bg-white'}`}>{selectedExtraIds.includes(extra.id) && <Check className="w-4 h-4" />}</span>
                         </div>
                       </div>
                     ))}
@@ -860,7 +860,7 @@ const CarDetails: React.FC = () => {
                 </div>
               )}
 
-              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
+              <div className="order-6 lg:order-none bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-black mb-3 sm:mb-5 flex items-center gap-2 text-slate-950"><ShieldCheck className="w-5 h-5 text-accent" /> Included in your rate</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-[13px] sm:text-sm text-slate-700">
                   <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Supplier base rental and local taxes</p>
@@ -871,7 +871,7 @@ const CarDetails: React.FC = () => {
               </div>
 
               {/* Supplier Info with trust badges */}
-              <div className="bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
+              <div className="order-7 lg:order-none bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-black mb-4 sm:mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 shrink-0 text-accent" /> {!car.isHogicarChoiceBranded ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
                 {!car.isHogicarChoiceBranded || car.supplier.name === 'Hogi Car Choice' ? (
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 sm:gap-6">
@@ -952,7 +952,7 @@ const CarDetails: React.FC = () => {
 
               {/* Upgrade / Other models from same supplier */}
               {cars && cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id && (categoryRanks[c.category] || 0) > (categoryRanks[car.category] || 0)).length > 0 && (
-                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-8">
+                <div className="order-8 lg:order-none bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-8">
                   <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
                     <div>
                       <h2 className="text-xl font-black flex items-center gap-3 text-slate-950 tracking-tight">
@@ -1036,19 +1036,20 @@ const CarDetails: React.FC = () => {
             </div>
 
             {/* Right Column - Booking Sidebar (professional) */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-20 space-y-3 sm:space-y-4">
+            <div className="order-4 lg:order-none lg:col-span-1">
+              <div className="lg:sticky lg:top-20 space-y-3 sm:space-y-4">
                 <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] p-4 sm:p-6 border border-slate-200 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-accent-400"></div>
                   
+                  <h2 className="lg:hidden text-lg font-black text-slate-950 flex items-center gap-2 mb-3"><CreditCardIcon className="w-5 h-5 text-accent" /> Price &amp; protection</h2>
                   {/* Price lock timer */}
-                  <div className="bg-slate-950 text-white px-4 py-3 sm:p-4 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 flex justify-between items-center shadow-lg">
-                    <div>
-                      <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Session Price Lock</div>
-                      <div className="font-mono font-black text-xl sm:text-2xl tracking-tighter mt-0.5">{formatTime(timeLeft)}</div>
+                  <div className="bg-slate-950 text-white px-4 py-2.5 sm:p-4 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 flex justify-between items-center shadow-lg">
+                    <div className="flex items-center gap-3 sm:block">
+                      <div className="text-[10px] sm:text-[9px] font-bold sm:font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-slate-300 sm:text-slate-400">Price locked for</div>
+                      <div className="font-mono font-black text-lg sm:text-2xl tracking-tighter sm:mt-0.5">{formatTime(timeLeft)}</div>
                     </div>
-                    <div className="bg-white/10 p-2 sm:p-2.5 rounded-xl backdrop-blur-md">
-                      <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
+                    <div className="bg-white/10 p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl backdrop-blur-md">
+                      <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
                     </div>
                   </div>
                   <div className="mb-4 sm:mb-5 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
@@ -1127,11 +1128,11 @@ const CarDetails: React.FC = () => {
                   <div className="mt-4 flex items-center justify-center gap-2 opacity-75"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </div>
                 {/* Trust badge */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="hidden lg:grid grid-cols-2 gap-2">
                   <div className="bg-[#eaf7ef] rounded-xl p-3 border border-green-200/80"><div className="flex gap-2"><ShieldCheck className="w-5 h-5 text-green-600 shrink-0" /><div><div className="text-xs font-black">Free cancellation</div><div className="text-[11px] text-slate-700">Before pickup</div></div></div></div>
                   <div className="bg-white rounded-xl p-3 border border-slate-200"><div className="flex gap-2"><Headphones className="w-5 h-5 text-accent shrink-0" /><div><div className="text-xs font-black">24/7 support</div><div className="text-[11px] text-slate-700">Anytime help</div></div></div></div>
                 </div>
-                <div className="bg-white rounded-xl p-3 border border-slate-200">
+                <div className="hidden lg:block bg-white rounded-xl p-3 border border-slate-200">
                   <h4 className="text-xs font-black text-slate-900 mb-2">Booking checklist</h4>
                   <ul className="space-y-1.5 text-xs text-slate-700">
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Driving license and passport/ID ready</li>

@@ -653,15 +653,15 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           <div className="h-1.5 bg-slate-100">
             <div className={`h-full rounded-r-full bg-accent transition-all duration-1000 ease-out ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
           </div>
-          <div className="p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="p-3.5 sm:p-6 lg:p-8">
+          <div className="flex flex-col gap-3 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-2 w-2 rounded-full bg-accent animate-pulse"></div>
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] sm:tracking-[0.3em] text-accent">Secure Checkout</p>
               </div>
-              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
-              <p className="mt-2 max-w-2xl text-xs sm:text-base font-medium leading-relaxed text-slate-500">{pageDescription}</p>
+              <h1 className="text-xl sm:text-4xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
+              <p className="hidden sm:block mt-2 max-w-2xl text-xs sm:text-base font-medium leading-relaxed text-slate-500">{pageDescription}</p>
             </div>
             <div className="grid grid-cols-2 gap-1.5 sm:gap-3 rounded-xl sm:rounded-2xl bg-slate-50 p-1 sm:p-1.5 sm:min-w-[360px] shadow-inner border border-slate-100">
               <div className={`rounded-lg sm:rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-center transition-all duration-500 ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
@@ -674,7 +674,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
               </div>
             </div>
           </div>
-          <div className="mt-4 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-50 pt-4 sm:pt-6">
+          <div className="mt-3 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-50 pt-3 sm:pt-6">
             {[
               { icon: ShieldCheck, label: "Bank-Level Security", color: "text-accent", bg: "bg-accent-50" },
               { icon: BadgeCheck, label: "Verified Inventory", color: "text-accent", bg: "bg-accent-50" },
@@ -693,77 +693,77 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] sm:shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-3 sm:p-8 flex flex-col md:flex-row items-center gap-3 sm:gap-8 relative overflow-hidden group">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] sm:shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-3 sm:p-8 flex flex-row items-center gap-3 sm:gap-8 relative overflow-hidden group">
                <div className="hidden sm:block absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
                
-               <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-slate-100 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center shadow-inner group-hover:shadow-md transition-all duration-500">
+               <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-slate-100 flex-shrink-0 relative overflow-hidden w-28 sm:w-auto self-stretch sm:self-auto flex items-center justify-center shadow-inner group-hover:shadow-md transition-all duration-500">
                    <img 
                     src={displayImage} 
                     alt={car.model} 
                     onError={() => setImageError(true)}
                     referrerPolicy="no-referrer"
                     loading="eager"
-                    className="w-36 sm:w-52 h-auto max-h-24 sm:max-h-none object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] transform group-hover:scale-110 transition-transform duration-700"
+                    className="w-full sm:w-52 h-auto max-h-20 sm:max-h-none object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] transform group-hover:scale-110 transition-transform duration-700"
                    />
                </div>
                
-               <div className="w-full flex-grow text-left relative z-10 px-1 sm:px-0">
-                  <div className="flex items-center justify-start gap-2 sm:gap-3 mb-2 sm:mb-4 flex-wrap">
+               <div className="min-w-0 flex-1 text-left relative z-10">
+                  <div className="flex items-center justify-start gap-1.5 sm:gap-3 mb-1.5 sm:mb-4 flex-wrap">
                       <span className="bg-slate-950 text-white text-[9px] sm:text-[10px] font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-full uppercase tracking-[0.12em] sm:tracking-[0.2em] shadow-xl border border-white/10">
                         {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
                       </span>
                       <span className="bg-emerald-50 text-emerald-700 text-[9px] sm:text-[10px] font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-full uppercase tracking-[0.12em] sm:tracking-[0.2em] border border-emerald-100 shadow-sm">Verified Deal</span>
                   </div>
-                  <h2 className="text-xl sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-3 sm:mb-4">{car.displayName || `${car.make} ${car.model}`}</h2>
-                  <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 sm:gap-6">
+                  <h2 className="text-lg sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-2 sm:mb-4 truncate sm:whitespace-normal">{car.displayName || `${car.make} ${car.model}`}</h2>
+                  <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-1.5 sm:gap-6">
                     {[
                       { icon: Users, label: car.passengers, unit: "Seats", color: "text-accent", bg: "bg-accent-50" },
                       { icon: Briefcase, label: car.bags, unit: "Bags", color: "text-amber-600", bg: "bg-amber-50" },
                       { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', unit: "Gear", color: "text-accent", bg: "bg-accent-50" }
                     ].map((spec, i) => (
                       <div key={i} className="flex items-center gap-1.5 sm:gap-2.5">
-                        <div className={`p-1.5 sm:p-2 ${spec.bg} rounded-lg sm:rounded-xl shadow-sm border border-black/5`}><spec.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${spec.color} stroke-[2.5px]`} /></div>
-                        <span className="text-[11px] sm:text-xs font-black text-slate-900 uppercase tracking-wide sm:tracking-widest leading-none">{spec.label} {spec.unit}</span>
+                        <div className={`p-1 sm:p-2 ${spec.bg} rounded-md sm:rounded-xl shadow-sm border border-black/5`}><spec.icon className={`w-3 h-3 sm:w-4 sm:h-4 ${spec.color} stroke-[2.5px]`} /></div>
+                        <span className="text-[11px] sm:text-xs font-bold sm:font-black text-slate-700 sm:text-slate-900 sm:uppercase sm:tracking-widest leading-none">{spec.label}<span className="hidden sm:inline"> {spec.unit}</span></span>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="flex items-center justify-start gap-6 mt-3 sm:mt-8 pt-3 sm:pt-8 border-t border-slate-100">
+                  <div className="flex items-center justify-start gap-6 mt-2.5 sm:mt-8 pt-2.5 sm:pt-8 border-t border-slate-100">
                       {!car.isHogicarChoiceBranded ? (
-                        <div className="flex w-full sm:w-auto items-center justify-between sm:justify-start gap-3 sm:gap-5">
-                            <div className="bg-white border border-slate-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-sm">
+                        <div className="flex w-full sm:w-auto items-center justify-start gap-2 sm:gap-5">
+                            <div className="bg-white border border-slate-100 p-1 sm:p-3 rounded-lg sm:rounded-2xl shadow-sm">
                               {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
-                                <Logo className="h-10 w-auto max-w-[140px]" />
+                                <Logo className="h-6 sm:h-10 w-auto max-w-[80px] sm:max-w-[140px]" />
                               ) : supplierLogo ? (
-                                <img src={supplierLogo} alt={car.supplier.name} className="h-7 sm:h-10 w-auto max-w-[110px] sm:max-w-none object-contain" />
+                                <img src={supplierLogo} alt={car.supplier.name} className="h-6 sm:h-10 w-auto max-w-[80px] sm:max-w-none object-contain" />
                               ) : (
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{car.supplier.name}</span>
                               )}
                             </div>
                             <div
-                              className="flex items-center gap-2.5 sm:gap-4 bg-slate-50 px-2.5 py-1.5 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-inner border border-slate-100 group/rating relative cursor-pointer hover:bg-white hover:shadow-xl transition-all"
+                              className="flex min-w-0 items-center gap-2 sm:gap-4 bg-slate-50 px-1.5 py-1 pr-2.5 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-2xl shadow-inner border border-slate-100 group/rating relative cursor-pointer hover:bg-white hover:shadow-xl transition-all"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 setShowRatingsTooltip(!showRatingsTooltip);
                               }}
                             >
-                               <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg sm:rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
+                               <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-7 h-7 sm:w-10 sm:h-10 flex items-center justify-center rounded-md sm:rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
                                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                   <span className="relative z-10 text-sm sm:text-base font-black tracking-tight">{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
+                                   <span className="relative z-10 text-xs sm:text-base font-black tracking-tight">{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
                                </div>
                                <div className="flex flex-col">
-                                   <span className={`text-sm font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight mb-1`}>{getRatingDescription(car.supplier.rating)}</span>
-                                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                   <span className={`text-xs sm:text-sm font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight sm:mb-1 truncate`}>{getRatingDescription(car.supplier.rating)}</span>
+                                   <span className="hidden sm:flex text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] items-center gap-1.5">
                                      <BadgeCheck className="w-3 h-3 text-accent" /> Verified Supplier
                                    </span>
                                </div>
                             </div>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-5">
-                           <div className="bg-slate-950 p-3.5 rounded-2xl shadow-xl flex items-center justify-center border border-amber-400/30">
-                              <Award className="w-8 h-8 text-amber-400 fill-amber-400/20" />
+                        <div className="flex items-center gap-2.5 sm:gap-5">
+                           <div className="bg-slate-950 p-1.5 sm:p-3.5 rounded-lg sm:rounded-2xl shadow-xl flex items-center justify-center border border-amber-400/30">
+                              <Award className="w-4 h-4 sm:w-8 sm:h-8 text-amber-400 fill-amber-400/20" />
                            </div>
                            <div>
                              <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1 italic">Hogicar Choice</p>
@@ -874,13 +874,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
                <div className="grid grid-cols-1 gap-5 sm:gap-10 xl:grid-cols-[1fr_300px]">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 sm:gap-y-8">
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" autoComplete="given-name" autoCapitalize="characters" enterKeyHint="next" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" autoComplete="family-name" autoCapitalize="characters" enterKeyHint="next" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Email address</label><FormInput icon={Mail} type="email" inputMode="email" placeholder="john.doe@example.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Mobile number</label><FormInput icon={Phone} type="tel" inputMode="tel" placeholder="+1..." autoComplete="tel" enterKeyHint="next" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
                     <div className="md:col-span-2 group sm:pt-2">
                       <label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Flight number <span className="text-[10px] text-slate-400 sm:text-slate-300 ml-1 sm:ml-2 font-semibold normal-case tracking-normal">(recommended)</span></label>
-                      <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
+                      <FormInput icon={Plane} type="text" placeholder="e.g. BA123" autoComplete="off" autoCapitalize="characters" autoCorrect="off" spellCheck={false} value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
                       <div className="mt-3 sm:mt-5 p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-3 sm:gap-4 transition-all hover:bg-white hover:shadow-md">
                         <div className="bg-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-sm"><Info className="w-4 h-4 sm:w-5 sm:h-5 text-accent flex-shrink-0"/></div>
                         <p className="text-xs sm:text-[13px] text-slate-600 font-medium leading-relaxed">Providing your flight number allows the provider to monitor your arrival and hold your vehicle during potential flight delays.</p>
@@ -927,7 +927,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                {createAccount && (
                   <div className="group">
                     <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-accent transition-colors">Create account password</label>
-                    <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
+                    <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" autoComplete="new-password" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
                     <p className="text-xs sm:text-sm text-slate-600 mt-3 font-medium flex items-start gap-2"><Info className="w-4 h-4 shrink-0 mt-px text-accent"/> If you skip this now, you can still access the booking by email and reference number.</p>
                   </div>
                )}
@@ -956,12 +956,12 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                               <p className="text-slate-900 font-bold text-base leading-snug">{pickupLabel}</p>
                               <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(startDate)} @ {startTime}</p>
                            </div>
-                           <div className="relative pl-6 border-l-2 border-slate-200">
+                           <div className="relative pl-4 sm:pl-6 border-l-2 border-slate-200">
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Drop-off Location & Time</p>
                               <p className="text-slate-900 font-bold text-base leading-snug">{dropoffLabel}</p>
                               <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(endDate)} @ {endTime}</p>
                            </div>
-                           <div className="relative pl-6 border-l-2 border-slate-200">
+                           <div className="relative pl-4 sm:pl-6 border-l-2 border-slate-200">
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle Selection</p>
                               <p className="text-slate-900 font-bold text-base leading-snug">{car.displayName || `${car.make} ${car.model}`}</p>
                               <p className="text-slate-500 text-sm mt-1 uppercase tracking-tighter font-medium">{car.category} · {days} Days Rental</p>
@@ -980,22 +980,22 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Main Driver</p>
                               <p className="text-slate-900 font-bold text-lg">{firstName} {lastName}</p>
                            </div>
-                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
-                              <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
+                           <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                              <div className="col-span-2 sm:col-span-1 bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Email</p>
                                  <p className="text-slate-900 font-bold text-sm truncate">{email}</p>
                               </div>
-                              <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
-                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone Number</p>
+                              <div className="col-span-2 sm:col-span-1 bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
+                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone</p>
                                  <p className="text-slate-900 font-bold text-sm">{phoneNumber}</p>
                               </div>
+                              {flightNumber && (
+                                 <div className="col-span-2 bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Flight</p>
+                                    <p className="text-slate-900 font-bold text-sm">{flightNumber}</p>
+                                 </div>
+                              )}
                            </div>
-                           {flightNumber && (
-                              <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
-                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Flight Number</p>
-                                 <p className="text-slate-900 font-bold text-sm">{flightNumber}</p>
-                              </div>
-                           )}
                         </div>
                         <button type="button" onClick={() => navigate(`/book/${id}/details${bookingQuery}`)} className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-accent hover:border-accent/30 transition-all">
                            <ArrowLeft className="w-4 h-4" /> Edit Information
@@ -1051,7 +1051,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Amex</div>
                       </div>
                     </div>
-                    <div className="rounded-xl sm:rounded-2xl bg-slate-950 p-4 sm:p-5 text-white shadow-xl">
+                    <div className="hidden sm:block rounded-xl sm:rounded-2xl bg-slate-950 p-4 sm:p-5 text-white shadow-xl">
                       <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Secure reservation</p>
                       <p className="sm:mt-2 text-sm sm:text-lg font-black flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-400 sm:hidden"/> Encrypted payment session</p>
                       <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-3 text-xs">
@@ -1060,7 +1060,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                       </div>
                     </div>
                   </div>
-                  <div className="group"><label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
+                  <div className="group"><label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" autoComplete="cc-name" autoCapitalize="characters" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
                     <label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Card information</label>
                     {stripeEnabled ? (
@@ -1116,7 +1116,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 sm:gap-6 sm:pt-4">
+                  <div className="hidden sm:grid grid-cols-2 gap-2.5 sm:gap-6 sm:pt-4">
                      <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 px-4 sm:px-6 py-3 sm:py-5">
                         <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1 sm:mb-2">Check-in Time</p>
                         <p className="text-lg font-semibold text-slate-900">{startTime}</p>
@@ -1181,7 +1181,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
           {/* Sidebar / Booking Summary */}
           <div className="lg:col-span-1">
-             <div className="sticky top-10 space-y-4 sm:space-y-6">
+             <div className="lg:sticky lg:top-10 space-y-4 sm:space-y-6">
                 <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-8 transition-all duration-500 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-accent-400"></div>
                   

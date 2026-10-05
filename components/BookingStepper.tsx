@@ -19,7 +19,7 @@ const steps = [
 
 const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
   return (
-    <div className="w-full mb-6 sm:mb-10 pt-4">
+    <div className="w-full mb-3 md:mb-10 pt-2 md:pt-4">
       {/* --- DESKTOP STEPPER --- */}
       <div className="hidden md:block w-full">
         <div className="max-w-4xl mx-auto px-4">
@@ -75,28 +75,25 @@ const BookingStepper: React.FC<BookingStepperProps> = ({ currentStep }) => {
       </div>
 
       {/* --- MOBILE STEPPER (COMPACT) --- */}
-      <div className="md:hidden px-3">
-        <div className="rounded-3xl border border-slate-100 bg-white/80 backdrop-blur-md p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-white shadow-lg shadow-accent/20">
-                    {steps[currentStep-1]?.icon && React.createElement(steps[currentStep-1].icon, { className: "w-6 h-6 stroke-[2.5px]" })}
-                </div>
-                <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Step {currentStep} of {steps.length}</p>
-                    <p className="text-base font-black text-slate-950 uppercase tracking-tight">{steps[currentStep-1]?.label}</p>
-                </div>
+      <div className="md:hidden px-1">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="w-8 h-8 shrink-0 bg-accent rounded-lg flex items-center justify-center text-white shadow-sm shadow-accent/20">
+              {steps[currentStep-1]?.icon && React.createElement(steps[currentStep-1].icon, { className: "w-4 h-4 stroke-[2.5px]" })}
             </div>
-            <div className="text-base font-black text-accent">{Math.round((currentStep / steps.length) * 100)}%</div>
+            <p className="min-w-0 truncate text-sm font-black text-slate-950">
+              {steps[currentStep-1]?.label}
+            </p>
           </div>
-          <div className="mt-5 h-2 w-full bg-slate-100 rounded-full overflow-hidden flex gap-1 p-0.5">
-                {steps.map(s => (
-                    <div 
-                        key={s.step} 
-                        className={`h-full transition-all duration-700 rounded-full ${s.step <= currentStep ? 'bg-accent flex-grow shadow-[0_0_8px_rgba(0,122,194,0.4)]' : 'w-3 bg-slate-200 opacity-40'}`}
-                    ></div>
-                ))}
-          </div>
+          <p className="shrink-0 text-xs font-bold text-slate-500">Step {currentStep} of {steps.length}</p>
+        </div>
+        <div className="mt-2.5 flex gap-1" aria-hidden="true">
+          {steps.map(s => (
+            <div
+              key={s.step}
+              className={`h-1 flex-1 rounded-full transition-colors duration-700 ${s.step <= currentStep ? 'bg-accent' : 'bg-slate-200'}`}
+            ></div>
+          ))}
         </div>
       </div>
     </div>
