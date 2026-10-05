@@ -57,7 +57,7 @@ import Plane from 'lucide-react/dist/esm/icons/plane';
 import PlaneLanding from 'lucide-react/dist/esm/icons/plane-landing';
 import PlaneTakeoff from 'lucide-react/dist/esm/icons/plane-takeoff';
 import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '../types';
-import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
+import { RatingsModal } from '../components/RatingsModal';
 import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings, normalizeRatingScore } from '../utils/ratings';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -478,19 +478,13 @@ const CarDetails: React.FC = () => {
   const [promoError, setPromoError] = React.useState('');
   const [showFullSpecs, setShowFullSpecs] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
+  const closeRatings = React.useCallback(() => setShowRatingsTooltip(false), []);
 
   React.useEffect(() => {
     if (timeLeft === 0) return;
     const interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(interval);
   }, [timeLeft]);
-
-  React.useEffect(() => {
-    if (!showRatingsTooltip) return;
-    const handleGlobalClick = () => setShowRatingsTooltip(false);
-    window.addEventListener('click', handleGlobalClick);
-    return () => window.removeEventListener('click', handleGlobalClick);
-  }, [showRatingsTooltip]);
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
@@ -555,7 +549,7 @@ const CarDetails: React.FC = () => {
 
   const ratingToDisplay = parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
   const money = (amount: number) => `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
-  const carName = car.displayName || `${car.make} ${car.model}`;
+  const carName = (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '');
   const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   const isInstant = car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode;
   const isChoiceBrand = supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice';
@@ -571,7 +565,7 @@ const CarDetails: React.FC = () => {
 
   const specs = [
     { icon: Users, label: `${car.passengers} seats` },
-    { icon: Briefcase, label: `${car.bags} bags` },
+    { icon: Briefcase, label: `${car.bags} bag${car.bags === 1 ? '' : 's'}` },
     { icon: CarDoorIcon, label: `${car.doors} doors` },
     { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual' },
     { icon: Snowflake, label: 'Air conditioning' },
@@ -591,8 +585,9 @@ const CarDetails: React.FC = () => {
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        setShowRatingsTooltip(!showRatingsTooltip);
+        setShowRatingsTooltip(true);
       }}
+      aria-haspopup="dialog"
       aria-label="Show rating details"
     >
       <span className={`${getRatingColor(ratingToDisplay)} inline-flex h-8 min-w-[2.5rem] items-center justify-center rounded-md rounded-bl-none px-1.5 text-sm font-bold text-white`}>
@@ -600,17 +595,9 @@ const CarDetails: React.FC = () => {
       </span>
       <span className="leading-tight">
         <span className={`block text-sm font-semibold ${getRatingTextColor(ratingToDisplay)}`}>{getRatingDescription(ratingToDisplay)}</span>
-        {car.supplier.reviewCount ? <span className="block text-xs text-slate-500">{car.supplier.reviewCount.toLocaleString()} reviews</span> : <span className="block text-xs text-slate-500">Customer rating</span>}
+        {(car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount) ? <span className="block text-xs text-slate-500">{Number(car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount).toLocaleString()} reviews</span> : <span className="block text-xs text-slate-500">Customer rating</span>}
       </span>
       <Info className="h-3.5 w-3.5 text-slate-400" />
-      <DetailedRatingsTooltip
-        ratings={getCarRatings(car)}
-        visible={showRatingsTooltip}
-        align="left"
-        rating={ratingToDisplay}
-        reviewCount={car.supplier.reviewCount}
-        className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
-      />
     </button>
   );
 
@@ -627,6 +614,15 @@ const CarDetails: React.FC = () => {
       <SEOMetadata title={`Rent a ${car.make} ${car.model} | Hogicar`} description={car.isHogicarChoiceBranded ? `Book ${car.make} ${car.model} from our exclusive verified fleet. Best price guaranteed.` : `Book ${car.make} ${car.model} from ${car.supplier.name}. Best price guaranteed.`} />
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
+      <RatingsModal
+        open={showRatingsTooltip}
+        onClose={closeRatings}
+        ratings={getCarRatings(car)}
+        rating={ratingToDisplay}
+        supplierName={car.supplier.name}
+        supplierLogo={supplierMark}
+        reviewCount={car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount}
+      />
 
       <div className="min-h-screen bg-slate-50 pb-32 text-slate-900 lg:pb-16">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4">

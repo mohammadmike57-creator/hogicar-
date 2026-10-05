@@ -63,6 +63,6 @@ export const formatCategoryName = (category: string): string => {
     if (!category) return '';
     return category
         .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(word => word.toUpperCase() === 'SUV' ? 'SUV' : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
 };

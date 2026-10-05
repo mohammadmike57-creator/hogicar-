@@ -31,8 +31,8 @@ import Wind from 'lucide-react/dist/esm/icons/wind';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { Car as CarType, Supplier, CarRatings } from '../types';
-import { DetailedRatingsTooltip } from './DetailedRatingsTooltip';
-import { getRatingDescription, getRatingTextColor, getRatingBorderColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
+import { RatingsModal } from './RatingsModal';
+import { getRatingDescription, getRatingTextColor, getRatingColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -377,15 +377,15 @@ interface CarCardProps {
   onCompareToggle?: () => void;
 }
 
-const CarCard: React.FC<CarCardProps> = ({ 
-    car, 
-    cars, 
-    days, 
-    startDate, 
-    endDate, 
+const CarCard: React.FC<CarCardProps> = ({
+    car,
+    cars,
+    days,
+    startDate,
+    endDate,
     startTime,
     endTime,
-    pickupCode, 
+    pickupCode,
     dropoffCode,
     isComparing = false,
     showCompareControl = true,
@@ -393,547 +393,258 @@ const CarCard: React.FC<CarCardProps> = ({
     onCompareToggle
 }) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
+  const [showRatings, setShowRatings] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
   const { convertPrice, getCurrencySymbol } = useCurrency();
-  const promotionLabel = null;
 
-
-  // Use the single source of truth for pricing
-  const search = { pickupDate: startDate, dropoffDate: endDate };
-  // price calculation removed
-  // FIX: Access the correct property 'finalTotal' instead of 'finalPrice'.
   const totalFinalPrice = car.finalPrice ?? 0;
   const totalCommissionAmount = car.commissionAmount ?? 0;
   const payAtPickup = Math.max(totalFinalPrice - totalCommissionAmount, 0);
+  const money = (amount: number, digits = 2) => `${getCurrencySymbol()}${convertPrice(amount).toFixed(digits)}`;
 
-
-  const searchParams = new URLSearchParams({ 
-    pickupDate: startDate, 
+  const searchParams = new URLSearchParams({
+    pickupDate: startDate,
     dropoffDate: endDate,
     startTime: startTime || '',
     endTime: endTime || '',
     pickup: pickupCode,
     dropoff: dropoffCode
   }).toString();
+  const detailsUrl = `/car/${car.id}?${searchParams}`;
 
   const recentBookingInfo = React.useMemo(() => getRecentBookingInfo(car), [car]);
-  
-  const [imageError, setImageError] = React.useState(false);
-  const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (car.image || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');
   const displayRatings = React.useMemo(() => getCarRatings(car), [car]);
-
-  const ratingToDisplay = React.useMemo(() => {
-    return parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
-  }, [car.supplier.rating]);
-
-  React.useEffect(() => {
-    if (!showRatingsTooltip) return;
-    const handleGlobalClick = () => setShowRatingsTooltip(false);
-    window.addEventListener('click', handleGlobalClick);
-    return () => window.removeEventListener('click', handleGlobalClick);
-  }, [showRatingsTooltip]);
+  const ratingToDisplay = React.useMemo(() => parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1)), [car.supplier.rating]);
+  const reviewCount = car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount;
+  const closeRatings = React.useCallback(() => setShowRatings(false), []);
 
   const pickupType = car.supplier?.pickupType;
-  const pickupTypeLabel =
-    pickupType === 'IN_TERMINAL' ? 'Terminal pickup' :
+  const pickupLabel =
+    pickupType === 'IN_TERMINAL' ? 'In terminal' :
     pickupType === 'MEET_AND_GREET' ? 'Meet & greet' :
     pickupType === 'SHUTTLE_BUS' ? 'Shuttle bus' :
-    car.locationDetail || 'Pickup details';
-  const desktopPickupTypeLabel =
-    pickupType === 'IN_TERMINAL' ? 'In Terminal' :
-    pickupType === 'MEET_AND_GREET' ? 'Meet & Greet' :
-    pickupType === 'SHUTTLE_BUS' ? 'Shuttle Bus' :
-    car.locationDetail || 'Pickup details';
-  const DesktopPickupIcon =
+    car.locationDetail || 'Pick-up desk';
+  const PickupIcon =
     pickupType === 'IN_TERMINAL' ? Plane :
     pickupType === 'MEET_AND_GREET' ? Handshake :
     pickupType === 'SHUTTLE_BUS' ? Bus :
     Building;
+  const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : String(car.fuelPolicy || '').replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
+  const isInstant = !car.supplier?.bookingMode || car.supplier.bookingMode === 'FREE_SALE';
+  const carName = (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '');
+  const originalPrice = car.promotionPercent && car.promotionPercent > 0 ? totalFinalPrice / (1 - car.promotionPercent / 100) : null;
+  const isChoiceLogo = car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO';
+  const supplierLogoSrc = car.supplier.logo || (car.supplier as any).logoUrl;
 
   const handleSelectCar = () => {
     persistSelectedCar(car, cars);
   };
 
+  const supplierMark = isChoiceLogo ? (
+    <Logo className="h-6 w-auto max-w-[96px]" />
+  ) : supplierLogoSrc ? (
+    <img src={supplierLogoSrc} alt={car.supplier.name} className="h-7 w-auto max-w-[96px] object-contain" loading="lazy" decoding="async" width="96" height="28" />
+  ) : (
+    <span className="text-xs font-semibold text-slate-600">{car.supplier.name}</span>
+  );
+
+  const specs = [
+    { icon: Users, label: `${car.passengers} seats` },
+    { icon: Briefcase, label: `${car.bags} bag${car.bags === 1 ? '' : 's'}` },
+    { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual' },
+    { icon: Wind, label: 'A/C' },
+  ];
+
+  const features = [
+    'Free cancellation',
+    car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage',
+    `Fuel: ${fuelLabel}`,
+    ...(isInstant ? ['Instant confirmation'] : []),
+  ];
+
+  const ratingButton = (
+    <button
+      type="button"
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRatings(true); }}
+      aria-haspopup="dialog"
+      aria-label={`${car.supplier.name} rating ${ratingToDisplay.toFixed(1)}, show details`}
+      className="inline-flex items-center gap-2 rounded-md text-left hover:opacity-90"
+    >
+      <span className={`${getRatingColor(ratingToDisplay)} inline-flex h-7 min-w-[2.25rem] items-center justify-center rounded-md rounded-bl-none px-1.5 text-sm font-bold text-white`}>
+        {ratingToDisplay.toFixed(1)}
+      </span>
+      <span className="leading-tight">
+        <span className={`block text-sm font-semibold ${getRatingTextColor(ratingToDisplay)}`}>{getRatingDescription(ratingToDisplay)}</span>
+        <span className="block text-xs text-slate-500 underline-offset-2 hover:underline">{reviewCount ? `${Number(reviewCount).toLocaleString()} reviews` : 'See ratings'}</span>
+      </span>
+    </button>
+  );
+
+  const compareToggle = (
+    <label className="inline-flex cursor-pointer select-none items-center gap-2 text-sm text-slate-600" onClick={(e) => e.stopPropagation()}>
+      <input
+        type="checkbox"
+        checked={isComparing}
+        onChange={() => onCompareToggle?.()}
+        className="h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent"
+        aria-label={isComparing ? 'Remove from comparison' : 'Add to comparison'}
+      />
+      Compare
+    </label>
+  );
+
   return (
     <>
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
-      <div className={`rounded-xl md:rounded-2xl transition-all duration-300 w-full group/card flex flex-col h-full md:hover:-translate-y-0.5 relative hover:z-[50]
-        ${car.isHogicarChoiceBranded 
-          ? 'bg-accent/5 border-accent shadow-[0_20px_50px_-20px_rgba(0,122,194,0.35)]' 
-          : 'bg-white border-accent/45 hover:border-accent shadow-[0_10px_28px_-22px_rgba(0,122,194,0.75)] hover:shadow-[0_16px_40px_-18px_rgba(0,122,194,0.45)]'
-        } 
-        border-2 
-        ${isComparing ? 'border-accent ring-4 ring-accent/5 shadow-[0_18px_42px_-20px_rgba(0,122,194,0.85)]' : ''}`}>
-        <div className="relative flex flex-col h-full w-full rounded-xl md:rounded-2xl">
-          {/* Header Badge */}
-          {car.isHogicarChoiceBranded && (
-            <div className="bg-gradient-to-r from-accent via-accent-400 to-accent text-white px-4 py-2 flex items-center justify-center gap-2 rounded-t-2xl">
-                <Award className="w-4 h-4 text-white fill-white/20" />
-                <span className="text-xs font-black uppercase tracking-widest">Hogicar Recommended</span>
-            </div>
-          )}
+      <RatingsModal
+        open={showRatings}
+        onClose={closeRatings}
+        ratings={displayRatings}
+        rating={ratingToDisplay}
+        supplierName={car.supplier.name}
+        supplierLogo={supplierMark}
+        reviewCount={reviewCount}
+      />
 
-          <div className="p-3.5 md:hidden">
-              <div className="mb-2.5 flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                      {car.isHogicarChoiceBranded && (
-                        <div className="mb-2 flex items-center gap-1.5">
-                            <span className="inline-flex rounded-full bg-slate-950 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] text-amber-400 border border-amber-400/30">Hogicar Choice</span>
-                        </div>
-                      )}
-                      <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                          <h3 className="text-lg font-black leading-tight tracking-tight text-slate-950 uppercase">
-                              {car.displayName || `${car.make} ${car.model}`}
-                          </h3>
-                      </Link>
-                      <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                        <span className="text-accent">or similar {car.category.toString().toLowerCase()}</span>
-                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span className="flex items-center gap-1">Specs <Info className="h-3 w-3" /></span>
-                      </p>
-                  </div>
-
-                  {showMobileCompareControl && (
-                    <button
-                      onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          onCompareToggle?.();
-                      }}
-                      aria-pressed={isComparing}
-                      aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                      className="flex shrink-0 flex-col items-center gap-1 pt-1"
-                    >
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Compare</span>
-                        <span className={`relative flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-accent shadow-lg shadow-accent/20' : 'bg-slate-200'}`}>
-                            <span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-4' : 'translate-x-0'}`} />
-                        </span>
-                    </button>
-                  )}
-              </div>
-
-              <div className="grid grid-cols-[1fr_38%] items-center gap-3 py-2.5 border-y border-slate-100 mb-3.5">
-                  <div className="space-y-2.5 text-slate-900">
-                      <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
-                            <Users className="h-4 w-4 text-accent" />
-                          </div>
-                          <span className="text-[11px] font-black uppercase tracking-tight">{car.passengers} Seats</span>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
-                            <AutomaticIcon className="w-4 h-4 text-accent" />
-                          </div>
-                          <span className="text-[11px] font-black uppercase tracking-tight">{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 shadow-inner">
-                            <GaugeCircle className="h-4 w-4 text-amber-600" />
-                          </div>
-                          <span className="text-[11px] font-black uppercase tracking-tight">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} KM</span>
-                      </div>
-                  </div>
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="flex items-center justify-center relative group/img-link">
-                      <img
-                        src={displayImage}
-                        alt={`${car.make} ${car.model}`}
-                        onError={() => setImageError(true)}
-                        referrerPolicy="no-referrer"
-                        loading="lazy"
-                        decoding="async"
-                        width="300"
-                        height="128"
-                        className="max-h-24 w-full h-auto object-contain drop-shadow-[0_14px_24px_rgba(15,23,42,0.14)] transition-all duration-500 ease-out active:scale-105"
-                      />
-                      <div className="absolute -bottom-2.5 right-0 flex flex-col items-end gap-1 z-20">
-                          <div className="bg-emerald-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-widest border border-emerald-400/30">
-                              <CalendarCheck className="w-2.5 h-2.5" />
-                              <span>Free Cancellation</span>
-                          </div>
-                          {promotionLabel && (
-                              <div className="bg-rose-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-widest border border-rose-400/30">
-                                  <Tag className="w-3 h-3 fill-white/10"/> {promotionLabel}
-                              </div>
-                          )}
-                      </div>
-                  </Link>
-              </div>
-
-              <div className="grid grid-cols-[1fr_auto] items-end gap-2.5">
-                  <div className="min-w-0">
-                      {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
-                          <Logo className="mb-2.5 h-6 w-auto max-w-[110px]" />
-                      ) : (
-                          <img
-                              src={car.supplier.logo || (car.supplier as any).logoUrl}
-                              alt={car.supplier.name}
-                              className="mb-2.5 h-7 max-w-[110px] object-contain"
-                              loading="lazy"
-                              decoding="async"
-                              width="110"
-                              height="28"
-                          />
-                      )}
-                      <button
-                        type="button"
-                        className="group/rating relative flex items-center gap-2 text-left bg-white hover:bg-slate-50 p-1.5 pr-3 rounded-xl transition-all active:scale-[0.98] border border-slate-200 shadow-sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShowRatingsTooltip(!showRatingsTooltip);
-                        }}
-                        aria-label="Show supplier rating details"
-                      >
-                          <div className={`flex h-8 min-w-10 items-center justify-center rounded-lg border-2 bg-white px-1.5 text-base font-black leading-none shadow-sm ${getRatingBorderColor(ratingToDisplay)}`}>
-                              {ratingToDisplay.toFixed(1)}
-                          </div>
-                          <div className="flex flex-col">
-                              <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className={`text-xs font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
-                                      {getRatingDescription(ratingToDisplay)}
-                                  </span>
-                                  <Info className="w-3 h-3 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
-                              </div>
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1">
-                                  <Check className="w-2.5 h-2.5 text-accent" />
-                                  Verified
-                              </p>
-                          </div>
-                      </button>
-                  </div>
-                  <div className="text-right">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.18em] mb-1">Total for {days} days</p>
-                      <div className="flex flex-col items-end">
-                        {car.promotionPercent > 0 && (
-                            <span className="text-xs text-slate-400 line-through font-bold mb-0.5">
-                                {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(0)}
-                            </span>
-                        )}
-                        <p className="text-2xl font-black leading-none text-slate-950 tracking-tighter">
-                            <span className="text-sm align-top mt-1 inline-block mr-0.5 font-bold">{getCurrencySymbol()}</span>
-                            {convertPrice(totalFinalPrice).toFixed(0)}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsConditionsModalOpen(true);
-                        }}
-                        className="mt-2 text-right text-[10px] font-black text-accent uppercase tracking-widest hover:underline underline-offset-4 active:scale-[0.98]"
-                      >
-                          Rental terms
-                      </button>
-                  </div>
-              </div>
-
-              <Link
-                to={`/car/${car.id}?${searchParams}`}
-                state={{ cars: cars }}
-                onClick={handleSelectCar}
-                className="mt-4 flex w-full h-12 items-center justify-center gap-2.5 rounded-xl bg-accent px-5 py-3 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_15px_35px_-12px_rgba(0,122,194,0.6)] active:scale-[0.97] transition-all"
-              >
-                  Choose this car <ArrowRight className="h-5 w-5 stroke-[3px]" />
-              </Link>
-          </div>
-
-          <div className="hidden md:flex md:flex-row flex-grow">
-              {/* Car Image Area */}
-              <div className={`relative md:w-[28%] ${car.isHogicarChoiceBranded ? 'bg-gradient-to-br from-emerald-50 to-white' : 'bg-gradient-to-br from-slate-50 to-white'} border-b md:border-b-0 md:border-r border-slate-100 flex flex-col p-2.5 group/img ${car.hogicarChoice ? '' : 'rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none'}`}>
-                  <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar} className="relative w-full aspect-[2.35/1] flex items-center justify-center mb-2 group/img-link">
-                      <img
-                        src={displayImage}
-                        alt={`${car.make} ${car.model}`}
-                        onError={() => setImageError(true)}
-                        referrerPolicy="no-referrer"
-                        loading="lazy"
-                        decoding="async"
-                        width="400"
-                        height="170"
-                        className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 ease-out z-10"
-                      />
-
-                      {promotionLabel && (
-                          <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-red-600 text-white text-[10px] md:text-xs font-black px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg z-10">
-                              <Tag className="w-3 h-3 md:w-3.5 md:h-3.5 fill-white/20"/> {promotionLabel}
-                          </div>
-                      )}
-                  </Link>
-
-                  {/* Supplier & Rating Block */}
-                  <div className="flex justify-between items-center gap-2 pt-2 border-t border-slate-100 mt-auto w-full">
-                      {(car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO') ? (
-                          <Logo className="h-6 w-auto max-w-[105px]" />
-                      ) : (
-                          <img
-                              src={car.supplier.logo || (car.supplier as any).logoUrl}
-                              alt={car.supplier.name}
-                              className="h-8 w-auto object-contain max-w-[105px]"
-                              loading="lazy"
-                              decoding="async"
-                              width="105"
-                              height="32"
-                          />
-                      )}
-                      <div
-                        className="group/rating relative z-30 flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white p-1.5 pr-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg active:scale-[0.98]"
-                        onMouseEnter={() => setShowRatingsTooltip(true)}
-                        onMouseLeave={() => setShowRatingsTooltip(false)}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShowRatingsTooltip(!showRatingsTooltip);
-                        }}
-                      >
-                          <div className={`flex h-9 min-w-11 shrink-0 items-center justify-center rounded-md border-2 bg-white px-2 text-lg font-black leading-none ${getRatingBorderColor(ratingToDisplay)}`}>
-                              {ratingToDisplay.toFixed(1)}
-                          </div>
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-1.5 mb-0.5">
-                                <span className={`text-[11px] font-black leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
-                                  {getRatingDescription(ratingToDisplay)}
-                                </span>
-                                <Info className="w-2.5 h-2.5 text-slate-400 group-hover/rating:text-slate-600 transition-colors" />
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <span className="text-[8px] font-black text-slate-600 whitespace-nowrap uppercase tracking-[0.12em]">
-                                  Supplier Score
-                                </span>
-                            </div>
-                          </div>
-
-                          {/* Desktop Tooltip */}
-                          <DetailedRatingsTooltip 
-                            ratings={displayRatings} 
-                            visible={showRatingsTooltip} 
-                            align="right"
-                            supplierName={car.supplier.name}
-                            rating={ratingToDisplay}
-                            reviewCount={car.supplier.reviewCount}
-                            className="hidden md:block"
-                          />
-                      </div>
-                  </div>
-              </div>
-
-              <div className="flex-grow flex flex-col md:flex-row">
-                  <div className="p-2.5 flex-grow border-b md:border-b-0 md:border-r border-slate-100">
-                      {/* Title & Category */}
-                      <div className="mb-2.5">
-                          <div className="flex items-center gap-1.5 mb-1.5">
-                              <span className="hidden md:inline-block bg-slate-100 text-slate-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
-                                  {formatCategoryName(car.category)}
-                              </span>
-                              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] md:text-[9px] font-black px-2 py-1 md:px-1.5 md:py-0.5 rounded-md md:rounded-lg uppercase tracking-wide">
-                                  <DesktopPickupIcon className="h-3 w-3" />
-                                  {desktopPickupTypeLabel}
-                              </span>
-                          </div>
-                          <Link to={`/car/${car.id}?${searchParams}`} state={{ cars: cars }} onClick={handleSelectCar}>
-                              <h3 className="text-[0.95rem] font-black text-slate-900 leading-snug hover:text-accent transition-colors uppercase tracking-tight line-clamp-1">
-                                  {car.displayName}
-                              </h3>
-                          </Link>
-                          <p className="text-[9px] text-slate-500 font-bold flex items-center gap-1 mt-0.5">
-                              or similar <Info className="w-2.5 h-2.5" />
-                          </p>
-                      </div>
-
-                      {/* Specs Grid (Compact) */}
-                      <div className="grid grid-cols-4 gap-1.5 mb-2 py-2 border-y border-slate-100 bg-slate-50 rounded px-2">
-                          <div className="flex items-center gap-2 text-slate-600">
-                              <Users className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[10px] font-bold">{car.passengers}<span className="hidden min-[390px]:inline ml-1">Adults</span></span>
-                          </div>
-                          <div className="flex items-center gap-2 text-slate-600">
-                              <Briefcase className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[10px] font-bold">{car.bags}<span className="hidden min-[390px]:inline ml-1">Bags</span></span>
-                          </div>
-                          <div className="flex items-center gap-2 text-slate-600">
-                              <div className="text-slate-400 scale-100 md:scale-90"><AutomaticIcon /></div>
-                              <span className="text-[10px] font-bold">
-                                  {car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}
-                              </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-slate-600">
-                              <Wind className="w-3.5 h-3.5 text-slate-400"/>
-                              <span className="text-[10px] font-bold">A/C</span>
-                          </div>
-                      </div>
-
-                      {/* Included Features checklist */}
-                      <div className="grid grid-cols-2 gap-1.5 mb-2.5">
-                          <div className="flex items-center gap-1.5 rounded-lg bg-accent/5 px-2.5 py-1.5 text-[9px] font-bold text-accent border border-accent/10">
-                              <CalendarCheck className="w-3 h-3 stroke-[2.5px] shrink-0" />
-                              <span className="truncate">Free cancellation</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[9px] font-bold text-slate-700 border border-slate-100">
-                              <Fuel className="w-3 h-3 text-accent stroke-[2.5px] shrink-0" />
-                              <span className="truncate">{car.fuelPolicy === 'FULL_TO_FULL' ? 'Fair fuel' : car.fuelPolicy}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[9px] font-bold text-slate-700 border border-slate-100">
-                              <GaugeCircle className="w-3 h-3 text-accent stroke-[2.5px] shrink-0" />
-                              <span className="truncate">{car.unlimitedMileage ? 'Unlimited' : 'Limited'} mileage</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 rounded-lg bg-accent/5 px-2.5 py-1.5 text-[9px] font-bold text-accent border border-accent/10">
-                              <Zap className="w-3 h-3 fill-accent/20 shrink-0" />
-                              <span className="truncate">Instant Confirmation</span>
-                          </div>
-                      </div>
-
-                      <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-2.5 py-1.5">
-                          <div className="flex min-w-0 items-center gap-2">
-                              <DesktopPickupIcon className="h-3.5 w-3.5 shrink-0 text-accent" />
-                              <div className="min-w-0">
-                                  <p className="truncate text-[9px] font-black uppercase tracking-wide text-slate-900">{desktopPickupTypeLabel}</p>
-                                  <p className="truncate text-[9px] font-semibold text-slate-500">{car.locationDetail || car.location || 'Pickup location'}</p>
-                              </div>
-                          </div>
-                          <button
-                            onClick={() => setIsConditionsModalOpen(true)}
-                            className="shrink-0 text-[9px] font-black uppercase tracking-wide text-accent hover:text-slate-950"
-                          >
-                              Rental terms
-                          </button>
-                      </div>
-
-                      {/* Social Proof Message */}
-                      {recentBookingInfo.isRecent && (
-                        <div className="flex items-center gap-2 bg-accent/5 border border-accent/10 p-2.5 rounded-lg mt-3 md:mt-2">
-                           <Clock className="w-4 h-4 md:w-3 md:h-3 text-accent" />
-                           <span className="text-xs md:text-[10px] font-black text-accent uppercase tracking-wide">{recentBookingInfo.message}</span>
-                        </div>
-                      )}
-                  </div>
-
-                  {/* Price & CTA Section */}
-                  <div className="p-2.5 md:w-[29%] bg-white flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-100 rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none">
-                      <div>
-                          {/* Pricing Info */}
-                          <div className="flex flex-col mb-2.5">
-                              <div className="flex items-start justify-between gap-2 mb-1.5">
-                                <p className="text-xs md:text-xs text-slate-600 font-black uppercase tracking-wide">Total <span>for {days} days</span></p>
-                                {ratingToDisplay >= 4.5 && (
-                                    <div className="flex shrink-0 items-center gap-1 text-xs md:text-xs font-black text-accent uppercase bg-accent/10 px-2 py-1 rounded-md">
-                                        <Award className="w-3 h-3" /> <span>Best Value</span>
-                                    </div>
-                                )}
-                              </div>
-                              <div className="flex flex-wrap items-baseline gap-2">
-                                  {car.promotionPercent > 0 && (
-                                      <span className="text-xs text-slate-500 line-through font-bold">
-                                          {getCurrencySymbol()}{convertPrice(totalFinalPrice / (1 - car.promotionPercent/100)).toFixed(2)}
-                                      </span>
-                                  )}
-                                  <span className="text-lg font-black text-slate-900 tracking-tight">
-                                      {getCurrencySymbol()}{convertPrice(totalFinalPrice).toFixed(2)}
-                                  </span>
-                              </div>
-                              <p className="text-xs text-slate-600 font-bold mt-1 flex items-center gap-1">
-                                  <Shield className="w-2.5 h-2.5" /> All taxes included
-                              </p>
-                          </div>
-
-                          <div className="mb-3 grid grid-cols-2 gap-1.5">
-                              <div className="p-2 bg-white rounded-xl border border-accent/15 shadow-sm">
-                                  <p className="text-[10px] text-accent font-black uppercase tracking-wide mb-1 flex items-center gap-1">
-                                      <CreditCardIcon className="w-3 h-3" /> Pay now
-                                  </p>
-                                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                      <span className="text-sm font-black text-accent tracking-tight">
-                                          {getCurrencySymbol()}{convertPrice(totalCommissionAmount).toFixed(2)}
-                                      </span>
-                                  </div>
-                              </div>
-                              <div className="p-2 bg-white rounded-xl border border-slate-300 shadow-sm">
-                                  <p className="text-[10px] text-slate-600 font-black uppercase tracking-wide mb-1 flex items-center gap-1">
-                                      <Building className="w-3 h-3" /> At pickup
-                                  </p>
-                                  <span className="text-sm font-black text-slate-900 tracking-tight">
-                                      {getCurrencySymbol()}{convertPrice(payAtPickup).toFixed(2)}
-                                  </span>
-                              </div>
-                          </div>
-                      </div>
-
-                      <div className="space-y-2">
-                          {showCompareControl && (
-                            <button
-                              onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  onCompareToggle?.();
-                              }}
-                              aria-pressed={isComparing}
-                              aria-label={isComparing ? 'Remove choice from comparison' : 'Add as comparison choice'}
-                              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-[9px] font-black uppercase tracking-[0.14em] transition-all active:scale-[0.98] ${
-                                  isComparing
-                                    ? 'border-accent bg-accent/5 text-accent'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:border-accent hover:text-accent'
-                              }`}
-                            >
-                                <span>Compare this car</span>
-                                <span className={`relative flex h-[18px] w-8 items-center rounded-full p-0.5 transition-colors ${isComparing ? 'bg-accent' : 'bg-slate-300'}`}>
-                                    <span className={`h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform ${isComparing ? 'translate-x-3.5' : 'translate-x-0'}`} />
-                                </span>
-                            </button>
-                          )}
-                          {/* CTA Button */}
-                          <Link
-                            to={`/car/${car.id}?${searchParams}`}
-                            state={{ cars: cars }}
-                            onClick={handleSelectCar}
-                            className="group/btn block w-full bg-accent hover:bg-accent-700 text-white font-black py-2.5 rounded-xl shadow-[0_8px_18px_-7px_rgba(0,122,194,0.55)] hover:shadow-xl transition-all active:scale-[0.97] text-center text-[10px] uppercase tracking-wider relative overflow-hidden"
-                          >
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
-                              <span className="relative z-10 flex items-center justify-center gap-2">
-                                  View Deal <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"/>
-                              </span>
-                          </Link>
-
-                      </div>
-                  </div>
-              </div>
-          </div>
-
-        </div>
-        {showRatingsTooltip && (
-          <div
-            className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/20 px-3 pb-4 backdrop-blur-[2px] md:hidden"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowRatingsTooltip(false);
-            }}
-          >
-            <div className="relative w-full max-w-[320px]" onClick={(e) => e.stopPropagation()}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowRatingsTooltip(false);
-                }}
-                className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-700 shadow-lg"
-                aria-label="Close rating details"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <DetailedRatingsTooltip
-                ratings={displayRatings}
-                visible={true}
-                align="center"
-                supplierName={car.supplier.name}
-                rating={ratingToDisplay}
-                reviewCount={car.supplier.reviewCount}
-                compact
-                className="!static !mb-0 !w-full !translate-x-0 !translate-y-0 !scale-100 !opacity-100"
-              />
-            </div>
+      <article
+        className={`relative w-full overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md ${
+          isComparing ? 'border-accent ring-1 ring-accent' : car.isHogicarChoiceBranded ? 'border-accent/60' : 'border-slate-200'
+        }`}
+      >
+        {car.isHogicarChoiceBranded && (
+          <div className="flex items-center gap-1.5 border-b border-accent/20 bg-accent-50 px-4 py-1.5 text-xs font-semibold text-accent-800">
+            <Award className="h-3.5 w-3.5" /> Hogicar recommended
           </div>
         )}
-      </div>
+
+        <div className="grid md:grid-cols-[220px_minmax(0,1fr)_210px] lg:grid-cols-[240px_minmax(0,1fr)_220px]">
+          {/* Image */}
+          <Link
+            to={detailsUrl}
+            state={{ cars }}
+            onClick={handleSelectCar}
+            className="relative hidden items-center justify-center bg-slate-50 p-4 md:flex"
+            aria-label={`View ${carName}`}
+          >
+            <img
+              src={displayImage}
+              alt={carName}
+              onError={() => setImageError(true)}
+              referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
+              width="240"
+              height="140"
+              className="h-auto max-h-32 w-full object-contain"
+            />
+            {originalPrice && (
+              <span className="absolute left-3 top-3 rounded bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white">-{car.promotionPercent}%</span>
+            )}
+          </Link>
+
+          {/* Details */}
+          <div className="min-w-0 p-4 md:border-r md:border-slate-100">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <Link to={detailsUrl} state={{ cars }} onClick={handleSelectCar} className="hover:underline">
+                  <h3 className="truncate text-lg font-bold leading-tight text-slate-900">{carName}</h3>
+                </Link>
+                <p className="mt-0.5 text-sm text-slate-500">or similar · {formatCategoryName(car.category)}</p>
+              </div>
+              {(showCompareControl || showMobileCompareControl) && (
+                <div className={`${showCompareControl ? 'md:block' : 'md:hidden'} ${showMobileCompareControl ? 'block' : 'hidden'} shrink-0 pt-0.5`}>{compareToggle}</div>
+              )}
+            </div>
+
+            <div className="mt-3 grid grid-cols-[minmax(0,1fr)_120px] items-center gap-3 md:block">
+              <div className="min-w-0">
+                <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+                  {specs.map(spec => (
+                    <li key={spec.label} className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+                      <spec.icon className="h-4 w-4 text-slate-500" />
+                      {spec.label}
+                    </li>
+                  ))}
+                </ul>
+                <ul className="mt-3 grid gap-1 sm:grid-cols-2">
+                  {features.map(f => (
+                    <li key={f} className="flex items-center gap-1.5 text-sm text-slate-700">
+                      <Check className="h-4 w-4 shrink-0 text-emerald-600" />
+                      <span className="truncate">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link to={detailsUrl} state={{ cars }} onClick={handleSelectCar} className="relative flex items-center justify-center md:hidden" aria-label={`View ${carName}`}>
+                <img
+                  src={displayImage}
+                  alt={carName}
+                  onError={() => setImageError(true)}
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
+                  width="120"
+                  height="80"
+                  className="h-auto max-h-20 w-full object-contain"
+                />
+                {originalPrice && (
+                  <span className="absolute left-0 top-0 rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">-{car.promotionPercent}%</span>
+                )}
+              </Link>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
+              <div className="flex items-center gap-3">
+                {supplierMark}
+                {!car.isHogicarChoiceBranded && ratingButton}
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <span className="inline-flex items-center gap-1.5 text-slate-600">
+                  <PickupIcon className="h-4 w-4 text-slate-400" /> {pickupLabel}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsConditionsModalOpen(true); }}
+                  className="font-medium text-accent hover:underline"
+                >
+                  Rental terms
+                </button>
+              </div>
+            </div>
+
+            {recentBookingInfo.isRecent && (
+              <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-amber-700">
+                <Clock className="h-3.5 w-3.5" /> {recentBookingInfo.message}
+              </p>
+            )}
+          </div>
+
+          {/* Price */}
+          <div className="flex flex-col justify-between gap-3 border-t border-slate-100 bg-white p-4 md:border-t-0">
+            <div className="flex items-end justify-between gap-3 md:block">
+              <div>
+                <p className="text-xs text-slate-500">Price for {days} day{days > 1 ? 's' : ''}</p>
+                {originalPrice && <p className="text-sm text-slate-400 line-through">{money(originalPrice)}</p>}
+                <p className="text-2xl font-bold leading-tight tracking-tight text-slate-900">{money(totalFinalPrice)}</p>
+                <p className="text-xs text-emerald-700">Taxes and fees included</p>
+              </div>
+              <dl className="text-right text-xs text-slate-600 md:mt-3 md:space-y-0.5 md:text-left">
+                <div className="flex justify-end gap-2 md:justify-between"><dt>Pay now</dt><dd className="font-semibold text-slate-900">{money(totalCommissionAmount)}</dd></div>
+                <div className="flex justify-end gap-2 md:justify-between"><dt>At pick-up</dt><dd className="font-semibold text-slate-900">{money(payAtPickup)}</dd></div>
+              </dl>
+            </div>
+            <Link
+              to={detailsUrl}
+              state={{ cars }}
+              onClick={handleSelectCar}
+              className="flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-accent text-sm font-semibold text-white transition-colors hover:bg-accent-700 active:bg-accent-800"
+            >
+              View deal <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </article>
     </>
   );
 };
