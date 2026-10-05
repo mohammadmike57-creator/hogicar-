@@ -277,6 +277,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     const date = new Date(year, month - 1, day, 12, 0, 0);
     return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   };
+
+  const formatShortDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
   
   const priceDetails = React.useMemo(() => {
     if (!car) {
@@ -619,7 +626,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-white min-h-screen py-2 sm:py-3 pb-40 sm:pb-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="bg-white min-h-screen py-2 sm:py-3 pb-32 lg:pb-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
            <div className="w-full max-w-[320px] sm:max-w-md px-6">
@@ -637,113 +644,113 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
            </div>
         </div>
       )}
-        <div className="max-w-[1400px] mx-auto px-1 sm:px-3 lg:px-6">
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-3 lg:px-6">
         <div className="mb-2 sm:mb-4">
             <BookingStepper currentStep={4} />
         </div>
 
-        <div className="mb-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.1)]">
+        <div className="mb-4 sm:mb-6 overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.1)]">
           <div className="h-1.5 bg-slate-100">
             <div className={`h-full rounded-r-full bg-accent transition-all duration-1000 ease-out ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
           </div>
           <div className="p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-2 w-2 rounded-full bg-accent animate-pulse"></div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">Secure Checkout</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] sm:tracking-[0.3em] text-accent">Secure Checkout</p>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
               <p className="mt-2 max-w-2xl text-xs sm:text-base font-medium leading-relaxed text-slate-500">{pageDescription}</p>
             </div>
-            <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-1.5 sm:min-w-[360px] shadow-inner border border-slate-100">
-              <div className={`rounded-xl px-4 py-3 text-center transition-all duration-500 ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-3 rounded-xl sm:rounded-2xl bg-slate-50 p-1 sm:p-1.5 sm:min-w-[360px] shadow-inner border border-slate-100">
+              <div className={`rounded-lg sm:rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-center transition-all duration-500 ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Step 01</p>
                 <p className="text-xs sm:text-sm font-black">Driver Details</p>
               </div>
-              <div className={`rounded-xl px-4 py-3 text-center transition-all duration-500 ${routeStep === 'payment' ? 'bg-accent text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
+              <div className={`rounded-lg sm:rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-center transition-all duration-500 ${routeStep === 'payment' ? 'bg-accent text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Step 02</p>
                 <p className="text-xs sm:text-sm font-black">Payment</p>
               </div>
             </div>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-4 border-t border-slate-50 pt-6 sm:grid-cols-3">
+          <div className="mt-4 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-50 pt-4 sm:pt-6">
             {[
               { icon: ShieldCheck, label: "Bank-Level Security", color: "text-accent", bg: "bg-accent-50" },
               { icon: BadgeCheck, label: "Verified Inventory", color: "text-accent", bg: "bg-accent-50" },
               { icon: Headphones, label: "24/7 Priority Support", color: "text-accent", bg: "bg-accent-50" }
             ].map((item, i) => (
-              <div key={i} className={`flex items-center gap-4 rounded-2xl ${item.bg} px-5 py-4 transition-transform hover:scale-[1.02]`}>
-                <item.icon className={`h-5 w-5 ${item.color}`} />
-                <span className="text-xs font-black uppercase tracking-[0.15em] text-slate-700">{item.label}</span>
+              <div key={i} className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-4 rounded-xl sm:rounded-2xl ${item.bg} px-2 py-2.5 sm:px-5 sm:py-4 text-center sm:text-left transition-transform hover:scale-[1.02]`}>
+                <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${item.color}`} />
+                <span className="text-[10px] sm:text-xs font-bold sm:font-black leading-tight sm:uppercase sm:tracking-[0.15em] text-slate-700">{item.label}</span>
               </div>
             ))}
           </div>
           </div>
         </div>
 
-        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 xl:gap-10">
+        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 xl:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
             {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] sm:shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-3 sm:p-8 flex flex-col md:flex-row items-center gap-3 sm:gap-8 relative overflow-hidden group">
+               <div className="hidden sm:block absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
                
-               <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 p-8 rounded-3xl border border-slate-100 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center shadow-inner group-hover:shadow-md transition-all duration-500">
+               <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-slate-100 flex-shrink-0 relative overflow-hidden w-full md:w-auto flex justify-center shadow-inner group-hover:shadow-md transition-all duration-500">
                    <img 
                     src={displayImage} 
                     alt={car.model} 
                     onError={() => setImageError(true)}
                     referrerPolicy="no-referrer"
                     loading="eager"
-                    className="w-40 sm:w-52 h-auto object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] transform group-hover:scale-110 transition-transform duration-700"
+                    className="w-36 sm:w-52 h-auto max-h-24 sm:max-h-none object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] transform group-hover:scale-110 transition-transform duration-700"
                    />
                </div>
                
-               <div className="flex-grow text-center md:text-left relative z-10">
-                  <div className="flex items-center justify-center md:justify-start gap-3 mb-4 flex-wrap">
-                      <span className="bg-slate-950 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-xl border border-white/10">
+               <div className="w-full flex-grow text-left relative z-10 px-1 sm:px-0">
+                  <div className="flex items-center justify-start gap-2 sm:gap-3 mb-2 sm:mb-4 flex-wrap">
+                      <span className="bg-slate-950 text-white text-[9px] sm:text-[10px] font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-full uppercase tracking-[0.12em] sm:tracking-[0.2em] shadow-xl border border-white/10">
                         {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
                       </span>
-                      <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] border border-emerald-100 shadow-sm">Verified Deal</span>
+                      <span className="bg-emerald-50 text-emerald-700 text-[9px] sm:text-[10px] font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-full uppercase tracking-[0.12em] sm:tracking-[0.2em] border border-emerald-100 shadow-sm">Verified Deal</span>
                   </div>
-                  <h1 className="text-2xl sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-4">{car.displayName || `${car.make} ${car.model}`}</h1>
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6">
+                  <h2 className="text-xl sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-3 sm:mb-4">{car.displayName || `${car.make} ${car.model}`}</h2>
+                  <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 sm:gap-6">
                     {[
                       { icon: Users, label: car.passengers, unit: "Seats", color: "text-accent", bg: "bg-accent-50" },
                       { icon: Briefcase, label: car.bags, unit: "Bags", color: "text-amber-600", bg: "bg-amber-50" },
                       { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', unit: "Gear", color: "text-accent", bg: "bg-accent-50" }
                     ].map((spec, i) => (
-                      <div key={i} className="flex items-center gap-2.5">
-                        <div className={`p-2 ${spec.bg} rounded-xl shadow-sm border border-black/5`}><spec.icon className={`w-4 h-4 ${spec.color} stroke-[2.5px]`} /></div>
-                        <span className="text-xs font-black text-slate-900 uppercase tracking-widest leading-none">{spec.label} {spec.unit}</span>
+                      <div key={i} className="flex items-center gap-1.5 sm:gap-2.5">
+                        <div className={`p-1.5 sm:p-2 ${spec.bg} rounded-lg sm:rounded-xl shadow-sm border border-black/5`}><spec.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${spec.color} stroke-[2.5px]`} /></div>
+                        <span className="text-[11px] sm:text-xs font-black text-slate-900 uppercase tracking-wide sm:tracking-widest leading-none">{spec.label} {spec.unit}</span>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="flex items-center justify-center md:justify-start gap-6 mt-8 pt-8 border-t border-slate-100">
+                  <div className="flex items-center justify-start gap-6 mt-3 sm:mt-8 pt-3 sm:pt-8 border-t border-slate-100">
                       {!car.isHogicarChoiceBranded ? (
-                        <div className="flex items-center gap-5">
-                            <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                        <div className="flex w-full sm:w-auto items-center justify-between sm:justify-start gap-3 sm:gap-5">
+                            <div className="bg-white border border-slate-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-sm">
                               {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
                                 <Logo className="h-10 w-auto max-w-[140px]" />
                               ) : supplierLogo ? (
-                                <img src={supplierLogo} alt={car.supplier.name} className="h-10 w-auto object-contain" />
+                                <img src={supplierLogo} alt={car.supplier.name} className="h-7 sm:h-10 w-auto max-w-[110px] sm:max-w-none object-contain" />
                               ) : (
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{car.supplier.name}</span>
                               )}
                             </div>
                             <div
-                              className="flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl shadow-inner border border-slate-100 group/rating relative cursor-pointer hover:bg-white hover:shadow-xl transition-all"
+                              className="flex items-center gap-2.5 sm:gap-4 bg-slate-50 px-2.5 py-1.5 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-inner border border-slate-100 group/rating relative cursor-pointer hover:bg-white hover:shadow-xl transition-all"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 setShowRatingsTooltip(!showRatingsTooltip);
                               }}
                             >
-                               <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
+                               <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg sm:rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
                                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                   <span className="relative z-10 text-base font-black tracking-tight">{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
+                                   <span className="relative z-10 text-sm sm:text-base font-black tracking-tight">{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
                                </div>
                                <div className="flex flex-col">
                                    <span className={`text-sm font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight mb-1`}>{getRatingDescription(car.supplier.rating)}</span>
@@ -768,48 +775,50 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                </div>
             </div>
             
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-5 sm:p-8 mb-6">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative">
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-4 sm:p-8 sm:mb-6">
+                <div className="flex flex-row items-center justify-between gap-2 md:gap-8 relative">
                   {/* Pickup */}
-                  <div className="flex-1 w-full md:w-auto">
+                  <div className="flex-1 min-w-0 md:w-auto">
                     <div className="flex flex-col items-start">
-                      <span className="text-3xl font-black text-slate-950 mb-1">{startTime}</span>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl font-black text-[#003580] tracking-tight">{search.pickupCode}</span>
-                        <div className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{pickupLabel.split(',')[0]}</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.14em] text-accent mb-1 md:hidden">Pick-up</span>
+                      <span className="text-2xl md:text-3xl font-black text-slate-950 leading-none mb-1">{startTime}</span>
+                      <div className="flex min-w-0 max-w-full items-center gap-1.5 md:gap-2 mb-1">
+                        <span className="text-base md:text-xl font-black text-[#003580] tracking-tight">{search.pickupCode}</span>
+                        <div className="hidden md:block h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="hidden md:inline text-sm font-bold text-slate-600 truncate max-w-[150px]">{pickupLabel.split(',')[0]}</span>
                       </div>
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{formatDate(startDate)}</span>
+                      <span className="text-[11px] md:text-xs font-bold md:font-black text-slate-500 md:text-slate-400 md:uppercase md:tracking-widest"><span className="md:hidden">{formatShortDate(startDate)}</span><span className="hidden md:inline">{formatDate(startDate)}</span></span>
                     </div>
                   </div>
 
                   {/* Timeline */}
-                  <div className="flex-[1.5] w-full flex flex-col items-center justify-center py-4 md:py-0">
+                  <div className="flex-[0.9] md:flex-[1.5] min-w-[72px] flex flex-col items-center justify-center md:py-0">
                     <div className="relative w-full flex items-center justify-center">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t-2 border-dashed border-slate-200" />
                       </div>
-                      <div className="relative z-10 bg-white px-4 flex flex-col items-center">
+                      <div className="relative z-10 bg-white px-1.5 md:px-4 flex flex-col items-center">
                         <div className="bg-slate-50 p-2 rounded-full border border-slate-100 shadow-sm mb-1">
-                          <Plane className="w-5 h-5 text-accent rotate-90 md:rotate-0" />
+                          <Plane className="w-4 h-4 md:w-5 md:h-5 text-accent" />
                         </div>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] bg-white px-2 text-center">
-                          {days} day{days > 1 ? 's' : ''} rental
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.1em] md:tracking-[0.2em] bg-white px-1 md:px-2 text-center whitespace-nowrap">
+                          {days} day{days > 1 ? 's' : ''}<span className="hidden md:inline"> rental</span>
                         </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Drop-off */}
-                  <div className="flex-1 w-full md:w-auto">
+                  <div className="flex-1 min-w-0 md:w-auto">
                     <div className="flex flex-col items-end text-right">
-                      <span className="text-3xl font-black text-slate-950 mb-1">{endTime}</span>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-bold text-slate-600 truncate max-w-[150px]">{dropoffLabel.split(',')[0]}</span>
-                        <div className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="text-xl font-black text-[#003580] tracking-tight">{search.dropoffCode || search.pickupCode}</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#003580] mb-1 md:hidden">Drop-off</span>
+                      <span className="text-2xl md:text-3xl font-black text-slate-950 leading-none mb-1">{endTime}</span>
+                      <div className="flex min-w-0 max-w-full items-center gap-1.5 md:gap-2 mb-1">
+                        <span className="hidden md:inline text-sm font-bold text-slate-600 truncate max-w-[150px]">{dropoffLabel.split(',')[0]}</span>
+                        <div className="hidden md:block h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="text-base md:text-xl font-black text-[#003580] tracking-tight">{search.dropoffCode || search.pickupCode}</span>
                       </div>
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{formatDate(endDate)}</span>
+                      <span className="text-[11px] md:text-xs font-bold md:font-black text-slate-500 md:text-slate-400 md:uppercase md:tracking-widest"><span className="md:hidden">{formatShortDate(endDate)}</span><span className="hidden md:inline">{formatDate(endDate)}</span></span>
                     </div>
                   </div>
                 </div>
@@ -817,13 +826,13 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Location Details</p>
-                <div className="space-y-3">
-                   <p className="text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-accent mt-0.5" /> <span><strong>Pick-up:</strong> {pickupLabel}</span></p>
-                   <p className="text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 text-slate-400 mt-0.5" /> <span><strong>Drop-off:</strong> {dropoffLabel}</span></p>
+                <p className="text-[11px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.16em] uppercase text-slate-500 mb-2">Location Details</p>
+                <div className="space-y-2.5 sm:space-y-3">
+                   <p className="text-[13px] sm:text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 shrink-0 text-accent mt-0.5" /> <span><strong>Pick-up:</strong> {pickupLabel}</span></p>
+                   <p className="text-[13px] sm:text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 shrink-0 text-slate-400 mt-0.5" /> <span><strong>Drop-off:</strong> {dropoffLabel}</span></p>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+              <div className="hidden md:block bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
                 <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Booking benefits</p>
                 <ul className="space-y-2 text-sm text-slate-700">
                   <li className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600" /> Confirmed supplier inventory</li>
@@ -834,7 +843,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             </div>
 
             {/* Trust Bar */}
-            <div className="flex flex-wrap items-center justify-center gap-6 py-6 border-b border-slate-100">
+            <div className="hidden sm:flex flex-wrap items-center justify-center gap-6 py-6 border-b border-slate-100">
                 {[
                     { icon: ShieldCheck, text: "Secure Payment", color: "text-emerald-600" },
                     { icon: Clock, text: "Instant Confirmation", color: "text-accent" },
@@ -850,54 +859,54 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             {routeStep === 'details' ? (
             <>
             {/* Customer Details */}
-            <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-6 sm:p-10">
-               <div className="mb-10 flex flex-col gap-6 border-b border-slate-100 pb-8 sm:flex-row sm:items-center sm:justify-between">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] sm:shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-10">
+               <div className="mb-5 sm:mb-10 flex flex-col gap-6 border-b border-slate-100 pb-4 sm:pb-8 sm:flex-row sm:items-center sm:justify-between">
                  <div>
-                   <p className="text-[11px] font-black uppercase tracking-[0.3em] text-accent mb-2">Main Driver Information</p>
-                  <h2 className="text-2xl sm:text-3xl font-black text-slate-950 flex items-center gap-3">Driver Profile</h2>
-                  <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500 leading-relaxed">Ensure these details match your official documents (Passport/ID) for a seamless vehicle pick-up.</p>
+                   <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] sm:tracking-[0.3em] text-accent mb-1 sm:mb-2">Main Driver Information</p>
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-950 flex items-center gap-3">Driver Profile</h2>
+                  <p className="mt-1.5 sm:mt-2 max-w-2xl text-[13px] sm:text-sm font-medium text-slate-500 leading-relaxed">Ensure these details match your official documents (Passport/ID) for a seamless vehicle pick-up.</p>
                 </div>
-                 <div className="rounded-2xl border border-accent/10 bg-accent-50/50 px-5 py-4 shadow-inner">
+                 <div className="hidden sm:block rounded-2xl border border-accent/10 bg-accent-50/50 px-5 py-4 shadow-inner">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent flex items-center gap-2 mb-1"><Check className="w-3.5 h-3.5"/> Verification Req.</p>
                   <p className="text-sm font-black text-slate-900 tracking-tight">Identity & Contact details</p>
                  </div>
                </div>
 
-               <div className="grid grid-cols-1 gap-10 xl:grid-cols-[1fr_300px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.15em]">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.15em]">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.15em]">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.15em]">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
-                    <div className="md:col-span-2 group pt-2">
-                      <label className="block text-[11px] font-black text-slate-400 mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.15em]">Flight number <span className="text-[10px] text-slate-300 ml-2 font-bold">(Highly Recommended)</span></label>
+               <div className="grid grid-cols-1 gap-5 sm:gap-10 xl:grid-cols-[1fr_300px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 sm:gap-y-8">
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Email address</label><FormInput icon={Mail} type="email" placeholder="john.doe@example.com" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
+                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Mobile number</label><FormInput icon={Phone} type="tel" placeholder="+1..." value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
+                    <div className="md:col-span-2 group sm:pt-2">
+                      <label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Flight number <span className="text-[10px] text-slate-400 sm:text-slate-300 ml-1 sm:ml-2 font-semibold normal-case tracking-normal">(recommended)</span></label>
                       <FormInput icon={Plane} type="text" placeholder="e.g. BA123" value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
-                      <div className="mt-5 p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4 transition-all hover:bg-white hover:shadow-md">
-                        <div className="bg-white p-2 rounded-xl shadow-sm"><Info className="w-5 h-5 text-accent flex-shrink-0"/></div>
-                        <p className="text-[13px] text-slate-600 font-medium leading-relaxed">Providing your flight number allows the provider to monitor your arrival and hold your vehicle during potential flight delays.</p>
+                      <div className="mt-3 sm:mt-5 p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-3 sm:gap-4 transition-all hover:bg-white hover:shadow-md">
+                        <div className="bg-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-sm"><Info className="w-4 h-4 sm:w-5 sm:h-5 text-accent flex-shrink-0"/></div>
+                        <p className="text-xs sm:text-[13px] text-slate-600 font-medium leading-relaxed">Providing your flight number allows the provider to monitor your arrival and hold your vehicle during potential flight delays.</p>
                       </div>
                     </div>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-3xl border border-slate-100 bg-slate-50/50 p-6 shadow-inner">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-6 flex items-center gap-2.5">
+                  <div className="rounded-xl sm:rounded-3xl border border-slate-100 bg-slate-50/50 p-3.5 sm:p-6 shadow-inner">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] sm:tracking-[0.25em] text-slate-500 sm:text-slate-400 mb-3 sm:mb-6 flex items-center gap-2.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
                       Pick-up Checklist
                     </p>
-                    <div className="space-y-4">
+                    <div className="flex flex-wrap gap-2 sm:block sm:space-y-4">
                       {[
                         { text: "Valid Driving License", icon: Check },
                         { text: "Passport or Photo ID", icon: Check },
                         { text: "Driver's Credit Card", icon: Check }
                       ].map((item, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.03]">
-                          <item.icon className="h-4 w-4 text-accent" />
-                          <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{item.text}</span>
+                        <div key={i} className="flex items-center gap-1.5 sm:gap-3 bg-white px-2.5 py-1.5 sm:p-4 rounded-full sm:rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.03]">
+                          <item.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" />
+                          <span className="text-[11px] sm:text-xs font-bold sm:font-black text-slate-800 sm:uppercase tracking-tight">{item.text}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-8 pt-6 border-t border-slate-200/50">
+                    <div className="hidden sm:block mt-8 pt-6 border-t border-slate-200/50">
                       <p className="text-[10px] font-bold leading-relaxed text-slate-400 uppercase tracking-wider">Required for legal agreement & secure record.</p>
                     </div>
                   </div>
@@ -905,21 +914,21 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-5 sm:p-7">
-               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-2 flex items-center gap-3"><UserPlus className="w-5 h-5 text-accent"/> Create customer account</h2>
-               <p className="text-sm text-slate-600 mb-5 sm:mb-6">Your account keeps booking references, payment status, and future rental details in one place.</p>
-               <label className="flex items-start gap-3 rounded-2xl border border-accent-100 bg-accent-50/50 p-4 mb-5 cursor-pointer transition hover:border-accent-200 hover:bg-accent-50">
+            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-7">
+               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-1.5 sm:mb-2 flex items-center gap-2.5 sm:gap-3"><UserPlus className="w-5 h-5 text-accent"/> Create customer account</h2>
+               <p className="text-[13px] sm:text-sm text-slate-600 mb-4 sm:mb-6">Your account keeps booking references, payment status, and future rental details in one place.</p>
+               <label className="flex items-start gap-3 rounded-xl sm:rounded-2xl border border-accent-100 bg-accent-50/50 p-3.5 sm:p-4 mb-4 sm:mb-5 cursor-pointer transition hover:border-accent-200 hover:bg-accent-50">
                   <input type="checkbox" checked={createAccount} onChange={(e) => setCreateAccount(e.target.checked)} className="mt-1 h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent" />
                   <span>
                     <span className="block text-sm font-black text-slate-900">Register my customer account with this booking</span>
-                    <span className="block text-sm text-slate-600 mt-1">We will save your profile details for faster support and future reservations.</span>
+                    <span className="block text-[13px] sm:text-sm text-slate-600 mt-1">We will save your profile details for faster support and future reservations.</span>
                   </span>
                </label>
                {createAccount && (
                   <div className="group">
                     <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-accent transition-colors">Create account password</label>
                     <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
-                    <p className="text-sm text-slate-600 mt-3 font-medium flex items-center gap-2"><Info className="w-4 h-4 text-accent"/> If you skip this now, you can still access the booking by email and reference number.</p>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-3 font-medium flex items-start gap-2"><Info className="w-4 h-4 shrink-0 mt-px text-accent"/> If you skip this now, you can still access the booking by email and reference number.</p>
                   </div>
                )}
             </div>
@@ -927,22 +936,22 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             ) : (
             <>
             {/* Rental & Driver Summary */}
-            <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] overflow-hidden border border-slate-200">
-               <div className="bg-gradient-to-r from-accent to-accent-700 px-6 py-5 flex items-center justify-between">
-                  <h2 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3"><Zap className="w-5 h-5 fill-white"/> Reservation Summary</h2>
-                  <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-tighter border border-white/30">Review your details</div>
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] overflow-hidden border border-slate-200">
+               <div className="bg-gradient-to-r from-accent to-accent-700 px-4 py-3.5 sm:px-6 sm:py-5 flex items-center justify-between">
+                  <h2 className="text-sm sm:text-lg font-black text-white uppercase tracking-wider sm:tracking-widest flex items-center gap-2.5 sm:gap-3"><Zap className="w-4 h-4 sm:w-5 sm:h-5 fill-white"/> Reservation Summary</h2>
+                  <div className="hidden sm:block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-tighter border border-white/30">Review your details</div>
                </div>
                
-               <div className="p-6 sm:p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+               <div className="p-4 sm:p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
                      {/* Rental Section */}
-                     <div className="space-y-6">
-                        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                     <div className="space-y-4 sm:space-y-6">
+                        <div className="flex items-center gap-3 border-b border-slate-100 pb-3 sm:pb-4">
                            <div className="bg-accent-50 p-2 rounded-lg"><CalendarDays className="w-5 h-5 text-accent"/></div>
                            <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Rental Details</p>
                         </div>
-                        <div className="grid grid-cols-1 gap-5">
-                           <div className="relative pl-6 border-l-2 border-accent">
+                        <div className="grid grid-cols-1 gap-4 sm:gap-5">
+                           <div className="relative pl-4 sm:pl-6 border-l-2 border-accent">
                               <p className="text-[10px] font-black text-accent uppercase tracking-widest mb-1">Pick-up Location & Time</p>
                               <p className="text-slate-900 font-bold text-base leading-snug">{pickupLabel}</p>
                               <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(startDate)} @ {startTime}</p>
@@ -961,28 +970,28 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                      </div>
 
                      {/* Driver Section */}
-                     <div className="space-y-6">
-                        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                     <div className="space-y-4 sm:space-y-6">
+                        <div className="flex items-center gap-3 border-b border-slate-100 pb-3 sm:pb-4">
                            <div className="bg-accent-50 p-2 rounded-lg"><User className="w-5 h-5 text-accent"/></div>
                            <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Driver Details</p>
                         </div>
-                        <div className="grid grid-cols-1 gap-5">
-                           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                        <div className="grid grid-cols-1 gap-2.5 sm:gap-5">
+                           <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Main Driver</p>
                               <p className="text-slate-900 font-bold text-lg">{firstName} {lastName}</p>
                            </div>
-                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
+                              <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Email</p>
                                  <p className="text-slate-900 font-bold text-sm truncate">{email}</p>
                               </div>
-                              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                              <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone Number</p>
                                  <p className="text-slate-900 font-bold text-sm">{phoneNumber}</p>
                               </div>
                            </div>
                            {flightNumber && (
-                              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                              <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Flight Number</p>
                                  <p className="text-slate-900 font-bold text-sm">{flightNumber}</p>
                               </div>
@@ -996,14 +1005,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                </div>
 
                {/* Pricing Summary Bar */}
-               <div className="bg-accent-50/50 border-t border-slate-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+               <div className="bg-accent-50/50 border-t border-slate-100 px-4 py-4 sm:p-6 flex flex-row items-center justify-between gap-4">
                   <div>
-                     <p className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-1">Total Amount Due Online</p>
-                     <p className="text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+                     <p className="text-[10px] font-black text-accent uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1">Due online now</p>
+                     <p className="text-xl sm:text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                   </div>
                   <div className="text-right">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Complete Protection</p>
-                     <p className="text-xs font-bold text-slate-500">Total Rental Value: {getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1">Total rental value</p>
+                     <p className="text-sm sm:text-xs font-black sm:font-bold text-slate-700 sm:text-slate-500">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
                   </div>
                </div>
             </div>
@@ -1012,27 +1021,27 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
             {/* Payment Details */}
             {routeStep === 'payment' && (
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_28px_60px_-34px_rgba(15,23,42,0.55)]">
-               <div className="border-b border-slate-100 bg-slate-50/70 p-5 sm:p-7">
+            <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_28px_60px_-34px_rgba(15,23,42,0.55)]">
+               <div className="border-b border-slate-100 bg-slate-50/70 p-4 sm:p-7">
                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                  <div>
                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-accent">Protected checkout</p>
-                   <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-3"><CreditCard className="w-5 h-5 text-accent"/> Secure payment details</h2>
-                   <p className="mt-2 max-w-2xl text-sm text-slate-600">Your payment is processed through an encrypted gateway. The supplier receives the reservation only after the secure confirmation step.</p>
+                   <h2 className="mt-1 text-lg sm:text-2xl font-black text-slate-950 flex items-center gap-2.5 sm:gap-3"><CreditCard className="w-5 h-5 text-accent"/> Secure payment details</h2>
+                   <p className="mt-1.5 sm:mt-2 max-w-2xl text-[13px] sm:text-sm text-slate-600">Your payment is processed through an encrypted gateway. The supplier receives the reservation only after the secure confirmation step.</p>
                  </div>
-                 <div className="rounded-2xl border border-accent-100 bg-white px-5 py-4 shadow-sm">
+                 <div className="hidden sm:block rounded-2xl border border-accent-100 bg-white px-5 py-4 shadow-sm">
                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Due now</p>
                    <p className="mt-1 text-2xl font-black tracking-tight text-accent">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
                  </div>
                </div>
                </div>
-               <div className="space-y-6 p-5 sm:p-7">
-                  <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-                      <div className="mb-4 flex items-center justify-between gap-3">
+               <div className="space-y-4 sm:space-y-6 p-4 sm:p-7">
+                  <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                    <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-sm">
+                      <div className="mb-3 sm:mb-4 flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Payment method</p>
-                          <p className="mt-1 text-sm font-semibold text-slate-600">Credit/debit card, Apple Pay, and Google Pay via Stripe.</p>
+                          <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.14em] sm:tracking-[0.18em] text-slate-500">Payment method</p>
+                          <p className="mt-1 text-[13px] sm:text-sm font-semibold text-slate-600">Credit/debit card, Apple Pay, and Google Pay via Stripe.</p>
                         </div>
                         <ShieldCheck className="h-6 w-6 text-accent" />
                       </div>
@@ -1042,18 +1051,18 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Amex</div>
                       </div>
                     </div>
-                    <div className="rounded-2xl bg-slate-950 p-5 text-white shadow-xl">
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Secure reservation</p>
-                      <p className="mt-2 text-lg font-black">Encrypted payment session</p>
-                      <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
+                    <div className="rounded-xl sm:rounded-2xl bg-slate-950 p-4 sm:p-5 text-white shadow-xl">
+                      <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Secure reservation</p>
+                      <p className="sm:mt-2 text-sm sm:text-lg font-black flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-400 sm:hidden"/> Encrypted payment session</p>
+                      <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-3 text-xs">
                         <div><span className="block text-slate-400">Pay now</span><strong className="text-emerald-300">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</strong></div>
                         <div><span className="block text-slate-400">At desk</span><strong>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</strong></div>
                       </div>
                     </div>
                   </div>
-                  <div className="group"><label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-accent transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
+                  <div className="group"><label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
                   <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-accent transition-colors">Card information</label>
+                    <label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Card information</label>
                     {stripeEnabled ? (
                       <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10 sm:px-6">
                         <CardElement options={{ 
@@ -1085,40 +1094,40 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         Security gateway is currently unavailable.
                       </div>
                     )}
-                    <p className="mt-3 text-sm text-slate-600">Your card details are encrypted and processed securely by Stripe.</p>
+                    <p className="hidden sm:block mt-3 text-sm text-slate-600">Your card details are encrypted and processed securely by Stripe.</p>
                   </div>
-                  <p className="mt-3 text-[11px] sm:text-xs font-medium text-slate-500 flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <p className="!mt-2 sm:!mt-3 text-[11px] sm:text-xs font-medium text-slate-500 flex items-start gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-px text-emerald-600" />
                     Your payment is processed securely via Stripe. We support Credit Cards, Apple Pay, and Google Pay.
                   </p>
                   {paymentError && (
-                    <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5 text-sm font-semibold text-red-700 flex items-center gap-3">
-                      <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                    <div className="rounded-xl sm:rounded-2xl border border-red-100 bg-red-50/50 px-4 py-3.5 sm:px-6 sm:py-5 text-[13px] sm:text-sm font-semibold text-red-700 flex items-start gap-3">
+                      <div className="w-2 h-2 mt-1.5 shrink-0 bg-red-600 rounded-full animate-pulse"></div>
                       {paymentError}
                     </div>
                   )}
                   
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 space-y-2">
-                    <p className="text-xs font-bold tracking-[0.16em] text-slate-500 uppercase">Payment Assurance</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-slate-700">
+                  <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 p-3.5 sm:p-5 space-y-2">
+                    <p className="text-[11px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.16em] text-slate-500 uppercase">Payment Assurance</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-[13px] sm:text-sm text-slate-700">
                       <p className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> TLS encrypted checkout</p>
                       <p className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-accent" /> Instant booking reference</p>
                       <p className="flex items-center gap-2"><Headphones className="w-4 h-4 text-accent" /> Dedicated support team</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-2 sm:pt-4">
-                     <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 sm:px-6 py-4 sm:py-5">
-                        <p className="text-sm font-semibold text-slate-600 mb-2">Check-in Time</p>
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-6 sm:pt-4">
+                     <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 px-4 sm:px-6 py-3 sm:py-5">
+                        <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1 sm:mb-2">Check-in Time</p>
                         <p className="text-lg font-semibold text-slate-900">{startTime}</p>
                      </div>
-                     <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 sm:px-6 py-4 sm:py-5">
-                        <p className="text-sm font-semibold text-slate-600 mb-2">Check-out Time</p>
+                     <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 px-4 sm:px-6 py-3 sm:py-5">
+                        <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1 sm:mb-2">Check-out Time</p>
                         <p className="text-lg font-semibold text-slate-900">{endTime}</p>
                      </div>
                   </div>
 
-                  <div className="pt-8 mt-4 border-t border-slate-100 lg:hidden">
+                  <div className="hidden sm:block lg:hidden pt-8 mt-4 border-t border-slate-100">
                     <button
                       type="submit"
                       disabled={creationInProgressRef.current}
@@ -1172,20 +1181,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
           {/* Sidebar / Booking Summary */}
           <div className="lg:col-span-1">
-             <div className="sticky top-10 space-y-6">
-                <div className="bg-white rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-6 sm:p-8 transition-all duration-500 relative overflow-hidden">
+             <div className="sticky top-10 space-y-4 sm:space-y-6">
+                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-8 transition-all duration-500 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-accent-400"></div>
                   
-                  <div className="mb-8 p-5 rounded-2xl bg-slate-950 text-white flex items-center justify-between shadow-2xl shadow-slate-950/20 relative overflow-hidden group/timer gap-4">
+                  <div className="mb-5 sm:mb-8 px-4 py-3 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-950 text-white flex items-center justify-between shadow-2xl shadow-slate-950/20 relative overflow-hidden group/timer gap-4">
                       <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
                       <div>
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1.5 leading-none">Price Locked</p>
                           <p className="text-xs font-black text-emerald-400 uppercase tracking-[0.1em] flex items-center gap-2 leading-none"><Clock className="w-3.5 h-3.5"/> Session Active</p>
                       </div>
-                      <p className="text-3xl font-mono font-black text-white tracking-tighter drop-shadow-[0_4px_12px_rgba(255,255,255,0.2)]">{formatTime(timeLeft)}</p>
+                      <p className="text-2xl sm:text-3xl font-mono font-black text-white tracking-tighter drop-shadow-[0_4px_12px_rgba(255,255,255,0.2)]">{formatTime(timeLeft)}</p>
                   </div>
 
-                   <div className="flex items-center gap-3 mb-6">
+                   <div className="flex items-center gap-3 mb-4 sm:mb-6">
                       <h3 className="text-lg font-black text-slate-950 tracking-tight">Your Reservation</h3>
                       <div className="h-px flex-grow bg-slate-100"></div>
                    </div>
@@ -1227,7 +1236,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                         </div>
                      )}
 
-                     <div className="flex justify-between text-sm font-semibold text-slate-600 pt-6 border-t border-slate-200"><span>Local Taxes</span><span className="text-accent flex items-center gap-2"><Check className="w-3.5 h-3.5"/> Included</span></div>
+                     <div className="flex justify-between text-sm font-semibold text-slate-600 pt-4 sm:pt-6 border-t border-slate-200"><span>Local Taxes</span><span className="text-accent flex items-center gap-2"><Check className="w-3.5 h-3.5"/> Included</span></div>
                    </div>
                    <div className="pt-5 border-t-2 border-dashed border-slate-200 mb-5">
                      <div className="flex justify-between items-end">
@@ -1235,7 +1244,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                             <span className="font-semibold text-slate-700 text-xs tracking-[0.12em] block mb-2 uppercase">Final Total</span>
                             <span className="text-xs font-semibold text-accent flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5"/> Protected rate</span>
                         </div>
-                        <span className="font-black text-slate-900 text-3xl sm:text-4xl tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
+                        <span className="font-black text-slate-900 text-[28px] sm:text-4xl tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
                      </div>
                    </div>
 
@@ -1278,7 +1287,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                      </span>
                    </button>
                    
-                   <p className="text-center text-xs font-semibold text-slate-600 mt-6 sm:mt-8 flex items-center justify-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600"/> Bank-level security (AES-256)</p>
+                   <p className="text-center text-xs font-semibold text-slate-600 mt-4 sm:mt-8 flex items-center justify-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600"/> Bank-level security (AES-256)</p>
                    
                    <div className="bg-accent-50 border border-accent-100 rounded-xl p-4 mt-5 flex gap-3 items-start">
                      <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5 opacity-80" />
@@ -1309,35 +1318,30 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           </div>
           
           {/* Mobile Sticky Footer */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 pb-safe shadow-[0_-15px_35px_rgba(15,23,42,0.12)] animate-in slide-in-from-bottom duration-500">
-            <div className="max-w-md mx-auto flex items-center justify-between gap-4">
-              <div className="flex-grow min-w-0">
-                <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">{days} days</span>
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{car.make} {car.model}</span>
-                </div>
-                <div className="flex flex-col">
-                    <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-black text-slate-950 tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-1">
-                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Secure Checkout</span>
-                    </div>
-                </div>
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.10)] animate-in slide-in-from-bottom duration-500">
+            <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-slate-500 truncate">
+                  {routeStep === 'payment' ? 'Due now' : `Total · ${days} day${days > 1 ? 's' : ''}`} · {car.make} {car.model}
+                </p>
+                <p className="text-[22px] font-black text-slate-950 tracking-tight leading-tight">
+                  {getCurrencySymbol()}{convertPrice(routeStep === 'payment' ? priceDetails.payNow : priceDetails.finalTotal).toFixed(2)}
+                </p>
+                <p className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 leading-none">
+                  <ShieldCheck className="w-3 h-3" /> Secure checkout
+                </p>
               </div>
               <button
                 type="submit"
                 disabled={isActionBusy}
-                className="flex-shrink-0 bg-slate-950 text-white px-7 py-4 rounded-2xl font-black uppercase tracking-[0.15em] text-[11px] shadow-[0_15px_30px_-10px_rgba(15,23,42,0.5)] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center min-w-[120px]"
+                className="flex-shrink-0 inline-flex h-12 min-w-[132px] items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-black text-white shadow-[0_12px_24px_-12px_rgba(0,122,194,0.8)] active:scale-95 transition-all disabled:opacity-50"
               >
                 {isActionBusy ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : routeStep === 'details' ? (
+                  <>Continue <ArrowRight className="w-4 h-4" /></>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    {routeStep === 'details' ? 'Next Step' : 'Confirm'}
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
+                  <><ShieldCheck className="w-4 h-4" /> {priceDetails.payNow > 0 ? 'Pay now' : 'Confirm'}</>
                 )}
               </button>
             </div>
