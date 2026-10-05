@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { fetchHomepageLogos } from '../api';
 
 interface Supplier {
-  id: number;
+  id?: number;
   name: string;
-  logoUrl: string;
+  logoUrl?: string;
   logo?: string;
   spacing?: number;
   scale?: number;
@@ -16,8 +16,7 @@ interface TrustedSuppliersProps {
   backgroundColor?: string;
 }
 
-export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({ 
-  accentColor = '#007ac2',
+export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
   backgroundColor = '#ffffff'
 }) => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -26,7 +25,7 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
     const loadSuppliers = async () => {
       try {
         const data = await fetchHomepageLogos();
-        setSuppliers(data);
+        setSuppliers(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load supplier logos:", err);
       }
@@ -37,47 +36,44 @@ export const TrustedSuppliers: React.FC<TrustedSuppliersProps> = React.memo(({
   if (suppliers.length === 0) return null;
 
   return (
-    <section className="py-8 sm:py-10 bg-white overflow-hidden border-b border-slate-100" style={{ backgroundColor }}>
-      <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-        <p className="text-sm font-medium text-slate-500">Compare deals from trusted rental brands</p>
+    <section className="border-b border-slate-200 bg-white py-8 sm:py-10" style={{ backgroundColor }}>
+      <div className="mx-auto mb-6 max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+        <p className="text-sm font-semibold text-slate-900 sm:text-base">Compare the world's leading car rental brands</p>
       </div>
-      
-      <div className="relative flex items-center group">
-        <div className="absolute inset-y-0 start-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to right, ${backgroundColor}, transparent)` }}></div>
-        <div className="absolute inset-y-0 end-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }}></div>
+
+      <div className="relative flex items-center overflow-hidden">
+        <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-12 md:w-32" style={{ backgroundImage: `linear-gradient(to right, ${backgroundColor}, transparent)` }} />
+        <div className="pointer-events-none absolute inset-y-0 end-0 z-10 w-12 md:w-32" style={{ backgroundImage: `linear-gradient(to left, ${backgroundColor}, transparent)` }} />
 
         <div className="animate-marquee flex items-center hover:[animation-play-state:paused]">
           {[...suppliers, ...suppliers].map((s, idx) => {
-            const logoUrl = s.logo || s.logoUrl;
+            const logoUrl = s.logo || s.logoUrl || '';
             const isLocalImage = logoUrl.includes('/uploads/hero/');
             const isWebp = logoUrl.toLowerCase().endsWith('.webp');
-            
+
             // If it's the _logo variant, thumb is _mini (100px)
-            const srcSet = (isLocalImage && isWebp && logoUrl.includes('_logo')) ? 
-              `${logoUrl.replace('_logo.webp', '_mini.webp')} 100w, ${logoUrl} 200w` 
+            const srcSet = (isLocalImage && isWebp && logoUrl.includes('_logo')) ?
+              `${logoUrl.replace('_logo.webp', '_mini.webp')} 100w, ${logoUrl} 200w`
               : (isLocalImage && isWebp) ?
                 `${logoUrl.replace('.webp', '_mini.webp')} 100w, ${logoUrl.replace('.webp', '_logo.webp')} 200w`
                 : undefined;
 
             return (
-              <div 
+              <div
                 key={`${s.id || s.name}-${idx}`}
-                className="flex-shrink-0 flex items-center justify-center"
-                style={{ marginRight: '64px' }}
+                className="mx-3 flex h-16 w-36 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 shadow-sm md:mx-4 md:h-20 md:w-44"
               >
-                <img 
-                  src={logoUrl} 
+                <img
+                  src={logoUrl}
                   srcSet={srcSet}
-                  sizes="100px"
-                  alt={s.name} 
-                  className="h-7 md:h-10 w-auto max-w-[140px] object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0" 
+                  sizes="160px"
+                  alt={s.name}
+                  className="max-h-9 w-auto max-w-full object-contain md:max-h-11"
                   width="160"
                   height="48"
                   loading="lazy"
                   decoding="async"
-                  style={{ 
-                      transform: `scale(${(s.scale || 100) / 100})`,
-                  } as any}
+                  style={{ transform: `scale(${(s.scale || 100) / 100})` }}
                 />
               </div>
             );

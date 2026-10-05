@@ -774,7 +774,7 @@ export const Search: React.FC = () => {
           </div>
 
           {isSearchOpen && (
-            <div className="mt-3 rounded-xl bg-slate-900 p-3 animate-fadeIn">
+            <div className="mt-3 animate-fadeIn">
               <SearchWidget
                 onSearch={handleSearch}
                 initialValues={{

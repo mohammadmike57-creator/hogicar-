@@ -572,18 +572,18 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     { icon: Clock, text: '24/7 customer support' },
   ];
 
-  const dealSteps = [
-    { title: 'Book early', desc: 'Reserve 2–4 weeks before pick-up to save on peak-season rates.', icon: Calendar },
-    { title: 'Compare deals', desc: 'See prices from global brands and trusted local suppliers side by side.', icon: SearchIcon },
-    { title: 'Check the conditions', desc: 'Review fuel policy, mileage and insurance before you book.', icon: ShieldCheck },
-    { title: 'Drive away happy', desc: 'Pick up your car with clear instructions and support throughout your trip.', icon: Car },
-  ];
-
   const stats = [
-    { value: '900+', label: 'Rental suppliers' },
+    { value: '900+', label: 'Rental companies' },
     { value: '60,000+', label: 'Pick-up locations' },
     { value: '2M+', label: 'Verified ratings' },
     { value: '24/7', label: 'Customer support' },
+  ];
+
+  const featureTones = [
+    'bg-blue-50 text-blue-600',
+    'bg-emerald-50 text-emerald-600',
+    'bg-amber-50 text-amber-600',
+    'bg-violet-50 text-violet-600',
   ];
 
   const regionalDestinations = [
@@ -593,10 +593,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     { country: 'Jordan & the Gulf', cities: [['Amman', 'amman'], ['Aqaba', 'aqaba'], ['Muscat', 'muscat'], ['Salalah', 'salalah'], ['Doha', 'doha'], ['Manama', 'manama'], ['Kuwait City', 'kuwait-city']] },
   ];
 
-  const sectionHeading = (title: string, subtitle?: string, align: 'center' | 'left' = 'left') => (
-    <div className={`mb-8 sm:mb-10 ${align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}`}>
-      <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h2>
-      {subtitle && <p className="mt-2 text-base text-slate-600">{subtitle}</p>}
+  const sectionHeading = (eyebrow: string, title: string, subtitle?: string) => (
+    <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
+      <p className="text-sm font-semibold text-accent">{eyebrow}</p>
+      <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{title}</h2>
+      {subtitle && <p className="mt-3 text-base text-slate-600 sm:text-lg">{subtitle}</p>}
     </div>
   );
 
@@ -631,26 +632,17 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         />
       )}
 
-      {/* Hero and search */}
+      {/* ===== Hero and search ===== */}
       {sections.hero && (
-        <section className="relative z-30 overflow-visible pb-10 pt-24 sm:pb-14 sm:pt-28 lg:pb-16 lg:pt-32" style={{ color: heroTextColor }}>
-          <div className="absolute inset-0 z-0 overflow-hidden bg-[#003580]">
+        <section className="relative z-30 overflow-visible pb-12 pt-[104px] text-white sm:pb-16 sm:pt-32 lg:pb-24 lg:pt-40" style={{ color: heroTextColor }}>
+          <div className="absolute inset-0 z-0 overflow-hidden bg-[#00224f]">
             {heroVideo ? (
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="h-full w-full object-cover"
-                onCanPlay={() => setHeroLoaded(true)}
-              >
+              <video autoPlay muted loop playsInline className="h-full w-full object-cover" onCanPlay={() => setHeroLoaded(true)}>
                 <source src={heroVideo} type="video/mp4" />
               </video>
-            ) : heroBackgroundImage && (
+            ) : heroBackgroundImage ? (
               <picture>
-                {isLocalHero && (
-                  <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />
-                )}
+                {isLocalHero && <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />}
                 <img
                   key={heroBackgroundImage}
                   src={heroBackgroundImage}
@@ -669,45 +661,59 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                   }}
                 />
               </picture>
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#0b5cc4_0%,_#003580_45%,_#00224f_100%)]" />
+                <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.07]" />
+              </>
             )}
-            {!heroLoaded && !heroVideo && heroBackgroundImage && <div className="absolute inset-0 bg-[#003580]" />}
-            {!heroBackgroundImage && !heroVideo && <div className="absolute inset-0 bg-gradient-to-br from-[#002a66] via-[#003580] to-[#0b4fa3]" />}
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-slate-950/25 to-slate-950/50" />
+            {!heroLoaded && !heroVideo && heroBackgroundImage && <div className="absolute inset-0 bg-[#00224f]" />}
+            {(heroVideo || heroBackgroundImage) && (
+              <>
+                <div className="absolute inset-0 bg-slate-950/45 lg:bg-transparent lg:bg-gradient-to-r lg:from-slate-950/80 lg:via-slate-950/45 lg:to-slate-950/10" />
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/50 to-transparent" />
+              </>
+            )}
           </div>
 
           <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             {isCustomLanding && (
-              <div className="mb-4">
+              <div className="mb-5">
                 <Breadcrumbs items={breadcrumbItems} variant="light" />
                 {seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY' && (
-                  <span className="mt-3 inline-block rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                  <span className="mt-3 inline-block rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur">
                     {seoConfig.countryTag}
                   </span>
                 )}
               </div>
             )}
 
-            {heroPromotion.active && (
-              <a
-                href={heroPromotion.link || '#search'}
-                className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-white shadow-sm"
-                style={{ backgroundColor: heroPromotion.color }}
-              >
-                <Tag className="h-4 w-4" /> {heroPromotion.text}
-              </a>
-            )}
-
             <div className="max-w-3xl">
-              <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight drop-shadow-sm sm:text-4xl lg:text-5xl">
+              {heroPromotion.active ? (
+                <a
+                  href={heroPromotion.link || '#search'}
+                  className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm"
+                  style={{ backgroundColor: heroPromotion.color }}
+                >
+                  <Tag className="h-4 w-4" /> {heroPromotion.text}
+                </a>
+              ) : !isCustomLanding && (
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-medium text-white backdrop-blur">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <span className="sm:hidden">900+ rental companies</span>
+                  <span className="hidden sm:inline">900+ rental companies · 60,000+ locations</span>
+                </span>
+              )}
+              <h1 className="mt-4 text-balance text-[2rem] font-extrabold leading-[1.1] tracking-tight drop-shadow-sm sm:text-5xl lg:text-6xl">
                 {displayH1}
               </h1>
-              <p className="route-description mt-3 max-w-2xl text-base text-white/90 sm:text-lg">
+              <p className="route-description mt-4 max-w-2xl text-base text-white/85 sm:text-lg lg:text-xl">
                 {displaySubtitle}
               </p>
             </div>
 
             {sections.search && (
-              <div id="search" className="relative z-20 mt-6 scroll-mt-24 sm:mt-8">
+              <div id="search" className="relative z-20 mt-7 scroll-mt-24 sm:mt-9">
                 <SearchWidget
                   onSearch={handleSearch}
                   showTitle={false}
@@ -720,10 +726,13 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               </div>
             )}
 
-            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/90">
+            <ul className="mt-6 grid gap-2.5 text-sm text-white/90 sm:flex sm:flex-wrap sm:gap-x-8">
               {heroHighlights.map(item => (
                 <li key={item.text} className="inline-flex items-center gap-2">
-                  <item.icon className="h-4 w-4 text-emerald-300" /> {item.text}
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
+                    <item.icon className="h-3.5 w-3.5 text-emerald-300" />
+                  </span>
+                  {item.text}
                 </li>
               ))}
             </ul>
@@ -731,35 +740,28 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </section>
       )}
 
-      {/* Supplier logos */}
+      {/* ===== Supplier logos ===== */}
       {sections.suppliers && (
-        <React.Suspense fallback={<div className="h-28 bg-white" />}>
+        <React.Suspense fallback={<div className="h-36 bg-white" />}>
           <TrustedSuppliers />
         </React.Suspense>
       )}
 
-      {/* Why book with us */}
+      {/* ===== Why book with us ===== */}
       {sections.benefits && (
-        <section className="bg-white py-14 sm:py-20">
+        <section className="bg-slate-50 py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              {sectionHeading('Why book with Hogicar', 'Clear prices, trusted suppliers and help whenever you need it.')}
-              <Link to="/about-us" className="mb-8 hidden items-center gap-1.5 text-sm font-semibold text-accent hover:underline sm:mb-10 md:inline-flex">
-                About us <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            {sectionHeading('Why Hogicar', 'Car rental made simple', 'Clear prices, trusted suppliers and real people to help — from search to drop-off.')}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               {content.features.map((feature: any, i: number) => {
                 const Icon = iconMap[feature.icon] || CheckCircle;
                 return (
-                  <div key={feature.id || i} className="flex gap-4">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent">
-                      <Icon className="h-5 w-5" />
+                  <div key={feature.id || i} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <span className={`flex h-12 w-12 items-center justify-center rounded-xl ${featureTones[i % featureTones.length]}`}>
+                      <Icon className="h-6 w-6" />
                     </span>
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-900">{feature.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-600">{feature.description}</p>
-                    </div>
+                    <h3 className="mt-5 text-lg font-semibold text-slate-900">{feature.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{feature.description}</p>
                   </div>
                 );
               })}
@@ -768,63 +770,95 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </section>
       )}
 
-      {/* Stats */}
+      {/* ===== Destination photos ===== */}
+      {!isCustomLanding && sections.popularDestinations && (
+        <React.Suspense fallback={<div className="h-96 bg-white" />}>
+          <PopularDestinations
+            destinations={destinations}
+            title="Explore popular destinations"
+            subtitle="Our most booked locations this season"
+          />
+        </React.Suspense>
+      )}
+
+      {/* ===== How it works + numbers ===== */}
       {!isCustomLanding && (
-        <section className="border-y border-slate-200 bg-slate-50">
-          <div className="mx-auto grid max-w-7xl grid-cols-2 divide-slate-200 px-4 sm:px-6 md:grid-cols-4 md:divide-x lg:px-8">
-            {stats.map(stat => (
-              <div key={stat.label} className="px-4 py-8 text-center">
-                <p className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{stat.value}</p>
-                <p className="mt-1 text-sm text-slate-600">{stat.label}</p>
+        <section className="bg-white py-16 sm:py-24">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+            <div>
+              <p className="text-sm font-semibold text-accent">How it works</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{content.howItWorks.title}</h2>
+              <p className="mt-3 text-base text-slate-600 sm:text-lg">{content.howItWorks.subtitle}</p>
+              <ol className="mt-8 space-y-6">
+                {processSteps.map((step: any, i: number) => {
+                  const Icon = iconMap[step.icon] || CheckCircle;
+                  return (
+                    <li key={step.id || i} className="flex gap-4">
+                      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                        <Icon className="h-5 w-5" />
+                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[11px] font-bold text-accent ring-2 ring-accent">{i + 1}</span>
+                      </span>
+                      <div>
+                        <h3 className="text-base font-semibold text-slate-900">{step.title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-slate-600">{step.description}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+              <button
+                type="button"
+                onClick={scrollToSearchWidget}
+                className="mt-8 inline-flex h-12 items-center gap-2 rounded-xl bg-accent px-6 text-base font-semibold text-white shadow-sm transition-colors hover:bg-accent-700"
+              >
+                Start your search <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#003580] to-[#0b5cc4] p-8 text-white shadow-xl sm:p-10">
+              <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
+              <div className="relative">
+                <p className="text-sm font-medium text-white/70">Hogicar in numbers</p>
+                <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8">
+                  {stats.map(stat => (
+                    <div key={stat.label}>
+                      <dt className="text-sm text-white/75">{stat.label}</dt>
+                      <dd className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{stat.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="mt-8 flex items-center gap-3 rounded-2xl bg-white/10 p-4 backdrop-blur">
+                  <ShieldCheck className="h-8 w-8 shrink-0 text-emerald-300" />
+                  <p className="text-sm text-white/90">All mandatory taxes and fees are shown up front, with free cancellation on most bookings.</p>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* How to find a great deal */}
+      {/* ===== Countries and links ===== */}
       {!isCustomLanding && (
-        <section className="bg-white py-14 sm:py-20">
+        <section className="bg-slate-50 py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {sectionHeading('How to find a great car rental deal', 'Four simple steps to save more on your next trip.')}
-            <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {dealSteps.map((step, i) => (
-                <li key={step.title} className="rounded-xl border border-slate-200 bg-white p-5">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">{i + 1}</span>
-                    <step.icon className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <h3 className="mt-4 text-base font-semibold text-slate-900">{step.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-600">{step.desc}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-      )}
-
-      {/* Top destinations */}
-      {!isCustomLanding && (
-        <section className="bg-slate-50 py-14 sm:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {sectionHeading(homepageContent.topDestinations.title, homepageContent.topDestinations.subtitle)}
+            {sectionHeading('Destinations', homepageContent.topDestinations.title, homepageContent.topDestinations.subtitle)}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {homepageContent.topDestinations.countries.map((country: any) => (
                 <Link
                   key={country.code}
                   to={`/car-rental-${country.name.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 transition-colors hover:border-accent"
+                  className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-accent hover:shadow-md"
                 >
-                  <span className="text-2xl leading-none" aria-hidden="true">{country.flag}</span>
+                  <span className="text-3xl leading-none" aria-hidden="true">{country.flag}</span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-semibold leading-tight text-slate-900">{country.name}</span>
+                    <span className="block text-sm font-semibold leading-tight text-slate-900 group-hover:text-accent">{country.name}</span>
                     <span className="block text-xs text-slate-500">{country.count} cars</span>
                   </span>
                 </Link>
               ))}
             </div>
 
-            <div className="mt-10 grid grid-cols-1 gap-8 rounded-xl border border-slate-200 bg-white p-6 md:grid-cols-3">
+            <div className="mt-8 grid grid-cols-1 gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 md:grid-cols-3">
               <div>
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900"><MapPin className="h-4 w-4 text-accent" /> Popular cities</h3>
                 {linkList(homepageContent.topDestinations.cities.map((city: string) => ({ label: city, to: `/car-rental-${city.toLowerCase().replace(/\s+/g, '-')}` })))}
@@ -846,32 +880,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </section>
       )}
 
-      {/* Middle East destinations */}
-      {!isCustomLanding && (
-        <section className="bg-white py-14 sm:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {sectionHeading('Popular car rental destinations', 'Top-rated locations across our network in the Middle East.')}
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {regionalDestinations.map(group => (
-                <div key={group.country}>
-                  <h3 className="border-b border-slate-200 pb-2 text-sm font-semibold text-slate-900">{group.country}</h3>
-                  <ul className="mt-3 space-y-2">
-                    {group.cities.map(([name, slug]) => (
-                      <li key={slug}>
-                        <Link to={`/car-rental-${slug}`} className="text-sm text-slate-600 transition-colors hover:text-accent hover:underline">Car rental {name}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Customer reviews */}
+      {/* ===== Customer reviews ===== */}
       {sections.reviews && (
-        <React.Suspense fallback={<div className="h-64 bg-slate-50" />}>
+        <React.Suspense fallback={<div className="h-64 bg-white" />}>
           <Reviews
             customReviews={seoConfig ? builderConfig?.sections?.reviews?.items : homepageContent?.selectedReviews}
             accentColor={customStyles.accentColor}
@@ -879,7 +890,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </React.Suspense>
       )}
 
-      {/* Destination information (unique content) */}
+      {/* ===== Destination information (unique content) ===== */}
       {sections.content && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
         <section id="main-seo-content" className="border-t border-slate-100 bg-white py-14">
           <div className="mx-auto max-w-4xl px-4 sm:px-6">
@@ -896,7 +907,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </section>
       )}
 
-      {/* FAQ */}
+      {/* ===== FAQ ===== */}
       {sections.faq && (
         <React.Suspense fallback={<div className="h-96 bg-white" />}>
           <FAQSection
@@ -907,7 +918,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </React.Suspense>
       )}
 
-      {/* Related articles */}
+      {/* ===== Related articles ===== */}
       <React.Suspense fallback={<div className="h-96 bg-white" />}>
         <LatestTravelGuides
           variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
@@ -919,42 +930,60 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         />
       </React.Suspense>
 
-      {/* Popular destinations (image cards) */}
-      {!isCustomLanding && sections.popularDestinations && (
-        <React.Suspense fallback={<div className="h-96 bg-white" />}>
-          <PopularDestinations
-            destinations={destinations}
-            title="Popular destinations"
-            subtitle="Explore our most booked locations"
-          />
-        </React.Suspense>
+      {/* ===== Regional links ===== */}
+      {!isCustomLanding && (
+        <section className="border-t border-slate-200 bg-white py-14">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900">Car rental across the Middle East</h2>
+            <div className="mt-6 grid grid-cols-2 gap-8 lg:grid-cols-4">
+              {regionalDestinations.map(group => (
+                <div key={group.country}>
+                  <h3 className="text-sm font-semibold text-slate-900">{group.country}</h3>
+                  <ul className="mt-3 space-y-2">
+                    {group.cities.map(([name, slug]) => (
+                      <li key={slug}>
+                        <Link to={`/car-rental-${slug}`} className="text-sm text-slate-600 transition-colors hover:text-accent hover:underline">Car rental {name}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
-      {/* Newsletter */}
+      {/* ===== Newsletter ===== */}
       {sections.cta && (
-        <section className="bg-[#003580] py-14 text-white">
-          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-            <div className="max-w-xl">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Get exclusive car rental deals</h2>
-              <p className="mt-2 text-white/80">Join 10,000+ travellers who receive our best offers by email.</p>
+        <section className="bg-white pb-16 pt-2 sm:pb-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#003580] to-[#0b5cc4] px-6 py-10 text-white shadow-xl sm:px-12 sm:py-14">
+              <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
+              <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-xl">
+                  <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Get exclusive car rental deals</h2>
+                  <p className="mt-2 text-white/80 sm:text-lg">Join 10,000+ travellers who receive our best offers by email.</p>
+                </div>
+                <form className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
+                  <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+                  <input
+                    id="newsletter-email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Your email address"
+                    className="h-12 flex-1 rounded-xl border-0 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/60"
+                  />
+                  <button type="submit" className="h-12 rounded-xl bg-amber-400 px-6 text-base font-semibold text-slate-900 transition-colors hover:bg-amber-300">
+                    Subscribe
+                  </button>
+                </form>
+              </div>
             </div>
-            <form className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
-              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-              <input
-                id="newsletter-email"
-                type="email"
-                autoComplete="email"
-                placeholder="Your email address"
-                className="h-12 flex-1 rounded-lg border border-white/20 bg-white px-4 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/60"
-              />
-              <button type="submit" className="h-12 rounded-lg bg-accent px-6 text-base font-semibold text-white transition-colors hover:bg-accent-700">
-                Subscribe
-              </button>
-            </form>
           </div>
         </section>
       )}
     </div>
   );
 };
+
 export default Home;

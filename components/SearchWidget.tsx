@@ -66,10 +66,10 @@ const renderSuggestions = (
               role="option"
               aria-selected="false"
               onClick={() => handler(suggestion)}
-              className="w-full text-start px-4 py-2 text-[13px] text-slate-800 hover:bg-blue-50/80 transition-colors flex items-center gap-3"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm text-slate-800 transition-colors hover:bg-slate-50"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-none bg-slate-100 border border-slate-200 flex-shrink-0">{getLocationIcon(suggestion.type)}</div>
-              <div><span className="font-semibold">{suggestion.label}</span></div>
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100">{getLocationIcon(suggestion.type)}</div>
+              <div><span className="font-medium">{suggestion.label}</span></div>
             </button>
           </li>
         ))}
@@ -98,41 +98,44 @@ const MobileDateTimeField = React.memo(({
     iconColor: string;
 }) => {
     const [showCalendar, setShowCalendar] = React.useState(false);
+    const timeId = React.useId();
     return (
-        <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ms-1">{label}</label>
-            <div className="relative bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-col transition-all shadow-sm overflow-hidden">
-                <div 
-                    className="p-3 pb-2 flex flex-col border-b border-slate-100 cursor-pointer active:bg-slate-100 transition-colors"
-                    onClick={() => setShowCalendar(true)}
+        <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+            <button
+                type="button"
+                className="flex w-full items-start gap-2.5 px-3 py-2.5 text-start active:bg-slate-50"
+                onClick={() => setShowCalendar(true)}
+                aria-label={`${label} date: ${formatDateForDisplay(dateValue)}`}
+            >
+                <Calendar className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor}`} />
+                <span className="min-w-0">
+                    <span className="block text-xs text-slate-500">{label} date</span>
+                    <span className="block truncate text-[15px] font-semibold text-slate-900">{formatDateForDisplay(dateValue)}</span>
+                </span>
+            </button>
+            <div className="relative flex items-start gap-2.5 border-t border-slate-200 px-3 py-2.5">
+                <Clock className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor}`} />
+                <span className="min-w-0 flex-1">
+                    <label htmlFor={timeId} className="block text-xs text-slate-500">Time</label>
+                    <span className="flex items-center justify-between text-[15px] font-semibold text-slate-900">
+                        {timeValue}
+                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                    </span>
+                </span>
+                <select
+                    id={timeId}
+                    value={timeValue}
+                    onChange={e => onTimeChange(e.target.value)}
+                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                 >
-                    <div className="flex items-center gap-2 mb-1">
-                        <Calendar className={`w-3.5 h-3.5 ${iconColor}`} />
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                    </div>
-                    <div className="text-[13px] font-black text-slate-950">
-                        {formatDateForDisplay(dateValue)}
-                    </div>
-                </div>
-                <div className="p-3 pt-2 flex flex-col relative">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Clock className={`w-3.5 h-3.5 ${iconColor}`} />
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</span>
-                    </div>
-                    <select
-                        value={timeValue}
-                        onChange={e => onTimeChange(e.target.value)}
-                        className="w-full bg-transparent p-0 text-base font-black text-slate-950 border-none focus:ring-0 focus:outline-none cursor-pointer appearance-none"
-                    >
-                        {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                </div>
+                    {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
             </div>
             {showCalendar && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowCalendar(false)}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={() => setShowCalendar(false)}>
                     <div onClick={e => e.stopPropagation()}>
-                        <React.Suspense fallback={<div className="p-4 bg-white rounded-2xl w-[320px] h-[400px] flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-accent" /></div>}>
-                            <CalendarPicker 
+                        <React.Suspense fallback={<div className="flex h-[400px] w-[320px] items-center justify-center rounded-2xl bg-white p-4"><LoaderCircle className="h-8 w-8 animate-spin text-accent" /></div>}>
+                            <CalendarPicker
                                 selectedDate={dateValue}
                                 minDate={minDate}
                                 onDateSelect={onDateChange}
@@ -183,35 +186,23 @@ const DesktopGroupedDateTimeField = React.memo(({
     }, []);
 
     return (
-        <div className="flex flex-1 bg-white rounded-2xl divide-x divide-slate-200 shadow-sm border border-slate-200/50">
-            {/* Date Part */}
-            <div 
+        <div className="flex min-w-0 flex-1 divide-x divide-slate-200 rounded-xl border border-slate-300 bg-white transition-colors hover:border-slate-400">
+            {/* Date */}
+            <div
                 ref={containerRef}
-                className="flex-[2] relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
+                className="relative flex min-h-[64px] flex-[2] cursor-pointer items-center gap-3 px-4"
                 onClick={() => setShowCalendar(!showCalendar)}
             >
-                <label htmlFor={`${idPrefix}-date`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{dateLabel}</label>
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center text-slate-900 font-bold text-[15px]">
-                        {iconType === 'pickup' ? (
-                            <span className="me-3 flex items-center gap-1.5 text-slate-900">
-                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
-                                <ArrowRight className="w-4 h-4 stroke-[3px]" />
-                            </span>
-                        ) : (
-                            <span className="me-3 flex items-center gap-1.5 text-slate-900">
-                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
-                                <ArrowRight className="w-4 h-4 stroke-[3px] rotate-180" />
-                            </span>
-                        )}
-                        {formatDateForDisplay(dateValue)}
-                    </div>
+                <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
+                <div className="min-w-0">
+                    <label htmlFor={`${idPrefix}-date`} className="block text-xs text-slate-500">{dateLabel}</label>
+                    <div className="truncate text-[15px] font-semibold text-slate-900">{formatDateForDisplay(dateValue)}</div>
                 </div>
-                
+
                 {showCalendar && (
-                    <div className="absolute top-full start-1/2 -translate-x-1/2 sm:start-0 sm:translate-x-0 mt-2 z-[100]" onClick={(e) => e.stopPropagation()}>
-                        <React.Suspense fallback={<div className="p-4 bg-white rounded-2xl shadow-xl w-[320px] h-[400px] flex items-center justify-center border border-slate-200"><LoaderCircle className="w-8 h-8 animate-spin text-accent" /></div>}>
-                            <CalendarPicker 
+                    <div className="absolute start-0 top-full z-[100] mt-2" onClick={(e) => e.stopPropagation()}>
+                        <React.Suspense fallback={<div className="flex h-[400px] w-[320px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"><LoaderCircle className="h-8 w-8 animate-spin text-accent" /></div>}>
+                            <CalendarPicker
                                 selectedDate={dateValue}
                                 minDate={minDate}
                                 onDateSelect={(date) => {
@@ -224,9 +215,9 @@ const DesktopGroupedDateTimeField = React.memo(({
                 )}
             </div>
 
-            {/* Time Part */}
-            <div 
-                className="flex-1 relative cursor-pointer group px-4 pt-2.5 pb-2 min-h-[84px] flex flex-col justify-center"
+            {/* Time */}
+            <div
+                className="relative flex min-h-[64px] flex-1 cursor-pointer items-center px-4"
                 onClick={(e) => {
                     const select = e.currentTarget.querySelector('select');
                     if (select) {
@@ -234,17 +225,19 @@ const DesktopGroupedDateTimeField = React.memo(({
                     }
                 }}
             >
-                <label htmlFor={`${idPrefix}-time`} className="block text-[12px] text-slate-700 font-bold mb-0.5">{timeLabel}</label>
-                <div className="text-[15px] font-bold text-slate-900 flex items-center justify-between">
-                    {timeValue}
-                    <ChevronDown className="w-4 h-4 text-slate-600 group-hover:text-slate-800 transition-colors" />
+                <div className="w-full">
+                    <label htmlFor={`${idPrefix}-time`} className="block text-xs text-slate-500">{timeLabel}</label>
+                    <div className="flex items-center justify-between text-[15px] font-semibold text-slate-900">
+                        {timeValue}
+                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                    </div>
                 </div>
                 <select
                     id={`${idPrefix}-time`}
                     name={`${idPrefix}Time`}
                     value={timeValue}
                     onChange={onTimeChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    className="absolute inset-0 cursor-pointer opacity-0"
                 >
                     {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -591,73 +584,45 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
     };
     
 
+    const locationButton = (type: 'pickup' | 'dropoff') => {
+        const selection = type === 'pickup' ? pickupSelection : dropoffSelection;
+        const query = type === 'pickup' ? pickupQuery : dropoffQuery;
+        const label = type === 'pickup' ? 'Pick-up location' : 'Drop-off location';
+        return (
+            <button
+                type="button"
+                onClick={() => openSearchOverlay(type)}
+                className="flex w-full items-center gap-3 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-start transition-colors active:bg-slate-50"
+            >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                    {selection?.value ? getLocationIcon(selection.type, 'w-5 h-5') : <MapPin className="h-5 w-5 text-slate-500" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                    <span className="block text-xs text-slate-500">{label}</span>
+                    <span className={`block truncate text-[15px] ${selection?.label || query ? 'font-semibold text-slate-900' : 'text-slate-400'}`}>
+                        {selection?.label || query || 'Airport, city or station'}
+                    </span>
+                </span>
+            </button>
+        );
+    };
+
     return (
         <>
         {/* --- MOBILE WIDGET --- */}
-        <div className="lg:hidden w-full px-2 sm:px-6" ref={mobileWidgetRef}>
-            <div className="bg-white p-5 sm:p-7 rounded-[2.5rem] shadow-[0_32px_64px_-24px_rgba(0,0,0,0.35)] relative z-10 border border-slate-100">
-                <form onSubmit={handleSearch} className="flex flex-col gap-4">
-                    {/* Pick-up location button */}
-                    <div className="flex flex-col gap-1.5">
-                        <label id="mobile-pickup-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ms-1">Pick-up Location</label>
-                        <button
-                            type="button"
-                            onClick={() => openSearchOverlay('pickup')}
-                            aria-labelledby="mobile-pickup-label"
-                            className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-start px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
-                        >
-                            <div className="flex items-center gap-4 w-full min-w-0">
-                                <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
-                                    {pickupSelection ? getLocationIcon(pickupSelection.type, 'w-6 h-6') : <MapPin className="w-6 h-6 text-accent" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-black text-slate-950 text-[14px] leading-tight truncate">
-                                        {pickupSelection?.label || pickupQuery || 'Airport, city or station'}
-                                    </div>
-                                    <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">Start your journey here</div>
-                                </div>
-                                {pickupSelection && (
-                                    <div className="text-accent flex-shrink-0 bg-accent/5 p-1.5 rounded-full border border-accent/10">
-                                        <ArrowRight className="w-4 h-4 stroke-[3px]" />
-                                    </div>
-                                )}
-                            </div>
-                        </button>
-                    </div>
+        <div className="w-full lg:hidden" ref={mobileWidgetRef}>
+            <div className="relative z-10 rounded-2xl bg-white p-4 text-start shadow-[0_20px_50px_-20px_rgba(15,23,42,0.5)] ring-1 ring-black/5 sm:p-5">
+                <form onSubmit={handleSearch} className="flex flex-col gap-3">
+                    {locationButton('pickup')}
 
-                    {/* Drop-off location button */}
                     {differentDropoff && (
-                        <div className="flex flex-col gap-1.5 -mt-1 animate-in slide-in-from-top-3 duration-500">
-                            <label id="mobile-dropoff-label" className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ms-1">Drop-off Location</label>
-                            <button
-                                type="button"
-                                onClick={() => openSearchOverlay('dropoff')}
-                                aria-labelledby="mobile-dropoff-label"
-                                className="relative h-[68px] bg-slate-50 rounded-2xl border-2 border-slate-100 flex items-center w-full text-start px-5 focus:outline-none active:scale-[0.98] transition-all hover:border-accent/40 shadow-sm"
-                            >
-                                <div className="flex items-center gap-4 w-full min-w-0">
-                                    <div className="flex-shrink-0 bg-white p-2.5 rounded-xl shadow-sm border border-slate-100">
-                                        {dropoffSelection ? getLocationIcon(dropoffSelection.type, 'w-6 h-6') : <MapPin className="w-6 h-6 text-[#003580]" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-black text-slate-950 text-[14px] leading-tight truncate">
-                                            {dropoffSelection?.label || dropoffQuery || 'Airport, city or station'}
-                                        </div>
-                                        <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">Where will you finish?</div>
-                                    </div>
-                                    {dropoffSelection && (
-                                        <div className="text-[#003580] flex-shrink-0 bg-[#003580]/5 p-1.5 rounded-full border border-[#003580]/10">
-                                            <ArrowRight className="w-4 h-4 stroke-[3px] rotate-90" />
-                                        </div>
-                                    )}
-                                </div>
-                            </button>
+                        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                            {locationButton('dropoff')}
                         </div>
                     )}
 
-                    {/* Date/Time Section */}
                     <div className="grid grid-cols-2 gap-3">
-                        <MobileDateTimeField 
+                        <MobileDateTimeField
                             label="Pick-up"
                             dateValue={pickupDate}
                             onDateChange={setPickupDate}
@@ -666,41 +631,34 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                             onTimeChange={setPickupTime}
                             iconColor="text-accent"
                         />
-                        <MobileDateTimeField 
+                        <MobileDateTimeField
                             label="Drop-off"
                             dateValue={dropoffDate}
                             onDateChange={setDropoffDate}
                             minDate={pickupDate}
                             timeValue={dropoffTime}
                             onTimeChange={setDropoffTime}
-                            iconColor="text-[#003580]"
+                            iconColor="text-accent"
                         />
                     </div>
 
-                    <div className="space-y-3 mt-1 px-1">
-                        <label className="flex items-center text-[12px] font-bold text-slate-800 cursor-pointer select-none group">
-                            <div className={`w-5 h-5 rounded border-2 me-3 flex items-center justify-center transition-all ${differentDropoff ? 'bg-accent border-accent text-white' : 'border-slate-300 bg-white group-active:scale-90'}`}>
-                                {differentDropoff && <ArrowRight className="w-3 h-3 stroke-[4px]" />}
-                            </div>
-                            <input id="mobile-different-dropoff" name="differentDropoff" type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="hidden" />
-                            Different drop-off location
+                    <div className="flex flex-col gap-2 pt-0.5">
+                        <label className="flex cursor-pointer select-none items-center gap-2.5 text-sm text-slate-700">
+                            <input id="mobile-different-dropoff" name="differentDropoff" type="checkbox" onChange={(e) => setDifferentDropoff(e.target.checked)} checked={differentDropoff} className="h-[18px] w-[18px] rounded border-slate-300 text-accent focus:ring-accent" />
+                            Return to a different location
                         </label>
-                        <label className="flex items-center text-[12px] font-bold text-slate-800 cursor-pointer select-none group">
-                            <div className="w-5 h-5 rounded border-2 border-accent bg-accent text-white me-3 flex items-center justify-center transition-all group-active:scale-90">
-                                <ArrowRight className="w-3 h-3 stroke-[4px]" />
-                            </div>
-                            <input id="mobile-driver-age" name="driverAgeValid" type="checkbox" defaultChecked className="hidden" />
-                            Driver age between 30 - 65?
+                        <label className="flex cursor-pointer select-none items-center gap-2.5 text-sm text-slate-700">
+                            <input id="mobile-driver-age" name="driverAgeValid" type="checkbox" defaultChecked className="h-[18px] w-[18px] rounded border-slate-300 text-accent focus:ring-accent" />
+                            Driver aged 30–65
                         </label>
                     </div>
 
-                    <button 
-                        type="submit" 
-                        className="w-full text-white font-black h-16 rounded-[1.25rem] active:scale-[0.97] transition-all flex items-center justify-center gap-4 mt-4 text-[18px] uppercase tracking-[0.1em] hover:brightness-110 shadow-[0_20px_40px_-12px_rgba(0,128,9,0.45)]"
-                        style={{ backgroundColor: '#008009' }}
+                    <button
+                        type="submit"
+                        className="mt-1 flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-accent text-base font-semibold text-white shadow-sm transition-colors hover:bg-accent-700 active:bg-accent-800"
                     >
-                        <SearchIcon className="w-6 h-6 stroke-[3.5px]" />
-                        Search now
+                        <SearchIcon className="h-5 w-5" />
+                        Search cars
                     </button>
                 </form>
             </div>
@@ -717,141 +675,138 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
           />
         </React.Suspense>
 
+        {/* --- DESKTOP WIDGET --- */}
         <div className="hidden lg:block" ref={desktopWidgetRef}>
-            <div className="max-w-[1200px] mx-auto">
-                <form onSubmit={handleSearch} className="relative bg-[#ffda44] p-1.5 rounded-3xl shadow-2xl overflow-visible border-[3px] border-[#ffda44]">
-                    <div className="flex flex-col gap-2">
-                        {/* Checkboxes Row */}
-                        <div className="flex flex-wrap items-center gap-6 px-1">
-                            <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
-                                <input 
-                                    id="return-same-location"
-                                    name="returnSameLocation"
-                                    type="checkbox" 
-                                    onChange={(e) => setDifferentDropoff(!e.target.checked)} 
-                                    checked={!differentDropoff} 
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 me-2" 
-                                />
-                                Return car in same location
-                            </label>
-                            <label className="flex items-center text-[13px] font-semibold text-slate-800 cursor-pointer select-none">
-                                <input 
-                                    id="driver-age-checkbox"
-                                    name="driverAgeValid"
-                                    type="checkbox" 
-                                    defaultChecked 
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-0 me-2" 
-                                />
-                                Driver age between 30 - 65?
-                            </label>
+            <form onSubmit={handleSearch} className="relative rounded-2xl bg-white p-3 text-start shadow-[0_24px_60px_-24px_rgba(15,23,42,0.55)] ring-1 ring-black/5">
+                <div className="mb-2.5 flex flex-wrap items-center gap-6 px-1">
+                    <label className="flex cursor-pointer select-none items-center gap-2 text-sm text-slate-700">
+                        <input
+                            id="return-same-location"
+                            name="returnSameLocation"
+                            type="checkbox"
+                            onChange={(e) => setDifferentDropoff(!e.target.checked)}
+                            checked={!differentDropoff}
+                            className="h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent"
+                        />
+                        Return car to the same location
+                    </label>
+                    <label className="flex cursor-pointer select-none items-center gap-2 text-sm text-slate-700">
+                        <input
+                            id="driver-age-checkbox"
+                            name="driverAgeValid"
+                            type="checkbox"
+                            defaultChecked
+                            className="h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent"
+                        />
+                        Driver aged 30–65
+                    </label>
+                </div>
+
+                <div className="flex gap-2">
+                    {/* Locations */}
+                    <div className={`grid min-w-0 flex-[3] gap-2 ${differentDropoff ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        <div className="relative rounded-xl border border-slate-300 bg-white transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 hover:border-slate-400">
+                            <div className="flex min-h-[64px] items-center gap-3 px-4">
+                                <MapPin className="h-5 w-5 shrink-0 text-slate-400" />
+                                <div className="min-w-0 flex-1">
+                                    <label htmlFor="desktop-pickup-location" className="block text-xs text-slate-500">Pick-up location</label>
+                                    <input
+                                        id="desktop-pickup-location"
+                                        name="pickupLocation"
+                                        type="text"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-expanded={isSuggestionsOpen}
+                                        aria-haspopup="listbox"
+                                        placeholder="Airport, city or station"
+                                        className="w-full border-none bg-transparent p-0 text-[15px] font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                                        value={pickupQuery}
+                                        onChange={handleLocationChange}
+                                        onFocus={handleFocus}
+                                        autoComplete="off"
+                                        aria-controls="pickup-suggestions"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            {isSuggestionsOpen && (
+                                <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute start-0 top-full z-[200] mt-1 max-h-[400px] w-full min-w-[320px] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl">
+                                    {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
+                                </div>
+                            )}
                         </div>
 
-                        {/* Search Bar Content */}
-                        <div className="flex flex-col lg:flex-row gap-2">
-                            {/* Locations Row */}
-                            <div className={`flex-[3] grid grid-cols-1 ${differentDropoff ? 'md:grid-cols-2' : ''} gap-2 transition-all duration-300`}>
-                                {/* Pick-up location */}
-                                <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50">
-                                    <div className="px-5 pt-3 pb-2.5 flex flex-col min-h-[84px] justify-center">
-                                        <label htmlFor="desktop-pickup-location" className="text-[11px] text-slate-700 mb-0.5 font-bold uppercase tracking-wider">Pick-up location</label>
+                        {differentDropoff && (
+                            <div className="relative rounded-xl border border-slate-300 bg-white transition-colors animate-in fade-in duration-300 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 hover:border-slate-400">
+                                <div className="flex min-h-[64px] items-center gap-3 px-4">
+                                    <MapPin className="h-5 w-5 shrink-0 text-slate-400" />
+                                    <div className="min-w-0 flex-1">
+                                        <label htmlFor="desktop-dropoff-location" className="block text-xs text-slate-500">Drop-off location</label>
                                         <input
-                                            id="desktop-pickup-location"
-                                            name="pickupLocation"
+                                            id="desktop-dropoff-location"
+                                            name="dropoffLocation"
                                             type="text"
                                             role="combobox"
                                             aria-autocomplete="list"
-                                            aria-expanded={isSuggestionsOpen}
+                                            aria-expanded={isDropoffSuggestionsOpen}
                                             aria-haspopup="listbox"
-                                            placeholder="Enter airport or city"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-base font-bold text-slate-900 placeholder:text-slate-500 p-0"
-                                            value={pickupQuery}
-                                            onChange={handleLocationChange}
-                                            onFocus={handleFocus}
+                                            placeholder="Airport, city or station"
+                                            className="w-full border-none bg-transparent p-0 text-[15px] font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                                            value={dropoffQuery}
+                                            onChange={handleDropoffLocationChange}
+                                            onFocus={handleDropoffFocus}
                                             autoComplete="off"
-                                            aria-controls="pickup-suggestions"
-                                            required
+                                            aria-controls="dropoff-suggestions"
+                                            required={differentDropoff}
                                         />
                                     </div>
-                                    {isSuggestionsOpen && (
-                                        <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full start-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
-                                            {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
-                                        </div>
-                                    )}
                                 </div>
-        
-                                {/* Drop-off location (Conditional) */}
-                                {differentDropoff && (
-                                    <div className="relative bg-white rounded-2xl shadow-sm group border border-slate-200/50 animate-in fade-in slide-in-from-left-2 duration-300">
-                                        <div className="px-5 pt-3 pb-2.5 flex flex-col min-h-[84px] justify-center">
-                                            <label htmlFor="desktop-dropoff-location" className="text-[11px] text-slate-700 mb-0.5 font-bold uppercase tracking-wider">Drop-off location</label>
-                                            <input
-                                                id="desktop-dropoff-location"
-                                                name="dropoffLocation"
-                                                type="text"
-                                                role="combobox"
-                                                aria-autocomplete="list"
-                                                aria-expanded={isDropoffSuggestionsOpen}
-                                                aria-haspopup="listbox"
-                                                placeholder="Enter airport or city"
-                                            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-base font-bold text-slate-900 placeholder:text-slate-500 p-0"
-                                                value={dropoffQuery}
-                                                onChange={handleDropoffLocationChange}
-                                                onFocus={handleDropoffFocus}
-                                                autoComplete="off"
-                                                aria-controls="dropoff-suggestions"
-                                                required={differentDropoff}
-                                            />
-                                        </div>
-                                        {isDropoffSuggestionsOpen && (
-                                            <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute top-full start-0 mt-1 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] max-h-[400px] overflow-y-auto">
-                                                {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
-                                            </div>
-                                        )}
+                                {isDropoffSuggestionsOpen && (
+                                    <div id="dropoff-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute start-0 top-full z-[200] mt-1 max-h-[400px] w-full min-w-[320px] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl">
+                                        {renderSuggestions(isDropoffLoading, dropoffError, dropoffSuggestions, handleDropoffSuggestionClick)}
                                     </div>
                                 )}
                             </div>
-
-                            {/* Dates & Times row */}
-                            <div className="flex-[4] flex flex-col md:flex-row gap-2">
-                                <DesktopGroupedDateTimeField
-                                    idPrefix="pickup"
-                                    dateLabel="Pick-up date"
-                                    dateValue={pickupDate}
-                                    onDateChange={(e) => setPickupDate(e.target.value)}
-                                    minDate={today.toISOString().split('T')[0]}
-                                    timeLabel="Time"
-                                    timeValue={pickupTime}
-                                    onTimeChange={(e) => setPickupTime(e.target.value)}
-                                    timeOptions={TIME_OPTIONS}
-                                    iconType="pickup"
-                                />
-                                <DesktopGroupedDateTimeField
-                                    idPrefix="dropoff"
-                                    dateLabel="Drop-off date"
-                                    dateValue={dropoffDate}
-                                    onDateChange={(e) => setDropoffDate(e.target.value)}
-                                    minDate={pickupDate}
-                                    timeLabel="Time"
-                                    timeValue={dropoffTime}
-                                    onTimeChange={(e) => setDropoffTime(e.target.value)}
-                                    timeOptions={TIME_OPTIONS}
-                                    iconType="dropoff"
-                                />
-                            </div>
-
-                            {/* Search button */}
-                            <div className="flex items-center">
-                                <button 
-                                    type="submit" 
-                                    className="bg-[#008009] text-white px-10 h-[84px] rounded-2xl font-black text-[18px] uppercase tracking-wide hover:bg-[#006407] transition-all active:scale-[0.98] shadow-lg flex items-center justify-center min-w-[180px]"
-                                >
-                                    Search
-                                </button>
-                            </div>
-                        </div>
+                        )}
                     </div>
-                </form>
-            </div>
+
+                    {/* Dates and times */}
+                    <div className="flex min-w-0 flex-[4] gap-2">
+                        <DesktopGroupedDateTimeField
+                            idPrefix="pickup"
+                            dateLabel="Pick-up date"
+                            dateValue={pickupDate}
+                            onDateChange={(e) => setPickupDate(e.target.value)}
+                            minDate={today.toISOString().split('T')[0]}
+                            timeLabel="Time"
+                            timeValue={pickupTime}
+                            onTimeChange={(e) => setPickupTime(e.target.value)}
+                            timeOptions={TIME_OPTIONS}
+                            iconType="pickup"
+                        />
+                        <DesktopGroupedDateTimeField
+                            idPrefix="dropoff"
+                            dateLabel="Drop-off date"
+                            dateValue={dropoffDate}
+                            onDateChange={(e) => setDropoffDate(e.target.value)}
+                            minDate={pickupDate}
+                            timeLabel="Time"
+                            timeValue={dropoffTime}
+                            onTimeChange={(e) => setDropoffTime(e.target.value)}
+                            timeOptions={TIME_OPTIONS}
+                            iconType="dropoff"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="flex h-[66px] min-w-[150px] items-center justify-center gap-2 rounded-xl bg-accent px-7 text-base font-semibold text-white shadow-sm transition-colors hover:bg-accent-700 active:bg-accent-800"
+                    >
+                        <SearchIcon className="h-5 w-5" />
+                        Search
+                    </button>
+                </div>
+            </form>
         </div>
         </>
     )
