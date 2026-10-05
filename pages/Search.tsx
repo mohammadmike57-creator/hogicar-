@@ -795,61 +795,8 @@ export const Search: React.FC = () => {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Car categories */}
-        <div className="pt-4 sm:pt-6">
-          <div className="-mx-4 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1 no-scrollbar sm:mx-0 sm:px-0">
-            {categoryOrder.map(category => {
-              const isActive = selectedCategories.includes(category);
-              const summary = categorySummaries.get(category);
-              const count = summary?.count || filterCounts.category.get(category) || 0;
-              const hasCars = count > 0;
-              const categoryImage =
-                categoryImages[category] ||
-                categoryImages[category.toUpperCase()] ||
-                (CATEGORY_IMAGES as Record<string, string>)[category];
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => handleCategoryToggle(category)}
-                  disabled={!hasCars}
-                  aria-pressed={isActive}
-                  className={`relative flex w-[132px] shrink-0 snap-start flex-col items-center rounded-xl border px-2 pb-2.5 pt-2 text-center transition-colors sm:w-[148px] ${
-                    isActive
-                      ? 'border-accent bg-accent-50 ring-1 ring-accent'
-                      : hasCars
-                        ? 'border-slate-200 bg-white hover:border-slate-300'
-                        : 'cursor-not-allowed border-slate-200 bg-white opacity-50'
-                  }`}
-                >
-                  <div className="flex h-14 w-full items-center justify-center">
-                    <img
-                      src={categoryImage}
-                      alt=""
-                      className="max-h-14 w-full object-contain"
-                      loading="lazy"
-                      decoding="async"
-                      width="120"
-                      height="56"
-                    />
-                  </div>
-                  <span className={`mt-1 block w-full truncate text-sm font-semibold ${isActive ? 'text-accent-800' : 'text-slate-900'}`}>{formatCategoryName(category)}</span>
-                  <span className="block text-xs text-slate-500">
-                    {summary?.fromTotal != null ? <>from <span className="font-semibold text-slate-900">{getCurrencySymbol()}{convertPrice(summary.fromTotal).toFixed(0)}</span></> : 'Unavailable'}
-                  </span>
-                  {isActive && (
-                    <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white">
-                      <Check className="h-3 w-3" />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Mobile filter & sort controls */}
-        <div className="sticky top-[72px] z-20 -mx-4 mt-3 grid grid-cols-2 gap-2 border-b border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur md:hidden">
+        <div className="sticky top-[72px] z-20 -mx-4 grid grid-cols-2 gap-2 border-b border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur md:hidden">
           <button
             type="button"
             onClick={() => { setShowMobileSort(false); setShowMobileFilters(true); }}
@@ -1045,6 +992,49 @@ export const Search: React.FC = () => {
               </div>
             ) : (
               <>
+                {/* Car type chips */}
+                <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 no-scrollbar md:mx-0 md:px-0" role="group" aria-label="Filter by car type">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategories([])}
+                    aria-pressed={selectedCategories.length === 0}
+                    className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition-colors ${
+                      selectedCategories.length === 0 ? 'border-accent bg-accent text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                    }`}
+                  >
+                    All cars
+                  </button>
+                  {categoryOrder.map(category => {
+                    const summary = categorySummaries.get(category);
+                    const count = summary?.count || 0;
+                    if (count === 0 && !selectedCategories.includes(category)) return null;
+                    const isActive = selectedCategories.includes(category);
+                    const categoryImage =
+                      categoryImages[category] ||
+                      categoryImages[category.toUpperCase()] ||
+                      (CATEGORY_IMAGES as Record<string, string>)[category];
+                    return (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => handleCategoryToggle(category)}
+                        aria-pressed={isActive}
+                        className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border pl-1.5 pr-3.5 text-sm transition-colors ${
+                          isActive ? 'border-accent bg-accent-50 text-accent-800 ring-1 ring-accent' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                        }`}
+                      >
+                        <span className="flex h-7 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-100">
+                          {categoryImage && <img src={categoryImage} alt="" className="h-5 w-9 object-contain" loading="lazy" decoding="async" width="36" height="20" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+                        </span>
+                        <span className="font-medium">{formatCategoryName(category)}</span>
+                        {summary?.fromTotal != null && (
+                          <span className={isActive ? 'text-accent-700' : 'text-slate-500'}>{getCurrencySymbol()}{convertPrice(summary.fromTotal).toFixed(0)}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h1 className="text-lg font-bold text-slate-900 sm:text-xl">
