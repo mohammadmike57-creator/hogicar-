@@ -23,6 +23,10 @@ interface AiAdvisorProps {
   activeFilters: string[];
   /** Lift the launcher above other fixed bars (e.g. the compare bar). */
   raised?: boolean;
+  /** True while more result pages exist on the server. */
+  hasMoreResults?: boolean;
+  /** Loads every remaining results page so the whole search can be compared. */
+  onLoadAllResults?: () => Promise<void>;
   onEnabledChange?: (enabled: boolean) => void;
   onViewCar: (carId: string) => void;
 }
@@ -31,13 +35,15 @@ interface Pick { carId: string; label: string; reason: string }
 interface ChatMessage { role: 'user' | 'assistant'; content: string; picks?: Pick[]; error?: boolean }
 
 const SUGGESTIONS = [
+  'Compare all results',
   'Which car is the best value?',
   'Which cars have the lowest deposit?',
   'Best car for a family of 4 with luggage',
   'Compare the cheapest automatic cars',
 ];
 
-const MAX_CARS_SENT = 60;
+// The server-side AI receives up to this many cars (a full search is usually well below it).
+const MAX_CARS_SENT = 400;
 
 export const AI_ADVISOR_OPEN_EVENT = 'hogicar:open-ai-advisor';
 export const openAiAdvisor = (question?: string) => window.dispatchEvent(new CustomEvent(AI_ADVISOR_OPEN_EVENT, { detail: question }));
@@ -79,13 +85,14 @@ const ReplyText: React.FC<{ text: string }> = ({ text }) => {
     const bullet = line.match(/^[-•*]\s+(.*)$/);
     if (bullet) { bullets.push(bullet[1]); return; }
     flush();
-    blocks.push(<p key={`p-${blocks.length}`}>{line}</p>);
+    const isHeading = line.endsWith(':') && line.length <= 60;
+    blocks.push(<p key={`p-${blocks.length}`} className={isHeading ? 'pt-1 font-semibold text-slate-900' : undefined}>{line}</p>);
   });
   flush();
   return <div className="space-y-2">{blocks}</div>;
 };
 
-export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, endDate, pickupName, dropoffName, activeFilters, raised, onEnabledChange, onViewCar }) => {
+export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, endDate, pickupName, dropoffName, activeFilters, raised, hasMoreResults, onLoadAllResults, onEnabledChange, onViewCar }) => {
   const { convertPrice, getCurrencySymbol } = useCurrency();
   // true when the server-side AI model is configured; otherwise the built-in engine answers.
   const [cloudAi, setCloudAi] = React.useState(false);
@@ -123,7 +130,7 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
   const carById = React.useMemo(() => new Map(cars.map(c => [c.id, c])), [cars]);
   const totalFor = React.useCallback((car: Car) => Math.round(convertPrice(calculatePrice(car, days, startDate).total) * 100) / 100, [convertPrice, days, startDate]);
 
-  const carPayload = React.useMemo(() => cars.filter(c => c.isAvailable !== false).slice(0, MAX_CARS_SENT).map(car => {
+  const carPayload = React.useMemo(() => cars.filter(c => c.isAvailable !== false).map(car => {
     const total = totalFor(car);
     return {
       id: car.id,
@@ -146,6 +153,27 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
       specialOffer: Boolean(car.promotionAmount || car.promotionPercent || car.hogicarChoice),
     };
   }), [cars, totalFor, convertPrice, days]);
+  const carPayloadRef = React.useRef(carPayload);
+  carPayloadRef.current = carPayload;
+  const supplierCount = React.useMemo(() => new Set(carPayload.map(c => c.supplier).filter(Boolean)).size, [carPayload]);
+
+  // Make sure every result of the search is loaded before comparing.
+  const [loadingAll, setLoadingAll] = React.useState(false);
+  const ensureAllResults = React.useCallback(async () => {
+    if (!hasMoreResults || !onLoadAllResults) return;
+    setLoadingAll(true);
+    try {
+      await onLoadAllResults();
+      // Let the page re-render with the new cars before reading them.
+      await new Promise(resolve => setTimeout(resolve, 60));
+    } finally {
+      setLoadingAll(false);
+    }
+  }, [hasMoreResults, onLoadAllResults]);
+  React.useEffect(() => {
+    if (open && hasMoreResults) ensureAllResults();
+  }, [open, hasMoreResults, ensureAllResults]);
+
 
   // Lock page scroll on mobile while the sheet is open; close on Escape.
   React.useEffect(() => {
@@ -174,9 +202,11 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
     setMessages(prev => [...prev, { role: 'user', content: text }]);
     setInput('');
     setSending(true);
+    await ensureAllResults();
+    const allCars = carPayloadRef.current;
     const answerLocally = async () => {
-      await new Promise(resolve => setTimeout(resolve, 700));
-      const local = localAdvisorAnswer(text, carPayload, symbol, days, history.slice(0, -1));
+      await new Promise(resolve => setTimeout(resolve, 600));
+      const local = localAdvisorAnswer(text, allCars, symbol, days, history.slice(0, -1));
       setMessages(prev => [...prev, { role: 'assistant', content: local.reply, picks: local.picks }]);
     };
     try {
@@ -194,7 +224,7 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
               ? `${m.content}\n(Recommended: ${m.picks.map(p => `${p.label} = ${p.carId}`).join('; ')})`
               : m.content,
           })),
-          cars: carPayload,
+          cars: allCars.slice(0, MAX_CARS_SENT),
           trip: { pickupLocation: pickupName, dropoffLocation: dropoffName || pickupName, pickupDate: startDate, dropoffDate: endDate, days, currency: symbol, activeFilters },
         }),
       });
@@ -278,7 +308,9 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
                   Hogicar AI advisor
                   <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Beta</span>
                 </h2>
-                <p className="truncate text-xs text-white/75">Comparing {carPayload.length} car{carPayload.length === 1 ? '' : 's'} in {pickupName || 'your search'}</p>
+                <p className="truncate text-xs text-white/75">
+                  {loadingAll ? 'Loading all results…' : `Comparing all ${carPayload.length} car${carPayload.length === 1 ? '' : 's'} from ${supplierCount} supplier${supplierCount === 1 ? '' : 's'}`}
+                </p>
               </div>
               {messages.length > 0 && (
                 <button type="button" onClick={() => setMessages([])} className="flex h-9 w-9 items-center justify-center rounded-full text-white/80 hover:bg-white/15 hover:text-white" aria-label="Start a new conversation" title="New conversation">
@@ -294,7 +326,7 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
               <div className="flex gap-2.5">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-50 text-accent"><Sparkles className="h-3.5 w-3.5" /></span>
                 <div className="rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 text-sm leading-relaxed text-slate-700 shadow-sm ring-1 ring-slate-200/70">
-                  Hi! Tell me what matters for your trip (budget, deposit, luggage, automatic…) and I'll compare these deals and pick the best ones for you.
+                  {`Hi! I compare all ${carPayload.length} cars in your search: price, deposit, fuel policy, mileage, seats, luggage and supplier ratings. Tap "Compare all results" for an overview, or tell me what matters for your trip.`}
                 </div>
               </div>
 

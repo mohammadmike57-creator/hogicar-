@@ -344,6 +344,51 @@ export const Search: React.FC = () => {
     fetchApiCars(false);
   }, [searchParamsString, sortBy]);
 
+  // Loads every remaining results page so the AI advisor can compare the whole search.
+  const pageRef = useRef(page);
+  const hasNextRef = useRef(hasNext);
+  pageRef.current = page;
+  hasNextRef.current = hasNext;
+  const loadAllPromise = useRef<Promise<void> | null>(null);
+  const loadAllResults = useCallback(() => {
+    if (loadAllPromise.current) return loadAllPromise.current;
+    loadAllPromise.current = (async () => {
+      let nextPage = pageRef.current + 1;
+      let more = hasNextRef.current;
+      const collected: Car[] = [];
+      for (let i = 0; more && i < 30; i++, nextPage++) {
+        try {
+          const data = await loadCars({
+            locationsOptions: [],
+            pickupCode: searchPrefetchParams.pickupCode,
+            dropoffCode: searchPrefetchParams.dropoffCode,
+            pickupDate: searchPrefetchParams.pickupDate,
+            dropoffDate: searchPrefetchParams.dropoffDate,
+            startTime: searchPrefetchParams.startTime,
+            endTime: searchPrefetchParams.endTime,
+            page: nextPage,
+            size: 20,
+            sort: sortBy,
+          });
+          collected.push(...apiCarsToCars(data.cars));
+          more = Boolean(data.hasNext) && data.cars.length > 0;
+        } catch (err) {
+          console.warn('Search: could not load all results for the advisor', err);
+          break;
+        }
+      }
+      if (collected.length) {
+        setApiCars(prev => {
+          const seen = new Set(prev.map(c => c.id));
+          return [...prev, ...collected.filter(c => !seen.has(c.id))];
+        });
+        setPage(nextPage - 1);
+      }
+      setHasNext(more);
+    })().finally(() => { loadAllPromise.current = null; });
+    return loadAllPromise.current;
+  }, [searchPrefetchParams, sortBy]);
+
   // Infinite scroll observer
   useEffect(() => {
     if (!hasNext || isFetchingMore || loading) return;
@@ -1169,7 +1214,7 @@ export const Search: React.FC = () => {
                         </span>
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-slate-900">Not sure which car to choose?</p>
-                          <p className="text-xs text-slate-600 sm:text-sm">Our AI advisor compares price, deposit, fuel policy and ratings for you.</p>
+                          <p className="text-xs text-slate-600 sm:text-sm">Our AI advisor compares all the results in your search: price, deposit, fuel policy, space and ratings.</p>
                         </div>
                       </div>
                       <div className="flex gap-2 overflow-x-auto pb-0.5 sm:shrink-0 sm:overflow-visible sm:pb-0">
@@ -1280,9 +1325,11 @@ export const Search: React.FC = () => {
         </div>
       )}
 
-      {!loading && sortedAndFilteredCars.length > 0 && (
+      {!loading && apiCars.length > 0 && (
         <AiAdvisor
-          cars={sortedAndFilteredCars}
+          cars={apiCars.filter(c => c.isAvailable !== false)}
+          hasMoreResults={hasNext}
+          onLoadAllResults={loadAllResults}
           days={days}
           startDate={startDate}
           endDate={endDate}
