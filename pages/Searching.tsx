@@ -12,7 +12,7 @@ import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import Headphones from 'lucide-react/dist/esm/icons/headphones';
 import Receipt from 'lucide-react/dist/esm/icons/receipt';
 import Lightbulb from 'lucide-react/dist/esm/icons/lightbulb';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const Searching: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +22,9 @@ const Searching: React.FC = () => {
   const pickupName = searchParams.get('pickupName') || pickupIata || 'Your Destination';
   const searchPrefetchParams = React.useMemo(() => getPrefetchParamsFromUrl(searchParams), [searchParamsString]);
   const [duration, setDuration] = React.useState(5000); 
-  const MIN_ANIMATION_TIME = 0; // Proceded immediately when data is ready per requirements
+  // Keep the searching screen up for at least this long, even when results arrive sooner.
+  const MIN_DISPLAY_TIME = 5000;
+  const startTimeRef = React.useRef<number>(Date.now());
   const [progress, setProgress] = React.useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0);
   const [suppliers, setSuppliers] = React.useState<any[]>([]);
@@ -159,12 +161,15 @@ const Searching: React.FC = () => {
   ];
 
   React.useEffect(() => {
-    let start: number | null = null;
     const initialStatus = getPrefetchStatus(searchPrefetchParams);
     let isDataFinished = initialStatus === 'fulfilled' || initialStatus === 'failed';
     let isNavigated = false;
     let isDisposed = false;
+    let frameId = 0;
     const MAX_WAIT_TIME = 15000; // 15 seconds max
+    // Progress fills over at least MIN_DISPLAY_TIME (or the admin-configured duration if longer).
+    const fillTime = Math.max(duration, MIN_DISPLAY_TIME);
+    const elapsedMs = () => Date.now() - startTimeRef.current;
 
     console.log("Searching: initial data status:", initialStatus);
 
@@ -172,50 +177,37 @@ const Searching: React.FC = () => {
       // Ensure we only navigate once
       if (isNavigated || isDisposed) return;
 
-      const elapsed = Date.now() - (start || Date.now());
+      const elapsed = elapsedMs();
       const isDataWaitFinished = isDataFinished || elapsed > MAX_WAIT_TIME;
-      
-      // If data is ready, we can proceed after MIN_ANIMATION_TIME instead of full duration
-      // AND the component chunk must be loaded to avoid Suspense flash
-      const currentMinTime = isDataFinished ? MIN_ANIMATION_TIME : duration;
-      const isMinTimeFinished = elapsed >= currentMinTime;
+      // Always show the screen for at least MIN_DISPLAY_TIME; the results chunk must also be loaded to avoid a Suspense flash
+      const isMinTimeFinished = elapsed >= MIN_DISPLAY_TIME;
 
       if (isDataWaitFinished && isMinTimeFinished && isChunkLoaded) {
         console.log("Searching: proceeding to results page.", { isDataFinished, isChunkLoaded, elapsed });
-        // Force progress to 100% if we're navigating early
         setProgress(1);
         isNavigated = true;
-        // Small delay to let the 100% state be visible if it was very fast
+        // Short pause so the completed state is visible
         setTimeout(() => {
           const forwardParams = new URLSearchParams(searchParamsString);
           navigate(`/search?${forwardParams.toString()}`);
-        }, 100);
+        }, 350);
       }
     };
 
-    const animate = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      
-      // Check if we should navigate early on every frame if data and chunk are ready
-      if (isDataFinished && isChunkLoaded && elapsed >= MIN_ANIMATION_TIME) {
-        tryNavigate();
-      }
-
-      const newProgress = Math.min(elapsed / duration, 1);
-      setProgress(newProgress);
-      
-      if (elapsed < duration && !isNavigated) {
-        requestAnimationFrame(animate);
-      } else if (!isNavigated) {
-        tryNavigate();
-      }
+    const animate = () => {
+      if (isNavigated || isDisposed) return;
+      const elapsed = elapsedMs();
+      // Hold just short of 100% until results are actually ready
+      const cap = isDataFinished ? 1 : 0.95;
+      setProgress(Math.min(elapsed / fillTime, cap));
+      if (elapsed >= MIN_DISPLAY_TIME) tryNavigate();
+      frameId = requestAnimationFrame(animate);
     };
-    requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
 
     const messageInterval = setInterval(() => {
       setCurrentMessageIndex(prev => (prev + 1) % searchMessages.length);
-    }, duration / searchMessages.length);
+    }, Math.max(duration, MIN_DISPLAY_TIME) / searchMessages.length);
 
     // Monitoring for data readiness
     const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
@@ -246,6 +238,7 @@ const Searching: React.FC = () => {
 
     return () => {
       isDisposed = true;
+      cancelAnimationFrame(frameId);
       clearInterval(messageInterval);
       clearInterval(checkDataInterval);
     };
@@ -275,12 +268,103 @@ const Searching: React.FC = () => {
   const dropoffLabel = searchParams.get('dropoffName') || pickupName;
   const dropoffCode = (searchPrefetchParams.dropoffCode || pickupIata || '').toUpperCase();
   const checkedCount = progress >= 1 ? totalSuppliers : suppliersScanned;
+  const logoSlots = visibleSuppliers.slice(0, 8);
 
   const included = [
     { icon: ShieldCheck, title: 'Free cancellation', text: 'On most bookings' },
     { icon: Receipt, title: 'No hidden fees', text: 'Taxes and fees shown up front' },
     { icon: Headphones, title: '24/7 support', text: 'Before and during your rental' },
   ];
+
+  // Slides shown in turn inside a fixed-height panel so the page never scrolls
+  const slideKeys = [...(totalSuppliers > 0 ? ['suppliers'] : []), 'included', 'tip'];
+  const [slideIndex, setSlideIndex] = React.useState(0);
+  React.useEffect(() => {
+    const id = setInterval(() => setSlideIndex(i => i + 1), 1800);
+    return () => clearInterval(id);
+  }, []);
+  const activeSlide = slideKeys[slideIndex % slideKeys.length];
+
+  const renderSlide = (key: string) => {
+    if (key === 'suppliers') {
+      return (
+        <div>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-slate-900">Checking rental companies</p>
+            <p className="text-sm text-slate-500"><span className="font-semibold tabular-nums text-slate-900">{checkedCount}</span> of {totalSuppliers}</p>
+          </div>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {logoSlots.map((supplier, index) => {
+              const isComplete = progress >= 1 || index < suppliersScanned;
+              const isActive = !isComplete && index === Math.min(suppliersScanned, totalSuppliers - 1);
+              const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
+              const logoSrc = supplier.logoUrl || supplier.logo;
+              const initials = String(supplier.name || 'Supplier').split(/\s+/).slice(0, 2).map((part: string) => part.charAt(0)).join('').toUpperCase();
+              return (
+                <div
+                  key={`supplier-scan-${supplier.id}-${supplier.name}`}
+                  className={`relative flex h-11 min-w-0 items-center justify-center rounded-lg border bg-white p-2 transition-all duration-300 sm:h-12 ${
+                    isComplete ? 'border-slate-200' : isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-200 opacity-40'
+                  }`}
+                  title={supplier.name}
+                  aria-label={`${supplier.name || 'Supplier'} ${isComplete ? 'checked' : isActive ? 'checking' : 'waiting'}`}
+                >
+                  {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                    <div className="flex h-full w-full items-center justify-center" style={{ transform: `scale(${logoScale})` }}>
+                      <Logo className="h-full w-full object-contain" />
+                    </div>
+                  ) : logoSrc ? (
+                    <img src={logoSrc} alt={supplier.name} className="h-full w-full object-contain" style={{ transform: `scale(${logoScale})` }} />
+                  ) : (
+                    <span className="text-xs font-semibold text-slate-500">{initials}</span>
+                  )}
+                  {isComplete && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {totalSuppliers > logoSlots.length && (
+            <p className="mt-2 text-xs text-slate-500">+ {totalSuppliers - logoSlots.length} more companies</p>
+          )}
+        </div>
+      );
+    }
+    if (key === 'included') {
+      return (
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Every Hogicar booking includes</p>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+            {included.map(item => (
+              <li key={item.title} className="flex items-center gap-3 sm:block">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <item.icon className="h-5 w-5" />
+                </span>
+                <span className="sm:mt-2 sm:block">
+                  <span className="block text-sm font-semibold text-slate-900">{item.title}</span>
+                  <span className="block text-xs text-slate-500">{item.text}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    return (
+      <div className="flex h-full items-start gap-4">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-500">
+          <Lightbulb className="h-6 w-6" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Good to know</p>
+          <p className="mt-1 text-base text-slate-600">{tips[currentTipIndex]}</p>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -289,182 +373,114 @@ const Searching: React.FC = () => {
         description="We're comparing hundreds of suppliers to find you the best car rental deal."
         noIndex={true}
       />
-      <div className="min-h-[calc(100vh-72px)] bg-slate-50 font-sans text-slate-900">
-        {/* Trip band */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#003580] via-[#0047a6] to-[#0b5cc4] pb-24 pt-8 text-white sm:pb-28 sm:pt-10">
-          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" aria-hidden="true" />
-          <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
-            <p className="text-center text-sm font-medium text-white/75">Finding the best car rental deals for your trip</p>
+      <div className="relative flex h-[calc(100dvh-73px)] min-h-[560px] flex-col items-center justify-center overflow-hidden bg-slate-50 px-4 py-4 font-sans text-slate-900 sm:px-6">
+        {/* Blue backdrop behind the top half */}
+        <div className="absolute inset-x-0 top-0 h-[46%] overflow-hidden bg-gradient-to-br from-[#003580] via-[#0047a6] to-[#0b5cc4]" aria-hidden="true">
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
+        </div>
 
-            <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+        <div className="relative w-full max-w-3xl">
+          {/* Trip route */}
+          <div className="text-white">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
               <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Pick-up</p>
-                <p className="mt-1 truncate text-lg font-bold sm:text-2xl">{pickupIata ? pickupIata.toUpperCase() : pickupName}</p>
-                <p className="truncate text-sm text-white/80">{pickupName}</p>
-                <p className="mt-1 text-sm text-white/70">{formatTripDate(searchPrefetchParams.pickupDate, searchPrefetchParams.startTime)}</p>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-white/60">Pick-up</p>
+                <p className="truncate text-xl font-bold leading-tight sm:text-2xl">{pickupIata ? pickupIata.toUpperCase() : pickupName}</p>
+                <p className="truncate text-xs text-white/75 sm:text-sm">{formatTripDate(searchPrefetchParams.pickupDate, searchPrefetchParams.startTime)}</p>
               </div>
-
-              <div className="w-24 sm:w-64" aria-hidden="true">
+              <div className="w-20 sm:w-56" aria-hidden="true">
                 <div className="relative h-8">
                   <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/35" />
                   <div className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white" />
                   <div className="absolute right-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-white" />
                   <div
-                    className="absolute top-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-accent shadow-lg transition-[left] duration-200 ease-out"
-                    style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
+                    className="absolute top-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-accent shadow-lg"
+                    style={{ left: `${Math.min(88, Math.max(12, progress * 100))}%` }}
                   >
                     <CarIcon className="h-4 w-4" />
                   </div>
                 </div>
-                {tripDays > 0 && <p className="mt-1 text-center text-xs font-medium text-white/75">{tripDays} day{tripDays > 1 ? 's' : ''}</p>}
+                {tripDays > 0 && <p className="text-center text-[11px] font-medium text-white/75">{tripDays} day{tripDays > 1 ? 's' : ''}</p>}
               </div>
-
               <div className="min-w-0 text-right">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Drop-off</p>
-                <p className="mt-1 truncate text-lg font-bold sm:text-2xl">{dropoffCode || dropoffLabel}</p>
-                <p className="truncate text-sm text-white/80">{dropoffLabel}</p>
-                <p className="mt-1 text-sm text-white/70">{formatTripDate(searchPrefetchParams.dropoffDate, searchPrefetchParams.endTime)}</p>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-white/60">Drop-off</p>
+                <p className="truncate text-xl font-bold leading-tight sm:text-2xl">{dropoffCode || dropoffLabel}</p>
+                <p className="truncate text-xs text-white/75 sm:text-sm">{formatTripDate(searchPrefetchParams.dropoffDate, searchPrefetchParams.endTime)}</p>
               </div>
             </div>
+            <p className="mt-3 truncate text-center text-sm text-white/80">{pickupName}</p>
           </div>
-        </div>
 
-        <div className="relative mx-auto -mt-16 max-w-5xl px-4 pb-12 sm:-mt-20 sm:px-6">
-          {/* Progress card */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg sm:p-6" role="status" aria-live="polite">
-            <div className="flex items-center justify-between gap-4">
-              <p className="flex items-center gap-2.5 text-sm font-semibold text-slate-900 sm:text-base">
-                <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true" />
-                <span key={stepIndex} className="animate-in fade-in duration-500">{searchMessages[stepIndex]}…</span>
-              </p>
-              <span className="shrink-0 text-2xl font-bold tabular-nums text-accent">{percent}%</span>
-            </div>
-            <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Search progress">
-              <div className="h-full rounded-full bg-gradient-to-r from-accent to-sky-400 transition-[width] duration-200 ease-out" style={{ width: `${progress * 100}%` }} />
-            </div>
+        {/* Main card */}
+          <div className="mt-5 flex w-full flex-col rounded-2xl border border-slate-200 bg-white shadow-xl sm:mt-6" role="status" aria-live="polite">
+            <div className="p-5 sm:p-6">
+              <div className="flex items-end justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-slate-500">Step {stepIndex + 1} of {searchMessages.length}</p>
+                  <p className="mt-0.5 flex items-center gap-2 text-base font-semibold text-slate-900 sm:text-lg">
+                    <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true" />
+                    <span key={stepIndex} className="truncate animate-in fade-in duration-500">{progress >= 1 ? 'Your results are ready' : searchMessages[stepIndex]}</span>
+                  </p>
+                </div>
+                <span className="shrink-0 text-3xl font-bold tabular-nums tracking-tight text-accent">{percent}%</span>
+              </div>
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-8">
-              <ol className="space-y-3">
+              <div className="mt-4 grid grid-cols-5 gap-1.5" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Search progress">
                 {searchMessages.map((message, i) => {
-                  const done = i < stepIndex || progress >= 1;
-                  const active = i === stepIndex && progress < 1;
+                  const segStart = i / searchMessages.length;
+                  const fill = Math.max(0, Math.min(1, (progress - segStart) * searchMessages.length));
                   return (
-                    <li key={message} className={`flex items-center gap-3 text-sm ${done ? 'text-slate-700' : active ? 'font-semibold text-slate-900' : 'text-slate-400'}`}>
-                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${done ? 'bg-emerald-500 text-white' : active ? 'bg-accent-50 ring-2 ring-accent' : 'bg-slate-100'}`}>
-                        {done ? <Check className="h-3.5 w-3.5" /> : active ? <span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> : <span className="text-[11px] font-semibold text-slate-400">{i + 1}</span>}
-                      </span>
-                      {message}
-                    </li>
+                    <div key={message} className="h-2 overflow-hidden rounded-full bg-slate-100" title={message}>
+                      <div className={`h-full rounded-full ${fill >= 1 ? 'bg-emerald-500' : 'bg-accent'}`} style={{ width: `${fill * 100}%` }} />
+                    </div>
                   );
                 })}
-              </ol>
-
-              {totalSuppliers > 0 ? (
-                <div className="rounded-xl bg-slate-50 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-slate-900">Rental companies</p>
-                    <p className="text-sm text-slate-500"><span className="font-semibold tabular-nums text-slate-900">{checkedCount}</span> of {totalSuppliers} checked</p>
-                  </div>
-                  <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                    {visibleSuppliers.map((supplier, index) => {
-                      const isComplete = progress >= 1 || index < suppliersScanned;
-                      const isActive = !isComplete && index === Math.min(suppliersScanned, totalSuppliers - 1);
-                      const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
-                      const logoSrc = supplier.logoUrl || supplier.logo;
-                      const initials = String(supplier.name || 'Supplier').split(/\s+/).slice(0, 2).map((part: string) => part.charAt(0)).join('').toUpperCase();
-                      return (
-                        <div
-                          key={`supplier-scan-${supplier.id}-${supplier.name}`}
-                          className={`relative flex h-14 min-w-0 items-center justify-center rounded-lg border bg-white p-2.5 transition-all duration-300 ${
-                            isComplete ? 'border-slate-200' : isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-200 opacity-40'
-                          }`}
-                          title={supplier.name}
-                          aria-label={`${supplier.name || 'Supplier'} ${isComplete ? 'checked' : isActive ? 'checking' : 'waiting'}`}
-                        >
-                          {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                            <div className="flex h-full w-full items-center justify-center" style={{ transform: `scale(${logoScale})` }}>
-                              <Logo className="h-full w-full object-contain" />
-                            </div>
-                          ) : logoSrc ? (
-                            <img src={logoSrc} alt={supplier.name} className="h-full w-full object-contain" style={{ transform: `scale(${logoScale})` }} />
-                          ) : (
-                            <span className="text-xs font-semibold text-slate-500">{initials}</span>
-                          )}
-                          {isComplete && (
-                            <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
-                              <Check className="h-3 w-3" />
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-accent shadow-sm">
-                    <CarIcon className="h-6 w-6" />
-                  </span>
-                  <p className="text-sm text-slate-600">We're checking global brands and trusted local suppliers at <span className="font-semibold text-slate-900">{pickupName}</span>.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* What's included + tip */}
-          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-semibold text-slate-900">Every Hogicar booking</p>
-              <ul className="mt-3 grid gap-3 sm:grid-cols-3">
-                {included.map(item => (
-                  <li key={item.title} className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                      <item.icon className="h-5 w-5" />
-                    </span>
-                    <span>
-                      <span className="block text-sm font-semibold text-slate-900">{item.title}</span>
-                      <span className="block text-xs text-slate-500">{item.text}</span>
-                    </span>
+              </div>
+              <ul className="mt-2 hidden grid-cols-5 gap-1.5 sm:grid">
+                {searchMessages.map((message, i) => (
+                  <li key={message} className={`text-[11px] leading-tight ${i < stepIndex || progress >= 1 ? 'text-emerald-700' : i === stepIndex ? 'font-medium text-slate-900' : 'text-slate-400'}`}>
+                    {['Availability', 'Prices', 'Taxes & fees', 'Policies', 'Best deals'][i]}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-amber-500 shadow-sm">
-                <Lightbulb className="h-5 w-5" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-amber-900">Good to know</p>
-                <motion.p
-                  key={currentTipIndex}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-0.5 text-sm text-amber-900/80"
-                >
-                  {tips[currentTipIndex]}
-                </motion.p>
+
+            {/* Slides */}
+            <div className="border-t border-slate-100 bg-slate-50/60 px-5 pb-4 pt-5 sm:px-6">
+              <div className="relative h-[176px] overflow-hidden sm:h-[150px]">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={activeSlide}
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -24 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="absolute inset-0"
+                  >
+                    {renderSlide(activeSlide)}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              <div className="mt-2 flex justify-center gap-1.5">
+                {slideKeys.map((key, i) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setSlideIndex(i)}
+                    aria-label={`Show slide ${i + 1}`}
+                    aria-current={activeSlide === key}
+                    className={`h-1.5 rounded-full transition-all ${activeSlide === key ? 'w-6 bg-accent' : 'w-1.5 bg-slate-300 hover:bg-slate-400'}`}
+                  />
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Results preview */}
-          <p className="mb-3 mt-8 text-sm font-medium text-slate-500">Your results will appear here</p>
-          <div className="space-y-3" aria-hidden="true">
-            {[0, 1, 2].map(i => (
-              <div key={i} className="flex gap-4 rounded-xl border border-slate-200 bg-white p-4" style={{ opacity: 1 - i * 0.25 }}>
-                <div className="h-20 w-28 shrink-0 animate-pulse rounded-lg bg-slate-100 sm:w-40" />
-                <div className="flex-1 space-y-2.5 py-1">
-                  <div className="h-4 w-2/5 animate-pulse rounded bg-slate-100" />
-                  <div className="h-3 w-3/5 animate-pulse rounded bg-slate-100" />
-                  <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
-                </div>
-                <div className="hidden w-32 shrink-0 space-y-2.5 py-1 sm:block">
-                  <div className="ml-auto h-5 w-20 animate-pulse rounded bg-slate-100" />
-                  <div className="ml-auto h-10 w-full animate-pulse rounded-lg bg-slate-100" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-xs text-slate-500 sm:gap-x-6">
+            <li className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Secure search</li>
+            <li className="inline-flex items-center gap-1.5"><Receipt className="h-3.5 w-3.5 text-emerald-600" /> Prices include taxes and fees</li>
+            <li className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Free cancellation on most bookings</li>
+          </ul>
         </div>
       </div>
     </>
