@@ -11,6 +11,7 @@ import { Car } from '../types';
 import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { normalizeRatingScore, formatCategoryName } from '../utils/ratings';
+import { localAdvisorAnswer } from '../utils/localAdvisor';
 
 interface AiAdvisorProps {
   cars: Car[];
@@ -86,7 +87,8 @@ const ReplyText: React.FC<{ text: string }> = ({ text }) => {
 
 export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, endDate, pickupName, dropoffName, activeFilters, raised, onEnabledChange, onViewCar }) => {
   const { convertPrice, getCurrencySymbol } = useCurrency();
-  const [enabled, setEnabled] = React.useState(false);
+  // true when the server-side AI model is configured; otherwise the built-in engine answers.
+  const [cloudAi, setCloudAi] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [input, setInput] = React.useState('');
@@ -100,12 +102,12 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
     let cancelled = false;
     fetch('/api/ai/status')
       .then(r => (r.ok ? r.json() : null))
-      .then(data => { if (!cancelled) setEnabled(Boolean(data?.enabled)); })
+      .then(data => { if (!cancelled) setCloudAi(Boolean(data?.enabled)); })
       .catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
-  React.useEffect(() => { onEnabledChange?.(enabled); }, [enabled, onEnabledChange]);
+  React.useEffect(() => { onEnabledChange?.(true); }, [onEnabledChange]);
 
   // Other parts of the page can open the advisor, optionally with a question.
   React.useEffect(() => {
@@ -172,7 +174,16 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
     setMessages(prev => [...prev, { role: 'user', content: text }]);
     setInput('');
     setSending(true);
+    const answerLocally = async () => {
+      await new Promise(resolve => setTimeout(resolve, 700));
+      const local = localAdvisorAnswer(text, carPayload, symbol, days);
+      setMessages(prev => [...prev, { role: 'assistant', content: local.reply, picks: local.picks }]);
+    };
     try {
+      if (!cloudAi) {
+        await answerLocally();
+        return;
+      }
       const response = await fetch('/api/ai/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,10 +199,18 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
         }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.error || 'The AI advisor could not answer right now. Please try again.');
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || 'Here is what I found.', picks: Array.isArray(data.picks) ? data.picks : [] }]);
+      if (response.status === 429) throw new Error(data?.error || 'The AI advisor is busy right now. Please try again in a moment.');
+      if (!response.ok || !data?.reply) {
+        await answerLocally();
+        return;
+      }
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply, picks: Array.isArray(data.picks) ? data.picks : [] }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: error instanceof Error ? error.message : 'Something went wrong. Please try again.', error: true }]);
+      if (error instanceof Error && /busy/.test(error.message)) {
+        setMessages(prev => [...prev, { role: 'assistant', content: error.message, error: true }]);
+      } else {
+        await answerLocally();
+      }
     } finally {
       setSending(false);
     }
@@ -204,7 +223,7 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
     onViewCar(carId);
   };
 
-  if (!enabled || typeof document === 'undefined') return null;
+  if (typeof document === 'undefined') return null;
 
   const launcher = (
     <AnimatePresence>

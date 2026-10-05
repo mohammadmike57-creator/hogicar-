@@ -1161,7 +1161,7 @@ export const Search: React.FC = () => {
                   </div>
                 )}
                 <div className={`space-y-3 transition-opacity duration-200 ${isRefreshing ? 'pointer-events-none opacity-60' : ''}`}>
-                  {aiEnabled && sortedAndFilteredCars.length > 1 && (
+                  {sortedAndFilteredCars.length > 1 && (
                     <div className="flex flex-col gap-3 rounded-xl border border-accent-100 bg-gradient-to-r from-accent-50 via-white to-white p-3.5 sm:flex-row sm:items-center sm:p-4">
                       <div className="flex min-w-0 flex-1 items-center gap-3">
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#003580] to-accent text-white shadow-sm">
