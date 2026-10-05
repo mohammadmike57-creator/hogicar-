@@ -554,6 +554,73 @@ const CarDetails: React.FC = () => {
   }
 
   const ratingToDisplay = parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
+  const money = (amount: number) => `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
+  const carName = car.displayName || `${car.make} ${car.model}`;
+  const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
+  const isInstant = car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode;
+  const isChoiceBrand = supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice';
+  const pickupPlace = pickupName || car.locationDetail || pickupCode || '';
+  const dropoffPlace = dropoffName || pickupName || car.locationDetail || dropoffCode || pickupCode || '';
+  const upgrades = cars
+    ? cars
+        .filter(c => c.id !== car.id && c.supplier.id === car.supplier.id && (categoryRanks[c.category] || 0) > (categoryRanks[car.category] || 0))
+        .sort((a, b) => (categoryRanks[a.category] || 0) - (categoryRanks[b.category] || 0))
+        .slice(0, 4)
+    : [];
+  const fullProtectionPrice = 15 * days;
+
+  const specs = [
+    { icon: Users, label: `${car.passengers} seats` },
+    { icon: Briefcase, label: `${car.bags} bags` },
+    { icon: CarDoorIcon, label: `${car.doors} doors` },
+    { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual' },
+    { icon: Snowflake, label: 'Air conditioning' },
+  ];
+
+  const highlights = [
+    { label: 'Free cancellation', detail: 'Before pick-up' },
+    { label: car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage', detail: 'Mileage policy', positive: car.unlimitedMileage },
+    { label: `Fuel: ${fuelLabel}`, detail: 'Fuel policy' },
+    ...(isInstant ? [{ label: 'Instant confirmation', detail: 'Booking mode' }] : []),
+  ];
+
+  const ratingButton = (
+    <button
+      type="button"
+      className="relative inline-flex items-center gap-2 rounded-lg text-left"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowRatingsTooltip(!showRatingsTooltip);
+      }}
+      aria-label="Show rating details"
+    >
+      <span className={`${getRatingColor(ratingToDisplay)} inline-flex h-8 min-w-[2.5rem] items-center justify-center rounded-md rounded-bl-none px-1.5 text-sm font-bold text-white`}>
+        {ratingToDisplay.toFixed(1)}
+      </span>
+      <span className="leading-tight">
+        <span className={`block text-sm font-semibold ${getRatingTextColor(ratingToDisplay)}`}>{getRatingDescription(ratingToDisplay)}</span>
+        {car.supplier.reviewCount ? <span className="block text-xs text-slate-500">{car.supplier.reviewCount.toLocaleString()} reviews</span> : <span className="block text-xs text-slate-500">Customer rating</span>}
+      </span>
+      <Info className="h-3.5 w-3.5 text-slate-400" />
+      <DetailedRatingsTooltip
+        ratings={getCarRatings(car)}
+        visible={showRatingsTooltip}
+        align="left"
+        rating={ratingToDisplay}
+        reviewCount={car.supplier.reviewCount}
+        className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
+      />
+    </button>
+  );
+
+  const supplierMark = isChoiceBrand ? (
+    <Logo className="h-7 w-auto max-w-[120px]" />
+  ) : supplierLogo ? (
+    <img src={supplierLogo} alt={car.supplier.name} className="h-8 w-auto max-w-[110px] object-contain" />
+  ) : (
+    <span className="text-sm font-semibold text-slate-700">{car.supplier.name}</span>
+  );
 
   return (
     <>
@@ -561,608 +628,357 @@ const CarDetails: React.FC = () => {
       <StructuredData car={car} total={convertPrice(priceDetails.finalTotal)} currencyCode={selectedCurrency} />
       {isConditionsModalOpen && <RentalConditionsModal car={car} supplier={car.supplier} onClose={() => setIsConditionsModalOpen(false)} />}
 
-      <div className="bg-white min-h-screen pb-40 lg:pb-12 text-slate-800">
-        <div className="max-w-[1500px] mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+      <div className="min-h-screen bg-slate-50 pb-32 text-slate-900 lg:pb-16">
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4">
           <BookingStepper currentStep={3} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 xl:gap-6 mt-2 sm:mt-4">
-            {/* Left Column - Main Content (flattened on mobile so sections can be reordered) */}
-            <div className="contents lg:block lg:col-span-2 lg:space-y-8">
-              {/* Hero Section */}
-              <div className="order-1 lg:order-none overflow-visible bg-white rounded-2xl sm:rounded-3xl shadow-[0_12px_30px_-18px_rgba(15,23,42,0.3)] sm:shadow-[0_20px_50px_-20px_rgba(15,23,42,0.3)] border border-slate-200">
-                <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="relative flex min-h-[200px] sm:min-h-[340px] items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 px-6 pt-12 pb-4 sm:p-10 lg:min-h-[440px] border-b lg:border-b-0 lg:border-r border-slate-100 rounded-t-2xl sm:rounded-t-[2.5rem] lg:rounded-l-[2.5rem] lg:rounded-tr-none group">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-2 sm:mb-6">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Review your deal</h1>
+              <p className="mt-0.5 text-sm text-slate-500">
+                {pickupDisplay}, {startTime} – {dropoffDisplay}, {endTime} · {days} day{days > 1 ? 's' : ''}
+              </p>
+            </div>
+            <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+              <Clock className="h-3.5 w-3.5" /> Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6">
+            {/* Main column (flattened on mobile so the price card can sit between sections) */}
+            <div className="contents lg:block lg:space-y-6">
+
+              {/* Car */}
+              <section className="order-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:order-none">
+                <div className="grid sm:grid-cols-[260px_minmax(0,1fr)]">
+                  <div className="relative flex items-center justify-center bg-slate-50 px-6 py-4 sm:py-8">
                     <img
                       src={displayImage}
-                      alt={`${car.make} ${car.model}`}
+                      alt={carName}
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="h-auto max-h-[170px] w-full max-w-full object-contain drop-shadow-[0_25px_50px_rgba(15,23,42,0.18)] transition-all duration-700 sm:max-h-[300px] lg:max-h-[460px] group-hover:scale-105"
+                      className="h-auto max-h-28 w-full max-w-[220px] object-contain sm:max-h-44 sm:max-w-[260px]"
                     />
-                    <div className="absolute top-3 left-3 sm:top-6 sm:left-6 flex flex-wrap gap-1.5 sm:gap-2.5">
-                      <span className="bg-slate-950 text-white text-[9px] md:text-[10px] font-black px-2.5 md:px-4 py-1 md:py-2 rounded-full uppercase tracking-[0.12em] md:tracking-[0.2em] shadow-lg">
-                        {formatCategoryName(car.category)}
-                      </span>
-                      {car.tags?.[0] && <span className="bg-accent text-white text-[9px] md:text-[10px] font-black px-2.5 md:px-4 py-1 md:py-2 rounded-full uppercase tracking-[0.12em] md:tracking-[0.2em] shadow-lg shadow-accent/20">{car.tags[0]}</span>}
-                    </div>
-                    <button aria-label="Save" className="absolute top-3 right-3 sm:top-6 sm:right-6 bg-white/95 p-2 sm:p-2.5 rounded-full shadow-xl border border-slate-100 hover:bg-slate-50 transition-all hover:scale-110 active:scale-95"><Heart className="w-5 h-5 text-slate-400" /></button>
+                    {car.tags?.[0] && (
+                      <span className="absolute left-3 top-3 rounded-md bg-accent px-2 py-0.5 text-xs font-semibold text-white">{car.tags[0]}</span>
+                    )}
                   </div>
-
-                  <div className="p-4 sm:p-8 lg:p-10 flex flex-col justify-center">
-                  {car.isHogicarChoiceBranded && (
-                    <div className="inline-flex items-center gap-3 bg-slate-950 text-white text-[10px] font-black px-5 py-2.5 rounded-2xl mb-6 shadow-2xl border border-amber-400/30">
-                        <Award className="w-5 h-5 text-amber-400 fill-amber-400/20" />
-                        <span className="tracking-[0.25em] uppercase italic font-black text-amber-400">Hogicar Choice Exclusive Verified</span>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap justify-between items-start gap-4 sm:gap-6">
-                    <div className="flex-1 min-w-[240px]">
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] sm:tracking-[0.25em] text-accent mb-1 sm:mb-2">Reserved for you</p>
-                      <h1 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight leading-tight">{car.displayName || `${car.make} ${car.model}`}</h1>
-                      <p className="text-slate-500 text-sm font-bold mt-1 sm:mt-2 flex items-center gap-2">
-                        <span className="text-slate-900">or similar</span> 
-                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        {car.year} 
-                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        {car.sippCode}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-4 mt-4 sm:mt-6">
-                        <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                            {!car.isHogicarChoiceBranded ? (
-                                <div 
-                                  className="flex items-center gap-3 sm:gap-4 group/rating relative cursor-pointer rounded-xl sm:rounded-2xl border border-slate-200 bg-white hover:border-accent/30 p-2 pr-4 sm:p-3 sm:pr-5 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-95"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setShowRatingsTooltip(!showRatingsTooltip);
-                                  }}
-                                >
-                                    <div className={`relative ${getRatingColor(ratingToDisplay)} text-white w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110`}>
-                                        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                        <span className="relative z-10 text-lg sm:text-xl font-black">{ratingToDisplay.toFixed(1)}</span>
-                                    </div> 
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <span className={`font-black text-base sm:text-lg leading-none ${getRatingTextColor(ratingToDisplay)} tracking-tight`}>
-                                                {getRatingDescription(ratingToDisplay)}
-                                            </span>
-                                            <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
-                                        </div>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.12em] sm:tracking-[0.2em] flex items-center gap-1.5">
-                                            <CheckCircle className="w-3 h-3 text-accent" />
-                                            Verified Supplier
-                                        </span>
-                                    </div>
-                                    <DetailedRatingsTooltip
-                                       ratings={getCarRatings(car)}
-                                       visible={showRatingsTooltip}
-                                       align="left"
-                                       rating={ratingToDisplay}
-                                       reviewCount={car.supplier.reviewCount}
-                                       className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
-                                     />
-                                </div>
-                            ) : (
-                                <span className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 font-black text-amber-800 uppercase tracking-wider flex items-center gap-3 shadow-sm">
-                                    <Award className="w-5 h-5 fill-amber-500/20" /> Premium Choice · Top Rated
-                                </span>
-                            )}
-                        </div>
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="text-xl font-bold leading-tight text-slate-900">
+                          {carName} <span className="text-sm font-normal text-slate-500">or similar</span>
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-500">{formatCategoryName(car.category)}{car.sippCode ? ` · ${car.sippCode}` : ''}</p>
                       </div>
+                      <div className="shrink-0">{supplierMark}</div>
                     </div>
-                    <div className="flex w-full sm:w-auto flex-row sm:flex-col gap-2 sm:gap-3 items-center sm:items-end justify-between">
-                      <div className="bg-white border border-slate-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-sm">
-                        {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
-                          <Logo className="h-10 w-auto max-w-[150px]" />
-                        ) : (
-                          supplierLogo && <img src={supplierLogo} alt={car.supplier.name} className="h-8 sm:h-12 max-w-[120px] sm:max-w-[150px] object-contain" />
-                        )}
-                      </div>
-                      {(car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode) && (
-                        <div className="bg-accent-50 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-2.5 border border-accent/10 shadow-sm">
-                          <Zap className="w-4 h-4 text-accent fill-accent/20" />
-                          <span className="text-[10px] font-black text-accent uppercase tracking-[0.1em] sm:tracking-[0.2em]">Instant confirmation</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-4 gap-2 sm:gap-3 mt-5 sm:mt-8">
-                    {[
-                      { icon: Users, label: `${car.passengers}`, desc: 'Seats', color: 'text-accent', bg: 'bg-accent-50' },
-                      { icon: Briefcase, label: `${car.bags}`, desc: 'Bags', color: 'text-amber-600', bg: 'bg-amber-50' },
-                      { icon: car.transmission === 'AUTOMATIC' ? AutomaticIcon : AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', desc: 'Gear', color: 'text-accent', bg: 'bg-accent-50' },
-                      { icon: Snowflake, label: 'A/C', desc: 'Climate', color: 'text-cyan-600', bg: 'bg-cyan-50' },
-                    ].map(item => (
-                      <div key={item.desc} className="flex flex-col items-center text-center sm:items-start sm:text-left rounded-xl border border-slate-200 bg-white px-1.5 py-2.5 sm:p-3 shadow-sm transition-all hover:shadow-md hover:border-slate-300">
-                        <div className={`w-8 h-8 ${item.bg} rounded-lg flex items-center justify-center mb-1.5 sm:mb-2.5 shadow-inner`}>
-                          <item.icon className={`w-4 h-4 ${item.color} stroke-[2.5px]`} />
-                        </div>
-                        <p className="text-sm font-black text-slate-950">{item.label}</p>
-                        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider sm:tracking-widest text-slate-400">{item.desc}</p>
-                      </div>
-                    ))}
-                  </div>
+                    <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+                      {specs.map(spec => (
+                        <li key={spec.label} className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+                          <spec.icon className="h-4 w-4 text-slate-500" />
+                          {spec.label}
+                        </li>
+                      ))}
+                    </ul>
 
-                  <div className="mt-3 sm:mt-5 grid gap-2 sm:grid-cols-3">
-                    <div className="rounded-xl bg-accent-50 border border-accent-100 px-3 py-2.5 sm:p-3">
-                      <p className="text-xs font-black text-accent flex items-center gap-2"><CheckCircle className="w-4 h-4" /> Free cancellation</p>
-                      <p className="hidden sm:block text-[11px] text-accent-800 font-semibold mt-1">Flexible booking before pickup.</p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 sm:p-3">
-                      <p className="text-xs font-black text-slate-900 flex items-center gap-2"><GaugeCircle className="w-4 h-4 text-accent" /> {car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'}</p>
-                      <p className="hidden sm:block text-[11px] text-slate-500 font-semibold mt-1">Mileage policy shown before checkout.</p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 sm:p-3">
-                      <p className="text-xs font-black text-slate-900 flex items-center gap-2 capitalize"><Fuel className="w-4 h-4 text-accent" /> {car.fuelPolicy.replace(/_/g, ' ').toLowerCase()}</p>
-                      <p className="hidden sm:block text-[11px] text-slate-500 font-semibold mt-1">Fuel condition from supplier.</p>
-                    </div>
-                  </div>
+                    <ul className="mt-4 grid gap-1.5 sm:grid-cols-2">
+                      {highlights.map(item => (
+                        <li key={item.label} className="flex items-center gap-2 text-sm text-slate-700">
+                          <Check className={`h-4 w-4 shrink-0 ${item.positive === false ? 'text-slate-400' : 'text-emerald-600'}`} />
+                          {item.label}
+                        </li>
+                      ))}
+                    </ul>
+
+                    {car.isHogicarChoiceBranded ? (
+                      <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4 text-sm font-medium text-amber-700">
+                        <Award className="h-4 w-4" /> Hogicar Choice · verified fleet
+                      </div>
+                    ) : (
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                        {ratingButton}
+                        <span className="text-xs text-slate-500">Supplied by <span className="font-medium text-slate-700">{car.supplier.name}</span></span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              </section>
 
-              <div className="order-2 lg:order-none overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)]">
-                <div className="border-b border-slate-100 bg-slate-50/50 px-4 py-3.5 sm:px-8 sm:py-5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black flex items-center gap-2.5 sm:gap-3 text-slate-950 tracking-tight">
-                      <div className="bg-accent/10 p-1.5 sm:p-2 rounded-xl">
-                        <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                      </div>
-                      Rental Journey Itinerary
-                    </h2>
-                    <p className="hidden sm:block mt-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest">Schedule & Locations</p>
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 sm:gap-2.5 rounded-xl sm:rounded-2xl border border-accent/20 bg-accent-50/50 px-2.5 py-1.5 sm:px-4 sm:py-2 shadow-sm backdrop-blur-sm">
-                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" />
-                    <span className="text-[10px] sm:text-xs font-black text-accent uppercase tracking-[0.06em] sm:tracking-[0.1em]">{timeUntilPickup}</span>
-                  </div>
-                  </div>
+              {/* Pick-up and drop-off */}
+              <section className="order-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 className="text-lg font-bold text-slate-900">Pick-up and drop-off</h2>
+                  <span className="hidden shrink-0 text-xs font-medium text-slate-500 sm:inline">{timeUntilPickup}</span>
                 </div>
-
-                <div className="p-3 sm:p-8 lg:p-10">
-                  <div className="grid grid-cols-2 gap-2.5 sm:gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center relative">
-                  {/* Decorative line for desktop */}
-                  <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-px bg-slate-100 z-0"></div>
-                  
-                  <div className="relative z-10 min-w-0 rounded-xl sm:rounded-2xl border border-slate-100 bg-white p-3 sm:p-6 shadow-sm hover:shadow-md transition-all">
-                    <div className="mb-3 sm:mb-6 flex items-center sm:items-start justify-between gap-2 sm:gap-4">
-                      <span className="inline-flex h-8 w-8 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg sm:rounded-2xl bg-accent/5 text-accent ring-1 ring-accent/10">
-                        <PlaneLanding className="w-4 h-4 sm:w-6 sm:h-6" />
-                      </span>
-                      <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-accent"><span className="sm:hidden">Pick-up</span><span className="hidden sm:inline">Pick-up Location</span></p>
-                        <p className="mt-0.5 sm:mt-1 text-sm font-black text-slate-900">{pickupCode}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2.5 sm:space-y-4">
-                      <div>
-                        <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Date & Time</p>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-3 mt-1">
-                          <p className="text-xl sm:text-2xl font-black text-slate-950 tracking-tighter">{startTime}</p>
-                          <div className="hidden sm:block h-4 w-px bg-slate-200"></div>
-                          <p className="text-xs sm:text-sm font-black text-slate-900">{pickupDisplay}</p>
-                        </div>
-                      </div>
-                      <div className="pt-2.5 sm:pt-4 border-t border-slate-50">
-                        <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Exact address</p>
-                        <p className="mt-1 text-[11px] sm:text-xs font-bold leading-snug text-slate-600 flex items-start gap-1.5"><MapPin className="w-3.5 h-3.5 mt-px shrink-0 text-slate-400" /> {pickupName || car.locationDetail}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative z-10 col-span-2 order-last lg:order-none lg:col-span-1 flex flex-row lg:flex-col items-center justify-center gap-3">
-                    <div className="hidden lg:flex w-12 h-12 rounded-full bg-slate-950 text-white flex items-center justify-center shadow-2xl ring-4 ring-white">
-                      <CarIcon className="w-5 h-5" />
-                    </div>
-                    <div className="bg-slate-100 px-4 py-1.5 rounded-full border border-slate-200">
-                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600">{days} days rental</span>
-                    </div>
-                  </div>
-
-                  <div className="relative z-10 min-w-0 rounded-xl sm:rounded-2xl border border-slate-100 bg-white p-3 sm:p-6 shadow-sm hover:shadow-md transition-all">
-                    <div className="mb-3 sm:mb-6 flex items-center sm:items-start justify-between gap-2 sm:gap-4">
-                      <span className="inline-flex h-8 w-8 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg sm:rounded-2xl bg-[#003580]/5 text-[#003580] ring-1 ring-[#003580]/10">
-                        <PlaneTakeoff className="w-4 h-4 sm:w-6 sm:h-6" />
-                      </span>
-                      <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-[#003580]"><span className="sm:hidden">Drop-off</span><span className="hidden sm:inline">Drop-off Location</span></p>
-                        <p className="mt-1 text-sm font-black text-slate-900">{dropoffCode || pickupCode}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2.5 sm:space-y-4">
-                      <div>
-                        <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Date & Time</p>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-3 mt-1">
-                          <p className="text-xl sm:text-2xl font-black text-slate-950 tracking-tighter">{endTime}</p>
-                          <div className="hidden sm:block h-4 w-px bg-slate-200"></div>
-                          <p className="text-xs sm:text-sm font-black text-slate-900">{dropoffDisplay}</p>
-                        </div>
-                      </div>
-                      <div className="pt-2.5 sm:pt-4 border-t border-slate-50">
-                        <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Exact address</p>
-                        <p className="mt-1 text-[11px] sm:text-xs font-bold leading-snug text-slate-600 flex items-start gap-1.5"><MapPin className="w-3.5 h-3.5 mt-px shrink-0 text-slate-400" /> {dropoffName || pickupName || car.locationDetail}</p>
-                      </div>
-                    </div>
-                  </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Key Specifications Grid - rich icons */}
-              <div className="order-5 lg:order-none bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-24px_rgba(15,23,42,0.12)] border border-slate-200 p-4 sm:p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                <div className="flex items-start justify-between gap-4 mb-4 sm:mb-8 relative z-10">
-                  <div>
-                    <h2 className="text-lg sm:text-2xl font-black flex items-center gap-2.5 sm:gap-3 text-slate-950 sm:uppercase tracking-tight"><GaugeCircle className="w-5 h-5 sm:w-6 sm:h-6 text-accent" /> Vehicle Overview</h2>
-                    <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Core specifications for this rental class.</p>
-                  </div>
-                  <span className="hidden sm:inline-flex rounded-full bg-slate-900 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white">{formatCategoryName(car.category)}</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 relative z-10">
+                <ol className="relative grid gap-4 sm:grid-cols-2 sm:gap-6">
                   {[
-                    { icon: Users, label: `${car.passengers} Seats`, desc: 'Max passengers' },
-                    { icon: CarDoorIcon, label: `${car.doors} Doors`, desc: 'Vehicle access' },
-                    { icon: Briefcase, label: `${car.bags} Bags`, desc: 'Luggage space' },
-                    { icon: AutomaticIcon, label: car.transmission, desc: 'Driving type' },
-                    { icon: Snowflake, label: 'A/C', desc: 'Air conditioned' },
-                    { icon: GaugeCircle, label: car.unlimitedMileage ? 'Unlimited' : 'Limited', desc: 'Mileage policy' },
-                    { icon: Fuel, label: car.fuelPolicy.split('_').join(' '), desc: 'Fuel policy' },
-                    { icon: ShieldCheck, label: 'Verified', desc: 'Safety checked' }
-                  ].map((spec, idx) => (
-                    <div key={idx} className="flex flex-row sm:flex-col items-center sm:items-stretch gap-2.5 sm:gap-0 p-2.5 sm:p-4 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-2xl hover:bg-white hover:border-accent/20 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg sm:rounded-xl bg-white border border-slate-100 flex items-center justify-center sm:mb-3 shadow-sm group-hover:bg-accent group-hover:text-white transition-colors">
-                        <spec.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    { title: 'Pick-up', icon: PlaneLanding, date: pickupDisplay, time: startTime, place: pickupPlace, code: pickupCode },
+                    { title: 'Drop-off', icon: PlaneTakeoff, date: dropoffDisplay, time: endTime, place: dropoffPlace, code: dropoffCode || pickupCode },
+                  ].map(stop => (
+                    <li key={stop.title} className="flex gap-3">
+                      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-50 text-accent">
+                        <stop.icon className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-slate-500">{stop.title}</p>
+                        <p className="text-sm font-semibold text-slate-900">{stop.date} · {stop.time}</p>
+                        <p className="mt-0.5 text-sm text-slate-600">{stop.place}{stop.code && stop.place !== stop.code ? ` (${stop.code})` : ''}</p>
                       </div>
-                      <div className="min-w-0 flex flex-col">
-                        <span className="text-xs sm:text-sm font-black text-slate-950 leading-tight uppercase tracking-tight truncate">{spec.label}</span>
-                        <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 sm:mt-1 truncate">{spec.desc}</span>
-                      </div>
-                    </div>
+                    </li>
                   ))}
-                </div>
-                <button onClick={() => setShowFullSpecs(!showFullSpecs)} className="mt-4 sm:mt-5 text-accent text-sm font-black flex items-center gap-1 mx-auto">{showFullSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {showFullSpecs ? 'Show less' : 'Show all specs'}</button>
-                {showFullSpecs && (
-                  <div className="mt-4 sm:mt-5 p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4 text-sm">
-                    <div><span className="font-semibold">Fuel Policy:</span> {car.fuelPolicy}</div>
-                    <div><span className="font-semibold">Transmission:</span> {car.transmission}</div>
-                    <div><span className="font-semibold">Mileage:</span> {car.unlimitedMileage ? 'Unlimited' : 'Limited'}</div>
-                    <div><span className="font-semibold">Air Conditioning:</span> Yes</div>
-                    <div><span className="font-semibold">Doors:</span> {car.doors}</div>
-                    <div><span className="font-semibold">SIPP Code:</span> {car.sippCode}</div>
-                    {car.deposit > 0 && <div><span className="font-semibold">Deposit:</span> {depositDisplay}</div>}
-                    <div><span className="font-semibold">Excess:</span> {excessDisplay}</div>
-                  </div>
+                </ol>
+                {car.supplier.address && (
+                  <p className="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-600">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> {car.supplier.address}
+                  </p>
                 )}
-              </div>
+              </section>
 
-              {/* Extras Section - modern cards */}
-              {car.extras && car.extras.length > 0 && (
-                <div className="order-3 lg:order-none bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
-                  <h2 className="text-lg sm:text-xl font-black mb-3 sm:mb-6 flex items-center gap-2"><PlusCircle className="w-5 h-5 text-accent" /> Optional extras</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
-                    {car.extras.map(extra => (
-                      <div key={extra.id} role="checkbox" aria-checked={selectedExtraIds.includes(extra.id)} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleExtra(extra.id); } }} onClick={() => handleToggleExtra(extra.id)} className={`flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border-2 cursor-pointer select-none transition-all active:scale-[0.99] ${selectedExtraIds.includes(extra.id) ? 'border-accent bg-accent-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="p-2 shrink-0 bg-slate-100 rounded-lg"><PlusCircle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" /></div>
-                          <div className="min-w-0"><div className="text-sm sm:text-base font-semibold truncate">{extra.name}</div><div className="text-xs sm:text-sm text-slate-500">{extra.type === 'per_day' ? 'per day' : 'one-time'}</div></div>
+              {/* Protection */}
+              <section className="order-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
+                <h2 className="text-lg font-bold text-slate-900">Choose your protection</h2>
+                <p className="mt-1 text-sm text-slate-500">Damage excess with basic cover: {excessDisplay}</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Protection">
+                  {[
+                    { id: 'basic' as const, title: 'Basic protection', desc: 'Standard supplier cover', bullets: [car.supplier.includesCDW ? 'Collision damage waiver' : 'Supplier standard cover', car.supplier.includesTP ? 'Theft protection' : `Excess: ${excessDisplay}`], price: 'Included' },
+                    { id: 'full' as const, title: 'Full protection', desc: 'Reduce your excess to zero', bullets: ['Everything in basic', 'Zero excess on damage'], price: `+${money(fullProtectionPrice)}`, badge: 'Recommended' },
+                  ].map(opt => {
+                    const active = insuranceOption === opt.id;
+                    return (
+                      <label key={opt.id} className={`relative flex cursor-pointer flex-col rounded-lg border p-4 transition-colors ${active ? 'border-accent bg-accent-50/40 ring-1 ring-accent' : 'border-slate-200 hover:border-slate-300'}`}>
+                        <input type="radio" name="insurance" className="sr-only" checked={active} onChange={() => setInsuranceOption(opt.id)} />
+                        {opt.badge && <span className="absolute -top-2.5 right-3 rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white">{opt.badge}</span>}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${active ? 'border-accent' : 'border-slate-300'}`}>
+                              {active && <span className="h-2.5 w-2.5 rounded-full bg-accent" />}
+                            </span>
+                            <span>
+                              <span className="block text-sm font-semibold text-slate-900">{opt.title}</span>
+                              <span className="block text-sm text-slate-500">{opt.desc}</span>
+                            </span>
+                          </div>
+                          <span className={`shrink-0 text-sm font-semibold ${opt.id === 'basic' ? 'text-emerald-700' : 'text-slate-900'}`}>{opt.price}</span>
                         </div>
-                        <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-                          <div className="text-sm sm:text-base font-bold">{getCurrencySymbol()}{convertPrice(extra.price).toFixed(2)}</div>
-                          <span className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-colors ${selectedExtraIds.includes(extra.id) ? 'border-accent bg-accent text-white' : 'border-slate-300 bg-white'}`}>{selectedExtraIds.includes(extra.id) && <Check className="w-4 h-4" />}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                        <ul className="mt-3 space-y-1 pl-8">
+                          {opt.bullets.map(b => (
+                            <li key={b} className="flex items-center gap-2 text-xs text-slate-600"><Check className="h-3.5 w-3.5 text-emerald-600" />{b}</li>
+                          ))}
+                        </ul>
+                      </label>
+                    );
+                  })}
                 </div>
+              </section>
+
+              {/* Extras */}
+              {car.extras && car.extras.length > 0 && (
+                <section className="order-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
+                  <h2 className="text-lg font-bold text-slate-900">Extras</h2>
+                  <p className="mt-1 text-sm text-slate-500">Paid at the rental counter. Subject to availability.</p>
+                  <ul className="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-200">
+                    {car.extras.map(extra => {
+                      const selected = selectedExtraIds.includes(extra.id);
+                      return (
+                        <li key={extra.id}>
+                          <label className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50">
+                            <span className="flex min-w-0 items-center gap-3">
+                              <input
+                                type="checkbox"
+                                checked={selected}
+                                onChange={() => handleToggleExtra(extra.id)}
+                                className="h-5 w-5 shrink-0 rounded border-slate-300 text-accent focus:ring-accent"
+                              />
+                              <span className="min-w-0">
+                                <span className="block truncate text-sm font-medium text-slate-900">{extra.name}</span>
+                                <span className="block text-xs text-slate-500">{extra.type === 'per_day' ? 'Per day' : 'Per rental'}</span>
+                              </span>
+                            </span>
+                            <span className="shrink-0 text-sm font-semibold text-slate-900">{money(extra.price)}</span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
               )}
 
-              <div className="order-6 lg:order-none bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-black mb-3 sm:mb-5 flex items-center gap-2 text-slate-950"><ShieldCheck className="w-5 h-5 text-accent" /> Included in your rate</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-[13px] sm:text-sm text-slate-700">
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Supplier base rental and local taxes</p>
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Transparent pay-now / pay-at-counter split</p>
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Dedicated confirmation support</p>
-                  <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Secure booking record and invoice trail</p>
+              {/* Important information */}
+              <section className="order-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
+                <h2 className="text-lg font-bold text-slate-900">Important information</h2>
+                <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-4">
+                  {[
+                    { label: 'Security deposit', value: depositDisplay },
+                    { label: 'Damage excess', value: excessDisplay },
+                    { label: 'Mileage', value: car.unlimitedMileage ? 'Unlimited' : 'Limited' },
+                    { label: 'Fuel policy', value: fuelLabel },
+                  ].map(item => (
+                    <div key={item.label} className="bg-white px-3 py-3">
+                      <dt className="text-xs text-slate-500">{item.label}</dt>
+                      <dd className="mt-0.5 text-sm font-semibold text-slate-900">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-slate-900">At the counter you'll need</p>
+                  <ul className="mt-2 grid gap-1.5 text-sm text-slate-600 sm:grid-cols-3">
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Driving licence</li>
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Passport or ID</li>
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Credit card in driver's name</li>
+                  </ul>
                 </div>
-              </div>
-
-              {/* Supplier Info with trust badges */}
-              <div className="order-7 lg:order-none bg-white rounded-2xl shadow-[0_14px_36px_-30px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-black mb-4 sm:mb-6 flex items-center gap-2 text-slate-950"><Building className="w-5 h-5 shrink-0 text-accent" /> {!car.isHogicarChoiceBranded ? "Supplier and pickup information" : "Hogicar Verification"}</h2>
-                {!car.isHogicarChoiceBranded || car.supplier.name === 'Hogi Car Choice' ? (
-                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 sm:gap-6">
-                    <div className="flex items-center gap-3 sm:contents">
-                    {car.supplier.logo === 'HOGICAR_CHOICE_LOGO' ? (
-                      <Logo className="h-10 sm:h-12 w-auto max-w-[150px]" />
-                    ) : (
-                      <img src={car.supplier.logo} alt={car.supplier.name} className="h-10 sm:h-16 w-auto object-contain max-w-[110px] sm:max-w-[150px]" />
-                    )}
-                    <div className="sm:hidden min-w-0">
-                        <div className="font-black text-base text-slate-900 tracking-tight truncate">{car.supplier.name}</div>
-                        <div className="text-xs text-slate-500 font-medium">Professional car rental provider</div>
-                    </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="hidden sm:block">
-                            <div className="font-black text-xl text-slate-900 tracking-tight">{car.supplier.name}</div>
-                            <div className="text-base text-slate-600 font-medium tracking-wide">Professional Car Rental Provider</div>
-                        </div>
-                        <div 
-                          className="flex w-full sm:w-auto items-center gap-4 bg-white p-2.5 pr-4 rounded-2xl shadow-sm border border-slate-200 sm:ml-2 group/rating relative cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all active:scale-[0.98]"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setShowRatingsTooltip(!showRatingsTooltip);
-                          }}
-                        >
-                             <div className={`relative ${getRatingColor(ratingToDisplay)} text-white w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white transition-transform group-hover/rating:scale-110 group-hover/rating:rotate-3`}>
-                                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                 <span className="relative z-10 text-xl font-black">{ratingToDisplay.toFixed(1)}</span>
-                             </div>
-                             <div className="flex flex-col min-w-0">
-                                 <div className="flex items-center gap-2 mb-0.5">
-                                     <span className={`text-lg font-black leading-none truncate whitespace-nowrap tracking-tight ${getRatingTextColor(ratingToDisplay)}`}>
-                                         {getRatingDescription(ratingToDisplay)}
-                                     </span>
-                                     <Info className="w-3.5 h-3.5 text-slate-300 group-hover/rating:text-slate-500 transition-colors" />
-                                 </div>
-                                 <span className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-[0.15em] flex items-center gap-1.5">
-                                    <CheckCircle className="w-3 h-3 text-accent" />
-                                    Verified Rating
-                                </span>
-                             </div>
-                             <DetailedRatingsTooltip
-                               ratings={getCarRatings(car)}
-                               visible={showRatingsTooltip}
-                               align="left"
-                               rating={ratingToDisplay}
-                               reviewCount={car.supplier.reviewCount}
-                               className="max-sm:fixed max-sm:inset-x-4 max-sm:bottom-24 max-sm:w-auto max-sm:mb-0 max-sm:translate-x-0"
-                             />
-                        </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap items-center gap-6">
-                    <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center shadow-xl border border-amber-500/20">
-                      <Award className="w-10 h-10 text-amber-400" />
-                    </div>
-                    <div>
-                      <div className="font-black text-xl tracking-tight text-slate-900 uppercase">Hogicar Exclusive Fleet</div>
-                      <div className="text-base text-slate-700 font-medium">Verified professional management</div>
-                    </div>
-                  </div>
-                )}
-                <div className="mt-4 sm:mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Shield className="w-6 h-6 text-accent mb-1" /><span className="text-sm font-bold text-slate-700">Verified Partner</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Award className="w-6 h-6 text-yellow-500 mb-1" /><span className="text-sm font-bold text-slate-700">Top Rated</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Headphones className="w-6 h-6 text-accent mb-1" /><span className="text-sm font-bold text-slate-700">24/7 Support</span></div>
-                  <div className="flex flex-col items-center p-3 bg-slate-50 border border-slate-200 rounded-xl"><Globe className="w-6 h-6 text-purple-500 mb-1" /><span className="text-sm font-bold text-slate-700">Global Presence</span></div>
-                </div>
-                <button onClick={() => setIsConditionsModalOpen(true)} className="mt-4 sm:mt-8 flex w-full sm:w-auto items-center justify-center sm:justify-start gap-2 rounded-xl sm:rounded-none border border-accent/20 sm:border-0 bg-accent-50/60 sm:bg-transparent px-4 py-3 sm:p-0 text-accent hover:text-accent-700 text-sm sm:text-base font-black sm:uppercase sm:tracking-[0.1em] transition-colors group/cond">
-                    <FileText className="w-5 h-5 sm:w-6 sm:h-6 group-hover/cond:scale-110 transition-transform" />
-                    <span>View Full Rental Conditions</span>
-                    <ArrowRight className="w-5 h-5 ml-1 group-hover/cond:translate-x-1 transition-transform" />
+                <button type="button" onClick={() => setIsConditionsModalOpen(true)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent-700 hover:underline">
+                  <FileText className="h-4 w-4" /> View full rental conditions
                 </button>
-              </div>
+              </section>
 
-              {/* Upgrade / Other models from same supplier */}
-              {cars && cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id && (categoryRanks[c.category] || 0) > (categoryRanks[car.category] || 0)).length > 0 && (
-                <div className="order-8 lg:order-none bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-8">
-                  <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
-                    <div>
-                      <h2 className="text-xl font-black flex items-center gap-3 text-slate-950 tracking-tight">
-                        <div className="bg-amber-100 p-2 rounded-xl">
-                          <Sparkles className="w-5 h-5 text-amber-600 fill-amber-600/10" />
-                        </div>
-                        Premium Upgrade Options
-                      </h2>
-                      <p className="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Experience a superior category</p>
-                    </div>
-                    <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-2">
-                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Available Now</span>
-                    </div>
+              {/* Supplier */}
+              <section className="order-7 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
+                <h2 className="text-lg font-bold text-slate-900">{car.isHogicarChoiceBranded ? 'About this fleet' : 'About the supplier'}</h2>
+                <div className="mt-4 flex flex-wrap items-center gap-4">
+                  {car.isHogicarChoiceBranded && !isChoiceBrand ? (
+                    <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-900"><Award className="h-6 w-6 text-amber-400" /></span>
+                  ) : (
+                    <div className="flex h-12 min-w-[96px] items-center justify-center rounded-lg border border-slate-200 bg-white px-3">{supplierMark}</div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-slate-900">{car.isHogicarChoiceBranded ? 'Hogicar exclusive fleet' : car.supplier.name}</p>
+                    <p className="text-sm text-slate-500">{car.isHogicarChoiceBranded ? 'Verified and managed by Hogicar' : 'Car rental provider'}</p>
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
-                    {cars.filter(c => c.id !== car.id && c.supplier.id === car.supplier.id && (categoryRanks[c.category] || 0) > (categoryRanks[car.category] || 0))
-                      .sort((a, b) => (categoryRanks[a.category] || 0) - (categoryRanks[b.category] || 0))
-                      .slice(0, 4).map(similar => (
-                      <button 
-                        key={similar.id} 
+                  {!car.isHogicarChoiceBranded && ratingButton}
+                </div>
+                <ul className="mt-4 grid grid-cols-2 gap-2 text-sm text-slate-600 sm:grid-cols-4">
+                  <li className="flex items-center gap-2"><Shield className="h-4 w-4 text-accent" /> Verified partner</li>
+                  <li className="flex items-center gap-2"><Headphones className="h-4 w-4 text-accent" /> 24/7 support</li>
+                  <li className="flex items-center gap-2"><Zap className="h-4 w-4 text-accent" /> {isInstant ? 'Instant confirmation' : 'On request'}</li>
+                  <li className="flex items-center gap-2"><Building className="h-4 w-4 text-accent" /> {car.locationDetail || 'Local desk'}</li>
+                </ul>
+              </section>
+
+              {/* Upgrades */}
+              {upgrades.length > 0 && (
+                <section className="order-8 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
+                  <h2 className="text-lg font-bold text-slate-900">Upgrade your car</h2>
+                  <p className="mt-1 text-sm text-slate-500">Larger cars from the same supplier.</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {upgrades.map(similar => (
+                      <button
+                        key={similar.id}
+                        type="button"
                         onClick={() => {
                           setCar(similar);
                           navigate(`/car/${similar.id}?${bookingParams}`, { replace: true });
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_25px_50px_-12px_rgba(15,23,42,0.25)]"
+                        className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 text-left transition-colors hover:border-accent"
                       >
-                        <div className="relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden bg-slate-50 p-6">
-                          <img 
-                            src={similar.image || similar.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'} 
-                            alt={similar.displayName} 
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              if (!target.src.includes('placehold.co')) {
-                                target.src = 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle';
-                              }
-                            }}
-                            className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110" 
-                          />
-                          <div className="absolute left-4 top-4 rounded-xl bg-white/95 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-accent shadow-sm ring-1 ring-slate-200 backdrop-blur-md">
-                            {formatCategoryName(similar.category)}
-                          </div>
-                        </div>
-                        <div className="flex flex-1 flex-col p-5 sm:p-6">
-                          <div className="min-w-0">
-                            <div className="truncate text-lg font-black text-slate-950 tracking-tight">{similar.displayName}</div>
-                            <div className="mt-4 grid grid-cols-3 gap-2.5">
-                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-accent-50/50 group-hover:border-accent-100">
-                                 <Users className="w-4 h-4 text-accent mx-auto mb-1.5" />
-                                 <p className="text-xs font-black text-slate-900 leading-none">{similar.passengers}</p>
-                              </div>
-                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-accent-50/50 group-hover:border-accent-100">
-                                 <Briefcase className="w-4 h-4 text-accent mx-auto mb-1.5" />
-                                 <p className="text-xs font-black text-slate-900 leading-none">{similar.bags}</p>
-                              </div>
-                              <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-center transition-colors group-hover:bg-accent-50/50 group-hover:border-accent-100">
-                                 <AutomaticIcon className="w-4 h-4 text-accent mx-auto mb-1.5" />
-                                 <p className="text-xs font-black text-slate-900 leading-none">{similar.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-6 flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
-                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total</p>
-                              <p className="text-xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal).toFixed(2)}</p>
-                            </div>
-                            <span className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-5 text-[11px] font-black uppercase tracking-widest text-white transition-all group-hover:bg-accent group-hover:shadow-lg group-hover:shadow-accent/20">
-                              Choose
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
-                        </div>
+                        <img
+                          src={similar.image || similar.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle'}
+                          alt={similar.displayName}
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (!target.src.includes('placehold.co')) target.src = 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle';
+                          }}
+                          className="h-14 w-24 shrink-0 object-contain"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold text-slate-900">{similar.displayName}</span>
+                          <span className="block text-xs text-slate-500">{formatCategoryName(similar.category)} · {similar.passengers} seats · {similar.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</span>
+                          <span className="mt-1 block text-sm font-bold text-slate-900">{money(calcPricing(similar, { pickupDate: startDate, dropoffDate: endDate }).finalTotal)}</span>
+                        </span>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
                       </button>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
             </div>
 
-            {/* Right Column - Booking Sidebar (professional) */}
-            <div className="order-4 lg:order-none lg:col-span-1">
-              <div className="lg:sticky lg:top-20 space-y-3 sm:space-y-4">
-                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] p-4 sm:p-6 border border-slate-200 relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-accent-400"></div>
-                  
-                  <h2 className="lg:hidden text-lg font-black text-slate-950 flex items-center gap-2 mb-3"><CreditCardIcon className="w-5 h-5 text-accent" /> Price &amp; protection</h2>
-                  {/* Price lock timer */}
-                  <div className="bg-slate-950 text-white px-4 py-2.5 sm:p-4 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 flex justify-between items-center shadow-lg">
-                    <div className="flex items-center gap-3 sm:block">
-                      <div className="text-[10px] sm:text-[9px] font-bold sm:font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-slate-300 sm:text-slate-400">Price locked for</div>
-                      <div className="font-mono font-black text-lg sm:text-2xl tracking-tighter sm:mt-0.5">{formatTime(timeLeft)}</div>
-                    </div>
-                    <div className="bg-white/10 p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl backdrop-blur-md">
-                      <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
-                    </div>
+            {/* Price sidebar */}
+            <aside className="order-5 lg:order-none">
+              <div className="space-y-3 lg:sticky lg:top-20">
+                <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                  <h2 className="text-lg font-bold text-slate-900">Price details</h2>
+                  <dl className="mt-4 space-y-2.5 text-sm">
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
+                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
+                    {priceDetails.extrasCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Extras</dt><dd className="font-medium text-slate-900">{money(priceDetails.extrasCost)}</dd></div>}
+                    {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo discount</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
+                    {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Special deal</dt><dd className="font-medium">-{money(priceDetails.hogicarPromoAmount)}</dd></div>}
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Taxes and fees</dt><dd className="font-medium text-emerald-700">Included</dd></div>
+                  </dl>
+                  <div className="mt-4 flex items-end justify-between gap-4 border-t border-slate-200 pt-4">
+                    <span className="text-base font-semibold text-slate-900">Total</span>
+                    <span className="text-2xl font-bold tracking-tight text-slate-900">{money(priceDetails.finalTotal)}</span>
                   </div>
-                  <div className="mb-4 sm:mb-5 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
-                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">Pay now</p>
-                        <p className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-accent">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
-                      </div>
-                      <div className="rounded-xl bg-white p-3 text-right ring-1 ring-slate-200">
-                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">At counter</p>
-                        <p className="mt-1 text-lg font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-accent-50 px-3 py-2 text-[11px] font-bold text-accent-800 ring-1 ring-accent-100">
-                      <ShieldCheck className="h-4 w-4 text-accent" />
-                      Includes mandatory taxes, supplier fees, and booking support.
-                    </div>
+                  <div className="mt-3 space-y-1.5 rounded-lg bg-slate-50 p-3 text-sm">
+                    <div className="flex justify-between gap-4"><span className="text-slate-600">Pay now</span><span className="font-semibold text-slate-900">{money(priceDetails.payNow)}</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-slate-600">Pay at pick-up</span><span className="font-semibold text-slate-900">{money(priceDetails.payAtDesk)}</span></div>
                   </div>
-                  <div className="mb-4 sm:mb-5">
-                    <div className="mb-3 flex items-center justify-between">
-                      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Price breakdown</p>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-slate-500">{days} days</span>
+
+                  <details className="group mt-3">
+                    <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent hover:underline">
+                      <Tag className="h-4 w-4" /> Have a promo code?
+                      <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter code"
+                        value={promoCodeInput}
+                        onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                        autoCapitalize="characters"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        className="h-11 min-w-0 flex-1 rounded-lg border border-slate-300 px-3 text-base uppercase outline-none placeholder:normal-case focus:border-accent focus:ring-2 focus:ring-accent/20"
+                      />
+                      <button type="button" onClick={handleApplyPromo} className="h-11 rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">Apply</button>
                     </div>
-                    <div className="space-y-3 rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4">
-                      <div className="flex justify-between gap-4 text-sm font-semibold"><span className="text-slate-600">Vehicle rental</span><span className="text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span></div>
-                      {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4 text-sm font-semibold"><span className="text-slate-600">Protection</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span></div>}
-                      {priceDetails.extrasCost > 0 && <div className="flex justify-between gap-4 text-sm font-semibold"><span className="text-slate-600">Selected extras</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.extrasCost).toFixed(2)}</span></div>}
-                      {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-700"><span>Promo discount</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span></div>}
-                      {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 rounded-xl bg-indigo-50 px-3 py-2 text-sm font-black text-indigo-700"><span>Secret deal</span><span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span></div>}
-                      <div className="border-t border-dashed border-slate-200 pt-3">
-                        <div className="flex items-end justify-between gap-4"><span className="text-sm font-black text-slate-900">Total price</span><span className="text-2xl font-black tracking-tight text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mb-4 sm:mb-5">
-                    <div className="flex gap-2 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 p-1.5 sm:p-2">
-                      <input type="text" placeholder="Promo code" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())} className="flex-1 min-w-0 bg-transparent px-3 py-2 text-base font-bold uppercase tracking-wider outline-none placeholder:normal-case placeholder:tracking-normal placeholder:font-semibold placeholder:text-slate-400" />
-                      <button onClick={handleApplyPromo} className="rounded-xl bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-accent">Apply</button>
-                    </div>
-                    {promoError && <p className="mt-2 text-xs font-bold text-red-600">{promoError}</p>}
-                    {appliedPromo && <p className="mt-2 text-xs font-bold text-green-700">✓ {appliedPromo.code} applied</p>}
-                  </div>
-                  <div className="mb-5 sm:mb-6">
-                    <h3 className="text-xs font-black uppercase tracking-[0.14em] sm:tracking-[0.2em] text-slate-400 mb-3 ml-1">Protection options</h3>
-                    <div className="grid gap-3">
-                      <label className={`group relative flex cursor-pointer items-center justify-between gap-3 rounded-xl sm:rounded-2xl border-2 p-3.5 sm:p-4 transition-all duration-300 ${insuranceOption === 'basic' ? 'border-accent bg-accent/5 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
-                        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                            <div className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all ${insuranceOption === 'basic' ? 'border-accent bg-accent' : 'border-slate-300'}`}>
-                                {insuranceOption === 'basic' && <div className="w-2 h-2 rounded-full bg-white" />}
-                            </div>
-                            <input type="radio" name="insurance" checked={insuranceOption === 'basic'} onChange={() => setInsuranceOption('basic')} className="hidden" />
-                            <div>
-                                <span className="block text-sm font-black text-slate-950 sm:uppercase tracking-tight">Basic protection</span>
-                                <span className="block text-xs sm:text-[10px] font-semibold sm:font-bold text-slate-500 sm:uppercase sm:tracking-wider">Standard supplier coverage</span>
-                            </div>
-                        </div>
-                        <span className="shrink-0 text-[10px] font-black text-emerald-600 uppercase tracking-wider sm:tracking-widest bg-emerald-50 px-2 py-1 rounded-md">Included</span>
-                      </label>
-                      <label className={`group relative flex cursor-pointer items-center justify-between gap-3 rounded-xl sm:rounded-2xl border-2 p-3.5 sm:p-4 transition-all duration-300 ${insuranceOption === 'full' ? 'border-accent bg-accent/5 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
-                        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                            <div className={`w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all ${insuranceOption === 'full' ? 'border-accent bg-accent' : 'border-slate-300'}`}>
-                                {insuranceOption === 'full' && <div className="w-2 h-2 rounded-full bg-white" />}
-                            </div>
-                            <input type="radio" name="insurance" checked={insuranceOption === 'full'} onChange={() => setInsuranceOption('full')} className="hidden" />
-                            <div>
-                                <span className="block text-sm font-black text-slate-950 sm:uppercase tracking-tight">Full protection</span>
-                                <span className="block text-xs sm:text-[10px] font-semibold sm:font-bold text-slate-500 sm:uppercase sm:tracking-wider">Zero excess & peace of mind</span>
-                            </div>
-                        </div>
-                        <span className="shrink-0 text-xs font-black text-slate-950">+{getCurrencySymbol()}{convertPrice(15 * days).toFixed(2)}</span>
-                        {insuranceOption !== 'full' && <div className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-lg animate-pulse uppercase tracking-widest">Recommended</div>}
-                      </label>
-                    </div>
-                  </div>
-                  <Link to={`/book/${car.id}/details?${bookingParams}`} onClick={handleContinue} className="block w-full rounded-xl sm:rounded-2xl bg-accent py-4 text-center text-sm font-black uppercase tracking-[0.12em] sm:tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(0,122,194,0.75)] transition hover:-translate-y-0.5 hover:bg-accent-700 active:scale-[0.98]">Continue to book</Link>
-                  <div className="mt-4 flex items-center justify-center gap-2 opacity-75"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
-                </div>
-                {/* Trust badge */}
-                <div className="hidden lg:grid grid-cols-2 gap-2">
-                  <div className="bg-[#eaf7ef] rounded-xl p-3 border border-green-200/80"><div className="flex gap-2"><ShieldCheck className="w-5 h-5 text-green-600 shrink-0" /><div><div className="text-xs font-black">Free cancellation</div><div className="text-[11px] text-slate-700">Before pickup</div></div></div></div>
-                  <div className="bg-white rounded-xl p-3 border border-slate-200"><div className="flex gap-2"><Headphones className="w-5 h-5 text-accent shrink-0" /><div><div className="text-xs font-black">24/7 support</div><div className="text-[11px] text-slate-700">Anytime help</div></div></div></div>
-                </div>
-                <div className="hidden lg:block bg-white rounded-xl p-3 border border-slate-200">
-                  <h4 className="text-xs font-black text-slate-900 mb-2">Booking checklist</h4>
-                  <ul className="space-y-1.5 text-xs text-slate-700">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Driving license and passport/ID ready</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Card in the main driver’s name</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" /> Review supplier terms before checkout</li>
+                    {promoError && <p className="mt-1.5 text-xs text-red-600">{promoError}</p>}
+                    {appliedPromo && <p className="mt-1.5 text-xs text-emerald-700">{appliedPromo.code} applied</p>}
+                  </details>
+
+                  <Link
+                    to={`/book/${car.id}/details?${bookingParams}`}
+                    onClick={handleContinue}
+                    className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent text-base font-semibold text-white shadow-sm transition-colors hover:bg-accent-700 active:bg-accent-800"
+                  >
+                    Continue to book <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Free cancellation before pick-up</li>
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Taxes and fees included</li>
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Secure payment</li>
                   </ul>
-                </div>
+                  <div className="mt-4 flex items-center justify-center gap-2 border-t border-slate-100 pt-4"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
+                </section>
+                <p className="hidden items-center justify-center gap-2 text-xs text-slate-500 lg:flex">
+                  <Headphones className="h-4 w-4" /> Need help? Our support team is available 24/7.
+                </p>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </div>
 
-      {/* Mobile Sticky Footer */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.10)] animate-in slide-in-from-bottom duration-500">
-        <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+      {/* Mobile sticky footer */}
+      <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-slate-200 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(15,23,42,0.08)] lg:hidden">
+        <div className="mx-auto flex max-w-md items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-slate-500 truncate">
-              Total for {days} day{days > 1 ? 's' : ''}{car.unlimitedMileage ? ' · Unlimited km' : ''}
-            </p>
-            <p className="text-[22px] font-black text-slate-950 tracking-tight leading-tight">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
-            <p className="text-[11px] font-semibold text-accent leading-none">Pay now {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
+            <p className="truncate text-xs text-slate-500">Total for {days} day{days > 1 ? 's' : ''}</p>
+            <p className="text-xl font-bold leading-tight tracking-tight text-slate-900">{money(priceDetails.finalTotal)}</p>
+            <p className="text-xs text-slate-500">Pay now {money(priceDetails.payNow)}</p>
           </div>
-          <Link 
-            to={`/book/${car.id}/details?${bookingParams}`} 
-            onClick={handleContinue} 
-            className="flex-shrink-0 inline-flex h-12 items-center gap-2 rounded-xl bg-accent px-6 text-sm font-black text-white shadow-[0_12px_24px_-12px_rgba(0,122,194,0.8)] active:scale-95 transition-all"
+          <Link
+            to={`/book/${car.id}/details?${bookingParams}`}
+            onClick={handleContinue}
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-lg bg-accent px-6 text-base font-semibold text-white transition-colors active:bg-accent-800"
           >
-            Continue
-            <ArrowRight className="w-4 h-4" />
+            Continue <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

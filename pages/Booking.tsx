@@ -24,6 +24,7 @@ import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
 import Users from 'lucide-react/dist/esm/icons/users';
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
+import Lock from 'lucide-react/dist/esm/icons/lock';
 import { Car, PromoCode } from '../types';
 
 // A custom icon component for Automatic Transmission to match the design
@@ -50,12 +51,12 @@ const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
 
 const FormInput = ({ icon: Icon, ...props }: { icon: React.ElementType, [key: string]: any }) => (
   <div className="relative group/input">
-    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 sm:pl-5">
-      <Icon className="h-4 w-4 text-slate-500 group-focus-within/input:text-accent transition-colors" />
+    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+      <Icon className="h-4 w-4 text-slate-400 group-focus-within/input:text-accent transition-colors" />
     </div>
     <input
       {...props}
-      className="block w-full rounded-xl border border-slate-200 bg-white pl-10 sm:pl-12 shadow-[0_2px_4px_rgba(0,0,0,0.02)] focus:border-accent focus:ring-4 focus:ring-accent/10 text-base text-slate-900 font-medium py-3.5 transition-all placeholder:text-slate-400 placeholder:font-medium outline-none group-hover/input:border-slate-300"
+      className="block h-12 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20"
     />
   </div>
 );
@@ -609,15 +610,49 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     );
   }
 
-  const detailsRoute = `/book/${id}/details${bookingQuery}`;
-  const pageTitle = routeStep === 'details' ? 'Customer details' : 'Secure payment';
-  const pageDescription = routeStep === 'details'
-    ? 'Add the main driver information first. The secure payment page opens after these details are saved.'
-    : 'Review the rental and customer details, then complete the secure payment to confirm the booking.';
+  const pageTitle = routeStep === 'details' ? 'Driver details' : 'Payment';
   const primaryButtonLabel = routeStep === 'details'
-    ? 'Continue to Payment'
-    : priceDetails.payNow > 0 ? 'Pay & Confirm Reservation' : 'Confirm Reservation';
+    ? 'Continue to payment'
+    : priceDetails.payNow > 0 ? 'Pay and book now' : 'Confirm booking';
   const isActionBusy = isSubmitting || isAdvancingToPayment;
+  const money = (amount: number) => `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
+  const carName = car.displayName || `${car.make} ${car.model}`;
+  const isChoiceBrand = supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier?.name === 'Hogi Car Choice';
+  const isInstant = !car?.supplier?.bookingMode || car?.supplier?.bookingMode === 'FREE_SALE';
+  const selectedExtras = car.extras?.filter(e => selectedExtraIds.includes(e.id)) || [];
+  const labelClass = 'mb-1.5 block text-sm font-medium text-slate-700';
+
+  const steps = [
+    { key: 'details', label: 'Driver details' },
+    { key: 'payment', label: 'Payment' },
+  ];
+
+  const supplierMark = isChoiceBrand ? (
+    <Logo className="h-6 w-auto max-w-[100px]" />
+  ) : supplierLogo ? (
+    <img src={supplierLogo} alt={car.supplier?.name} className="h-6 w-auto max-w-[90px] object-contain" />
+  ) : (
+    <span className="text-xs font-semibold text-slate-600">{car.supplier?.name}</span>
+  );
+
+  const submitButton = (extraClass = '') => (
+    <button
+      type="submit"
+      disabled={isActionBusy}
+      className={`inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-accent px-6 text-base font-semibold text-white shadow-sm transition-colors hover:bg-accent-700 active:bg-accent-800 disabled:cursor-not-allowed disabled:opacity-60 ${extraClass}`}
+    >
+      {isActionBusy ? (
+        <>
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          {routeStep === 'details' ? 'Preparing payment…' : 'Processing…'}
+        </>
+      ) : routeStep === 'details' ? (
+        <>{primaryButtonLabel} <ArrowRight className="h-4 w-4" /></>
+      ) : (
+        <><ShieldCheck className="h-4 w-4" /> {primaryButtonLabel}{priceDetails.payNow > 0 ? ` · ${money(priceDetails.payNow)}` : ''}</>
+      )}
+    </button>
+  );
 
   return (
     <>
@@ -626,722 +661,288 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="bg-white min-h-screen py-2 sm:py-3 pb-32 lg:pb-8 font-sans overflow-x-hidden text-slate-800 selection:bg-emerald-100">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 pb-32 font-sans text-slate-900 lg:pb-16">
       {isAdvancingToPayment && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
-           <div className="w-full max-w-[320px] sm:max-w-md px-6">
-              <div className="mb-6 flex items-center justify-between">
-                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-accent">Securing session</p>
-                    <p className="mt-1 text-sm font-black text-slate-900">Moving to Payment</p>
-                 </div>
-                 <div className="h-5 w-5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-              </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner border border-slate-200/50">
-                 <div className="h-full bg-gradient-to-r from-accent to-accent-400 animate-progress shadow-[0_0_15px_rgba(0,122,194,0.5)]"></div>
-              </div>
-              <p className="mt-6 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Hogicar Secure Checkout Gateway</p>
-           </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-lg">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            <span className="text-sm font-medium text-slate-700">Preparing secure payment…</span>
+          </div>
         </div>
       )}
-        <div className="max-w-[1400px] mx-auto px-3 sm:px-3 lg:px-6">
-        <div className="mb-2 sm:mb-4">
-            <BookingStepper currentStep={4} />
+      <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4">
+        <BookingStepper currentStep={4} />
+
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{pageTitle}</h1>
+            <ol className="mt-2 flex items-center gap-2 text-sm">
+              {steps.map((step, i) => {
+                const done = routeStep === 'payment' && step.key === 'details';
+                const active = routeStep === step.key;
+                return (
+                  <li key={step.key} className="flex items-center gap-2">
+                    {i > 0 && <span className="h-px w-6 bg-slate-300" />}
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${active ? 'bg-accent text-white' : done ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                      {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                    </span>
+                    <span className={active ? 'font-semibold text-slate-900' : 'text-slate-500'}>{step.label}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+          <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+            <Clock className="h-3.5 w-3.5" /> Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span>
+          </p>
         </div>
 
-        <div className="mb-4 sm:mb-6 overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-20px_rgba(15,23,42,0.1)]">
-          <div className="h-1.5 bg-slate-100">
-            <div className={`h-full rounded-r-full bg-accent transition-all duration-1000 ease-out ${routeStep === 'details' ? 'w-1/2' : 'w-full'}`}></div>
-          </div>
-          <div className="p-3.5 sm:p-6 lg:p-8">
-          <div className="flex flex-col gap-3 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-2 w-2 rounded-full bg-accent animate-pulse"></div>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] sm:tracking-[0.3em] text-accent">Secure Checkout</p>
+        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6">
+          <div className="space-y-4 lg:space-y-6">
+            {/* Mobile trip summary */}
+            <section className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm lg:hidden">
+              <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-lg bg-slate-50">
+                <img src={displayImage} alt={carName} onError={() => setImageError(true)} referrerPolicy="no-referrer" className="max-h-14 w-full object-contain" />
               </div>
-              <h1 className="text-xl sm:text-4xl font-black tracking-tight text-slate-950">{pageTitle}</h1>
-              <p className="hidden sm:block mt-2 max-w-2xl text-xs sm:text-base font-medium leading-relaxed text-slate-500">{pageDescription}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5 sm:gap-3 rounded-xl sm:rounded-2xl bg-slate-50 p-1 sm:p-1.5 sm:min-w-[360px] shadow-inner border border-slate-100">
-              <div className={`rounded-lg sm:rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-center transition-all duration-500 ${routeStep === 'details' ? 'bg-slate-950 text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Step 01</p>
-                <p className="text-xs sm:text-sm font-black">Driver Details</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-slate-900">{carName} <span className="font-normal text-slate-500">or similar</span></p>
+                <p className="mt-0.5 text-xs font-medium text-slate-700">{formatShortDate(startDate)} → {formatShortDate(endDate)}</p>
+                <p className="text-xs text-slate-500">{startTime} – {endTime} · {days} day{days > 1 ? 's' : ''}</p>
+                <p className="truncate text-xs text-slate-500">{pickupLabel}</p>
               </div>
-              <div className={`rounded-lg sm:rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-center transition-all duration-500 ${routeStep === 'payment' ? 'bg-accent text-white shadow-xl scale-[1.02]' : 'text-slate-400'}`}>
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Step 02</p>
-                <p className="text-xs sm:text-sm font-black">Payment</p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-3 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-50 pt-3 sm:pt-6">
-            {[
-              { icon: ShieldCheck, label: "Bank-Level Security", color: "text-accent", bg: "bg-accent-50" },
-              { icon: BadgeCheck, label: "Verified Inventory", color: "text-accent", bg: "bg-accent-50" },
-              { icon: Headphones, label: "24/7 Priority Support", color: "text-accent", bg: "bg-accent-50" }
-            ].map((item, i) => (
-              <div key={i} className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-4 rounded-xl sm:rounded-2xl ${item.bg} px-2 py-2.5 sm:px-5 sm:py-4 text-center sm:text-left transition-transform hover:scale-[1.02]`}>
-                <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${item.color}`} />
-                <span className="text-[10px] sm:text-xs font-bold sm:font-black leading-tight sm:uppercase sm:tracking-[0.15em] text-slate-700">{item.label}</span>
-              </div>
-            ))}
-          </div>
-          </div>
-        </div>
-
-        <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 xl:gap-10">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
-            {/* Vehicle Summary Header */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] sm:shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-3 sm:p-8 flex flex-row items-center gap-3 sm:gap-8 relative overflow-hidden group">
-               <div className="hidden sm:block absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
-               
-               <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-slate-100 flex-shrink-0 relative overflow-hidden w-28 sm:w-auto self-stretch sm:self-auto flex items-center justify-center shadow-inner group-hover:shadow-md transition-all duration-500">
-                   <img 
-                    src={displayImage} 
-                    alt={car.model} 
-                    onError={() => setImageError(true)}
-                    referrerPolicy="no-referrer"
-                    loading="eager"
-                    className="w-full sm:w-52 h-auto max-h-20 sm:max-h-none object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] transform group-hover:scale-110 transition-transform duration-700"
-                   />
-               </div>
-               
-               <div className="min-w-0 flex-1 text-left relative z-10">
-                  <div className="flex items-center justify-start gap-1.5 sm:gap-3 mb-1.5 sm:mb-4 flex-wrap">
-                      <span className="bg-slate-950 text-white text-[9px] sm:text-[10px] font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-full uppercase tracking-[0.12em] sm:tracking-[0.2em] shadow-xl border border-white/10">
-                        {car.category?.toLowerCase() === 'people_carrier' ? 'People Carrier' : car.category?.charAt(0).toUpperCase() + car.category?.slice(1).toLowerCase()}
-                      </span>
-                      <span className="bg-emerald-50 text-emerald-700 text-[9px] sm:text-[10px] font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-full uppercase tracking-[0.12em] sm:tracking-[0.2em] border border-emerald-100 shadow-sm">Verified Deal</span>
-                  </div>
-                  <h2 className="text-lg sm:text-4xl font-black text-slate-950 leading-[1.1] tracking-tight mb-2 sm:mb-4 truncate sm:whitespace-normal">{car.displayName || `${car.make} ${car.model}`}</h2>
-                  <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-1.5 sm:gap-6">
-                    {[
-                      { icon: Users, label: car.passengers, unit: "Seats", color: "text-accent", bg: "bg-accent-50" },
-                      { icon: Briefcase, label: car.bags, unit: "Bags", color: "text-amber-600", bg: "bg-amber-50" },
-                      { icon: AutomaticIcon, label: car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual', unit: "Gear", color: "text-accent", bg: "bg-accent-50" }
-                    ].map((spec, i) => (
-                      <div key={i} className="flex items-center gap-1.5 sm:gap-2.5">
-                        <div className={`p-1 sm:p-2 ${spec.bg} rounded-md sm:rounded-xl shadow-sm border border-black/5`}><spec.icon className={`w-3 h-3 sm:w-4 sm:h-4 ${spec.color} stroke-[2.5px]`} /></div>
-                        <span className="text-[11px] sm:text-xs font-bold sm:font-black text-slate-700 sm:text-slate-900 sm:uppercase sm:tracking-widest leading-none">{spec.label}<span className="hidden sm:inline"> {spec.unit}</span></span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center justify-start gap-6 mt-2.5 sm:mt-8 pt-2.5 sm:pt-8 border-t border-slate-100">
-                      {!car.isHogicarChoiceBranded ? (
-                        <div className="flex w-full sm:w-auto items-center justify-start gap-2 sm:gap-5">
-                            <div className="bg-white border border-slate-100 p-1 sm:p-3 rounded-lg sm:rounded-2xl shadow-sm">
-                              {supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice' ? (
-                                <Logo className="h-6 sm:h-10 w-auto max-w-[80px] sm:max-w-[140px]" />
-                              ) : supplierLogo ? (
-                                <img src={supplierLogo} alt={car.supplier.name} className="h-6 sm:h-10 w-auto max-w-[80px] sm:max-w-none object-contain" />
-                              ) : (
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{car.supplier.name}</span>
-                              )}
-                            </div>
-                            <div
-                              className="flex min-w-0 items-center gap-2 sm:gap-4 bg-slate-50 px-1.5 py-1 pr-2.5 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-2xl shadow-inner border border-slate-100 group/rating relative cursor-pointer hover:bg-white hover:shadow-xl transition-all"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setShowRatingsTooltip(!showRatingsTooltip);
-                              }}
-                            >
-                               <div className={`relative ${getRatingColor(car.supplier.rating)} text-white w-7 h-7 sm:w-10 sm:h-10 flex items-center justify-center rounded-md sm:rounded-xl shadow-lg shadow-slate-200 overflow-hidden shrink-0 ring-2 ring-white`}>
-                                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50" />
-                                   <span className="relative z-10 text-xs sm:text-base font-black tracking-tight">{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
-                               </div>
-                               <div className="flex flex-col">
-                                   <span className={`text-xs sm:text-sm font-black leading-none ${getRatingTextColor(car.supplier.rating)} tracking-tight sm:mb-1 truncate`}>{getRatingDescription(car.supplier.rating)}</span>
-                                   <span className="hidden sm:flex text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] items-center gap-1.5">
-                                     <BadgeCheck className="w-3 h-3 text-accent" /> Verified Supplier
-                                   </span>
-                               </div>
-                            </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2.5 sm:gap-5">
-                           <div className="bg-slate-950 p-1.5 sm:p-3.5 rounded-lg sm:rounded-2xl shadow-xl flex items-center justify-center border border-amber-400/30">
-                              <Award className="w-4 h-4 sm:w-8 sm:h-8 text-amber-400 fill-amber-400/20" />
-                           </div>
-                           <div>
-                             <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1 italic">Hogicar Choice</p>
-                             <p className="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase">Premium Fleet</p>
-                           </div>
-                        </div>
-                      )}
-                  </div>
-               </div>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-32px_rgba(15,23,42,0.55)] border border-slate-200 p-4 sm:p-8 sm:mb-6">
-                <div className="flex flex-row items-center justify-between gap-2 md:gap-8 relative">
-                  {/* Pickup */}
-                  <div className="flex-1 min-w-0 md:w-auto">
-                    <div className="flex flex-col items-start">
-                      <span className="text-[10px] font-black uppercase tracking-[0.14em] text-accent mb-1 md:hidden">Pick-up</span>
-                      <span className="text-2xl md:text-3xl font-black text-slate-950 leading-none mb-1">{startTime}</span>
-                      <div className="flex min-w-0 max-w-full items-center gap-1.5 md:gap-2 mb-1">
-                        <span className="text-base md:text-xl font-black text-[#003580] tracking-tight">{search.pickupCode}</span>
-                        <div className="hidden md:block h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="hidden md:inline text-sm font-bold text-slate-600 truncate max-w-[150px]">{pickupLabel.split(',')[0]}</span>
-                      </div>
-                      <span className="text-[11px] md:text-xs font-bold md:font-black text-slate-500 md:text-slate-400 md:uppercase md:tracking-widest"><span className="md:hidden">{formatShortDate(startDate)}</span><span className="hidden md:inline">{formatDate(startDate)}</span></span>
-                    </div>
-                  </div>
-
-                  {/* Timeline */}
-                  <div className="flex-[0.9] md:flex-[1.5] min-w-[72px] flex flex-col items-center justify-center md:py-0">
-                    <div className="relative w-full flex items-center justify-center">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t-2 border-dashed border-slate-200" />
-                      </div>
-                      <div className="relative z-10 bg-white px-1.5 md:px-4 flex flex-col items-center">
-                        <div className="bg-slate-50 p-2 rounded-full border border-slate-100 shadow-sm mb-1">
-                          <Plane className="w-4 h-4 md:w-5 md:h-5 text-accent" />
-                        </div>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.1em] md:tracking-[0.2em] bg-white px-1 md:px-2 text-center whitespace-nowrap">
-                          {days} day{days > 1 ? 's' : ''}<span className="hidden md:inline"> rental</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Drop-off */}
-                  <div className="flex-1 min-w-0 md:w-auto">
-                    <div className="flex flex-col items-end text-right">
-                      <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#003580] mb-1 md:hidden">Drop-off</span>
-                      <span className="text-2xl md:text-3xl font-black text-slate-950 leading-none mb-1">{endTime}</span>
-                      <div className="flex min-w-0 max-w-full items-center gap-1.5 md:gap-2 mb-1">
-                        <span className="hidden md:inline text-sm font-bold text-slate-600 truncate max-w-[150px]">{dropoffLabel.split(',')[0]}</span>
-                        <div className="hidden md:block h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="text-base md:text-xl font-black text-[#003580] tracking-tight">{search.dropoffCode || search.pickupCode}</span>
-                      </div>
-                      <span className="text-[11px] md:text-xs font-bold md:font-black text-slate-500 md:text-slate-400 md:uppercase md:tracking-widest"><span className="md:hidden">{formatShortDate(endDate)}</span><span className="hidden md:inline">{formatDate(endDate)}</span></span>
-                    </div>
-                  </div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-                <p className="text-[11px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.16em] uppercase text-slate-500 mb-2">Location Details</p>
-                <div className="space-y-2.5 sm:space-y-3">
-                   <p className="text-[13px] sm:text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 shrink-0 text-accent mt-0.5" /> <span><strong>Pick-up:</strong> {pickupLabel}</span></p>
-                   <p className="text-[13px] sm:text-sm font-semibold text-slate-900 flex items-start gap-2"><MapPin className="w-4 h-4 shrink-0 text-slate-400 mt-0.5" /> <span><strong>Drop-off:</strong> {dropoffLabel}</span></p>
-                </div>
-              </div>
-              <div className="hidden md:block bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs font-bold tracking-[0.16em] uppercase text-slate-500 mb-2">Booking benefits</p>
-                <ul className="space-y-2 text-sm text-slate-700">
-                  <li className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600" /> Confirmed supplier inventory</li>
-                  <li className="flex items-center gap-2"><Shield className="w-4 h-4 text-accent" /> PCI-compliant secure checkout</li>
-                  <li className="flex items-center gap-2"><Headphones className="w-4 h-4 text-indigo-600" /> Live support before pick-up</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Trust Bar */}
-            <div className="hidden sm:flex flex-wrap items-center justify-center gap-6 py-6 border-b border-slate-100">
-                {[
-                    { icon: ShieldCheck, text: "Secure Payment", color: "text-emerald-600" },
-                    { icon: Clock, text: "Instant Confirmation", color: "text-accent" },
-                    { icon: Headphones, text: "24/7 Support", color: "text-indigo-600" }
-                ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                        <item.icon className={`w-4 h-4 ${item.color}`} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.text}</span>
-                    </div>
-                ))}
-            </div>
+            </section>
 
             {routeStep === 'details' ? (
-            <>
-            {/* Customer Details */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_40px_-20px_rgba(15,23,42,0.15)] sm:shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-10">
-               <div className="mb-5 sm:mb-10 flex flex-col gap-6 border-b border-slate-100 pb-4 sm:pb-8 sm:flex-row sm:items-center sm:justify-between">
-                 <div>
-                   <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] sm:tracking-[0.3em] text-accent mb-1 sm:mb-2">Main Driver Information</p>
-                  <h2 className="text-xl sm:text-3xl font-black text-slate-950 flex items-center gap-3">Driver Profile</h2>
-                  <p className="mt-1.5 sm:mt-2 max-w-2xl text-[13px] sm:text-sm font-medium text-slate-500 leading-relaxed">Ensure these details match your official documents (Passport/ID) for a seamless vehicle pick-up.</p>
-                </div>
-                 <div className="hidden sm:block rounded-2xl border border-accent/10 bg-accent-50/50 px-5 py-4 shadow-inner">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent flex items-center gap-2 mb-1"><Check className="w-3.5 h-3.5"/> Verification Req.</p>
-                  <p className="text-sm font-black text-slate-900 tracking-tight">Identity & Contact details</p>
-                 </div>
-               </div>
-
-               <div className="grid grid-cols-1 gap-5 sm:gap-10 xl:grid-cols-[1fr_300px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 sm:gap-y-8">
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">First name</label><FormInput icon={User} type="text" placeholder="e.g. JOHN" autoComplete="given-name" autoCapitalize="characters" enterKeyHint="next" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Last name</label><FormInput icon={User} type="text" placeholder="e.g. DOE" autoComplete="family-name" autoCapitalize="characters" enterKeyHint="next" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Email address</label><FormInput icon={Mail} type="email" inputMode="email" placeholder="john.doe@example.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required /></div>
-                    <div className="group"><label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Mobile number</label><FormInput icon={Phone} type="tel" inputMode="tel" placeholder="+1..." autoComplete="tel" enterKeyHint="next" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required /></div>
-                    <div className="md:col-span-2 group sm:pt-2">
-                      <label className="block text-[11px] font-black text-slate-500 sm:text-slate-400 mb-1.5 sm:mb-2.5 ml-1 group-focus-within:text-accent transition-colors uppercase tracking-[0.1em] sm:tracking-[0.15em]">Flight number <span className="text-[10px] text-slate-400 sm:text-slate-300 ml-1 sm:ml-2 font-semibold normal-case tracking-normal">(recommended)</span></label>
-                      <FormInput icon={Plane} type="text" placeholder="e.g. BA123" autoComplete="off" autoCapitalize="characters" autoCorrect="off" spellCheck={false} value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} /> 
-                      <div className="mt-3 sm:mt-5 p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-3 sm:gap-4 transition-all hover:bg-white hover:shadow-md">
-                        <div className="bg-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-sm"><Info className="w-4 h-4 sm:w-5 sm:h-5 text-accent flex-shrink-0"/></div>
-                        <p className="text-xs sm:text-[13px] text-slate-600 font-medium leading-relaxed">Providing your flight number allows the provider to monitor your arrival and hold your vehicle during potential flight delays.</p>
-                      </div>
+              <>
+                <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+                  <h2 className="text-lg font-bold text-slate-900">Main driver</h2>
+                  <p className="mt-1 text-sm text-slate-500">Enter the details exactly as they appear on the driving licence.</p>
+                  <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="group">
+                      <label htmlFor="firstName" className={labelClass}>First name</label>
+                      <FormInput id="firstName" icon={User} type="text" placeholder="e.g. JOHN" autoComplete="given-name" autoCapitalize="characters" enterKeyHint="next" value={firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value.toUpperCase())} required />
                     </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="rounded-xl sm:rounded-3xl border border-slate-100 bg-slate-50/50 p-3.5 sm:p-6 shadow-inner">
-                    <p className="text-[10px] font-black uppercase tracking-[0.16em] sm:tracking-[0.25em] text-slate-500 sm:text-slate-400 mb-3 sm:mb-6 flex items-center gap-2.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                      Pick-up Checklist
-                    </p>
-                    <div className="flex flex-wrap gap-2 sm:block sm:space-y-4">
-                      {[
-                        { text: "Valid Driving License", icon: Check },
-                        { text: "Passport or Photo ID", icon: Check },
-                        { text: "Driver's Credit Card", icon: Check }
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-center gap-1.5 sm:gap-3 bg-white px-2.5 py-1.5 sm:p-4 rounded-full sm:rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.03]">
-                          <item.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" />
-                          <span className="text-[11px] sm:text-xs font-bold sm:font-black text-slate-800 sm:uppercase tracking-tight">{item.text}</span>
-                        </div>
-                      ))}
+                    <div className="group">
+                      <label htmlFor="lastName" className={labelClass}>Last name</label>
+                      <FormInput id="lastName" icon={User} type="text" placeholder="e.g. DOE" autoComplete="family-name" autoCapitalize="characters" enterKeyHint="next" value={lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value.toUpperCase())} required />
                     </div>
-                    <div className="hidden sm:block mt-8 pt-6 border-t border-slate-200/50">
-                      <p className="text-[10px] font-bold leading-relaxed text-slate-400 uppercase tracking-wider">Required for legal agreement & secure record.</p>
+                    <div className="group">
+                      <label htmlFor="email" className={labelClass}>Email address</label>
+                      <FormInput id="email" icon={Mail} type="email" inputMode="email" placeholder="john.doe@example.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required />
+                      <p className="mt-1 text-xs text-slate-500">We'll send your confirmation here.</p>
+                    </div>
+                    <div className="group">
+                      <label htmlFor="phone" className={labelClass}>Mobile number</label>
+                      <FormInput id="phone" icon={Phone} type="tel" inputMode="tel" placeholder="+1..." autoComplete="tel" enterKeyHint="next" value={phoneNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required />
+                      <p className="mt-1 text-xs text-slate-500">Include your country code.</p>
+                    </div>
+                    <div className="group sm:col-span-2">
+                      <label htmlFor="flight" className={labelClass}>Flight number <span className="font-normal text-slate-400">(optional)</span></label>
+                      <FormInput id="flight" icon={Plane} type="text" placeholder="e.g. BA123" autoComplete="off" autoCapitalize="characters" autoCorrect="off" spellCheck={false} value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} />
+                      <p className="mt-1 flex items-start gap-1.5 text-xs text-slate-500"><Info className="mt-px h-3.5 w-3.5 shrink-0" /> Lets the supplier track your arrival and hold the car if your flight is delayed.</p>
                     </div>
                   </div>
-                </div>
-               </div>
-            </div>
+                </section>
 
-            <div className="bg-white rounded-2xl shadow-[0_18px_45px_-34px_rgba(15,23,42,0.5)] border border-slate-200 p-4 sm:p-7">
-               <h2 className="text-lg sm:text-xl font-black text-slate-950 mb-1.5 sm:mb-2 flex items-center gap-2.5 sm:gap-3"><UserPlus className="w-5 h-5 text-accent"/> Create customer account</h2>
-               <p className="text-[13px] sm:text-sm text-slate-600 mb-4 sm:mb-6">Your account keeps booking references, payment status, and future rental details in one place.</p>
-               <label className="flex items-start gap-3 rounded-xl sm:rounded-2xl border border-accent-100 bg-accent-50/50 p-3.5 sm:p-4 mb-4 sm:mb-5 cursor-pointer transition hover:border-accent-200 hover:bg-accent-50">
-                  <input type="checkbox" checked={createAccount} onChange={(e) => setCreateAccount(e.target.checked)} className="mt-1 h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent" />
-                  <span>
-                    <span className="block text-sm font-black text-slate-900">Register my customer account with this booking</span>
-                    <span className="block text-[13px] sm:text-sm text-slate-600 mt-1">We will save your profile details for faster support and future reservations.</span>
-                  </span>
-               </label>
-               {createAccount && (
-                  <div className="group">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 group-focus-within:text-accent transition-colors">Create account password</label>
-                    <FormInput icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" autoComplete="new-password" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
-                    <p className="text-xs sm:text-sm text-slate-600 mt-3 font-medium flex items-start gap-2"><Info className="w-4 h-4 shrink-0 mt-px text-accent"/> If you skip this now, you can still access the booking by email and reference number.</p>
-                  </div>
-               )}
-            </div>
-            </>
-            ) : (
-            <>
-            {/* Rental & Driver Summary */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] overflow-hidden border border-slate-200">
-               <div className="bg-gradient-to-r from-accent to-accent-700 px-4 py-3.5 sm:px-6 sm:py-5 flex items-center justify-between">
-                  <h2 className="text-sm sm:text-lg font-black text-white uppercase tracking-wider sm:tracking-widest flex items-center gap-2.5 sm:gap-3"><Zap className="w-4 h-4 sm:w-5 sm:h-5 fill-white"/> Reservation Summary</h2>
-                  <div className="hidden sm:block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-tighter border border-white/30">Review your details</div>
-               </div>
-               
-               <div className="p-4 sm:p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-                     {/* Rental Section */}
-                     <div className="space-y-4 sm:space-y-6">
-                        <div className="flex items-center gap-3 border-b border-slate-100 pb-3 sm:pb-4">
-                           <div className="bg-accent-50 p-2 rounded-lg"><CalendarDays className="w-5 h-5 text-accent"/></div>
-                           <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Rental Details</p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-4 sm:gap-5">
-                           <div className="relative pl-4 sm:pl-6 border-l-2 border-accent">
-                              <p className="text-[10px] font-black text-accent uppercase tracking-widest mb-1">Pick-up Location & Time</p>
-                              <p className="text-slate-900 font-bold text-base leading-snug">{pickupLabel}</p>
-                              <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(startDate)} @ {startTime}</p>
-                           </div>
-                           <div className="relative pl-4 sm:pl-6 border-l-2 border-slate-200">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Drop-off Location & Time</p>
-                              <p className="text-slate-900 font-bold text-base leading-snug">{dropoffLabel}</p>
-                              <p className="text-slate-500 text-sm mt-1 font-medium">{formatDate(endDate)} @ {endTime}</p>
-                           </div>
-                           <div className="relative pl-4 sm:pl-6 border-l-2 border-slate-200">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle Selection</p>
-                              <p className="text-slate-900 font-bold text-base leading-snug">{car.displayName || `${car.make} ${car.model}`}</p>
-                              <p className="text-slate-500 text-sm mt-1 uppercase tracking-tighter font-medium">{car.category} · {days} Days Rental</p>
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* Driver Section */}
-                     <div className="space-y-4 sm:space-y-6">
-                        <div className="flex items-center gap-3 border-b border-slate-100 pb-3 sm:pb-4">
-                           <div className="bg-accent-50 p-2 rounded-lg"><User className="w-5 h-5 text-accent"/></div>
-                           <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Driver Details</p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2.5 sm:gap-5">
-                           <div className="bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Main Driver</p>
-                              <p className="text-slate-900 font-bold text-lg">{firstName} {lastName}</p>
-                           </div>
-                           <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
-                              <div className="col-span-2 sm:col-span-1 bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
-                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Email</p>
-                                 <p className="text-slate-900 font-bold text-sm truncate">{email}</p>
-                              </div>
-                              <div className="col-span-2 sm:col-span-1 bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
-                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone</p>
-                                 <p className="text-slate-900 font-bold text-sm">{phoneNumber}</p>
-                              </div>
-                              {flightNumber && (
-                                 <div className="col-span-2 bg-slate-50 rounded-xl sm:rounded-2xl px-4 py-3 sm:p-4 border border-slate-100">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Flight</p>
-                                    <p className="text-slate-900 font-bold text-sm">{flightNumber}</p>
-                                 </div>
-                              )}
-                           </div>
-                        </div>
-                        <button type="button" onClick={() => navigate(`/book/${id}/details${bookingQuery}`)} className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-accent hover:border-accent/30 transition-all">
-                           <ArrowLeft className="w-4 h-4" /> Edit Information
-                        </button>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Pricing Summary Bar */}
-               <div className="bg-accent-50/50 border-t border-slate-100 px-4 py-4 sm:p-6 flex flex-row items-center justify-between gap-4">
-                  <div>
-                     <p className="text-[10px] font-black text-accent uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1">Due online now</p>
-                     <p className="text-xl sm:text-2xl font-black text-slate-950">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
-                  </div>
-                  <div className="text-right">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1">Total rental value</p>
-                     <p className="text-sm sm:text-xs font-black sm:font-bold text-slate-700 sm:text-slate-500">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</p>
-                  </div>
-               </div>
-            </div>
-            </>
-            )}
-
-            {/* Payment Details */}
-            {routeStep === 'payment' && (
-            <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-[0_28px_60px_-34px_rgba(15,23,42,0.55)]">
-               <div className="border-b border-slate-100 bg-slate-50/70 p-4 sm:p-7">
-               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                 <div>
-                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-accent">Protected checkout</p>
-                   <h2 className="mt-1 text-lg sm:text-2xl font-black text-slate-950 flex items-center gap-2.5 sm:gap-3"><CreditCard className="w-5 h-5 text-accent"/> Secure payment details</h2>
-                   <p className="mt-1.5 sm:mt-2 max-w-2xl text-[13px] sm:text-sm text-slate-600">Your payment is processed through an encrypted gateway. The supplier receives the reservation only after the secure confirmation step.</p>
-                 </div>
-                 <div className="hidden sm:block rounded-2xl border border-accent-100 bg-white px-5 py-4 shadow-sm">
-                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Due now</p>
-                   <p className="mt-1 text-2xl font-black tracking-tight text-accent">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</p>
-                 </div>
-               </div>
-               </div>
-               <div className="space-y-4 sm:space-y-6 p-4 sm:p-7">
-                  <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-                    <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-sm">
-                      <div className="mb-3 sm:mb-4 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.14em] sm:tracking-[0.18em] text-slate-500">Payment method</p>
-                          <p className="mt-1 text-[13px] sm:text-sm font-semibold text-slate-600">Credit/debit card, Apple Pay, and Google Pay via Stripe.</p>
-                        </div>
-                        <ShieldCheck className="h-6 w-6 text-accent" />
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-black uppercase tracking-wider text-slate-600">
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Visa</div>
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Mastercard</div>
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 py-2">Amex</div>
-                      </div>
-                    </div>
-                    <div className="hidden sm:block rounded-xl sm:rounded-2xl bg-slate-950 p-4 sm:p-5 text-white shadow-xl">
-                      <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Secure reservation</p>
-                      <p className="sm:mt-2 text-sm sm:text-lg font-black flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-400 sm:hidden"/> Encrypted payment session</p>
-                      <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-3 text-xs">
-                        <div><span className="block text-slate-400">Pay now</span><strong className="text-emerald-300">{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</strong></div>
-                        <div><span className="block text-slate-400">At desk</span><strong>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</strong></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="group"><label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Cardholder name</label><FormInput icon={User} type="text" placeholder="As shown on card" autoComplete="cc-name" autoCapitalize="characters" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} /></div>
-                  <div className="group">
-                    <label className="block text-[13px] sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2 ml-1 group-focus-within:text-accent transition-colors">Card information</label>
-                    {stripeEnabled ? (
-                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10 sm:px-6">
-                        <CardElement options={{ 
-                            hidePostalCode: false,
-                            style: {
-                                base: {
-                                    fontSize: '16px',
-                                    color: '#0f172a',
-                                    fontWeight: '600',
-                                    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                                    letterSpacing: '0',
-                                    '::placeholder': {
-                                        color: '#94a3b8',
-                                        fontSize: '14px',
-                                        letterSpacing: '0',
-                                        fontWeight: '500'
-                                    },
-                                },
-                            }
-                        }} />
-                      </div>
-                    ) : stripeConfigLoading ? (
-                      <div className="rounded-xl sm:rounded-2xl border border-accent-100 bg-accent-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-accent-800 flex items-center gap-3 shadow-inner">
-                        <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-                        Establishing Secure Connection...
-                      </div>
-                    ) : (
-                      <div className="rounded-xl sm:rounded-2xl border border-red-100 bg-red-50/40 px-4 sm:px-6 py-4 sm:py-5 text-sm font-semibold text-red-700 shadow-inner">
-                        Security gateway is currently unavailable.
-                      </div>
-                    )}
-                    <p className="hidden sm:block mt-3 text-sm text-slate-600">Your card details are encrypted and processed securely by Stripe.</p>
-                  </div>
-                  <p className="!mt-2 sm:!mt-3 text-[11px] sm:text-xs font-medium text-slate-500 flex items-start gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-px text-emerald-600" />
-                    Your payment is processed securely via Stripe. We support Credit Cards, Apple Pay, and Google Pay.
-                  </p>
-                  {paymentError && (
-                    <div className="rounded-xl sm:rounded-2xl border border-red-100 bg-red-50/50 px-4 py-3.5 sm:px-6 sm:py-5 text-[13px] sm:text-sm font-semibold text-red-700 flex items-start gap-3">
-                      <div className="w-2 h-2 mt-1.5 shrink-0 bg-red-600 rounded-full animate-pulse"></div>
-                      {paymentError}
+                <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input type="checkbox" checked={createAccount} onChange={(e) => setCreateAccount(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-accent focus:ring-accent" />
+                    <span>
+                      <span className="block text-sm font-semibold text-slate-900">Create an account to manage this booking</span>
+                      <span className="mt-0.5 block text-sm text-slate-500">Keep your booking, payment status and future rentals in one place.</span>
+                    </span>
+                  </label>
+                  {createAccount && (
+                    <div className="group mt-4 sm:pl-8">
+                      <label htmlFor="password" className={labelClass}>Password</label>
+                      <FormInput id="password" icon={ShieldCheck} type="password" placeholder="Minimum 8 characters" autoComplete="new-password" value={accountPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountPassword(e.target.value)} />
+                      <p className="mt-1 text-xs text-slate-500">Optional. You can always find your booking with your email and booking reference.</p>
                     </div>
                   )}
-                  
-                  <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 p-3.5 sm:p-5 space-y-2">
-                    <p className="text-[11px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.16em] text-slate-500 uppercase">Payment Assurance</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-[13px] sm:text-sm text-slate-700">
-                      <p className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600" /> TLS encrypted checkout</p>
-                      <p className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-accent" /> Instant booking reference</p>
-                      <p className="flex items-center gap-2"><Headphones className="w-4 h-4 text-accent" /> Dedicated support team</p>
-                    </div>
-                  </div>
-
-                  <div className="hidden sm:grid grid-cols-2 gap-2.5 sm:gap-6 sm:pt-4">
-                     <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 px-4 sm:px-6 py-3 sm:py-5">
-                        <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1 sm:mb-2">Check-in Time</p>
-                        <p className="text-lg font-semibold text-slate-900">{startTime}</p>
-                     </div>
-                     <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 px-4 sm:px-6 py-3 sm:py-5">
-                        <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1 sm:mb-2">Check-out Time</p>
-                        <p className="text-lg font-semibold text-slate-900">{endTime}</p>
-                     </div>
-                  </div>
-
-                  <div className="hidden sm:block lg:hidden pt-8 mt-4 border-t border-slate-100">
-                    <button
-                      type="submit"
-                      disabled={creationInProgressRef.current}
-                      className="w-full h-16 rounded-2xl bg-accent text-white font-black uppercase tracking-[0.15em] shadow-[0_15px_30px_-10px_rgba(0,122,194,0.4)] hover:bg-accent-700 hover:translate-y-[-2px] active:translate-y-[1px] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
-                    >
-                      {creationInProgressRef.current ? (
-                        <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : routeStep === 'details' ? (
-                        <>Continue to Payment <ArrowRight className="w-5 h-5" /></>
-                      ) : (
-                        <>Confirm & Secure Booking <ShieldCheck className="w-5 h-5" /></>
-                      )}
+                </section>
+              </>
+            ) : (
+              <>
+                <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-lg font-bold text-slate-900">Main driver</h2>
+                    <button type="button" onClick={() => navigate(`/book/${id}/details${bookingQuery}`)} className="inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline">
+                      <ArrowLeft className="h-4 w-4" /> Edit
                     </button>
                   </div>
-               </div>
-            </div>
-            )}
-            
-            {/* Primary Action Button - Desktop Content Bottom */}
-            <div className="hidden lg:block mt-4">
-               <button
-                  type="submit"
-                  disabled={creationInProgressRef.current}
-                  className="w-full h-20 rounded-3xl bg-slate-950 text-white font-black text-xl uppercase tracking-[0.2em] shadow-[0_25px_50px_-15px_rgba(15,23,42,0.4)] hover:bg-accent hover:translate-y-[-4px] active:translate-y-[1px] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-4 group/main-btn overflow-hidden relative"
-               >
-                  <div className="absolute inset-0 bg-gradient-to-r from-accent-400/0 via-white/10 to-accent-400/0 -translate-x-full group-hover/main-btn:animate-[shimmer_2s_infinite]"></div>
-                  {creationInProgressRef.current ? (
-                     <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-                  ) : routeStep === 'details' ? (
-                     <>
-                       Continue to final step
-                       <ArrowRight className="w-6 h-6 group-hover/main-btn:translate-x-1.5 transition-transform" />
-                     </>
-                  ) : (
-                     <>
-                       <ShieldCheck className="w-7 h-7 text-emerald-400" />
-                       Confirm reservation & Pay
-                       <div className="bg-white/20 px-3 py-1 rounded-lg ml-2 text-sm">
-                         {getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}
-                       </div>
-                     </>
-                  )}
-               </button>
-               <p className="mt-6 text-center text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-3">
-                 <Shield className="w-4 h-4 text-accent" />
-                 Secure 256-bit encrypted checkout
-                 <Shield className="w-4 h-4 text-accent" />
-               </p>
-            </div>
-          </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                    <div className="col-span-2 sm:col-span-1"><dt className="text-slate-500">Name</dt><dd className="font-medium text-slate-900">{firstName} {lastName}</dd></div>
+                    <div className="col-span-2 min-w-0 sm:col-span-1"><dt className="text-slate-500">Email</dt><dd className="truncate font-medium text-slate-900">{email}</dd></div>
+                    <div><dt className="text-slate-500">Phone</dt><dd className="font-medium text-slate-900">{phoneNumber}</dd></div>
+                    {flightNumber && <div><dt className="text-slate-500">Flight</dt><dd className="font-medium text-slate-900">{flightNumber}</dd></div>}
+                  </dl>
+                </section>
 
-          {/* Sidebar / Booking Summary */}
-          <div className="lg:col-span-1">
-             <div className="lg:sticky lg:top-10 space-y-4 sm:space-y-6">
-                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] border border-slate-200 p-4 sm:p-8 transition-all duration-500 relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-accent-400"></div>
-                  
-                  <div className="mb-5 sm:mb-8 px-4 py-3 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-950 text-white flex items-center justify-between shadow-2xl shadow-slate-950/20 relative overflow-hidden group/timer gap-4">
-                      <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover/timer:opacity-10 transition-opacity"></div>
-                      <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1.5 leading-none">Price Locked</p>
-                          <p className="text-xs font-black text-emerald-400 uppercase tracking-[0.1em] flex items-center gap-2 leading-none"><Clock className="w-3.5 h-3.5"/> Session Active</p>
-                      </div>
-                      <p className="text-2xl sm:text-3xl font-mono font-black text-white tracking-tighter drop-shadow-[0_4px_12px_rgba(255,255,255,0.2)]">{formatTime(timeLeft)}</p>
-                  </div>
-
-                   <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                      <h3 className="text-lg font-black text-slate-950 tracking-tight">Your Reservation</h3>
-                      <div className="h-px flex-grow bg-slate-100"></div>
-                   </div>
-                   <div className="space-y-3 mb-5">
-                     <div className="flex justify-between text-sm font-semibold text-slate-700 gap-4 group">
-                        <span>Vehicle Hire <span className="text-xs text-slate-500 ml-1">({days}d)</span></span>
-                        <span className="text-slate-900 group-hover:text-accent transition-colors">{getCurrencySymbol()}{convertPrice(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount).toFixed(2)}</span>
-                     </div>
-                     
-                     {priceDetails.insuranceCost > 0 && (
-                        <div className="flex justify-between text-sm font-semibold text-slate-700 gap-4 group">
-                            <span>Premium Shield</span>
-                            <span className="text-slate-900 group-hover:text-emerald-600 transition-colors">{getCurrencySymbol()}{convertPrice(priceDetails.insuranceCost).toFixed(2)}</span>
-                        </div>
-                     )}
-                     
-                     {selectedExtraIds.length > 0 && (
-                         <div className="pt-4 mt-4 border-t border-slate-50 space-y-4 sm:space-y-6">
-                             {car.extras?.filter(e => selectedExtraIds.includes(e.id)).map(extra => (
-                                <div key={extra.id} className="flex justify-between text-sm font-semibold text-slate-700 gap-4 group">
-                                     <span>{extra.name}</span>
-                                     <span className="text-slate-900 group-hover:text-accent transition-colors">{getCurrencySymbol()}{(extra.type === 'per_day' ? convertPrice(extra.price) * days : convertPrice(extra.price)).toFixed(2)}</span>
-                                 </div>
-                             ))}
-                         </div>
-                     )}
-
-                     {priceDetails.discountAmount > 0 && (
-                        <div className="flex justify-between text-sm font-semibold text-emerald-700 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100/50 gap-4">
-                            <span>Applied Promo <span className="text-xs opacity-70 ml-2">({appliedPromo?.code})</span></span>
-                            <span>-{getCurrencySymbol()}{convertPrice(priceDetails.discountAmount).toFixed(2)}</span>
-                        </div>
-                     )}
-
-                     {priceDetails.hogicarPromoAmount > 0 && (
-                        <div className="flex justify-between text-sm font-semibold text-indigo-700 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100/50 gap-4">
-                            <span>Secret Deal Selection</span>
-                            <span>-{getCurrencySymbol()}{convertPrice(priceDetails.hogicarPromoAmount).toFixed(2)}</span>
-                        </div>
-                     )}
-
-                     <div className="flex justify-between text-sm font-semibold text-slate-600 pt-4 sm:pt-6 border-t border-slate-200"><span>Local Taxes</span><span className="text-accent flex items-center gap-2"><Check className="w-3.5 h-3.5"/> Included</span></div>
-                   </div>
-                   <div className="pt-5 border-t-2 border-dashed border-slate-200 mb-5">
-                     <div className="flex justify-between items-end">
-                        <div>
-                            <span className="font-semibold text-slate-700 text-xs tracking-[0.12em] block mb-2 uppercase">Final Total</span>
-                            <span className="text-xs font-semibold text-accent flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5"/> Protected rate</span>
-                        </div>
-                        <span className="font-black text-slate-900 text-[28px] sm:text-4xl tracking-tight leading-none">{getCurrencySymbol()}{convertPrice(priceDetails.finalTotal).toFixed(2)}</span>
-                     </div>
-                   </div>
-
-                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 mb-5">
-                       <div className="flex justify-between font-semibold text-slate-900 text-sm gap-4"><span>Pay online now</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payNow).toFixed(2)}</span></div>
-                       <div className="flex justify-between font-semibold text-slate-600 text-sm gap-4"><span>Pay at counter</span><span>{getCurrencySymbol()}{convertPrice(priceDetails.payAtDesk).toFixed(2)}</span></div>
-                   </div>
-
-                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 mb-5">
-                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-slate-500 mb-3">What is included</p>
-                     <div className="space-y-2 text-sm text-slate-700">
-                       <p className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Supplier base rental charge</p>
-                       <p className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Local taxes and mandatory fees</p>
-                       <p className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Confirmation and booking support</p>
-                     </div>
-                   </div>
-
-                   {routeStep === 'payment' && bookingDraft && (
-                    <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 mb-5">
-                      <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800 mb-2">Payment reservation active</p>
-                      <p className="text-sm text-amber-900 leading-relaxed">Reference <strong>{bookingDraft.bookingRef || bookingDraft.id}</strong> is waiting for payment. If payment is not completed within 30 minutes, we will email the customer a professional reminder.</p>
+                <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 className="text-lg font-bold text-slate-900">Payment details</h2>
+                    <div className="flex items-center gap-1.5">
+                      {['Visa', 'Mastercard', 'Amex'].map(card => (
+                        <span key={card} className="rounded border border-slate-200 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">{card}</span>
+                      ))}
                     </div>
-                   )}
-
-                   <button
-                     type="submit" 
-                     disabled={isActionBusy}
-                     className="group relative w-full bg-accent hover:bg-accent-700 text-white font-black py-4 rounded-xl shadow-2xl shadow-accent-600/20 transition-all duration-500 active:scale-[0.98] flex items-center justify-center text-xs sm:text-sm uppercase tracking-[0.14em] sm:tracking-[0.22em] disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
-                   >
-                     <div className="absolute inset-0 bg-gradient-to-r from-accent to-accent-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                     <span className="relative z-10 flex items-center gap-4">
-                        {isActionBusy ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                {routeStep === 'details' ? 'Preparing secure payment...' : 'Securely Processing...'}
-                            </>
-                        ) : (
-                            <>{primaryButtonLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-500"/></>
-                        )}
-                     </span>
-                   </button>
-                   
-                   <p className="text-center text-xs font-semibold text-slate-600 mt-4 sm:mt-8 flex items-center justify-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-600"/> Bank-level security (AES-256)</p>
-                   
-                   <div className="bg-accent-50 border border-accent-100 rounded-xl p-4 mt-5 flex gap-3 items-start">
-                     <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5 opacity-80" />
-                     <p className="text-xs text-accent-900 leading-relaxed font-medium opacity-90">By confirming this booking, you agree to our Global Terms and Privacy Policy.</p>
-                   </div>
-                </div>
-
-                {/* Secure Trust Badge */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 sm:gap-5">
-                    <div className="w-12 h-12 bg-accent-50 rounded-2xl flex items-center justify-center text-accent shadow-inner">
-                        {(!car?.supplier?.bookingMode || car?.supplier?.bookingMode === 'FREE_SALE') ? <Zap className="w-6 h-6 fill-accent/20"/> : <Clock className="w-6 h-6 text-accent"/>}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5 text-sm">
+                    <span className="text-slate-600">Due now</span>
+                    <span className="text-base font-bold text-slate-900">{money(priceDetails.payNow)}</span>
+                  </div>
+                  <div className="mt-5 space-y-4">
+                    <div className="group">
+                      <label htmlFor="cardholder" className={labelClass}>Name on card</label>
+                      <FormInput id="cardholder" icon={User} type="text" placeholder="As shown on card" autoComplete="cc-name" autoCapitalize="characters" value={cardholderName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardholderName(e.target.value.toUpperCase())} required={priceDetails.payNow > 0} />
                     </div>
                     <div>
-                        <h4 className="text-sm font-semibold text-slate-900 mb-1">
-                            {(!car?.supplier?.bookingMode || car?.supplier?.bookingMode === 'FREE_SALE') ? 'Instant Confirmation' : 'Reservation Request'}
-                        </h4>
-                        <p className="text-sm text-slate-600 leading-tight">
-                            {(!car?.supplier?.bookingMode || car?.supplier?.bookingMode === 'FREE_SALE') ? 'Your car is secured immediately.' : 'Supplier will confirm your request shortly.'}
-                        </p>
+                      <span className={labelClass}>Card details</span>
+                      {stripeEnabled ? (
+                        <div className="rounded-lg border border-slate-300 bg-white px-3 py-3.5 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+                          <CardElement options={{
+                              hidePostalCode: false,
+                              style: {
+                                  base: {
+                                      fontSize: '16px',
+                                      color: '#0f172a',
+                                      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                                      '::placeholder': { color: '#94a3b8' },
+                                  },
+                              }
+                          }} />
+                        </div>
+                      ) : stripeConfigLoading ? (
+                        <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3.5 text-sm text-slate-600">
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+                          Connecting to secure payment…
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-3.5 text-sm text-red-700">
+                          Secure payment is temporarily unavailable. Please try again shortly or contact support.
+                        </div>
+                      )}
+                      <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500"><Lock className="h-3.5 w-3.5" /> Encrypted and processed securely by Stripe.</p>
                     </div>
+                    {paymentError && (
+                      <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">{paymentError}</div>
+                    )}
+                    {bookingDraft && (
+                      <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+                        Booking reference <strong>{bookingDraft.bookingRef || bookingDraft.id}</strong> is reserved and waiting for payment.
+                      </p>
+                    )}
+                  </div>
+                </section>
+              </>
+            )}
+
+            {/* Desktop action */}
+            <div className="hidden items-center justify-between gap-6 lg:flex">
+              <p className="max-w-md text-xs text-slate-500">
+                {routeStep === 'details'
+                  ? 'You won\'t be charged yet. Payment details are entered on the next step.'
+                  : 'By booking you agree to our terms and privacy policy and the supplier\'s rental conditions.'}
+              </p>
+              {submitButton('min-w-[240px]')}
+            </div>
+          </div>
+
+          {/* Booking summary */}
+          <aside>
+            <div className="space-y-3 lg:sticky lg:top-20">
+              <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div className="hidden border-b border-slate-100 p-4 lg:block">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-lg bg-slate-50">
+                      <img src={displayImage} alt={carName} onError={() => setImageError(true)} referrerPolicy="no-referrer" loading="eager" className="max-h-14 w-full object-contain" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold leading-snug text-slate-900">{carName} <span className="font-normal text-slate-500">or similar</span></p>
+                      <p className="mt-0.5 text-xs text-slate-500">{car.passengers} seats · {car.bags} bags · {transmissionLabel}</p>
+                      <div className="mt-2 flex items-center gap-2">
+                        {supplierMark}
+                        {!car.isHogicarChoiceBranded && (
+                          <span className={`${getRatingColor(car.supplier.rating)} rounded px-1.5 py-0.5 text-xs font-bold text-white`}>{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                  <h4 className="text-sm font-black text-slate-900 mb-3 flex items-center gap-2"><Headphones className="w-4 h-4 text-accent" /> Need help before you confirm?</h4>
-                  <p className="text-sm text-slate-600 leading-relaxed">Our booking specialists can help with payment, documentation, and supplier requirements before pickup time.</p>
+                <div className="border-b border-slate-100 p-4">
+                  <h2 className="text-base font-bold text-slate-900">Your trip</h2>
+                  <ol className="mt-3 space-y-3">
+                    {[
+                      { label: 'Pick-up', date: formatShortDate(startDate), time: startTime, place: pickupLabel },
+                      { label: 'Drop-off', date: formatShortDate(endDate), time: endTime, place: dropoffLabel },
+                    ].map((stop, i) => (
+                      <li key={stop.label} className="flex gap-3">
+                        <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${i === 0 ? 'bg-accent' : 'border-2 border-accent bg-white'}`} />
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-500">{stop.label}</p>
+                          <p className="text-sm font-semibold text-slate-900">{stop.date} · {stop.time}</p>
+                          <p className="text-sm text-slate-600">{stop.place}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="mt-3 text-xs text-slate-500">{days} day{days > 1 ? 's' : ''} rental · {fuelPolicyLabel} fuel{car.unlimitedMileage ? ' · Unlimited mileage' : ''}</p>
                 </div>
-             </div>
-          </div>
-          
-          {/* Mobile Sticky Footer */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.10)] animate-in slide-in-from-bottom duration-500">
-            <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+
+                <div className="p-4">
+                  <h2 className="text-base font-bold text-slate-900">Price details</h2>
+                  <dl className="mt-3 space-y-2 text-sm">
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
+                    {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
+                    {selectedExtras.map(extra => (
+                      <div key={extra.id} className="flex justify-between gap-4"><dt className="text-slate-600">{extra.name}</dt><dd className="font-medium text-slate-900">{getCurrencySymbol()}{(extra.type === 'per_day' ? convertPrice(extra.price) * days : convertPrice(extra.price)).toFixed(2)}</dd></div>
+                    ))}
+                    {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo{appliedPromo?.code ? ` (${appliedPromo.code})` : ''}</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
+                    {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Special deal</dt><dd className="font-medium">-{money(priceDetails.hogicarPromoAmount)}</dd></div>}
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Taxes and fees</dt><dd className="font-medium text-emerald-700">Included</dd></div>
+                  </dl>
+                  <div className="mt-3 flex items-end justify-between gap-4 border-t border-slate-200 pt-3">
+                    <span className="text-base font-semibold text-slate-900">Total</span>
+                    <span className="text-2xl font-bold tracking-tight text-slate-900">{money(priceDetails.finalTotal)}</span>
+                  </div>
+                  <div className="mt-3 space-y-1.5 rounded-lg bg-slate-50 p-3 text-sm">
+                    <div className="flex justify-between gap-4"><span className="font-medium text-slate-900">Pay now</span><span className="font-bold text-slate-900">{money(priceDetails.payNow)}</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-slate-600">Pay at pick-up</span><span className="font-medium text-slate-900">{money(priceDetails.payAtDesk)}</span></div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <ul className="space-y-2 text-sm text-slate-600">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> Free cancellation before pick-up</li>
+                  <li className="flex items-center gap-2">{isInstant ? <Zap className="h-4 w-4 shrink-0 text-emerald-600" /> : <Clock className="h-4 w-4 shrink-0 text-amber-600" />} {isInstant ? 'Instant confirmation' : 'Supplier confirms your request shortly'}</li>
+                  <li className="flex items-center gap-2"><Headphones className="h-4 w-4 shrink-0 text-emerald-600" /> 24/7 customer support</li>
+                </ul>
+                <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">At pick-up bring your driving licence, passport or ID, and a credit card in the main driver's name.</p>
+              </section>
+            </div>
+          </aside>
+
+          {/* Mobile sticky footer */}
+          <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-slate-200 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(15,23,42,0.08)] lg:hidden">
+            <div className="mx-auto flex max-w-md items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-slate-500 truncate">
-                  {routeStep === 'payment' ? 'Due now' : `Total · ${days} day${days > 1 ? 's' : ''}`} · {car.make} {car.model}
-                </p>
-                <p className="text-[22px] font-black text-slate-950 tracking-tight leading-tight">
-                  {getCurrencySymbol()}{convertPrice(routeStep === 'payment' ? priceDetails.payNow : priceDetails.finalTotal).toFixed(2)}
-                </p>
-                <p className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 leading-none">
-                  <ShieldCheck className="w-3 h-3" /> Secure checkout
-                </p>
+                <p className="truncate text-xs text-slate-500">{routeStep === 'payment' ? 'Due now' : `Total for ${days} day${days > 1 ? 's' : ''}`}</p>
+                <p className="text-xl font-bold leading-tight tracking-tight text-slate-900">{money(routeStep === 'payment' ? priceDetails.payNow : priceDetails.finalTotal)}</p>
+                <p className="flex items-center gap-1 text-xs text-slate-500"><Lock className="h-3 w-3" /> Secure checkout</p>
               </div>
               <button
                 type="submit"
                 disabled={isActionBusy}
-                className="flex-shrink-0 inline-flex h-12 min-w-[132px] items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-black text-white shadow-[0_12px_24px_-12px_rgba(0,122,194,0.8)] active:scale-95 transition-all disabled:opacity-50"
+                className="inline-flex h-12 min-w-[140px] shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-5 text-base font-semibold text-white transition-colors active:bg-accent-800 disabled:opacity-60"
               >
                 {isActionBusy ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                 ) : routeStep === 'details' ? (
-                  <>Continue <ArrowRight className="w-4 h-4" /></>
+                  <>Continue <ArrowRight className="h-4 w-4" /></>
                 ) : (
-                  <><ShieldCheck className="w-4 h-4" /> {priceDetails.payNow > 0 ? 'Pay now' : 'Confirm'}</>
+                  <>{priceDetails.payNow > 0 ? 'Pay now' : 'Confirm'}</>
                 )}
               </button>
             </div>
