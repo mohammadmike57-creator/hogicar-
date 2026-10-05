@@ -6,6 +6,15 @@ import App from './App';
 import './index.css';
 
 import ErrorBoundary from './components/ErrorBoundary';
+import { cleanReloadMarker, isChunkLoadError, reloadForNewVersion } from './utils/chunkReload';
+
+cleanReloadMarker();
+
+// Vite fires this when a page's JavaScript or CSS file can't be preloaded, which happens when
+// a new version was deployed while this tab was open. Reload to pick up the new build.
+window.addEventListener('vite:preloadError', (event) => {
+  if (reloadForNewVersion()) event.preventDefault();
+});
 
 // Trusted Types Policy for third-party scripts (GTM, Clarity, etc)
 if (typeof window !== 'undefined' && (window as any).trustedTypes && (window as any).trustedTypes.createPolicy) {
@@ -79,20 +88,13 @@ if (!rootElement) {
     `;
   }
 
+  // Log unexpected errors for debugging, but never paint raw error text over the page.
   window.addEventListener('error', (event) => {
     console.error('[SPA] Runtime error:', event.error || event.message);
-    const errorDiv = document.createElement('div');
-    errorDiv.style.cssText = 'color:red; padding:15px; border:1px solid red; margin:10px; border-radius:8px; background:#fff5f5; font-family:sans-serif; font-size:14px;';
-    errorDiv.innerHTML = `<strong>Runtime Error:</strong> ${event.message}<br/><small style="color:#666">${event.filename}:${event.lineno}</small>`;
-    if (rootElement) rootElement.prepend(errorDiv);
   });
 
   window.addEventListener('unhandledrejection', (event) => {
-    const errorDiv = document.createElement('div');
-    errorDiv.style.color = 'red';
-    errorDiv.style.padding = '10px';
-    errorDiv.style.borderTop = '1px solid red';
-    errorDiv.textContent = `Unhandled promise: ${event.reason}`;
-    rootElement.appendChild(errorDiv);
+    console.error('[SPA] Unhandled promise rejection:', event.reason);
+    if (isChunkLoadError(event.reason)) reloadForNewVersion();
   });
 }

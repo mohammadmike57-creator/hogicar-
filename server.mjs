@@ -171,6 +171,10 @@ async function serveStatic(req, res, url) {
         contentType = 'text/plain; charset=utf-8';
       }
 
+      // The HTML page must always be revalidated so browsers never keep an old page that
+      // points at JavaScript files removed by a newer deploy.
+      if (ext === '.html') cacheHeaders['Cache-Control'] = 'no-cache';
+
       const headers = {
         'Content-Type': contentType,
         ...cacheHeaders
@@ -199,7 +203,7 @@ async function serveStatic(req, res, url) {
   }
 
   const html = await readFile(path.join(distDir, 'index.html'));
-  send(res, 200, html, { 'Content-Type': contentTypes['.html'] }, req);
+  send(res, 200, html, { 'Content-Type': contentTypes['.html'], 'Cache-Control': 'no-cache' }, req);
 }
 
 createServer(async (req, res) => {
