@@ -900,7 +900,7 @@ const CarDetails: React.FC = () => {
 
             {/* Price sidebar */}
             <aside className="order-5 lg:order-none">
-              <div className="space-y-3 lg:sticky lg:top-20">
+              <div className="space-y-3 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:overscroll-contain">
                 <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                   <h2 className="text-lg font-bold text-slate-900">Price details</h2>
                   <dl className="mt-4 space-y-2.5 text-sm">

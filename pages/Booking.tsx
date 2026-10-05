@@ -661,7 +661,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         description="Complete your booking and payment details to reserve your car."
         noIndex={true}
       />
-    <div className="min-h-screen overflow-x-hidden bg-slate-50 pb-32 font-sans text-slate-900 lg:pb-16">
+    <div className="min-h-screen overflow-x-clip bg-slate-50 pb-32 font-sans text-slate-900 lg:pb-16">
       {isAdvancingToPayment && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-lg">

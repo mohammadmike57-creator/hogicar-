@@ -23,12 +23,15 @@ html, body {
   padding: 0;
   width: 100%;
   overflow-x: hidden;
+  /* clip (unlike hidden) does not create a scroll container, so position: sticky keeps working */
+  overflow-x: clip;
   background: #ffffff;
 }
 
 #root {
   width: 100%;
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 @keyframes marquee {
