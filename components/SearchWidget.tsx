@@ -14,7 +14,7 @@ import { startCarSearchPrefetch } from '../utils/searchPrefetch';
 import { lazyRetry } from '../utils/lazyRetry';
 
 const SearchOverlay = lazyRetry(() => import('./SearchOverlay'));
-const CalendarPicker = lazyRetry(() => import('./CalendarPicker'));
+const DateRangePicker = lazyRetry(() => import('./DateRangePicker'));
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
     const hour = Math.floor(i / 2);
@@ -83,28 +83,28 @@ const renderSuggestions = (
 const MobileDateTimeField = React.memo(({
     label,
     dateValue,
-    onDateChange,
-    minDate,
+    onOpenDate,
+    isActive,
     timeValue,
     onTimeChange,
     iconColor
 }: {
     label: string;
     dateValue: string;
-    onDateChange: (date: string) => void;
-    minDate: string;
+    onOpenDate: () => void;
+    isActive: boolean;
     timeValue: string;
     onTimeChange: (time: string) => void;
     iconColor: string;
 }) => {
-    const [showCalendar, setShowCalendar] = React.useState(false);
     const timeId = React.useId();
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+        <div className={`overflow-hidden rounded-xl border bg-white transition-colors ${isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-300'}`}>
             <button
                 type="button"
                 className="flex w-full items-start gap-2.5 px-3 py-2.5 text-start active:bg-slate-50"
-                onClick={() => setShowCalendar(true)}
+                onClick={onOpenDate}
+                aria-haspopup="dialog"
                 aria-label={`${label} date: ${formatDateForDisplay(dateValue)}`}
             >
                 <Calendar className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor}`} />
@@ -131,20 +131,6 @@ const MobileDateTimeField = React.memo(({
                     {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
             </div>
-            {showCalendar && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={() => setShowCalendar(false)}>
-                    <div onClick={e => e.stopPropagation()}>
-                        <React.Suspense fallback={<div className="flex h-[400px] w-[320px] items-center justify-center rounded-2xl bg-white p-4"><LoaderCircle className="h-8 w-8 animate-spin text-accent" /></div>}>
-                            <CalendarPicker
-                                selectedDate={dateValue}
-                                minDate={minDate}
-                                onDateSelect={onDateChange}
-                                onClose={() => setShowCalendar(false)}
-                            />
-                        </React.Suspense>
-                    </div>
-                </div>
-            )}
         </div>
     );
 });
@@ -152,19 +138,18 @@ const MobileDateTimeField = React.memo(({
 const DesktopGroupedDateTimeField = React.memo(({ 
     dateLabel, 
     dateValue, 
-    onDateChange, 
-    minDate,
+    onOpenDate,
+    isActive,
     timeLabel, 
     timeValue, 
     onTimeChange,
     timeOptions,
-    iconType = 'pickup',
     idPrefix
 }: { 
     dateLabel: string; 
     dateValue: string; 
-    onDateChange: (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string, value: string } }) => void; 
-    minDate: string;
+    onOpenDate: () => void;
+    isActive: boolean;
     timeLabel: string;
     timeValue: string;
     onTimeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -172,48 +157,23 @@ const DesktopGroupedDateTimeField = React.memo(({
     iconType?: 'pickup' | 'dropoff';
     idPrefix: string;
 }) => {
-    const [showCalendar, setShowCalendar] = React.useState(false);
-    const containerRef = React.useRef<HTMLDivElement>(null);
-
-    React.useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setShowCalendar(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
     return (
-        <div className="flex min-w-0 flex-1 divide-x divide-slate-200 rounded-xl border border-slate-300 bg-white transition-colors hover:border-slate-400">
+        <div className={`flex min-w-0 flex-1 divide-x divide-slate-200 rounded-xl border bg-white transition-colors ${isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-300 hover:border-slate-400'}`}>
             {/* Date */}
-            <div
-                ref={containerRef}
-                className="relative flex min-h-[64px] flex-[2] cursor-pointer items-center gap-3 px-4"
-                onClick={() => setShowCalendar(!showCalendar)}
+            <button
+                type="button"
+                id={`${idPrefix}-date`}
+                className="relative flex min-h-[64px] min-w-0 flex-[2] cursor-pointer items-center gap-3 rounded-s-xl px-4 text-start"
+                onClick={onOpenDate}
+                aria-haspopup="dialog"
+                aria-expanded={isActive}
             >
-                <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
-                <div className="min-w-0">
-                    <label htmlFor={`${idPrefix}-date`} className="block text-xs text-slate-500">{dateLabel}</label>
-                    <div className="truncate text-[15px] font-semibold text-slate-900">{formatDateForDisplay(dateValue)}</div>
-                </div>
-
-                {showCalendar && (
-                    <div className="absolute start-0 top-full z-[100] mt-2" onClick={(e) => e.stopPropagation()}>
-                        <React.Suspense fallback={<div className="flex h-[400px] w-[320px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"><LoaderCircle className="h-8 w-8 animate-spin text-accent" /></div>}>
-                            <CalendarPicker
-                                selectedDate={dateValue}
-                                minDate={minDate}
-                                onDateSelect={(date) => {
-                                    onDateChange({ target: { name: `${idPrefix}Date`, value: date } });
-                                }}
-                                onClose={() => setShowCalendar(false)}
-                            />
-                        </React.Suspense>
-                    </div>
-                )}
-            </div>
+                <Calendar className={`h-5 w-5 shrink-0 ${isActive ? 'text-accent' : 'text-slate-400'}`} />
+                <span className="min-w-0">
+                    <span className="block text-xs text-slate-500">{dateLabel}</span>
+                    <span className="block truncate text-[15px] font-semibold text-slate-900">{formatDateForDisplay(dateValue)}</span>
+                </span>
+            </button>
 
             {/* Time */}
             <div
@@ -287,6 +247,14 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
     const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || nextThreeDays.toISOString().split('T')[0]);
     const [pickupTime, setPickupTime] = React.useState(initialValues?.startTime || '10:00');
     const [dropoffTime, setDropoffTime] = React.useState(initialValues?.endTime || '10:00');
+    const [calendarFor, setCalendarFor] = React.useState<'pickup' | 'dropoff' | null>(null);
+    const desktopDatesRef = React.useRef<HTMLDivElement>(null);
+    const todayIso = today.toISOString().split('T')[0];
+    const closeCalendar = React.useCallback(() => setCalendarFor(null), []);
+    const handleDatesChange = React.useCallback((start: string, end: string) => {
+        setPickupDate(start);
+        setDropoffDate(end < start ? start : end);
+    }, []);
 
     // Sync state when initialValues change (important for dynamic SEO routes)
     React.useEffect(() => {
@@ -625,8 +593,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                         <MobileDateTimeField
                             label="Pick-up"
                             dateValue={pickupDate}
-                            onDateChange={setPickupDate}
-                            minDate={today.toISOString().split('T')[0]}
+                            onOpenDate={() => setCalendarFor('pickup')}
+                            isActive={calendarFor === 'pickup'}
                             timeValue={pickupTime}
                             onTimeChange={setPickupTime}
                             iconColor="text-accent"
@@ -634,8 +602,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                         <MobileDateTimeField
                             label="Drop-off"
                             dateValue={dropoffDate}
-                            onDateChange={setDropoffDate}
-                            minDate={pickupDate}
+                            onOpenDate={() => setCalendarFor('dropoff')}
+                            isActive={calendarFor === 'dropoff'}
                             timeValue={dropoffTime}
                             onTimeChange={setDropoffTime}
                             iconColor="text-accent"
@@ -771,13 +739,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                     </div>
 
                     {/* Dates and times */}
-                    <div className="flex min-w-0 flex-[4] gap-2">
+                    <div ref={desktopDatesRef} className="flex min-w-0 flex-[4] gap-2">
                         <DesktopGroupedDateTimeField
                             idPrefix="pickup"
                             dateLabel="Pick-up date"
                             dateValue={pickupDate}
-                            onDateChange={(e) => setPickupDate(e.target.value)}
-                            minDate={today.toISOString().split('T')[0]}
+                            onOpenDate={() => setCalendarFor(c => (c === 'pickup' ? null : 'pickup'))}
+                            isActive={calendarFor === 'pickup'}
                             timeLabel="Time"
                             timeValue={pickupTime}
                             onTimeChange={(e) => setPickupTime(e.target.value)}
@@ -788,8 +756,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                             idPrefix="dropoff"
                             dateLabel="Drop-off date"
                             dateValue={dropoffDate}
-                            onDateChange={(e) => setDropoffDate(e.target.value)}
-                            minDate={pickupDate}
+                            onOpenDate={() => setCalendarFor(c => (c === 'dropoff' ? null : 'dropoff'))}
+                            isActive={calendarFor === 'dropoff'}
                             timeLabel="Time"
                             timeValue={dropoffTime}
                             onTimeChange={(e) => setDropoffTime(e.target.value)}
@@ -808,6 +776,21 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                 </div>
             </form>
         </div>
+
+        {calendarFor && (
+            <React.Suspense fallback={null}>
+                <DateRangePicker
+                    startDate={pickupDate}
+                    endDate={dropoffDate}
+                    minDate={todayIso}
+                    active={calendarFor}
+                    onActiveChange={setCalendarFor}
+                    onChange={handleDatesChange}
+                    onClose={closeCalendar}
+                    anchorEl={desktopDatesRef.current}
+                />
+            </React.Suspense>
+        )}
         </>
     )
 });

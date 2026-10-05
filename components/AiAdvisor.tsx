@@ -176,7 +176,7 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
     setSending(true);
     const answerLocally = async () => {
       await new Promise(resolve => setTimeout(resolve, 700));
-      const local = localAdvisorAnswer(text, carPayload, symbol, days);
+      const local = localAdvisorAnswer(text, carPayload, symbol, days, history.slice(0, -1));
       setMessages(prev => [...prev, { role: 'assistant', content: local.reply, picks: local.picks }]);
     };
     try {

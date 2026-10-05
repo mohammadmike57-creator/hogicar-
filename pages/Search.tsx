@@ -778,7 +778,7 @@ export const Search: React.FC = () => {
     />
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 md:pb-12">
       {/* Search summary (part of the header) */}
-      <div className="z-30 bg-[#003580] pb-4 pt-3 shadow-md md:sticky md:top-[72px]">
+      <div className="relative z-30 bg-[#003580] pb-4 pt-3 shadow-md md:sticky md:top-[72px]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {!isSearchOpen ? (
             <>
@@ -869,7 +869,7 @@ export const Search: React.FC = () => {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Mobile filter & sort controls */}
-        <div className="sticky top-[72px] z-20 -mx-4 grid grid-cols-2 gap-2 border-b border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur md:hidden">
+        <div className={`sticky top-[72px] z-20 -mx-4 grid-cols-2 gap-2 border-b border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur md:hidden ${isSearchOpen ? 'hidden' : 'grid'}`}>
           <button
             type="button"
             onClick={() => { setShowMobileSort(false); setShowMobileFilters(true); }}
