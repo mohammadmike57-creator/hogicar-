@@ -710,6 +710,20 @@ export const Search: React.FC = () => {
     (maxDeposit > 0 ? 1 : 0) +
     (specialOffersOnly ? 1 : 0);
 
+  const activeFilters: { key: string; label: string; clear: () => void }[] = [
+    ...(specialOffersOnly ? [{ key: 'special', label: 'Special offers', clear: () => setSpecialOffersOnly(false) }] : []),
+    ...selectedCategories.map(c => ({ key: `cat-${c}`, label: formatCategoryName(c), clear: () => handleCategoryToggle(c) })),
+    ...(passengerCapacity > 0 ? [{ key: 'seats', label: `${passengerCapacity}+ seats`, clear: () => setPassengerCapacity(0) }] : []),
+    ...selectedTransmissions.map(t => ({ key: `tr-${t}`, label: t === 'AUTOMATIC' ? 'Automatic' : t === 'MANUAL' ? 'Manual' : t, clear: () => handleTransmissionChange(t) })),
+    ...selectedPaymentTypes.map(t => ({ key: `pay-${t}`, label: paymentTypeMapping[t as CommissionType] || t, clear: () => handlePaymentTypeChange(t) })),
+    ...(maxDeposit > 0 ? [{ key: 'deposit', label: `Deposit under ${getCurrencySymbol()}${convertPrice(maxDeposit).toFixed(0)}`, clear: () => setMaxDeposit(0) }] : []),
+    ...selectedLocationTypes.map(l => ({ key: `loc-${l}`, label: l, clear: () => handleLocationTypeChange(l) })),
+    ...selectedFuelPolicies.map(f => ({ key: `fuel-${f}`, label: `Fuel: ${f.replace(/_/g, ' ').toLowerCase()}`, clear: () => handleFuelPolicyChange(f) })),
+    ...selectedSuppliers.map(n => ({ key: `sup-${n}`, label: n, clear: () => handleSupplierChange(n) })),
+    ...(priceRange < 5000 ? [{ key: 'price', label: `Up to ${getCurrencySymbol()}${convertPrice(priceRange).toFixed(0)}/day`, clear: () => setPriceRange(5000) }] : []),
+  ];
+  const matchedFilterLabels = activeFilters.map(f => f.label);
+
   const sortOptions = ['Recommended', 'Price: Low to High', 'Price: High to Low'];
   const sortLabel = (value: string) => value === 'Price: Low to High' ? 'Lowest price' : value === 'Price: High to Low' ? 'Highest price' : 'Recommended';
 
@@ -745,36 +759,77 @@ export const Search: React.FC = () => {
         description={`Find the best car rental deals in ${location}. Compare prices from top suppliers like Hertz, Avis, and more.`}
     />
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 md:pb-12">
-      {/* Search summary */}
-      <div className="z-30 border-b border-slate-200 bg-white md:sticky md:top-[72px]">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-50 text-accent sm:flex">
-                <MapPin className="h-5 w-5" />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-900 sm:text-base">{location || 'Select location'}</p>
-                <p className="truncate text-xs text-slate-500 sm:text-sm">
-                  {startDateTimeDisplay.replace(' • ', ', ')} – {endDateTimeDisplay.replace(' • ', ', ')}
-                  <span className="hidden sm:inline"> · {days} day{days > 1 ? 's' : ''}</span>
-                  {dropoffIata && dropoffIata !== pickupIata && <span className="hidden sm:inline"> · Return to {dropoffName || dropoffIata}</span>}
-                </p>
+      {/* Search summary (part of the header) */}
+      <div className="z-30 bg-[#003580] pb-4 pt-3 shadow-md md:sticky md:top-[72px]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {!isSearchOpen ? (
+            <>
+              {/* Desktop: segmented bar */}
+              <div className="hidden items-stretch rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-black/5 md:flex">
+                {[
+                  { icon: MapPin, label: dropoffIata && dropoffIata !== pickupIata ? 'Pick-up location' : 'Pick-up & drop-off', value: location || 'Select location', grow: 'flex-[1.6]' },
+                  { icon: Calendar, label: 'Pick-up', value: startDateTimeDisplay.replace(' • ', ', '), grow: 'flex-1' },
+                  { icon: Calendar, label: 'Drop-off', value: endDateTimeDisplay.replace(' • ', ', '), grow: 'flex-1' },
+                ].map((seg, i) => (
+                  <button
+                    key={seg.label}
+                    type="button"
+                    onClick={() => setIsSearchOpen(true)}
+                    className={`flex min-w-0 ${seg.grow} items-center gap-3 rounded-lg px-4 py-2 text-left transition-colors hover:bg-slate-50 ${i > 0 ? 'border-l border-slate-200' : ''}`}
+                  >
+                    <seg.icon className="h-5 w-5 shrink-0 text-slate-400" />
+                    <span className="min-w-0">
+                      <span className="block text-xs text-slate-500">{seg.label}</span>
+                      <span className="block truncate text-[15px] font-semibold text-slate-900">{seg.value}</span>
+                    </span>
+                  </button>
+                ))}
+                <div className="flex items-center border-l border-slate-200 px-4">
+                  <span className="text-center">
+                    <span className="block text-xs text-slate-500">Rental</span>
+                    <span className="block whitespace-nowrap text-[15px] font-semibold text-slate-900">{days} day{days > 1 ? 's' : ''}</span>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="ml-1.5 inline-flex shrink-0 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+                >
+                  <Edit className="h-4 w-4" /> Edit search
+                </button>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              aria-expanded={isSearchOpen}
-              className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 transition-colors hover:border-accent hover:text-accent sm:px-4"
-            >
-              {isSearchOpen ? <X className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
-              <span>{isSearchOpen ? 'Close' : 'Edit search'}</span>
-            </button>
-          </div>
 
-          {isSearchOpen && (
-            <div className="mt-3 animate-fadeIn">
+              {/* Mobile: compact bar */}
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(true)}
+                className="flex w-full items-center gap-3 rounded-xl bg-white px-3.5 py-2.5 text-left shadow-lg ring-1 ring-black/5 md:hidden"
+              >
+                <MapPin className="h-5 w-5 shrink-0 text-accent" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-slate-900">{location || 'Select location'}</span>
+                  <span className="block truncate text-xs text-slate-500">
+                    {startDateTimeDisplay.replace(' • ', ', ')} – {endDateTimeDisplay.replace(' • ', ', ')}
+                  </span>
+                </span>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent" aria-hidden="true">
+                  <Edit className="h-4 w-4" />
+                </span>
+                <span className="sr-only">Edit search</span>
+              </button>
+            </>
+          ) : (
+            <div className="animate-fadeIn">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-semibold text-white">Edit your search</p>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
+                >
+                  <X className="h-4 w-4" /> Close
+                </button>
+              </div>
               <SearchWidget
                 onSearch={handleSearch}
                 initialValues={{
@@ -1035,6 +1090,29 @@ export const Search: React.FC = () => {
                   })}
                 </div>
 
+                {activeFilters.length > 0 && (
+                  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-800">
+                      <Check className="h-4 w-4" /> Filtered by
+                    </span>
+                    {activeFilters.map(f => (
+                      <button
+                        key={f.key}
+                        type="button"
+                        onClick={f.clear}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-emerald-300 bg-white pl-3 pr-2 text-sm text-emerald-900 transition-colors hover:border-emerald-400 hover:bg-emerald-50"
+                        aria-label={`Remove filter ${f.label}`}
+                      >
+                        {f.label}
+                        <X className="h-3.5 w-3.5 text-emerald-600" />
+                      </button>
+                    ))}
+                    <button type="button" onClick={handleResetFilters} className="ml-auto text-sm font-medium text-emerald-800 hover:underline">
+                      Clear all
+                    </button>
+                  </div>
+                )}
+
                 <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h1 className="text-lg font-bold text-slate-900 sm:text-xl">
@@ -1074,6 +1152,7 @@ export const Search: React.FC = () => {
                       showCompareControl
                       showMobileCompareControl
                       onCompareToggle={() => toggleCompare(car)}
+                      matchedFilters={matchedFilterLabels}
                     />
                   ))}
 

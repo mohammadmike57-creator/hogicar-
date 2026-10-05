@@ -375,6 +375,8 @@ interface CarCardProps {
   showCompareControl?: boolean;
   showMobileCompareControl?: boolean;
   onCompareToggle?: () => void;
+  /** Labels of the active search filters this car matches; highlights the card when non-empty. */
+  matchedFilters?: string[];
 }
 
 const CarCard: React.FC<CarCardProps> = ({
@@ -390,7 +392,8 @@ const CarCard: React.FC<CarCardProps> = ({
     isComparing = false,
     showCompareControl = true,
     showMobileCompareControl = true,
-    onCompareToggle
+    onCompareToggle,
+    matchedFilters = []
 }) => {
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
   const [showRatings, setShowRatings] = React.useState(false);
@@ -418,6 +421,7 @@ const CarCard: React.FC<CarCardProps> = ({
   const ratingToDisplay = React.useMemo(() => parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1)), [car.supplier.rating]);
   const reviewCount = car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount;
   const closeRatings = React.useCallback(() => setShowRatings(false), []);
+  const isFilterMatch = matchedFilters.length > 0;
 
   const pickupType = car.supplier?.pickupType;
   const pickupLabel =
@@ -508,10 +512,20 @@ const CarCard: React.FC<CarCardProps> = ({
       />
 
       <article
-        className={`relative w-full overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md ${
-          isComparing ? 'border-accent ring-1 ring-accent' : car.isHogicarChoiceBranded ? 'border-accent/60' : 'border-slate-200'
+        className={`relative w-full overflow-hidden rounded-xl border bg-white transition-shadow ${
+          isComparing
+            ? 'border-accent shadow-sm ring-1 ring-accent hover:shadow-md'
+            : isFilterMatch
+              ? 'border-emerald-300 shadow-[0_0_0_3px_rgba(16,185,129,0.12),0_10px_28px_-14px_rgba(5,150,105,0.55)] hover:shadow-[0_0_0_4px_rgba(16,185,129,0.16),0_14px_34px_-14px_rgba(5,150,105,0.6)]'
+              : car.isHogicarChoiceBranded ? 'border-accent/60 shadow-sm hover:shadow-md' : 'border-slate-200 shadow-sm hover:shadow-md'
         }`}
       >
+        {isFilterMatch && (
+          <div className="flex items-center gap-1.5 border-b border-emerald-100 bg-emerald-50 px-4 py-1.5 text-xs font-medium text-emerald-800">
+            <Check className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">Matches your filters: {matchedFilters.join(' · ')}</span>
+          </div>
+        )}
         {car.isHogicarChoiceBranded && (
           <div className="flex items-center gap-1.5 border-b border-accent/20 bg-accent-50 px-4 py-1.5 text-xs font-semibold text-accent-800">
             <Award className="h-3.5 w-3.5" /> Hogicar recommended

@@ -7,6 +7,11 @@ import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import Check from 'lucide-react/dist/esm/icons/check';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import CarIcon from 'lucide-react/dist/esm/icons/car';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Headphones from 'lucide-react/dist/esm/icons/headphones';
+import Receipt from 'lucide-react/dist/esm/icons/receipt';
+import Lightbulb from 'lucide-react/dist/esm/icons/lightbulb';
 import { motion } from 'framer-motion';
 
 const Searching: React.FC = () => {
@@ -267,6 +272,16 @@ const Searching: React.FC = () => {
     return Math.max(1, Math.ceil(diff / 86400000));
   })();
 
+  const dropoffLabel = searchParams.get('dropoffName') || pickupName;
+  const dropoffCode = (searchPrefetchParams.dropoffCode || pickupIata || '').toUpperCase();
+  const checkedCount = progress >= 1 ? totalSuppliers : suppliersScanned;
+
+  const included = [
+    { icon: ShieldCheck, title: 'Free cancellation', text: 'On most bookings' },
+    { icon: Receipt, title: 'No hidden fees', text: 'Taxes and fees shown up front' },
+    { icon: Headphones, title: '24/7 support', text: 'Before and during your rental' },
+  ];
+
   return (
     <>
       <SEOMetadata
@@ -275,132 +290,177 @@ const Searching: React.FC = () => {
         noIndex={true}
       />
       <div className="min-h-[calc(100vh-72px)] bg-slate-50 font-sans text-slate-900">
-        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" role="status" aria-live="polite">
-            {/* Trip summary */}
-            <div className="flex items-start gap-4 border-b border-slate-100 p-5 sm:p-6">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-50 text-accent">
-                <MapPin className="h-5 w-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-500">Finding cars in</p>
-                <h1 className="truncate text-lg font-bold text-slate-900 sm:text-xl">
-                  {pickupName}
-                  {pickupIata && pickupIata.toUpperCase() !== pickupName.toUpperCase() && (
-                    <span className="ml-2 align-middle text-sm font-semibold text-slate-400">{pickupIata.toUpperCase()}</span>
-                  )}
-                </h1>
-                {(searchPrefetchParams.pickupDate || searchPrefetchParams.dropoffDate) && (
-                  <p className="mt-1 text-sm text-slate-600">
-                    {formatTripDate(searchPrefetchParams.pickupDate, searchPrefetchParams.startTime)} – {formatTripDate(searchPrefetchParams.dropoffDate, searchPrefetchParams.endTime)}
-                    {tripDays > 0 && <span className="text-slate-400"> · {tripDays} day{tripDays > 1 ? 's' : ''}</span>}
-                  </p>
-                )}
+        {/* Trip band */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#003580] via-[#0047a6] to-[#0b5cc4] pb-24 pt-8 text-white sm:pb-28 sm:pt-10">
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" aria-hidden="true" />
+          <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+            <p className="text-center text-sm font-medium text-white/75">Finding the best car rental deals for your trip</p>
+
+            <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Pick-up</p>
+                <p className="mt-1 truncate text-lg font-bold sm:text-2xl">{pickupIata ? pickupIata.toUpperCase() : pickupName}</p>
+                <p className="truncate text-sm text-white/80">{pickupName}</p>
+                <p className="mt-1 text-sm text-white/70">{formatTripDate(searchPrefetchParams.pickupDate, searchPrefetchParams.startTime)}</p>
+              </div>
+
+              <div className="w-24 sm:w-64" aria-hidden="true">
+                <div className="relative h-8">
+                  <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/35" />
+                  <div className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white" />
+                  <div className="absolute right-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-white" />
+                  <div
+                    className="absolute top-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-accent shadow-lg transition-[left] duration-200 ease-out"
+                    style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
+                  >
+                    <CarIcon className="h-4 w-4" />
+                  </div>
+                </div>
+                {tripDays > 0 && <p className="mt-1 text-center text-xs font-medium text-white/75">{tripDays} day{tripDays > 1 ? 's' : ''}</p>}
+              </div>
+
+              <div className="min-w-0 text-right">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Drop-off</p>
+                <p className="mt-1 truncate text-lg font-bold sm:text-2xl">{dropoffCode || dropoffLabel}</p>
+                <p className="truncate text-sm text-white/80">{dropoffLabel}</p>
+                <p className="mt-1 text-sm text-white/70">{formatTripDate(searchPrefetchParams.dropoffDate, searchPrefetchParams.endTime)}</p>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Progress */}
-            <div className="p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-4">
-                <p className="flex items-center gap-2 text-sm font-semibold text-slate-900 sm:text-base">
-                  <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true" />
-                  <span key={stepIndex} className="animate-in fade-in duration-500">{searchMessages[stepIndex]}…</span>
-                </p>
-                <span className="shrink-0 text-sm font-semibold tabular-nums text-slate-500">{percent}%</span>
-              </div>
-              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Search progress">
-                <div className="h-full rounded-full bg-accent transition-[width] duration-200 ease-out" style={{ width: `${progress * 100}%` }} />
-              </div>
+        <div className="relative mx-auto -mt-16 max-w-5xl px-4 pb-12 sm:-mt-20 sm:px-6">
+          {/* Progress card */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg sm:p-6" role="status" aria-live="polite">
+            <div className="flex items-center justify-between gap-4">
+              <p className="flex items-center gap-2.5 text-sm font-semibold text-slate-900 sm:text-base">
+                <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent" aria-hidden="true" />
+                <span key={stepIndex} className="animate-in fade-in duration-500">{searchMessages[stepIndex]}…</span>
+              </p>
+              <span className="shrink-0 text-2xl font-bold tabular-nums text-accent">{percent}%</span>
+            </div>
+            <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Search progress">
+              <div className="h-full rounded-full bg-gradient-to-r from-accent to-sky-400 transition-[width] duration-200 ease-out" style={{ width: `${progress * 100}%` }} />
+            </div>
 
-              <ol className="mt-5 grid gap-2 sm:grid-cols-2">
+            <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-8">
+              <ol className="space-y-3">
                 {searchMessages.map((message, i) => {
                   const done = i < stepIndex || progress >= 1;
                   const active = i === stepIndex && progress < 1;
                   return (
-                    <li key={message} className={`flex items-center gap-2.5 text-sm ${done ? 'text-slate-700' : active ? 'font-medium text-slate-900' : 'text-slate-400'}`}>
-                      <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${done ? 'bg-emerald-500 text-white' : active ? 'border-2 border-accent' : 'border-2 border-slate-200'}`}>
-                        {done && <Check className="h-3 w-3" />}
+                    <li key={message} className={`flex items-center gap-3 text-sm ${done ? 'text-slate-700' : active ? 'font-semibold text-slate-900' : 'text-slate-400'}`}>
+                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${done ? 'bg-emerald-500 text-white' : active ? 'bg-accent-50 ring-2 ring-accent' : 'bg-slate-100'}`}>
+                        {done ? <Check className="h-3.5 w-3.5" /> : active ? <span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> : <span className="text-[11px] font-semibold text-slate-400">{i + 1}</span>}
                       </span>
                       {message}
                     </li>
                   );
                 })}
               </ol>
+
+              {totalSuppliers > 0 ? (
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-slate-900">Rental companies</p>
+                    <p className="text-sm text-slate-500"><span className="font-semibold tabular-nums text-slate-900">{checkedCount}</span> of {totalSuppliers} checked</p>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    {visibleSuppliers.map((supplier, index) => {
+                      const isComplete = progress >= 1 || index < suppliersScanned;
+                      const isActive = !isComplete && index === Math.min(suppliersScanned, totalSuppliers - 1);
+                      const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
+                      const logoSrc = supplier.logoUrl || supplier.logo;
+                      const initials = String(supplier.name || 'Supplier').split(/\s+/).slice(0, 2).map((part: string) => part.charAt(0)).join('').toUpperCase();
+                      return (
+                        <div
+                          key={`supplier-scan-${supplier.id}-${supplier.name}`}
+                          className={`relative flex h-14 min-w-0 items-center justify-center rounded-lg border bg-white p-2.5 transition-all duration-300 ${
+                            isComplete ? 'border-slate-200' : isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-200 opacity-40'
+                          }`}
+                          title={supplier.name}
+                          aria-label={`${supplier.name || 'Supplier'} ${isComplete ? 'checked' : isActive ? 'checking' : 'waiting'}`}
+                        >
+                          {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
+                            <div className="flex h-full w-full items-center justify-center" style={{ transform: `scale(${logoScale})` }}>
+                              <Logo className="h-full w-full object-contain" />
+                            </div>
+                          ) : logoSrc ? (
+                            <img src={logoSrc} alt={supplier.name} className="h-full w-full object-contain" style={{ transform: `scale(${logoScale})` }} />
+                          ) : (
+                            <span className="text-xs font-semibold text-slate-500">{initials}</span>
+                          )}
+                          {isComplete && (
+                            <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
+                              <Check className="h-3 w-3" />
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-accent shadow-sm">
+                    <CarIcon className="h-6 w-6" />
+                  </span>
+                  <p className="text-sm text-slate-600">We're checking global brands and trusted local suppliers at <span className="font-semibold text-slate-900">{pickupName}</span>.</p>
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* Rental companies being checked */}
-            {totalSuppliers > 0 && (
-              <div className="border-t border-slate-100 bg-slate-50/60 p-5 sm:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold text-slate-900">Rental companies</p>
-                  <p className="text-sm text-slate-500"><span className="font-semibold text-slate-900 tabular-nums">{progress >= 1 ? totalSuppliers : suppliersScanned}</span> of {totalSuppliers} checked</p>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
-                  {visibleSuppliers.map((supplier, index) => {
-                    const isComplete = progress >= 1 || index < suppliersScanned;
-                    const isActive = !isComplete && index === Math.min(suppliersScanned, totalSuppliers - 1);
-                    const logoScale = ((isMobileViewport ? supplier.mobileScale : supplier.scale) || 100) / 100;
-                    const logoSrc = supplier.logoUrl || supplier.logo;
-                    const initials = String(supplier.name || 'Supplier').split(/\s+/).slice(0, 2).map((part: string) => part.charAt(0)).join('').toUpperCase();
-                    return (
-                      <div
-                        key={`supplier-scan-${supplier.id}-${supplier.name}`}
-                        className={`relative flex h-14 min-w-0 items-center justify-center rounded-lg border bg-white p-2.5 transition-all duration-300 ${
-                          isComplete ? 'border-slate-200' : isActive ? 'border-accent ring-2 ring-accent/20' : 'border-slate-200 opacity-40'
-                        }`}
-                        title={supplier.name}
-                        aria-label={`${supplier.name || 'Supplier'} ${isComplete ? 'checked' : isActive ? 'checking' : 'waiting'}`}
-                      >
-                        {(supplier.logoUrl === 'HOGICAR_CHOICE_LOGO' || supplier.logo === 'HOGICAR_CHOICE_LOGO') ? (
-                          <div className="flex h-full w-full items-center justify-center" style={{ transform: `scale(${logoScale})` }}>
-                            <Logo className="h-full w-full object-contain" />
-                          </div>
-                        ) : logoSrc ? (
-                          <img src={logoSrc} alt={supplier.name} className="h-full w-full object-contain" style={{ transform: `scale(${logoScale})` }} />
-                        ) : (
-                          <span className="text-xs font-semibold text-slate-500">{initials}</span>
-                        )}
-                        {isComplete && (
-                          <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
-                            <Check className="h-3 w-3" />
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Tip */}
-            <div className="flex items-start gap-3 border-t border-slate-100 px-5 py-4 sm:px-6">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                <Check className="h-3.5 w-3.5" />
+          {/* What's included + tip */}
+          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <p className="text-sm font-semibold text-slate-900">Every Hogicar booking</p>
+              <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+                {included.map(item => (
+                  <li key={item.title} className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                      <item.icon className="h-5 w-5" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold text-slate-900">{item.title}</span>
+                      <span className="block text-xs text-slate-500">{item.text}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-amber-500 shadow-sm">
+                <Lightbulb className="h-5 w-5" />
               </span>
-              <motion.p
-                key={currentTipIndex}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-slate-600"
-              >
-                {tips[currentTipIndex]}
-              </motion.p>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-amber-900">Good to know</p>
+                <motion.p
+                  key={currentTipIndex}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-0.5 text-sm text-amber-900/80"
+                >
+                  {tips[currentTipIndex]}
+                </motion.p>
+              </div>
             </div>
           </div>
 
           {/* Results preview */}
-          <div className="mt-6 space-y-3" aria-hidden="true">
-            {[0, 1].map(i => (
-              <div key={i} className="flex gap-4 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="h-20 w-28 shrink-0 animate-pulse rounded-lg bg-slate-100 sm:w-36" />
+          <p className="mb-3 mt-8 text-sm font-medium text-slate-500">Your results will appear here</p>
+          <div className="space-y-3" aria-hidden="true">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="flex gap-4 rounded-xl border border-slate-200 bg-white p-4" style={{ opacity: 1 - i * 0.25 }}>
+                <div className="h-20 w-28 shrink-0 animate-pulse rounded-lg bg-slate-100 sm:w-40" />
                 <div className="flex-1 space-y-2.5 py-1">
                   <div className="h-4 w-2/5 animate-pulse rounded bg-slate-100" />
                   <div className="h-3 w-3/5 animate-pulse rounded bg-slate-100" />
                   <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
                 </div>
-                <div className="hidden w-28 shrink-0 space-y-2.5 py-1 sm:block">
+                <div className="hidden w-32 shrink-0 space-y-2.5 py-1 sm:block">
                   <div className="ml-auto h-5 w-20 animate-pulse rounded bg-slate-100" />
-                  <div className="ml-auto h-9 w-full animate-pulse rounded-lg bg-slate-100" />
+                  <div className="ml-auto h-10 w-full animate-pulse rounded-lg bg-slate-100" />
                 </div>
               </div>
             ))}

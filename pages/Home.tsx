@@ -670,7 +670,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
             {!heroLoaded && !heroVideo && heroBackgroundImage && <div className="absolute inset-0 bg-[#00224f]" />}
             {(heroVideo || heroBackgroundImage) && (
               <>
-                <div className="absolute inset-0 bg-slate-950/45 lg:bg-transparent lg:bg-gradient-to-r lg:from-slate-950/80 lg:via-slate-950/45 lg:to-slate-950/10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/35 to-slate-950/55" />
                 <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/50 to-transparent" />
               </>
             )}
@@ -678,7 +678,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
 
           <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             {isCustomLanding && (
-              <div className="mb-5">
+              <div className="mb-5 flex flex-col items-center text-center">
                 <Breadcrumbs items={breadcrumbItems} variant="light" />
                 {seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY' && (
                   <span className="mt-3 inline-block rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur">
@@ -688,7 +688,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               </div>
             )}
 
-            <div className="max-w-3xl">
+            <div className="mx-auto max-w-3xl text-center">
               {heroPromotion.active ? (
                 <a
                   href={heroPromotion.link || '#search'}
@@ -704,10 +704,10 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                   <span className="hidden sm:inline">900+ rental companies · 60,000+ locations</span>
                 </span>
               )}
-              <h1 className="mt-4 text-balance text-[2rem] font-extrabold leading-[1.1] tracking-tight drop-shadow-sm sm:text-5xl lg:text-6xl">
+              <h1 className="mt-5 text-balance text-[2rem] font-extrabold leading-[1.1] tracking-tight drop-shadow-sm sm:text-5xl lg:text-6xl">
                 {displayH1}
               </h1>
-              <p className="route-description mt-4 max-w-2xl text-base text-white/85 sm:text-lg lg:text-xl">
+              <p className="route-description mx-auto mt-4 max-w-2xl text-balance text-base text-white/85 sm:text-lg lg:text-xl">
                 {displaySubtitle}
               </p>
             </div>
@@ -726,7 +726,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               </div>
             )}
 
-            <ul className="mt-6 grid gap-2.5 text-sm text-white/90 sm:flex sm:flex-wrap sm:gap-x-8">
+            <ul className="mx-auto mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2.5 text-sm text-white/90 sm:gap-x-8">
               {heroHighlights.map(item => (
                 <li key={item.text} className="inline-flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
