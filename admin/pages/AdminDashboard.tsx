@@ -321,16 +321,16 @@ const StatCard = ({ icon: Icon, title, value, change, hint, color = 'blue' }: an
     purple: 'bg-violet-50 text-violet-600',
   };
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+    <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-slate-500">{title}</p>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${colors[color] || colors.blue}`}>
+        <p className="text-xs font-medium text-slate-500 sm:text-sm">{title}</p>
+        <span className={`flex h-8 w-8 shrink-0 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${colors[color] || colors.blue}`}>
           <Icon className="h-[18px] w-[18px]" />
         </span>
       </div>
-      <p className="mt-3 text-[28px] font-semibold leading-none tracking-tight text-slate-900 tabular-nums">{value}</p>
+      <p className="mt-2 truncate text-[22px] font-semibold leading-none tracking-tight text-slate-900 tabular-nums sm:mt-3 sm:text-[28px]">{value}</p>
       {(change || hint) && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+        <p className="mt-2 flex items-center gap-1.5 text-[11px] leading-snug text-slate-500 sm:text-xs">
           {change && (
             <span className={`inline-flex items-center gap-0.5 font-semibold ${String(change).startsWith('-') ? 'text-red-600' : 'text-emerald-600'}`}>
               <TrendingUp className="h-3 w-3" /> {change}
@@ -549,18 +549,59 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   const sizes: any = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-6xl' };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-[2px]" onClick={onClose}>
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 backdrop-blur-[2px] sm:items-center sm:p-4" onClick={onClose}>
       <motion.div initial={{ scale: 0.98, y: 8 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.98, y: 8 }} transition={{ duration: 0.15 }}
         role="dialog" aria-modal="true"
-        className={`flex max-h-[90vh] w-full ${sizes[size]} flex-col overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-slate-900/5`} onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+        className={`flex max-h-[92dvh] w-full ${sizes[size]} flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl ring-1 ring-slate-900/5 sm:max-h-[90vh] sm:rounded-xl`} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-4 py-3.5 sm:px-6 sm:py-4">
+          <h2 className="truncate text-base font-semibold text-slate-900 sm:text-lg">{title}</h2>
           <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100" aria-label="Close"><X className="h-5 w-5" /></button>
         </div>
-        <div className="flex-grow overflow-y-auto p-6">{children}</div>
+        <div className="flex-grow overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">{children}</div>
       </motion.div>
     </motion.div>
   );
+};
+
+// ==================== Responsive tables ====================
+/**
+ * On phones every table inside the admin content is shown as a list of cards (see
+ * .admin-content rules in index.css). This labels each cell with its column header so
+ * the card can show "Status: Confirmed" etc. It re-runs whenever the content changes.
+ */
+const useResponsiveTables = (root: React.RefObject<HTMLElement | null>, key: unknown) => {
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const label = () => {
+      el.querySelectorAll('table').forEach(table => {
+        const headRow = table.querySelector('thead tr');
+        if (!headRow) return;
+        const headers: string[] = [];
+        headRow.querySelectorAll('th, td').forEach(th => {
+          const span = Number((th as HTMLTableCellElement).colSpan) || 1;
+          for (let i = 0; i < span; i++) headers.push((th.textContent || '').trim());
+        });
+        table.setAttribute('data-rt', '');
+        table.querySelectorAll('tbody tr').forEach(tr => {
+          let col = 0;
+          tr.querySelectorAll(':scope > td').forEach(td => {
+            const text = headers[col] || '';
+            if (td.getAttribute('data-label') !== text) td.setAttribute('data-label', text);
+            col += Number((td as HTMLTableCellElement).colSpan) || 1;
+          });
+        });
+      });
+    };
+    label();
+    let frame = 0;
+    const observer = new MutationObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(label);
+    });
+    observer.observe(el, { childList: true, subtree: true });
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+  }, [root, key]);
 };
 
 // ==================== Sidebar ====================
@@ -646,6 +687,42 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupp
         </div>
       </aside>
     </>
+  );
+};
+
+// ==================== Mobile tab bar ====================
+const MobileTabBar = ({ activeSection, setActiveSection, onMore, pendingCount }: any) => {
+  const tabs: { section: Section; label: string; icon: any }[] = [
+    { section: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+    { section: 'bookings', label: 'Bookings', icon: Calendar },
+    { section: 'suppliers', label: 'Suppliers', icon: Building },
+    { section: 'externalsuppliers', label: 'External', icon: Share2 },
+  ];
+  const inTabs = tabs.some(t => t.section === activeSection);
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Quick navigation">
+      <ul className="grid grid-cols-5">
+        {tabs.map(({ section, label, icon: Icon }) => {
+          const active = activeSection === section;
+          return (
+            <li key={section}>
+              <button onClick={() => { setActiveSection(section); window.scrollTo({ top: 0 }); }} aria-current={active ? 'page' : undefined}
+                className={`flex h-14 w-full flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${active ? 'text-accent' : 'text-slate-500'}`}>
+                <Icon className="h-5 w-5" />
+                {label}
+              </button>
+            </li>
+          );
+        })}
+        <li>
+          <button onClick={onMore} className={`relative flex h-14 w-full flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${!inTabs ? 'text-accent' : 'text-slate-500'}`}>
+            <Menu className="h-5 w-5" />
+            Menu
+            {pendingCount > 0 && <span className="absolute right-[26%] top-2 h-2 w-2 rounded-full bg-red-500" />}
+          </button>
+        </li>
+      </ul>
+    </nav>
   );
 };
 
@@ -2556,7 +2633,7 @@ const DashboardContent = ({ stats, pendingCount, bookings, onNavigate }: any) =>
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatCard icon={DollarSign} title="Revenue" value={money(stats.totalRevenue)} hint="All bookings, excluding cancelled" />
         <StatCard icon={Calendar} title="Bookings" value={stats.totalBookings.toLocaleString()} hint={`${last14Bookings} in the last 14 days`} color="green" />
         <StatCard icon={TrendingUp} title="Average booking value" value={money(avgValue)} hint="Per non-cancelled booking" color="purple" />
@@ -2571,7 +2648,7 @@ const DashboardContent = ({ stats, pendingCount, bookings, onNavigate }: any) =>
               <p className="text-sm text-slate-500">{money(last14Revenue)} from {last14Bookings} booking{last14Bookings === 1 ? '' : 's'}</p>
             </div>
           </div>
-          <div className="h-[300px] w-full min-w-0">
+          <div className="h-[220px] w-full min-w-0 sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%" minHeight={1} minWidth={0}>
               <AreaChart data={chart} margin={{ left: 0, right: 8, top: 8 }}>
                 <defs>
@@ -2621,12 +2698,12 @@ const DashboardContent = ({ stats, pendingCount, bookings, onNavigate }: any) =>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <div>
+        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-4 sm:px-5">
+          <div className="min-w-0">
             <h3 className="text-base font-semibold text-slate-900">Recent bookings</h3>
             <p className="text-sm text-slate-500">The latest reservations across all suppliers</p>
           </div>
-          <button onClick={() => onNavigate?.('bookings')} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
+          <button onClick={() => onNavigate?.('bookings')} className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
             View all <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -4801,6 +4878,8 @@ export const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  useResponsiveTables(contentRef, activeSection);
   const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [supplierFetchError, setSupplierFetchError] = useState<string | null>(null);
@@ -5350,7 +5429,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="admin-shell min-h-screen bg-slate-50 font-sans text-slate-900">
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} onSave={handleSavePage} />}
@@ -5378,9 +5457,13 @@ export const AdminDashboard: React.FC = () => {
         {/* Top bar */}
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
           <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6 lg:px-8">
-            <button onClick={() => setIsSidebarOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 lg:hidden" aria-label="Open menu">
+            <button onClick={() => setIsSidebarOpen(true)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 lg:hidden" aria-label="Open menu">
               <Menu className="h-5 w-5" />
             </button>
+            <span className="flex items-center gap-2 sm:hidden">
+              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent text-xs font-bold text-white">H</span>
+              <span className="text-sm font-semibold text-slate-900">Admin</span>
+            </span>
             <nav className="hidden min-w-0 items-center gap-1.5 text-sm sm:flex" aria-label="Breadcrumb">
               <span className="text-slate-500">{SECTION_META[activeSection]?.group || 'Admin'}</span>
               <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
@@ -5393,7 +5476,7 @@ export const AdminDashboard: React.FC = () => {
                   <span className="sr-only">Supplier</span>
                   <Building className="pointer-events-none absolute left-2.5 h-4 w-4 text-slate-400" />
                   <select
-                    className="h-9 max-w-[220px] rounded-lg border border-slate-300 bg-white pl-8 pr-8 text-sm text-slate-900 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    className="h-9 w-[172px] rounded-lg border border-slate-300 bg-white pl-8 pr-7 text-sm text-slate-900 sm:w-auto sm:max-w-[220px] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                     value={selectedSupplierId || ''}
                     onChange={(e) => setSelectedSupplierId(e.target.value || null)}
                   >
@@ -5402,22 +5485,22 @@ export const AdminDashboard: React.FC = () => {
                   </select>
                 </label>
               )}
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white" title="Administrator">AD</span>
+              <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white sm:flex" title="Administrator">AD</span>
             </div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <main className="mx-auto max-w-[1600px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mb-5 flex flex-col gap-3 sm:mb-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{SECTION_META[activeSection]?.title || activeSection}</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{SECTION_META[activeSection]?.title || activeSection}</h1>
               <p className="mt-1 text-sm text-slate-500">{SECTION_META[activeSection]?.description}</p>
             </div>
             {selectedSupplierId && (() => {
               const sup = suppliers.find(x => x.id.toString() === selectedSupplierId.toString());
               const revealed = revealedPasswords.has(`header-${sup?.id}`);
               return (
-                <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm">
+                <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm max-sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs text-slate-500">Supplier login</p>
                     <p className="max-w-[200px] truncate font-medium text-slate-900">{sup?.email || 'N/A'}</p>
@@ -5439,6 +5522,7 @@ export const AdminDashboard: React.FC = () => {
             })()}
           </div>
 
+          <div ref={contentRef} className="admin-content">
           <AnimatePresence mode="wait">
             <motion.div 
                 key={activeSection} 
@@ -5446,15 +5530,17 @@ export const AdminDashboard: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18 }}
-                className="min-h-[600px] overflow-x-auto pb-2 [&_table]:min-w-[860px]"
+                className="min-h-[600px] pb-2 md:overflow-x-auto md:[&_table]:min-w-[860px]"
             >
               {renderContent()}
             </motion.div>
           </AnimatePresence>
+          </div>
 
-          <footer className="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-400">
+          <footer className="mt-12 hidden border-t border-slate-200 pt-6 text-xs text-slate-400 lg:block">
             © {new Date().getFullYear()} Hogicar · Admin
           </footer>
+          <MobileTabBar activeSection={activeSection} setActiveSection={setActiveSection} onMore={() => setIsSidebarOpen(true)} pendingCount={pendingCount} />
         </main>
       </div>
 

@@ -115,3 +115,81 @@ html, body {
 .animate-slideUp {
   animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ---------- Admin dashboard: phone layout ---------- */
+@media (max-width: 767px) {
+  /* Tables become stacked cards; cells are labelled by useResponsiveTables(). */
+  .admin-content table[data-rt] {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .admin-content table[data-rt] thead { display: none; }
+  .admin-content table[data-rt] tbody { display: block; }
+  .admin-content table[data-rt] tbody tr {
+    display: block;
+    margin: 0 0 12px;
+    padding: 4px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .admin-content table[data-rt] tbody tr:last-child { margin-bottom: 0; }
+  .admin-content table[data-rt] tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: auto !important;
+    min-width: 0;
+    padding: 9px 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    border-radius: 0 !important;
+    text-align: right;
+    font-size: 14px;
+  }
+  .admin-content table[data-rt] tbody td:last-child { border-bottom: 0 !important; }
+  .admin-content table[data-rt] tbody td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    max-width: 42%;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: left;
+  }
+  .admin-content table[data-rt] tbody td[data-label=""]::before { content: none; }
+  .admin-content table[data-rt] tbody td > * { min-width: 0; max-width: 100%; }
+  /* The first column is the card title. */
+  .admin-content table[data-rt] tbody td:first-child {
+    justify-content: flex-start;
+    padding-top: 12px !important;
+    text-align: left;
+    font-weight: 600;
+  }
+  .admin-content table[data-rt] tbody td:first-child::before { content: none; }
+  /* Action cells: buttons full width row. */
+  .admin-content table[data-rt] tbody td:last-child:has(button) { justify-content: flex-end; flex-wrap: wrap; }
+  .admin-content table[data-rt] tbody td:last-child:has(button)::before { content: none; }
+  /* Empty-state rows spanning all columns. */
+  .admin-content table[data-rt] tbody td[colspan] { justify-content: center; text-align: center; }
+  .admin-content table[data-rt] tbody td[colspan]::before { content: none; }
+
+  /* Wrappers that only existed for horizontal scrolling. */
+  .admin-content .overflow-x-auto { overflow-x: visible; }
+
+  /* Tighter spacing inside section cards. */
+  .admin-content .p-8, .admin-content .p-10 { padding: 1rem; }
+  .admin-content .p-6 { padding: 1rem; }
+  .admin-content .px-8 { padding-left: 1rem; padding-right: 1rem; }
+  .admin-content .py-8 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+  .admin-content .gap-8 { gap: 1rem; }
+  .admin-content .text-3xl { font-size: 1.375rem; line-height: 1.75rem; }
+  .admin-content .text-2xl { font-size: 1.25rem; line-height: 1.75rem; }
+}
