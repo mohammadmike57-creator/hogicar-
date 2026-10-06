@@ -2,8 +2,7 @@ import React from 'react';
 import X from 'lucide-react/dist/esm/icons/x';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-circle';
 import Save from 'lucide-react/dist/esm/icons/save';
-import PackagePlus from 'lucide-react/dist/esm/icons/package-plus';
-import ImageUploadField from './ImageUploadField';
+import AddonIcon from '../../components/AddonIcon';
 import {
   ADDON_DEFINITIONS,
   AddonCatalog,
@@ -11,19 +10,9 @@ import {
   AddonUnit,
   SupplierAddonsEntry,
   mergedCatalog,
-  resolveImageUrl,
 } from '../../utils/addons';
 
 const inputCls = 'h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';
-
-const Thumb: React.FC<{ src?: string; alt: string; className?: string }> = ({ src, alt, className = 'h-12 w-16' }) => {
-  const [failed, setFailed] = React.useState(false);
-  return (
-    <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 ${className}`}>
-      {src && !failed ? <img src={src} alt={alt} onError={() => setFailed(true)} className="h-full w-full object-cover" /> : <PackagePlus className="h-5 w-5 text-slate-300" />}
-    </span>
-  );
-};
 
 const toNumber = (value: string) => {
   if (value.trim() === '') return null;
@@ -95,7 +84,7 @@ export const SupplierAddonsEditor: React.FC<{
           return (
             <li key={item.code} className={`p-3 ${row.offered ? 'bg-white' : 'bg-slate-50'}`}>
               <div className="flex items-center gap-3">
-                <Thumb src={item.image} alt={item.name} className="h-10 w-14" />
+                <AddonIcon code={item.code} active={row.offered} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className={`truncate text-sm font-medium ${row.offered ? 'text-slate-900' : 'text-slate-400 line-through'}`}>{item.name}</p>
                   <p className="text-xs text-slate-500">{row.offered ? (row.price ? 'Supplier price' : `Default: ${fallback}${item.defaultPrice !== null ? ` / ${item.unit === 'per_day' ? 'day' : 'rental'}` : ''}`) : 'Not offered by this supplier'}</p>
@@ -150,7 +139,6 @@ interface CatalogRow {
   enabled: boolean;
   name: string;
   description: string;
-  image: string;
   defaultPrice: string;
   unit: AddonUnit;
   maxPrice: string;
@@ -175,7 +163,6 @@ export const AddonCatalogPanel: React.FC<{
         enabled: c.enabled !== false,
         name: c.name || '',
         description: c.description || '',
-        image: c.image || '',
         defaultPrice: typeof c.defaultPrice === 'number' ? String(c.defaultPrice) : '',
         unit: c.unit || 'per_day',
         maxPrice: typeof c.maxPrice === 'number' ? String(c.maxPrice) : '',
@@ -199,7 +186,6 @@ export const AddonCatalogPanel: React.FC<{
           enabled: r.enabled,
           name: r.name.trim() || undefined,
           description: r.description.trim() || undefined,
-          image: r.image.trim() || undefined,
           defaultPrice: toNumber(r.defaultPrice),
           unit: r.unit,
           maxPrice: r.unit === 'per_day' ? toNumber(r.maxPrice) : null,
@@ -220,7 +206,7 @@ export const AddonCatalogPanel: React.FC<{
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
           <div>
             <h2 id="addon-catalog-title" className="text-lg font-semibold text-slate-900">Add-on catalog</h2>
-            <p className="mt-0.5 text-sm text-slate-500">Photos, names and default prices shown on every car page. Suppliers can have their own prices.</p>
+            <p className="mt-0.5 text-sm text-slate-500">Names, descriptions and default prices shown on every car page. Suppliers can have their own prices.</p>
           </div>
           <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100" aria-label="Close"><X className="h-5 w-5" /></button>
         </div>
@@ -232,7 +218,7 @@ export const AddonCatalogPanel: React.FC<{
             return (
               <div key={def.code} className={`rounded-xl border p-4 ${r.enabled ? 'border-slate-200' : 'border-slate-200 bg-slate-50'}`}>
                 <div className="flex items-center gap-3">
-                  <Thumb src={resolveImageUrl(r.image) || def.image} alt={def.name} className="h-14 w-20" />
+                  <AddonIcon code={def.code} active={r.enabled} />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-slate-900">{r.name || def.name}</p>
                     <p className="text-xs text-slate-500">{r.enabled ? 'Shown to customers' : 'Hidden from customers'}</p>
@@ -275,15 +261,6 @@ export const AddonCatalogPanel: React.FC<{
                       <span className="mb-1 block text-xs font-medium text-slate-600">Description</span>
                       <input className={inputCls} placeholder={def.description} value={r.description} onChange={e => set(def.code, { description: e.target.value })} />
                     </label>
-                    <div className="sm:col-span-2">
-                      <ImageUploadField
-                        label="Photo"
-                        value={r.image}
-                        onChange={(e: any) => set(def.code, { image: e.target.value })}
-                        placeholder="Upload a photo or paste an image URL (leave empty for the default photo)"
-                        helperText="Landscape photos work best (about 480 × 320)."
-                      />
-                    </div>
                   </div>
                 )}
               </div>

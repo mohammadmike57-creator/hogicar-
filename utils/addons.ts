@@ -2,11 +2,10 @@
 //
 // The catalog (names, photos, default prices) and each external supplier's own prices are
 // set in the admin and stored with the site content, like the pick-up type overrides:
-//   addonCatalog:    { [code]: { name?, description?, image?, enabled?, defaultPrice?, unit?, maxPrice? } }
+//   addonCatalog:    { [code]: { name?, description?, enabled?, defaultPrice?, unit?, maxPrice? } }
 //   supplierAddons:  { "<LOC>|vendor:CODE" | "*|vendor:CODE" ...: { supplierName, vendorCode, addons: { [code]: { price, unit, maxPrice?, enabled } } } }
 // The car page turns them into car.extras, which the booking flow already understands.
 import { Car, Extra } from '../types';
-import { API_BASE_URL } from '../lib/config';
 import { findSupplierEntry, loadSiteContent, SupplierScopedEntry } from './pickupOverrides';
 
 export const ADDON_CATALOG_FIELD = 'addonCatalog';
@@ -19,28 +18,23 @@ export interface AddonDefinition {
   code: AddonCode;
   name: string;
   description: string;
-  /** Default photo; the admin can replace it. */
-  image: string;
   /** How many a customer can add (seats: up to 3). */
   maxQuantity: number;
 }
 
-const pexels = (id: number) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=480&h=320&fit=crop`;
-
 export const ADDON_DEFINITIONS: AddonDefinition[] = [
-  { code: 'ADDITIONAL_DRIVER', name: 'Additional driver', description: 'Share the driving. The extra driver must show a valid licence at pick-up.', image: pexels(7427776), maxQuantity: 3 },
-  { code: 'BABY_SEAT', name: 'Baby seat', description: 'Rear-facing infant seat for babies up to 13 kg (0–15 months).', image: pexels(7708639), maxQuantity: 3 },
-  { code: 'CHILD_SEAT', name: 'Child seat', description: 'Forward-facing seat for children 9–18 kg (about 1–4 years).', image: pexels(6300862), maxQuantity: 3 },
-  { code: 'BOOSTER_SEAT', name: 'Booster seat', description: 'Raises older children, 15–36 kg (about 4–12 years), so the belt fits safely.', image: pexels(6300862), maxQuantity: 3 },
-  { code: 'GPS', name: 'GPS navigation', description: 'Satellite navigation with up-to-date local maps.', image: pexels(29270814), maxQuantity: 1 },
-  { code: 'WIFI', name: 'Wi-Fi hotspot', description: 'Portable 4G hotspot to keep everyone connected on the road.', image: pexels(4218546), maxQuantity: 1 },
-  { code: 'SNOW_CHAINS', name: 'Snow chains', description: 'Recommended or required on mountain roads in winter.', image: pexels(10592773), maxQuantity: 1 },
+  { code: 'ADDITIONAL_DRIVER', name: 'Additional driver', description: 'Share the driving. The extra driver must show a valid licence at pick-up.', maxQuantity: 3 },
+  { code: 'BABY_SEAT', name: 'Baby seat', description: 'Rear-facing infant seat for babies up to 13 kg (0–15 months).', maxQuantity: 3 },
+  { code: 'CHILD_SEAT', name: 'Child seat', description: 'Forward-facing seat for children 9–18 kg (about 1–4 years).', maxQuantity: 3 },
+  { code: 'BOOSTER_SEAT', name: 'Booster seat', description: 'Raises older children, 15–36 kg (about 4–12 years), so the belt fits safely.', maxQuantity: 3 },
+  { code: 'GPS', name: 'GPS navigation', description: 'Satellite navigation with up-to-date local maps.', maxQuantity: 1 },
+  { code: 'WIFI', name: 'Wi-Fi hotspot', description: 'Portable 4G hotspot to keep everyone connected on the road.', maxQuantity: 1 },
+  { code: 'SNOW_CHAINS', name: 'Snow chains', description: 'Recommended or required on mountain roads in winter.', maxQuantity: 1 },
 ];
 
 export interface AddonCatalogEntry {
   name?: string;
   description?: string;
-  image?: string;
   /** Hidden from customers when false. */
   enabled?: boolean;
   /** Used for suppliers without their own price. Empty = "price confirmed at the desk". */
@@ -65,7 +59,6 @@ export type SupplierAddonsMap = Record<string, SupplierAddonsEntry>;
 /** Extra as shown on the car page. */
 export interface AddonExtra extends Extra {
   code: AddonCode;
-  image?: string;
   maxPrice?: number | null;
   maxQuantity: number;
   /** No price set: the supplier confirms and charges it at the desk. */
@@ -73,9 +66,6 @@ export interface AddonExtra extends Extra {
 }
 
 const isObj = (v: unknown): v is Record<string, any> => !!v && typeof v === 'object' && !Array.isArray(v);
-
-export const resolveImageUrl = (url?: string) =>
-  url && url.startsWith('/') && !url.startsWith('//') ? `${API_BASE_URL}${url}` : url;
 
 /** Catalog with admin changes applied on top of the built-in definitions. */
 export const mergedCatalog = (catalog: AddonCatalog | null | undefined) =>
@@ -85,7 +75,6 @@ export const mergedCatalog = (catalog: AddonCatalog | null | undefined) =>
       ...def,
       name: custom.name?.trim() || def.name,
       description: custom.description?.trim() || def.description,
-      image: resolveImageUrl(custom.image?.trim()) || def.image,
       enabled: custom.enabled !== false,
       defaultPrice: typeof custom.defaultPrice === 'number' && custom.defaultPrice >= 0 ? custom.defaultPrice : null,
       unit: custom.unit || 'per_day' as AddonUnit,
@@ -131,7 +120,6 @@ export const buildCarAddons = (
         code: item.code,
         name: item.name,
         description: item.description,
-        image: item.image,
         price: price ?? 0,
         type: unit,
         maxPrice,
