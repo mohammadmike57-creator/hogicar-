@@ -107,6 +107,7 @@ const ExternalSuppliersPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveWarning, setSaveWarning] = useState<string | null>(null);
 
   // Pick-up type overrides (in terminal / meet & greet / shuttle bus)
   const [pickupOverrides, setPickupOverrides] = useState<PickupOverrideMap>({});
@@ -118,13 +119,14 @@ const ExternalSuppliersPage: React.FC = () => {
   }, []);
 
   const overrideFor = (supplier: SupplierConfig) =>
-    findPickupOverride(pickupOverrides, selectedLocation?.iataCode, supplier.supplierId, supplier.supplierName);
+    findPickupOverride(pickupOverrides, selectedLocation?.iataCode, supplier.supplierId, supplier.supplierName, supplier.vendorCode);
 
   const openEditor = (supplier: SupplierConfig) => {
     const current = overrideFor(supplier);
     setPickupChoice((current?.pickupType as PickupTypeValue) || '');
     setPickupAllLocations(!!current?.key.startsWith('*|'));
     setSaveError(null);
+    setSaveWarning(null);
     setEditingSupplier(supplier);
   };
 
@@ -256,6 +258,7 @@ const ExternalSuppliersPage: React.FC = () => {
 
     setIsSaving(true);
     setSaveError(null);
+    setSaveWarning(null);
     try {
       const savedDto = await adminFetch(`/api/admin/external-suppliers/locations/${selectedLocation.iataCode}/suppliers/${editingSupplier.supplierId}`, {
         method: 'PUT',
@@ -267,14 +270,19 @@ const ExternalSuppliersPage: React.FC = () => {
       const current = overrideFor(editingSupplier);
       const changed = (current?.pickupType || '') !== pickupChoice || (!!current && current.key.startsWith('*|') !== pickupAllLocations);
       if (changed) {
-        const map = await savePickupOverride({
+        const result = await savePickupOverride({
           location: selectedLocation.iataCode,
           supplierId: editingSupplier.supplierId,
           supplierName: editingSupplier.supplierName,
+          vendorCode: editingSupplier.vendorCode,
           pickupType: pickupChoice || null,
           allLocations: pickupAllLocations,
         });
-        setPickupOverrides(map);
+        setPickupOverrides(result.overrides);
+        if (!result.publicOk) {
+          setSaveWarning('Saved in the admin, but the public website is not receiving this setting yet: the backend\'s public homepage content (/api/homepage/content) does not include "supplierPickupOverrides". The backend needs to return that field for the search results to change.');
+          return;
+        }
       }
       setEditingSupplier(null);
     } catch (error) {
@@ -755,6 +763,12 @@ const ExternalSuppliersPage: React.FC = () => {
                 </section>
               </div>
 
+              {saveWarning && (
+                <div className="mx-6 mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800" role="status">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{saveWarning}</span>
+                </div>
+              )}
               {saveError && (
                 <div className="mx-6 mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700" role="alert">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />

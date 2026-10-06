@@ -229,6 +229,7 @@ export interface Car {
   isHogicarChoiceBranded?: boolean;
   promotionAmount?: number;
   promotionPercent?: number;
+  vendorCode?: string; // External API provider code
 }
 
 export interface ApiSearchResult {
