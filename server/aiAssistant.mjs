@@ -31,8 +31,8 @@ How to answer:
 - Explain trade-offs in plain language (for example a cheaper car with a high deposit versus a slightly dearer one with a low deposit, or "full to full" versus other fuel policies).
 - Keep the reply short and easy to scan: at most about 120 words, with short sentences or a few "- " bullet lines. No markdown headings, tables or bold.
 - Reply in the same language the customer writes in.
-- Recommend at most 3 cars in "picks", best first, using their exact "id" from the search data. Give each pick a short label such as "Best value", "Cheapest", "Lowest deposit", "Best for families" or "Top rated", and a reason of one short sentence. Leave "picks" empty when no recommendation fits the question.
-- When asked to compare all results or for an overview, summarise the whole search: price range, each car type with its cheapest price, how the suppliers compare, and the standout deals (cheapest, best value, cheapest automatic, lowest deposit, top rated). This answer may be up to about 200 words.
+- Recommend at most 3 cars in "picks" (for an overview or per-category answer, one pick per car type instead, up to 10), best first, using their exact "id" from the search data. Give each pick a short label such as "Best value", "Cheapest", "Lowest deposit", "Best for families" or "Top rated", and a reason of one short sentence. Leave "picks" empty when no recommendation fits the question.
+- When asked to compare all results, for an overview, or for the best in each category: group the cars by car type (category) and, for every type, name the best-value car and explain in one short sentence what it offers for any extra cost over the cheapest car of that type (automatic gearbox, luggage space, supplier rating, deposit, fuel policy, mileage), mentioning any downside. Then briefly compare the suppliers and give the overall best value and cheapest car. Give one pick per car type labelled "Best value · <type>". This answer may be up to about 250 words.
 - You cannot book, change or cancel anything. For bookings, the customer selects a car on the page.
 - If the question has nothing to do with car hire or this trip, politely steer the conversation back to choosing a car.`;
 
@@ -243,7 +243,7 @@ export async function handleAiAssistant(req, res) {
     const knownIds = new Set(cars.map(c => c.id));
     const picks = (Array.isArray(parsed.picks) ? parsed.picks : [])
       .filter(p => p && knownIds.has(p.carId))
-      .slice(0, 3)
+      .slice(0, 10)
       .map(p => ({ carId: p.carId, label: str(p.label, 40) || 'Recommended', reason: str(p.reason, 300) || '' }));
 
     sendJson(res, 200, { reply: str(parsed.reply, 2000) || '', picks });

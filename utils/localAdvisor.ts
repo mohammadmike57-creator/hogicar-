@@ -199,7 +199,7 @@ function parseQuestion(question: string, cars: AdvisorCar[]): Parsed {
 
   const trimmed = text.trim();
   const greeting = /^(hi|hello|hey|salam|مرحبا|السلام|good (morning|evening|afternoon))\b/.test(trimmed) && trimmed.split(' ').length <= 4;
-  const overview = has(text, ['compare all', 'all results', 'all the results', 'all cars', 'all the cars', 'all options', 'every car', 'overview', 'summary', 'summarize', 'summarise', 'compare everything', 'compare them', 'compare the results', 'what are my options', 'what do you have', 'قارن كل', 'كل السيارات']);
+  const overview = has(text, ['each category', 'every category', 'per category', 'by category', 'each type', 'every type', 'per type', 'each class', 'each car type', 'in each', 'for each', 'all categories', 'all types', 'كل فئة', 'كل الفئات', 'compare all', 'all results', 'all the results', 'all cars', 'all the cars', 'all options', 'every car', 'overview', 'summary', 'summarize', 'summarise', 'compare everything', 'compare them', 'compare the results', 'what are my options', 'what do you have', 'قارن كل', 'كل السيارات']);
   const thanks = /\b(thanks|thank you|thx|great|perfect|شكرا)\b/.test(trimmed) && trimmed.split(' ').length <= 5;
   const refinement = /^(and|also|what about|how about|but|only|now|ok|okay|then|same|instead|with|without|any|anything|is there|are there|show me|و)\b/.test(trimmed)
     || (trimmed.split(' ').length <= 4 && !sort && !compare);
@@ -253,7 +253,7 @@ export const classRank = (c: AdvisorCar) => {
 };
 
 /** What the customer gets for the money: car class, space and supplier rating. */
-const benefit = (c: AdvisorCar) => classRank(c) * 1.2 + (c.seats ?? 4) * 0.35 + (c.bags ?? 1) * 0.5 + (c.supplierRating ? c.supplierRating * 0.15 : 1.2);
+const benefit = (c: AdvisorCar) => classRank(c) * 1.2 + (c.seats ?? 4) * 0.35 + (c.bags ?? 1) * 0.5 + (c.transmission === 'Automatic' ? 0.8 : 0) + (c.supplierRating ? c.supplierRating * 0.15 : 1.2);
 /** Rental terms that save money or hassle. */
 const terms = (c: AdvisorCar, maxDeposit: number) =>
   (c.fuelPolicy === 'Full to full' ? 1 : 0) + (c.unlimitedMileage ? 1 : 0) + (c.specialOffer ? 0.6 : 0)
@@ -633,7 +633,48 @@ export function localAdvisorAnswer(question: string, cars: AdvisorCar[], symbol:
   };
 }
 
-/** Compares every car in the search: car types, suppliers and the standout deals. */
+/**
+ * Value within one car type: what the extra money buys. Each extra (automatic, luggage,
+ * supplier rating, deposit, terms) earns points; every 10% above the type's cheapest price
+ * costs 0.6 points.
+ */
+function categoryValue(c: AdvisorCar, list: AdvisorCar[]): number {
+  const minPrice = Math.min(...list.map(x => x.totalPrice));
+  const ratings = list.map(x => x.supplierRating).filter((r): r is number => r !== undefined);
+  const avgRating = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+  const minBags = Math.min(...list.map(x => x.bags ?? 0));
+  const minSeats = Math.min(...list.map(x => x.seats ?? 0));
+  const deposits = list.map(x => x.deposit).filter((d): d is number => d !== undefined && d > 0);
+  const minDeposit = deposits.length ? Math.min(...deposits) : 0;
+  let points = 0;
+  if (c.transmission === 'Automatic') points += 1;
+  points += ((c.bags ?? 0) - minBags) * 0.4 + ((c.seats ?? 0) - minSeats) * 0.3;
+  if (c.supplierRating !== undefined && ratings.length) points += (c.supplierRating - avgRating) * 0.35;
+  if (minDeposit && c.deposit) points += (minDeposit / c.deposit - 1) * 0.6;
+  if (c.fuelPolicy === 'Full to full') points += 0.3;
+  if (c.unlimitedMileage) points += 0.3;
+  if (/terminal/i.test(c.pickupLocation || '')) points += 0.2;
+  if (c.specialOffer) points += 0.2;
+  points -= ((c.totalPrice - minPrice) / minPrice) * 6;
+  return points;
+}
+
+/** What `a` offers over `b`, in plain words. */
+function advantagesOver(a: AdvisorCar, b: AdvisorCar, symbol: string): string[] {
+  const out: string[] = [];
+  if (a.transmission === 'Automatic' && b.transmission !== 'Automatic') out.push('automatic');
+  if ((a.bags ?? 0) > (b.bags ?? 0)) out.push(`${plural(a.bags ?? 0, 'bag')} instead of ${b.bags ?? 0}`);
+  if ((a.seats ?? 0) > (b.seats ?? 0)) out.push(`${a.seats} seats`);
+  if ((a.supplierRating ?? 0) > (b.supplierRating ?? 0) + 0.1) out.push(`a better-rated supplier (${a.supplierRating?.toFixed(1)} vs ${b.supplierRating?.toFixed(1)})`);
+  if (a.deposit !== undefined && b.deposit !== undefined && a.deposit < b.deposit) out.push(`a lower deposit (${money(symbol, a.deposit)})`);
+  if (a.fuelPolicy === 'Full to full' && b.fuelPolicy !== 'Full to full') out.push('full-to-full fuel');
+  if (a.unlimitedMileage && b.unlimitedMileage === false) out.push('unlimited mileage');
+  if (/terminal/i.test(a.pickupLocation || '') && !/terminal/i.test(b.pickupLocation || '')) out.push('in-terminal pick-up');
+  if (a.specialOffer && !b.specialOffer) out.push('a special offer');
+  return out;
+}
+
+/** Compares every car in the search: the best value in each car type, suppliers and the standouts. */
 function overviewAnswer(pool: AdvisorCar[], cars: AdvisorCar[], requirements: string[], symbol: string, days: number): AdvisorAnswer {
   if (!cars.length) {
     return { reply: `None of the ${plural(pool.length, 'car')} in this search match ${listJoin(requirements)}. Try asking without one of those requirements.`, picks: [] };
@@ -641,22 +682,40 @@ function overviewAnswer(pool: AdvisorCar[], cars: AdvisorCar[], requirements: st
   const suppliers = Array.from(new Set(cars.map(c => c.supplier).filter(Boolean) as string[]));
   const prices = cars.map(c => c.totalPrice);
   const lines: string[] = [
-    `I compared all ${plural(cars.length, 'car')}${requirements.length ? ` that match ${listJoin(requirements)}` : ' in your search'} from ${plural(suppliers.length, 'supplier')}, for ${plural(days, 'day')}: ${money(symbol, Math.min(...prices))} to ${money(symbol, Math.max(...prices))}.`,
+    `I compared all ${plural(cars.length, 'car')}${requirements.length ? ` that match ${listJoin(requirements)}` : ' in your search'} from ${plural(suppliers.length, 'supplier')} for ${plural(days, 'day')} (${money(symbol, Math.min(...prices))}–${money(symbol, Math.max(...prices))}).`,
   ];
 
-  // By car type, smallest first.
+  // Best value in each car type, smallest type first. Value is judged within the type:
+  // price against gearbox, space, supplier rating and rental terms.
   const byType = new Map<string, AdvisorCar[]>();
   cars.forEach(c => { const key = c.category || 'Other'; byType.set(key, [...(byType.get(key) || []), c]); });
-  const types = Array.from(byType.entries()).sort((a, b) => classRank(a[1][0]) - classRank(b[1][0]));
-  lines.push('By car type:');
-  types.slice(0, 8).forEach(([type, list]) => {
+  const minOf = (list: AdvisorCar[]) => Math.min(...list.map(c => c.totalPrice));
+  const types = Array.from(byType.entries()).sort((a, b) => classRank(a[1][0]) - classRank(b[1][0]) || minOf(a[1]) - minOf(b[1]));
+  const picks: AdvisorPick[] = [];
+  const categoryBests: AdvisorCar[] = [];
+  lines.push('Best value in each car type:');
+  for (const [type, list] of types) {
+    const best = [...list].sort((a, b) => categoryValue(b, list) - categoryValue(a, list) || a.totalPrice - b.totalPrice)[0];
     const cheapest = sortCars(list, 'price', pool)[0];
-    lines.push(`- ${type}: ${plural(list.length, 'car')} from ${money(symbol, cheapest.totalPrice)} (${cheapest.name}, ${cheapest.supplier})`);
-  });
+    categoryBests.push(best);
+    let why: string;
+    if (list.length === 1) {
+      why = 'the only one of this type';
+    } else if (best.id === cheapest.id) {
+      const extra = advantagesOver(best, sortCars(list, 'price', pool)[1] || best, symbol);
+      why = `cheapest of ${list.length}${extra.length ? `, and ${listJoin(extra)}` : ''}`;
+    } else {
+      const extra = advantagesOver(best, cheapest, symbol);
+      why = `${money(symbol, best.totalPrice - cheapest.totalPrice)} more than the cheapest (${cheapest.name}, ${money(symbol, cheapest.totalPrice)}) for ${extra.length ? listJoin(extra) : 'better overall terms'}`;
+      if ((best.supplierRating ?? 0) < (cheapest.supplierRating ?? 0) - 0.1) why += `, though its supplier is rated lower (${best.supplierRating?.toFixed(1)} vs ${cheapest.supplierRating?.toFixed(1)})`;
+    }
+    lines.push(`- ${type}: ${label(best)}, ${money(symbol, best.totalPrice)} (${money(symbol, best.pricePerDay)}/day). ${why[0].toUpperCase()}${why.slice(1)}.`);
+    picks.push({ carId: best.id, label: `Best value · ${type}`, reason: `${specs(best)}. ${why[0].toUpperCase()}${why.slice(1)}.` });
+  }
 
-  // By supplier, cheapest first.
+  // Suppliers, cheapest first.
   if (suppliers.length > 1) {
-    lines.push('By supplier:');
+    lines.push('Suppliers:');
     suppliers
       .map(sup => ({ sup, list: cars.filter(c => c.supplier === sup) }))
       .sort((a, b) => Math.min(...a.list.map(c => c.totalPrice)) - Math.min(...b.list.map(c => c.totalPrice)))
@@ -667,34 +726,19 @@ function overviewAnswer(pool: AdvisorCar[], cars: AdvisorCar[], requirements: st
       });
   }
 
-  // Standout deals.
-  const picks: AdvisorPick[] = [];
-  const add = (label: string, car: AdvisorCar | undefined, reason: string) => {
-    if (car && !picks.some(p => p.carId === car.id) && picks.length < 3) picks.push({ carId: car.id, label, reason });
-  };
-  const value = sortCars(cars, 'value', pool)[0];
+  // Overall verdict.
+  const value = sortCars(categoryBests, 'value', cars)[0];
   const cheapest = sortCars(cars, 'price', pool)[0];
-  const autos = cars.filter(c => c.transmission === 'Automatic');
-  const cheapestAuto = sortCars(autos, 'price', pool)[0];
-  const big = sortCars(cars.filter(c => (c.seats ?? 0) >= 7), 'price', pool)[0];
-  const deposits = cars.filter(c => c.deposit !== undefined);
-  const lowDeposit = deposits.length >= 2 && new Set(deposits.map(c => c.deposit)).size > 1 ? sortCars(deposits, 'deposit', pool)[0] : undefined;
   const ratings = cars.map(c => c.supplierRating).filter((r): r is number => r !== undefined);
   const topRated = ratings.length && Math.max(...ratings) - Math.min(...ratings) >= 0.1 ? sortCars(cars, 'rating', pool)[0] : undefined;
+  lines.push('Overall:');
+  lines.push(`- Best value overall: ${value.name} (${[value.supplier, value.category].filter(Boolean).join(', ')}), ${money(symbol, value.totalPrice)}`);
+  if (cheapest.id !== value.id) lines.push(`- Cheapest overall: ${cheapest.name} (${[cheapest.supplier, cheapest.category].filter(Boolean).join(', ')}), ${money(symbol, cheapest.totalPrice)}`);
+  if (topRated && topRated.id !== value.id) lines.push(`- Top-rated supplier: ${topRated.supplier} (${topRated.supplierRating?.toFixed(1)}), from ${money(symbol, topRated.totalPrice)}`);
 
-  lines.push('Standouts:');
-  lines.push(`- Cheapest: ${label(cheapest)}, ${money(symbol, cheapest.totalPrice)} (${specs(cheapest)})`);
-  if (value.id !== cheapest.id) lines.push(`- Best value: ${label(value)}, ${money(symbol, value.totalPrice)} (${specs(value)})`);
-  if (cheapestAuto && cheapestAuto.id !== cheapest.id) lines.push(`- Cheapest automatic: ${label(cheapestAuto)}, ${money(symbol, cheapestAuto.totalPrice)}`);
-  if (big) lines.push(`- Cheapest 7+ seats: ${label(big)}, ${money(symbol, big.totalPrice)}`);
-  if (lowDeposit) lines.push(`- Lowest deposit: ${label(lowDeposit)}, ${money(symbol, lowDeposit.deposit)} deposit`);
-  if (topRated) lines.push(`- Top-rated supplier: ${topRated.supplier} (${topRated.supplierRating?.toFixed(1)}), from ${money(symbol, topRated.totalPrice)}`);
-  if (autos.length && autos.length < cars.length) lines.push(`${autos.length} of ${cars.length} cars are automatic.`);
-
-  add('Best value', value, `${specs(value)}, ${describeShort(value, symbol)}.`);
-  add('Cheapest', cheapest, `Lowest total price: ${money(symbol, cheapest.totalPrice)}.`);
-  add('Cheapest automatic', cheapestAuto, `${specs(cheapestAuto || cheapest)}, ${money(symbol, (cheapestAuto || cheapest).totalPrice)} total.`);
-  add('Top rated', topRated, `Supplier rated ${topRated?.supplierRating?.toFixed(1)}.`);
-  add('Lowest deposit', lowDeposit, `${money(symbol, lowDeposit?.deposit)} deposit.`);
+  // Put the overall best value first, then one card per car type.
+  const overall = picks.find(p => p.carId === value.id);
+  if (overall) overall.label = `Best value overall · ${value.category || 'all types'}`;
+  picks.sort((a, b) => (a.carId === value.id ? -1 : b.carId === value.id ? 1 : 0));
   return { reply: lines.join('\n'), picks };
 }

@@ -35,7 +35,7 @@ interface Pick { carId: string; label: string; reason: string }
 interface ChatMessage { role: 'user' | 'assistant'; content: string; picks?: Pick[]; error?: boolean }
 
 const SUGGESTIONS = [
-  'Compare all results',
+  'Best value in each car type',
   'Which car is the best value?',
   'Which cars have the lowest deposit?',
   'Best car for a family of 4 with luggage',
@@ -364,13 +364,18 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
                       const rating = car.supplier?.rating ? normalizeRatingScore(car.supplier.rating) : 0;
                       return (
                         <div key={p.carId} className={`overflow-hidden rounded-xl bg-white shadow-sm ring-1 ${rank === 0 ? 'ring-emerald-300' : 'ring-slate-200'}`}>
-                          <div className="flex items-center gap-3 p-3">
+                          <div className="flex flex-wrap items-center gap-1.5 px-3 pt-2.5">
+                            <span className={`inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-bold ${rank === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-accent-50 text-accent-800'}`}>{p.label.split(' · ')[0]}</span>
+                            {p.label.includes(' · ') && (
+                              <span className="inline-flex whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">{p.label.split(' · ').slice(1).join(' · ')}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 px-3 pb-3 pt-2">
                             <div className="flex h-14 w-20 shrink-0 items-center justify-center rounded-lg bg-slate-50">
                               <img src={car.image} alt="" className="max-h-12 w-auto max-w-full object-contain" loading="lazy" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${rank === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-accent-50 text-accent-800'}`}>{p.label}</span>
-                              <p className="mt-1 truncate text-sm font-bold text-slate-900">{carName(car)}</p>
+                              <p className="truncate text-sm font-bold text-slate-900">{carName(car)}</p>
                               <p className="flex items-center gap-1 truncate text-xs text-slate-500">
                                 {car.supplier?.name}
                                 {rating > 0 && <><span aria-hidden>·</span><Star className="h-3 w-3 fill-amber-400 text-amber-400" />{rating.toFixed(1)}</>}
