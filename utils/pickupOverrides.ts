@@ -75,7 +75,8 @@ export const findPickupOverride = (
     const ref = key.slice(key.indexOf('|') + 1);
     const [kind, ...rest] = ref.split(':');
     const keyValue = rest.join(':');
-    const vendor = normCode(vendorCode);
+    // External suppliers in search results have ids like "ext-MONACO" (the vendor code).
+    const vendor = normCode(vendorCode) || (String(supplierId ?? '').toLowerCase().startsWith('ext-') ? normCode(String(supplierId).slice(4)) : '');
     const vendorHit = !!vendor && (normCode(value.vendorCode) === vendor || (kind === 'vendor' && keyValue === vendor));
     const nameHit = !!supplierName && (
       namesMatch(value.supplierName, supplierName) ||
