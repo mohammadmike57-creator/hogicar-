@@ -28,6 +28,11 @@ import {
 } from 'lucide-react';
 import { adminFetch } from '../../lib/adminApi';
 import { fetchPickupOverrides, savePickupOverride } from '../pickupOverridesAdmin';
+import { AdminAddonSettings, fetchAddonSettings, saveAddonCatalog, saveSupplierAddons } from '../addonsAdmin';
+import { AddonCatalogPanel, SupplierAddonDraft, SupplierAddonsEditor, addonsFromDraft, draftFromEntry } from '../components/AddonEditors';
+import { findSupplierEntry } from '../../utils/pickupOverrides';
+import { SupplierAddonsEntry } from '../../utils/addons';
+import PackagePlus from 'lucide-react/dist/esm/icons/package-plus';
 import { findPickupOverride, PICKUP_TYPE_OPTIONS, PickupOverrideMap, PickupTypeValue, pickupTypeLabel } from '../../utils/pickupOverrides';
 
 interface Country {
@@ -119,6 +124,19 @@ const ExternalSuppliersPage: React.FC = () => {
     fetchPickupOverrides().then(setPickupOverrides).catch(err => console.warn('Could not load pick-up overrides', err));
   }, []);
 
+  // Add-ons: catalog (photos, default prices) and each supplier's own prices
+  const [addonSettings, setAddonSettings] = useState<AdminAddonSettings>({ catalog: {}, supplierAddons: {} });
+  const [addonDraft, setAddonDraft] = useState<SupplierAddonDraft | null>(null);
+  const [addonsAllLocations, setAddonsAllLocations] = useState(false);
+  const [catalogOpen, setCatalogOpen] = useState(false);
+
+  useEffect(() => {
+    fetchAddonSettings().then(setAddonSettings).catch(err => console.warn('Could not load add-ons', err));
+  }, []);
+
+  const addonsFor = (supplier: SupplierConfig) =>
+    findSupplierEntry<SupplierAddonsEntry>(addonSettings.supplierAddons, selectedLocation?.iataCode, supplier.supplierId, supplier.supplierName, supplier.vendorCode, v => !!v?.addons);
+
   const overrideFor = (supplier: SupplierConfig) =>
     findPickupOverride(pickupOverrides, selectedLocation?.iataCode, supplier.supplierId, supplier.supplierName, supplier.vendorCode);
 
@@ -126,6 +144,9 @@ const ExternalSuppliersPage: React.FC = () => {
     const current = overrideFor(supplier);
     setPickupChoice((current?.pickupType as PickupTypeValue) || '');
     setPickupAllLocations(!!current?.key.startsWith('*|'));
+    const addons = addonsFor(supplier);
+    setAddonDraft(draftFromEntry(addons, addonSettings.catalog));
+    setAddonsAllLocations(!!addons?.key.startsWith('*|'));
     setSaveError(null);
     setSaveWarning(null);
     setEditingSupplier(supplier);
@@ -267,6 +288,7 @@ const ExternalSuppliersPage: React.FC = () => {
       });
       setSuppliers(prev => prev.map(s => s.supplierId === savedDto.supplierId ? { ...s, ...savedDto } : s));
 
+      let pickupWarning = false;
       // Save the pick-up type if it changed.
       const current = overrideFor(editingSupplier);
       const changed = (current?.pickupType || '') !== pickupChoice || (!!current && current.key.startsWith('*|') !== pickupAllLocations);
@@ -280,12 +302,29 @@ const ExternalSuppliersPage: React.FC = () => {
           allLocations: pickupAllLocations,
         });
         setPickupOverrides(result.overrides);
+        pickupWarning = !result.publicOk;
         if (!result.publicOk) {
           setSaveWarning('Saved in the admin, but the public website is not receiving this setting yet: the backend\'s public homepage content (/api/homepage/content) does not include "supplierPickupOverrides". The backend needs to return that field for the search results to change.');
-          return;
         }
       }
-      setEditingSupplier(null);
+      // Save the add-on prices if they changed.
+      if (addonDraft) {
+        const currentAddons = addonsFor(editingSupplier);
+        const nextAddons = addonsFromDraft(addonDraft);
+        const addonsChanged = JSON.stringify(currentAddons?.addons || null) !== JSON.stringify(nextAddons)
+          || (!!currentAddons && currentAddons.key.startsWith('*|') !== addonsAllLocations);
+        if (addonsChanged) {
+          setAddonSettings(await saveSupplierAddons({
+            location: selectedLocation.iataCode,
+            supplierId: editingSupplier.supplierId,
+            supplierName: editingSupplier.supplierName,
+            vendorCode: editingSupplier.vendorCode,
+            addons: nextAddons,
+            allLocations: addonsAllLocations,
+          }));
+        }
+      }
+      if (!pickupWarning) setEditingSupplier(null);
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -380,6 +419,13 @@ const ExternalSuppliersPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <button
+            onClick={() => setCatalogOpen(true)}
+            className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <PackagePlus className="h-4 w-4" />
+            Add-on catalog
+          </button>
           <button
             onClick={handleSync}
             disabled={isSyncing}
@@ -688,6 +734,19 @@ const ExternalSuppliersPage: React.FC = () => {
                   )}
                 </section>
 
+                {/* Add-ons */}
+                {addonDraft && (
+                  <SupplierAddonsEditor
+                    catalog={addonSettings.catalog}
+                    draft={addonDraft}
+                    onChange={setAddonDraft}
+                    allLocations={addonsAllLocations}
+                    onAllLocationsChange={setAddonsAllLocations}
+                    supplierName={editingSupplier.supplierName}
+                    currency="USD"
+                  />
+                )}
+
                 {/* Pricing */}
                 <section>
                   <h3 className="text-sm font-semibold text-slate-900">Pricing</h3>
@@ -788,6 +847,12 @@ const ExternalSuppliersPage: React.FC = () => {
           </div>
         </div>
       )}
+      <AddonCatalogPanel
+        open={catalogOpen}
+        catalog={addonSettings.catalog}
+        onClose={() => setCatalogOpen(false)}
+        onSave={async catalog => { setAddonSettings(await saveAddonCatalog(catalog)); }}
+      />
     </div>
   );
 };

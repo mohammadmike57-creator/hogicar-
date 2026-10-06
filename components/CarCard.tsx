@@ -412,7 +412,16 @@ const CarCard: React.FC<CarCardProps> = ({
     startTime: startTime || '',
     endTime: endTime || '',
     pickup: pickupCode,
-    dropoff: dropoffCode
+    dropoff: dropoffCode,
+    // Location names make shared links and the car page read "Queen Alia Airport" instead of "AMM".
+    ...(() => {
+      const current = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const names: Record<string, string> = {};
+      const pn = current?.get('pickupName'); const dn = current?.get('dropoffName');
+      if (pn) names.pickupName = pn;
+      if (dn) names.dropoffName = dn;
+      return names;
+    })(),
   }).toString();
   const detailsUrl = `/car/${car.id}?${searchParams}`;
 

@@ -1,5 +1,6 @@
 
 import { Car, PromoCode } from '../types';
+import { countSelected, extraUnitTotal } from './addons';
 
 // Search state shape needed for calculation
 export interface SearchState {
@@ -42,10 +43,11 @@ export function calcPricing(
     const finalPriceBeforeOptions = round2(netTotal + commissionAmount);
 
     // Calculate costs for selected options
+    // An id appears once per unit selected (e.g. two child seats); per-rental caps apply per unit.
     const extrasCost = (car.extras || []).reduce((acc, extra) => {
-        if (!selectedExtraIds.includes(extra.id)) return acc;
-        const extraPrice = extra.type === 'per_day' ? extra.price * days : extra.price;
-        return acc + extraPrice;
+        const count = countSelected(selectedExtraIds, extra.id);
+        if (!count) return acc;
+        return acc + extraUnitTotal(extra, days) * count;
     }, 0);
     
     const insuranceCost = insuranceOption === 'full' ? fullProtectionDailyCost * days : 0;

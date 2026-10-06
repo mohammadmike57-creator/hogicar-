@@ -40,6 +40,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { Logo } from '../components/Logo';
 import { calcPricing, rentalDays } from '../utils/pricing';
+import { countSelected, extraUnitTotal } from '../utils/addons';
 import { api } from '../api';
 import { compactCarForStorage, safeSessionStorageSetItem } from '../utils/storage';
 
@@ -349,7 +350,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         supplierLogoUrl: car.supplier?.logo || car.supplier?.logoUrl,
         hogicarChoice: car.hogicarChoice,
         isHogicarChoiceBranded: car.isHogicarChoiceBranded,
-        selectedExtras: car.extras?.filter(e => selectedExtraIds.includes(e.id))
+        selectedExtras: car.extras
+          ?.filter(e => selectedExtraIds.includes(e.id))
+          .map(e => ({ ...e, quantity: countSelected(selectedExtraIds, e.id), total: extraUnitTotal(e, days) * countSelected(selectedExtraIds, e.id) }))
     };
   };
 
@@ -619,7 +622,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const carName = car.displayName || `${car.make} ${car.model}`;
   const isChoiceBrand = supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier?.name === 'Hogi Car Choice';
   const isInstant = !car?.supplier?.bookingMode || car?.supplier?.bookingMode === 'FREE_SALE';
-  const selectedExtras = car.extras?.filter(e => selectedExtraIds.includes(e.id)) || [];
+  const selectedExtras = (car.extras?.filter(e => selectedExtraIds.includes(e.id)) || []).map(e => ({ ...e, quantity: countSelected(selectedExtraIds, e.id) }));
   const labelClass = 'mb-1.5 block text-sm font-medium text-slate-700';
 
   const steps = [
@@ -896,7 +899,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
                     {selectedExtras.map(extra => (
-                      <div key={extra.id} className="flex justify-between gap-4"><dt className="text-slate-600">{extra.name}</dt><dd className="font-medium text-slate-900">{getCurrencySymbol()}{(extra.type === 'per_day' ? convertPrice(extra.price) * days : convertPrice(extra.price)).toFixed(2)}</dd></div>
+                      <div key={extra.id} className="flex justify-between gap-4"><dt className="text-slate-600">{extra.quantity > 1 ? `${extra.quantity} × ` : ''}{extra.name}</dt><dd className="font-medium text-slate-900">{(extra as any).onRequest ? <span className="text-slate-500">Paid at desk</span> : money(extraUnitTotal(extra, days) * extra.quantity)}</dd></div>
                     ))}
                     {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo{appliedPromo?.code ? ` (${appliedPromo.code})` : ''}</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
                     {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Special deal</dt><dd className="font-medium">-{money(priceDetails.hogicarPromoAmount)}</dd></div>}

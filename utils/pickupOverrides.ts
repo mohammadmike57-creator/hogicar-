@@ -56,22 +56,30 @@ export const overrideKeys = (location: string | undefined, supplierId?: string |
   return keys;
 };
 
+/** Anything stored per supplier: matched by vendor code, id or name. */
+export interface SupplierScopedEntry {
+  supplierName?: string;
+  supplierId?: string | number;
+  vendorCode?: string;
+}
+
 /**
- * Finds the override for a supplier at a location. Location-specific settings win over
+ * Finds the setting for a supplier at a location. Location-specific settings win over
  * "all locations". Within each, a supplier matches by provider vendor code, by id, or by
  * name (ignoring words like "rent a car"), so small differences between the admin data
  * and the search results don't stop it working.
  */
-export const findPickupOverride = (
-  map: PickupOverrideMap | null | undefined,
+export const findSupplierEntry = <T extends SupplierScopedEntry>(
+  map: Record<string, T> | null | undefined,
   location: string | undefined,
   supplierId?: string | number | null,
   supplierName?: string,
   vendorCode?: string,
-) => {
+  isUsable: (value: T) => boolean = value => !!value,
+): (T & { key: string }) | undefined => {
   if (!map) return undefined;
-  const entries = Object.entries(map).filter(([, v]) => v && v.pickupType);
-  const matchesSupplier = (key: string, value: PickupOverride) => {
+  const entries = Object.entries(map).filter(([, v]) => v && isUsable(v));
+  const matchesSupplier = (key: string, value: T) => {
     const ref = key.slice(key.indexOf('|') + 1);
     const [kind, ...rest] = ref.split(':');
     const keyValue = rest.join(':');
@@ -95,24 +103,35 @@ export const findPickupOverride = (
   return hit ? { key: hit[0], ...hit[1] } : undefined;
 };
 
+export const findPickupOverride = (
+  map: PickupOverrideMap | null | undefined,
+  location: string | undefined,
+  supplierId?: string | number | null,
+  supplierName?: string,
+  vendorCode?: string,
+) => findSupplierEntry(map, location, supplierId, supplierName, vendorCode, v => !!v.pickupType);
+
 // ---- Public side (search results) ----
 
-let overridesPromise: Promise<PickupOverrideMap> | null = null;
+let contentPromise: Promise<Record<string, any>> | null = null;
 
-export const loadPickupOverrides = (): Promise<PickupOverrideMap> => {
-  if (!overridesPromise) {
+/** The public site content (one fresh request per page load, shared by every reader). */
+export const loadSiteContent = (): Promise<Record<string, any>> => {
+  if (!contentPromise) {
     // Fetched fresh (not from the browser cache) so admin changes show straight away.
-    overridesPromise = fetch(`${API_BASE_URL}/api/homepage/content?_=${Date.now()}`, { cache: 'no-store' })
+    contentPromise = fetch(`${API_BASE_URL}/api/homepage/content?_=${Date.now()}`, { cache: 'no-store' })
       .then(res => (res.ok ? res.json() : {}))
-      .then((content: any) => {
-        if (typeof window !== 'undefined') console.info('[pickup-overrides] loaded', Object.keys(content?.[PICKUP_OVERRIDES_FIELD] || {}).length);
-        const map = content?.[PICKUP_OVERRIDES_FIELD];
-        return map && typeof map === 'object' && !Array.isArray(map) ? (map as PickupOverrideMap) : {};
-      })
+      .then((content: any) => (content && typeof content === 'object' && !Array.isArray(content) ? content : {}))
       .catch(() => ({}));
   }
-  return overridesPromise;
+  return contentPromise;
 };
+
+export const loadPickupOverrides = (): Promise<PickupOverrideMap> =>
+  loadSiteContent().then(content => {
+    const map = content?.[PICKUP_OVERRIDES_FIELD];
+    return map && typeof map === 'object' && !Array.isArray(map) ? (map as PickupOverrideMap) : {};
+  });
 
 /** Returns the same array when nothing changes, so it is safe to call from effects. */
 export const applyPickupOverrides = (cars: Car[], map: PickupOverrideMap, location: string | undefined): Car[] => {

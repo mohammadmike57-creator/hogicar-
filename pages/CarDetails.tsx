@@ -71,6 +71,8 @@ import { persistSelectedCar } from '../utils/storage';
 import { loadCars } from '../utils/loadCars';
 import { apiCarsToCars } from '../utils/apiCarToCar';
 import ShareCarButton, { ShareCarDetails } from '../components/ShareCar';
+import AddonsSection from '../components/AddonsSection';
+import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withAddons } from '../utils/addons';
 
 // ==================== Helper Components ====================
 
@@ -296,11 +298,23 @@ const categoryRanks: Record<string, number> = {
 
 const normMatch = (value?: string) => String(value || '').toLowerCase().replace(/\s+or similar\s*$/i, '').replace(/[^a-z0-9]+/g, '');
 
-/** Re-runs the search (all pages, up to 10) and finds the car from a shared link. */
+const withTimeout = <T,>(promise: Promise<T>, ms: number) => new Promise<T>((resolve, reject) => {
+  const timer = window.setTimeout(() => reject(new Error('timeout')), ms);
+  promise.then(v => { window.clearTimeout(timer); resolve(v); }, e => { window.clearTimeout(timer); reject(e); });
+});
+
+/**
+ * Finds the car from a shared link by running the search again. External offers get a new
+ * id on every search, so besides the id the car is matched by name, supplier and category.
+ * Page 0 (our own fleet plus the first provider page) is checked first, then the remaining
+ * provider pages in parallel; the first match wins, and every request has a time limit so
+ * the page never waits forever.
+ */
 const findCarInSearch = async (
   id: string,
   params: { pickupCode?: string; dropoffCode?: string; pickupDate: string; dropoffDate: string; startTime?: string; endTime?: string },
   hint: { name?: string; supplier?: string; category?: string },
+  onProgress?: (step: number) => void,
 ): Promise<{ car: Car | null; cars: Car[] }> => {
   const all: Car[] = [];
   const wantChoice = id.startsWith('choice-');
@@ -309,14 +323,39 @@ const findCarInSearch = async (
     && (!hint.supplier || normMatch(c.supplier?.name) === normMatch(hint.supplier))
     && (!hint.category || String(c.category) === hint.category)
     && !!c.isHogicarChoiceBranded === wantChoice;
-  for (let page = 0; page < 10; page++) {
-    const res = await loadCars({ locationsOptions: [], ...params, page, size: 50 });
-    all.push(...apiCarsToCars(res.cars || []));
-    const hit = all.find(byId);
+  const pick = (list: Car[]) => list.find(byId) || list.find(byHint) || null;
+  const fetchPage = async (page: number) => {
+    const res = await withTimeout(loadCars({ locationsOptions: [], ...params, page, size: 20 }), 25000);
+    const list = apiCarsToCars(res.cars || []);
+    all.push(...list);
+    return { list, hasNext: !!res.hasNext };
+  };
+
+  onProgress?.(1);
+  let hasNext = true;
+  try {
+    const first = await fetchPage(0);
+    const hit = pick(first.list);
     if (hit) return { car: hit, cars: all };
-    if (!res.hasNext) break;
+    hasNext = first.hasNext;
+  } catch (e) {
+    console.warn('CarDetails: first search page failed', e);
   }
-  return { car: all.find(byHint) || null, cars: all };
+  if (!hasNext) return { car: null, cars: all };
+
+  onProgress?.(2);
+  // The backend serves at most 5 provider pages.
+  const pages = [1, 2, 3, 4];
+  const car = await new Promise<Car | null>(resolve => {
+    let pending = pages.length;
+    pages.forEach(page => {
+      fetchPage(page)
+        .then(({ list }) => { const hit = pick(list); if (hit) resolve(hit); })
+        .catch(() => undefined)
+        .finally(() => { pending -= 1; if (pending === 0) resolve(pick(all)); });
+    });
+  });
+  return { car, cars: all };
 };
 
 const CarDetails: React.FC = () => {
@@ -330,6 +369,8 @@ const CarDetails: React.FC = () => {
   const [cars, setCars] = React.useState<Car[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  // 0 = not searching, 1 = checking our fleet, 2 = checking more suppliers (shared links).
+  const [lookupStep, setLookupStep] = React.useState(0);
 
   // Extract search params
   const startDate = searchParams.get('pickupDate') || searchParams.get('startDate') || new Date().toISOString().split('T')[0];
@@ -345,6 +386,18 @@ const CarDetails: React.FC = () => {
     loadPickupOverrides().then(map => {
       if (cancelled) return;
       const [updated] = applyPickupOverrides([car], map, pickupCode || undefined);
+      if (updated !== car) setCar(updated);
+    });
+    return () => { cancelled = true; };
+  }, [car, pickupCode]);
+
+  // Add-ons (additional driver, child seats, ...) with the prices set in the admin.
+  React.useEffect(() => {
+    if (!car) return;
+    let cancelled = false;
+    loadAddonSettings().then(settings => {
+      if (cancelled) return;
+      const updated = withAddons(car, buildCarAddons(car, settings, pickupCode || undefined));
       if (updated !== car) setCar(updated);
     });
     return () => { cancelled = true; };
@@ -427,7 +480,7 @@ const CarDetails: React.FC = () => {
             dropoffDate: endDate,
             startTime,
             endTime,
-          }, { name: searchParams.get('car') || undefined, supplier: searchParams.get('supplier') || undefined, category: searchParams.get('category') || undefined });
+          }, { name: searchParams.get('car') || undefined, supplier: searchParams.get('supplier') || undefined, category: searchParams.get('category') || undefined }, setLookupStep);
           if (!foundCars.length && refreshedCars.length) foundCars = refreshedCars;
           if (!foundCar) {
             foundCar = refreshedCar;
@@ -462,6 +515,7 @@ const CarDetails: React.FC = () => {
       } else {
         setError('This deal is no longer available for these dates. Search again to see the latest prices.');
       }
+      setLookupStep(0);
       setLoading(false);
     };
     loadCar();
@@ -491,7 +545,6 @@ const CarDetails: React.FC = () => {
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
 
-  const handleToggleExtra = (extraId: string) => setSelectedExtraIds(prev => prev.includes(extraId) ? prev.filter(id => id !== extraId) : [...prev, extraId]);
 
   const handleApplyPromo = () => {
     if (!promoCodeInput) { setPromoError('Enter a code.'); return; }
@@ -524,22 +577,73 @@ const CarDetails: React.FC = () => {
   const depositDisplay = car?.deposit ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'Not listed';
   const excessDisplay = car?.excess ? `${getCurrencySymbol()}${convertPrice(car.excess).toFixed(2)}` : 'See terms';
 
+  const sharedName = searchParams.get('car');
+  const sharedSupplier = searchParams.get('supplier');
+  const tripLine = `${pickupName ? `${pickupName} · ` : ''}${new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  const searchAgainUrl = (() => {
+    const p = new URLSearchParams();
+    ['pickup', 'dropoff', 'pickupName', 'dropoffName', 'startTime', 'endTime'].forEach(k => { const v = searchParams.get(k); if (v) p.set(k, v); });
+    p.set('pickupDate', startDate);
+    p.set('dropoffDate', endDate);
+    if (!p.get('pickupName') && pickupCode) p.set('pickupName', pickupCode);
+    return `/search?${p.toString()}`;
+  })();
+
   if (loading) {
+    if (lookupStep === 0) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center"><LoaderCircle className="w-10 h-10 animate-spin text-accent mx-auto" /><p className="mt-4 text-sm text-slate-600">Loading car details…</p></div>
+        </div>
+      );
+    }
+    const steps = ['Opening the shared deal', 'Checking live prices and availability', 'Comparing every supplier for your dates'];
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center"><LoaderCircle className="w-12 h-12 animate-spin text-accent mx-auto" /><p className="mt-4 text-slate-600">Loading car details...</p></div>
+      <div className="min-h-screen bg-slate-50 px-4 py-10 sm:py-16">
+        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="h-1 w-full overflow-hidden bg-slate-100"><div className="h-full w-1/3 animate-[shareload_1.4s_ease-in-out_infinite] rounded-full bg-accent" /></div>
+          <div className="p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent">Shared with you</p>
+            <h1 className="mt-1 text-xl font-bold text-slate-900">{sharedName ? `${sharedName} or similar` : 'Finding this car'}</h1>
+            <p className="mt-1 text-sm text-slate-500">{[sharedSupplier, tripLine].filter(Boolean).join(' · ')}</p>
+            <ol className="mt-6 space-y-3">
+              {steps.map((label, i) => {
+                const done = i < lookupStep;
+                const active = i === lookupStep;
+                return (
+                  <li key={label} className="flex items-center gap-3 text-sm">
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${done ? 'bg-emerald-600 text-white' : active ? 'bg-accent-50 text-accent ring-1 ring-accent/30' : 'bg-slate-100 text-slate-400'}`}>
+                      {done ? <Check className="h-3.5 w-3.5" /> : active ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+                    </span>
+                    <span className={done ? 'text-slate-500' : active ? 'font-medium text-slate-900' : 'text-slate-400'}>{label}</span>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="mt-6 text-xs text-slate-500">Prices are checked live with the rental companies, so this can take a few seconds.</p>
+          </div>
+        </div>
+        <style>{`@keyframes shareload{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}`}</style>
       </div>
     );
   }
 
   if (error || !car) {
     return (
-      <div className="min-h-screen bg-slate-100/70 flex items-center justify-center p-4">
-        <div className="bg-[#f2f5fa] rounded-2xl p-8 text-center max-w-md shadow-lg border border-slate-300/70">
-          <CarIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-800">Car Not Found</h1>
-          <p className="text-slate-500 mt-2">{error || 'Please go back to search results.'}</p>
-          <button onClick={() => navigate(-1)} className="mt-6 bg-accent text-white px-6 py-2 rounded-lg font-bold hover:bg-accent-700">Back to Search</button>
+      <div className="min-h-screen bg-slate-50 px-4 py-10 sm:py-16">
+        <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-amber-600 ring-1 ring-amber-200"><CarIcon className="h-7 w-7" /></span>
+          <h1 className="mt-4 text-xl font-bold text-slate-900">{sharedName ? 'This deal has been booked up' : 'Car not found'}</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            {sharedName
+              ? <>The <span className="font-semibold text-slate-900">{sharedName}</span>{sharedSupplier ? <> from {sharedSupplier}</> : null} is no longer available for these dates. Prices and availability change quickly.</>
+              : (error || 'This car is no longer available. Please search again.')}
+          </p>
+          <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">{tripLine}</p>
+          <div className="mt-6 grid gap-2">
+            <Link to={searchAgainUrl} className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-white hover:bg-accent-700">See available cars for these dates</Link>
+            <Link to="/" className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Start a new search</Link>
+          </div>
         </div>
       </div>
     );
@@ -572,8 +676,13 @@ const CarDetails: React.FC = () => {
       carName,
       category: formatCategoryName(car.category),
       supplierName: isChoiceBrand ? 'Hogicar Choice' : car.supplier.name,
+      supplierLogo: isChoiceBrand ? undefined : supplierLogo,
+      seats: car.passengers,
+      bags: car.bags,
+      transmission: car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual',
       image: displayImage,
-      priceText: money(priceDetails.finalTotal),
+      // The car's price; add-ons the sharer picked are personal and not part of the link.
+      priceText: money(priceDetails.finalTotal - priceDetails.extrasCost),
       days,
       place: pickupPlace,
       datesText: `${pickupDisplay} – ${dropoffDisplay}`,
@@ -791,37 +900,15 @@ const CarDetails: React.FC = () => {
                 </div>
               </section>
 
-              {/* Extras */}
-              {car.extras && car.extras.length > 0 && (
-                <section className="order-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
-                  <h2 className="text-lg font-bold text-slate-900">Extras</h2>
-                  <p className="mt-1 text-sm text-slate-500">Paid at the rental counter. Subject to availability.</p>
-                  <ul className="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-200">
-                    {car.extras.map(extra => {
-                      const selected = selectedExtraIds.includes(extra.id);
-                      return (
-                        <li key={extra.id}>
-                          <label className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50">
-                            <span className="flex min-w-0 items-center gap-3">
-                              <input
-                                type="checkbox"
-                                checked={selected}
-                                onChange={() => handleToggleExtra(extra.id)}
-                                className="h-5 w-5 shrink-0 rounded border-slate-300 text-accent focus:ring-accent"
-                              />
-                              <span className="min-w-0">
-                                <span className="block truncate text-sm font-medium text-slate-900">{extra.name}</span>
-                                <span className="block text-xs text-slate-500">{extra.type === 'per_day' ? 'Per day' : 'Per rental'}</span>
-                              </span>
-                            </span>
-                            <span className="shrink-0 text-sm font-semibold text-slate-900">{money(extra.price)}</span>
-                          </label>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              )}
+              {/* Add-ons */}
+              <AddonsSection
+                className="order-4 lg:order-none"
+                extras={car.extras || []}
+                selectedExtraIds={selectedExtraIds}
+                days={days}
+                money={money}
+                onChange={setSelectedExtraIds}
+              />
 
               {/* Important information */}
               <section className="order-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
@@ -923,7 +1010,15 @@ const CarDetails: React.FC = () => {
                   <dl className="mt-4 space-y-2.5 text-sm">
                     <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
-                    {priceDetails.extrasCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Extras</dt><dd className="font-medium text-slate-900">{money(priceDetails.extrasCost)}</dd></div>}
+                    {(car.extras || []).filter(e => selectedExtraIds.includes(e.id)).map(e => {
+                      const qty = countSelected(selectedExtraIds, e.id);
+                      return (
+                        <div key={e.id} className="flex justify-between gap-4">
+                          <dt className="text-slate-600">{qty > 1 ? `${qty} × ` : ''}{e.name}</dt>
+                          <dd className="font-medium text-slate-900">{(e as any).onRequest ? <span className="text-xs font-normal text-slate-500">At the desk</span> : money(extraUnitTotal(e, days) * qty)}</dd>
+                        </div>
+                      );
+                    })}
                     {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo discount</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
                     {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Special deal</dt><dd className="font-medium">-{money(priceDetails.hogicarPromoAmount)}</dd></div>}
                     <div className="flex justify-between gap-4"><dt className="text-slate-600">Taxes and fees</dt><dd className="font-medium text-emerald-700">Included</dd></div>
