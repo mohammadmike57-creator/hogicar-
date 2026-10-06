@@ -69,6 +69,8 @@ import { calcPricing, rentalDays } from '../utils/pricing';
 import { supplierApi } from '../lib/api';
 import { persistSelectedCar } from '../utils/storage';
 import { loadCars } from '../utils/loadCars';
+import { apiCarsToCars } from '../utils/apiCarToCar';
+import ShareCarButton, { ShareCarDetails } from '../components/ShareCar';
 
 // ==================== Helper Components ====================
 
@@ -292,6 +294,31 @@ const categoryRanks: Record<string, number> = {
   [CarCategory.PEOPLE_CARRIER]: 12,
 };
 
+const normMatch = (value?: string) => String(value || '').toLowerCase().replace(/\s+or similar\s*$/i, '').replace(/[^a-z0-9]+/g, '');
+
+/** Re-runs the search (all pages, up to 10) and finds the car from a shared link. */
+const findCarInSearch = async (
+  id: string,
+  params: { pickupCode?: string; dropoffCode?: string; pickupDate: string; dropoffDate: string; startTime?: string; endTime?: string },
+  hint: { name?: string; supplier?: string; category?: string },
+): Promise<{ car: Car | null; cars: Car[] }> => {
+  const all: Car[] = [];
+  const wantChoice = id.startsWith('choice-');
+  const byId = (c: Car) => String(c.id) === id;
+  const byHint = (c: Car) => !!hint.name && normMatch(c.displayName || `${c.make} ${c.model}`) === normMatch(hint.name)
+    && (!hint.supplier || normMatch(c.supplier?.name) === normMatch(hint.supplier))
+    && (!hint.category || String(c.category) === hint.category)
+    && !!c.isHogicarChoiceBranded === wantChoice;
+  for (let page = 0; page < 10; page++) {
+    const res = await loadCars({ locationsOptions: [], ...params, page, size: 50 });
+    all.push(...apiCarsToCars(res.cars || []));
+    const hit = all.find(byId);
+    if (hit) return { car: hit, cars: all };
+    if (!res.hasNext) break;
+  }
+  return { car: all.find(byHint) || null, cars: all };
+};
+
 const CarDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -389,69 +416,26 @@ const CarDetails: React.FC = () => {
         }
       }
 
-      if (foundCar && id && !(foundCar.image || (foundCar as any).imageUrl)) {
+      // 3. Not on this device (e.g. a shared link): run the search again and find the car,
+      //    by id, or by name and supplier when the provider issued a new id.
+      if (id && (!foundCar || !(foundCar.image || (foundCar as any).imageUrl))) {
         try {
-          const refreshedCars = await loadCars({
-            locationsOptions: [],
+          const { car: refreshedCar, cars: refreshedCars } = await findCarInSearch(id, {
             pickupCode: pickupCode || undefined,
             dropoffCode: dropoffCode || pickupCode || undefined,
             pickupDate: startDate,
             dropoffDate: endDate,
-          });
-
-          // If foundCars was empty, populate it from refreshedCars
-          if (foundCars.length === 0 && refreshedCars.length > 0) {
-            // Map ApiSearchResult to something closer to Car if needed, 
-            // but loadCars already normalizes most fields.
-            foundCars = refreshedCars as any[];
-          }
-
-          const refreshedCar = refreshedCars.find(c => String(c.id) === String(id).replace('choice-', ''));
-          if (refreshedCar?.image) {
-            foundCar = {
-              ...foundCar,
-              image: refreshedCar.image,
-              imageUrl: refreshedCar.image,
-            } as Car;
-          }
-        } catch (refreshError) {
-          console.warn('Could not refresh car image for details page', refreshError);
-        }
-      }
-
-      // 3. Re-fetch from API if not found in storage/state
-      if (!foundCar && id) {
-        try {
-          console.log("CarDetails: Car not found in storage, attempting API re-fetch for ID:", id);
-          const refreshedCars = await loadCars({
-            locationsOptions: [],
-            pickupCode: pickupCode || undefined,
-            dropoffCode: dropoffCode || pickupCode || undefined,
-            pickupDate: startDate,
-            dropoffDate: endDate,
-          });
-
-          const normalizedId = String(id).replace('choice-', '');
-          const refreshedCar = refreshedCars.find(c => String(c.id) === normalizedId);
-          
-          if (refreshedCar) {
-            foundCar = refreshedCar as Car;
-            if (String(id).startsWith('choice-')) {
-               foundCar = {
-                 ...foundCar,
-                 id: `choice-${foundCar.id}`,
-                 supplier: {
-                   ...foundCar.supplier,
-                   name: 'Hogi Car Choice',
-                   logo: 'HOGICAR_CHOICE_LOGO'
-                 },
-                 isHogicarChoiceBranded: true
-               } as Car;
-            }
-            if (!foundCars.length) foundCars = refreshedCars as any[];
+            startTime,
+            endTime,
+          }, { name: searchParams.get('car') || undefined, supplier: searchParams.get('supplier') || undefined, category: searchParams.get('category') || undefined });
+          if (!foundCars.length && refreshedCars.length) foundCars = refreshedCars;
+          if (!foundCar) {
+            foundCar = refreshedCar;
+          } else if (refreshedCar?.image) {
+            foundCar = { ...foundCar, image: refreshedCar.image, imageUrl: refreshedCar.image } as Car;
           }
         } catch (fetchError) {
-          console.error('CarDetails: API re-fetch failed', fetchError);
+          console.error('CarDetails: could not load the car from search', fetchError);
         }
       }
 
@@ -476,7 +460,7 @@ const CarDetails: React.FC = () => {
         setCars(foundCars.length ? foundCars : [foundCar]);
         persistSelectedCar(foundCar, foundCars.length ? foundCars : [foundCar]);
       } else {
-        setError('Car not found. Please go back to search results.');
+        setError('This deal is no longer available for these dates. Search again to see the latest prices.');
       }
       setLoading(false);
     };
@@ -577,6 +561,26 @@ const CarDetails: React.FC = () => {
     : [];
   const fullProtectionPrice = 15 * days;
 
+  const shareDetails: ShareCarDetails = (() => {
+    const params = new URLSearchParams(searchParams);
+    // Name, supplier and category let the link find the car again if the provider issues a new id.
+    params.set('car', carName);
+    if (!isChoiceBrand) params.set('supplier', car.supplier.name); else params.delete('supplier');
+    params.set('category', String(car.category));
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://hogicar.com';
+    return {
+      carName,
+      category: formatCategoryName(car.category),
+      supplierName: isChoiceBrand ? 'Hogicar Choice' : car.supplier.name,
+      image: displayImage,
+      priceText: money(priceDetails.finalTotal),
+      days,
+      place: pickupPlace,
+      datesText: `${pickupDisplay} – ${dropoffDisplay}`,
+      url: `${origin}/car/${encodeURIComponent(String(car.id))}?${params.toString()}`,
+    };
+  })();
+
   const specs = [
     { icon: Users, label: `${car.passengers} seats` },
     { icon: Briefcase, label: `${car.bags} bag${car.bags === 1 ? '' : 's'}` },
@@ -649,9 +653,12 @@ const CarDetails: React.FC = () => {
                 {pickupDisplay}, {startTime} – {dropoffDisplay}, {endTime} · {days} day{days > 1 ? 's' : ''}
               </p>
             </div>
-            <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
-              <Clock className="h-3.5 w-3.5" /> Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span>
-            </p>
+<div className="flex items-center gap-3">
+              <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <Clock className="h-3.5 w-3.5" /> Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span>
+              </p>
+              <ShareCarButton details={shareDetails} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6">
