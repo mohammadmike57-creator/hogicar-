@@ -38,6 +38,7 @@ import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
 import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
+import PickupTypeIcon from '../components/PickupTypeIcon';
 
 const ratingToPercent = (rating: number | undefined) => {
     const safeRating = Number(rating || 4.5);
@@ -1038,7 +1039,7 @@ export const Search: React.FC = () => {
 
                 {filterSection('LocationType', 'Pick-up location', (
                   <div>
-                    {allLocationTypes.map(type => checkboxRow(type, selectedLocationTypes.includes(type), () => handleLocationTypeChange(type), type, filterCounts.locationType.get(type) || 0))}
+                    {allLocationTypes.map(type => checkboxRow(type, selectedLocationTypes.includes(type), () => handleLocationTypeChange(type), <><PickupTypeIcon type={type} size="xs" />{type}</>, filterCounts.locationType.get(type) || 0))}
                   </div>
                 ))}
 

@@ -55,6 +55,7 @@ import ThumbsUp from 'lucide-react/dist/esm/icons/thumbs-up';
 import Globe from 'lucide-react/dist/esm/icons/globe';
 import Headphones from 'lucide-react/dist/esm/icons/headphones';
 import Plane from 'lucide-react/dist/esm/icons/plane';
+import PickupTypeIcon from '../components/PickupTypeIcon';
 import PlaneLanding from 'lucide-react/dist/esm/icons/plane-landing';
 import PlaneTakeoff from 'lucide-react/dist/esm/icons/plane-takeoff';
 import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '../types';
@@ -206,7 +207,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
             <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Deposit</p><p className="mt-1 text-sm font-black text-slate-950">{depositText}</p></div>
             <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Excess</p><p className="mt-1 text-sm font-black text-slate-950">{excessText}</p></div>
             <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Mileage</p><p className="mt-1 text-sm font-black text-slate-950">{car.unlimitedMileage ? 'Unlimited' : 'Limited'}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pickup</p><p className="mt-1 text-sm font-black text-slate-950">{pickupTypeLabel}</p></div>
+            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pickup</p><p className="mt-1 flex items-center gap-1.5 text-sm font-black text-slate-950"><PickupTypeIcon type={supplier.pickupType} size="xs" />{pickupTypeLabel}</p></div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1.45fr_0.9fr]">
@@ -246,7 +247,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier:
               <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
                 <PolicyRow label="Supplier" value={supplier.name} />
                 <PolicyRow label="Rating" value={`${supplierRatingDisplay.toFixed(1)}/10 - ${getRatingDescription(supplierRatingDisplay)}`} tone={supplierRatingDisplay >= 8 ? 'good' : supplierRatingDisplay >= 6 ? 'default' : 'warn'} />
-                <PolicyRow label="Pickup type" value={pickupTypeLabel} />
+                <PolicyRow label="Pickup type" value={<span className="inline-flex items-center gap-1.5"><PickupTypeIcon type={supplier.pickupType} size="xs" />{pickupTypeLabel}</span>} />
                 {supplier.address && <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><p className="text-xs font-semibold leading-relaxed text-slate-600">{supplier.address}</p></div>}
               </ConditionCard>
 

@@ -12,6 +12,7 @@ import Building from 'lucide-react/dist/esm/icons/building';
 import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 import ArrowLeftRight from 'lucide-react/dist/esm/icons/arrow-left-right';
 import Plane from 'lucide-react/dist/esm/icons/plane';
+import PickupTypeIcon from './PickupTypeIcon';
 import Handshake from 'lucide-react/dist/esm/icons/handshake';
 import Bus from 'lucide-react/dist/esm/icons/bus';
 import GaugeCircle from 'lucide-react/dist/esm/icons/gauge-circle';
@@ -51,12 +52,7 @@ const toneClasses: Record<Tone, string> = {
 
 const formatEnum = (value?: string) => (value ? value.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : 'Not listed');
 
-const pickupIcon = (pickupType?: PickupType) => {
-    if (pickupType === PickupType.IN_TERMINAL) return <Plane className="h-4 w-4 text-[#007ac2]" />;
-    if (pickupType === PickupType.MEET_AND_GREET) return <Handshake className="h-4 w-4 text-[#007ac2]" />;
-    if (pickupType === PickupType.SHUTTLE_BUS) return <Bus className="h-4 w-4 text-orange-600" />;
-    return <Building className="h-4 w-4 text-slate-500" />;
-};
+const pickupIcon = (pickupType?: PickupType) => <PickupTypeIcon type={pickupType} size="sm" />;
 
 const getPickupLabel = (car: Car) => {
     const pickupType = car.supplier?.pickupType;

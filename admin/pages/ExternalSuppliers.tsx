@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { pickupIconFor } from '../../components/PickupTypeIcon';
 import { 
   ChevronRight, 
   ChevronDown,
@@ -328,7 +329,7 @@ const ExternalSuppliersPage: React.FC = () => {
   };
   const overridesCount = Object.keys(pickupOverrides).length;
   const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
-  const pickupIcon = (value?: string) => (value === 'MEET_AND_GREET' ? Users : value === 'SHUTTLE_BUS' ? Bus : Plane);
+  const pickupIcon = (value?: string) => pickupIconFor(value);
 
   return (
     <div className="space-y-6">
@@ -591,10 +592,10 @@ const ExternalSuppliersPage: React.FC = () => {
                           </td>
                           <td className="px-4 py-3">
                             {override ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-800 ring-1 ring-inset ring-accent-200">
-                                <PickupIcon className="h-3.5 w-3.5" />
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 ring-1 ring-inset ring-emerald-200">
+                                <PickupIcon className="h-3.5 w-3.5 text-emerald-600" />
                                 {pickupTypeLabel(override.pickupType)}
-                                {override.key.startsWith('*|') && <span className="text-accent-600">· all locations</span>}
+                                {override.key.startsWith('*|') && <span className="text-emerald-600">· all locations</span>}
                               </span>
                             ) : (
                               <span className="text-xs text-slate-500">From provider</span>
@@ -669,7 +670,7 @@ const ExternalSuppliersPage: React.FC = () => {
                       return (
                         <label key={option.value || 'default'} className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-3 transition-colors ${checked ? 'border-accent bg-accent-50/60 ring-1 ring-accent' : 'border-slate-200 hover:border-slate-300'}`}>
                           <input type="radio" name="pickupType" className="sr-only" checked={checked} onChange={() => setPickupChoice(option.value)} />
-                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${checked ? 'bg-accent text-white' : 'bg-slate-100 text-slate-500'}`}><Icon className="h-4 w-4" /></span>
+                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${checked ? 'bg-emerald-600 text-white' : option.value ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}><Icon className="h-4 w-4" /></span>
                           <span className="min-w-0 flex-1">
                             <span className="block text-sm font-medium text-slate-900">{option.label}</span>
                             <span className="block text-xs text-slate-500">{option.description}</span>

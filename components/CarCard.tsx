@@ -10,6 +10,7 @@ import GaugeCircle from 'lucide-react/dist/esm/icons/gauge-circle';
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import Fuel from 'lucide-react/dist/esm/icons/fuel';
 import Plane from 'lucide-react/dist/esm/icons/plane';
+import PickupTypeIcon from './PickupTypeIcon';
 import Gift from 'lucide-react/dist/esm/icons/gift';
 import X from 'lucide-react/dist/esm/icons/x';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
@@ -191,7 +192,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-3">
                             <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">Pickup</p>
-                            <p className="mt-1 text-sm font-black text-slate-950">{pickupTypeLabel}</p>
+                            <p className="mt-1 flex items-center gap-1.5 text-sm font-black text-slate-950"><PickupTypeIcon type={pickupType} size="xs" />{pickupTypeLabel}</p>
                         </div>
                     </div>
 
@@ -268,7 +269,7 @@ const RentalConditionsModal = ({ car, supplier, onClose }: { car: CarType, suppl
                             <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
                                 <PolicyRow label="Supplier" value={supplierName} />
                                 <PolicyRow label="Rating" value={`${supplier.rating}/5 - ${getRatingDescription(supplier.rating)}`} tone={supplier.rating >= 4 ? 'good' : supplier.rating >= 3 ? 'default' : 'warn'} />
-                                <PolicyRow label="Pickup type" value={pickupTypeLabel} />
+                                <PolicyRow label="Pickup type" value={<span className="inline-flex items-center gap-1.5"><PickupTypeIcon type={pickupType} size="xs" />{pickupTypeLabel}</span>} />
                                 {supplier.address && (
                                     <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3">
                                         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
@@ -429,11 +430,6 @@ const CarCard: React.FC<CarCardProps> = ({
     pickupType === 'MEET_AND_GREET' ? 'Meet & greet' :
     pickupType === 'SHUTTLE_BUS' ? 'Shuttle bus' :
     car.locationDetail || 'Pick-up desk';
-  const PickupIcon =
-    pickupType === 'IN_TERMINAL' ? Plane :
-    pickupType === 'MEET_AND_GREET' ? Handshake :
-    pickupType === 'SHUTTLE_BUS' ? Bus :
-    Building;
   const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : String(car.fuelPolicy || '').replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   const isInstant = !car.supplier?.bookingMode || car.supplier.bookingMode === 'FREE_SALE';
   const carName = (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '');
@@ -615,7 +611,7 @@ const CarCard: React.FC<CarCardProps> = ({
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <span className="inline-flex items-center gap-1.5 text-slate-600">
-                  <PickupIcon className="h-4 w-4 text-slate-400" /> {pickupLabel}
+                  <PickupTypeIcon type={pickupType} size="sm" /> <span className="font-medium text-slate-700">{pickupLabel}</span>
                 </span>
                 <button
                   type="button"
