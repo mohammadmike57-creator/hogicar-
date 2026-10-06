@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { applyPickupOverrides, loadPickupOverrides } from '../utils/pickupOverrides';
 const getPromoCode = (code: string): PromoCode | undefined => {
   return undefined; // Mock data removed
 };
@@ -308,6 +309,18 @@ const CarDetails: React.FC = () => {
   const startTime = searchParams.get('startTime') || '10:00';
   const endTime = searchParams.get('endTime') || '10:00';
   const pickupCode = searchParams.get('pickup');
+
+  // Apply admin-set pick-up types for external suppliers (same as on the search page).
+  React.useEffect(() => {
+    if (!car) return;
+    let cancelled = false;
+    loadPickupOverrides().then(map => {
+      if (cancelled) return;
+      const [updated] = applyPickupOverrides([car], map, pickupCode || undefined);
+      if (updated !== car) setCar(updated);
+    });
+    return () => { cancelled = true; };
+  }, [car, pickupCode]);
   const dropoffCode = searchParams.get('dropoff');
   const pickupName = searchParams.get('pickupName') || pickupCode || '';
   const dropoffName = searchParams.get('dropoffName') || dropoffCode || pickupName || '';

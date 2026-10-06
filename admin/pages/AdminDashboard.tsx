@@ -283,87 +283,114 @@ const resizeImage = (file: File, maxWidth: number, maxHeight: number, options: {
   });
 };
 
+// ==================== UI Components ====================
+const SECTION_META: Record<string, { title: string; description: string; group: string }> = {
+  dashboard: { title: 'Overview', description: 'Bookings, revenue and recent activity across Hogicar.', group: 'Operations' },
+  bookings: { title: 'Bookings', description: 'Every reservation and its current status.', group: 'Operations' },
+  suppliers: { title: 'Suppliers', description: 'Direct suppliers, their fleets, visibility and access.', group: 'Operations' },
+  supplierrequests: { title: 'Supplier requests', description: 'Applications from companies that want to join Hogicar.', group: 'Operations' },
+  externalsuppliers: { title: 'External suppliers', description: 'API suppliers: pricing, contact details and pick-up type.', group: 'Operations' },
+  fleet: { title: 'Fleet', description: 'Cars, rates and promotions from direct suppliers.', group: 'Operations' },
+  promotions: { title: 'Offers', description: 'Promo codes and special offers.', group: 'Commercial' },
+  carlibrary: { title: 'Car library', description: 'Car models, images and specifications used across the site.', group: 'Commercial' },
+  apipartners: { title: 'Integrations', description: 'API partner connections.', group: 'Commercial' },
+  affiliates: { title: 'Affiliates', description: 'Affiliate partners and their commission.', group: 'Commercial' },
+  push: { title: 'Push notifications', description: 'Messages sent to app users.', group: 'Commercial' },
+  homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
+  homepagelogos: { title: 'Homepage logos', description: 'Brand logos shown in the homepage strip.', group: 'Website' },
+  searchinglogos: { title: 'Searching logos', description: 'Logos shown on the searching screen.', group: 'Website' },
+  cms: { title: 'Pages', description: 'Content pages on the website.', group: 'Website' },
+  blog: { title: 'Blog', description: 'Travel guides and articles.', group: 'Website' },
+  globallocations: { title: 'Locations', description: 'Airports, cities and stations customers can search.', group: 'Website' },
+  seo: { title: 'SEO', description: 'Titles, descriptions and landing pages for search engines.', group: 'SEO & settings' },
+  seoaudit: { title: 'SEO audit', description: 'Checks for SEO issues across the site.', group: 'SEO & settings' },
+  sitemap: { title: 'Sitemap', description: 'Sitemap files submitted to search engines.', group: 'SEO & settings' },
+  sitesettings: { title: 'Site settings', description: 'Global settings such as the searching screen and hero image.', group: 'SEO & settings' },
+};
+
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
-                'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap';
+                'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap' | 'push';
 
-// ==================== UI Components ====================
-const StatCard = ({ icon: Icon, title, value, change, color = 'blue' }: any) => {
-  const colors: any = { 
-    blue: 'bg-blue-50 text-[#007ac2] ring-blue-100',
-    green: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    orange: 'bg-amber-50 text-amber-700 ring-amber-100',
-    purple: 'bg-violet-50 text-violet-700 ring-violet-100'
+const StatCard = ({ icon: Icon, title, value, change, hint, color = 'blue' }: any) => {
+  const colors: any = {
+    blue: 'bg-accent-50 text-accent',
+    green: 'bg-emerald-50 text-emerald-600',
+    orange: 'bg-amber-50 text-amber-600',
+    purple: 'bg-violet-50 text-violet-600',
   };
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="bg-white rounded-card p-5 shadow-sm hover:shadow-xl hover:shadow-slate-200/70 border border-slate-200 flex flex-col justify-between relative overflow-hidden group transition-all">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-slate-800 to-emerald-500" />
-      <div className="flex items-center justify-between mb-5 relative z-10">
-        <div className={`w-11 h-11 rounded-card flex items-center justify-center ring-1 transition-transform group-hover:scale-105 ${colors[color] || colors.blue}`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        {change && (
-          <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${change.startsWith('+') ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-red-700 bg-red-50 border-red-100'}`}>
-            {change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            {change}
-          </span>
-        )}
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-slate-500">{title}</p>
+        <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${colors[color] || colors.blue}`}>
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
       </div>
-      <div className="relative z-10">
-        <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-[0.18em] mb-2">{title}</p>
-        <p className="text-3xl font-extrabold text-slate-950 tracking-tight">{value}</p>
-      </div>
-    </motion.div>
+      <p className="mt-3 text-[28px] font-semibold leading-none tracking-tight text-slate-900 tabular-nums">{value}</p>
+      {(change || hint) && (
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+          {change && (
+            <span className={`inline-flex items-center gap-0.5 font-semibold ${String(change).startsWith('-') ? 'text-red-600' : 'text-emerald-600'}`}>
+              <TrendingUp className="h-3 w-3" /> {change}
+            </span>
+          )}
+          {hint}
+        </p>
+      )}
+    </div>
   );
 };
 
 const SectionHeader = ({ title, subtitle, icon: Icon, action }: any) => (
-  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-    <div className="flex items-center gap-4">
-      {Icon && <div className="w-10 h-10 rounded-card bg-slate-950 text-white flex items-center justify-center border border-slate-800 shadow-sm"><Icon className="w-5 h-5" /></div>}
+  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex items-center gap-3">
+      {Icon && <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"><Icon className="h-[18px] w-[18px]" /></span>}
       <div>
-        <h2 className="text-xl font-extrabold text-slate-950 tracking-tight">{title}</h2>
-        {subtitle && <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">{subtitle}</p>}
+        <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
       </div>
     </div>
     {action}
   </div>
 );
 
+const fieldClass = (error?: any) => `w-full rounded-lg border ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-300 focus:border-accent focus:ring-accent/20'} bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 disabled:bg-slate-50`;
+
 const InputField = ({ label, error, helperText, ...props }: any) => (
-  <div className="space-y-1">
-    <label className="block text-xs font-medium text-gray-600">{label}</label>
-    <input {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500`} />
-    {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
-    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+  <div className="space-y-1.5">
+    {label && <label className="block text-xs font-medium text-slate-600">{label}</label>}
+    <input {...props} className={`${fieldClass(error)} h-10`} />
+    {helperText && <p className="text-xs text-slate-500">{helperText}</p>}
+    {error && <p className="text-xs text-red-600">{error}</p>}
   </div>
 );
 
 const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) => (
   <button
     type="button"
+    role="switch"
+    aria-checked={checked}
     onClick={() => onChange(!checked)}
-    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${checked ? 'bg-[#007ac2]' : 'bg-gray-300'}`}
+    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-slate-300'}`}
   >
-    <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
   </button>
 );
 
-
 const SelectField = ({ label, options, error, ...props }: any) => (
-  <div className="space-y-1">
-    <label className="block text-xs font-medium text-gray-600">{label}</label>
-    <select {...props} className={`w-full px-3 py-2 border ${error ? 'border-red-300' : 'border-gray-200'} rounded-card focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white`}>
+  <div className="space-y-1.5">
+    {label && <label className="block text-xs font-medium text-slate-600">{label}</label>}
+    <select {...props} className={`${fieldClass(error)} h-10`}>
       {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
-    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+    {error && <p className="text-xs text-red-600">{error}</p>}
   </div>
 );
 
 const TextAreaField = ({ label, ...props }: any) => (
-  <div className="space-y-1"><label className="block text-xs font-medium text-gray-600">{label}</label><textarea {...props} className="w-full px-3 py-2 border border-gray-200 rounded-card" /></div>
+  <div className="space-y-1.5">{label && <label className="block text-xs font-medium text-slate-600">{label}</label>}<textarea {...props} className={fieldClass()} /></div>
 );
 
 const GlobalLocationsContent = () => {
@@ -497,22 +524,22 @@ const GlobalLocationsContent = () => {
 };
 
 const Badge = ({ status }: { status: string }) => {
-  const colors: any = { 
-    active: 'bg-green-100 text-green-700 border-green-200', 
-    pending: 'bg-blue-100 text-blue-800 border-blue-200', 
-    approved: 'bg-blue-100 text-[#007ac2] border-blue-200', 
-    rejected: 'bg-red-100 text-red-700 border-red-200',
-    visible: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    hidden: 'bg-rose-50 text-rose-700 border-rose-200'
+  const styles: any = {
+    active: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    confirmed: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    visible: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    pending: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    approved: 'bg-accent-50 text-accent-800 ring-accent-600/20',
+    rejected: 'bg-red-50 text-red-700 ring-red-600/20',
+    cancelled: 'bg-red-50 text-red-700 ring-red-600/20',
+    hidden: 'bg-slate-100 text-slate-600 ring-slate-500/20',
   };
-  
-  const isVisibility = status === 'visible' || status === 'hidden';
-  
+  const dot: any = { active: 'bg-emerald-500', confirmed: 'bg-emerald-500', visible: 'bg-emerald-500', pending: 'bg-amber-500', approved: 'bg-accent', rejected: 'bg-red-500', cancelled: 'bg-red-500', hidden: 'bg-slate-400' };
+  const key = String(status || 'pending').toLowerCase();
   return (
-    <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-full border shadow-sm flex items-center gap-1.5 w-fit uppercase tracking-wider ${colors[status] || 'bg-gray-100 border-gray-200'}`}>
-      {status === 'visible' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-      {status === 'hidden' && <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />}
-      {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Pending'}
+    <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${styles[key] || 'bg-slate-100 text-slate-700 ring-slate-500/20'}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${dot[key] || 'bg-slate-400'}`} />
+      {key.charAt(0).toUpperCase() + key.slice(1)}
     </span>
   );
 };
@@ -522,10 +549,14 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
   const sizes: any = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-6xl' };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
-        className={`bg-white rounded-card shadow-2xl w-full ${sizes[size]} max-h-[90vh] flex flex-col`} onClick={e => e.stopPropagation()}>
-        <div className="p-6 border-b flex justify-between items-center"><h2 className="text-xl font-bold">{title}</h2><button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full"><X className="w-5 h-5" /></button></div>
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-[2px]" onClick={onClose}>
+      <motion.div initial={{ scale: 0.98, y: 8 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.98, y: 8 }} transition={{ duration: 0.15 }}
+        role="dialog" aria-modal="true"
+        className={`flex max-h-[90vh] w-full ${sizes[size]} flex-col overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-slate-900/5`} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
+          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+          <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100" aria-label="Close"><X className="h-5 w-5" /></button>
+        </div>
         <div className="flex-grow overflow-y-auto p-6">{children}</div>
       </motion.div>
     </motion.div>
@@ -533,105 +564,85 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: any) => {
 };
 
 // ==================== Sidebar ====================
+const NAV_ITEMS: { section: Section; icon: any }[] = [
+  { section: 'dashboard', icon: LayoutDashboard },
+  { section: 'bookings', icon: Calendar },
+  { section: 'suppliers', icon: Building },
+  { section: 'supplierrequests', icon: MailQuestion },
+  { section: 'externalsuppliers', icon: Share2 },
+  { section: 'fleet', icon: Car },
+  { section: 'promotions', icon: Tag },
+  { section: 'carlibrary', icon: Car },
+  { section: 'apipartners', icon: Link2 },
+  { section: 'affiliates', icon: DollarSign },
+  { section: 'push', icon: Bell },
+  { section: 'homepage', icon: ImageIcon },
+  { section: 'homepagelogos', icon: ImageIcon },
+  { section: 'searchinglogos', icon: Search },
+  { section: 'cms', icon: FileText },
+  { section: 'blog', icon: MessageSquare },
+  { section: 'globallocations', icon: Globe },
+  { section: 'seo', icon: Globe },
+  { section: 'seoaudit', icon: Activity },
+  { section: 'sitemap', icon: Link2 },
+  { section: 'sitesettings', icon: Settings },
+];
+
 const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, countSupplierRequests }: any) => {
   const navigate = useNavigate();
-  const NavItem = ({ section, label, icon: Icon, count }: any) => {
-    const active = activeSection === section;
-    return (
-      <motion.button 
-        whileHover={{ x: 4 }} 
-        whileTap={{ scale: 0.98 }}
-        onClick={() => { setActiveSection(section); setIsOpen(false); }}
-        className={`flex items-center justify-between w-full px-4 py-3 rounded-card transition-all duration-300 group ${active ? 'bg-white text-slate-950 shadow-lg shadow-black/20' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
-      >
-        <div className="flex items-center gap-3.5">
-            <div className={`p-2 rounded-card transition-all duration-300 ${active ? 'bg-blue-50' : 'bg-white/5 group-hover:bg-white/10'}`}>
-                <Icon className={`w-4 h-4 transition-colors ${active ? 'text-[#007ac2]' : 'text-slate-500 group-hover:text-white'}`} />
-            </div>
-            <span className={`text-[13px] font-extrabold tracking-tight ${active ? 'text-slate-950' : 'text-slate-300 group-hover:text-white'}`}>{label}</span>
-        </div>
-        {count !== undefined && count > 0 && (
-            <motion.span 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className={`text-[10px] font-extrabold px-2 py-1 rounded-full ${active ? 'bg-blue-50 text-[#007ac2]' : 'bg-[#007ac2] text-white shadow-lg shadow-blue-900/20'}`}
-            >
-                {count}
-            </motion.span>
-        )}
-      </motion.button>
-    );
-  };
+  const groups = Array.from(new Set(NAV_ITEMS.map(i => SECTION_META[i.section]?.group)));
 
   return (
     <>
-      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40" onClick={() => setIsOpen(false)} />}</AnimatePresence>
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800 transform transition-all duration-300 ease-in-out p-5 flex flex-col shadow-2xl shadow-slate-950/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="mb-6 px-2 flex items-center gap-3.5 py-5 border-b border-white/10 relative group cursor-pointer">
-            <div className="bg-white p-2.5 rounded-card shadow-lg shadow-black/20 transition-transform duration-300">
-                <Shield className="w-6 h-6 text-slate-950" />
-            </div>
-            <div>
-                <h1 className="font-extrabold text-white text-xl tracking-tighter leading-none">HogiCar</h1>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.45)]"></span>
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Admin Command</span>
-                </div>
-            </div>
+      <AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onClick={() => setIsOpen(false)} />}</AnimatePresence>
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#0b1526] transition-transform duration-200 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-white/10 px-5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white">H</span>
+          <div className="leading-tight">
+            <p className="text-[15px] font-semibold text-white">Hogicar</p>
+            <p className="text-[11px] text-slate-400">Admin</p>
+          </div>
+          <button onClick={() => setIsOpen(false)} className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-white/10 lg:hidden" aria-label="Close menu"><X className="h-4 w-4" /></button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
-          <div className="px-4 mb-3 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">Operations</div>
-          <NavItem section="dashboard" label="Performance" icon={LayoutDashboard} />
-          <NavItem section="suppliers" label="Manage Suppliers" icon={Building} />
-          <NavItem section="supplierrequests" label="Requests" icon={MailQuestion} count={countSupplierRequests} />
-          <NavItem section="bookings" label="Reservations" icon={Calendar} />
-          <NavItem section="fleet" label="Active Fleet" icon={Car} />
-
-          <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">Inventory</div>
-          <NavItem section="promotions" label="Smart Offers" icon={Tag} />
-          <NavItem section="carlibrary" label="Global Library" icon={Car} />
-          <NavItem section="apipartners" label="Integrations" icon={Share2} />
-          <NavItem section="affiliates" label="Affiliate Hub" icon={DollarSign} />
-
-          <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">Marketing</div>
-          <NavItem section="push" label="Push Notifications" icon={Bell} />
-
-          <div className="px-4 mb-3 mt-8 text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.3em]">System</div>
-          <NavItem section="cms" label="Pages" icon={FileText} />
-          <NavItem section="blog" label="Blog" icon={MessageSquare} />
-          <NavItem section="sitemap" label="Sitemap" icon={Link2} />
-          <NavItem section="seo" label="SEO" icon={Globe} />
-          <NavItem section="seoaudit" label="SEO Audit" icon={Activity} />
-          <NavItem section="homepage" label="Assets" icon={ImageIcon} />
-          <NavItem section="sitesettings" label="Config" icon={Settings} />
-          <NavItem section="globallocations" label="Global Locations" icon={Globe} />
-          <NavItem section="homepagelogos" label="Homepage Logos" icon={ImageIcon} />
-          <NavItem section="searchinglogos" label="Searching Logos" icon={Search} />
-          <NavItem section="externalsuppliers" label="External Suppliers" icon={Building} />
+        <nav className="flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:thin]">
+          {groups.map(group => (
+            <div key={group} className="mb-5">
+              <p className="mb-1.5 px-3 text-[11px] font-medium uppercase tracking-wider text-slate-500">{group}</p>
+              <ul className="space-y-0.5">
+                {NAV_ITEMS.filter(i => SECTION_META[i.section]?.group === group).map(({ section, icon: Icon }) => {
+                  const active = activeSection === section;
+                  const count = section === 'supplierrequests' ? countSupplierRequests : undefined;
+                  return (
+                    <li key={section}>
+                      <button
+                        onClick={() => { setActiveSection(section); setIsOpen(false); }}
+                        aria-current={active ? 'page' : undefined}
+                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${active ? 'bg-white/10 font-medium text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+                      >
+                        {active && <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-accent-400" />}
+                        <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-accent-300' : 'text-slate-500'}`} />
+                        <span className="truncate">{SECTION_META[section]?.title || section}</span>
+                        {count !== undefined && count > 0 && <span className="ml-auto rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">{count}</span>}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
 
-        <div className="mt-5 rounded-card bg-white/[0.06] border border-white/10 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-card bg-emerald-400/10 text-emerald-300 flex items-center justify-center">
-              <Lock className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-[10px] font-extrabold text-white uppercase tracking-[0.16em]">Root access</p>
-              <p className="text-[10px] text-slate-400 font-bold mt-0.5">Enterprise control plane</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-white/10">
-          <motion.button 
-            whileHover={{ x: 4 }} 
-            onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }} 
-            className="flex items-center w-full px-4 py-4 text-slate-400 hover:bg-red-500/10 hover:text-red-300 rounded-card transition-all group font-extrabold text-sm uppercase tracking-widest"
+        <div className="shrink-0 border-t border-white/10 p-3">
+          <a href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white">
+            <ExternalLink className="h-4 w-4 text-slate-500" /> View website
+          </a>
+          <button
+            onClick={() => { localStorage.removeItem('adminToken'); navigate('/admin-login'); }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-red-500/10 hover:text-red-300"
           >
-            <LogOut className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-            <span>Sign Out</span>
-          </motion.button>
+            <LogOut className="h-4 w-4 text-slate-500" /> Sign out
+          </button>
         </div>
       </aside>
     </>
@@ -2131,7 +2142,7 @@ const SiteSettingsContent = () => {
   if (loading) return <div className="p-8 text-center text-slate-500 font-extrabold uppercase tracking-widest text-xs">Loading Settings...</div>;
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       <div className="p-8 border-b border-gray-50 bg-gray-50/30">
         <SectionHeader title="Site Configuration" icon={Settings} subtitle="Global behavior and design settings" />
       </div>
@@ -2230,7 +2241,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
   }, [library, searchQuery]);
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div className="flex-1">
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Global Car Library</h2>
@@ -2334,7 +2345,7 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
     }, [suppliers, searchQuery, visibilityFilter]);
 
     return (
-  <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
     <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
         <div className="flex-1">
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Manage Suppliers</h2>
@@ -2503,88 +2514,161 @@ const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageAp
 };
 
 // ==================== Dashboard ====================
-const DashboardContent = ({ stats, pendingCount, bookings }: any) => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={DollarSign} title="Revenue" value={`$${(stats.totalRevenue / 1000).toFixed(1)}k`} change="+12.5%" />
-        <StatCard icon={Calendar} title="Reservations" value={stats.totalBookings} color="blue" change="+5.2%" />
-        <StatCard icon={Building} title="Network Scale" value={`${stats.activeSuppliers}`} color="green" />
-        <StatCard icon={Zap} title="Pending Actions" value={pendingCount} color="purple" />
-    </div>
-    
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                    <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-[#007ac2]" />
-                        Financial Overview
-                    </h3>
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Real-time revenue stream</p>
-                </div>
-                <select className="text-xs font-bold border border-gray-100 rounded-card px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
-                    <option>Last 30 Days</option>
-                    <option>Quarterly</option>
-                </select>
+const bookingAmount = (b: any) => Number(b.finalPrice ?? b.totalPrice) || 0;
+const bookingCreated = (b: any) => {
+  const d = new Date(b.bookingDate || b.createdAt || b.startDate);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+const money = (n: number) => `$${n >= 10000 ? `${(n / 1000).toFixed(1)}k` : n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+
+const DashboardContent = ({ stats, pendingCount, bookings, onNavigate }: any) => {
+  const list: any[] = Array.isArray(bookings) ? bookings : [];
+  const byStatus = list.reduce((acc: Record<string, number>, b) => {
+    const k = String(b.status || 'pending').toLowerCase();
+    acc[k] = (acc[k] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Revenue per day for the last 14 days, from real bookings.
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - (13 - i));
+    return d;
+  });
+  const chart = days.map(day => {
+    const next = new Date(day); next.setDate(day.getDate() + 1);
+    const inDay = list.filter(b => { const c = bookingCreated(b); return c && c >= day && c < next && String(b.status).toLowerCase() !== 'cancelled'; });
+    return { name: day.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }), revenue: Math.round(inDay.reduce((a, b) => a + bookingAmount(b), 0)), bookings: inDay.length };
+  });
+  const last14Revenue = chart.reduce((a, d) => a + d.revenue, 0);
+  const last14Bookings = chart.reduce((a, d) => a + d.bookings, 0);
+  const recent = [...list].sort((a, b) => (bookingCreated(b)?.getTime() || 0) - (bookingCreated(a)?.getTime() || 0)).slice(0, 8);
+  const avgValue = list.length ? stats.totalRevenue / Math.max(1, list.length - (byStatus.cancelled || 0)) : 0;
+
+  const statusRows = [
+    { key: 'confirmed', label: 'Confirmed', color: 'bg-emerald-500' },
+    { key: 'pending', label: 'Pending', color: 'bg-amber-500' },
+    { key: 'completed', label: 'Completed', color: 'bg-accent' },
+    { key: 'modified', label: 'Modified', color: 'bg-violet-500' },
+    { key: 'cancelled', label: 'Cancelled', color: 'bg-red-500' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard icon={DollarSign} title="Revenue" value={money(stats.totalRevenue)} hint="All bookings, excluding cancelled" />
+        <StatCard icon={Calendar} title="Bookings" value={stats.totalBookings.toLocaleString()} hint={`${last14Bookings} in the last 14 days`} color="green" />
+        <StatCard icon={TrendingUp} title="Average booking value" value={money(avgValue)} hint="Per non-cancelled booking" color="purple" />
+        <StatCard icon={Building} title="Active suppliers" value={stats.activeSuppliers} hint={pendingCount > 0 ? `${pendingCount} request${pendingCount === 1 ? '' : 's'} waiting` : 'No requests waiting'} color="orange" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 xl:col-span-2">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Revenue, last 14 days</h3>
+              <p className="text-sm text-slate-500">{money(last14Revenue)} from {last14Bookings} booking{last14Bookings === 1 ? '' : 's'}</p>
             </div>
-            <div className="h-[350px] w-full min-w-0">
-                <ResponsiveContainer width="100%" height="100%" minHeight={1} minWidth={0}>
-                    <AreaChart data={ADMIN_STATS}>
-                        <defs>
-                            <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.15}/>
-                                <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 'bold'}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 'bold'}} dx={-10} />
-                        <Tooltip 
-                            contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px'}}
-                            itemStyle={{fontWeight: 'bold', fontSize: '12px'}}
-                        />
-                        <Area type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
-                    </AreaChart>
-                </ResponsiveContainer>
-            </div>
+          </div>
+          <div className="h-[300px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minHeight={1} minWidth={0}>
+              <AreaChart data={chart} margin={{ left: 0, right: 8, top: 8 }}>
+                <defs>
+                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#007ac2" stopOpacity={0.18} />
+                    <stop offset="100%" stopColor="#007ac2" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={8} interval="preserveStartEnd" />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={48} tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : String(v))} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgb(15 23 42 / 0.08)', padding: '8px 12px', fontSize: 12 }}
+                  formatter={(value: any, name: any) => [name === 'revenue' ? `$${Number(value).toLocaleString()}` : value, name === 'revenue' ? 'Revenue' : 'Bookings']}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="#007ac2" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 flex flex-col">
-                    <div className="flex items-center justify-between mb-8">
-                <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
-                    <History className="w-5 h-5 text-accent" />
-                    Latest Activity
-                </h3>
-                <span className="text-[10px] font-extrabold bg-accent-50 text-accent px-2 py-1 rounded-card uppercase">Live</span>
-            </div>
-            <div className="space-y-6 flex-1">
-                {bookings.slice(0, 5).map((b: any) => (
-                    <div key={b.id} className="flex items-center justify-between group cursor-pointer">
-                        <div className="flex items-center gap-4">
-                            <div className="w-11 h-11 rounded-card bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-extrabold text-xs group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all">
-                                {b.firstName?.[0]}{b.lastName?.[0]}
-                            </div>
-                            <div>
-                                <div className="text-sm font-bold text-gray-900 group-hover:text-accent transition-colors">{b.firstName} {b.lastName}</div>
-                                <div className="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">{b.bookingRef} • {b.supplierName}</div>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <div className="text-sm font-extrabold text-gray-900">${b.finalPrice}</div>
-                            <div className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded-md mt-1 inline-block ${b.status === 'confirmed' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-[#007ac2]'}`}>
-                                {b.status}
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <button className="w-full mt-8 py-3.5 text-xs font-extrabold text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-card border border-dashed border-gray-200 transition-all uppercase tracking-widest">
-                Explore All Transactions
+        <div className="rounded-xl border border-slate-200 bg-white p-5">
+          <h3 className="text-base font-semibold text-slate-900">Bookings by status</h3>
+          <p className="text-sm text-slate-500">{list.length.toLocaleString()} bookings in total</p>
+          <ul className="mt-5 space-y-4">
+            {statusRows.map(row => {
+              const count = byStatus[row.key] || 0;
+              const pct = list.length ? Math.round((count / list.length) * 100) : 0;
+              return (
+                <li key={row.key}>
+                  <div className="mb-1.5 flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-slate-700"><span className={`h-2 w-2 rounded-full ${row.color}`} />{row.label}</span>
+                    <span className="tabular-nums text-slate-900">{count} <span className="text-slate-400">· {pct}%</span></span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${row.color}`} style={{ width: `${pct}%` }} /></div>
+                </li>
+              );
+            })}
+          </ul>
+          {pendingCount > 0 && (
+            <button onClick={() => onNavigate?.('supplierrequests')} className="mt-6 flex w-full items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-left text-sm text-amber-800 hover:bg-amber-100">
+              <span>{pendingCount} supplier request{pendingCount === 1 ? '' : 's'} to review</span>
+              <ChevronRight className="h-4 w-4" />
             </button>
+          )}
         </div>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">Recent bookings</h3>
+            <p className="text-sm text-slate-500">The latest reservations across all suppliers</p>
+          </div>
+          <button onClick={() => onNavigate?.('bookings')} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
+            View all <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+        {recent.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left text-xs text-slate-500">
+                <tr>
+                  <th className="px-5 py-2.5 font-medium">Customer</th>
+                  <th className="px-5 py-2.5 font-medium">Reference</th>
+                  <th className="px-5 py-2.5 font-medium">Supplier</th>
+                  <th className="px-5 py-2.5 font-medium">Booked</th>
+                  <th className="px-5 py-2.5 font-medium">Status</th>
+                  <th className="px-5 py-2.5 text-right font-medium">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recent.map((b: any) => (
+                  <tr key={b.id} className="hover:bg-slate-50/70">
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">{b.firstName?.[0]}{b.lastName?.[0]}</span>
+                        <span className="font-medium text-slate-900">{b.firstName} {b.lastName}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 font-mono text-xs text-slate-600">{b.bookingRef}</td>
+                    <td className="px-5 py-3 text-slate-700">{b.supplierName || '—'}</td>
+                    <td className="px-5 py-3 text-slate-600">{bookingCreated(b)?.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) || '—'}</td>
+                    <td className="px-5 py-3"><Badge status={b.status} /></td>
+                    <td className="px-5 py-3 text-right font-medium tabular-nums text-slate-900">${bookingAmount(b).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="px-5 py-12 text-center text-sm text-slate-500">No bookings yet.</p>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ==================== Fleet ====================
 const FleetContent = ({ cars, onRefresh, setManagingPromosForCar, setIsPromotionModalOpen }: any) => (
@@ -4071,7 +4155,7 @@ const HomepageLogosContent = () => {
                 logo={editingLogo} 
             />
             
-            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
                     <div>
                         <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight text-left">Homepage Branding</h2>
@@ -4201,7 +4285,7 @@ const SearchingLogosContent = () => {
                 loading={loading}
             />
             
-            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
                     <div>
                         <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight text-left">Searching Page Branding</h2>
@@ -4716,7 +4800,7 @@ const SupplierFleetModal = ({ supplier, onClose, onShowRates }: any) => {
 export const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [supplierFetchError, setSupplierFetchError] = useState<string | null>(null);
@@ -4988,7 +5072,7 @@ export const AdminDashboard: React.FC = () => {
     totalSuppliers: suppliers.length, 
     activeSuppliers: suppliers.filter(s => s.status === 'active' || (s as any).active).length, 
     totalBookings: bookings.length, 
-    totalRevenue: bookings.reduce((acc, b) => acc + (b.finalPrice || 0), 0) || 1200000 
+    totalRevenue: bookings.filter((b: any) => String(b.status).toLowerCase() !== 'cancelled').reduce((acc, b: any) => acc + (Number(b.finalPrice ?? b.totalPrice) || 0), 0)
   };
   const pendingCount = supplierApps.length;
 
@@ -5236,7 +5320,7 @@ export const AdminDashboard: React.FC = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} />;
+      case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} onNavigate={setActiveSection} />;
       case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} onToggleVisibility={handleToggleVisibility} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
@@ -5266,7 +5350,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       <EditSupplierModal isOpen={!!editingSupplier} onClose={() => setEditingSupplier(null)} onSave={handleSaveSupplier} supplier={editingSupplier} onCopy={handleCopy} />
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} onSave={handleSavePage} />}
@@ -5280,145 +5364,96 @@ export const AdminDashboard: React.FC = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-6 py-3 rounded-card shadow-2xl flex items-center gap-3 border border-slate-800"
+            className="fixed bottom-6 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-2.5 rounded-lg bg-slate-900 px-4 py-2.5 text-white shadow-xl"
           >
             {toast.type === 'success' ? <CheckCircle className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
-            <span className="text-sm font-bold tracking-tight">{toast.message}</span>
+            <span className="text-sm font-medium">{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 px-4 py-3 flex justify-between sticky top-0 z-30 shadow-sm">
-        <div className="flex items-center gap-2">
-            <div className="bg-slate-950 p-2 rounded-card shadow-lg">
-                <Shield className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="block font-extrabold text-slate-950 tracking-tight uppercase leading-none">Admin Portal</span>
-              <span className="text-[9px] font-extrabold text-slate-500 uppercase tracking-[0.18em]">Control plane</span>
-            </div>
-        </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-card transition-colors">
-            {isSidebarOpen ? <X className="w-6 h-6 text-slate-700" /> : <Menu className="w-6 h-6 text-slate-700" />}
-        </button>
-      </div>
+      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
 
-      <div className="w-full px-3 sm:px-4 lg:pr-8 xl:pr-10 py-4 lg:py-8 flex">
-        <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} countSupplierRequests={pendingCount} />
-        
-        <main className="flex-grow min-w-0 max-w-[1600px] mx-auto">
-          <header className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 lg:mb-8 gap-5 bg-white p-4 sm:p-5 rounded-card shadow-sm border border-slate-200">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-                className="hidden lg:flex p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-card transition-all duration-300 group shadow-sm"
-                title={isSidebarOpen ? "Close Menu" : "Open Menu"}
-              >
-                {isSidebarOpen ? (
-                  <X className="w-5 h-5 text-slate-600 group-hover:rotate-90 transition-transform duration-300" />
-                ) : (
-                  <Menu className="w-5 h-5 text-slate-600 group-hover:scale-110 transition-transform duration-300" />
-                )}
-              </button>
-              <div>
-                <div className="flex items-center gap-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.3em] mb-1">
-                  <LayoutDashboard className="w-3 h-3" />
-                  <span>System / {activeSection}</span>
-                </div>
-                <h1 className="text-2xl font-extrabold text-slate-900 capitalize tracking-tight leading-none">
-                  {activeSection === 'dashboard' ? 'Market Overview' : activeSection}
-                </h1>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 lg:gap-4 w-full xl:w-auto">
+      <div className="lg:pl-64">
+        {/* Top bar */}
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+          <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+            <button onClick={() => setIsSidebarOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 lg:hidden" aria-label="Open menu">
+              <Menu className="h-5 w-5" />
+            </button>
+            <nav className="hidden min-w-0 items-center gap-1.5 text-sm sm:flex" aria-label="Breadcrumb">
+              <span className="text-slate-500">{SECTION_META[activeSection]?.group || 'Admin'}</span>
+              <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
+              <span className="truncate font-medium text-slate-900">{SECTION_META[activeSection]?.title || activeSection}</span>
+            </nav>
+
+            <div className="ml-auto flex items-center gap-2">
               {['dashboard', 'bookings', 'fleet', 'suppliers'].includes(activeSection) && (
-                <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-card border border-slate-200 hover:border-blue-200 transition-all duration-300 w-full sm:w-auto">
-                  <div className="w-8 h-8 rounded-card bg-white shadow-sm flex items-center justify-center text-[#007ac2] border border-slate-100">
-                    <Building className="w-4 h-4" />
+                <label className="relative flex items-center">
+                  <span className="sr-only">Supplier</span>
+                  <Building className="pointer-events-none absolute left-2.5 h-4 w-4 text-slate-400" />
+                  <select
+                    className="h-9 max-w-[220px] rounded-lg border border-slate-300 bg-white pl-8 pr-8 text-sm text-slate-900 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    value={selectedSupplierId || ''}
+                    onChange={(e) => setSelectedSupplierId(e.target.value || null)}
+                  >
+                    <option value="">All suppliers</option>
+                    {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </label>
+              )}
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white" title="Administrator">AD</span>
+            </div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{SECTION_META[activeSection]?.title || activeSection}</h1>
+              <p className="mt-1 text-sm text-slate-500">{SECTION_META[activeSection]?.description}</p>
+            </div>
+            {selectedSupplierId && (() => {
+              const sup = suppliers.find(x => x.id.toString() === selectedSupplierId.toString());
+              const revealed = revealedPasswords.has(`header-${sup?.id}`);
+              return (
+                <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm">
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-500">Supplier login</p>
+                    <p className="max-w-[200px] truncate font-medium text-slate-900">{sup?.email || 'N/A'}</p>
                   </div>
-                  <div className="flex flex-col pr-3 min-w-0 flex-1">
-                    <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Supplier Node</span>
-                    <select 
-                        className="bg-transparent text-xs font-extrabold text-slate-900 outline-none cursor-pointer min-w-0"
-                        value={selectedSupplierId || ''}
-                        onChange={(e) => setSelectedSupplierId(e.target.value || null)}
+                  <div className="border-l border-slate-200 pl-4">
+                    <p className="text-xs text-slate-500">Password</p>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(sup?.password || '', `header-${sup?.id}`, 'Password')}
+                      className="flex items-center gap-1.5 font-mono font-medium text-slate-900 hover:text-accent"
+                      title="Reveal and copy"
                     >
-                        <option value="">All Regions</option>
-                        {suppliers.map(s => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                    </select>
+                      {revealed ? (sup?.password || 'N/A') : '••••••••'}
+                      {revealed ? <CheckCircle className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 text-slate-400" />}
+                    </button>
                   </div>
                 </div>
-              )}
-
-              {selectedSupplierId && (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 bg-[#007ac2] px-4 py-2 rounded-card text-white shadow-lg shadow-blue-200 w-full sm:w-auto">
-                    <div className="flex flex-col border-r border-blue-500 pr-3 min-w-0">
-                        <span className="text-[7px] font-extrabold uppercase tracking-[0.2em] opacity-70">Login Identity</span>
-                        <span className="text-[10px] font-bold truncate max-w-[120px]">
-                            {suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.email || 'N/A'}
-                        </span>
-                    </div>
-                    <div className="flex flex-col pl-1">
-                        <span className="text-[7px] font-extrabold uppercase tracking-[0.2em] opacity-70">Access Key</span>
-                        <div 
-                            className="flex items-center gap-2 cursor-pointer group/pass"
-                            onClick={() => {
-                                const s = suppliers.find(s => s.id.toString() === selectedSupplierId.toString());
-                                handleCopy(s?.password || "", `header-${s?.id}`, "Access Key");
-                            }}
-                            title="Click to Reveal & Copy"
-                        >
-                            <span className="text-[10px] font-bold font-mono min-w-[60px] hover:text-blue-100 transition-colors">
-                                {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) 
-                                    ? (suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.password || 'N/A') 
-                                    : '••••••••'}
-                            </span>
-                            <div className="p-1 hover:bg-blue-500 rounded transition-colors bg-blue-800/50">
-                                {revealedPasswords.has(`header-${suppliers.find(s => s.id.toString() === selectedSupplierId.toString())?.id}`) ? <CheckCircle className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-              )}
-
-              <div className="hidden sm:flex items-center gap-3.5 sm:pl-4 sm:border-l border-slate-100">
-                 <motion.div 
-                    whileHover={{ scale: 1.05 }}
-                    className="w-10 h-10 rounded-card bg-slate-900 flex items-center justify-center text-white shadow-lg font-extrabold text-sm cursor-pointer"
-                 >
-                    AD
-                 </motion.div>
-                 <div className="hidden xl:block">
-                    <p className="text-xs font-extrabold text-slate-900 leading-none">Root Auth</p>
-                    <div className="flex items-center gap-1 mt-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></span>
-                        <p className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Security Tier 1</p>
-                    </div>
-                 </div>
-              </div>
-            </div>
-          </header>
+              );
+            })()}
+          </div>
 
           <AnimatePresence mode="wait">
             <motion.div 
                 key={activeSection} 
-                initial={{ opacity: 0, y: 20, scale: 0.98 }} 
-                animate={{ opacity: 1, y: 0, scale: 1 }} 
-                exit={{ opacity: 0, y: -20, scale: 0.98 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
                 className="min-h-[600px] overflow-x-auto pb-2 [&_table]:min-w-[860px]"
             >
               {renderContent()}
             </motion.div>
           </AnimatePresence>
 
-          <footer className="mt-16 py-8 border-t border-gray-100 text-center">
-            <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-[0.3em]">
-                &copy; {new Date().getFullYear()} Hogicar Global Infrastructure. All Systems Operational.
-            </p>
+          <footer className="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-400">
+            © {new Date().getFullYear()} Hogicar · Admin
           </footer>
         </main>
       </div>

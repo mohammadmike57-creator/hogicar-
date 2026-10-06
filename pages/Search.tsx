@@ -6,6 +6,7 @@ import { loadCars } from '../utils/loadCars';
 import CarCard from '../components/CarCard';
 import ComparisonModal from '../components/ComparisonModal';
 import AiAdvisor, { openAiAdvisor } from '../components/AiAdvisor';
+import { applyPickupOverrides, loadPickupOverrides, PickupOverrideMap } from '../utils/pickupOverrides';
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
@@ -343,6 +344,14 @@ export const Search: React.FC = () => {
   useEffect(() => {
     fetchApiCars(false);
   }, [searchParamsString, sortBy]);
+
+  // Admin-set pick-up types for external suppliers (in terminal, meet & greet, shuttle).
+  const [pickupOverrides, setPickupOverrides] = useState<PickupOverrideMap | null>(null);
+  useEffect(() => { loadPickupOverrides().then(setPickupOverrides); }, []);
+  useEffect(() => {
+    if (!pickupOverrides) return;
+    setApiCars(prev => applyPickupOverrides(prev, pickupOverrides, pickupIata));
+  }, [pickupOverrides, apiCars, pickupIata]);
 
   // Loads every remaining results page so the AI advisor can compare the whole search.
   const pageRef = useRef(page);
