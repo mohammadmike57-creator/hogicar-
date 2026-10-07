@@ -14,6 +14,8 @@ import Check from 'lucide-react/dist/esm/icons/check';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { Logo } from './Logo';
+import { CurrencyMenu, CurrencySheet, CurrencyFlag } from './currency/CurrencyPicker';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { lazyRetry } from '../utils/lazyRetry';
 
 const Footer = lazyRetry(() => import('./Footer'));
@@ -22,9 +24,11 @@ const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const { selectedCurrency, setSelectedCurrency, currencies } = useCurrency();
+  const { selectedCurrency, currencies } = useCurrency();
   const currentCurrency = currencies.find(c => c.code === selectedCurrency);
   const location = useLocation();
+  const closeCurrency = React.useCallback(() => setIsCurrencyOpen(false), []);
+  const isSearchResults = /^\/search(\/|$)/.test(location.pathname);
 
   const isHomePage = location.pathname === '/' || location.pathname === '/ar' || location.pathname === '/ar/';
   const isSearchOrBookingPage = location.pathname.startsWith('/search') || 
@@ -67,71 +71,34 @@ const Layout: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500" aria-label="Hogicar Home">
+          <Link to="/" className="flex shrink-0 items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500" aria-label="Hogicar Home">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 
+          {/* Search results put their compact "edit search" bar here (desktop). */}
+          {isSearchResults && <div id="header-search-slot" className="hidden min-w-0 flex-1 justify-center px-4 lg:flex xl:px-8" />}
+
           {/* Desktop right side */}
-          <nav className="hidden md:flex items-center space-x-6" aria-label="Main Navigation">
-            <Link to="/my-bookings" className="text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 px-4 py-2 rounded-full hover:bg-white/10">
+          <nav className="hidden md:flex shrink-0 items-center gap-2 lg:gap-3" aria-label="Main Navigation">
+            <Link to="/my-bookings" aria-label="Manage Booking" title="Manage Booking" className={`text-sm font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2 py-2 rounded-full hover:bg-white/10 ${isSearchResults ? 'px-3 2xl:px-4' : 'px-4'}`}>
               <User className="w-4 h-4" />
-              Manage Booking
+              <span className={isSearchResults ? 'lg:hidden 2xl:inline' : ''}>Manage Booking</span>
             </Link>
 
-            {/* Currency selector */}
-            <div className="relative">
-              <button 
-                onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
-                aria-expanded={isCurrencyOpen}
-                aria-haspopup="listbox"
-                aria-controls="currency-listbox"
-                aria-label={`Current currency: ${selectedCurrency}. Click to change.`}
-                className="flex items-center space-x-2 text-sm font-bold text-white hover:text-blue-200 px-4 py-2 rounded-full hover:bg-white/10 transition-colors border border-white/20 hover:border-white/40"
-              >
-                {currentCurrency?.flag ? (
-                  <span className="text-base leading-none">{currentCurrency.flag}</span>
-                ) : (
-                  <Globe className="h-4 w-4" />
-                )}
-                <span>{selectedCurrency}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isCurrencyOpen && (
-                <>
-                  {/* Backdrop */}
-                  <div className="fixed inset-0 z-40" onClick={() => setIsCurrencyOpen(false)}></div>
-                  {/* Dropdown panel */}
-                  <div id="currency-listbox" role="listbox" className="absolute end-0 mt-2 w-72 bg-white rounded-card shadow-2xl ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
-                    <div className="p-4 sticky top-0 bg-white/90 backdrop-blur-sm border-b border-slate-100">
-                      <span className="text-xs font-extrabold text-slate-600 uppercase tracking-widest">Select Currency</span>
-                    </div>
-                    <div className="p-2">
-                      {currencies.map(currency => (
-                        <button 
-                          key={currency.code} 
-                          role="option"
-                          aria-selected={selectedCurrency === currency.code}
-                          onClick={() => { setSelectedCurrency(currency.code); setIsCurrencyOpen(false); }}
-                          className={`block w-full text-start px-4 py-3 text-sm rounded-card transition-colors ${selectedCurrency === currency.code ? 'text-[#007ac2] font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <span className="text-xl">{currency.flag}</span>
-                                <span>{currency.code} - {currency.name}</span>
-                            </div>
-                            {selectedCurrency === currency.code && <Check className="w-4 h-4 text-accent" />}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            <CurrencyMenu />
           </nav>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile: currency chip + menu button */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            <button
+              type="button"
+              onClick={() => { setIsMenuOpen(false); setIsCurrencyOpen(true); }}
+              aria-label={`Currency: ${selectedCurrency}. Change currency`}
+              className="flex h-9 items-center gap-1.5 rounded-full ps-1 pe-2.5 text-xs font-semibold text-white ring-1 ring-inset ring-white/25 active:bg-white/10"
+            >
+              <CurrencyFlag currency={currentCurrency} size={24} />
+              {selectedCurrency}
+            </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-card text-white hover:text-blue-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors"
@@ -151,26 +118,26 @@ const Layout: React.FC = () => {
                 Manage Booking
               </Link>
             </div>
-            <div className="pt-4 pb-6 border-t border-[#003580]">
-              <div className="px-4">
-                <p className="text-xs font-extrabold text-blue-300 uppercase tracking-widest mb-3">Currency</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {currencies.map(curr => (
-                    <button 
-                      key={curr.code} 
-                      onClick={() => {setSelectedCurrency(curr.code); setIsMenuOpen(false)}} 
-                      className={`flex flex-col items-center justify-center gap-1 text-[10px] font-extrabold p-3 rounded-card border transition-all ${selectedCurrency === curr.code ? 'bg-white text-[#004099] border-white shadow-md' : 'border-blue-700 text-white hover:bg-white/10'}`}
-                    >
-                      <span className="text-lg">{curr.flag}</span>
-                      <span>{curr.code}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="border-t border-white/10 px-4 pb-5 pt-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-200">Currency</p>
+              <button
+                type="button"
+                onClick={() => { setIsMenuOpen(false); setIsCurrencyOpen(true); }}
+                className="flex w-full items-center gap-3 rounded-2xl bg-white/10 px-3.5 py-3 text-start ring-1 ring-inset ring-white/15 active:bg-white/15"
+              >
+                <CurrencyFlag currency={currentCurrency} size={32} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-white">{selectedCurrency} · {currentCurrency?.symbol}</span>
+                  <span className="block truncate text-xs text-blue-100/80">{currentCurrency?.name}</span>
+                </span>
+                <span className="text-xs font-semibold text-white/80">Change</span>
+                <ChevronRight className="h-4 w-4 text-white/60" />
+              </button>
             </div>
           </div>
         )}
       </header>
+      <CurrencySheet open={isCurrencyOpen} onClose={closeCurrency} />
 
       {/* Main Content */}
       <main id="main-content" className="flex-grow" tabIndex={-1}>

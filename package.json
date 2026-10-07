@@ -16,6 +16,7 @@
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^5.4.0",
     "axios": "^1.13.5",
+    "country-flag-icons": "^1.6.20",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.34.5",
     "lucide-react": "^0.563.0",

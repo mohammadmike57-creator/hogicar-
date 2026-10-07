@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CATEGORY_IMAGES } from '../constants';
@@ -26,6 +27,7 @@ import Check from 'lucide-react/dist/esm/icons/check';
 import Edit from 'lucide-react/dist/esm/icons/edit';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import SearchIcon from 'lucide-react/dist/esm/icons/search';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import X from 'lucide-react/dist/esm/icons/x';
 import ArrowLeftRight from 'lucide-react/dist/esm/icons/arrow-left-right';
@@ -40,6 +42,53 @@ import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
 import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
 import PickupTypeIcon from '../components/PickupTypeIcon';
+
+const shortDay = (d: Date) => isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+/** Compact search summary that lives in the site header on desktop; clicking it opens "Edit search". */
+const HeaderSearchSummary: React.FC<{
+  location: string;
+  differentDropoff: boolean;
+  dropoffName?: string | null;
+  start: Date;
+  end: Date;
+  startTime: string;
+  endTime: string;
+  days: number;
+  editing: boolean;
+  onEdit: () => void;
+  onClose: () => void;
+}> = ({ location, differentDropoff, dropoffName, start, end, startTime, endTime, days, editing, onEdit, onClose }) => (
+  <div className={`relative flex h-12 w-full max-w-[780px] items-center rounded-full bg-white pe-1.5 ps-1.5 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.45)] ring-1 transition-all duration-200 ${editing ? 'ring-4 ring-[#ffb700]/70' : 'ring-black/5 hover:-translate-y-px hover:shadow-[0_12px_28px_-10px_rgba(0,0,0,0.55)]'}`}>
+    <button type="button" onClick={onEdit} className="flex min-w-0 flex-1 items-center rounded-full py-1 ps-3 text-start outline-none focus-visible:ring-2 focus-visible:ring-[#007ac2]" aria-label={`Edit search: ${location}, ${shortDay(start)} ${startTime} to ${shortDay(end)} ${endTime}`}>
+      <MapPin className="h-4 w-4 shrink-0 text-[#007ac2]" />
+      <span className="ms-2 min-w-0 flex-1">
+        <span className="block text-[10px] font-semibold uppercase leading-none tracking-[0.12em] text-slate-400">{differentDropoff ? 'Pick-up · Drop-off' : 'Location'}</span>
+        <span className="mt-1 block truncate text-sm font-semibold leading-tight text-slate-900">
+          {location}{differentDropoff && dropoffName ? <span className="text-slate-400"> → {dropoffName}</span> : null}
+        </span>
+      </span>
+      <span className="mx-3 h-7 w-px shrink-0 bg-slate-200" aria-hidden="true" />
+      <Calendar className="h-4 w-4 shrink-0 text-[#007ac2]" />
+      <span className="ms-2 shrink-0">
+        <span className="block text-[10px] font-semibold uppercase leading-none tracking-[0.12em] text-slate-400">Dates</span>
+        <span className="mt-1 block whitespace-nowrap text-sm font-semibold leading-tight text-slate-900">
+          {shortDay(start)}, {startTime} <span className="font-normal text-slate-400">–</span> {shortDay(end)}, {endTime}
+        </span>
+      </span>
+      <span className="ms-3 hidden shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 2xl:inline">{days} day{days > 1 ? 's' : ''}</span>
+    </button>
+    {editing ? (
+      <button type="button" onClick={onClose} className="ms-2 flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-slate-100 px-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-200" aria-label="Close edit search">
+        <X className="h-4 w-4" /> Close
+      </button>
+    ) : (
+      <button type="button" onClick={onEdit} className="ms-2 flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-[#007ac2] px-3.5 text-sm font-semibold text-white transition hover:bg-[#00649f] xl:px-4" aria-label="Edit search">
+        <SearchIcon className="h-4 w-4" /> <span className="hidden xl:inline">Edit</span>
+      </button>
+    )}
+  </div>
+);
 
 export const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -103,6 +152,8 @@ export const Search: React.FC = () => {
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [headerSlot, setHeaderSlot] = React.useState<HTMLElement | null>(null);
+  React.useEffect(() => { setHeaderSlot(document.getElementById('header-search-slot')); }, []);
   const [aiEnabled, setAiEnabled] = React.useState(false);
   const [highlightedCarId, setHighlightedCarId] = React.useState<string | null>(null);
   const highlightTimer = useRef<number | undefined>(undefined);
@@ -702,7 +753,23 @@ export const Search: React.FC = () => {
     />
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 md:pb-12">
       {/* Search summary (part of the header) */}
-      <div className="relative z-30 bg-[#003580] pb-4 pt-3 shadow-md md:sticky md:top-[72px]">
+      {headerSlot && createPortal(
+        <HeaderSearchSummary
+          location={location || 'Select location'}
+          differentDropoff={!!dropoffIata && dropoffIata !== pickupIata}
+          dropoffName={dropoffName}
+          start={startD}
+          end={endD}
+          startTime={startTimeParam || '10:00'}
+          endTime={endTimeParam || '10:00'}
+          days={days}
+          editing={isSearchOpen}
+          onEdit={() => { setIsSearchOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          onClose={() => setIsSearchOpen(false)}
+        />,
+        headerSlot,
+      )}
+      <div className={`relative z-30 bg-[#003580] pb-4 pt-3 shadow-md md:sticky md:top-[72px] ${isSearchOpen ? '' : 'lg:hidden'}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {!isSearchOpen ? (
             <>
@@ -762,7 +829,7 @@ export const Search: React.FC = () => {
             </>
           ) : (
             <div className="animate-fadeIn">
-              <div className="mb-2 flex items-center justify-between">
+              <div className="mb-2 flex items-center justify-between lg:hidden">
                 <p className="text-sm font-semibold text-white">Edit your search</p>
                 <button
                   type="button"
