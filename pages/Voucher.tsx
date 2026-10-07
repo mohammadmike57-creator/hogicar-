@@ -174,6 +174,11 @@ const Voucher: React.FC = () => {
     { key: 'share', label: 'Share', Icon: Share2, onClick: share },
   ];
 
+  const phoneActions = [
+    ...(cancelled ? [actions[1]] : [{ key: 'wallet', label: 'Wallet', Icon: Smartphone, onClick: () => document.getElementById('wallet')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), disabled: false }]),
+    actions[0], actions[2], actions[3],
+  ];
+
   return (
     <div className="min-h-screen bg-slate-100 pb-28 sm:pb-16 print:bg-white print:pb-0">
       <SEOMetadata title={`Rental voucher ${ref} | Hogicar`} noIndex />
@@ -183,6 +188,7 @@ const Voucher: React.FC = () => {
           <Link to="/" aria-label="Hogicar home" className="shrink-0"><Logo className="h-6 w-auto sm:h-7" /></Link>
           <div className="flex items-center gap-1.5">
             <Link to="/my-bookings" className="hidden h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-slate-700 hover:bg-slate-100 sm:inline-flex"><Settings2 className="h-4 w-4" /> Manage</Link>
+            {!cancelled && <a href="#wallet" onClick={e => { e.preventDefault(); document.getElementById('wallet')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="hidden h-9 items-center gap-1.5 rounded-lg bg-black px-3 text-sm font-semibold text-white hover:bg-slate-800 sm:inline-flex"><Smartphone className="h-4 w-4" /> Add to Wallet</a>}
             <button onClick={() => window.print()} className="hidden h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:inline-flex"><Printer className="h-4 w-4" /> Print</button>
             <button onClick={downloadPdf} disabled={pdfBusy} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-70">
               {pdfBusy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Download className="h-4 w-4" />} PDF
@@ -219,7 +225,8 @@ const Voucher: React.FC = () => {
         {!cancelled && walletAvailable !== false && (
           <motion.section
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-            className="relative mb-5 overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-slate-200"
+            id="wallet"
+            className="relative mb-5 scroll-mt-20 overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-slate-200"
             aria-labelledby="wallet-title"
           >
             <div className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-sky-100/70 blur-3xl" />
@@ -269,7 +276,7 @@ const Voucher: React.FC = () => {
       {/* Phone action bar */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/90 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl sm:hidden print:hidden" aria-label="Voucher actions">
         <div className="grid grid-cols-4">
-          {actions.map(a => (
+          {phoneActions.map(a => (
             <button key={a.key} onClick={a.onClick} disabled={a.disabled} className="flex flex-col items-center gap-1 rounded-xl py-1.5 text-[11px] font-medium text-slate-600 active:bg-slate-100 disabled:opacity-50">
               <a.Icon className="h-5 w-5 text-slate-800" /> {a.label}
             </button>

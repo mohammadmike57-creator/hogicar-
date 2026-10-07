@@ -95,9 +95,8 @@ const messageOf = async (res: Response, fallback: string) => {
 };
 
 /**
- * "Add to Apple Wallet" and "Add to Google Wallet" buttons. Only wallets the server can issue
- * passes for are shown; the one that matches the device comes first. Renders `fallback`
- * (or nothing) when no wallet is available.
+ * "Add to Apple Wallet" and "Add to Google Wallet" buttons for the wallets this device can use
+ * (both on a computer), the device's own wallet first. Renders `fallback` for cancelled bookings.
  */
 const WalletButtons: React.FC<{
   bookingRef: string;
@@ -115,20 +114,26 @@ const WalletButtons: React.FC<{
   const [done, setDone] = React.useState<string | null>(null);
 
   const cancelled = /CANCEL|REJECT/i.test(String(status || ''));
+  // Buttons always show for the wallets this device can use; one the server can't issue yet explains itself.
   const kinds = React.useMemo(() => {
-    if (!wallet || cancelled) return [] as ('apple' | 'google')[];
+    if (cancelled) return [] as ('apple' | 'google')[];
     const list: ('apple' | 'google')[] = [];
-    if (wallet.appleWallet && platform !== 'android') list.push('apple');
-    if (wallet.googleWallet && platform !== 'ios') list.push('google');
-    // On desktop show both; on a phone only the wallet that phone has.
-    if ((platform === 'android' || platform === 'other') && list[0] === 'apple' && list.length > 1) list.reverse();
+    if (platform !== 'android') list.push('apple');
+    if (platform !== 'ios') list.push('google');
+    if ((platform === 'android' || platform === 'other') && list.length > 1) list.reverse();
     return list;
-  }, [wallet, cancelled, platform]);
+  }, [cancelled, platform]);
+  const ready = (k: 'apple' | 'google') => !!wallet && (k === 'apple' ? wallet.appleWallet : wallet.googleWallet);
+  const [info, setInfo] = React.useState<string | null>(null);
+  const notReady = (k: 'apple' | 'google') => {
+    setError(null); setDone(null);
+    setInfo(`${k === 'apple' ? 'Apple' : 'Google'} Wallet passes are being switched on for Hogicar bookings. Until then, download the PDF or keep this page handy, it works at the desk too.`);
+  };
 
   React.useEffect(() => { if (wallet) onAvailability?.(kinds.length > 0); }, [wallet, kinds.length, onAvailability]);
 
   const addApple = async () => {
-    setError(null); setDone(null);
+    setError(null); setDone(null); setInfo(null);
     const url = appleWalletPassUrl(bookingRef);
     if (platform === 'ios') {
       // Safari on iPhone opens the "Add pass" sheet when it navigates to a .pkpass.
@@ -151,7 +156,7 @@ const WalletButtons: React.FC<{
   };
 
   const addGoogle = async () => {
-    setError(null); setDone(null);
+    setError(null); setDone(null); setInfo(null);
     const mobile = platform === 'android';
     const tab = mobile ? null : window.open('', '_blank');
     setBusy('google');
@@ -168,28 +173,25 @@ const WalletButtons: React.FC<{
     }
   };
 
-  if (!wallet) {
-    return <div className={`h-12 w-full animate-pulse rounded-xl bg-slate-200/70 ${className}`} aria-hidden="true" />;
-  }
   if (kinds.length === 0) return <>{fallback}</>;
 
   return (
     <div className={className}>
       <div className={layout === 'row' && kinds.length > 1 ? 'grid gap-2.5 sm:grid-cols-2' : 'grid gap-2.5'}>
         {kinds.map(k => (
-          <Badge key={k} kind={k} size={size} busy={busy === k} disabled={!!busy} onClick={k === 'apple' ? addApple : addGoogle} />
+          <Badge key={k} kind={k} size={size} busy={busy === k} disabled={!!busy} onClick={() => (!wallet ? undefined : !ready(k) ? notReady(k) : k === 'apple' ? addApple() : addGoogle())} />
         ))}
       </div>
       <AnimatePresence>
-        {(error || done) && (
+        {(error || done || info) && (
           <motion.p
-            key={error || done}
+            key={error || done || info}
             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             role={error ? 'alert' : 'status'}
-            className={`mt-2.5 flex items-start gap-2 rounded-xl px-3 py-2 text-xs ring-1 ${error ? 'bg-rose-50 text-rose-700 ring-rose-200' : 'bg-emerald-50 text-emerald-800 ring-emerald-200'}`}
+            className={`mt-2.5 flex items-start gap-2 rounded-xl px-3 py-2 text-left text-xs leading-relaxed ring-1 ${error ? 'bg-rose-50 text-rose-700 ring-rose-200' : info && !done ? 'bg-sky-50 text-sky-900 ring-sky-200' : 'bg-emerald-50 text-emerald-800 ring-emerald-200'}`}
           >
-            {error ? <AlertCircle className="mt-px h-4 w-4 shrink-0" /> : <CheckCircle className="mt-px h-4 w-4 shrink-0" />}
-            {error || done}
+            {error || (info && !done) ? <AlertCircle className="mt-px h-4 w-4 shrink-0" /> : <CheckCircle className="mt-px h-4 w-4 shrink-0" />}
+            {error || done || info}
           </motion.p>
         )}
       </AnimatePresence>
