@@ -38,6 +38,7 @@ import { lazyRetry } from '../utils/lazyRetry';
 // Lazy load truly below-the-fold components
 const Reviews = lazyRetry(() => import('../components/Reviews'));
 const LatestTravelGuides = lazyRetry(() => import('../components/LatestTravelGuides'));
+const PickupRequirements = lazyRetry(() => import('../components/PickupRequirements'));
 const TrustedSuppliers = lazyRetry(() => import('../components/TrustedSuppliers'));
 const PopularDestinations = lazyRetry(() => import('../components/PopularDestinations'));
 const FAQSection = lazyRetry(() => import('../components/FAQSection'));
@@ -881,6 +882,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           </div>
         </section>
       )}
+
+      {/* ===== What you need at pick-up ===== */}
+      <React.Suspense fallback={<div className="h-96 bg-white" />}>
+        <PickupRequirements />
+      </React.Suspense>
 
       {/* ===== Customer reviews ===== */}
       {sections.reviews && (
