@@ -11,6 +11,8 @@ import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import Fuel from 'lucide-react/dist/esm/icons/fuel';
 import Plane from 'lucide-react/dist/esm/icons/plane';
 import PickupTypeIcon from './PickupTypeIcon';
+import PromotionWrap, { PromotionSticker } from './PromotionWrap';
+import { discountOf, promotionHighlights } from '../utils/promotions';
 import Gift from 'lucide-react/dist/esm/icons/gift';
 import X from 'lucide-react/dist/esm/icons/x';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
@@ -442,7 +444,11 @@ const CarCard: React.FC<CarCardProps> = ({
   const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : String(car.fuelPolicy || '').replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   const isInstant = !car.supplier?.bookingMode || car.supplier.bookingMode === 'FREE_SALE';
   const carName = (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '');
-  const originalPrice = car.promotionPercent && car.promotionPercent > 0 ? totalFinalPrice / (1 - car.promotionPercent / 100) : null;
+  const promo = car.supplierPromotion || null;
+  const promoOriginal = promo && discountOf(promo) > 0 && promo.originalFinalPrice && promo.originalFinalPrice > totalFinalPrice ? promo.originalFinalPrice : null;
+  const originalPrice = promoOriginal ?? (car.promotionPercent && car.promotionPercent > 0 ? totalFinalPrice / (1 - car.promotionPercent / 100) : null);
+  const promoSavings = promoOriginal ? promoOriginal - totalFinalPrice : 0;
+  const freeExtras = promo ? promotionHighlights({ ...promo, discountPercent: 0 }) : [];
   const isChoiceLogo = car.supplier.logo === 'HOGICAR_CHOICE_LOGO' || (car.supplier as any).logoUrl === 'HOGICAR_CHOICE_LOGO';
   const supplierLogoSrc = car.supplier.logo || (car.supplier as any).logoUrl;
 
@@ -516,14 +522,17 @@ const CarCard: React.FC<CarCardProps> = ({
         reviewCount={reviewCount}
       />
 
+      <PromotionWrap promo={promo} savingsText={promoSavings > 0 ? `You save ${money(promoSavings)}` : null} className={isComparing ? 'ring-2 ring-accent ring-offset-2' : ''}>
       <article
-        className={`relative w-full overflow-hidden rounded-xl border bg-white transition-shadow ${
-          isComparing
+        className={`relative w-full overflow-hidden bg-white transition-shadow ${
+          promo
+            ? ''
+            : isComparing
             ? 'border-accent shadow-sm ring-1 ring-accent hover:shadow-md'
             : isFilterMatch
               ? 'border-emerald-300 shadow-[0_0_0_3px_rgba(16,185,129,0.12),0_10px_28px_-14px_rgba(5,150,105,0.55)] hover:shadow-[0_0_0_4px_rgba(16,185,129,0.16),0_14px_34px_-14px_rgba(5,150,105,0.6)]'
               : car.isHogicarChoiceBranded ? 'border-accent/60 shadow-sm hover:shadow-md' : 'border-slate-200 shadow-sm hover:shadow-md'
-        }`}
+        } ${promo ? '' : 'rounded-xl border'}`}
       >
         {isFilterMatch && (
           <div className="flex items-center gap-1.5 border-b border-emerald-100 bg-emerald-50 px-4 py-1.5 text-xs font-medium text-emerald-800">
@@ -557,7 +566,9 @@ const CarCard: React.FC<CarCardProps> = ({
               height="140"
               className="h-auto max-h-32 w-full object-contain"
             />
-            {originalPrice && (
+            {promo ? (
+              <PromotionSticker promo={promo} className="absolute left-3 top-3" />
+            ) : originalPrice && (
               <span className="absolute left-3 top-3 rounded bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white">-{car.promotionPercent}%</span>
             )}
           </Link>
@@ -607,7 +618,9 @@ const CarCard: React.FC<CarCardProps> = ({
                   height="80"
                   className="h-auto max-h-20 w-full object-contain"
                 />
-                {originalPrice && (
+                {promo ? (
+                  <PromotionSticker promo={promo} className="absolute left-0 top-0" />
+                ) : originalPrice && (
                   <span className="absolute left-0 top-0 rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">-{car.promotionPercent}%</span>
                 )}
               </Link>
@@ -647,6 +660,12 @@ const CarCard: React.FC<CarCardProps> = ({
                 {originalPrice && <p className="text-sm text-slate-400 line-through">{money(originalPrice)}</p>}
                 <p className="text-2xl font-bold leading-tight tracking-tight text-slate-900">{money(totalFinalPrice)}</p>
                 <p className="text-xs text-emerald-700">Taxes and fees included</p>
+                {promoSavings > 0 && (
+                  <p className="mt-1.5 inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-200">You save {money(promoSavings)}</p>
+                )}
+                {freeExtras.length > 0 && (
+                  <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-slate-700"><Gift className="h-3.5 w-3.5 shrink-0 text-emerald-600" /> {freeExtras.join(' · ')}</p>
+                )}
               </div>
               <dl className="text-right text-xs text-slate-600 md:mt-3 md:space-y-0.5 md:text-left">
                 <div className="flex justify-end gap-2 md:justify-between"><dt>Pay now</dt><dd className="font-semibold text-slate-900">{money(totalCommissionAmount)}</dd></div>
@@ -664,6 +683,7 @@ const CarCard: React.FC<CarCardProps> = ({
           </div>
         </div>
       </article>
+      </PromotionWrap>
     </>
   );
 };

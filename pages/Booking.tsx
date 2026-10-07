@@ -26,6 +26,7 @@ import Users from 'lucide-react/dist/esm/icons/users';
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import { Car, PromoCode } from '../types';
+import { promotionSummary } from '../utils/promotions';
 
 // A custom icon component for Automatic Transmission to match the design
 const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: string }) => (
@@ -352,7 +353,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         isHogicarChoiceBranded: car.isHogicarChoiceBranded,
         selectedExtras: car.extras
           ?.filter(e => selectedExtraIds.includes(e.id))
-          .map(e => ({ ...e, quantity: countSelected(selectedExtraIds, e.id), total: extraUnitTotal(e, days) * countSelected(selectedExtraIds, e.id) }))
+          .map(e => ({ ...e, quantity: countSelected(selectedExtraIds, e.id), total: extraUnitTotal(e, days) * countSelected(selectedExtraIds, e.id) })),
+        promotionSummary: promotionSummary(car.supplierPromotion),
     };
   };
 
@@ -899,7 +901,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
                     {selectedExtras.map(extra => (
-                      <div key={extra.id} className="flex justify-between gap-4"><dt className="text-slate-600">{extra.quantity > 1 ? `${extra.quantity} × ` : ''}{extra.name}</dt><dd className="font-medium text-slate-900">{(extra as any).onRequest ? <span className="text-slate-500">Paid at desk</span> : money(extraUnitTotal(extra, days) * extra.quantity)}</dd></div>
+                      <div key={extra.id} className="flex justify-between gap-4"><dt className="text-slate-600">{extra.quantity > 1 ? `${extra.quantity} × ` : ''}{extra.name}</dt><dd className="font-medium text-slate-900">{(extra as any).free ? <span className="font-bold uppercase text-emerald-700">Free</span> : (extra as any).onRequest ? <span className="text-slate-500">Paid at desk</span> : money(extraUnitTotal(extra, days) * extra.quantity)}</dd></div>
                     ))}
                     {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo{appliedPromo?.code ? ` (${appliedPromo.code})` : ''}</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
                     {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Special deal</dt><dd className="font-medium">-{money(priceDetails.hogicarPromoAmount)}</dd></div>}

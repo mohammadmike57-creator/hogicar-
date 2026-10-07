@@ -111,6 +111,7 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         hogicarChoice: apiCar.hogicarChoice,
         promotionAmount: apiCar.promotionAmount,
         promotionPercent: apiCar.promotionPercent,
+        supplierPromotion: apiCar.supplierPromotion || null,
         vendorCode: (apiCar as any)._vendorCode || (apiCar as any).vendorCode || (apiCar.supplier as any)?.vendorCode,
     };
 };

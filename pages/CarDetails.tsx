@@ -72,6 +72,8 @@ import { loadCars } from '../utils/loadCars';
 import { apiCarsToCars } from '../utils/apiCarToCar';
 import ShareCarButton, { ShareCarDetails } from '../components/ShareCar';
 import AddonsSection from '../components/AddonsSection';
+import PromotionWrap from '../components/PromotionWrap';
+import { discountOf, promotionHighlights } from '../utils/promotions';
 import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withAddons } from '../utils/addons';
 
 // ==================== Helper Components ====================
@@ -544,6 +546,7 @@ const CarDetails: React.FC = () => {
     if (!car) return { days: 0, baseNetTotal: 0, extrasCost: 0, insuranceCost: 0, discountAmount: 0, hogicarPromoAmount: 0, finalTotal: 0, payNow: 0, payAtDesk: 0, commissionAmount: 0 };
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
+  const promoSavings = car?.supplierPromotion && discountOf(car.supplierPromotion) > 0 ? Math.max(0, Number(car.supplierPromotion.savings) || 0) : 0;
 
 
   const handleApplyPromo = () => {
@@ -1005,17 +1008,31 @@ const CarDetails: React.FC = () => {
             {/* Price sidebar */}
             <aside className="order-5 lg:order-none">
               <div className="space-y-3 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:overscroll-contain">
+                {car.supplierPromotion && (
+                  <PromotionWrap promo={car.supplierPromotion}>
+                    <div className="space-y-2 p-4 text-sm">
+                      <p className="font-semibold text-slate-900">{car.supplier?.name || 'The supplier'} is running an offer on this car</p>
+                      <ul className="space-y-1.5">
+                        {promotionHighlights(car.supplierPromotion).map(h => (
+                          <li key={h} className="flex items-center gap-2 text-slate-700"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /> {h}{h.startsWith('Free') ? ' – add it below at no cost' : ''}</li>
+                        ))}
+                      </ul>
+                      {promoSavings > 0 && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200">You save {money(promoSavings)} on this rental</p>}
+                    </div>
+                  </PromotionWrap>
+                )}
                 <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                   <h2 className="text-lg font-bold text-slate-900">Price details</h2>
                   <dl className="mt-4 space-y-2.5 text-sm">
-                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount + promoSavings)}</dd></div>
+                    {promoSavings > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>{car.supplierPromotion?.title} (−{discountOf(car.supplierPromotion)}%)</dt><dd className="font-medium">-{money(promoSavings)}</dd></div>}
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
                     {(car.extras || []).filter(e => selectedExtraIds.includes(e.id)).map(e => {
                       const qty = countSelected(selectedExtraIds, e.id);
                       return (
                         <div key={e.id} className="flex justify-between gap-4">
                           <dt className="text-slate-600">{qty > 1 ? `${qty} × ` : ''}{e.name}</dt>
-                          <dd className="font-medium text-slate-900">{(e as any).onRequest ? <span className="text-xs font-normal text-slate-500">At the desk</span> : money(extraUnitTotal(e, days) * qty)}</dd>
+                          <dd className="font-medium text-slate-900">{(e as any).free ? <span className="text-xs font-bold uppercase text-emerald-700">Free</span> : (e as any).onRequest ? <span className="text-xs font-normal text-slate-500">At the desk</span> : money(extraUnitTotal(e, days) * qty)}</dd>
                         </div>
                       );
                     })}

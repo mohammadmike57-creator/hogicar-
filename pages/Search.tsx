@@ -511,7 +511,7 @@ export const Search: React.FC = () => {
       if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
       if (selectedPaymentTypes.length > 0 && !selectedPaymentTypes.includes(car.supplier.commissionType)) return false;
       if (maxDeposit > 0 && car.deposit > maxDeposit) return false;
-      if (specialOffersOnly && !(car.promotionAmount || car.promotionPercent || car.hogicarChoice)) return false;
+      if (specialOffersOnly && !(car.supplierPromotion || car.promotionAmount || car.promotionPercent || car.hogicarChoice)) return false;
       if (selectedLocationTypes.length > 0) {
           const pt = car.supplier?.pickupType;
           let carMatch = false;
@@ -598,7 +598,7 @@ export const Search: React.FC = () => {
       if (passengerCapacity > 0 && car.passengers < passengerCapacity) return false;
       if (selectedPaymentTypes.length > 0 && !selectedPaymentTypes.includes(car.supplier.commissionType)) return false;
       if (maxDeposit > 0 && car.deposit > maxDeposit) return false;
-      if (specialOffersOnly && !(car.promotionAmount || car.promotionPercent || car.hogicarChoice)) return false;
+      if (specialOffersOnly && !(car.supplierPromotion || car.promotionAmount || car.promotionPercent || car.hogicarChoice)) return false;
       if (selectedLocationTypes.length > 0) {
           const pt = car.supplier?.pickupType;
           let carMatch = false;

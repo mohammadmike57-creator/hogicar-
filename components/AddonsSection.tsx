@@ -73,7 +73,7 @@ const AddonsSection: React.FC<{
             <li
               key={extra.id}
               className={`flex flex-col rounded-xl border p-4 transition-all ${
-                selected ? 'border-accent bg-accent-50/40 ring-1 ring-accent' : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
+                selected ? 'border-accent bg-accent-50/40 ring-1 ring-accent' : extra.free ? 'border-emerald-300 bg-emerald-50/40 hover:shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
               }`}
             >
               <div className="flex items-start gap-3.5">
@@ -84,7 +84,9 @@ const AddonsSection: React.FC<{
                       {extra.name}
                       {selected && qty > 1 && <span className="ml-1.5 rounded-full bg-accent px-1.5 py-0.5 align-middle text-[11px] font-semibold text-white">× {qty}</span>}
                     </p>
-                    {extra.onRequest ? (
+                    {extra.free ? (
+                      <span className="shrink-0 rounded-md bg-emerald-600 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">Free</span>
+                    ) : extra.onRequest ? (
                       <span className="shrink-0 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">At the desk</span>
                     ) : (
                       <span className="shrink-0 whitespace-nowrap text-right text-[15px] font-bold leading-snug text-slate-900">
@@ -98,7 +100,9 @@ const AddonsSection: React.FC<{
 
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
                 <div className="min-w-0 leading-tight">
-                  {extra.onRequest ? (
+                  {extra.free ? (
+                    <p className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><Check className="h-3.5 w-3.5" /> {extra.promotionLabel || 'Included free'}</p>
+                  ) : extra.onRequest ? (
                     <p className="inline-flex items-center gap-1 text-xs text-slate-500"><Info className="h-3.5 w-3.5" /> Price confirmed by the supplier</p>
                   ) : (
                     <>

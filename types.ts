@@ -230,6 +230,22 @@ export interface Car {
   promotionAmount?: number;
   promotionPercent?: number;
   vendorCode?: string; // External API provider code
+  supplierPromotion?: SupplierPromotionInfo | null;
+}
+
+/** A supplier's promotion applied to a search result (discount and/or free add-ons). */
+export interface SupplierPromotionInfo {
+  id?: number;
+  title: string;
+  tagline?: string | null;
+  discountPercent?: number | null;
+  freeAddons?: string[];
+  theme?: string | null;
+  endDate?: string | null;
+  minDays?: number | null;
+  /** Customer price before the discount. */
+  originalFinalPrice?: number | null;
+  savings?: number | null;
 }
 
 export interface ApiSearchResult {
@@ -268,6 +284,7 @@ export interface ApiSearchResult {
   hogicarChoice?: boolean;
   promotionAmount?: number;
   promotionPercent?: number;
+  supplierPromotion?: SupplierPromotionInfo | null;
 
   supplier?: {
     id?: number | null;

@@ -59,6 +59,8 @@ import {
 import { Logo } from '../components/Logo';
 import AddonIcon from '../components/AddonIcon';
 import { VoucherModal } from '../components/RentalVoucher';
+import PromotionsSection from '../components/supplier/PromotionsSection';
+import Megaphone from 'lucide-react/dist/esm/icons/megaphone';
 import { buildCarAddons, loadAddonSettings } from '../utils/addons';
 
 // ==================== Shared UI Components ====================
@@ -392,6 +394,7 @@ const SupplierDashboard = () => {
     fleet: { title: 'Fleet', description: 'Cars you offer, their details and availability.', group: 'Operations' },
     rates: { title: 'Pricing', description: 'Seasons, rental bands and daily rates for every car.', group: 'Commercial' },
     stopsales: { title: 'Availability', description: 'Close sales for dates, cars or categories.', group: 'Commercial' },
+    promotions: { title: 'Promotions', description: 'Discounts and free add-ons that make your cars stand out.', group: 'Commercial' },
     extras: { title: 'Add-ons', description: 'Extras customers can reserve with a car.', group: 'Commercial' },
     locations: { title: 'Locations', description: 'Where you operate and pick-up details.', group: 'Account' },
     profile: { title: 'Company profile', description: 'Company details, logo and contact information.', group: 'Account' },
@@ -405,6 +408,7 @@ const SupplierDashboard = () => {
     { label: 'Commercial', items: [
       { id: 'rates', label: 'Pricing', icon: DollarSign },
       { id: 'stopsales', label: 'Availability', icon: Clock, badge: stats.activeStopSales },
+      { id: 'promotions', label: 'Promotions', icon: Megaphone },
       { id: 'extras', label: 'Add-ons', icon: Package },
     ] },
     { label: 'Account', items: [
@@ -584,6 +588,7 @@ const SupplierDashboard = () => {
               )}
               {activeSection === 'rates' && <RatesSection supplier={supplier} cars={cars} />}
               {activeSection === 'stopsales' && <StopSalesSection stopSales={stopSales} onRefresh={refreshStopSales} />}
+              {activeSection === 'promotions' && <PromotionsSection supplier={supplier} cars={cars} />}
               {activeSection === 'extras' && <ExtrasSection supplier={supplier} />}
               {activeSection === 'locations' && <LocationsSection supplier={supplier} />}
               {activeSection === 'profile' && <ProfileSection supplier={supplier} onSupplierUpdated={setSupplier} />}

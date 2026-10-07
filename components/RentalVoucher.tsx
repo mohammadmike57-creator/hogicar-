@@ -248,6 +248,18 @@ export const RentalVoucher: React.FC<{ booking: VoucherBooking; audience?: Vouch
             </section>
           )}
 
+          {/* Supplier promotion */}
+          {pick(b, 'promotionSummary') && (
+            <section className="flex items-start gap-3 rounded-xl border border-rose-200 bg-gradient-to-r from-rose-50 to-orange-50 p-4 print:break-inside-avoid print:p-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-600 to-orange-500 text-sm font-bold text-white">%</span>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-rose-700">Promotion applied</p>
+                <p className="mt-0.5 text-sm font-semibold text-slate-900">{String(b.promotionSummary)}</p>
+                <p className="mt-0.5 text-xs text-slate-600">Offered by the rental company and already reflected in your price. Free add-ons are honoured at the desk.</p>
+              </div>
+            </section>
+          )}
+
           {/* What to bring */}
           <section className="rounded-xl border border-slate-200 bg-slate-50 p-4 print:break-inside-avoid print:p-3">
             <p className="text-sm font-semibold text-slate-900">Bring to the rental desk</p>

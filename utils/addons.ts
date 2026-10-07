@@ -63,6 +63,8 @@ export interface AddonExtra extends Extra {
   maxQuantity: number;
   /** No price set: the supplier confirms and charges it at the desk. */
   onRequest?: boolean;
+  /** Included free by the supplier's promotion (one unit). */
+  free?: boolean;
 }
 
 const isObj = (v: unknown): v is Record<string, any> => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -106,9 +108,25 @@ export const buildCarAddons = (
     car.vendorCode,
     v => isObj(v.addons),
   );
+  const promo = car.supplierPromotion;
+  const freeCodes = new Set((promo?.freeAddons || []).map(c => String(c).toUpperCase()));
   return mergedCatalog(settings.catalog)
-    .filter(item => item.enabled)
+    .filter(item => item.enabled || freeCodes.has(item.code))
     .map(item => {
+      if (freeCodes.has(item.code)) {
+        return {
+          id: `addon-${item.code}`,
+          code: item.code,
+          name: item.name,
+          description: item.description,
+          price: 0,
+          type: 'per_rental',
+          maxPrice: null,
+          maxQuantity: 1,
+          free: true,
+          promotionLabel: `Free with ${promo?.title || 'this offer'}`,
+        } as AddonExtra;
+      }
       const own = supplierEntry?.addons?.[item.code];
       if (own && own.enabled === false) return null;
       const ownPrice = own && typeof own.price === 'number' && own.price >= 0 ? own : null;

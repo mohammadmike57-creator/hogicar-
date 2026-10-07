@@ -393,6 +393,11 @@ export const supplierApi = {
   getMyLocations: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/locations`),
   requestLocation: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/locations/request`, payload),
   getBookings: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/bookings`),
+  getPromotions: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/promotions`),
+  createPromotion: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/promotions`, payload),
+  updatePromotion: (id: number, payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/dashboard/promotions/${id}`, payload),
+  setPromotionActive: (id: number, active: boolean) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/promotions/${id}/active`, { active }),
+  deletePromotion: (id: number) => supplierAxios.delete(`${API_BASE_URL}/api/supplier/dashboard/promotions/${id}`),
   confirmBookingBySupplier: (id: number, confirmationNumber: string) => 
     supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/bookings/${id}/confirm`, { supplierConfirmationNumber: confirmationNumber }),
   
