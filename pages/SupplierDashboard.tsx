@@ -59,6 +59,8 @@ import {
 import { Logo } from '../components/Logo';
 import AddonIcon from '../components/AddonIcon';
 import { VoucherModal } from '../components/RentalVoucher';
+import ChangeDecisionModal from '../components/manage/ChangeDecisionModal';
+import { changeStatusOf } from '../utils/changeRequest';
 import PromotionsSection from '../components/supplier/PromotionsSection';
 import Megaphone from 'lucide-react/dist/esm/icons/megaphone';
 import { buildCarAddons, loadAddonSettings } from '../utils/addons';
@@ -967,7 +969,7 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
     const filtered = bookings.filter(b => {
         const matchesSearch = (b.bookingRef?.toLowerCase() || '').includes(search.toLowerCase()) || 
                               (`${b.firstName} ${b.lastName}`.toLowerCase().includes(search.toLowerCase()));
-        const matchesStatus = statusFilter === 'all' || String(b.status || '').toLowerCase() === statusFilter;
+        const matchesStatus = statusFilter === 'all' || (statusFilter === 'changes' ? changeStatusOf(b) === 'REQUESTED' : String(b.status || '').toLowerCase() === statusFilter);
         return matchesSearch && matchesStatus;
     });
 
@@ -984,8 +986,18 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
     };
 
     const [viewing, setViewing] = useState<any | null>(null);
+    const [deciding, setDeciding] = useState<any | null>(null);
+    const changeCount = bookings.filter(b => changeStatusOf(b) === 'REQUESTED').length;
+    const changeBadge = (b: any) => changeStatusOf(b) === 'REQUESTED'
+        ? <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-inset ring-amber-200"><Clock className="h-3 w-3" /> Change requested</span>
+        : null;
+    const decide = async (approve: boolean, message: string) => {
+        await supplierApi.decideChangeRequest(deciding.id, approve, message);
+        alert(approve ? 'Change approved. The customer has been emailed the new dates.' : 'Change declined. The customer has been emailed.');
+        window.location.reload();
+    };
     const counts = bookings.reduce((acc: Record<string, number>, b) => { const k = String(b.status || '').toLowerCase(); acc[k] = (acc[k] || 0) + 1; return acc; }, {});
-    const tabs = [['all', 'All', bookings.length], ['pending', 'Pending', counts.pending || 0], ['confirmed', 'Confirmed', counts.confirmed || 0], ['completed', 'Completed', counts.completed || 0], ['cancelled', 'Cancelled', counts.cancelled || 0]] as const;
+    const tabs = [['all', 'All', bookings.length], ['pending', 'Pending', counts.pending || 0], ['confirmed', 'Confirmed', counts.confirmed || 0], ['completed', 'Completed', counts.completed || 0], ['cancelled', 'Cancelled', counts.cancelled || 0], ...(changeCount ? [['changes', 'Change requests', changeCount]] : [])] as const;
     const pickupOf = (b: any) => b.pickupDate || b.startDate;
     const dropoffOf = (b: any) => b.dropoffDate || b.endDate;
     const fmtD = (v?: string) => { if (!v) return '—'; const d = new Date(v); return isNaN(d.getTime()) ? v : format(d, 'd MMM yyyy'); };
@@ -1061,7 +1073,7 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                                         <p className="text-xs text-slate-500">{b.dropoffCode || b.pickupCode || '—'}</p>
                                     </td>
                                     <td className="px-4 py-3 text-right font-semibold tabular-nums text-slate-900">{amount(b)}</td>
-                                    <td className="px-4 py-3">{statusBadge(b.status)}</td>
+                                    <td className="px-4 py-3"><div className="flex flex-col items-start gap-1">{statusBadge(b.status)}{changeBadge(b)}</div></td>
                                     <td className="px-5 py-3">{actions(b)}</td>
                                 </tr>
                             ))}
@@ -1085,7 +1097,7 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                                             <p className="truncate text-[15px] font-semibold text-slate-900">{b.firstName} {b.lastName}</p>
                                             <p className="mt-0.5 truncate text-xs text-slate-500"><span className="font-mono">{b.bookingRef || `#${b.id}`}</span> · {carNameOf(b)}</p>
                                         </div>
-                                        {statusBadge(b.status)}
+                                        <div className="flex shrink-0 flex-col items-end gap-1">{statusBadge(b.status)}{changeBadge(b)}</div>
                                     </div>
                                     <div className="mt-3 flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/80 p-3">
                                         <div className="min-w-0 flex-1">
@@ -1107,6 +1119,9 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                                 <div className="flex items-center justify-between gap-3 px-4 pb-4">
                                     <p className="leading-tight"><span className="block text-[11px] text-slate-500">Your net</span><span className="text-base font-semibold tabular-nums text-slate-900">{amount(b)}</span></p>
                                     <div className="flex gap-2">
+                                        {changeStatusOf(b) === 'REQUESTED' && (
+                                            <button onClick={() => setDeciding(b)} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-amber-500 px-3.5 text-sm font-semibold text-white active:bg-amber-600">Review change</button>
+                                        )}
                                         {pending && (
                                             <button onClick={() => handleConfirm(b.id)} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-sm font-semibold text-white active:bg-emerald-700">
                                                 <CheckCircle className="h-4 w-4" /> Confirm
@@ -1135,12 +1150,20 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                 booking={viewing}
                 audience="supplier"
                 onClose={() => setViewing(null)}
-                extraActions={viewing && String(viewing.status).toLowerCase() === 'pending' ? (
-                    <button onClick={() => handleConfirm(viewing.id)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-sm font-semibold text-white hover:bg-emerald-700">
-                        <CheckCircle className="h-4 w-4" /> Confirm
-                    </button>
-                ) : null}
+                extraActions={viewing ? (<>
+                    {changeStatusOf(viewing) === 'REQUESTED' && (
+                        <button onClick={() => setDeciding(viewing)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-amber-500 px-3 text-sm font-semibold text-white hover:bg-amber-600">
+                            <Clock className="h-4 w-4" /> Review change
+                        </button>
+                    )}
+                    {String(viewing.status).toLowerCase() === 'pending' && (
+                        <button onClick={() => handleConfirm(viewing.id)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-sm font-semibold text-white hover:bg-emerald-700">
+                            <CheckCircle className="h-4 w-4" /> Confirm
+                        </button>
+                    )}
+                </>) : null}
             />
+            {deciding && <ChangeDecisionModal booking={deciding} onClose={() => setDeciding(null)} onDecide={decide} />}
         </div>
     );
 };

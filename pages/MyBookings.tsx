@@ -34,10 +34,10 @@ import Percent from 'lucide-react/dist/esm/icons/percent';
 import { Booking } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
-import ModifyBookingModal from '../components/ModifyBookingModal';
-import { api } from '../api';
-import { loadCars } from '../utils/loadCars';
-import { apiCarsToCars } from '../utils/apiCarToCar';
+import { api, manageBooking } from '../api';
+import ChangeBookingSheet from '../components/manage/ChangeBookingSheet';
+import CancelBookingSheet from '../components/manage/CancelBookingSheet';
+import { changeRequestOf, changeStatusOf, fmtDay } from '../utils/changeRequest';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -212,16 +212,14 @@ const Row = ({ label, value, strong }: { label: string; value: React.ReactNode; 
   </div>
 );
 
-const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string | number) => Promise<boolean>, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
+const BookingDetailView = ({ booking, email, onBookingModified, onBack }: { booking: Booking, email: string, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
   const b: any = booking;
   const reduce = !!useReducedMotion();
   const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
   const [imageError, setImageError] = React.useState(false);
   const [confirmCancel, setConfirmCancel] = React.useState(false);
-  const [isCancelling, setIsCancelling] = React.useState(false);
-  const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
-  const [fullCar, setFullCar] = React.useState<any>(null);
-  const [isFetchingCar, setIsFetchingCar] = React.useState(false);
+  const [changeTab, setChangeTab] = React.useState<null | 'dates' | 'contact'>(null);
+  const [withdrawing, setWithdrawing] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
   React.useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 3200); return () => clearTimeout(t); }, [toast]);
@@ -247,62 +245,24 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
   const ics = icsFor(b);
 
   const car = {
-    make: b.carMake || 'Vehicle', model: b.carModel || b.carName || 'Rental', image: b.carImage || '',
     category: b.carCategory || 'Standard', transmission: b.carTransmission || 'Automatic', fuelPolicy: b.carFuelPolicy || 'Full to Full',
-    airCon: b.carAirConditioning ?? true, location: b.pickupCode || 'Airport',
+    airCon: b.carAirConditioning ?? true,
   } as any;
 
-  const handleModifyClick = async () => {
-    setIsFetchingCar(true);
-    try {
-      const results = await loadCars({
-        pickupCode: b.pickupCode || 'AMM',
-        dropoffCode: b.dropoffCode || b.pickupCode || 'AMM',
-        pickupDate: pickupOf(b) || '',
-        dropoffDate: dropoffOf(b) || '',
-      });
-      const cars = apiCarsToCars((results as any)?.cars || []);
-      const found = cars.find(c => String(c.id).replace('choice-', '') === String(b.carId));
-      setFullCar(found || car);
-      setIsModifyModalOpen(true);
-    } catch (error) {
-      console.error(error);
-      setFullCar(car);
-      setIsModifyModalOpen(true);
-    } finally {
-      setIsFetchingCar(false);
-    }
+  const change = changeRequestOf(b);
+  const changeStatus = changeStatusOf(b);
+  const pendingChange = changeStatus === 'REQUESTED' && change;
+
+  const updated = (next: any, message?: string) => {
+    if (next && typeof next === 'object') onBookingModified({ ...b, ...next });
+    if (message) setToast(message);
   };
 
-  const handleSaveModification = async (modifications: any) => {
-    try {
-      const result = await api.requestModification(Number(b.id), {
-        pickupDate: modifications.startDate,
-        dropoffDate: modifications.endDate,
-        startTime: modifications.startTime,
-        endTime: modifications.endTime,
-        phone: modifications.customerPhone,
-        flightNumber: modifications.flightNumber
-      });
-      if (result.clientSecret) {
-        alert(`Extra payment of ${result.modificationExtraCharge} ${currency} is required. For this demo, we will confirm it automatically.`);
-      }
-      await api.confirmModification(Number(b.id));
-      const updated = await api.getBooking(Number(b.id));
-      onBookingModified(updated as any);
-      setIsModifyModalOpen(false);
-      setToast('Your booking was updated');
-    } catch (error) {
-      console.error(error);
-      alert('We couldn’t update your booking. Please try again.');
-    }
-  };
-
-  const doCancel = async () => {
-    setIsCancelling(true);
-    const ok = await onCancel(b.id);
-    setIsCancelling(false);
-    if (ok) { setConfirmCancel(false); setToast('Your booking was cancelled'); }
+  const withdraw = async () => {
+    setWithdrawing(true);
+    try { updated(await manageBooking.withdrawChange(email, String(ref)), 'Change request withdrawn'); }
+    catch (e: any) { alert(e?.response?.data?.message || 'We couldn’t withdraw the request. Please try again.'); }
+    finally { setWithdrawing(false); }
   };
 
   const copyRef = async () => {
@@ -313,7 +273,7 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
   const actions = [
     { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}`, show: status !== 'cancelled' },
-    { key: 'modify', icon: Edit2, title: 'Change booking', text: 'Dates, flight or phone', onClick: handleModifyClick, busy: isFetchingCar, show: active },
+    { key: 'modify', icon: Edit2, title: 'Change booking', text: pendingChange ? 'Request pending' : 'Dates, flight or phone', onClick: () => setChangeTab(pendingChange ? 'contact' : 'dates'), busy: false, show: active },
     { key: 'calendar', icon: CalendarPlus, title: 'Add to calendar', text: 'Pick-up reminder', href: ics, download: `hogicar-${ref}.ics`, show: active && !!ics },
     { key: 'review', icon: Star, title: 'Leave a review', text: 'Rate your rental', to: `/leave-review/${b.id}`, show: status === 'completed' && !b.reviewSubmitted },
     { key: 'cancel', icon: XCircle, title: 'Cancel booking', text: 'Free up to 48h before', onClick: () => setConfirmCancel(true), show: active, danger: true },
@@ -321,7 +281,19 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-16 pt-5 sm:px-6 sm:pt-8">
-      {fullCar && isModifyModalOpen && <ModifyBookingModal booking={booking} car={fullCar} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
+      <AnimatePresence>
+        {changeTab && (
+          <ChangeBookingSheet key="change" booking={b} email={email} initialTab={changeTab}
+            datesLocked={pendingChange ? 'You already asked to change the dates. Withdraw that request on the booking page to send a new one.' : null}
+            onClose={() => setChangeTab(null)} onUpdated={(next, msg) => updated(next, msg)} />
+        )}
+        {confirmCancel && (
+          <CancelBookingSheet key="cancel" booking={b} email={email} carName={carName} money={price}
+            onClose={() => setConfirmCancel(false)}
+            onCancelled={next => updated({ ...next, status: 'CANCELLED' })}
+            onChangeInstead={() => { setConfirmCancel(false); setChangeTab('dates'); }} />
+        )}
+      </AnimatePresence>
 
       <motion.div {...rise(0)} className="mb-5 flex items-center justify-between gap-3">
         <button onClick={onBack} className="inline-flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white px-3.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:text-accent">
@@ -360,6 +332,42 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
+          {/* Change request status */}
+          <AnimatePresence initial={false}>
+            {change && changeStatus && changeStatus !== 'WITHDRAWN' && (changeStatus === 'REQUESTED' || change.decidedAt) && (
+              <motion.section key={changeStatus} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }}
+                className={`overflow-hidden rounded-3xl p-5 ring-1 sm:p-6 ${changeStatus === 'REQUESTED' ? 'bg-amber-50 ring-amber-200' : changeStatus === 'APPROVED' ? 'bg-emerald-50 ring-emerald-200' : 'bg-rose-50 ring-rose-200'}`}>
+                <div className="flex items-start gap-3">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white ${changeStatus === 'REQUESTED' ? 'bg-amber-500' : changeStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+                    {changeStatus === 'REQUESTED' ? <Clock className="h-5 w-5" /> : changeStatus === 'APPROVED' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base font-semibold text-slate-900">
+                      {changeStatus === 'REQUESTED' ? 'Change request waiting for the rental company' : changeStatus === 'APPROVED' ? 'Your date change was approved' : 'Your date change was declined'}
+                    </h2>
+                    <p className="mt-0.5 text-sm text-slate-600">
+                      {changeStatus === 'REQUESTED' ? 'Your booking keeps its current dates until they approve. We’ll email you as soon as they reply.'
+                        : changeStatus === 'APPROVED' ? 'Your voucher shows the new dates. Any price difference is settled at the rental desk.'
+                        : 'Your booking keeps its original dates.'}
+                    </p>
+                    {changeStatus === 'REQUESTED' && (
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-100"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Requested pick-up</p><p className="mt-0.5 text-sm font-semibold text-slate-900">{fmtDay(change.pickupDate, change.startTime)}</p></div>
+                        <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-100"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Requested drop-off</p><p className="mt-0.5 text-sm font-semibold text-slate-900">{fmtDay(change.dropoffDate, change.endTime)}</p></div>
+                      </div>
+                    )}
+                    {change.decisionMessage && changeStatus !== 'REQUESTED' && <p className="mt-2 text-sm italic text-slate-700">“{change.decisionMessage}”</p>}
+                    {changeStatus === 'REQUESTED' && (
+                      <button onClick={withdraw} disabled={withdrawing} className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50 disabled:opacity-60">
+                        {withdrawing ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" /> : <X className="h-4 w-4" />} Withdraw request
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </motion.section>
+            )}
+          </AnimatePresence>
+
           {/* Actions */}
           {actions.length > 0 && (
             <motion.ul {...rise(2)} className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -437,7 +445,10 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
           {/* Driver + extras */}
           <motion.section {...rise(5)} className="grid gap-5 md:grid-cols-2">
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-              <h2 className="text-base font-semibold text-slate-900">Main driver</h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-base font-semibold text-slate-900">Main driver</h2>
+                {active && <button onClick={() => setChangeTab('contact')} className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-50"><Edit2 className="h-3.5 w-3.5" /> Edit</button>}
+              </div>
               <ul className="mt-3 space-y-2.5 text-sm">
                 <li className="flex items-center gap-2.5 text-slate-800"><User className="h-4 w-4 text-slate-400" /> {[b.firstName, b.lastName].filter(Boolean).join(' ') || b.customerName || '—'}</li>
                 {(b.email || b.customerEmail) && <li className="flex items-center gap-2.5 break-all text-slate-800"><Mail className="h-4 w-4 shrink-0 text-slate-400" /> {b.email || b.customerEmail}</li>}
@@ -469,7 +480,13 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
               {b.payAtDesk != null && <Row label="Pay at pick-up" value={price(b.payAtDesk)} />}
               {Number(b.carDeposit) > 0 && <Row label="Security deposit" value={<span>{price(b.carDeposit)}<span className="block text-[11px] font-normal text-slate-500">Held on your card, then released</span></span>} />}
             </dl>
-            <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600 ring-1 ring-slate-100">
+            {active && (
+              <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-800 ring-1 ring-emerald-100">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                Free cancellation up to 48 hours before pick-up.
+              </div>
+            )}
+            <div className="mt-3 flex items-start gap-2.5 rounded-2xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600 ring-1 ring-slate-100">
               <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
               Bring a credit card in the main driver’s name, your driving licence and passport or ID.
             </div>
@@ -484,30 +501,6 @@ const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { b
           </motion.section>
         </aside>
       </div>
-
-      {/* Cancel sheet */}
-      <AnimatePresence>
-        {confirmCancel && (
-          <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !isCancelling && setConfirmCancel(false)} className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]" />
-            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-              className="relative w-full max-w-md rounded-t-3xl bg-white p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-3xl">
-              <button onClick={() => setConfirmCancel(false)} disabled={isCancelling} className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Close"><X className="h-5 w-5" /></button>
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><AlertTriangle className="h-6 w-6" /></span>
-              <h2 id="cancel-title" className="mt-4 text-xl font-bold text-slate-900">Cancel this booking?</h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
-                {carName} · {fmtLong(start)}. Cancellation is free up to 48 hours before pick-up. This can’t be undone.
-              </p>
-              <div className="mt-6 grid gap-2 sm:grid-cols-2">
-                <button onClick={() => setConfirmCancel(false)} disabled={isCancelling} className="h-12 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50">Keep my booking</button>
-                <button onClick={doCancel} disabled={isCancelling} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-rose-600 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-70">
-                  {isCancelling ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Cancelling…</> : 'Yes, cancel'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {toast && (
@@ -528,6 +521,7 @@ const MyBookings: React.FC = () => {
   const [loginError, setLoginError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [userBookings, setUserBookings] = React.useState<Booking[]>([]);
+  const [lookupEmail, setLookupEmail] = React.useState('');
 
   const handleLogin = async (email: string, ref: string) => {
     setIsLoading(true);
@@ -535,6 +529,7 @@ const MyBookings: React.FC = () => {
     try {
       const booking = await api.lookupBooking(email.toLowerCase().trim(), ref.toUpperCase().trim());
       setUserBookings([booking]);
+      setLookupEmail(email.toLowerCase().trim());
       setView('dashboard');
       try { window.scrollTo({ top: 0 }); } catch { /* ignore */ }
     } catch (err: any) {
@@ -545,20 +540,8 @@ const MyBookings: React.FC = () => {
     }
   };
 
-  const handleCancelBooking = async (bookingId: string | number): Promise<boolean> => {
-    try {
-      const updated: any = await api.cancelBooking(Number(bookingId));
-      setUserBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, ...(updated && typeof updated === 'object' ? updated : {}), status: 'cancelled' as const } : b)));
-      return true;
-    } catch (error) {
-      console.error(error);
-      alert('We couldn’t cancel your booking. Please try again or contact support.');
-      return false;
-    }
-  };
-
   const handleBookingModified = (updatedBooking: Booking) => {
-    setUserBookings(prev => prev.map(b => (b.id === updatedBooking.id ? updatedBooking : b)));
+    setUserBookings(prev => prev.map(b => (b.id === updatedBooking.id ? { ...b, ...updatedBooking } : b)));
   };
 
   const handleLogout = () => {
@@ -577,7 +560,7 @@ const MyBookings: React.FC = () => {
             </motion.div>
           ) : (
             <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-              <BookingDetailView booking={userBookings[0]} onCancel={handleCancelBooking} onBookingModified={handleBookingModified} onBack={handleLogout} />
+              <BookingDetailView booking={userBookings[0]} email={lookupEmail} onBookingModified={handleBookingModified} onBack={handleLogout} />
             </motion.div>
           )}
         </AnimatePresence>

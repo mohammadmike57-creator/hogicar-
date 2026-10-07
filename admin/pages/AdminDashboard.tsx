@@ -92,6 +92,8 @@ import {
     updateHogicarChoice 
 } from '../../lib/adminApi';
 import { VoucherModal } from '../../components/RentalVoucher';
+import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
+import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
 import ExternalSuppliersPage from './ExternalSuppliers';
 import { calculatePrice } from '../../utils/bookingUtils';
@@ -1280,12 +1282,23 @@ const BookingsContent = ({ bookings, onRefresh }: any) => {
   const [query, setQuery] = React.useState('');
   const [status, setStatus] = React.useState('all');
   const [viewing, setViewing] = React.useState<any | null>(null);
+  const [deciding, setDeciding] = React.useState<any | null>(null);
   const list: any[] = Array.isArray(bookings) ? bookings : [];
+  const changeCount = list.filter(b => changeStatusOf(b) === 'REQUESTED').length;
+  const decide = async (approve: boolean, message: string) => {
+    const token = getAdminToken() || '';
+    const res = await fetch(`${API_BASE_URL}/api/admin/bookings/${deciding.id}/change-request`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ approve, message }),
+    });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.message || `Server returned ${res.status}`); }
+    setDeciding(null); setViewing(null);
+    onRefresh?.();
+  };
   const st = (b: any) => String(b.status || '').toLowerCase();
   const counts = list.reduce((acc: Record<string, number>, b) => { acc[st(b)] = (acc[st(b)] || 0) + 1; return acc; }, {});
   const q = query.trim().toLowerCase();
   const filtered = list
-    .filter(b => status === 'all' || st(b) === status)
+    .filter(b => status === 'all' || (status === 'changes' ? changeStatusOf(b) === 'REQUESTED' : st(b) === status))
     .filter(b => !q || `${b.bookingRef} ${b.firstName} ${b.lastName} ${b.email} ${b.supplierName} ${b.pickupCode} ${b.carMake} ${b.carModel}`.toLowerCase().includes(q))
     .sort((a, b) => new Date(b.createdAt || b.pickupDate || 0).getTime() - new Date(a.createdAt || a.pickupDate || 0).getTime());
   const fmt = (v?: string) => { if (!v) return '—'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
@@ -1304,7 +1317,7 @@ const BookingsContent = ({ bookings, onRefresh }: any) => {
       alert(`Could not download the PDF voucher (${e?.message || 'error'}). Use "Print / Save as PDF" instead.`);
     }
   };
-  const tabs = [['all', 'All', list.length], ['pending', 'Pending', counts.pending || 0], ['confirmed', 'Confirmed', counts.confirmed || 0], ['completed', 'Completed', counts.completed || 0], ['cancelled', 'Cancelled', counts.cancelled || 0]] as const;
+  const tabs = [['all', 'All', list.length], ['pending', 'Pending', counts.pending || 0], ['confirmed', 'Confirmed', counts.confirmed || 0], ['completed', 'Completed', counts.completed || 0], ['cancelled', 'Cancelled', counts.cancelled || 0], ...(changeCount ? [['changes', 'Change requests', changeCount]] : [])] as const;
 
   return (
     <div className="space-y-4">
@@ -1358,7 +1371,7 @@ const BookingsContent = ({ bookings, onRefresh }: any) => {
                     <p className="text-xs text-slate-500">{b.pickupCode || '—'}{b.dropoffCode && b.dropoffCode !== b.pickupCode ? ` → ${b.dropoffCode}` : ''}</p>
                   </td>
                   <td className="px-4 py-3 text-right font-semibold tabular-nums text-slate-900">{amount(b)}</td>
-                  <td className="px-4 py-3"><Badge status={b.status} /></td>
+                  <td className="px-4 py-3"><div className="flex flex-col items-start gap-1"><Badge status={b.status} />{changeStatusOf(b) === 'REQUESTED' && <span className="whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">Change requested</span>}</div></td>
                   <td className="px-5 py-3 text-right">
                     <button onClick={() => setViewing(b)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 hover:border-accent hover:text-accent">
                       <FileText className="h-3.5 w-3.5" /> Voucher
@@ -1376,7 +1389,11 @@ const BookingsContent = ({ bookings, onRefresh }: any) => {
         </div>
       </div>
 
-      <VoucherModal booking={viewing} audience="admin" onClose={() => setViewing(null)} onDownloadPdf={downloadPdf} />
+      <VoucherModal booking={viewing} audience="admin" onClose={() => setViewing(null)} onDownloadPdf={downloadPdf}
+        extraActions={viewing && changeStatusOf(viewing) === 'REQUESTED' ? (
+          <button onClick={() => setDeciding(viewing)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-amber-500 px-3 text-sm font-semibold text-white hover:bg-amber-600">Review change</button>
+        ) : null} />
+      {deciding && <ChangeDecisionModal booking={deciding} onClose={() => setDeciding(null)} onDecide={decide} />}
     </div>
   );
 };

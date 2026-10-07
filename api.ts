@@ -187,6 +187,18 @@ export const cancelBooking = async (id: number): Promise<Booking> => {
   return response.data;
 };
 
+/** Manage-booking actions, verified with the booking's email and reference. */
+export const manageBooking = {
+  cancel: (email: string, ref: string, reason?: string) =>
+    publicAxios.post(`${API_BASE_URL}/api/bookings/manage/cancel`, { email, ref, reason }).then(r => r.data),
+  updateContact: (email: string, ref: string, phone: string, flightNumber: string) =>
+    publicAxios.post(`${API_BASE_URL}/api/bookings/manage/contact`, { email, ref, phone, flightNumber }).then(r => r.data),
+  requestChange: (email: string, ref: string, change: { pickupDate: string; startTime: string; dropoffDate: string; endTime: string; note?: string }) =>
+    publicAxios.post(`${API_BASE_URL}/api/bookings/manage/change-request`, { email, ref, ...change }).then(r => r.data),
+  withdrawChange: (email: string, ref: string) =>
+    publicAxios.post(`${API_BASE_URL}/api/bookings/manage/change-request/withdraw`, { email, ref }).then(r => r.data),
+};
+
 export const requestModification = async (id: number, data: any): Promise<any> => {
   const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/modification/request`, data);
   return response.data;
@@ -398,6 +410,8 @@ export const supplierApi = {
   updatePromotion: (id: number, payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/dashboard/promotions/${id}`, payload),
   setPromotionActive: (id: number, active: boolean) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/promotions/${id}/active`, { active }),
   deletePromotion: (id: number) => supplierAxios.delete(`${API_BASE_URL}/api/supplier/dashboard/promotions/${id}`),
+  decideChangeRequest: (id: number, approve: boolean, message?: string) =>
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/bookings/${id}/change-request`, { approve, message }),
   confirmBookingBySupplier: (id: number, confirmationNumber: string) => 
     supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/bookings/${id}/confirm`, { supplierConfirmationNumber: confirmationNumber }),
   
