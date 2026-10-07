@@ -27,6 +27,7 @@ import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import { Car, PromoCode } from '../types';
 import { promotionSummary } from '../utils/promotions';
+import { validatePromoCode, rememberedPromo, rememberPromo } from '../utils/promoCodes';
 
 // A custom icon component for Automatic Transmission to match the design
 const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: string }) => (
@@ -45,9 +46,6 @@ import { countSelected, extraUnitTotal } from '../utils/addons';
 import { api } from '../api';
 import { compactCarForStorage, safeSessionStorageSetItem } from '../utils/storage';
 
-const getPromoCode = (code: string): PromoCode | undefined => {
-    return undefined; // Mock data removed
-};
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
 
@@ -174,13 +172,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const bookingQuery = location.search || '';
   const paymentSubmitInFlightRef = React.useRef(false);
 
+  const [promoNotice, setPromoNotice] = React.useState<string | null>(null);
   React.useEffect(() => {
-    if (initialPromoCode) {
-      const promo = getPromoCode(initialPromoCode);
-      if (promo && promo.status === 'active') {
-        setAppliedPromo(promo);
-      }
-    }
+    const code = initialPromoCode || rememberedPromo();
+    if (!code) return;
+    let alive = true;
+    const fromStorage = (() => { try { return JSON.parse(sessionStorage.getItem('hogicar_search') || '{}'); } catch { return {}; } })();
+    validatePromoCode(code, {
+      pickupCode: searchParams.get('pickup') || fromStorage.pickupCode,
+      pickupDate: searchParams.get('pickupDate') || fromStorage.pickupDate,
+      dropoffDate: searchParams.get('dropoffDate') || fromStorage.dropoffDate,
+    }).then(p => { if (alive) setAppliedPromo(p); })
+      .catch((e: Error) => { if (alive) { setAppliedPromo(null); rememberPromo(null); if (initialPromoCode) setPromoNotice(`Promo code ${code.toUpperCase()} couldn’t be applied: ${e.message}`); } });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPromoCode]);
 
   React.useEffect(() => {
@@ -355,6 +360,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           ?.filter(e => selectedExtraIds.includes(e.id))
           .map(e => ({ ...e, quantity: countSelected(selectedExtraIds, e.id), total: extraUnitTotal(e, days) * countSelected(selectedExtraIds, e.id) })),
         promotionSummary: promotionSummary(car.supplierPromotion),
+        promoCode: appliedPromo && priceDetails.discountAmount > 0 ? appliedPromo.code : undefined,
+        promoDiscount: appliedPromo && priceDetails.discountAmount > 0 ? priceDetails.discountAmount : undefined,
     };
   };
 
@@ -568,6 +575,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             return;
         }
 
+        if (error.response?.data?.field === 'promoCode') {
+            setAppliedPromo(null);
+            rememberPromo(null);
+            sessionStorage.removeItem('hogicar_pending_booking');
+            setBookingDraft(null);
+            setPaymentError(`${error.response.data.message} We removed the code, so please check the new price and confirm again.`);
+            return;
+        }
         const serverMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data;
         const message = (typeof serverMessage === 'string' && serverMessage) || error.message || 'An unknown error occurred.';
         
@@ -897,13 +912,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
                 <div className="p-4">
                   <h2 className="text-base font-bold text-slate-900">Price details</h2>
+                  {promoNotice && <p role="status" className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-amber-200">{promoNotice}</p>}
                   <dl className="mt-3 space-y-2 text-sm">
-                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount)}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount)}</dd></div>
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
                     {selectedExtras.map(extra => (
                       <div key={extra.id} className="flex justify-between gap-4"><dt className="text-slate-600">{extra.quantity > 1 ? `${extra.quantity} × ` : ''}{extra.name}</dt><dd className="font-medium text-slate-900">{(extra as any).free ? <span className="font-bold uppercase text-emerald-700">Free</span> : (extra as any).onRequest ? <span className="text-slate-500">Paid at desk</span> : money(extraUnitTotal(extra, days) * extra.quantity)}</dd></div>
                     ))}
-                    {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo{appliedPromo?.code ? ` (${appliedPromo.code})` : ''}</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
+                    {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo code{appliedPromo?.code ? ` ${appliedPromo.code}` : ''}</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
                     {priceDetails.hogicarPromoAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Special deal</dt><dd className="font-medium">-{money(priceDetails.hogicarPromoAmount)}</dd></div>}
                     <div className="flex justify-between gap-4"><dt className="text-slate-600">Taxes and fees</dt><dd className="font-medium text-emerald-700">Included</dd></div>
                   </dl>

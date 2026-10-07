@@ -92,6 +92,7 @@ import {
     updateHogicarChoice 
 } from '../../lib/adminApi';
 import { VoucherModal } from '../../components/RentalVoucher';
+import PromotionsAdmin from '../components/PromotionsAdmin';
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
 import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
@@ -150,10 +151,6 @@ const updateAffiliateCommissionRate = (id: string, r: number) => {};
 const MOCK_SUPPLIER_APPLICATIONS: any[] = [];
 const removeSupplierApplication = (id: string) => {};
 const MOCK_CATEGORY_IMAGES: any = {};
-const addPromoCode = (c: string, d: number) => ({});
-const MOCK_PROMO_CODES: any[] = [];
-const updatePromoCodeStatus = (id: string, s: string) => {};
-const deletePromoCode = (id: string) => {};
 
 // ==================== Helper Functions ====================
 const getImageUrl = (url: string) => {
@@ -294,7 +291,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   supplierrequests: { title: 'Supplier requests', description: 'Applications from companies that want to join Hogicar.', group: 'Operations' },
   externalsuppliers: { title: 'External suppliers', description: 'API suppliers: pricing, contact details and pick-up type.', group: 'Operations' },
   fleet: { title: 'Fleet', description: 'Cars, rates and promotions from direct suppliers.', group: 'Operations' },
-  promotions: { title: 'Offers', description: 'Promo codes and special offers.', group: 'Commercial' },
+  promotions: { title: 'Promotions', description: 'Promo codes for checkout and every supplier promotion.', group: 'Commercial' },
   carlibrary: { title: 'Car library', description: 'Car models, images and specifications used across the site.', group: 'Commercial' },
   apipartners: { title: 'Integrations', description: 'API partner connections.', group: 'Commercial' },
   affiliates: { title: 'Affiliates', description: 'Affiliate partners and their commission.', group: 'Commercial' },
@@ -2341,21 +2338,7 @@ const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editi
 };
 
 // ==================== Promotions ====================
-const PromotionsContent = () => {
-  const [promos, setPromos] = useState(MOCK_PROMO_CODES);
-  const [newCode, setNewCode] = useState('');
-  const [newDiscount, setNewDiscount] = useState(10);
-  const handleAdd = (e: any) => { e.preventDefault(); if (!newCode) return; addPromoCode(newCode, newDiscount/100); setPromos([...MOCK_PROMO_CODES]); setNewCode(''); setNewDiscount(10); };
-  const handleToggle = (id: string, status: string) => { updatePromoCodeStatus(id, status); setPromos([...MOCK_PROMO_CODES]); };
-  const handleDelete = (id: string) => { if(confirm('Delete?')) { deletePromoCode(id); setPromos([...MOCK_PROMO_CODES]); } };
-  return (
-    <div className="bg-white rounded-card shadow-lg p-6">
-      <SectionHeader title="Promotions" icon={Tag} />
-      <form onSubmit={handleAdd} className="flex gap-2 mb-4"><input type="text" placeholder="Code" value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} className="border rounded p-1" /><input type="number" placeholder="%" value={newDiscount} onChange={e => setNewDiscount(parseInt(e.target.value))} className="border rounded p-1 w-16" /><button type="submit" className="bg-[#007ac2] text-white px-3 py-1 rounded">Add</button></form>
-      <div className="overflow-x-auto"><table className="w-full"><thead><tr className="text-xs"><th>Code</th><th>Discount</th><th>Status</th><th></th></tr></thead><tbody>{promos.map(p => (<tr key={p.id}><td className="p-2 font-mono">{p.code}</td><td className="p-2">{p.discount*100}%</td><td className="p-2"><Badge status={p.status}/></td><td className="p-2 text-right"><button onClick={() => handleToggle(p.id, p.status === 'active' ? 'inactive' : 'active')} className="p-1 bg-gray-100 rounded mr-1">{p.status === 'active' ? <PowerOff className="w-4 h-4"/> : <Power className="w-4 h-4"/>}</button><button onClick={() => handleDelete(p.id)} className="p-1 bg-red-100 rounded"><Trash2 className="w-4 h-4 text-red-600"/></button></td></tr>))}</tbody></table></div>
-    </div>
-  );
-};
+const PromotionsContent = () => <PromotionsAdmin />;
 
 // Helper to format enum to label
 const formatEnum = (val: string) => {

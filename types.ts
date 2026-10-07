@@ -613,8 +613,11 @@ export interface SupplierApplication {
 export interface PromoCode {
   id: string;
   code: string;
-  discount: number; // 0.10 for 10%
+  discount: number; // 0.10 for 10% (PERCENT codes)
   status: 'active' | 'inactive';
+  discountType?: 'PERCENT' | 'FIXED';
+  amount?: number; // FIXED codes: amount off in USD
+  description?: string;
 }
 
 export interface RateImportSummary {

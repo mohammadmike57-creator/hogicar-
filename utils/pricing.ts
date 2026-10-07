@@ -52,13 +52,20 @@ export function calcPricing(
     
     const insuranceCost = insuranceOption === 'full' ? fullProtectionDailyCost * days : 0;
 
-    // Apply promotions
-    const discountAmount = appliedPromo ? round2(commissionAmount * appliedPromo.discount) : 0;
-    
     // Hogicar Choice Promotion (comes from our commission)
     const hogicarPromoAmount = (car.hogicarChoice && car.promotionPercent) 
         ? round2((netTotal * car.promotionPercent) / 100) 
         : 0;
+
+    // Promo codes: percent of the car hire price or a fixed amount, funded from our commission
+    // (the part paid online), so they never exceed what is left of it.
+    let discountAmount = 0;
+    if (appliedPromo) {
+        const raw = appliedPromo.discountType === 'FIXED'
+            ? Number(appliedPromo.amount) || 0
+            : finalPriceBeforeOptions * (Number(appliedPromo.discount) || 0);
+        discountAmount = round2(Math.max(0, Math.min(raw, commissionAmount - hogicarPromoAmount)));
+    }
 
     // Calculate final totals
     // Final total is reduced by both external promo codes and our internal Hogicar Choice selection promo

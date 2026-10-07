@@ -53,6 +53,10 @@ const Layout: React.FC = () => {
     if (ref) {
       sessionStorage.setItem('hogicar_affiliate_ref', ref);
     }
+    const promo = params.get('promo');
+    if (promo && /^[A-Za-z0-9_-]{3,24}$/.test(promo)) {
+      try { sessionStorage.setItem('hogicar_promo', promo.toUpperCase()); } catch { /* storage blocked */ }
+    }
   }, [location]);
 
   return (

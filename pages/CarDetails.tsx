@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { applyPickupOverrides, loadPickupOverrides } from '../utils/pickupOverrides';
-const getPromoCode = (code: string): PromoCode | undefined => {
-  return undefined; // Mock data removed
-};
 import Check from 'lucide-react/dist/esm/icons/check';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import User from 'lucide-react/dist/esm/icons/user';
@@ -74,6 +71,7 @@ import ShareCarButton, { ShareCarDetails } from '../components/ShareCar';
 import AddonsSection from '../components/AddonsSection';
 import PromotionWrap from '../components/PromotionWrap';
 import { discountOf, promotionHighlights } from '../utils/promotions';
+import { validatePromoCode, rememberedPromo, rememberPromo, promoLabel } from '../utils/promoCodes';
 import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withAddons } from '../utils/addons';
 
 // ==================== Helper Components ====================
@@ -530,6 +528,7 @@ const CarDetails: React.FC = () => {
   const [promoCodeInput, setPromoCodeInput] = React.useState('');
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
   const [promoError, setPromoError] = React.useState('');
+  const [promoChecking, setPromoChecking] = React.useState(false);
   const [showFullSpecs, setShowFullSpecs] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const closeRatings = React.useCallback(() => setShowRatingsTooltip(false), []);
@@ -549,11 +548,30 @@ const CarDetails: React.FC = () => {
   const promoSavings = car?.supplierPromotion && discountOf(car.supplierPromotion) > 0 ? Math.max(0, Number(car.supplierPromotion.savings) || 0) : 0;
 
 
-  const handleApplyPromo = () => {
-    if (!promoCodeInput) { setPromoError('Enter a code.'); return; }
-    const promo = getPromoCode(promoCodeInput);
-    if (promo && promo.status === 'active') { setAppliedPromo(promo); setPromoError(''); } else { setAppliedPromo(null); setPromoError('Invalid or expired code.'); }
-  };
+  const applyPromo = React.useCallback(async (raw: string, silent = false) => {
+    const code = raw.trim().toUpperCase();
+    if (!code) { if (!silent) setPromoError('Enter a code.'); return; }
+    setPromoChecking(true); setPromoError('');
+    try {
+      const promo = await validatePromoCode(code, { pickupCode, pickupDate: startDate, dropoffDate: endDate });
+      setAppliedPromo(promo); setPromoCodeInput(promo.code); rememberPromo(promo.code);
+    } catch (e: any) {
+      setAppliedPromo(null);
+      if (silent) rememberPromo(null); else setPromoError(e.message);
+    } finally {
+      setPromoChecking(false);
+    }
+  }, [pickupCode, startDate, endDate]);
+
+  // A code from a promo link (?promo=) or entered earlier is applied automatically.
+  React.useEffect(() => {
+    const code = searchParams.get('promo') || rememberedPromo();
+    if (code) applyPromo(code, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate, pickupCode]);
+
+  const handleApplyPromo = () => applyPromo(promoCodeInput);
+  const removePromo = () => { setAppliedPromo(null); setPromoCodeInput(''); setPromoError(''); rememberPromo(null); };
 
   const handleContinue = () => {
     if (car) {
@@ -1024,8 +1042,9 @@ const CarDetails: React.FC = () => {
                 <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                   <h2 className="text-lg font-bold text-slate-900">Price details</h2>
                   <dl className="mt-4 space-y-2.5 text-sm">
-                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount - priceDetails.discountAmount + promoSavings)}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-slate-600">Car hire ({days} day{days > 1 ? 's' : ''})</dt><dd className="font-medium text-slate-900">{money(priceDetails.baseNetTotal + priceDetails.commissionAmount + promoSavings)}</dd></div>
                     {promoSavings > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>{car.supplierPromotion?.title} (−{discountOf(car.supplierPromotion)}%)</dt><dd className="font-medium">-{money(promoSavings)}</dd></div>}
+                    {priceDetails.discountAmount > 0 && <div className="flex justify-between gap-4 text-emerald-700"><dt>Promo code {appliedPromo?.code}</dt><dd className="font-medium">-{money(priceDetails.discountAmount)}</dd></div>}
                     {priceDetails.insuranceCost > 0 && <div className="flex justify-between gap-4"><dt className="text-slate-600">Full protection</dt><dd className="font-medium text-slate-900">{money(priceDetails.insuranceCost)}</dd></div>}
                     {(car.extras || []).filter(e => selectedExtraIds.includes(e.id)).map(e => {
                       const qty = countSelected(selectedExtraIds, e.id);
@@ -1049,27 +1068,41 @@ const CarDetails: React.FC = () => {
                     <div className="flex justify-between gap-4"><span className="text-slate-600">Pay at pick-up</span><span className="font-semibold text-slate-900">{money(priceDetails.payAtDesk)}</span></div>
                   </div>
 
-                  <details className="group mt-3">
-                    <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent hover:underline">
-                      <Tag className="h-4 w-4" /> Have a promo code?
-                      <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Enter code"
-                        value={promoCodeInput}
-                        onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
-                        autoCapitalize="characters"
-                        autoCorrect="off"
-                        spellCheck={false}
-                        className="h-11 min-w-0 flex-1 rounded-lg border border-slate-300 px-3 text-base uppercase outline-none placeholder:normal-case focus:border-accent focus:ring-2 focus:ring-accent/20"
-                      />
-                      <button type="button" onClick={handleApplyPromo} className="h-11 rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">Apply</button>
+                  {appliedPromo ? (
+                    <div className="mt-3 flex items-center gap-3 rounded-xl border border-dashed border-emerald-300 bg-emerald-50 px-3 py-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white"><Tag className="h-4 w-4" /></span>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-mono text-sm font-bold tracking-wider text-emerald-900">{appliedPromo.code}</p>
+                        <p className="truncate text-xs text-emerald-800">{priceDetails.discountAmount > 0 ? `${promoLabel(appliedPromo)} · you save ${money(priceDetails.discountAmount)}` : `${promoLabel(appliedPromo)} applied`}</p>
+                      </div>
+                      <button type="button" onClick={removePromo} className="rounded-lg px-2 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">Remove</button>
                     </div>
-                    {promoError && <p className="mt-1.5 text-xs text-red-600">{promoError}</p>}
-                    {appliedPromo && <p className="mt-1.5 text-xs text-emerald-700">{appliedPromo.code} applied</p>}
-                  </details>
+                  ) : (
+                    <details className="group mt-3" open={!!promoError || undefined}>
+                      <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent hover:underline">
+                        <Tag className="h-4 w-4" /> Have a promo code?
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <form className="mt-2 flex gap-2" onSubmit={e => { e.preventDefault(); handleApplyPromo(); }}>
+                        <input
+                          type="text"
+                          placeholder="Enter code"
+                          value={promoCodeInput}
+                          onChange={(e) => { setPromoCodeInput(e.target.value.toUpperCase()); setPromoError(''); }}
+                          autoCapitalize="characters"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          aria-label="Promo code"
+                          aria-invalid={!!promoError}
+                          className={`h-11 min-w-0 flex-1 rounded-lg border px-3 text-base font-mono uppercase tracking-wider outline-none placeholder:font-sans placeholder:normal-case placeholder:tracking-normal focus:ring-2 ${promoError ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-accent focus:ring-accent/20'}`}
+                        />
+                        <button type="submit" disabled={promoChecking} className="inline-flex h-11 min-w-[80px] items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-70">
+                          {promoChecking ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : 'Apply'}
+                        </button>
+                      </form>
+                      {promoError && <p role="alert" className="mt-1.5 text-xs text-red-600">{promoError}</p>}
+                    </details>
+                  )}
 
                   <Link
                     to={`/book/${car.id}/details?${bookingParams}`}

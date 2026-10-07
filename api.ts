@@ -462,6 +462,13 @@ export const supplierApi = {
 
 // ---------- Admin API (with authentication interceptor) ----------
 export const adminApi = {
+  getPromoCodes: () => adminAxios.get(`${API_BASE_URL}/api/admin/promos`),
+  createPromoCode: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/promos`, payload),
+  updatePromoCode: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/promos/${id}`, payload),
+  setPromoCodeStatus: (id: number, status: 'active' | 'inactive') => adminAxios.patch(`${API_BASE_URL}/api/admin/promos/${id}/status?status=${status}`),
+  deletePromoCode: (id: number) => adminAxios.delete(`${API_BASE_URL}/api/admin/promos/${id}`),
+  getSupplierPromotions: () => adminAxios.get(`${API_BASE_URL}/api/admin/supplier-promotions`),
+  setSupplierPromotionActive: (id: number, active: boolean) => adminAxios.patch(`${API_BASE_URL}/api/admin/supplier-promotions/${id}/active?active=${active}`),
   getSuppliers: () => adminAxios.get(`${API_BASE_URL}/api/admin/suppliers`),
   createSupplier: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/suppliers`, payload),
   updateSupplier: (id: number, payload: any) => adminAxios.put(`${API_BASE_URL}/api/admin/suppliers/${id}`, payload),
