@@ -93,6 +93,8 @@ import {
 } from '../../lib/adminApi';
 import { VoucherModal } from '../../components/RentalVoucher';
 import PromotionsAdmin from '../components/PromotionsAdmin';
+import AffiliatesAdmin from '../components/AffiliatesAdmin';
+import IntegrationsAdmin from '../components/IntegrationsAdmin';
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
 import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
@@ -119,9 +121,6 @@ const ADMIN_STATS = [
 const SUPPLIERS: Supplier[] = [];
 const MOCK_BOOKINGS: Booking[] = [];
 const addMockSupplier = (s: any) => {};
-const MOCK_API_PARTNERS: any[] = [];
-const addMockApiPartner = (p: any) => {};
-const updateApiPartnerStatus = (id: string, s: string) => {};
 const MOCK_CARS: any[] = [];
 const MOCK_PAGES: any[] = [];
 const updatePage = (p: any) => {};
@@ -145,9 +144,6 @@ const updateAppConfig = (c: any) => {};
 const MOCK_CAR_LIBRARY: any[] = [];
 const saveCarModel = (m: any) => {};
 const deleteCarModel = (id: string) => {};
-const MOCK_AFFILIATES: any[] = [];
-const updateAffiliateStatus = (id: string, s: string) => {};
-const updateAffiliateCommissionRate = (id: string, r: number) => {};
 const MOCK_SUPPLIER_APPLICATIONS: any[] = [];
 const removeSupplierApplication = (id: string) => {};
 const MOCK_CATEGORY_IMAGES: any = {};
@@ -293,8 +289,8 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   fleet: { title: 'Fleet', description: 'Cars, rates and promotions from direct suppliers.', group: 'Operations' },
   promotions: { title: 'Promotions', description: 'Promo codes for checkout and every supplier promotion.', group: 'Commercial' },
   carlibrary: { title: 'Car library', description: 'Car models, images and specifications used across the site.', group: 'Commercial' },
-  apipartners: { title: 'Integrations', description: 'API partner connections.', group: 'Commercial' },
-  affiliates: { title: 'Affiliates', description: 'Affiliate partners and their commission.', group: 'Commercial' },
+  apipartners: { title: 'Integrations', description: 'Partner API keys and connected services.', group: 'Commercial' },
+  affiliates: { title: 'Affiliates', description: 'Partners who earn commission on the bookings they send.', group: 'Commercial' },
   push: { title: 'Push notifications', description: 'Messages sent to app users.', group: 'Commercial' },
   homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
   homepagelogos: { title: 'Homepage logos', description: 'Brand logos shown in the homepage strip.', group: 'Website' },
@@ -2322,22 +2318,8 @@ const SiteSettingsContent = () => {
 };
 
 // ==================== Affiliates ====================
-const AffiliatesContent = ({ affiliates, onUpdateStatus, onEditCommission, editingAffiliate, setEditingAffiliate, onSaveCommission }: any) => {
-  const EditModal = ({ affiliate, isOpen, onClose, onSave }: any) => {
-    const [rate, setRate] = useState(affiliate?.commissionRate || 0);
-    if (!isOpen) return null;
-    return (<Modal isOpen={isOpen} onClose={onClose} title="Edit Commission"><InputField label="Rate (decimal)" type="number" step="0.01" value={rate} onChange={e => setRate(parseFloat(e.target.value))} /><div className="flex justify-end gap-2 mt-4"><button onClick={onClose}>Cancel</button><button onClick={() => onSave(affiliate.id, rate)} className="bg-[#007ac2] text-white px-3 py-1 rounded">Save</button></div></Modal>);
-  };
-  return (
-    <div className="bg-white rounded-card shadow-lg p-6">
-      <SectionHeader title="Affiliates" icon={DollarSign} />
-      <EditModal affiliate={editingAffiliate} isOpen={!!editingAffiliate} onClose={() => setEditingAffiliate(null)} onSave={onSaveCommission} />
-      <div className="overflow-x-auto"><table className="w-full"><thead className="bg-gray-50"><tr className="text-xs"><th>Name</th><th>Status</th><th>Commission</th><th>Clicks</th><th>Conversions</th><th>Earnings</th><th></th></tr></thead><tbody>{affiliates.map((aff: any) => (<tr key={aff.id} className="hover:bg-blue-50"><td className="p-2"><div className="font-bold">{aff.name}</div><div className="text-xs">{aff.email}</div></td><td className="p-2"><Badge status={aff.status}/></td><td className="p-2">{aff.commissionRate*100}%</td><td className="p-2">{aff.clicks}</td><td className="p-2">{aff.conversions}</td><td className="p-2">${aff.totalEarnings}</td><td className="p-2 text-right"><div className="flex gap-1">{aff.status === 'pending' && <><button onClick={() => onUpdateStatus(aff.id, 'active')} className="bg-green-100 p-1 rounded"><CheckCircle className="w-4 h-4"/></button><button onClick={() => onUpdateStatus(aff.id, 'rejected')} className="bg-red-100 p-1 rounded"><XCircle className="w-4 h-4"/></button></>}<button onClick={() => setEditingAffiliate(aff)} className="bg-gray-100 p-1 rounded"><Edit className="w-4 h-4"/></button></div></td></tr>))}</tbody></table></div>
-    </div>
-  );
-};
+const AffiliatesContent = () => <AffiliatesAdmin />;
 
-// ==================== Promotions ====================
 const PromotionsContent = () => <PromotionsAdmin />;
 
 // Helper to format enum to label
@@ -2869,7 +2851,7 @@ const FleetContent = ({ cars, onRefresh, setManagingPromosForCar, setIsPromotion
     </div>
   </div>
 );
-const ApiPartnersContent = ({ partners, onCreate, onToggle }: any) => <div className="bg-white rounded-card shadow-lg p-6"><SectionHeader title="API Partners" icon={Share2} /><div className="text-center py-10 text-gray-400">Coming soon</div></div>;
+const ApiPartnersContent = () => <IntegrationsAdmin />;
 
 // ==================== Modals ====================
 const ApiConnectionModal = ({ supplier, isOpen, onClose, onSave }: any) => <Modal isOpen={isOpen} onClose={onClose} title="API Connection"><div>API settings</div></Modal>;
@@ -4137,7 +4119,6 @@ const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
     </Modal>
   );
 };
-const EditAffiliateModal = ({ affiliate, isOpen, onClose, onSave }: any) => null;
 const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => {
   const [choice, setChoice] = useState(car?.hogicarChoice || false);
   const [promo, setPromo] = useState(car?.hogicarPromotion || 0);
@@ -4940,7 +4921,6 @@ export const AdminDashboard: React.FC = () => {
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [approvingApplication, setApprovingApplication] = useState<any>(null);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
-  const [apiPartners, setApiPartners] = useState(MOCK_API_PARTNERS);
   const [pages, setPages] = useState<any[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
@@ -4955,8 +4935,6 @@ export const AdminDashboard: React.FC = () => {
   const [loadingLocations, setLoadingLocations] = useState(false);
   const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
   const [editingCarModel, setEditingCarModel] = useState<any>(null);
-  const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
-  const [editingAffiliate, setEditingAffiliate] = useState<any>(null);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [managingPromosForCar, setManagingPromosForCar] = useState<any>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
@@ -5302,8 +5280,6 @@ export const AdminDashboard: React.FC = () => {
     } 
   };
   const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
-  const handleCreateApiPartner = (name: string) => { if (!name) return; addMockApiPartner(name); setApiPartners([...MOCK_API_PARTNERS]); };
-  const handleToggleApiPartnerStatus = (id: string, status: any) => { updateApiPartnerStatus(id, status); setApiPartners([...MOCK_API_PARTNERS]); };
   const handleSaveCarModel = async (model: any) => {
     try {
         const payload = {
@@ -5349,8 +5325,6 @@ export const AdminDashboard: React.FC = () => {
         alert(`Delete failed: ${e.message}`);
     }
   };
-  const handleUpdateAffiliateStatus = (id: string, status: any) => { updateAffiliateStatus(id, status); setAffiliates([...MOCK_AFFILIATES]); };
-  const handleSaveAffiliateCommission = (id: string, rate: number) => { updateAffiliateCommissionRate(id, rate); setAffiliates([...MOCK_AFFILIATES]); setEditingAffiliate(null); };
   const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
   const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
   const handleRejectApplication = async (id: string) => {
@@ -5449,8 +5423,8 @@ export const AdminDashboard: React.FC = () => {
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
-      case 'apipartners': return <ApiPartnersContent partners={apiPartners} onCreate={handleCreateApiPartner} onToggle={handleToggleApiPartnerStatus} />;
-      case 'affiliates': return <AffiliatesContent affiliates={affiliates} onUpdateStatus={handleUpdateAffiliateStatus} onEditCommission={handleSaveAffiliateCommission} editingAffiliate={editingAffiliate} setEditingAffiliate={setEditingAffiliate} onSaveCommission={handleSaveAffiliateCommission} />;
+      case 'apipartners': return <ApiPartnersContent />;
+      case 'affiliates': return <AffiliatesContent />;
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;

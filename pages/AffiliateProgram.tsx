@@ -5,388 +5,308 @@ import Globe from 'lucide-react/dist/esm/icons/globe';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import BarChart2 from 'lucide-react/dist/esm/icons/bar-chart-2';
-import MousePointer from 'lucide-react/dist/esm/icons/mouse-pointer';
+import MousePointer from 'lucide-react/dist/esm/icons/mouse-pointer-click';
 import Link2 from 'lucide-react/dist/esm/icons/link-2';
 import LogOut from 'lucide-react/dist/esm/icons/log-out';
-import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
 import Copy from 'lucide-react/dist/esm/icons/copy';
-import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
-import X from 'lucide-react/dist/esm/icons/x';
-const MOCK_AFFILIATES: any[] = [];
-const registerAffiliate = (name: string, email: string, website: string, pass: string) => ({ id: 'aff-' + Date.now(), name, email, website, status: 'active', commissionRate: 0.1 });
-import { Affiliate } from '../types';
+import Check from 'lucide-react/dist/esm/icons/check';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Wallet from 'lucide-react/dist/esm/icons/wallet';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import Handshake from 'lucide-react/dist/esm/icons/handshake';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { API_BASE_URL } from '../lib/config';
 
-const AffiliateProgram: React.FC = () => {
-    const [view, setView] = React.useState<'landing' | 'dashboard'>('landing');
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [currentUser, setCurrentUser] = React.useState<Affiliate | null>(null);
-    const [heroImageUrl, setHeroImageUrl] = React.useState<string>('');
-    
-    // Registration Form State
-    const [regName, setRegName] = React.useState('');
-    const [regEmail, setRegEmail] = React.useState('');
-    const [regWebsite, setRegWebsite] = React.useState('');
-    const [regPassword, setRegPassword] = React.useState('');
-    const [submitted, setSubmitted] = React.useState(false);
+type Portal = {
+  affiliate: {
+    name: string; email: string; code: string; trackingUrl: string; commissionRate: number; cookieDays: number; status: string;
+    clicks: number; clicks30d: number; conversions: number; bookings30d: number; revenue: number;
+    pendingEarnings: number; approvedEarnings: number; paidOut: number; balance: number; totalEarnings: number;
+  };
+  series: { date: string; clicks: number; bookings: number }[];
+  bookings: { ref: string; createdAt?: string; pickupDate?: string; dropoffDate?: string; pickup?: string; car?: string; value: number; commission: number; state: string }[];
+  payouts: { id: number; amount: number; method?: string; paidOn?: string; reference?: string }[];
+};
 
-    React.useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/public/settings`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setHeroImageUrl(data.heroImageUrl || '');
-                }
-            } catch (e) {
-                console.error("Failed to load settings:", e);
-            }
-        };
-        fetchSettings();
-    }, []);
+const SESSION_KEY = 'hogicar_affiliate_portal';
+const usd = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
+const num = (n: number) => new Intl.NumberFormat('en-US').format(Number(n || 0));
+const day = (d?: string) => (d ? new Date(d.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+const inputCls = 'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#007ac2] focus:ring-4 focus:ring-[#007ac2]/15';
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        const affiliate = MOCK_AFFILIATES.find(a => a.email === email && a.password === password);
-        if (affiliate) {
-            setCurrentUser(affiliate);
-            setView('dashboard');
-        } else {
-            alert('Affiliate not found or password incorrect. Try "partners@travelbloggers.com" with password "password123"');
-        }
-    };
+const STATE_UI: Record<string, { label: string; cls: string }> = {
+  approved: { label: 'Approved', cls: 'bg-emerald-50 text-emerald-700' },
+  pending: { label: 'Pending', cls: 'bg-sky-50 text-sky-700' },
+  cancelled: { label: 'Cancelled', cls: 'bg-slate-100 text-slate-500' },
+  unpaid: { label: 'Not paid', cls: 'bg-amber-50 text-amber-800' },
+};
 
-    const handleRegister = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        // Simulate API delay
-        setTimeout(() => {
-            // Register and generate the affiliate ID
-            const newAffiliate = registerAffiliate(regName, regEmail, regWebsite, regPassword);
-            setCurrentUser(newAffiliate);
-            setSubmitted(true);
-            
-            // Redirect to dashboard after showing success message briefly
-            setTimeout(() => {
-                setView('dashboard');
-                // Scroll to top
-                window.scrollTo(0, 0);
-            }, 1500);
-        }, 800);
-    };
+async function post(path: string, body: unknown) {
+  const res = await fetch(`${API_BASE_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.message || 'Something went wrong. Please try again.');
+  return data;
+}
 
-    const DashboardView = () => {
-        const [activeStat, setActiveStat] = React.useState<'earnings' | 'clicks' | 'conversions' | null>(null);
-
-        if (!currentUser) return null;
-        const trackingLink = `https://www.hogicar.com/?ref=${currentUser.id}`;
-
-        // Mock data for charts
-        const chartData = [
-            { name: 'Mon', value: 400 },
-            { name: 'Tue', value: 300 },
-            { name: 'Wed', value: 550 },
-            { name: 'Thu', value: 480 },
-            { name: 'Fri', value: 700 },
-            { name: 'Sat', value: 650 },
-            { name: 'Sun', value: 800 },
-        ];
-
-        return (
-            <div className="bg-slate-50 min-h-screen">
-                <div className="bg-[#003580] text-white py-8 px-4">
-                    <div className="max-w-6xl mx-auto flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <LayoutDashboard className="w-8 h-8 text-blue-300"/>
-                            <div>
-                                <h1 className="text-2xl font-bold">{currentUser.name}</h1>
-                                <p className="text-blue-200 text-sm">Affiliate Partner ID: <span className="font-mono bg-[#007ac2]/50 px-2 py-0.5 rounded">{currentUser.id}</span></p>
-                            </div>
-                        </div>
-                        <button onClick={() => { setView('landing'); setSubmitted(false); }} className="text-sm bg-[#007ac2] hover:bg-[#007ac2] px-4 py-2 rounded flex items-center gap-2">
-                            <LogOut className="w-4 h-4"/> Sign Out
-                        </button>
-                    </div>
-                </div>
-
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    {/* Unique Link Section - Prominent for new users */}
-                    <div className="bg-white p-8 rounded-card shadow-lg border-2 border-blue-100 mb-8 transform transition-all hover:scale-[1.01]">
-                        <h2 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <Link2 className="w-6 h-6 text-[#007ac2]"/> Your Unique Tracking Link
-                        </h2>
-                        <p className="text-sm text-slate-600 mb-6">
-                            Start earning immediately! Copy the link below and share it on your website, blog, or social media. 
-                            We automatically track any reservations made by users who click this link.
-                        </p>
-                        
-                        <div className="flex flex-col sm:flex-row gap-2">
-                            <div className="relative flex-grow">
-                                <input 
-                                    type="text" 
-                                    readOnly 
-                                    value={trackingLink} 
-                                    className="w-full bg-slate-50 border border-slate-300 text-slate-700 px-4 py-4 rounded-card font-mono text-base focus:ring-2 focus:ring-blue-500 outline-none"
-                                />
-                            </div>
-                            <button 
-                                className="bg-[#007ac2] hover:bg-[#007ac2] text-white font-bold px-8 py-3 rounded-card text-sm flex items-center justify-center gap-2 shadow-md transition-colors" 
-                                onClick={() => {
-                                    navigator.clipboard.writeText(trackingLink);
-                                    alert('Link copied to clipboard!');
-                                }}
-                            >
-                                <Copy className="w-4 h-4"/> Copy Link
-                            </button>
-                        </div>
-                        <div className="mt-4 flex items-center gap-2 text-xs text-green-600 font-medium">
-                            <CheckCircle className="w-3.5 h-3.5"/>
-                            <span>Tracking is active immediately upon account creation.</span>
-                        </div>
-                    </div>
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div onClick={() => setActiveStat(activeStat === 'earnings' ? null : 'earnings')} className={`bg-white p-6 rounded-card shadow-sm border cursor-pointer transition-all ${activeStat === 'earnings' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Earnings</p>
-                                    <h3 className="text-3xl font-extrabold text-slate-900 mt-1">${currentUser.totalEarnings.toFixed(2)}</h3>
-                                </div>
-                                <div className="p-3 bg-green-100 rounded-card text-green-600"><DollarSign className="w-6 h-6"/></div>
-                            </div>
-                            <p className="text-xs text-slate-500">Commission Rate: {(currentUser.commissionRate * 100)}%</p>
-                        </div>
-                        <div onClick={() => setActiveStat(activeStat === 'clicks' ? null : 'clicks')} className={`bg-white p-6 rounded-card shadow-sm border cursor-pointer transition-all ${activeStat === 'clicks' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Link Clicks</p>
-                                    <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{currentUser.clicks}</h3>
-                                </div>
-                                <div className="p-3 bg-blue-100 rounded-card text-[#007ac2]"><MousePointer className="w-6 h-6"/></div>
-                            </div>
-                            <p className="text-xs text-slate-500">Unique visitors from your link</p>
-                        </div>
-                        <div onClick={() => setActiveStat(activeStat === 'conversions' ? null : 'conversions')} className={`bg-white p-6 rounded-card shadow-sm border cursor-pointer transition-all ${activeStat === 'conversions' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300 hover:-translate-y-1'}`}>
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Conversions</p>
-                                    <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{currentUser.conversions}</h3>
-                                </div>
-                                <div className="p-3 bg-purple-100 rounded-card text-purple-600"><CheckCircle className="w-6 h-6"/></div>
-                            </div>
-                            <p className="text-xs text-slate-500">Completed bookings</p>
-                        </div>
-                    </div>
-
-                    {/* Detailed Report Expanded Section */}
-                    {activeStat && (
-                        <div className="bg-white p-6 rounded-card shadow-lg border border-slate-200 mb-8 animate-fadeIn">
-                            <div className="flex justify-between items-center mb-6">
-                                <div>
-                                    <h3 className="text-lg font-bold text-slate-800 capitalize">{activeStat} Report</h3>
-                                    <p className="text-xs text-slate-500">Last 7 days performance</p>
-                                </div>
-                                <button onClick={() => setActiveStat(null)} className="p-1 hover:bg-slate-100 rounded-full text-slate-400"><X className="w-5 h-5"/></button>
-                            </div>
-                            <div className="h-64 w-full min-w-0">
-                                <ResponsiveContainer width="100%" height="100%" minHeight={1} minWidth={0}>
-                                    <AreaChart data={chartData}>
-                                        <defs>
-                                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                                        <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                                        <Tooltip />
-                                        <Area type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
-    if (view === 'dashboard') return <DashboardView />;
-
-    return (
-        <div className="bg-white font-sans">
-            <SEOMetadata
-                title="Affiliate Program | Earn with Hogicar"
-                description="Join the Hogicar affiliate program and earn commission on car rental bookings. High conversion rates and premium support."
-            />
-
-            {/* Hero Section */}
-            <div className={`relative pt-24 pb-32 overflow-hidden ${!heroImageUrl ? 'bg-gradient-to-br from-[#2c135c] to-[#003580]' : ''}`}>
-                {heroImageUrl && (
-                    <div className="absolute inset-0 z-0">
-                        <img 
-                            src={heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl} 
-                            alt="Affiliate Program" 
-                            className="w-full h-full object-cover" 
-                        />
-                        <div className="absolute inset-0 bg-[#2c135c]/80 backdrop-blur-[1px]"></div>
-                    </div>
-                )}
-                <div className="absolute top-0 left-0 w-full h-full opacity-10">
-                    <Globe className="w-[800px] h-[800px] absolute -right-40 -top-40 text-white" />
-                </div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Turn Traffic into <span className="text-[#FF9F1C]">Revenue</span></h1>
-                    <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-10">
-                        Join the world's fastest-growing car rental affiliate network. Earn up to 7% commission on every completed booking.
-                    </p>
-                    <div className="flex justify-center gap-4">
-                        <button 
-                            onClick={() => { document.getElementById('join-form')?.scrollIntoView({ behavior: 'smooth' }); }} 
-                            className="bg-[#FF9F1C] hover:bg-orange-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg transition-transform active:scale-95 text-lg"
-                        >
-                            Become a Partner
-                        </button>
-                        <button onClick={() => { document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' }); }} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-full border border-white/30 backdrop-blur-sm transition-colors text-lg">
-                            Partner Login
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Benefits Section */}
-            <div className="py-20 bg-slate-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-slate-900">Why Partner with Hogicar?</h2>
-                        <p className="text-slate-500 mt-2">We provide the tools you need to succeed.</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                        <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
-                            <div className="w-16 h-16 bg-blue-100 text-[#007ac2] rounded-full flex items-center justify-center mx-auto mb-6">
-                                <DollarSign className="w-8 h-8"/>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">High Commissions</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">Earn competitive rates starting at 5% and going up to 7% based on volume. Get paid monthly.</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
-                            <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <PieChart className="w-8 h-8"/>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">Real-Time Reporting</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">Track clicks, conversions, and earnings in real-time through our intuitive dashboard.</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-card shadow-sm border border-slate-100 text-center hover:-translate-y-1 transition-transform duration-300">
-                            <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Globe className="w-8 h-8"/>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-3">Global Inventory</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">Access vehicles from 900+ suppliers in over 60,000 locations worldwide.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Registration & Login Section */}
-            <div className="py-20 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                        
-                        {/* Registration Form */}
-                        <div id="join-form">
-                            <div className="bg-slate-50 p-8 rounded-card border border-slate-200">
-                                <h2 className="text-2xl font-bold text-slate-900 mb-6">Join the Network</h2>
-                                {submitted ? (
-                                    <div className="text-center py-12">
-                                        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                                            <CheckCircle className="w-8 h-8"/>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2">Account Created!</h3>
-                                        <p className="text-slate-500 text-sm">Generating your unique tracking ID and redirecting to dashboard...</p>
-                                    </div>
-                                ) : (
-                                    <form onSubmit={handleRegister} className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Company / Name</label>
-                                            <input type="text" required className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Travel Bloggers LLC" value={regName} onChange={e => setRegName(e.target.value)} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Website URL <span className="text-slate-400 font-normal text-xs">(Optional)</span></label>
-                                            <input type="url" className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://www.example.com" value={regWebsite} onChange={e => setRegWebsite(e.target.value)} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
-                                            <input type="email" required className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" placeholder="partner@example.com" value={regEmail} onChange={e => setRegEmail(e.target.value)} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Password</label>
-                                            <input 
-                                                type="password" 
-                                                required 
-                                                className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
-                                                placeholder="Create a secure password" 
-                                                value={regPassword} 
-                                                onChange={e => setRegPassword(e.target.value)} 
-                                                minLength={8}
-                                            />
-                                        </div>
-                                        <button type="submit" className="w-full bg-[#003580] hover:bg-blue-900 text-white font-bold py-4 rounded-card shadow-md transition-colors flex items-center justify-center gap-2">
-                                            Apply Now <ArrowRight className="w-4 h-4"/>
-                                        </button>
-                                        <p className="text-xs text-slate-400 text-center mt-4">By applying, you agree to our Affiliate Terms & Conditions.</p>
-                                    </form>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Login Form */}
-                        <div id="login-section" className="flex flex-col justify-center">
-                            <div className="max-w-md mx-auto w-full">
-                                <h2 className="text-2xl font-bold text-slate-900 mb-2">Already a Partner?</h2>
-                                <p className="text-slate-500 mb-6">Log in to view your dashboard and earnings.</p>
-                                <form onSubmit={handleLogin} className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
-                                        <input 
-                                            type="email" 
-                                            required 
-                                            className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
-                                            placeholder="Enter your registered email"
-                                            value={email}
-                                            onChange={e => setEmail(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Password</label>
-                                        <input 
-                                            type="password" 
-                                            required 
-                                            className="w-full border-slate-300 rounded-card p-3 text-base focus:ring-2 focus:ring-blue-500 outline-none" 
-                                            placeholder="••••••••"
-                                            value={password}
-                                            onChange={e => setPassword(e.target.value)}
-                                        />
-                                    </div>
-                                    <button type="submit" className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-card transition-colors">
-                                        Log In
-                                    </button>
-                                </form>
-                                <div className="mt-8 p-4 bg-blue-50 rounded-card border border-blue-100">
-                                    <p className="text-xs text-blue-800 font-medium"><strong>Tip for Demo:</strong> Use <span className="font-mono">partners@travelbloggers.com</span> and password <span className="font-mono">password123</span> to log in.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+const Dashboard: React.FC<{ data: Portal; onSignOut: () => void }> = ({ data, onSignOut }) => {
+  const a = data.affiliate;
+  const [copied, setCopied] = React.useState(false);
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(a.trackingUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ }
+  };
+  const chart = data.series.map(p => ({ ...p, label: new Date(p.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) }));
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <SEOMetadata title="Partner dashboard | Hogicar" description="Your Hogicar affiliate dashboard." />
+      <div className="bg-[#0b2545] px-4 pb-24 pt-8 text-white">
+        <div className="mx-auto flex max-w-6xl items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-200">Hogicar partner</p>
+            <h1 className="mt-1 truncate text-2xl font-semibold sm:text-3xl">{a.name}</h1>
+            <p className="mt-1 text-sm text-sky-100/80">{(a.commissionRate * 100).toFixed(1).replace(/\.0$/, '')}% commission · {a.cookieDays}-day tracking window</p>
+          </div>
+          <button onClick={onSignOut} className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-white/10 px-4 text-sm font-semibold ring-1 ring-inset ring-white/20 hover:bg-white/15"><LogOut className="h-4 w-4" /><span className="hidden sm:inline">Sign out</span></button>
         </div>
-    );
+      </div>
+      <div className="mx-auto -mt-16 max-w-6xl space-y-5 px-4 pb-16">
+        <section className="rounded-3xl bg-white p-5 shadow-lg ring-1 ring-slate-200 sm:p-6">
+          <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900"><Link2 className="h-5 w-5 text-[#007ac2]" /> Your tracking link</h2>
+          <p className="mt-1 text-sm text-slate-500">Share it anywhere. Bookings made within {a.cookieDays} days of a click are credited to you. Add <span className="font-mono">?ref={a.code}</span> to any Hogicar page to link deeper.</p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <div className="min-w-0 flex-1 truncate rounded-xl bg-slate-50 px-4 py-3 font-mono text-sm text-slate-800 ring-1 ring-slate-200">{a.trackingUrl}</div>
+            <button onClick={copy} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#007ac2] px-6 text-sm font-semibold text-white hover:bg-[#00649f]">{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{copied ? 'Copied' : 'Copy link'}</button>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            { label: 'Clicks · 30 days', value: num(a.clicks30d), sub: `${num(a.clicks)} all time`, Icon: MousePointer },
+            { label: 'Bookings', value: num(a.conversions), sub: `${num(a.bookings30d)} in 30 days`, Icon: ShoppingBag },
+            { label: 'Pending commission', value: usd(a.pendingEarnings), sub: 'approved after the rental ends', Icon: Clock },
+            { label: 'Ready to be paid', value: usd(a.balance), sub: `${usd(a.paidOut)} paid so far`, Icon: Wallet },
+          ].map(k => (
+            <div key={k.label} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+              <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500"><k.Icon className="h-3.5 w-3.5" />{k.label}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{k.value}</p>
+              <p className="truncate text-[11px] text-slate-400">{k.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+          <h2 className="text-base font-semibold text-slate-900">Last 30 days</h2>
+          <div className="mt-4 h-56 w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+              <AreaChart data={chart} margin={{ left: -18, right: 4, top: 6, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="pClicks" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.25} /><stop offset="100%" stopColor="#0ea5e9" stopOpacity={0} /></linearGradient>
+                  <linearGradient id="pBookings" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity={0.35} /><stop offset="100%" stopColor="#10b981" stopOpacity={0} /></linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={11} stroke="#94a3b8" minTickGap={24} />
+                <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} stroke="#94a3b8" />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }} />
+                <Area type="monotone" dataKey="clicks" name="Clicks" stroke="#0ea5e9" strokeWidth={2} fill="url(#pClicks)" />
+                <Area type="monotone" dataKey="bookings" name="Bookings" stroke="#10b981" strokeWidth={2} fill="url(#pBookings)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+          <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
+            <h2 className="border-b border-slate-100 px-5 py-4 text-base font-semibold text-slate-900">Your bookings</h2>
+            {data.bookings.length === 0 ? <p className="px-5 py-10 text-center text-sm text-slate-500">No bookings yet. They appear here as soon as someone books through your link.</p> : (
+              <ul className="divide-y divide-slate-100">
+                {data.bookings.map((b, i) => (
+                  <li key={`${b.ref}-${i}`} className="flex items-center gap-3 px-5 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="flex items-center gap-2 text-sm font-semibold text-slate-900"><span className="font-mono">{b.ref}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${(STATE_UI[b.state] || STATE_UI.pending).cls}`}>{(STATE_UI[b.state] || STATE_UI.pending).label}</span></p>
+                      <p className="truncate text-xs text-slate-500">{[b.car, b.pickup].filter(Boolean).join(' · ')} · {day(b.pickupDate)}</p>
+                    </div>
+                    <div className="text-right"><p className="text-sm font-semibold tabular-nums text-slate-900">{usd(b.commission)}</p><p className="text-[11px] tabular-nums text-slate-400">of {usd(b.value)}</p></div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
+            <h2 className="border-b border-slate-100 px-5 py-4 text-base font-semibold text-slate-900">Payments</h2>
+            {data.payouts.length === 0 ? <p className="px-5 py-10 text-center text-sm text-slate-500">Approved commission is paid monthly. Payments show up here.</p> : (
+              <ul className="divide-y divide-slate-100">
+                {data.payouts.map(p => (
+                  <li key={p.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                    <div><p className="text-sm font-semibold tabular-nums text-slate-900">{usd(p.amount)}</p><p className="text-xs text-slate-500">{[day(p.paidOn), p.method].filter(Boolean).join(' · ')}</p></div>
+                    <CheckCircle className="h-5 w-5 text-emerald-500" />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AffiliateProgram: React.FC = () => {
+  const [portal, setPortal] = React.useState<Portal | null>(() => {
+    try { const raw = sessionStorage.getItem(SESSION_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+  });
+  const [heroImageUrl, setHeroImageUrl] = React.useState('');
+
+  const [reg, setReg] = React.useState({ name: '', company: '', email: '', website: '', country: '', audience: '', password: '' });
+  const [regBusy, setRegBusy] = React.useState(false);
+  const [regError, setRegError] = React.useState<string | null>(null);
+  const [regDone, setRegDone] = React.useState<string | null>(null);
+
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loginBusy, setLoginBusy] = React.useState(false);
+  const [loginError, setLoginError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetch(`${API_BASE_URL}/api/public/settings`).then(r => (r.ok ? r.json() : null)).then(d => d && setHeroImageUrl(d.heroImageUrl || '')).catch(() => { /* optional */ });
+  }, []);
+
+  const apply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegError(null);
+    if (reg.password.length < 8) { setRegError('Choose a password with at least 8 characters.'); return; }
+    setRegBusy(true);
+    try {
+      const res = await post('/api/public/affiliates/apply', reg);
+      setRegDone(res.message || 'Thanks for applying. We’ll email you once you’re approved.');
+    } catch (err: any) { setRegError(err.message); }
+    finally { setRegBusy(false); }
+  };
+
+  const login = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(null); setLoginBusy(true);
+    try {
+      const data = await post('/api/public/affiliates/login', { email, password });
+      setPortal(data);
+      try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+      setPassword('');
+      window.scrollTo(0, 0);
+    } catch (err: any) { setLoginError(err.message); }
+    finally { setLoginBusy(false); }
+  };
+
+  const signOut = () => {
+    setPortal(null);
+    try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+  };
+
+  if (portal) return <Dashboard data={portal} onSignOut={signOut} />;
+
+  const set = (patch: Partial<typeof reg>) => { setReg(r => ({ ...r, ...patch })); setRegError(null); };
+
+  return (
+    <div className="bg-white font-sans">
+      <SEOMetadata title="Affiliate Program | Earn with Hogicar" description="Join the Hogicar affiliate program and earn commission on car rental bookings. Real-time tracking, monthly payouts." />
+
+      <div className={`relative overflow-hidden pb-28 pt-20 sm:pt-24 ${!heroImageUrl ? 'bg-gradient-to-br from-[#0b2545] to-[#003580]' : ''}`}>
+        {heroImageUrl && (
+          <div className="absolute inset-0 z-0">
+            <img src={heroImageUrl.startsWith('/') && !heroImageUrl.startsWith('http') ? `${API_BASE_URL}${heroImageUrl}` : heroImageUrl} alt="" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-[#0b2545]/85" />
+          </div>
+        )}
+        <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-100 ring-1 ring-inset ring-white/20"><Handshake className="h-3.5 w-3.5" /> Hogicar partners</span>
+          <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white md:text-6xl">Turn your traffic into <span className="text-[#FF9F1C]">revenue</span></h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-blue-100">Share Hogicar with your audience and earn commission on every car rental booked through your link, tracked in real time and paid monthly.</p>
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <button onClick={() => document.getElementById('join-form')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full bg-[#FF9F1C] px-8 py-3.5 text-lg font-bold text-slate-900 shadow-lg transition hover:bg-orange-400 active:scale-95">Become a partner</button>
+            <button onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full bg-white/10 px-8 py-3.5 text-lg font-bold text-white ring-1 ring-white/30 transition hover:bg-white/20">Partner sign in</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-slate-50 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-14 text-center">
+            <h2 className="text-3xl font-bold text-slate-900">Why partner with Hogicar?</h2>
+            <p className="mt-2 text-slate-500">Everything you need to earn from car rental.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              { Icon: DollarSign, tone: 'bg-blue-100 text-[#007ac2]', title: 'Commission on every booking', text: 'Earn a share of each completed rental booked within the tracking window of your click. Paid monthly.' },
+              { Icon: PieChart, tone: 'bg-violet-100 text-violet-600', title: 'Real-time reporting', text: 'See clicks, bookings, pending and approved commission and every payout in your partner dashboard.' },
+              { Icon: Globe, tone: 'bg-orange-100 text-orange-600', title: 'Cars worldwide', text: 'Send your audience to airports and cities across the world with trusted local and international suppliers.' },
+            ].map(b => (
+              <div key={b.title} className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-100">
+                <div className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${b.tone}`}><b.Icon className="h-8 w-8" /></div>
+                <h3 className="mb-3 text-xl font-bold text-slate-900">{b.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{b.text}</p>
+              </div>
+            ))}
+          </div>
+          <ol className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-3">
+            {['Apply in two minutes', 'Get approved and copy your link', 'Earn on every booking'].map((t, i) => (
+              <li key={t} className="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0b2545] text-sm font-bold text-white">{i + 1}</span>
+                <span className="text-sm font-semibold text-slate-800">{t}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      <div className="bg-white py-20">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:px-8">
+          <div id="join-form" className="scroll-mt-24">
+            <div className="rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 sm:p-8">
+              <h2 className="text-2xl font-bold text-slate-900">Apply to join</h2>
+              {regDone ? (
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600"><CheckCircle className="h-8 w-8" /></div>
+                  <h3 className="text-xl font-bold text-slate-900">Application received</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-sm text-slate-600">{regDone}</p>
+                </div>
+              ) : (
+                <form onSubmit={apply} className="mt-6 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Your name</span><input required className={inputCls} value={reg.name} onChange={e => set({ name: e.target.value })} autoComplete="name" /></label>
+                    <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Company <span className="font-normal text-slate-400">(optional)</span></span><input className={inputCls} value={reg.company} onChange={e => set({ company: e.target.value })} autoComplete="organization" /></label>
+                    <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Email</span><input type="email" required className={inputCls} value={reg.email} onChange={e => set({ email: e.target.value })} autoComplete="email" /></label>
+                    <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Country <span className="font-normal text-slate-400">(optional)</span></span><input className={inputCls} value={reg.country} onChange={e => set({ country: e.target.value })} autoComplete="country-name" /></label>
+                  </div>
+                  <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Website or social profile</span><input className={inputCls} value={reg.website} onChange={e => set({ website: e.target.value })} placeholder="https://" /></label>
+                  <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Tell us about your audience</span><textarea className={`${inputCls} h-24`} value={reg.audience} onChange={e => set({ audience: e.target.value })} placeholder="e.g. Travel blog about the Middle East, 40k monthly visitors" /></label>
+                  <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Password for your dashboard</span><input type="password" required minLength={8} className={inputCls} value={reg.password} onChange={e => set({ password: e.target.value })} autoComplete="new-password" placeholder="At least 8 characters" /></label>
+                  {regError && <p role="alert" className="flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-rose-200"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{regError}</p>}
+                  <button type="submit" disabled={regBusy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#003580] py-4 font-bold text-white shadow-md transition hover:bg-blue-900 disabled:opacity-70">
+                    {regBusy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <>Apply now <ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                  <p className="text-center text-xs text-slate-400">We review every application within 2 working days. By applying you agree to our affiliate terms.</p>
+                </form>
+              )}
+            </div>
+          </div>
+
+          <div id="login-section" className="flex scroll-mt-24 flex-col justify-center">
+            <div className="mx-auto w-full max-w-md">
+              <h2 className="text-2xl font-bold text-slate-900">Already a partner?</h2>
+              <p className="mb-6 mt-1 text-slate-500">Sign in to see your clicks, bookings and earnings.</p>
+              <form onSubmit={login} className="space-y-4">
+                <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Email</span><input type="email" required className={inputCls} value={email} onChange={e => { setEmail(e.target.value); setLoginError(null); }} autoComplete="email" /></label>
+                <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-700">Password</span><input type="password" required className={inputCls} value={password} onChange={e => { setPassword(e.target.value); setLoginError(null); }} autoComplete="current-password" /></label>
+                {loginError && <p role="alert" className="flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-rose-200"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{loginError}</p>}
+                <button type="submit" disabled={loginBusy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 font-bold text-slate-800 ring-1 ring-slate-300 transition hover:bg-slate-50 disabled:opacity-70">
+                  {loginBusy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" /> : 'Sign in'}
+                </button>
+              </form>
+              <p className="mt-6 text-xs text-slate-500">Forgot your password? Email <a className="font-semibold text-[#007ac2]" href="mailto:partners@hogicar.com">partners@hogicar.com</a> and we’ll reset it.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AffiliateProgram;

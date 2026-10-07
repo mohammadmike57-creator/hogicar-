@@ -28,6 +28,7 @@ import Lock from 'lucide-react/dist/esm/icons/lock';
 import { Car, PromoCode } from '../types';
 import { promotionSummary } from '../utils/promotions';
 import { validatePromoCode, rememberedPromo, rememberPromo } from '../utils/promoCodes';
+import { activeAffiliateCode } from '../utils/affiliate';
 
 // A custom icon component for Automatic Transmission to match the design
 const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: string }) => (
@@ -362,6 +363,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         promotionSummary: promotionSummary(car.supplierPromotion),
         promoCode: appliedPromo && priceDetails.discountAmount > 0 ? appliedPromo.code : undefined,
         promoDiscount: appliedPromo && priceDetails.discountAmount > 0 ? priceDetails.discountAmount : undefined,
+        affiliateCode: activeAffiliateCode(),
     };
   };
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { captureAffiliateRef } from '../utils/affiliate';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import X from 'lucide-react/dist/esm/icons/x';
@@ -49,10 +50,7 @@ const Layout: React.FC = () => {
 
   React.useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const ref = params.get('ref');
-    if (ref) {
-      sessionStorage.setItem('hogicar_affiliate_ref', ref);
-    }
+    captureAffiliateRef(params.get('ref'));
     const promo = params.get('promo');
     if (promo && /^[A-Za-z0-9_-]{3,24}$/.test(promo)) {
       try { sessionStorage.setItem('hogicar_promo', promo.toUpperCase()); } catch { /* storage blocked */ }
