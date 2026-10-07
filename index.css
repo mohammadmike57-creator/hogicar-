@@ -205,3 +205,11 @@ html, body {
   body.voucher-print .voucher-print-root { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; }
   .voucher-doc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Supplier portal on phones: 16px form text stops iOS Safari zooming into fields */
+@media (max-width: 639px) {
+  .supplier-portal input:not([type="checkbox"]):not([type="radio"]),
+  .supplier-portal select,
+  .supplier-portal textarea { font-size: 16px; }
+}
+.supplier-portal { -webkit-tap-highlight-color: transparent; }

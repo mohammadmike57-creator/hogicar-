@@ -126,7 +126,7 @@ const Badge = ({ children, variant = "default", className = "" }: any) => {
     );
 };
 
-const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
+const Modal = ({ isOpen, onClose, title, subtitle, children, footer, size = "md" }: any) => {
     if (!isOpen) return null;
     const sizes: any = {
         sm: "sm:max-w-md",
@@ -138,13 +138,22 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
         <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]" />
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', damping: 30, stiffness: 340 }} className={`relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl ${sizes[size]}`}>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6">
-                    <h3 className="text-base font-semibold text-slate-900 sm:text-lg">{title}</h3>
-                    <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label="Close"><X className="h-5 w-5" /></button>
+                <span className="mx-auto mt-2 block h-1.5 w-10 shrink-0 rounded-full bg-slate-200 sm:hidden" aria-hidden="true" />
+                <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 pb-3.5 pt-2.5 sm:px-6 sm:py-4">
+                    <div className="min-w-0">
+                        <h3 className="truncate text-base font-semibold text-slate-900 sm:text-lg">{title}</h3>
+                        {subtitle && <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">{subtitle}</p>}
+                    </div>
+                    <button onClick={onClose} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label="Close"><X className="h-5 w-5" /></button>
                 </div>
-                <div className="overflow-y-auto overflow-x-hidden px-5 py-5 sm:px-6">
+                <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-5 py-5 sm:px-6">
                     {children}
                 </div>
+                {footer && (
+                    <div className="shrink-0 border-t border-slate-200 bg-white px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-3">
+                        {footer}
+                    </div>
+                )}
             </motion.div>
         </div>
     );
@@ -153,7 +162,7 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: any) => {
 const InputField = ({ label, icon: Icon, prefix, error, helperText, ...props }: any) => (
     <div className="space-y-1.5">
         {label && <label className="block text-sm font-medium text-slate-700">{label}</label>}
-        <div className={`flex h-10 items-center overflow-hidden rounded-lg border bg-white transition-shadow focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${props.readOnly || props.disabled ? 'bg-slate-50' : 'hover:border-slate-400'} ${error ? 'border-rose-400' : 'border-slate-300'}`}>
+        <div className={`flex h-11 items-center overflow-hidden rounded-lg border bg-white transition-shadow sm:h-10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${props.readOnly || props.disabled ? 'bg-slate-50' : 'hover:border-slate-400'} ${error ? 'border-rose-400' : 'border-slate-300'}`}>
             {Icon && (
                 <div className="flex h-full items-center border-r border-slate-200 bg-slate-50 px-3 text-slate-400">
                     <Icon className="h-4 w-4" />
@@ -290,6 +299,14 @@ const SupplierDashboard = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 64);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [cars, setCars] = useState<CarType[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -365,12 +382,24 @@ const SupplierDashboard = () => {
     fetchData();
   }, [navigate]);
 
-  // Close sidebar on mobile when section changes
+  // Close menus and start each section at the top
   useEffect(() => {
     if (window.innerWidth < 1024) {
       setIsSidebarOpen(false);
+      setIsMoreOpen(false);
     }
+    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch { /* old browsers */ }
   }, [activeSection]);
+
+  // Lock page scroll while a mobile menu is open; Escape closes it
+  useEffect(() => {
+    if (!isSidebarOpen && !isMoreOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setIsSidebarOpen(false); setIsMoreOpen(false); } };
+    document.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey); };
+  }, [isSidebarOpen, isMoreOpen]);
 
   const handleGenerateReport = async () => {
     try {
@@ -451,7 +480,7 @@ const SupplierDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="supplier-portal min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Mobile drawer backdrop */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -493,7 +522,7 @@ const SupplierDashboard = () => {
                   return (
                     <li key={item.id}>
                       <button
-                        onClick={() => setActiveSection(item.id)}
+                        onClick={() => { setActiveSection(item.id); setIsSidebarOpen(false); }}
                         aria-current={active ? 'page' : undefined}
                         className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${active ? 'bg-white/10 font-medium text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
                       >
@@ -530,8 +559,8 @@ const SupplierDashboard = () => {
 
       {/* Main */}
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className={`sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b bg-white/90 px-4 backdrop-blur transition-shadow sm:h-16 sm:px-6 lg:px-8 ${isScrolled ? 'border-slate-200 shadow-sm' : 'border-slate-200'}`}>
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <button onClick={() => setIsSidebarOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 lg:hidden" aria-label="Open menu">
               <Menu className="h-5 w-5" />
             </button>
@@ -540,7 +569,12 @@ const SupplierDashboard = () => {
               <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
               <span className="font-medium text-slate-900">{meta.title}</span>
             </nav>
-            <span className="truncate text-sm font-semibold text-slate-900 sm:hidden">{meta.title}</span>
+            <span className="relative h-5 min-w-0 flex-1 overflow-hidden sm:hidden">
+              <span className={`absolute inset-0 flex items-center gap-1.5 text-sm font-semibold text-slate-900 transition-all duration-200 ${isScrolled ? '-translate-y-5 opacity-0' : 'translate-y-0 opacity-100'}`}>
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-accent text-[10px] font-bold text-white">H</span> Supplier portal
+              </span>
+              <span className={`absolute inset-0 truncate text-sm font-semibold text-slate-900 transition-all duration-200 ${isScrolled ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'}`}>{meta.title}</span>
+            </span>
           </div>
           <div className="flex items-center gap-2">
             {stats.pendingCount > 0 && (
@@ -561,8 +595,8 @@ const SupplierDashboard = () => {
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1400px] px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8">
-          <div className="mb-6">
+        <main className="mx-auto max-w-[1400px] px-4 pb-[calc(88px+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-6 lg:px-8 lg:pb-12 lg:pt-8">
+          <div className="mb-5 sm:mb-6">
             <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{meta.title}</h1>
             <p className="mt-1 text-sm text-slate-500">{meta.description}</p>
           </div>
@@ -602,32 +636,105 @@ const SupplierDashboard = () => {
       </div>
 
       {/* Mobile tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Quick navigation">
-        <ul className="grid grid-cols-5">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_-12px_rgba(15,23,42,0.25)] backdrop-blur lg:hidden" aria-label="Quick navigation">
+        <ul className="mx-auto grid max-w-lg grid-cols-5">
           {[
             { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-            { id: 'reservations', label: 'Bookings', icon: Calendar },
+            { id: 'reservations', label: 'Bookings', icon: Calendar, badge: stats.pendingCount },
             { id: 'rates', label: 'Pricing', icon: DollarSign },
             { id: 'fleet', label: 'Fleet', icon: Car },
           ].map(item => {
-            const active = activeSection === item.id;
+            const active = activeSection === item.id && !isMoreOpen;
             return (
               <li key={item.id}>
-                <button onClick={() => setActiveSection(item.id)} className={`flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${active ? 'text-accent' : 'text-slate-500'}`}>
-                  <item.icon className="h-5 w-5" />
+                <button
+                  onClick={() => { setIsMoreOpen(false); setActiveSection(item.id); }}
+                  aria-current={active ? 'page' : undefined}
+                  className={`relative flex h-[60px] w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${active ? 'text-accent' : 'text-slate-500 active:text-slate-800'}`}
+                >
+                  {active && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b-full bg-accent" />}
+                  <span className={`relative flex h-7 w-12 items-center justify-center rounded-full transition-colors ${active ? 'bg-accent-50' : ''}`}>
+                    <item.icon className="h-5 w-5" />
+                    {!!item.badge && <span className="absolute -right-0.5 -top-1 min-w-[18px] rounded-full bg-rose-500 px-1 text-center text-[10px] font-bold leading-[18px] text-white ring-2 ring-white">{item.badge > 9 ? '9+' : item.badge}</span>}
+                  </span>
                   {item.label}
                 </button>
               </li>
             );
           })}
           <li>
-            <button onClick={() => setIsSidebarOpen(true)} className="flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-slate-500">
-              <Menu className="h-5 w-5" />
-              More
-            </button>
+            {(() => {
+              const inMore = isMoreOpen || !['dashboard', 'reservations', 'rates', 'fleet'].includes(activeSection);
+              return (
+                <button onClick={() => setIsMoreOpen(o => !o)} aria-expanded={isMoreOpen} aria-label="More sections"
+                  className={`relative flex h-[60px] w-full flex-col items-center justify-center gap-1 text-[11px] font-medium ${inMore ? 'text-accent' : 'text-slate-500'}`}>
+                  {inMore && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b-full bg-accent" />}
+                  <span className={`flex h-7 w-12 items-center justify-center rounded-full ${inMore ? 'bg-accent-50' : ''}`}>{isMoreOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</span>
+                  More
+                </button>
+              );
+            })()}
           </li>
         </ul>
       </nav>
+
+      {/* Mobile "More" sheet */}
+      <AnimatePresence>
+        {isMoreOpen && (
+          <>
+            <motion.div key="more-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMoreOpen(false)} className="fixed inset-0 z-20 bg-slate-900/40 backdrop-blur-[2px] lg:hidden" />
+            <motion.div
+              key="more-sheet"
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 340 }}
+              drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0, bottom: 0.6 }}
+              onDragEnd={(_, info) => { if (info.offset.y > 80 || info.velocity.y > 500) setIsMoreOpen(false); }}
+              className="fixed inset-x-0 bottom-0 z-[25] max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white pb-[calc(76px+env(safe-area-inset-bottom))] shadow-2xl lg:hidden"
+              role="dialog" aria-label="All sections"
+            >
+              <div className="sticky top-0 z-10 bg-white px-5 pb-3 pt-2.5">
+                <span className="mx-auto block h-1.5 w-10 rounded-full bg-slate-200" />
+                <div className="mt-4 flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+                    {supplier.logoUrl ? <img src={supplier.logoUrl} alt="" className="h-full w-full object-contain p-1" /> : <span className="text-sm font-semibold text-slate-700">{initials}</span>}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold text-slate-900">{supplier.name}</p>
+                    <p className="flex items-center gap-1 text-xs text-emerald-600"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Verified partner</p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-5 px-5 pb-2">
+                {NAV_GROUPS.map(group => (
+                  <div key={group.label}>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{group.label}</p>
+                    <ul className="grid grid-cols-3 gap-2">
+                      {group.items.map(item => {
+                        const active = activeSection === item.id;
+                        return (
+                          <li key={item.id}>
+                            <button
+                              onClick={() => { setActiveSection(item.id); setIsMoreOpen(false); }}
+                              className={`relative flex h-[84px] w-full flex-col items-center justify-center gap-2 rounded-2xl border text-center text-xs font-medium transition-all active:scale-[0.97] ${active ? 'border-accent bg-accent-50 text-accent-800' : 'border-slate-200 bg-white text-slate-700'}`}
+                            >
+                              <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${active ? 'bg-accent text-white' : 'bg-slate-100 text-slate-600'}`}><item.icon className="h-[18px] w-[18px]" /></span>
+                              <span className="px-1 leading-tight">{item.label}</span>
+                              {!!(item as any).badge && <span className="absolute right-2 top-2 min-w-[18px] rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-[18px] text-white">{(item as any).badge}</span>}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+                <button onClick={signOut} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 text-sm font-semibold text-rose-600 active:bg-rose-50">
+                  <LogOut className="h-4 w-4" /> Sign out
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -711,11 +818,11 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setActiveSection('rates')} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex-none">
-            <DollarSign className="h-4 w-4" /> Update rates
+          <button onClick={() => setActiveSection('rates')} className="inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:h-10 sm:flex-none sm:px-4">
+            <DollarSign className="h-4 w-4 shrink-0" /> Update rates
           </button>
-          <button onClick={onGenerateReport} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-700 sm:flex-none">
-            <Download className="h-4 w-4" /> Booking report
+          <button onClick={onGenerateReport} className="inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-accent px-3 text-sm font-semibold text-white hover:bg-accent-700 sm:h-10 sm:flex-none sm:px-4">
+            <Download className="h-4 w-4 shrink-0" /> <span className="sm:hidden">Report</span><span className="hidden sm:inline">Booking report</span>
           </button>
         </div>
       </div>
@@ -899,10 +1006,10 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
+            <div className="sticky top-14 z-20 -mx-4 flex flex-col gap-3 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:rounded-xl sm:border sm:bg-white sm:p-4 sm:shadow-sm lg:flex-row lg:items-center lg:justify-between">
+                <div className="-mx-1 flex gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {tabs.map(([id, label, n]) => (
-                        <button key={id} onClick={() => setStatusFilter(id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${statusFilter === id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+                        <button key={id} onClick={() => setStatusFilter(id)} className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-medium transition-colors sm:h-auto sm:rounded-lg sm:px-3 sm:py-1.5 ${statusFilter === id ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 sm:bg-transparent sm:ring-0'}`}>
                             {label}
                             <span className={`rounded-full px-1.5 text-[11px] tabular-nums ${statusFilter === id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>{n}</span>
                         </button>
@@ -964,25 +1071,55 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 
                 {/* Phone cards */}
                 <ul className="divide-y divide-slate-100 md:hidden">
-                    {filtered.map((b: any) => (
-                        <li key={b.id} className="p-4">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <p className="truncate font-medium text-slate-900">{b.firstName} {b.lastName}</p>
-                                    <p className="font-mono text-xs text-slate-500">{b.bookingRef || `#${b.id}`}</p>
+                    {filtered.map((b: any) => {
+                        const pending = String(b.status).toLowerCase() === 'pending';
+                        const p = pickupOf(b) ? new Date(pickupOf(b)) : null;
+                        const d = dropoffOf(b) ? new Date(dropoffOf(b)) : null;
+                        const nights = p && d && !isNaN(p.getTime()) && !isNaN(d.getTime()) ? Math.max(1, Math.round((d.getTime() - p.getTime()) / 86400000)) : null;
+                        return (
+                            <li key={b.id} className={`relative ${pending ? 'bg-amber-50/40' : ''}`}>
+                                {pending && <span className="absolute inset-y-0 left-0 w-1 bg-amber-400" aria-hidden="true" />}
+                                <button type="button" onClick={() => setViewing(b)} className="block w-full px-4 pb-3 pt-4 text-left active:bg-slate-50" aria-label={`Open voucher for ${b.firstName} ${b.lastName}`}>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="truncate text-[15px] font-semibold text-slate-900">{b.firstName} {b.lastName}</p>
+                                            <p className="mt-0.5 truncate text-xs text-slate-500"><span className="font-mono">{b.bookingRef || `#${b.id}`}</span> · {carNameOf(b)}</p>
+                                        </div>
+                                        {statusBadge(b.status)}
+                                    </div>
+                                    <div className="mt-3 flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Pick-up</p>
+                                            <p className="text-sm font-semibold text-slate-900">{fmtD(pickupOf(b))}</p>
+                                            <p className="text-xs text-slate-500">{b.pickupCode}{b.startTime ? ` · ${b.startTime}` : ''}</p>
+                                        </div>
+                                        <div className="flex shrink-0 flex-col items-center px-1 text-slate-300">
+                                            {nights && <span className="mb-0.5 rounded-full bg-white px-1.5 text-[10px] font-semibold text-slate-500 ring-1 ring-slate-200">{nights}d</span>}
+                                            <ChevronRight className="h-4 w-4" />
+                                        </div>
+                                        <div className="min-w-0 flex-1 text-right">
+                                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Drop-off</p>
+                                            <p className="text-sm font-semibold text-slate-900">{fmtD(dropoffOf(b))}</p>
+                                            <p className="text-xs text-slate-500">{b.dropoffCode || b.pickupCode}{b.endTime ? ` · ${b.endTime}` : ''}</p>
+                                        </div>
+                                    </div>
+                                </button>
+                                <div className="flex items-center justify-between gap-3 px-4 pb-4">
+                                    <p className="leading-tight"><span className="block text-[11px] text-slate-500">Your net</span><span className="text-base font-semibold tabular-nums text-slate-900">{amount(b)}</span></p>
+                                    <div className="flex gap-2">
+                                        {pending && (
+                                            <button onClick={() => handleConfirm(b.id)} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-sm font-semibold text-white active:bg-emerald-700">
+                                                <CheckCircle className="h-4 w-4" /> Confirm
+                                            </button>
+                                        )}
+                                        <button onClick={() => setViewing(b)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 active:bg-slate-50">
+                                            <FileText className="h-4 w-4" /> Voucher
+                                        </button>
+                                    </div>
                                 </div>
-                                {statusBadge(b.status)}
-                            </div>
-                            <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-slate-50 p-3 text-xs">
-                                <div><p className="text-slate-500">Pick-up</p><p className="font-medium text-slate-900">{fmtD(pickupOf(b))}</p><p className="text-slate-500">{b.pickupCode}{b.startTime ? ` · ${b.startTime}` : ''}</p></div>
-                                <div><p className="text-slate-500">Drop-off</p><p className="font-medium text-slate-900">{fmtD(dropoffOf(b))}</p><p className="text-slate-500">{b.dropoffCode || b.pickupCode}{b.endTime ? ` · ${b.endTime}` : ''}</p></div>
-                            </div>
-                            <div className="mt-3 flex items-center justify-between gap-3">
-                                <p className="text-sm"><span className="text-slate-500">Net </span><span className="font-semibold text-slate-900">{amount(b)}</span></p>
-                                {actions(b)}
-                            </div>
-                        </li>
-                    ))}
+                            </li>
+                        );
+                    })}
                 </ul>
 
                 {filtered.length === 0 && (
@@ -1050,7 +1187,7 @@ const FleetSection = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
+        <div className="-mx-1 flex gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[['ALL', 'All cars', cars.length], ...usedCategories.map(c => [c, prettyCat(c), cars.filter(x => x.category === c).length])].map(([id, label, n]: any) => (
             <button key={id} onClick={() => setSelectedCategory(id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${selectedCategory === id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
               {label}
@@ -1075,35 +1212,41 @@ const FleetSection = ({
           const stopped = onStopSale(car);
           return (
             <div key={car.id} className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-              <div className="relative flex h-40 items-center justify-center bg-gradient-to-b from-slate-50 to-white px-6 py-4">
-                <img
-                  src={car.imageUrl || car.image || 'https://placehold.co/400x250/e2e8f0/64748b?text=Car'}
-                  className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-                  alt={car.name || `${car.make} ${car.model}`}
-                  width="400"
-                  height="250"
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                />
-                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-                  {available ? <Badge variant="success">Available</Badge> : <Badge>Unavailable</Badge>}
-                  {stopped && <Badge variant="warning">Stop sale today</Badge>}
+              <div className="flex flex-1 sm:flex-col">
+                <div className="relative flex w-[38%] shrink-0 items-center justify-center bg-gradient-to-b from-slate-50 to-white p-3 sm:h-40 sm:w-auto sm:px-6 sm:py-4">
+                  <img
+                    src={car.imageUrl || car.image || 'https://placehold.co/400x250/e2e8f0/64748b?text=Car'}
+                    className="h-20 w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:h-full"
+                    alt={car.name || `${car.make} ${car.model}`}
+                    width="400"
+                    height="250"
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                  />
+                  <div className="absolute left-3 top-3 hidden flex-wrap gap-1.5 sm:flex">
+                    {available ? <Badge variant="success">Available</Badge> : <Badge>Unavailable</Badge>}
+                    {stopped && <Badge variant="warning">Stop sale today</Badge>}
+                  </div>
+                  {car.sippCode && <span className="absolute right-3 top-3 hidden rounded-md bg-white px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-600 ring-1 ring-slate-200 sm:inline">{car.sippCode}</span>}
                 </div>
-                {car.sippCode && <span className="absolute right-3 top-3 rounded-md bg-white px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">{car.sippCode}</span>}
+                <div className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-4">
+                  <div className="mb-1.5 flex flex-wrap gap-1 sm:hidden">
+                    {available ? <Badge variant="success">Available</Badge> : <Badge>Unavailable</Badge>}
+                    {stopped && <Badge variant="warning">Stop sale</Badge>}
+                  </div>
+                  <h3 className="truncate font-semibold text-slate-900">{car.make} {car.model} <span className="font-normal text-slate-500">{car.year || ''}</span></h3>
+                  <p className="truncate text-sm text-slate-500">{prettyCat(car.category)}{car.location ? ` · ${car.location}` : ''}{car.sippCode ? <span className="font-mono text-xs sm:hidden"> · {car.sippCode}</span> : null}</p>
+                  <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600 sm:mt-3 sm:gap-x-4 sm:gap-y-1.5">
+                    <li className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-slate-400" />{car.passengers}<span className="hidden sm:inline"> seats</span></li>
+                    <li className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5 text-slate-400" />{car.bags}<span className="hidden sm:inline"> bags</span></li>
+                    <li className="inline-flex items-center gap-1"><Settings className="h-3.5 w-3.5 text-slate-400" />{car.transmission === 'AUTOMATIC' ? 'Auto' : 'Manual'}</li>
+                  </ul>
+                </div>
               </div>
-              <div className="flex flex-1 flex-col p-4">
-                <h3 className="font-semibold text-slate-900">{car.make} {car.model} <span className="font-normal text-slate-500">{car.year || ''}</span></h3>
-                <p className="text-sm text-slate-500">{prettyCat(car.category)}{car.location ? ` · ${car.location}` : ''}</p>
-                <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-600">
-                  <li className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-slate-400" />{car.passengers} seats</li>
-                  <li className="inline-flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5 text-slate-400" />{car.bags} bags</li>
-                  <li className="inline-flex items-center gap-1.5"><Settings className="h-3.5 w-3.5 text-slate-400" />{car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'}</li>
-                </ul>
-                <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
-                  <button onClick={() => { setEditingCar(car); setIsModalOpen(true); }} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:bg-slate-50"><Edit className="h-3.5 w-3.5" /> Edit</button>
-                  <button onClick={() => setActiveSection('rates')} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:border-accent hover:text-accent"><DollarSign className="h-3.5 w-3.5" /> Rates</button>
-                  <button onClick={() => handleDelete(car.id)} className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete ${car.make} ${car.model}`} title="Delete car"><Trash2 className="h-4 w-4" /></button>
-                </div>
+              <div className="flex items-center gap-2 border-t border-slate-100 px-3.5 py-2.5 sm:mx-4 sm:mt-0 sm:px-0 sm:pb-4 sm:pt-3">
+                <button onClick={() => { setEditingCar(car); setIsModalOpen(true); }} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:h-8 sm:flex-none sm:text-xs"><Edit className="h-3.5 w-3.5" /> Edit</button>
+                <button onClick={() => setActiveSection('rates')} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent sm:h-8 sm:flex-none sm:text-xs"><DollarSign className="h-3.5 w-3.5" /> Rates</button>
+                <button onClick={() => handleDelete(car.id)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 sm:ml-auto sm:h-8 sm:w-8" aria-label={`Delete ${car.make} ${car.model}`} title="Delete car"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
           );
@@ -1147,8 +1290,22 @@ const HistorySection = ({ history, onRestore, onDownload, onDelete }: {
                 </div>
                 <History className="h-4 w-4 text-slate-400" />
             </div>
-            {history.length ? (
-                <div className="overflow-x-auto">
+            {history.length ? (<>
+                <ul className="divide-y divide-slate-100 md:hidden">
+                    {history.map((item) => (
+                        <li key={item.id} className="flex items-center gap-3 px-4 py-3">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600"><FileText className="h-5 w-5" /></span>
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium text-slate-900">{item.fileType || 'Rates template'} · {item.locationCode || 'All'}</p>
+                                <p className="text-xs text-slate-500">{when(item.downloadedAt)}</p>
+                            </div>
+                            <button onClick={() => onRestore(item.id)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-slate-600 active:bg-slate-50" aria-label="Restore this template"><RefreshCw className="h-4 w-4" /></button>
+                            <button onClick={() => onDownload(item.locationCode)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-slate-600 active:bg-slate-50" aria-label="Download this template again"><Download className="h-4 w-4" /></button>
+                            <button onClick={() => onDelete(item.id)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 active:bg-rose-50 active:text-rose-600" aria-label="Delete from history"><Trash2 className="h-4 w-4" /></button>
+                        </li>
+                    ))}
+                </ul>
+                <div className="hidden overflow-x-auto md:block">
                     <table className="w-full min-w-[560px] text-sm">
                         <thead className="bg-slate-50 text-left text-xs font-medium text-slate-500">
                             <tr>
@@ -1176,7 +1333,7 @@ const HistorySection = ({ history, onRestore, onDownload, onDelete }: {
                         </tbody>
                     </table>
                 </div>
-            ) : (
+            </>) : (
                 <p className="px-5 py-10 text-center text-sm text-slate-500">No templates downloaded yet.</p>
             )}
         </div>
@@ -1475,10 +1632,10 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
     const visibleCategories = categories.filter(c => !q || String(c).toLowerCase().includes(q));
     const visibleSipps = sipps.filter(c => !q || String(c).toLowerCase().includes(q));
     const selectedTargetCount = targetType === 'car' ? selectedCarIds.length : targetType === 'category' ? selectedCategories.length : selectedSipps.length;
-    const fieldCls = 'h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-sm text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20';
+    const fieldCls = 'h-11 sm:h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-sm text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20';
 
     return (
-        <div className="space-y-5 pb-28 lg:pb-24">
+        <div className="space-y-5 pb-36 sm:pb-28 lg:pb-24">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
                     <ArrowLeft className="h-4 w-4" /> Back to rates overview
@@ -1601,17 +1758,17 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                         </div>
 
                         {combinations.length > 0 && (
-                            <div className="flex flex-wrap items-end gap-2 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:px-5">
-                                <div className="mr-1 flex items-center gap-1.5 self-center text-xs font-semibold text-slate-700"><Zap className="h-3.5 w-3.5 text-accent" /> Quick fill</div>
-                                <label className="block w-36"><span className="mb-1 block text-[11px] text-slate-500">Band</span>
+                            <div className="grid grid-cols-2 items-end gap-2 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex sm:flex-wrap sm:px-5">
+                                <div className="col-span-2 mr-1 flex items-center gap-1.5 self-center text-xs font-semibold text-slate-700"><Zap className="h-3.5 w-3.5 text-accent" /> Quick fill <span className="font-normal text-slate-500 sm:hidden">— fill every row at once</span></div>
+                                <label className="col-span-2 block sm:w-36"><span className="mb-1 block text-[11px] text-slate-500">Band</span>
                                     <select value={quickFill.band} onChange={e => setQuickFill({ ...quickFill, band: e.target.value })} className={fieldCls}>
                                         <option value="all">All bands</option>
                                         {sessionBands.map((b, i) => <option key={i} value={i}>{bandLabel(b)}</option>)}
                                     </select>
                                 </label>
-                                <label className="block w-28"><span className="mb-1 block text-[11px] text-slate-500">Daily rate</span><input inputMode="decimal" value={quickFill.dailyRate} onChange={e => setQuickFill({ ...quickFill, dailyRate: e.target.value })} placeholder="0.00" className={fieldCls} /></label>
-                                <label className="block w-28"><span className="mb-1 block text-[11px] text-slate-500">Deposit</span><input inputMode="decimal" value={quickFill.deposit} onChange={e => setQuickFill({ ...quickFill, deposit: e.target.value })} placeholder="0" className={fieldCls} /></label>
-                                <button onClick={applyQuickFill} className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent">Apply to all rows</button>
+                                <label className="block sm:w-28"><span className="mb-1 block text-[11px] text-slate-500">Daily rate</span><input inputMode="decimal" value={quickFill.dailyRate} onChange={e => setQuickFill({ ...quickFill, dailyRate: e.target.value })} placeholder="0.00" className={fieldCls} /></label>
+                                <label className="block sm:w-28"><span className="mb-1 block text-[11px] text-slate-500">Deposit</span><input inputMode="decimal" value={quickFill.deposit} onChange={e => setQuickFill({ ...quickFill, deposit: e.target.value })} placeholder="0" className={fieldCls} /></label>
+                                <button onClick={applyQuickFill} className="col-span-2 h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent sm:h-9">Apply to all rows</button>
                             </div>
                         )}
 
@@ -1639,7 +1796,41 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
                                                 </div>
                                                 {complete ? <Badge variant="success"><Check className="h-3 w-3" /> Ready</Badge> : <Badge variant="warning">Rates missing</Badge>}
                                             </div>
-                                            <div className="overflow-x-auto">
+                                            {/* Phone layout */}
+                                            <div className="space-y-2 sm:hidden">
+                                                {sessionBands.map((band, bIdx) => (
+                                                    <div key={bIdx} className="rounded-xl border border-slate-200 bg-slate-50/60 p-2.5">
+                                                        <span className="inline-flex rounded-md bg-white px-2 py-0.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{bandLabel(band)}</span>
+                                                        <div className="mt-2 grid grid-cols-2 gap-2">
+                                                            <label className="block">
+                                                                <span className="mb-1 block text-[11px] font-medium text-slate-500">Daily rate</span>
+                                                                <span className="flex h-11 items-center overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+                                                                    <span className="pl-2.5 text-xs text-slate-500">{config.currency}</span>
+                                                                    <input value={data[bIdx]?.dailyRate || ''} onChange={(e) => handleGridInput(key, bIdx, 'dailyRate', e.target.value)} inputMode="decimal" placeholder="0.00" aria-label={`Daily rate ${bandLabel(band)} ${target.label}`} className="h-full min-w-0 flex-1 bg-transparent px-2 text-right font-semibold tabular-nums text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-300" />
+                                                                </span>
+                                                            </label>
+                                                            <label className="block">
+                                                                <span className="mb-1 block text-[11px] font-medium text-slate-500">Deposit</span>
+                                                                <span className="flex h-11 items-center overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+                                                                    <span className="pl-2.5 text-xs text-slate-500">{config.currency}</span>
+                                                                    <input value={data[bIdx]?.deposit || ''} onChange={(e) => handleGridInput(key, bIdx, 'deposit', e.target.value)} inputMode="decimal" placeholder="0" aria-label={`Deposit ${bandLabel(band)} ${target.label}`} className="h-full min-w-0 flex-1 bg-transparent px-2 text-right tabular-nums text-slate-900 outline-none placeholder:text-slate-300" />
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                        {config.bonds && config.bonds.length > 0 && (
+                                                            <div className="mt-2 flex flex-wrap gap-1.5">
+                                                                {config.bonds.map((b, i) => (
+                                                                    <button key={i} type="button" onClick={() => handleGridInput(key, bIdx, 'deposit', String(b.price))}
+                                                                        className={`h-7 rounded-full px-2.5 text-[11px] font-medium ring-1 transition-colors ${String(data[bIdx]?.deposit) === String(b.price) ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-600 ring-slate-200'}`}>
+                                                                        {b.name} · {b.price}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="hidden overflow-x-auto sm:block">
                                                 <table className="w-full min-w-[330px] text-sm">
                                                     <thead>
                                                         <tr className="text-left text-xs text-slate-500">
@@ -1692,19 +1883,20 @@ const ManualPricingSection = ({ config, cars, existingTiers = [], onUpdate, onBa
             </div>
 
             {/* Sticky save bar */}
-            <div className="fixed inset-x-0 bottom-[60px] z-20 border-t border-slate-200 bg-white/95 backdrop-blur lg:bottom-0 lg:left-64">
-                <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] z-20 border-t border-slate-200 bg-white/95 shadow-[0_-6px_20px_-14px_rgba(15,23,42,0.35)] backdrop-blur lg:bottom-0 lg:left-64">
+                <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2.5 sm:px-6 sm:py-3 lg:px-8">
                     <label className="flex cursor-pointer items-center gap-2.5 text-sm text-slate-700">
                         <input type="checkbox" checked={applyToAllLocations} onChange={e => setApplyToAllLocations(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent" />
                         Apply to all my locations
                     </label>
-                    <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-500 sm:hidden">{combinations.length ? `${filledCount}/${totalCells} rates` : ''}</span>
+                    <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
                         <span className="hidden text-sm text-slate-500 sm:inline">{combinations.length ? `${filledCount} of ${totalCells} rates entered` : 'No rates selected'}</span>
-                        <button onClick={onBack} className="h-10 rounded-lg px-4 text-sm font-medium text-slate-700 hover:bg-slate-100">Cancel</button>
+                        <button onClick={onBack} className="h-11 flex-1 rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-100 sm:h-10 sm:flex-none sm:border-0">Cancel</button>
                         <button
                             onClick={handleApply}
                             disabled={isSaving || combinations.length === 0}
-                            className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white shadow-sm hover:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white shadow-sm hover:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-50 sm:h-10 sm:flex-none"
                         >
                             {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                             {isSaving ? 'Saving rates…' : 'Save rates'}
@@ -1877,7 +2069,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             {/* Toolbar */}
             <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <label className="flex h-10 min-w-[220px] items-center gap-2 rounded-lg border border-slate-300 bg-white pl-3 pr-1 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+                    <label className="flex h-11 min-w-0 items-center gap-2 rounded-lg border border-slate-300 sm:h-10 sm:min-w-[220px] bg-white pl-3 pr-1 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
                         <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
                         <span className="sr-only">Location</span>
                         <select
@@ -1893,17 +2085,17 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                     </label>
                     <div className="grid grid-cols-3 rounded-lg bg-slate-100 p-1 text-sm font-medium" role="tablist" aria-label="Pricing views">
                         {([['overview', 'Overview'], ['edit', 'Edit rates'], ['spreadsheet', 'Spreadsheet']] as const).map(([id, label]) => (
-                            <button key={id} role="tab" aria-selected={tab === id} onClick={() => goTab(id)} className={`whitespace-nowrap rounded-md px-3 py-1.5 transition-colors sm:px-4 ${tab === id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>{label}</button>
+                            <button key={id} role="tab" aria-selected={tab === id} onClick={() => goTab(id)} className={`min-w-0 truncate whitespace-nowrap rounded-md px-1.5 py-2 text-[13px] transition-colors sm:px-4 sm:py-1.5 sm:text-sm ${tab === id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>{label}</button>
                         ))}
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={() => setIsConfigModalOpen(true)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 lg:flex-none">
-                        <Settings2 className="h-4 w-4" /> Seasons & rules
+                    <button onClick={() => setIsConfigModalOpen(true)} className="inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:h-10 sm:px-3.5 lg:flex-none">
+                        <Settings2 className="h-4 w-4 shrink-0" /> Seasons & rules
                     </button>
                     {tab !== 'edit' && (
-                        <button onClick={() => goTab('edit')} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-700 lg:flex-none">
-                            <Edit className="h-4 w-4" /> Change rates
+                        <button onClick={() => goTab('edit')} className="inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-accent px-3 text-sm font-semibold text-white hover:bg-accent-700 sm:h-10 sm:px-4 lg:flex-none">
+                            <Edit className="h-4 w-4 shrink-0" /> Change rates
                         </button>
                     )}
                 </div>
@@ -2040,8 +2232,48 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                 <input value={rateSearch} onChange={e => setRateSearch(e.target.value)} placeholder="Search car or season…" className="h-9 w-full rounded-lg border border-slate-300 bg-white pl-8 pr-3 text-sm outline-none placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20" />
                             </div>
                         </div>
-                        {visibleTiers.length ? (
-                            <div className="overflow-x-auto">
+                        {visibleTiers.length ? (<>
+                            {/* Phone cards */}
+                            <ul className="divide-y divide-slate-100 md:hidden">
+                                {visibleTiers.map(tier => {
+                                    const car = cars.find(c => Number(c.id) === Number(tier.carId));
+                                    const from = minRate(tier);
+                                    const state = seasonState(tier);
+                                    return (
+                                        <li key={tier.id} className="px-4 py-3.5">
+                                            <div className="flex items-center gap-3">
+                                                <span className="flex h-11 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
+                                                    {(car as any)?.image || (car as any)?.imageUrl ? <img src={(car as any).image || (car as any).imageUrl} alt="" className="h-full w-full object-contain" /> : <Car className="h-4 w-4 text-slate-400" />}
+                                                </span>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-sm font-semibold text-slate-900">{car ? `${car.make} ${car.model}` : `Car #${tier.carId}`}</p>
+                                                    <p className="flex items-center gap-1.5 truncate text-xs font-medium text-slate-700">
+                                                        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${state === 'live' ? 'bg-emerald-500' : state === 'upcoming' ? 'bg-accent' : 'bg-slate-300'}`} />
+                                                        {tier.name}
+                                                    </p>
+                                                    <p className="truncate text-[11px] tabular-nums text-slate-500">{tier.startDate} → {tier.endDate}</p>
+                                                </div>
+                                                <div className="shrink-0 text-right">
+                                                    <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">From</p>
+                                                    <p className="whitespace-nowrap text-sm font-bold tabular-nums text-slate-900">{from !== null ? `${from} ${tier.currency}` : '—'}</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2.5 flex items-center gap-2">
+                                                <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                                    {tier.bands.map((b, bidx) => (
+                                                        <span key={bidx} className="shrink-0 whitespace-nowrap rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">
+                                                            {b.minDays}{b.maxDays === 9999 || !b.maxDays ? '+' : `–${b.maxDays}`}d · <span className="font-semibold tabular-nums">{b.dailyRate}</span>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <button onClick={() => goTab('edit')} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-slate-600 active:bg-slate-50" aria-label="Edit rates"><Edit className="h-4 w-4" /></button>
+                                                <button onClick={() => handleDeleteRate(tier.id)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 active:bg-rose-50 active:text-rose-600" aria-label="Delete rate period"><Trash2 className="h-4 w-4" /></button>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                            <div className="hidden overflow-x-auto md:block">
                                 <table className="w-full min-w-[760px] text-sm">
                                     <thead className="bg-slate-50 text-left text-xs font-medium text-slate-500">
                                         <tr>
@@ -2101,7 +2333,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                                     </tbody>
                                 </table>
                             </div>
-                        ) : (
+                        </>) : (
                             <div className="px-5 py-12 text-center">
                                 <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400"><DollarSign className="h-5 w-5" /></span>
                                 <p className="mt-3 text-sm font-medium text-slate-900">{rq ? 'No rates match your search' : 'No rates yet for this location'}</p>
@@ -2273,24 +2505,34 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
   const handleChange = (field: string, val: any) => setFormData((prev: any) => ({ ...prev, [field]: val }));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={car ? 'Edit Vehicle' : 'Add New Vehicle'} size="lg">
-        <form onSubmit={handleSubmit} className="space-y-8">
+    <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={car ? 'Edit car' : 'Add a car'}
+        subtitle={car ? `${formData.make || ''} ${formData.model || ''}`.trim() || undefined : 'Pick from the library or enter the details yourself.'}
+        size="lg"
+        footer={
+            <div className="flex gap-2 sm:justify-end">
+                <button type="button" onClick={onClose} className="h-11 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:h-10 sm:flex-none">Cancel</button>
+                <button type="submit" form="supplier-car-form" disabled={isSaving} className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white shadow-sm hover:bg-accent-700 disabled:opacity-50 sm:h-10 sm:flex-none">
+                    {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                    {isSaving ? 'Saving…' : (car ? 'Save changes' : 'Add to fleet')}
+                </button>
+            </div>
+        }
+    >
+        <form id="supplier-car-form" onSubmit={handleSubmit} className="space-y-5">
             {!car && (
-                <div className="bg-blue-50/50 p-6 rounded-xl border border-blue-100/50 mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-blue-100 rounded-card">
-                            <Car className="w-5 h-5 text-accent" />
-                        </div>
+                <div className="rounded-xl border border-accent-100 bg-accent-50/50 p-4">
+                    <div className="mb-3 flex items-center gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-accent ring-1 ring-accent-100"><Car className="h-[18px] w-[18px]" /></span>
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-900">Choose from Car Library</h3>
-                            <p className="text-xs font-bold text-gray-400 mt-0.5">Quickly pre-fill specs from our master catalog</p>
+                            <h3 className="text-sm font-semibold text-slate-900">Choose from the car library</h3>
+                            <p className="text-xs text-slate-500">Fills in the model, photo and specs for you.</p>
                         </div>
                     </div>
-                    <select 
-                        onChange={(e) => handleModelSelect(e.target.value)}
-                        className="w-full bg-white border border-gray-200 rounded-card py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
-                    >
-                        <option value="">Select a vehicle template...</option>
+                    <select onChange={(e) => handleModelSelect(e.target.value)} className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-slate-50 sm:h-10">
+                        <option value="">Select a car model…</option>
                         {carModels.map((m: any) => (
                             <option key={m.id} value={m.id}>{m.make} {m.model} ({m.year})</option>
                         ))}
@@ -2298,122 +2540,86 @@ const EditCarModal = ({ isOpen, onClose, car, supplier, onSave }: any) => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Briefcase className="w-4 h-4 text-accent" />
-                        <h3 className="text-sm font-bold text-gray-700">Primary Specs</h3>
-                    </div>
-                    <InputField label="Display Name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required readOnly={!!formData.carModelId} />
-                    <div className="grid grid-cols-2 gap-4">
+            <section className="rounded-xl border border-slate-200 p-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Briefcase className="h-4 w-4 text-accent" /> Car details</h3>
+                <div className="mt-4 space-y-4">
+                    <InputField label="Display name" value={formData.name} onChange={(e:any) => handleChange('name', e.target.value)} required readOnly={!!formData.carModelId} />
+                    <div className="grid grid-cols-2 gap-3">
                         <InputField label="Make" value={formData.make} onChange={(e:any) => handleChange('make', e.target.value)} required readOnly={!!formData.carModelId} />
                         <InputField label="Model" value={formData.model} onChange={(e:any) => handleChange('model', e.target.value)} required readOnly={!!formData.carModelId} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <InputField label="SIPP Code" value={formData.sippCode} onChange={(e:any) => handleChange('sippCode', e.target.value)} required />
-                        <InputField label="Year" type="number" value={formData.year} onChange={(e:any) => handleChange('year', parseInt(e.target.value))} required readOnly={!!formData.carModelId} />
-                    </div>
-                </div>
-
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Settings className="w-4 h-4 text-accent" />
-                        <h3 className="text-sm font-bold text-gray-700">Configuration</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                        <InputField label="SIPP code" value={formData.sippCode} onChange={(e:any) => handleChange('sippCode', e.target.value)} required />
+                        <InputField label="Year" type="number" inputMode="numeric" value={formData.year} onChange={(e:any) => handleChange('year', parseInt(e.target.value))} required readOnly={!!formData.carModelId} />
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-gray-400 ml-1">Transmission</label>
-                            <select value={formData.transmission} onChange={e => handleChange('transmission', e.target.value)} className="w-full bg-gray-50/50 border border-gray-100 rounded-card py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20">
+                            <label className="block text-sm font-medium text-slate-700">Transmission</label>
+                            <select value={formData.transmission} onChange={e => handleChange('transmission', e.target.value)} className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-slate-50 sm:h-10">
                                 <option value="MANUAL">Manual</option>
                                 <option value="AUTOMATIC">Automatic</option>
                             </select>
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-gray-400 ml-1">Fuel Policy</label>
-                            <select value={formData.fuelPolicy} onChange={e => handleChange('fuelPolicy', e.target.value)} className="w-full bg-gray-50/50 border border-gray-100 rounded-card py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20">
-                                <option value="FULL_TO_FULL">Full to Full</option>
-                                <option value="SAME_TO_SAME">Same to Same</option>
+                            <label className="block text-sm font-medium text-slate-700">Fuel policy</label>
+                            <select value={formData.fuelPolicy} onChange={e => handleChange('fuelPolicy', e.target.value)} className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-slate-50 sm:h-10">
+                                <option value="FULL_TO_FULL">Full to full</option>
+                                <option value="SAME_TO_SAME">Same to same</option>
                             </select>
                         </div>
                     </div>
                     <InputField label="Category" value={formData.category} onChange={(e:any) => handleChange('category', e.target.value)} readOnly={!!formData.carModelId} />
-                    <InputField label="Image URL" value={formData.imageUrl} onChange={(e:any) => handleChange('imageUrl', e.target.value)} placeholder="https://..." readOnly={!!formData.carModelId} />
+                    <InputField label="Photo URL" value={formData.imageUrl} onChange={(e:any) => handleChange('imageUrl', e.target.value)} placeholder="https://…" readOnly={!!formData.carModelId} />
                 </div>
-            </div>
+            </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-50">
-                <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 space-y-3">
-                    <h4 className="text-xs font-semibold text-gray-400  mb-2 flex items-center gap-2">
-                        <User className="w-3 h-3" /> Capacity
-                    </h4>
-                    <InputField label="Passengers" type="number" value={formData.passengers} onChange={(e:any) => handleChange('passengers', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
-                    <InputField label="Large Bags" type="number" value={formData.bags} onChange={(e:any) => handleChange('bags', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
-                    <InputField label="Doors" type="number" value={formData.doors} onChange={(e:any) => handleChange('doors', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
+            <section className="rounded-xl border border-slate-200 p-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Users className="h-4 w-4 text-accent" /> Capacity & deposit</h3>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                    <InputField label="Seats" type="number" inputMode="numeric" value={formData.passengers} onChange={(e:any) => handleChange('passengers', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
+                    <InputField label="Bags" type="number" inputMode="numeric" value={formData.bags} onChange={(e:any) => handleChange('bags', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
+                    <InputField label="Doors" type="number" inputMode="numeric" value={formData.doors} onChange={(e:any) => handleChange('doors', parseInt(e.target.value))} readOnly={!!formData.carModelId} />
                 </div>
-                <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 space-y-3">
-                    <h4 className="text-xs font-semibold text-gray-400  mb-2 flex items-center gap-2">
-                        <DollarSign className="w-3 h-3" /> Financials
-                    </h4>
-                    <InputField label="Security Deposit" type="number" prefix="$" value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
+                <div className="mt-4 sm:max-w-xs">
+                    <InputField label="Security deposit" type="number" inputMode="decimal" prefix="$" value={formData.deposit} onChange={(e:any) => handleChange('deposit', parseFloat(e.target.value))} />
                 </div>
-                <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 flex flex-col justify-center gap-4">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" checked={formData.available} onChange={e => handleChange('available', e.target.checked)} className="w-5 h-5 rounded-card text-accent focus:ring-blue-500 border-gray-200" />
-                        <span className="text-xs font-semibold text-gray-600 group-hover:text-accent transition-colors">Vehicle Online</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" checked={formData.unlimitedMileage} onChange={e => handleChange('unlimitedMileage', e.target.checked)} className="w-5 h-5 rounded-card text-accent focus:ring-blue-500 border-gray-200" />
-                        <span className="text-xs font-semibold text-gray-600 group-hover:text-accent transition-colors">Unlimited Mileage</span>
-                    </label>
+                <div className="mt-4 divide-y divide-slate-100 rounded-xl border border-slate-200">
+                    {[
+                        { key: 'available', label: 'Available to book', hint: 'Show this car in search results' },
+                        { key: 'unlimitedMileage', label: 'Unlimited mileage', hint: 'No kilometre limit for customers' },
+                    ].map(t => (
+                        <label key={t.key} className="flex cursor-pointer items-center justify-between gap-4 px-4 py-3">
+                            <span>
+                                <span className="block text-sm font-medium text-slate-800">{t.label}</span>
+                                <span className="block text-xs text-slate-500">{t.hint}</span>
+                            </span>
+                            <input type="checkbox" checked={!!(formData as any)[t.key]} onChange={e => handleChange(t.key, e.target.checked)} className="peer sr-only" />
+                            <span className="relative h-6 w-11 shrink-0 rounded-full bg-slate-300 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-accent peer-checked:after:left-[22px] peer-focus-visible:ring-2 peer-focus-visible:ring-accent/40" aria-hidden="true" />
+                        </label>
+                    ))}
                 </div>
-            </div>
+            </section>
 
-            <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 space-y-6">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-slate-200 rounded-card">
-                            <MapPin className="w-5 h-5 text-slate-600" />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-gray-900">Availability & Location</h3>
-                            <p className="text-xs font-bold text-gray-400 mt-0.5">Where this vehicle can be picked up</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-gray-400 ml-1">Supplier Location</label>
-                    <select 
-                        value={formData.locationCode} 
-                        onChange={e => {
-                          const nextCode = e.target.value;
-                          const nextLocation = supplierLocations.find((loc: any) => loc.locationCode === nextCode);
-                          handleChange('locationCode', nextCode);
-                          handleChange('locationName', nextLocation?.displayName || '');
-                        }} 
-                        className="w-full bg-white border border-gray-200 rounded-card py-3.5 px-5 text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
-                        required
-                        disabled={supplierLocations.length === 0}
-                    >
-                        <option value="">Choose one of your active locations...</option>
-                        {supplierLocations.map((loc: any) => (
-                            <option key={loc.id || loc.locationCode} value={loc.locationCode}>{loc.displayName} ({loc.locationCode})</option>
-                        ))}
-                    </select>
-                    {supplierLocations.length === 0 && (
-                        <p className="text-xs font-bold text-red-500">
-                            No active supplier locations available. Please request/activate a supplier location first.
-                        </p>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex gap-4 pt-6">
-                <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-xl text-xs font-semibold  hover:bg-gray-100 hover:text-gray-900 transition-all">Cancel</button>
-                <button type="submit" disabled={isSaving} className="flex-[2] py-4 bg-accent text-white rounded-xl text-xs font-semibold  shadow-sm hover:scale-[1.02] transition-all disabled:opacity-50">
-                    {isSaving ? 'Processing...' : (car ? 'Update Vehicle' : 'Add to Fleet')}
-                </button>
-            </div>
+            <section className="rounded-xl border border-slate-200 p-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><MapPin className="h-4 w-4 text-accent" /> Pick-up location</h3>
+                <p className="mt-0.5 text-xs text-slate-500">Where customers collect this car.</p>
+                <select
+                    value={formData.locationCode}
+                    onChange={e => {
+                      const nextCode = e.target.value;
+                      const nextLocation = supplierLocations.find((loc: any) => loc.locationCode === nextCode);
+                      handleChange('locationCode', nextCode);
+                      handleChange('locationName', nextLocation?.displayName || '');
+                    }}
+                    className="mt-3 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-slate-50 sm:h-10"
+                    required
+                    disabled={supplierLocations.length === 0}
+                >
+                    <option value="">Choose one of your active locations…</option>
+                    {supplierLocations.map((loc: any) => (
+                        <option key={loc.id || loc.locationCode} value={loc.locationCode}>{loc.displayName} ({loc.locationCode})</option>
+                    ))}
+                </select>
+                {supplierLocations.length === 0 && (
+                    <p className="mt-2 text-sm text-rose-600">No active locations yet. Request one under Locations first.</p>
+                )}
+            </section>
         </form>
     </Modal>
   );
@@ -2491,7 +2697,7 @@ const StopSalesSection = ({ stopSales, onRefresh }: { stopSales: any[], onRefres
                     </div>
                     <InputField
                         label="Location code (optional)"
-                        placeholder="e.g. AMM — leave empty for all locations"
+                        placeholder="All locations, or e.g. AMM"
                         value={formData.locationCode}
                         onChange={(e: any) => setFormData({ ...formData, locationCode: e.target.value.toUpperCase() })}
                     />
@@ -2731,60 +2937,82 @@ const ProfileSection = ({ supplier, onSupplierUpdated }: { supplier: Supplier, o
     };
 
     return (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8 max-w-4xl">
-            <SectionHeader title="Supplier Profile" icon={User} subtitle="Account settings and security" />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-6">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-20 h-20 rounded-xl bg-white border-2 border-blue-500 shadow-lg flex items-center justify-center overflow-hidden p-2">
-                            {logoUrl ? (
-                                <img src={logoUrl} className="max-w-full max-h-full object-contain" alt="Logo" width="80" height="80" />
-                            ) : (
-                                <User className="w-8 h-8 text-slate-300" />
-                            )}
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-semibold text-gray-900 tracking-tight">{supplier.name}</h3>
-                            <Badge variant="success">Verified Supplier</Badge>
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-6 space-y-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Globe className="w-4 h-4 text-slate-400" />
-                            <span className="text-xs font-semibold text-slate-400">Branding Information</span>
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-500 mb-1">Supplier Logo</p>
-                            <p className="text-sm font-semibold text-slate-900 break-all">{logoUrl || 'No logo URL provided'}</p>
-                        </div>
-                        <div className="p-4 bg-blue-50/50 border border-blue-100/50 rounded-card">
-                            <p className="text-xs font-bold text-blue-800 leading-relaxed italic">
-                                Branding updates are currently locked. Please contact HogiCar Support to change your company logo or profile details.
-                            </p>
-                        </div>
-                    </div>
-
-                    <InputField label="Reservation Contact Email" value={(supplier as any).contactEmail || supplier.email || ''} readOnly />
-                    <InputField label="Phone Number" value={supplier.phone || 'N/A'} readOnly />
+        <div className="max-w-4xl space-y-4 sm:space-y-5">
+            {/* Identity */}
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="relative h-20 overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-[#00507f] sm:h-24">
+                    <span aria-hidden="true" className="absolute -right-10 -top-16 h-40 w-40 rounded-full bg-sky-400/20 blur-2xl" />
                 </div>
-
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Lock className="w-4 h-4 text-accent" />
-                        <h3 className="text-sm font-bold text-gray-900">Security</h3>
+                <div className="px-4 pb-4 sm:px-6 sm:pb-5">
+                    <div className="relative z-10 -mt-10 flex items-end gap-4">
+                        <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-md ring-4 ring-white">
+                            {logoUrl ? <img src={logoUrl} className="max-h-full max-w-full object-contain" alt="Company logo" width="80" height="80" /> : <span className="text-xl font-semibold text-slate-500">{(supplier.name || 'S').split(/\s+/).map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()}</span>}
+                        </span>
                     </div>
-                    <InputField label="Login Username (Email)" value={supplier.email} readOnly />
-                    <InputField label="Current Password" type="password" value="********" readOnly />
-                    <div className="p-4 bg-slate-50 border border-slate-100 rounded-card">
-                        <p className="text-xs font-bold text-slate-500 leading-relaxed text-center">
-                            Credentials can only be modified by the primary account administrator.
-                        </p>
+                    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                            <h2 className="break-words text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">{supplier.name}</h2>
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                <Badge variant="success"><CheckCircle className="h-3 w-3" /> Verified partner</Badge>
+                                {((supplier as any).locations || []).slice(0, 4).map((l: any, i: number) => {
+                                    const code = String(l?.value ?? l?.locationCode ?? '').toUpperCase();
+                                    return code && code !== 'ALL' ? <Badge key={code + i}><MapPin className="h-3 w-3" /> {code}</Badge> : null;
+                                })}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </motion.div>
+
+            <div className="grid gap-4 md:grid-cols-2 sm:gap-5">
+                {/* Company details */}
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div className="flex items-center gap-2.5 border-b border-slate-100 px-4 py-3 sm:px-5">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-50 text-accent"><Briefcase className="h-4 w-4" /></span>
+                        <h3 className="text-sm font-semibold text-slate-900">Company details</h3>
+                    </div>
+                    <dl className="divide-y divide-slate-100">
+                        {[
+                            { label: 'Reservation email', value: (supplier as any).contactEmail || supplier.email || '—', note: 'New bookings are sent here' },
+                            { label: 'Phone', value: supplier.phone || 'Not provided' },
+                            { label: 'Company logo', value: logoUrl ? 'Uploaded' : 'Not uploaded yet' },
+                        ].map(row => (
+                            <div key={row.label} className="px-4 py-3 sm:px-5">
+                                <dt className="text-xs font-medium text-slate-500">{row.label}</dt>
+                                <dd className="mt-0.5 break-all text-sm font-medium text-slate-900">{row.value}</dd>
+                                {row.note && <p className="mt-0.5 text-xs text-slate-400">{row.note}</p>}
+                            </div>
+                        ))}
+                    </dl>
+                </section>
+
+                {/* Sign-in */}
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div className="flex items-center gap-2.5 border-b border-slate-100 px-4 py-3 sm:px-5">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600"><Lock className="h-4 w-4" /></span>
+                        <h3 className="text-sm font-semibold text-slate-900">Sign-in & security</h3>
+                    </div>
+                    <dl className="divide-y divide-slate-100">
+                        <div className="px-4 py-3 sm:px-5">
+                            <dt className="text-xs font-medium text-slate-500">Sign-in email</dt>
+                            <dd className="mt-0.5 break-all text-sm font-medium text-slate-900">{supplier.email || '—'}</dd>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
+                            <div>
+                                <dt className="text-xs font-medium text-slate-500">Password</dt>
+                                <dd className="mt-0.5 text-sm font-medium tracking-widest text-slate-900">••••••••</dd>
+                            </div>
+                            <Badge><Shield className="h-3 w-3" /> Protected</Badge>
+                        </div>
+                    </dl>
+                </section>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-2xl border border-accent-100 bg-accent-50/60 p-4">
+                <Info className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                <p className="text-sm leading-relaxed text-slate-700">Profile details, the logo and sign-in credentials are managed by Hogicar to keep your account secure. To change anything here, contact your Hogicar account manager.</p>
+            </div>
+        </div>
     );
 };
 
@@ -2920,235 +3148,158 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Configure Rate Template" size="lg">
-            <div className="space-y-10">
-                {/* Strategy Inheritance / Cloning */}
-                <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-accent ring-1 ring-slate-200">
-                            <RefreshCw className="h-5 w-5" />
-                        </div>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Seasons & rules"
+            subtitle={locationCode ? `Settings for ${locationCode}` : 'Your default settings'}
+            size="lg"
+            footer={
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <label htmlFor="apply-all-loc-config" className="flex cursor-pointer items-center gap-2.5 text-sm text-slate-700">
+                        <input
+                            type="checkbox"
+                            id="apply-all-loc-config"
+                            checked={localConfig.applyToAllLocations}
+                            onChange={e => setLocalConfig({ ...localConfig, applyToAllLocations: e.target.checked })}
+                            className="h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent"
+                        />
+                        Apply to all my locations
+                    </label>
+                    <div className="flex gap-2">
+                        <button type="button" onClick={onClose} className="h-11 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:h-10 sm:flex-none">Cancel</button>
+                        <button onClick={handleSave} disabled={isSaving} className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white shadow-sm hover:bg-accent-700 disabled:opacity-50 sm:h-10 sm:flex-none">
+                            {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {isSaving ? 'Saving…' : <><span className="sm:hidden">Save</span><span className="hidden sm:inline">Save seasons & rules</span></>}
+                        </button>
+                    </div>
+                </div>
+            }
+        >
+            <div className="space-y-6">
+                {/* Copy from another location */}
+                <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-accent ring-1 ring-slate-200"><RefreshCw className="h-5 w-5" /></span>
                         <div>
                             <p className="text-sm font-semibold text-slate-900">Copy from another location</p>
                             <p className="text-xs text-slate-500">Start from the seasons and rules of a location you’ve already set up.</p>
                         </div>
                     </div>
-                    <div className="flex items-center rounded-lg border border-slate-300 bg-white">
-                        <select 
-                            onChange={(e) => handleInherit(e.target.value)}
-                            defaultValue=""
-                            className="h-10 cursor-pointer rounded-lg bg-transparent px-3 text-sm text-slate-900 outline-none"
-                        >
-                            <option value="" disabled className="text-slate-900">Choose a location…</option>
-                            {supplier?.locations?.filter((l: any) => {
-                                const code = String(l?.locationCode ?? l?.value ?? '').trim().toUpperCase();
-                                return code && code !== String(locationCode || '').trim().toUpperCase() && code !== 'ALL' && code !== 'GLOBAL';
-                            }).map((l: any) => {
-                                const code = String(l?.locationCode ?? l?.value ?? '').trim().toUpperCase();
-                                const label = l?.displayName || l?.label || code;
-                                return <option key={code} value={code} className="text-slate-900">{label}</option>;
-                            })}
-                        </select>
-                    </div>
+                    <select
+                        onChange={(e) => handleInherit(e.target.value)}
+                        defaultValue=""
+                        className="h-11 w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-accent md:h-10 md:w-56"
+                    >
+                        <option value="" disabled>Choose a location…</option>
+                        {supplier?.locations?.filter((l: any) => {
+                            const code = String(l?.locationCode ?? l?.value ?? '').trim().toUpperCase();
+                            return code && code !== String(locationCode || '').trim().toUpperCase() && code !== 'ALL' && code !== 'GLOBAL';
+                        }).map((l: any) => {
+                            const code = String(l?.locationCode ?? l?.value ?? '').trim().toUpperCase();
+                            const label = l?.displayName || l?.label || code;
+                            return <option key={code} value={code}>{label}</option>;
+                        })}
+                    </select>
                 </div>
 
-                {/* Informational Note */}
-                <div className="p-6 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4">
-                    <div className="p-2 bg-white rounded-card shadow-sm">
-                        <Info className="w-5 h-5 text-accent" />
-                    </div>
-                    <div className="space-y-1">
-                        <p className="text-xs font-semibold text-blue-900 ">Strategy Definition</p>
-                        <p className="text-xs font-bold text-blue-800 leading-relaxed opacity-80">
-                            Define your seasons and day bands below. After saving, use the "Download Template" action to fill in prices for each car model.
-                        </p>
-                    </div>
-                </div>
+                {/* Currency */}
+                <section className="rounded-xl border border-slate-200 p-4">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><DollarSign className="h-4 w-4 text-accent" /> Currency</h3>
+                    <p className="mt-0.5 text-xs text-slate-500">All rates and deposits for this location use this currency.</p>
+                    <select
+                        value={localConfig.currency}
+                        onChange={e => setLocalConfig({ ...localConfig, currency: e.target.value })}
+                        className="mt-3 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:h-10 sm:max-w-xs"
+                    >
+                        {CURRENCIES.map(curr => (
+                            <option key={curr.code} value={curr.code}>{curr.flag} {curr.code} – {curr.name}</option>
+                        ))}
+                    </select>
+                </section>
 
-                {/* Global Currency */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-gray-400 ml-1">Template Currency</label>
-                        <select 
-                            value={localConfig.currency} 
-                            onChange={e => setLocalConfig({...localConfig, currency: e.target.value})}
-                            className="w-full bg-gray-50/50 border border-gray-100 rounded-card py-3 px-4 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
-                        >
-                            {CURRENCIES.map(curr => (
-                                <option key={curr.code} value={curr.code}>
-                                    {curr.flag} {curr.code} - {curr.name}
-                                </option>
-                            ))}
-                        </select>
+                {/* Booking rules */}
+                <section className="rounded-xl border border-slate-200 p-4">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Settings className="h-4 w-4 text-accent" /> Booking rules</h3>
+                    <p className="mt-0.5 text-xs text-slate-500">Applied to every booking at this location.</p>
+                    <div className="mt-4 grid grid-cols-2 items-end gap-x-3 gap-y-4 md:grid-cols-3">
+                        <InputField label="Lead time (hrs)" type="number" inputMode="numeric" value={localConfig.minBookingLeadTime} onChange={(e: any) => setLocalConfig({ ...localConfig, minBookingLeadTime: parseInt(e.target.value) || 0 })} />
+                        <InputField label="Book ahead (days)" type="number" inputMode="numeric" value={localConfig.maxBookingLeadTimeDays} onChange={(e: any) => setLocalConfig({ ...localConfig, maxBookingLeadTimeDays: parseInt(e.target.value) || 0 })} />
+                        <InputField label="Grace (hrs)" type="number" inputMode="numeric" value={localConfig.gracePeriodHours} onChange={(e: any) => setLocalConfig({ ...localConfig, gracePeriodHours: parseInt(e.target.value) || 0 })} />
+                        <InputField label="Min. days" type="number" inputMode="numeric" value={localConfig.minRentalDays} onChange={(e: any) => setLocalConfig({ ...localConfig, minRentalDays: parseInt(e.target.value) || 0 })} />
+                        <InputField label="Max. days" type="number" inputMode="numeric" value={localConfig.maxRentalDays} onChange={(e: any) => setLocalConfig({ ...localConfig, maxRentalDays: parseInt(e.target.value) || 0 })} />
+                        <InputField label="One-way fee" type="number" inputMode="decimal" prefix={localConfig.currency} value={localConfig.oneWayFee} onChange={(e: any) => setLocalConfig({ ...localConfig, oneWayFee: parseFloat(e.target.value) || 0 })} />
                     </div>
-                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-card flex items-start gap-3">
-                        <AlertCircle className="w-4 h-4 text-accent mt-0.5" />
-                        <p className="text-xs font-bold text-blue-800 leading-relaxed">
-                            Global currency for all rates in the generated XLSX template.
-                        </p>
-                    </div>
-                </div>
+                </section>
 
-                {/* Booking Conditions */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                        <Settings className="w-5 h-5 text-accent" />
-                        <h3 className="text-sm font-semibold text-gray-900">Booking Conditions</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <InputField 
-                            label="Min Lead Time (Hrs)" 
-                            type="number" 
-                            icon={Clock}
-                            value={localConfig.minBookingLeadTime} 
-                            onChange={(e: any) => setLocalConfig({...localConfig, minBookingLeadTime: parseInt(e.target.value) || 0})} 
-                        />
-                        <InputField 
-                            label="Grace Period (Hrs)" 
-                            type="number" 
-                            icon={RefreshCw}
-                            value={localConfig.gracePeriodHours} 
-                            onChange={(e: any) => setLocalConfig({...localConfig, gracePeriodHours: parseInt(e.target.value) || 0})} 
-                        />
-                        <InputField 
-                            label="One Way Fee" 
-                            type="number" 
-                            prefix={localConfig.currency}
-                            value={localConfig.oneWayFee} 
-                            onChange={(e: any) => setLocalConfig({...localConfig, oneWayFee: parseFloat(e.target.value) || 0})} 
-                        />
-                        <InputField 
-                            label="Min. Duration (Days)" 
-                            type="number" 
-                            icon={Calendar}
-                            value={localConfig.minRentalDays} 
-                            onChange={(e: any) => setLocalConfig({...localConfig, minRentalDays: parseInt(e.target.value) || 0})} 
-                        />
-                        <InputField 
-                            label="Max. Duration (Days)" 
-                            type="number" 
-                            icon={Calendar}
-                            value={localConfig.maxRentalDays} 
-                            onChange={(e: any) => setLocalConfig({...localConfig, maxRentalDays: parseInt(e.target.value) || 0})} 
-                        />
-                        <InputField 
-                            label="Max. Lead Time (Days)" 
-                            type="number" 
-                            icon={Zap}
-                            value={localConfig.maxBookingLeadTimeDays} 
-                            onChange={(e: any) => setLocalConfig({...localConfig, maxBookingLeadTimeDays: parseInt(e.target.value) || 0})} 
-                        />
-                    </div>
-                </div>
-
-                {/* Pricing Seasons / Periods */}
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <Calendar className="w-5 h-5 text-accent" />
-                            <h3 className="text-sm font-semibold text-gray-900">Pricing Seasons</h3>
+                {/* Seasons */}
+                <section className="rounded-xl border border-slate-200 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Calendar className="h-4 w-4 text-accent" /> Seasons</h3>
+                            <p className="mt-0.5 text-xs text-slate-500">Date periods that can have their own rates.</p>
                         </div>
-                        <button onClick={addPeriod} className="text-xs font-semibold text-accent hover:text-blue-800">+ Add Season</button>
+                        <button onClick={addPeriod} className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent"><Plus className="h-4 w-4" /> Add</button>
                     </div>
-                    <div className="space-y-4">
+                    <div className="mt-4 space-y-3">
                         {localConfig.periods?.map((period, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-xl border border-gray-100 shadow-sm relative group hover:border-blue-200 transition-all">
-                                <button onClick={() => removePeriod(idx)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <InputField label="Season Name" value={period.name} onChange={(e:any) => updatePeriod(idx, 'name', e.target.value)} />
-                                    <InputField label="Start Date" type="date" value={period.startDate} onChange={(e:any) => updatePeriod(idx, 'startDate', e.target.value)} />
-                                    <InputField label="End Date" type="date" value={period.endDate} onChange={(e:any) => updatePeriod(idx, 'endDate', e.target.value)} />
+                            <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                                <div className="flex items-end gap-2">
+                                    <div className="min-w-0 flex-1"><InputField label="Season name" value={period.name} onChange={(e: any) => updatePeriod(idx, 'name', e.target.value)} /></div>
+                                    <button onClick={() => removePeriod(idx)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Remove ${period.name || 'season'}`}><Trash2 className="h-4 w-4" /></button>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 gap-3">
+                                    <InputField label="From" type="date" value={period.startDate} onChange={(e: any) => updatePeriod(idx, 'startDate', e.target.value)} />
+                                    <InputField label="To" type="date" value={period.endDate} onChange={(e: any) => updatePeriod(idx, 'endDate', e.target.value)} />
                                 </div>
                             </div>
                         ))}
+                        {!localConfig.periods?.length && <p className="rounded-lg border border-dashed border-slate-300 py-6 text-center text-sm text-slate-500">No seasons yet.</p>}
                     </div>
-                </div>
+                </section>
 
-                {/* Security Bonds */}
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <Shield className="w-5 h-5 text-accent" />
-                            <h3 className="text-sm font-semibold text-gray-900">Security Bonds</h3>
+                {/* Rental length bands */}
+                <section className="rounded-xl border border-slate-200 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Layers className="h-4 w-4 text-accent" /> Rental length bands</h3>
+                            <p className="mt-0.5 text-xs text-slate-500">A different daily rate for each rental length.</p>
                         </div>
-                        <button onClick={addBond} className="text-xs font-semibold text-accent hover:text-blue-800">+ Add Bond</button>
+                        <button onClick={addBand} className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent"><Plus className="h-4 w-4" /> Add</button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {localConfig.bonds?.map((bond, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-xl border border-gray-100 shadow-sm relative group hover:border-blue-200 transition-all">
-                                <button onClick={() => removeBond(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                                <div className="space-y-4">
-                                    <InputField label="Bond Name" value={bond.name} onChange={(e:any) => updateBond(idx, 'name', e.target.value)} />
-                                    <InputField 
-                                        label="Bond Price / Deposit" 
-                                        type="number" 
-                                        prefix={localConfig.currency}
-                                        value={bond.price} 
-                                        onChange={(e:any) => updateBond(idx, 'price', parseFloat(e.target.value) || 0)} 
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                        {(!localConfig.bonds || localConfig.bonds.length === 0) && (
-                            <div className="md:col-span-2 py-10 border-2 border-dashed border-gray-100 rounded-xl flex flex-col items-center justify-center text-gray-400">
-                                <Shield className="w-8 h-8 mb-2 opacity-20" />
-                                <p className="text-xs font-semibold">No security bonds defined</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Rental Duration Bands */}
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <Clock className="w-5 h-5 text-accent" />
-                            <h3 className="text-sm font-semibold text-gray-900">Rental Duration Bands</h3>
-                        </div>
-                        <button onClick={addBand} className="text-xs font-semibold text-accent hover:text-blue-800">+ Add Band</button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mt-4 space-y-3">
                         {localConfig.bands?.map((band, idx) => (
-                            <div key={idx} className="bg-white p-7 rounded-xl border border-gray-100 shadow-sm relative group hover:border-blue-200 transition-all">
-                                <button onClick={() => removeBand(idx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Min Days" type="number" value={band.minDays} onChange={(e:any) => updateBand(idx, 'minDays', parseInt(e.target.value))} />
-                                    <InputField label="Max Days" type="number" value={band.maxDays || ''} onChange={(e:any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
-                                </div>
-                                <div className="mt-4">
-                                    <InputField label="Band Label (e.g. 1-3 Days)" value={band.label} onChange={(e:any) => updateBand(idx, 'label', e.target.value)} />
-                                </div>
+                            <div key={idx} className="grid grid-cols-[1fr_1fr_auto] items-end gap-2 sm:grid-cols-[1fr_1fr_2fr_auto]">
+                                <InputField label="From day" type="number" inputMode="numeric" value={band.minDays} onChange={(e: any) => updateBand(idx, 'minDays', parseInt(e.target.value))} />
+                                <InputField label="To day" type="number" inputMode="numeric" placeholder="No limit" value={band.maxDays || ''} onChange={(e: any) => updateBand(idx, 'maxDays', e.target.value ? parseInt(e.target.value) : null)} />
+                                <div className="order-last col-span-3 sm:order-none sm:col-span-1"><InputField label="Label (optional)" placeholder="e.g. 1–3 days" value={band.label} onChange={(e: any) => updateBand(idx, 'label', e.target.value)} /></div>
+                                <button onClick={() => removeBand(idx)} className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove band"><Trash2 className="h-4 w-4" /></button>
                             </div>
                         ))}
+                        {!localConfig.bands?.length && <p className="rounded-lg border border-dashed border-slate-300 py-6 text-center text-sm text-slate-500">No bands yet.</p>}
                     </div>
-                </div>
+                </section>
 
-                <div className="flex gap-4 pt-6 border-t border-gray-50">
-                    <button type="button" onClick={onClose} className="flex-1 py-4 bg-gray-50 text-gray-400 rounded-card text-xs font-semibold  hover:bg-gray-100 hover:text-gray-900 transition-all">Cancel</button>
-                    <div className="flex-[2] flex flex-col gap-3">
-                        <button onClick={handleSave} disabled={isSaving} className="w-full py-4 bg-accent text-white rounded-card text-xs font-semibold  shadow-sm hover:scale-[1.02] transition-all disabled:opacity-50">
-                            {isSaving ? 'Saving Configuration...' : 'Save Rate Structure'}
-                        </button>
-                        <div className="flex items-center justify-center gap-2">
-                            <input 
-                                type="checkbox" 
-                                id="apply-all-loc-config"
-                                checked={localConfig.applyToAllLocations}
-                                onChange={e => setLocalConfig({...localConfig, applyToAllLocations: e.target.checked})}
-                                className="w-3.5 h-3.5 text-accent border-gray-300 rounded focus:ring-blue-500"
-                            />
-                            <label htmlFor="apply-all-loc-config" className="text-xs font-semibold text-gray-500 cursor-pointer">
-                                Apply to all locations
-                            </label>
+                {/* Deposits */}
+                <section className="rounded-xl border border-slate-200 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Shield className="h-4 w-4 text-accent" /> Security deposits</h3>
+                            <p className="mt-0.5 text-xs text-slate-500">Deposit levels you can assign to rates.</p>
                         </div>
+                        <button onClick={addBond} className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent"><Plus className="h-4 w-4" /> Add</button>
                     </div>
-                </div>
+                    <div className="mt-4 space-y-3">
+                        {localConfig.bonds?.map((bond, idx) => (
+                            <div key={idx} className="grid grid-cols-[1fr_1fr_auto] items-end gap-2">
+                                <InputField label="Name" value={bond.name} onChange={(e: any) => updateBond(idx, 'name', e.target.value)} />
+                                <InputField label="Amount" type="number" inputMode="decimal" prefix={localConfig.currency} value={bond.price} onChange={(e: any) => updateBond(idx, 'price', parseFloat(e.target.value) || 0)} />
+                                <button onClick={() => removeBond(idx)} className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove deposit"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                        ))}
+                        {(!localConfig.bonds || localConfig.bonds.length === 0) && <p className="rounded-lg border border-dashed border-slate-300 py-6 text-center text-sm text-slate-500">No deposits defined.</p>}
+                    </div>
+                </section>
             </div>
         </Modal>
     );
