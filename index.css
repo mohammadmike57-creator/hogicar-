@@ -193,3 +193,15 @@ html, body {
   .admin-content .text-3xl { font-size: 1.375rem; line-height: 1.75rem; }
   .admin-content .text-2xl { font-size: 1.25rem; line-height: 1.75rem; }
 }
+
+/* Rental voucher: printing shows only the voucher (A4, colours kept).
+   Pages and pop-ups that show a voucher add body.voucher-print and render the
+   document inside .voucher-print-root, directly under <body>. */
+@page { size: A4; margin: 8mm; }
+
+@media print {
+  body.voucher-print > *:not(.voucher-print-root) { display: none !important; }
+  body.voucher-print { overflow: visible !important; background: #fff !important; }
+  body.voucher-print .voucher-print-root { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; }
+  .voucher-doc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

@@ -58,6 +58,7 @@ import {
 } from '../types';
 import { Logo } from '../components/Logo';
 import AddonIcon from '../components/AddonIcon';
+import { VoucherModal } from '../components/RentalVoucher';
 import { buildCarAddons, loadAddonSettings } from '../utils/addons';
 
 // ==================== Shared UI Components ====================
@@ -297,9 +298,10 @@ const SupplierDashboard = () => {
   // Stats data
   const stats = useMemo(() => {
     const totalBookings = bookings.length;
-    const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+    const st = (b: any) => String(b.status || '').toLowerCase();
+    const confirmedBookings = bookings.filter(b => st(b) === 'confirmed').length;
     const totalRevenue = bookings.reduce((sum, b) => sum + (b.netPrice || 0), 0);
-    const pendingCount = bookings.filter(b => b.status === 'pending').length;
+    const pendingCount = bookings.filter(b => st(b) === 'pending').length;
     const activeStopSales = stopSales.filter(ss => {
       const now = new Date();
       now.setHours(0,0,0,0);
@@ -637,7 +639,9 @@ const statusBadge = (status?: string) => {
   const s = STATUS_STYLE[String(status || '').toLowerCase()] || { label: status || 'Unknown', variant: 'default' };
   return <Badge variant={s.variant}>{s.label}</Badge>;
 };
-const bookingCreated = (b: any) => b.bookingDate || b.createdAt || b.startDate;
+const pickupDateOf = (b: any) => b.pickupDate || b.startDate;
+const carNameOf = (b: any) => [b.carMake, b.carModel].filter(Boolean).join(' ') || b.carName || 'Car';
+const bookingCreated = (b: any) => b.createdAt || b.bookingDate || pickupDateOf(b);
 const money0 = (n: number, currency = 'USD') => {
   try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n || 0); }
   catch { return `${currency} ${Math.round(n || 0).toLocaleString()}`; }
@@ -661,7 +665,7 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
       const row = byKey[format(d, 'yyyy-MM-dd')];
       if (!row) return;
       row.bookings += 1;
-      if (b.status !== 'cancelled') row.revenue += Number(b.netPrice) || 0;
+      if (String(b.status).toLowerCase() !== 'cancelled') row.revenue += Number(b.netPrice) || 0;
     });
     return rows;
   }, [bookings]);
@@ -673,14 +677,14 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
   const upcoming = useMemo(() => {
     const now = new Date(); now.setHours(0, 0, 0, 0);
     return (bookings || [])
-      .filter((b: any) => b.startDate && new Date(b.startDate) >= now && b.status !== 'cancelled')
-      .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+      .filter((b: any) => pickupDateOf(b) && new Date(pickupDateOf(b)) >= now && String(b.status).toLowerCase() !== 'cancelled')
+      .sort((a: any, b: any) => new Date(pickupDateOf(a)).getTime() - new Date(pickupDateOf(b)).getTime())
       .slice(0, 5);
   }, [bookings]);
   const recent = useMemo(() => [...(bookings || [])]
     .sort((a: any, b: any) => new Date(bookingCreated(b) || 0).getTime() - new Date(bookingCreated(a) || 0).getTime())
     .slice(0, 6), [bookings]);
-  const revenue = (bookings || []).filter((b: any) => b.status !== 'cancelled').reduce((s: number, b: any) => s + (Number(b.netPrice) || 0), 0);
+  const revenue = (bookings || []).filter((b: any) => String(b.status).toLowerCase() !== 'cancelled').reduce((s: number, b: any) => s + (Number(b.netPrice) || 0), 0);
   const last14 = series.reduce((s, r) => s + r.bookings, 0);
   const fmtDate = (v?: string) => { if (!v) return '—'; const d = new Date(v); return isNaN(d.getTime()) ? v : format(d, 'd MMM yyyy'); };
 
@@ -797,12 +801,12 @@ const DashboardOverview = ({ stats, bookings, supplier, onGenerateReport, setAct
               {upcoming.map((b: any) => (
                 <li key={b.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
                   <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-accent-50 text-accent">
-                    <span className="text-[10px] font-medium uppercase leading-none">{format(new Date(b.startDate), 'MMM')}</span>
-                    <span className="text-base font-semibold leading-tight">{format(new Date(b.startDate), 'd')}</span>
+                    <span className="text-[10px] font-medium uppercase leading-none">{format(new Date(pickupDateOf(b)), 'MMM')}</span>
+                    <span className="text-base font-semibold leading-tight">{format(new Date(pickupDateOf(b)), 'd')}</span>
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-slate-900">{b.firstName} {b.lastName}</p>
-                    <p className="truncate text-xs text-slate-500">{b.carName || b.carModel || 'Car'} · {b.pickupCode || '—'}{b.startTime ? ` · ${b.startTime}` : ''}</p>
+                    <p className="truncate text-xs text-slate-500">{carNameOf(b)} · {b.pickupCode || '—'}{b.startTime ? ` · ${b.startTime}` : ''}</p>
                   </div>
                   {statusBadge(b.status)}
                 </li>
@@ -851,19 +855,19 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
     const filtered = bookings.filter(b => {
         const matchesSearch = (b.bookingRef?.toLowerCase() || '').includes(search.toLowerCase()) || 
                               (`${b.firstName} ${b.lastName}`.toLowerCase().includes(search.toLowerCase()));
-        const matchesStatus = statusFilter === 'all' || b.status === statusFilter;
+        const matchesStatus = statusFilter === 'all' || String(b.status || '').toLowerCase() === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
     const handleConfirm = async (id: any) => {
-        const conf = prompt("Enter confirmation number:");
-        if (!conf) return;
+        const conf = prompt("Enter your confirmation number for this booking:");
+        if (!conf || !conf.trim()) return;
         try {
-            await supplierApi.confirmBookingBySupplier(id, conf);
-            alert("Confirmed!");
+            await supplierApi.confirmBookingBySupplier(id, conf.trim());
+            alert("Booking confirmed. The customer will be notified.");
             window.location.reload();
-        } catch (e) {
-            alert("Failed to confirm");
+        } catch (e: any) {
+            alert(`Could not confirm the booking: ${e?.response?.data?.message || e?.message || 'please try again.'}`);
         }
     };
 
@@ -877,13 +881,13 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
 
     const actions = (b: any) => (
         <div className="flex justify-end gap-1.5">
-            {b.status === 'pending' && (
+            {String(b.status).toLowerCase() === 'pending' && (
                 <button onClick={() => handleConfirm(b.id)} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700">
                     <CheckCircle className="h-3.5 w-3.5" /> Confirm
                 </button>
             )}
             <button onClick={() => setViewing(b)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50">
-                <FileText className="h-3.5 w-3.5" /> Details
+                <FileText className="h-3.5 w-3.5" /> Voucher
             </button>
         </div>
     );
@@ -927,10 +931,10 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {filtered.map((b: any) => (
-                                <tr key={b.id} className={`hover:bg-slate-50/70 ${b.status === 'pending' ? 'bg-amber-50/30' : ''}`}>
+                                <tr key={b.id} onClick={(e) => { if ((e.target as HTMLElement).closest('button')) return; setViewing(b); }} className={`cursor-pointer hover:bg-slate-50/70 ${String(b.status).toLowerCase() === 'pending' ? 'bg-amber-50/30' : ''}`}>
                                     <td className="px-5 py-3">
                                         <p className="font-mono text-[13px] font-medium text-slate-900">{b.bookingRef || `#${b.id}`}</p>
-                                        <p className="text-xs text-slate-500">{b.carName || b.carModel || 'Car'}</p>
+                                        <p className="text-xs text-slate-500">{carNameOf(b)}</p>
                                     </td>
                                     <td className="px-4 py-3">
                                         <p className="font-medium text-slate-900">{b.firstName} {b.lastName}</p>
@@ -985,40 +989,16 @@ const ReservationsSection = ({ bookings }: { bookings: Booking[] }) => {
                 )}
             </div>
 
-            <Modal isOpen={!!viewing} onClose={() => setViewing(null)} title={viewing ? `Booking ${viewing.bookingRef || `#${viewing.id}`}` : ''} size="md">
-                {viewing && (
-                    <div className="space-y-5">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            {statusBadge(viewing.status)}
-                            <p className="text-sm text-slate-500">Booked {fmtD(bookingCreated(viewing))}</p>
-                        </div>
-                        <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-2">
-                            {[
-                                ['Customer', `${viewing.firstName || ''} ${viewing.lastName || ''}`.trim() || '—'],
-                                ['Email', viewing.email || '—'],
-                                ['Phone', viewing.phone || '—'],
-                                ['Flight', viewing.flightNumber || '—'],
-                                ['Car', viewing.carName || viewing.carModel || '—'],
-                                ['Net amount', amount(viewing)],
-                                ['Pick-up', `${fmtD(pickupOf(viewing))}${viewing.startTime ? ` · ${viewing.startTime}` : ''} · ${viewing.pickupCode || ''}`],
-                                ['Drop-off', `${fmtD(dropoffOf(viewing))}${viewing.endTime ? ` · ${viewing.endTime}` : ''} · ${viewing.dropoffCode || viewing.pickupCode || ''}`],
-                                ['Add-ons', viewing.extrasSummary || '—'],
-                                ['Your confirmation no.', viewing.supplierConfirmationNumber || '—'],
-                            ].map(([k, v]) => (
-                                <div key={k} className="bg-white px-4 py-3">
-                                    <dt className="text-xs text-slate-500">{k}</dt>
-                                    <dd className="mt-0.5 break-words text-sm font-medium text-slate-900">{v}</dd>
-                                </div>
-                            ))}
-                        </dl>
-                        {viewing.status === 'pending' && (
-                            <button onClick={() => handleConfirm(viewing.id)} className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-700">
-                                <CheckCircle className="h-4 w-4" /> Confirm this booking
-                            </button>
-                        )}
-                    </div>
-                )}
-            </Modal>
+            <VoucherModal
+                booking={viewing}
+                audience="supplier"
+                onClose={() => setViewing(null)}
+                extraActions={viewing && String(viewing.status).toLowerCase() === 'pending' ? (
+                    <button onClick={() => handleConfirm(viewing.id)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-sm font-semibold text-white hover:bg-emerald-700">
+                        <CheckCircle className="h-4 w-4" /> Confirm
+                    </button>
+                ) : null}
+            />
         </div>
     );
 };
@@ -2852,8 +2832,9 @@ const TemplateConfigModal = ({ isOpen, onClose, config, onSave, locationCode, su
             await supplierApi.saveTemplateConfig(localConfig);
             onSave();
             onClose();
-        } catch (e) {
-            alert("Failed to save template configuration");
+        } catch (e: any) {
+            const data = e?.response?.data;
+            alert(`Could not save seasons & rules: ${typeof data === 'string' ? data : data?.message || data?.error || e?.message || 'please try again.'}`);
         } finally {
             setIsSaving(false);
         }

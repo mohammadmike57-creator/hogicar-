@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { 
   CheckCircle, Printer, User, CreditCard, FileText, MapPin, 
@@ -12,6 +13,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import { api, getGoogleWalletUrl, API_BASE_URL } from '../api';
 import { Logo } from '../components/Logo';
 import WalletModal from '../components/WalletModal';
+import RentalVoucher from '../components/RentalVoucher';
 
 const Voucher: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -55,6 +57,11 @@ const Voucher: React.FC = () => {
 
     loadVoucher();
   }, [searchParams, navigate]);
+
+  React.useEffect(() => {
+    document.body.classList.add('voucher-print');
+    return () => document.body.classList.remove('voucher-print');
+  }, []);
 
   React.useEffect(() => {
     if (!booking || !booking.pickupDate) return;
@@ -283,23 +290,24 @@ const Voucher: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'dark bg-[#0f172a]' : 'bg-[#F8FAFC]'} pb-24 transition-colors duration-300`}>
+    <div className="min-h-screen bg-slate-100 pb-32 print:bg-white print:pb-0">
       <SEOMetadata title={`Rental Voucher - ${booking.bookingRef} | HogiCar`} noIndex />
 
       {/* Header / Logo */}
-      <header className="sticky top-0 z-30 w-full bg-white/80 backdrop-blur-md dark:bg-[#1e293b]/80 border-b border-slate-200 dark:border-slate-800">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Logo className="h-8 w-auto" variant={isDarkMode ? 'light' : 'dark'} />
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+      <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/90 backdrop-blur print:hidden">
+        <div className="mx-auto flex max-w-[900px] items-center justify-between px-4 py-3">
+          <Link to="/" aria-label="Hogicar home"><Logo className="h-7 w-auto" /></Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.print()}
+              className="hidden items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
             >
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              <Printer className="h-4 w-4" />
+              Print
             </button>
-            <button 
+            <button
               onClick={handleDownloadPdf}
-              className="hidden sm:flex items-center gap-2 rounded-xl bg-[#123C69] px-4 py-2 text-sm font-bold text-white hover:bg-[#1e293b]"
+              className="flex items-center gap-2 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-white hover:bg-accent-700"
             >
               <Download className="h-4 w-4" />
               Download PDF
@@ -308,202 +316,13 @@ const Voucher: React.FC = () => {
         </div>
       </header>
 
-      <main className="mx-auto mt-2 w-full max-w-5xl px-3 sm:px-4">
-        {/* Hero Section - Even More Compact & Zoomed Out */}
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-[#123C69] p-4 text-white shadow-xl sm:p-5">
-          <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="flex-1">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E]/20 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-[#22C55E] backdrop-blur-sm border border-[#22C55E]/30">
-                  <CheckCircle className="h-2 w-2" />
-                  Confirmed
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-slate-300 backdrop-blur-sm border border-white/10">
-                  {booking.bookingRef}
-                </span>
-              </div>
-              <h1 className="text-xl font-black tracking-tight sm:text-2xl lg:text-3xl leading-tight">
-                {booking.carMake} <span className="text-[#F57C00]">{booking.carModel}</span>
-              </h1>
-              <div className="mt-1 flex items-center gap-2">
-                <p className="text-[10px] font-medium text-slate-400">
-                  Official Rental Voucher
-                </p>
-                <div className="h-1 w-1 rounded-full bg-slate-600"></div>
-                <p className="text-[10px] font-bold text-white/80">
-                  {booking.supplierName}
-                </p>
-              </div>
-              
-              <div className="mt-3 flex flex-wrap gap-2">
-                <div className="flex items-center gap-2 rounded-lg bg-white/10 p-1 pr-3 backdrop-blur-md border border-white/10 shadow-lg">
-                  <div className="flex gap-0.5">
-                    <TimeUnit value={countdown.days} label="d" />
-                    <TimeUnit value={countdown.hours} label="h" />
-                    <TimeUnit value={countdown.minutes} label="m" />
-                    <TimeUnit value={countdown.seconds} label="s" />
-                  </div>
-                  <div className="ml-1">
-                    <div className="flex items-center gap-1">
-                      <div className="h-1 w-1 rounded-full bg-[#22C55E] animate-pulse"></div>
-                      <p className="text-[7px] font-black uppercase tracking-widest text-[#22C55E] leading-none">Live</p>
-                    </div>
-                    <p className="mt-0.5 text-[8px] font-bold text-white/80">Pickup Timer</p>
-                  </div>
-                </div>
-                
-                <div className="hidden xs:flex items-center gap-2 rounded-lg bg-white/10 px-2.5 py-1.5 backdrop-blur-md border border-white/10">
-                  <Smartphone className="h-3 w-3 text-slate-400" />
-                  <div>
-                    <p className="text-[6px] font-black uppercase tracking-widest text-slate-400 leading-none">Mobile</p>
-                    <p className="mt-0.5 text-[8px] font-black text-white uppercase tracking-tight">Ready</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {booking.carImage && (
-              <div className="relative md:w-1/3 lg:w-2/5 flex justify-center">
-                <div className="absolute inset-0 rounded-full bg-[#F57C00]/10 blur-[60px]"></div>
-                <img 
-                  src={booking.carImage} 
-                  alt={booking.carMake} 
-                  className="relative h-auto w-full max-w-[240px] sm:max-w-[280px] drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-            )}
-          </div>
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#F57C00]/5 blur-3xl"></div>
-          <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5 blur-3xl"></div>
-        </section>
-
-        <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-12">
-          {/* Left Column - Main Details */}
-          <div className="lg:col-span-8 space-y-3">
-            {/* Quick Summary Grid - New for "Zoomed Out" feel */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <SummaryCard icon={<Car />} label="Class" value={booking.carCategory} />
-              <SummaryCard icon={<Zap />} label="Transmission" value={booking.carTransmission} />
-              <SummaryCard icon={<Globe />} label="Fuel" value={booking.carFuelPolicy} />
-              <SummaryCard icon={<ShieldCheck />} label="Protection" value="Standard" />
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <section className="rounded-[1rem] bg-white p-3.5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-                <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#123C69]/5 dark:bg-white/5">
-                    <MapPin className="h-3 w-3 text-[#F57C00]" />
-                  </div>
-                  <h3 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Trip Details</h3>
-                </div>
-                
-                <div className="relative space-y-4">
-                  <div className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="z-10 flex h-3 w-3 rounded-full border-2 border-[#F57C00] bg-white dark:bg-[#1e293b]"></div>
-                      <div className="h-10 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-black uppercase tracking-widest text-[#F57C00]">Pickup</p>
-                      <h4 className="text-xs font-bold leading-tight dark:text-white">{booking.pickupLocationName}</h4>
-                      <div className="mt-1 text-[10px] text-slate-500 font-bold">
-                        {formatDisplayDate(booking.pickupDate)} @ {formatDisplayTime(booking.startTime)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="z-10 flex h-3 w-3 rounded-full border-2 border-slate-300 bg-white dark:bg-[#1e293b]"></div>
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Return</p>
-                      <h4 className="text-xs font-bold leading-tight dark:text-white">{booking.dropoffLocationName}</h4>
-                      <div className="mt-1 text-[10px] text-slate-500 font-bold">
-                        {formatDisplayDate(booking.dropoffDate)} @ {formatDisplayTime(booking.endTime)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section className="rounded-[1rem] bg-white p-3.5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-sm font-black text-[#123C69] dark:text-white uppercase tracking-tight">Specifications</h3>
-                  <Car className="h-3.5 w-3.5 text-slate-300" />
-                </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <SpecItem label="Passengers" value={booking.carPassengers ? `${booking.carPassengers} Seats` : undefined} />
-                  <SpecItem label="Luggage" value={booking.carBags ? `${booking.carBags} Bags` : undefined} />
-                  <SpecItem label="Doors" value={booking.carDoors ? `${booking.carDoors} Doors` : undefined} />
-                  <SpecItem label="SIPP Code" value={booking.carSippCode} />
-                  <SpecItem label="Air Con" value={booking.carAirConditioning ? 'Yes' : 'No'} />
-                  <SpecItem label="Mileage" value={booking.carUnlimitedMileage ? 'Unlimited' : 'Limited'} />
-                </div>
-              </section>
-            </div>
-          </div>
-
-          {/* Right Column - QR & Quick Info */}
-          <div className="lg:col-span-4 space-y-3">
-            <section className="flex flex-col items-center rounded-[1.25rem] bg-white p-4 text-center shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800 border border-slate-100">
-              <div className="mb-3 rounded-xl bg-slate-50 p-2 dark:bg-white transition-transform hover:scale-105 border border-slate-100">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`} 
-                  alt="Voucher QR Code"
-                  className="h-24 w-24"
-                />
-              </div>
-              <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Scan at Counter</p>
-              <h4 className="mt-0.5 text-xs font-bold text-[#123C69] dark:text-white">Secure Verification</h4>
-            </section>
-
-            <section className="rounded-[1rem] bg-white p-3.5 shadow-sm dark:bg-[#1e293b] dark:border dark:border-slate-800">
-              <div className="mb-3 flex items-center gap-2">
-                <ShieldCheck className="h-3 w-3 text-slate-400" />
-                <h4 className="text-[10px] font-black text-[#123C69] dark:text-white uppercase tracking-tight">Supplier Contact</h4>
-              </div>
-              <div className="space-y-2">
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-900/50">
-                  <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Provider</p>
-                  <p className="text-[10px] font-bold dark:text-white">{booking.supplierName}</p>
-                </div>
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-900/50">
-                  <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Emergency Support</p>
-                  <p className="text-[10px] font-bold text-[#123C69] dark:text-[#F57C00]">booking@hogicar.com</p>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-[1.25rem] bg-[#123C69]/5 p-4 dark:bg-[#123C69]/20 border border-[#123C69]/10 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Total Paid</span>
-                <span className="text-sm font-black text-[#22C55E]">
-                  {getCurrencySymbol(booking.currency)} {booking.payNow?.toFixed(2) || '0.00'}
-                </span>
-              </div>
-              {booking.payAtDesk > 0 && (
-                <div className="flex items-center justify-between pt-2 border-t border-[#123C69]/10">
-                  <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Payable at Arrival</span>
-                  <span className="text-sm font-black text-[#F57C00]">
-                    {getCurrencySymbol(booking.currency)} {booking.payAtDesk?.toFixed(2) || '0.00'}
-                  </span>
-                </div>
-              )}
-              {booking.carDeposit > 0 && (
-                <div className="flex items-center justify-between pt-2 border-t border-[#123C69]/10">
-                  <span className="text-[9px] font-bold text-[#123C69] dark:text-slate-300">Security Deposit</span>
-                  <span className="text-sm font-bold text-slate-500">
-                    {getCurrencySymbol(booking.currency)} {booking.carDeposit?.toFixed(2) || '0.00'}
-                  </span>
-                </div>
-              )}
-            </section>
-          </div>
-        </div>
+      <main className="mx-auto mt-4 w-full max-w-[900px] px-3 sm:mt-6 sm:px-4">
+        <RentalVoucher booking={booking} audience="customer" />
       </main>
+      {/* Print copy: printing shows only the voucher. */}
+      {createPortal(<div className="voucher-print-root hidden"><RentalVoucher booking={booking} audience="customer" /></div>, document.body)}
 
-      <div className="fixed bottom-6 left-0 right-0 z-40 px-4 sm:px-6">
+      <div className="fixed bottom-6 left-0 right-0 z-40 px-4 sm:px-6 print:hidden">
         <div className="mx-auto max-w-lg rounded-3xl bg-white/80 p-3 shadow-2xl backdrop-blur-xl dark:bg-[#1e293b]/80 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between gap-2">
             <button 

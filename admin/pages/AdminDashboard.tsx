@@ -91,6 +91,7 @@ import {
     getAllSupplierRates,
     updateHogicarChoice 
 } from '../../lib/adminApi';
+import { VoucherModal } from '../../components/RentalVoucher';
 import { API_BASE_URL } from '../../lib/config';
 import ExternalSuppliersPage from './ExternalSuppliers';
 import { calculatePrice } from '../../utils/bookingUtils';
@@ -1275,67 +1276,110 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
 };
 
 // ==================== Bookings ====================
-const BookingsContent = ({ bookings, onRefresh }: any) => (
-  <div className="bg-white rounded-card shadow-lg border border-gray-100 overflow-hidden">
-    <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
-        <SectionHeader title="Bookings" icon={Calendar} subtitle="Monitor all car rental reservations" />
-        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-card border border-gray-200 transition-colors shadow-sm">
-            <RefreshCw className="w-4 h-4 text-gray-600" />
-        </button>
-    </div>
-    <div className="overflow-x-auto">
-      <table className="w-full text-left">
-        <thead className="bg-slate-50/50 border-b border-slate-100">
-          <tr className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em]">
-            <th className="px-6 py-4">Reference</th>
-            <th className="px-6 py-4">Customer</th>
-            <th className="px-6 py-4">Supplier</th>
-            <th className="px-6 py-4">Route</th>
-            <th className="px-6 py-4">Schedule</th>
-            <th className="px-6 py-4">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-50">
-          {Array.isArray(bookings) && bookings.map((b: any) => (
-            <tr key={b.id} className="hover:bg-blue-50/30 transition-colors group">
-              <td className="px-6 py-4">
-                <span className="font-mono text-[11px] font-extrabold text-[#007ac2] bg-blue-50/50 px-2 py-1 rounded-card group-hover:bg-white transition-colors">
-                    {b.bookingRef}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-[13px] font-extrabold text-slate-900">
-                {b.firstName} {b.lastName}
-              </td>
-              <td className="px-6 py-4 text-[12px] font-bold text-slate-500">
-                {b.supplierName || 'N/A'}
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase">
-                    <span className="text-[#007ac2] bg-blue-50/50 px-1.5 py-0.5 rounded-md border border-blue-100/50">{b.pickupCode}</span>
-                    <span className="text-slate-300">→</span>
-                    <span className="text-purple-600 bg-purple-50/50 px-1.5 py-0.5 rounded-md border border-purple-100/50">{b.dropoffCode}</span>
-                </div>
-              </td>
-              <td className="px-6 py-4 text-[11px] text-slate-400 font-bold uppercase tracking-tighter">
-                {b.pickupDate} — {b.dropoffDate}
-              </td>
-              <td className="px-6 py-4">
-                <Badge status={b.status}/>
-              </td>
-            </tr>
+const BookingsContent = ({ bookings, onRefresh }: any) => {
+  const [query, setQuery] = React.useState('');
+  const [status, setStatus] = React.useState('all');
+  const [viewing, setViewing] = React.useState<any | null>(null);
+  const list: any[] = Array.isArray(bookings) ? bookings : [];
+  const st = (b: any) => String(b.status || '').toLowerCase();
+  const counts = list.reduce((acc: Record<string, number>, b) => { acc[st(b)] = (acc[st(b)] || 0) + 1; return acc; }, {});
+  const q = query.trim().toLowerCase();
+  const filtered = list
+    .filter(b => status === 'all' || st(b) === status)
+    .filter(b => !q || `${b.bookingRef} ${b.firstName} ${b.lastName} ${b.email} ${b.supplierName} ${b.pickupCode} ${b.carMake} ${b.carModel}`.toLowerCase().includes(q))
+    .sort((a, b) => new Date(b.createdAt || b.pickupDate || 0).getTime() - new Date(a.createdAt || a.pickupDate || 0).getTime());
+  const fmt = (v?: string) => { if (!v) return '—'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
+  const amount = (b: any) => { const n = Number(b.finalPrice ?? b.totalPrice ?? 0); try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: b.currency || 'USD' }).format(n); } catch { return `${b.currency || ''} ${n.toFixed(2)}`; } };
+  const downloadPdf = async () => {
+    if (!viewing) return;
+    try {
+      const token = getAdminToken() || '';
+      const res = await fetch(`${API_BASE_URL}/api/admin/bookings/${viewing.id}/voucher/download`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url; a.download = `Hogicar-Voucher-${viewing.bookingRef || viewing.id}.pdf`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(`Could not download the PDF voucher (${e?.message || 'error'}). Use "Print / Save as PDF" instead.`);
+    }
+  };
+  const tabs = [['all', 'All', list.length], ['pending', 'Pending', counts.pending || 0], ['confirmed', 'Confirmed', counts.confirmed || 0], ['completed', 'Completed', counts.completed || 0], ['cancelled', 'Cancelled', counts.cancelled || 0]] as const;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
+          {tabs.map(([id, label, n]) => (
+            <button key={id} onClick={() => setStatus(id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${status === id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+              {label}<span className={`rounded-full px-1.5 text-[11px] tabular-nums ${status === id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>{n}</span>
+            </button>
           ))}
-          {bookings.length === 0 && (
-            <tr>
-              <td colSpan={6} className="px-6 py-12 text-center text-gray-400 font-medium italic">
-                No bookings found in the database.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        </div>
+        <div className="flex gap-2">
+          <div className="relative flex-1 lg:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Reference, customer, supplier…" className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm outline-none placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20" />
+          </div>
+          <button onClick={onRefresh} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50" aria-label="Refresh bookings" title="Refresh">
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] text-sm">
+            <thead className="bg-slate-50 text-left text-xs font-medium text-slate-500">
+              <tr>
+                <th className="px-5 py-3 font-medium">Booking</th>
+                <th className="px-4 py-3 font-medium">Customer</th>
+                <th className="px-4 py-3 font-medium">Supplier</th>
+                <th className="px-4 py-3 font-medium">Pick-up → drop-off</th>
+                <th className="px-4 py-3 text-right font-medium">Total</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-5 py-3" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((b: any) => (
+                <tr key={b.id} onClick={(e) => { if ((e.target as HTMLElement).closest('button')) return; setViewing(b); }} className="cursor-pointer hover:bg-slate-50/70">
+                  <td className="px-5 py-3">
+                    <p className="font-mono text-[13px] font-medium text-slate-900">{b.bookingRef || `#${b.id}`}</p>
+                    <p className="text-xs text-slate-500">{[b.carMake, b.carModel].filter(Boolean).join(' ') || '—'}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="font-medium text-slate-900">{b.firstName} {b.lastName}</p>
+                    <p className="text-xs text-slate-500">{b.email || b.phone || '—'}</p>
+                  </td>
+                  <td className="px-4 py-3 text-slate-700">{b.supplierName || '—'}</td>
+                  <td className="px-4 py-3">
+                    <p className="text-slate-900">{fmt(b.pickupDate)} → {fmt(b.dropoffDate)}</p>
+                    <p className="text-xs text-slate-500">{b.pickupCode || '—'}{b.dropoffCode && b.dropoffCode !== b.pickupCode ? ` → ${b.dropoffCode}` : ''}</p>
+                  </td>
+                  <td className="px-4 py-3 text-right font-semibold tabular-nums text-slate-900">{amount(b)}</td>
+                  <td className="px-4 py-3"><Badge status={b.status} /></td>
+                  <td className="px-5 py-3 text-right">
+                    <button onClick={() => setViewing(b)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 hover:border-accent hover:text-accent">
+                      <FileText className="h-3.5 w-3.5" /> Voucher
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-6 py-14 text-center text-sm text-slate-500">{list.length ? 'No bookings match your filters.' : 'No bookings yet.'}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <VoucherModal booking={viewing} audience="admin" onClose={() => setViewing(null)} onDownloadPdf={downloadPdf} />
     </div>
-  </div>
-);
+  );
+};
 
 // ==================== CMS ====================
 const CmsContent = ({ pages, onEditPage }: any) => (

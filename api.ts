@@ -394,7 +394,7 @@ export const supplierApi = {
   requestLocation: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/locations/request`, payload),
   getBookings: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/bookings`),
   confirmBookingBySupplier: (id: number, confirmationNumber: string) => 
-    supplierAxios.post(`${API_BASE_URL}/api/bookings/${id}/supplier-confirm`, { supplierConfirmationNumber: confirmationNumber }),
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/bookings/${id}/confirm`, { supplierConfirmationNumber: confirmationNumber }),
   
   getTemplateConfig: (locationCode?: string) => 
     supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/template-config${locationCode ? `?locationCode=${locationCode}` : ''}`),
