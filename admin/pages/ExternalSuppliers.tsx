@@ -140,7 +140,7 @@ const ExternalSuppliersPage: React.FC = () => {
   const overrideFor = (supplier: SupplierConfig) =>
     findPickupOverride(pickupOverrides, selectedLocation?.iataCode, supplier.supplierId, supplier.supplierName, supplier.vendorCode);
 
-  const openEditor = (supplier: SupplierConfig) => {
+  const openEditor = (supplier: SupplierConfig, focus?: 'addons') => {
     const current = overrideFor(supplier);
     setPickupChoice((current?.pickupType as PickupTypeValue) || '');
     setPickupAllLocations(!!current?.key.startsWith('*|'));
@@ -150,6 +150,9 @@ const ExternalSuppliersPage: React.FC = () => {
     setSaveError(null);
     setSaveWarning(null);
     setEditingSupplier(supplier);
+    if (focus === 'addons') {
+      window.setTimeout(() => document.getElementById('supplier-addons')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
   };
 
   useEffect(() => {
@@ -611,6 +614,7 @@ const ExternalSuppliersPage: React.FC = () => {
                     <tr>
                       <th className="px-4 py-2.5 font-medium">Supplier</th>
                       <th className="px-4 py-2.5 font-medium">Pick-up</th>
+                      <th className="px-4 py-2.5 font-medium">Add-ons</th>
                       <th className="px-4 py-2.5 font-medium">Status</th>
                       <th className="px-4 py-2.5 text-right font-medium">Cars</th>
                       <th className="px-4 py-2.5 text-right font-medium">Deposit</th>
@@ -648,6 +652,23 @@ const ExternalSuppliersPage: React.FC = () => {
                             )}
                           </td>
                           <td className="px-4 py-3">
+                            {(() => {
+                              const entry = addonsFor(supplier);
+                              const priced = entry ? Object.values(entry.addons || {}).filter(a => a && a.enabled !== false && typeof a.price === 'number').length : 0;
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => openEditor(supplier, 'addons')}
+                                  className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition-colors hover:ring-accent ${priced ? 'bg-accent-50 text-accent-800 ring-accent-200' : 'bg-white text-slate-600 ring-slate-200'}`}
+                                >
+                                  <PackagePlus className="h-3.5 w-3.5" />
+                                  {priced ? `${priced} price${priced === 1 ? '' : 's'} set` : 'Default prices'}
+                                  {entry?.key.startsWith('*|') && <span className="text-accent-600">· all locations</span>}
+                                </button>
+                              );
+                            })()}
+                          </td>
+                          <td className="px-4 py-3">
                             <div className="flex flex-col gap-1">
                               <span className={`inline-flex w-fit items-center gap-1.5 text-xs font-medium ${supplier.active ? 'text-emerald-700' : 'text-slate-500'}`}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${supplier.active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
@@ -660,12 +681,18 @@ const ExternalSuppliersPage: React.FC = () => {
                           <td className="px-4 py-3 text-right tabular-nums text-slate-700">{supplier.carDeposit ? `${supplier.carDeposit} ${supplier.currency}` : '—'}</td>
                           <td className="px-4 py-3 text-right tabular-nums text-slate-700">{supplier.markupPercentage ?? 0}%</td>
                           <td className="px-4 py-3 text-right tabular-nums text-slate-700">{supplier.commissionPercentage ?? 0}%</td>
-                          <td className="px-4 py-3 text-right">
+                          <td className="whitespace-nowrap px-4 py-3 text-right">
                             <button
                               onClick={() => openEditor(supplier)}
                               className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:border-accent hover:text-accent"
                             >
                               <Edit className="h-3.5 w-3.5" /> Edit
+                            </button>
+                            <button
+                              onClick={() => openEditor(supplier, 'addons')}
+                              className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent px-3 text-xs font-semibold text-white hover:bg-accent-700"
+                            >
+                              <PackagePlus className="h-3.5 w-3.5" /> Add-ons
                             </button>
                           </td>
                         </tr>
@@ -736,6 +763,7 @@ const ExternalSuppliersPage: React.FC = () => {
 
                 {/* Add-ons */}
                 {addonDraft && (
+                  <div id="supplier-addons" className="scroll-mt-4">
                   <SupplierAddonsEditor
                     catalog={addonSettings.catalog}
                     draft={addonDraft}
@@ -745,6 +773,7 @@ const ExternalSuppliersPage: React.FC = () => {
                     supplierName={editingSupplier.supplierName}
                     currency="USD"
                   />
+                  </div>
                 )}
 
                 {/* Pricing */}

@@ -32,13 +32,31 @@ const AddonsSection: React.FC<{
 
   return (
     <section className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 ${className}`}>
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">Add-ons</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Reserve extras now and pay for them at the rental desk.</p>
+      {/* Showcase banner */}
+      <div className="relative overflow-hidden rounded-xl border border-accent/10 bg-gradient-to-r from-accent-50 via-accent-50/60 to-white">
+        <div className="flex items-center gap-3 pl-4 pr-2 sm:pl-6">
+          <div className="min-w-0 flex-1 py-4 sm:py-5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Travel extras</p>
+            <h2 className="mt-1 text-lg font-bold leading-tight text-slate-900 sm:text-xl">Add-ons for a smoother trip</h2>
+            <p className="mt-1 text-sm text-slate-600">Child seats, GPS navigation and more, ready when you pick up the car.</p>
+            <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-slate-700">
+              <li className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Pay at the desk</li>
+              <li className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> No payment now</li>
+              <li className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Change any time before pick-up</li>
+            </ul>
+          </div>
+          <img
+            src="/images/addons-showcase.webp"
+            alt="Child car seat and GPS navigation device"
+            width={256}
+            height={256}
+            loading="lazy"
+            decoding="async"
+            className="hidden h-32 w-32 shrink-0 object-contain mix-blend-multiply min-[420px]:block sm:h-36 sm:w-36"
+          />
         </div>
         {selectedCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+          <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-700 shadow-sm ring-1 ring-emerald-200">
             <Check className="h-3.5 w-3.5" /> {selectedCount} added
           </span>
         )}
@@ -62,9 +80,16 @@ const AddonsSection: React.FC<{
                 <AddonIcon code={extra.code} active={selected} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-[15px] font-semibold leading-snug text-slate-900">{extra.name}</p>
-                    {selected && qty > 1 && (
-                      <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-white">× {qty}</span>
+                    <p className="text-[15px] font-semibold leading-snug text-slate-900">
+                      {extra.name}
+                      {selected && qty > 1 && <span className="ml-1.5 rounded-full bg-accent px-1.5 py-0.5 align-middle text-[11px] font-semibold text-white">× {qty}</span>}
+                    </p>
+                    {extra.onRequest ? (
+                      <span className="shrink-0 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">At the desk</span>
+                    ) : (
+                      <span className="shrink-0 whitespace-nowrap text-right text-[15px] font-bold leading-snug text-slate-900">
+                        {money(extra.price)}<span className="text-xs font-medium text-slate-500">/{extra.type === 'per_day' ? 'day' : 'rental'}</span>
+                      </span>
                     )}
                   </div>
                   {extra.description && <p className="mt-1 text-xs leading-relaxed text-slate-500">{extra.description}</p>}
@@ -74,17 +99,12 @@ const AddonsSection: React.FC<{
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
                 <div className="min-w-0 leading-tight">
                   {extra.onRequest ? (
-                    <>
-                      <p className="text-sm font-semibold text-slate-800">Price at the desk</p>
-                      <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-500"><Info className="h-3 w-3" /> Confirmed by the supplier</p>
-                    </>
+                    <p className="inline-flex items-center gap-1 text-xs text-slate-500"><Info className="h-3.5 w-3.5" /> Price confirmed by the supplier</p>
                   ) : (
                     <>
-                      <p className="whitespace-nowrap text-sm font-bold text-slate-900">
-                        {money(extra.price)}<span className="text-xs font-medium text-slate-500"> / {extra.type === 'per_day' ? 'day' : 'rental'}</span>
-                      </p>
-                      <p className="mt-0.5 whitespace-nowrap text-[11px] text-slate-500">
-                        {capped ? `Max ${money(extra.maxPrice as number)} per rental` : extra.type === 'per_day' ? `${money(unitTotal)} for ${days} day${days === 1 ? '' : 's'}` : 'One-off charge'}
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{extra.type === 'per_day' ? `Total for ${days} day${days === 1 ? '' : 's'}` : 'One-off charge'}</p>
+                      <p className="mt-0.5 whitespace-nowrap text-sm font-bold text-slate-900">
+                        {money(unitTotal)}{capped && <span className="ml-1 text-[11px] font-medium text-emerald-700">capped</span>}
                       </p>
                     </>
                   )}
