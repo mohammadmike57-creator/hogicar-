@@ -67,8 +67,11 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     ogImage = 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
   }
 
-  const canonical = propCanonical || config?.canonicalUrl || dynamicSEO?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
-  const isNoIndex = propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false);
+  // Route defaults only know landing pages (city/country); for every other page the canonical is the page itself.
+  const canonical = propCanonical || config?.canonicalUrl || (routeType ? dynamicSEO?.canonicalUrl : null) || (PUBLIC_BASE_URL + normalizedPathname);
+  // Search results, checkout, account and dashboard screens never belong in Google.
+  const isPrivateScreen = /^\/(admin|supplier|searching|search|car\/|book\/|booking|confirmation|voucher|my-bookings|leave-review)/i.test(normalizedPathname);
+  const isNoIndex = isPrivateScreen || (propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false));
 
   const finalOgTitle = propOgTitle || config?.ogTitle || title;
   const finalOgDesc = propOgDescription || config?.ogDescription || description;
@@ -130,6 +133,12 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     fetchConfig();
     return () => { isMounted = false; };
   }, [normalizedPathname, propConfig, propTitle, propDescription]);
+
+  // Tags rendered by the server for crawlers are replaced by the ones below once the app runs,
+  // so the page never ends up with two canonicals or two sets of social tags.
+  useEffect(() => {
+    document.head.querySelectorAll('[data-ssr]').forEach(el => el.remove());
+  }, []);
 
   useEffect(() => {
     const html = document.documentElement;

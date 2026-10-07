@@ -80,7 +80,7 @@ import { Logo } from '../../components/Logo';
 import ImageUploadField from '../components/ImageUploadField';
 import BlogManagement from '../components/BlogManagement';
 import SitemapManagement from '../components/SitemapManagement';
-import SeoAuditManagement from '../components/SeoAuditManagement';
+import SiteAudit from '../components/SiteAudit';
 import PushNotificationManagement from '../components/PushNotificationManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
@@ -299,7 +299,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   blog: { title: 'Blog', description: 'Travel guides and articles.', group: 'Website' },
   globallocations: { title: 'Locations', description: 'Airports, cities and stations customers can search.', group: 'Website' },
   seo: { title: 'SEO', description: 'Titles, descriptions and landing pages for search engines.', group: 'SEO & settings' },
-  seoaudit: { title: 'SEO audit', description: 'Checks for SEO issues across the site.', group: 'SEO & settings' },
+  seoaudit: { title: 'SEO audit', description: 'How Google sees hogicar.com, and what to fix first.', group: 'SEO & settings' },
   sitemap: { title: 'Sitemap', description: 'Sitemap files submitted to search engines.', group: 'SEO & settings' },
   sitesettings: { title: 'Site settings', description: 'Global settings such as the searching screen and hero image.', group: 'SEO & settings' },
 };
@@ -5429,7 +5429,7 @@ export const AdminDashboard: React.FC = () => {
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;
       case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} currentPage={seoPage} totalPages={seoTotalPages} onPageChange={fetchSeoConfigs} />;
-      case 'seoaudit': return <SeoAuditManagement />;
+      case 'seoaudit': return <SiteAudit />;
       case 'push': return <PushNotificationManagement />;
       case 'homepage':
         if (loadingHomepageEditor) {
