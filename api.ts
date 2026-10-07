@@ -236,7 +236,24 @@ export const fetchStripeConfig = async (): Promise<{ publishableKey: string }> =
 
 export const getGoogleWalletUrl = async (bookingRef: string): Promise<string> => {
   const response = await publicAxios.get(`${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/google-wallet-url`);
-  return response.data;
+  const data = response.data;
+  return typeof data === 'string' ? data : data?.url;
+};
+
+/** Signed Apple Wallet pass (.pkpass) for a booking. */
+export const appleWalletPassUrl = (bookingRef: string) =>
+  `${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/apple-wallet`;
+
+export type WalletStatus = { appleWallet: boolean; googleWallet: boolean };
+let walletStatusPromise: Promise<WalletStatus> | null = null;
+/** Which wallets the server can issue passes for (cached for the page's lifetime). */
+export const getWalletStatus = (): Promise<WalletStatus> => {
+  if (!walletStatusPromise) {
+    walletStatusPromise = publicAxios.get(`${API_BASE_URL}/api/vouchers/config-status`)
+      .then(r => ({ appleWallet: !!r.data?.appleWallet, googleWallet: !!r.data?.googleWallet }))
+      .catch(() => { walletStatusPromise = null; return { appleWallet: false, googleWallet: false }; });
+  }
+  return walletStatusPromise;
 };
 
 export const fetchPublicSuppliers = async (locationCode?: string): Promise<any[]> => {

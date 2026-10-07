@@ -38,6 +38,7 @@ import { api, manageBooking } from '../api';
 import ChangeBookingSheet from '../components/manage/ChangeBookingSheet';
 import CancelBookingSheet from '../components/manage/CancelBookingSheet';
 import { changeRequestOf, changeStatusOf, fmtDay } from '../utils/changeRequest';
+import WalletButtons from '../components/wallet/WalletButtons';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -211,6 +212,24 @@ const Row = ({ label, value, strong }: { label: string; value: React.ReactNode; 
     <dd className={`text-right text-sm ${strong ? 'font-bold text-slate-900' : 'font-medium text-slate-800'}`}>{value}</dd>
   </div>
 );
+
+/** "Add to Apple Wallet / Google Wallet" card; hidden when no wallet is available. */
+const WalletStrip: React.FC<{ booking: any }> = ({ booking }) => {
+  const [available, setAvailable] = React.useState<boolean | null>(null);
+  const onAvailability = React.useCallback((v: boolean) => setAvailable(v), []);
+  return (
+    <section className={available === false ? 'hidden' : 'overflow-hidden rounded-3xl bg-[#0b2545] p-5 text-white shadow-sm sm:p-6'} aria-label="Add to wallet">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-300">Digital wallet</p>
+          <h2 className="mt-1 text-lg font-semibold">Your voucher, one tap away</h2>
+          <p className="mt-0.5 text-sm text-sky-100/80">Add it to your phone’s wallet. It works offline at the desk.</p>
+        </div>
+        <WalletButtons bookingRef={booking.bookingRef} status={booking.status} layout="stack" className="w-full shrink-0 sm:w-[230px]" onAvailability={onAvailability} />
+      </div>
+    </section>
+  );
+};
 
 const BookingDetailView = ({ booking, email, onBookingModified, onBack }: { booking: Booking, email: string, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
   const b: any = booking;
@@ -392,6 +411,8 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack }: { book
               })}
             </motion.ul>
           )}
+
+          {status !== 'cancelled' && <WalletStrip booking={b} />}
 
           {/* Trip */}
           <motion.section {...rise(3)} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
