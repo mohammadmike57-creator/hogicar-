@@ -1,473 +1,587 @@
-
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import CalendarPlus from 'lucide-react/dist/esm/icons/calendar-plus';
 import Tag from 'lucide-react/dist/esm/icons/tag';
-import Car from 'lucide-react/dist/esm/icons/car';
-import Building from 'lucide-react/dist/esm/icons/building';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import Mail from 'lucide-react/dist/esm/icons/mail';
-import Search from 'lucide-react/dist/esm/icons/search';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-import Download from 'lucide-react/dist/esm/icons/download';
-import Printer from 'lucide-react/dist/esm/icons/printer';
-import Phone from 'lucide-react/dist/esm/icons/phone';
-import Plane from 'lucide-react/dist/esm/icons/plane';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import X from 'lucide-react/dist/esm/icons/x';
 import Star from 'lucide-react/dist/esm/icons/star';
-import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import Zap from 'lucide-react/dist/esm/icons/zap';
-import Users from 'lucide-react/dist/esm/icons/users';
-import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
-import Wind from 'lucide-react/dist/esm/icons/wind';
-import { Booking, Extra } from '../types';
-import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor } from '../utils/ratings';
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import Check from 'lucide-react/dist/esm/icons/check';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import User from 'lucide-react/dist/esm/icons/user';
+import Phone from 'lucide-react/dist/esm/icons/phone';
+import Plane from 'lucide-react/dist/esm/icons/plane';
+import Package from 'lucide-react/dist/esm/icons/package';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
+import Percent from 'lucide-react/dist/esm/icons/percent';
+import { Booking } from '../types';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import ModifyBookingModal from '../components/ModifyBookingModal';
-import { Link } from 'react-router-dom';
 import { api } from '../api';
-import { Logo } from '../components/Logo';
 import { loadCars } from '../utils/loadCars';
+import { apiCarsToCars } from '../utils/apiCarToCar';
 
-// --- SUB-COMPONENTS ---
+const ease = [0.22, 1, 0.36, 1] as const;
 
-const LoginScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, ref: string) => void, error: string, isLoading: boolean }) => {
-    const [email, setEmail] = React.useState('');
-    const [bookingRef, setBookingRef] = React.useState('');
+// ---------- helpers ----------
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onLogin(email, bookingRef);
-    }
+type Status = 'confirmed' | 'pending' | 'cancelled' | 'completed' | 'modified';
+const statusOf = (b: any): Status => {
+  const s = String(b?.status || '').toLowerCase();
+  return (['confirmed', 'pending', 'cancelled', 'completed', 'modified'].includes(s) ? s : 'confirmed') as Status;
+};
+const pickupOf = (b: any) => b.pickupDate || b.startDate;
+const dropoffOf = (b: any) => b.dropoffDate || b.endDate;
+const toDate = (d?: string, t?: string) => {
+  if (!d) return null;
+  const x = new Date(`${d}T${(t || '10:00').slice(0, 5)}:00`);
+  return isNaN(x.getTime()) ? null : x;
+};
+const fmtLong = (d: Date | null) => (d ? d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+const daysBetween = (a: Date | null, b: Date | null) => (a && b ? Math.max(1, Math.round((b.getTime() - a.getTime()) / 86400000)) : null);
 
-    return (
-        <div className="max-w-md mx-auto bg-white rounded-card shadow-lg border border-slate-200 overflow-hidden">
-            <div className="bg-[#003580] p-6 text-center">
-                <h2 className="text-xl font-bold text-white mb-2">Manage your booking</h2>
-                <p className="text-blue-100 text-sm">View, modify or cancel your reservation</p>
+const STATUS_UI: Record<Status, { label: string; title: string; text: string; tone: string; icon: any; bar: string }> = {
+  confirmed: { label: 'Confirmed', title: 'Your booking is confirmed', text: 'Everything is ready. Show your voucher at the rental desk.', tone: 'bg-emerald-50 text-emerald-800 ring-emerald-200', icon: CheckCircle, bar: 'from-emerald-500 to-teal-400' },
+  modified: { label: 'Updated', title: 'Your booking was updated', text: 'Your latest changes are saved. Your voucher shows the new details.', tone: 'bg-sky-50 text-sky-800 ring-sky-200', icon: CheckCircle, bar: 'from-sky-500 to-[#007ac2]' },
+  pending: { label: 'Awaiting confirmation', title: 'Waiting for the rental company', text: 'The supplier usually confirms within a few hours. We’ll email you as soon as it’s confirmed.', tone: 'bg-amber-50 text-amber-800 ring-amber-200', icon: Clock, bar: 'from-amber-400 to-orange-500' },
+  cancelled: { label: 'Cancelled', title: 'This booking was cancelled', text: 'Nothing more is needed. Any refund goes back to your original payment method.', tone: 'bg-rose-50 text-rose-700 ring-rose-200', icon: XCircle, bar: 'from-rose-500 to-red-500' },
+  completed: { label: 'Completed', title: 'Trip completed', text: 'Thanks for renting with Hogicar. We hope you enjoyed the drive.', tone: 'bg-slate-100 text-slate-700 ring-slate-200', icon: CheckCircle, bar: 'from-slate-400 to-slate-500' },
+};
+
+const icsFor = (b: any) => {
+  const start = toDate(pickupOf(b), b.startTime);
+  const end = toDate(dropoffOf(b), b.endTime);
+  if (!start || !end) return null;
+  const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const car = [b.carMake, b.carModel].filter(Boolean).join(' ') || b.carName || 'Rental car';
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Hogicar//Booking//EN', 'BEGIN:VEVENT',
+    `UID:${b.bookingRef || b.id}@hogicar.com`, `DTSTAMP:${stamp(new Date())}`, `DTSTART:${stamp(start)}`, `DTEND:${stamp(end)}`,
+    `SUMMARY:Car rental · ${car} (${b.bookingRef || b.id})`,
+    `LOCATION:${(b.pickupLocationName || b.pickupCode || '').replace(/[,;]/g, ' ')}`,
+    `DESCRIPTION:Hogicar booking ${b.bookingRef || b.id}. Bring your driving licence\\, passport and credit card.`,
+    'END:VEVENT', 'END:VCALENDAR',
+  ];
+  return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(lines.join('\r\n'));
+};
+
+// ---------- Lookup screen ----------
+
+const LookupScreen = ({ onLogin, error, isLoading }: { onLogin: (email: string, ref: string) => void, error: string, isLoading: boolean }) => {
+  const reduce = !!useReducedMotion();
+  const [email, setEmail] = React.useState('');
+  const [bookingRef, setBookingRef] = React.useState('');
+  const [showHelp, setShowHelp] = React.useState(false);
+  const [touched, setTouched] = React.useState(false);
+  const emailOk = /^\S+@\S+\.\S+$/.test(email.trim());
+  const refOk = bookingRef.trim().length >= 3;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTouched(true);
+    if (!emailOk || !refOk) return;
+    onLogin(email, bookingRef);
+  };
+  const rise = (i: number) => ({ initial: { opacity: 0, y: reduce ? 0 : 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, ease, delay: 0.08 * i } });
+
+  return (
+    <div>
+      {/* Hero */}
+      <section className="relative isolate overflow-hidden bg-[#00244f] px-4 pb-28 pt-10 text-white sm:pb-36 sm:pt-16">
+        <div aria-hidden="true" className="absolute -left-24 -top-24 -z-10 h-80 w-80 rounded-full bg-[#007ac2]/50 blur-[90px]" />
+        <div aria-hidden="true" className="absolute -bottom-32 right-0 -z-10 h-80 w-80 rounded-full bg-amber-500/20 blur-[100px]" />
+        {!reduce && <motion.div aria-hidden="true" className="absolute left-1/2 top-10 -z-10 h-64 w-64 rounded-full bg-sky-400/20 blur-[90px]" animate={{ x: [0, 80, -40, 0], y: [0, 30, -20, 0] }} transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }} />}
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_75%)]" />
+        <div className="mx-auto max-w-2xl text-center">
+          <motion.p {...rise(0)} className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/80 ring-1 ring-white/15">
+            <ShieldCheck className="h-3.5 w-3.5" /> Manage booking
+          </motion.p>
+          <motion.h1 {...rise(1)} className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Your trip, in your hands</motion.h1>
+          <motion.p {...rise(2)} className="mx-auto mt-3 max-w-lg text-base text-white/70 sm:text-lg">View your voucher, change dates or cancel. All you need is your email and booking reference.</motion.p>
+        </div>
+      </section>
+
+      {/* Card */}
+      <div className="relative z-10 mx-auto -mt-20 max-w-xl px-4 sm:-mt-24">
+        <motion.div {...rise(3)} className="overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-20px_rgba(15,23,42,0.35)] ring-1 ring-slate-200">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5 p-5 sm:p-8">
+            <AnimatePresence>
+              {error && (
+                <motion.div role="alert" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                  <div className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-700">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {error}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div>
+              <label htmlFor="mb-email" className="mb-1.5 block text-sm font-medium text-slate-700">Email address</label>
+              <div className="group relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400 group-focus-within:text-accent" />
+                <input id="mb-email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" value={email} onChange={e => setEmail(e.target.value)} placeholder="The email you booked with"
+                  aria-invalid={touched && !emailOk}
+                  className={`h-12 w-full rounded-xl border bg-white pl-11 pr-3.5 text-base text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:ring-4 ${touched && !emailOk ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/15' : 'border-slate-300 hover:border-slate-400 focus:border-accent focus:ring-accent/15'}`} />
+              </div>
+              {touched && !emailOk && <p className="mt-1.5 text-xs font-medium text-rose-600">Enter a valid email address.</p>}
             </div>
-            <div className="p-8">
-                {error && (
-                    <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-card text-sm flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        {error}
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label htmlFor="mb-ref" className="block text-sm font-medium text-slate-700">Booking reference</label>
+                <button type="button" onClick={() => setShowHelp(v => !v)} aria-expanded={showHelp} className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-700">
+                  Where do I find it? <ChevronDown className={`h-4 w-4 transition-transform ${showHelp ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+              <div className="group relative">
+                <Tag className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400 group-focus-within:text-accent" />
+                <input id="mb-ref" type="text" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={bookingRef} onChange={e => setBookingRef(e.target.value.toUpperCase().replace(/\s+/g, ''))} placeholder="e.g. H56015"
+                  aria-invalid={touched && !refOk}
+                  className={`h-12 w-full rounded-xl border bg-white pl-11 pr-3.5 font-mono text-base uppercase tracking-wider text-slate-900 outline-none transition-all placeholder:font-sans placeholder:normal-case placeholder:tracking-normal placeholder:text-slate-400 focus:ring-4 ${touched && !refOk ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/15' : 'border-slate-300 hover:border-slate-400 focus:border-accent focus:ring-accent/15'}`} />
+              </div>
+              {touched && !refOk && <p className="mt-1.5 text-xs font-medium text-rose-600">Enter your booking reference.</p>}
+              <AnimatePresence>
+                {showHelp && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                    <div className="mt-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                      <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
+                        <p className="text-[11px] text-slate-400">From: Hogicar · Booking confirmation</p>
+                        <p className="mt-1 text-sm text-slate-700">Your booking reference is <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono font-bold text-slate-900">H56015</span></p>
+                      </div>
+                      <p className="mt-3 text-xs leading-relaxed text-slate-600">It’s at the top of your confirmation email and on your rental voucher. It starts with <span className="font-semibold">H</span>. Can’t find the email? Check your spam folder.</p>
                     </div>
+                  </motion.div>
                 )}
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Email Address</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input 
-                                type="email" 
-                                required
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all text-base"
-                                placeholder="e.g. name@example.com"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Booking Reference Number</label>
-                        <div className="relative">
-                            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input 
-                                type="text" 
-                                required
-                                value={bookingRef}
-                                onChange={e => setBookingRef(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-card focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all uppercase text-base"
-                                placeholder="e.g. H1001"
-                            />
-                        </div>
-                        <p className="text-xs text-slate-500 mt-2">Found in your confirmation email.</p>
-                    </div>
-                    <button 
-                        type="submit" 
-                        disabled={isLoading}
-                        className="w-full bg-accent hover:bg-accent-700 text-white font-bold py-3.5 rounded-card shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isLoading ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <>Find My Booking <ArrowRight className="w-5 h-5" /></>}
-                    </button>
-                </form>
+              </AnimatePresence>
             </div>
-            <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
-                <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
-                    <Lock className="w-3 h-3" /> Secure access via SSL encryption
-                </p>
+            <motion.button type="submit" disabled={isLoading} whileTap={reduce ? undefined : { scale: 0.985 }}
+              className="group relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent text-[15px] font-semibold text-white shadow-lg shadow-accent/25 transition-colors hover:bg-accent-700 disabled:cursor-wait disabled:opacity-80">
+              {!reduce && <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[300%]" />}
+              {isLoading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Finding your booking…</> : <>Find my booking <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>}
+            </motion.button>
+          </form>
+          <div className="flex items-center justify-center gap-1.5 border-t border-slate-100 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+            <Lock className="h-3.5 w-3.5" /> Your details are encrypted and only used to find your booking
+          </div>
+        </motion.div>
+
+        {/* What you can do */}
+        <motion.ul {...rise(4)} className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+          {[
+            { icon: FileText, title: 'Voucher', text: 'View & print' },
+            { icon: Edit2, title: 'Change', text: 'Dates & details' },
+            { icon: XCircle, title: 'Cancel', text: 'In a few taps' },
+          ].map(x => (
+            <li key={x.title} className="rounded-2xl bg-white p-3 text-center ring-1 ring-slate-200 sm:p-4">
+              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-accent-50 text-accent"><x.icon className="h-5 w-5" /></span>
+              <p className="mt-2 text-sm font-semibold text-slate-900">{x.title}</p>
+              <p className="text-xs text-slate-500">{x.text}</p>
+            </li>
+          ))}
+        </motion.ul>
+        <motion.p {...rise(5)} className="mt-6 pb-4 text-center text-sm text-slate-500">
+          Need a hand? <Link to="/contact" className="font-semibold text-accent hover:text-accent-700">Contact our support team</Link>
+        </motion.p>
+      </div>
+    </div>
+  );
+};
+
+// ---------- Detail view ----------
+
+const Row = ({ label, value, strong }: { label: string; value: React.ReactNode; strong?: boolean }) => (
+  <div className="flex items-start justify-between gap-4 py-2">
+    <dt className="text-sm text-slate-500">{label}</dt>
+    <dd className={`text-right text-sm ${strong ? 'font-bold text-slate-900' : 'font-medium text-slate-800'}`}>{value}</dd>
+  </div>
+);
+
+const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string | number) => Promise<boolean>, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
+  const b: any = booking;
+  const reduce = !!useReducedMotion();
+  const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
+  const [imageError, setImageError] = React.useState(false);
+  const [confirmCancel, setConfirmCancel] = React.useState(false);
+  const [isCancelling, setIsCancelling] = React.useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
+  const [fullCar, setFullCar] = React.useState<any>(null);
+  const [isFetchingCar, setIsFetchingCar] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const [toast, setToast] = React.useState<string | null>(null);
+  React.useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 3200); return () => clearTimeout(t); }, [toast]);
+
+  const status = statusOf(b);
+  const ui = STATUS_UI[status];
+  const ref = b.bookingRef || b.id;
+  const start = toDate(pickupOf(b), b.startTime);
+  const end = toDate(dropoffOf(b), b.endTime);
+  const days = daysBetween(start, end);
+  const now = new Date();
+  const isPast = end ? end < now : false;
+  const active = status !== 'cancelled' && status !== 'completed' && !isPast;
+  const daysToPickup = start ? Math.ceil((start.getTime() - now.getTime()) / 86400000) : null;
+  const carName = [b.carMake, b.carModel].filter(Boolean).join(' ') || b.carName || 'Your car';
+  const displayImage = imageError || !b.carImage ? null : b.carImage;
+  const currency = b.currency || 'USD';
+  const price = (amount?: number) => {
+    const n = Number(amount) || 0;
+    return currency === selectedCurrency ? `${getCurrencySymbol()}${convertPrice(n).toFixed(2)}` : `${currency} ${n.toFixed(2)}`;
+  };
+  const extras = String(b.extrasSummary || '').split(';').map((x: string) => x.trim()).filter(Boolean);
+  const ics = icsFor(b);
+
+  const car = {
+    make: b.carMake || 'Vehicle', model: b.carModel || b.carName || 'Rental', image: b.carImage || '',
+    category: b.carCategory || 'Standard', transmission: b.carTransmission || 'Automatic', fuelPolicy: b.carFuelPolicy || 'Full to Full',
+    airCon: b.carAirConditioning ?? true, location: b.pickupCode || 'Airport',
+  } as any;
+
+  const handleModifyClick = async () => {
+    setIsFetchingCar(true);
+    try {
+      const results = await loadCars({
+        pickupCode: b.pickupCode || 'AMM',
+        dropoffCode: b.dropoffCode || b.pickupCode || 'AMM',
+        pickupDate: pickupOf(b) || '',
+        dropoffDate: dropoffOf(b) || '',
+      });
+      const cars = apiCarsToCars((results as any)?.cars || []);
+      const found = cars.find(c => String(c.id).replace('choice-', '') === String(b.carId));
+      setFullCar(found || car);
+      setIsModifyModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      setFullCar(car);
+      setIsModifyModalOpen(true);
+    } finally {
+      setIsFetchingCar(false);
+    }
+  };
+
+  const handleSaveModification = async (modifications: any) => {
+    try {
+      const result = await api.requestModification(Number(b.id), {
+        pickupDate: modifications.startDate,
+        dropoffDate: modifications.endDate,
+        startTime: modifications.startTime,
+        endTime: modifications.endTime,
+        phone: modifications.customerPhone,
+        flightNumber: modifications.flightNumber
+      });
+      if (result.clientSecret) {
+        alert(`Extra payment of ${result.modificationExtraCharge} ${currency} is required. For this demo, we will confirm it automatically.`);
+      }
+      await api.confirmModification(Number(b.id));
+      const updated = await api.getBooking(Number(b.id));
+      onBookingModified(updated as any);
+      setIsModifyModalOpen(false);
+      setToast('Your booking was updated');
+    } catch (error) {
+      console.error(error);
+      alert('We couldn’t update your booking. Please try again.');
+    }
+  };
+
+  const doCancel = async () => {
+    setIsCancelling(true);
+    const ok = await onCancel(b.id);
+    setIsCancelling(false);
+    if (ok) { setConfirmCancel(false); setToast('Your booking was cancelled'); }
+  };
+
+  const copyRef = async () => {
+    try { await navigator.clipboard.writeText(String(ref)); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* clipboard blocked */ }
+  };
+
+  const rise = (i: number) => ({ initial: { opacity: 0, y: reduce ? 0 : 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55, ease, delay: 0.06 * i } });
+
+  const actions = [
+    { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}`, show: status !== 'cancelled' },
+    { key: 'modify', icon: Edit2, title: 'Change booking', text: 'Dates, flight or phone', onClick: handleModifyClick, busy: isFetchingCar, show: active },
+    { key: 'calendar', icon: CalendarPlus, title: 'Add to calendar', text: 'Pick-up reminder', href: ics, download: `hogicar-${ref}.ics`, show: active && !!ics },
+    { key: 'review', icon: Star, title: 'Leave a review', text: 'Rate your rental', to: `/leave-review/${b.id}`, show: status === 'completed' && !b.reviewSubmitted },
+    { key: 'cancel', icon: XCircle, title: 'Cancel booking', text: 'Free up to 48h before', onClick: () => setConfirmCancel(true), show: active, danger: true },
+  ].filter(a => a.show);
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 pb-16 pt-5 sm:px-6 sm:pt-8">
+      {fullCar && isModifyModalOpen && <ModifyBookingModal booking={booking} car={fullCar} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
+
+      <motion.div {...rise(0)} className="mb-5 flex items-center justify-between gap-3">
+        <button onClick={onBack} className="inline-flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white px-3.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:text-accent">
+          <ArrowLeft className="h-4 w-4" /> <span className="sm:hidden">Back</span><span className="hidden sm:inline">Find another booking</span>
+        </button>
+        <button onClick={copyRef} className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-3.5 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-slate-300" aria-label="Copy booking reference">
+          <span className="text-slate-500">Ref</span> <span className="font-mono font-bold text-slate-900">{ref}</span>
+          {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4 text-slate-400" />}
+        </button>
+      </motion.div>
+
+      {/* Hero */}
+      <motion.section {...rise(1)} className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div className={`h-1.5 bg-gradient-to-r ${ui.bar}`} />
+        <div className="grid gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,1fr)_280px] md:items-center">
+          <div className="min-w-0">
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${ui.tone}`}>
+              <ui.icon className="h-3.5 w-3.5" /> {ui.label}
+            </span>
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{ui.title}</h1>
+            <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-slate-600">{ui.text}</p>
+            {active && daysToPickup !== null && daysToPickup >= 0 && (
+              <div className="mt-4 inline-flex items-center gap-3 rounded-2xl bg-slate-900 px-4 py-2.5 text-white">
+                <span className="text-2xl font-bold tabular-nums">{daysToPickup === 0 ? 'Today' : daysToPickup}</span>
+                <span className="text-xs leading-tight text-white/70">{daysToPickup === 0 ? 'is pick-up day' : <>day{daysToPickup === 1 ? '' : 's'} until<br />pick-up</>}</span>
+              </div>
+            )}
+          </div>
+          <div className="relative flex items-center justify-center rounded-2xl bg-gradient-to-b from-slate-50 to-white p-4 ring-1 ring-slate-100">
+            {displayImage
+              ? <motion.img initial={{ opacity: 0, x: reduce ? 0 : 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease, delay: 0.2 }} src={displayImage} alt={carName} onError={() => setImageError(true)} referrerPolicy="no-referrer" className="h-32 w-full object-contain sm:h-36" />
+              : <span className="flex h-32 items-center text-sm text-slate-400">{carName}</span>}
+          </div>
+        </div>
+      </motion.section>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-5">
+          {/* Actions */}
+          {actions.length > 0 && (
+            <motion.ul {...rise(2)} className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              {actions.map(a => {
+                const inner = (
+                  <>
+                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${a.danger ? 'bg-rose-50 text-rose-600' : 'bg-accent-50 text-accent'}`}>
+                      {a.busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent/30 border-t-accent" /> : <a.icon className="h-5 w-5" />}
+                    </span>
+                    <span className="mt-2.5 block text-sm font-semibold text-slate-900">{a.title}</span>
+                    <span className="block text-xs text-slate-500">{a.text}</span>
+                  </>
+                );
+                const cls = `block h-full w-full rounded-2xl bg-white p-3.5 text-left shadow-sm ring-1 transition-all active:scale-[0.98] ${a.danger ? 'ring-slate-200 hover:ring-rose-300' : 'ring-slate-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-accent/40'}`;
+                return (
+                  <li key={a.key}>
+                    {a.to ? <Link to={a.to} className={cls}>{inner}</Link>
+                      : a.href ? <a href={a.href} download={a.download} className={cls}>{inner}</a>
+                      : <button type="button" onClick={a.onClick} disabled={a.busy} className={cls}>{inner}</button>}
+                  </li>
+                );
+              })}
+            </motion.ul>
+          )}
+
+          {/* Trip */}
+          <motion.section {...rise(3)} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold text-slate-900">Your trip</h2>
+              {days && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{days} day{days === 1 ? '' : 's'}</span>}
             </div>
+            <ol className="relative mt-5 space-y-6 pl-8">
+              <span aria-hidden="true" className="absolute bottom-3 left-[11px] top-3 w-0.5 bg-gradient-to-b from-emerald-400 via-slate-200 to-rose-400" />
+              {[
+                { label: 'Pick-up', dot: 'bg-emerald-500 ring-emerald-100', date: start, time: b.startTime, place: b.pickupLocationName || b.pickupCode },
+                { label: 'Drop-off', dot: 'bg-rose-500 ring-rose-100', date: end, time: b.endTime, place: b.dropoffLocationName || b.dropoffCode || b.pickupLocationName || b.pickupCode },
+              ].map(s => (
+                <li key={s.label} className="relative">
+                  <span className={`absolute -left-8 top-0.5 flex h-6 w-6 items-center justify-center rounded-full ring-4 ${s.dot}`}><span className="h-2 w-2 rounded-full bg-white" /></span>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{s.label}</p>
+                  <p className="mt-0.5 text-base font-semibold text-slate-900">{fmtLong(s.date)}{s.time ? <span className="font-normal text-slate-500"> · {String(s.time).slice(0, 5)}</span> : null}</p>
+                  {s.place && <p className="mt-0.5 flex items-start gap-1.5 text-sm text-slate-600"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> {s.place}</p>}
+                </li>
+              ))}
+            </ol>
+          </motion.section>
+
+          {/* Car + supplier */}
+          <motion.section {...rise(4)} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+            <h2 className="text-base font-semibold text-slate-900">Car & rental company</h2>
+            <div className="mt-4 flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-slate-900">{carName} <span className="text-sm font-normal text-slate-500">or similar</span></p>
+                <p className="text-sm text-slate-500">{String(car.category).replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase())}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {[String(car.transmission).toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase()), String(car.fuelPolicy).replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase()), car.airCon ? 'Air conditioning' : null, b.carUnlimitedMileage !== false ? 'Unlimited mileage' : null]
+                    .filter(Boolean).map((t: any) => <span key={t} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{t}</span>)}
+                  {(!b.bookingMode || b.bookingMode === 'FREE_SALE') && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"><Zap className="h-3 w-3" /> Instant confirmation</span>}
+                </div>
+              </div>
+            </div>
+            {(b.supplierName || b.supplierLogoUrl) && (
+              <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-100">
+                <span className="flex h-11 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 ring-1 ring-slate-200">
+                  {b.supplierLogoUrl && b.supplierLogoUrl !== 'HOGICAR_CHOICE_LOGO' ? <img src={b.supplierLogoUrl} alt="" className="max-h-full max-w-full object-contain" /> : <span className="text-xs font-bold text-slate-500">{String(b.supplierName || 'S').slice(0, 2).toUpperCase()}</span>}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-slate-900">{b.supplierName || 'Rental company'}</p>
+                  <p className="text-xs text-slate-500">{b.supplierConfirmationNumber ? <>Supplier ref <span className="font-mono font-semibold text-slate-700">{b.supplierConfirmationNumber}</span></> : 'Your car is supplied by this company'}</p>
+                </div>
+              </div>
+            )}
+          </motion.section>
+
+          {/* Driver + extras */}
+          <motion.section {...rise(5)} className="grid gap-5 md:grid-cols-2">
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+              <h2 className="text-base font-semibold text-slate-900">Main driver</h2>
+              <ul className="mt-3 space-y-2.5 text-sm">
+                <li className="flex items-center gap-2.5 text-slate-800"><User className="h-4 w-4 text-slate-400" /> {[b.firstName, b.lastName].filter(Boolean).join(' ') || b.customerName || '—'}</li>
+                {(b.email || b.customerEmail) && <li className="flex items-center gap-2.5 break-all text-slate-800"><Mail className="h-4 w-4 shrink-0 text-slate-400" /> {b.email || b.customerEmail}</li>}
+                {(b.phone || b.customerPhone) && <li className="flex items-center gap-2.5 text-slate-800"><Phone className="h-4 w-4 text-slate-400" /> {b.phone || b.customerPhone}</li>}
+                {b.flightNumber && <li className="flex items-center gap-2.5 text-slate-800"><Plane className="h-4 w-4 text-slate-400" /> Flight {b.flightNumber}</li>}
+              </ul>
+            </div>
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
+              <h2 className="text-base font-semibold text-slate-900">Add-ons</h2>
+              {extras.length ? (
+                <ul className="mt-3 space-y-2">
+                  {extras.map((x: string) => <li key={x} className="flex items-start gap-2.5 text-sm text-slate-800"><Package className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> {x}</li>)}
+                </ul>
+              ) : <p className="mt-3 text-sm text-slate-500">No add-ons reserved. You can ask for extras at the rental desk.</p>}
+              {b.promotionSummary && (
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800 ring-1 ring-rose-100"><Percent className="mt-0.5 h-4 w-4 shrink-0" /> {b.promotionSummary}</p>
+              )}
+            </div>
+          </motion.section>
         </div>
-    )
-}
 
-const MOCK_CARS: any[] = [];
+        {/* Sidebar */}
+        <aside className="space-y-5">
+          <motion.section {...rise(3)} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6 lg:sticky lg:top-24">
+            <h2 className="text-base font-semibold text-slate-900">Payment</h2>
+            <dl className="mt-2 divide-y divide-slate-100">
+              <Row label="Total price" value={price(b.finalPrice ?? b.totalPrice)} strong />
+              {b.payNow != null && <Row label="Paid online" value={<span className="inline-flex items-center gap-1 text-emerald-700"><CheckCircle className="h-3.5 w-3.5" /> {price(b.payNow)}</span>} />}
+              {b.payAtDesk != null && <Row label="Pay at pick-up" value={price(b.payAtDesk)} />}
+              {Number(b.carDeposit) > 0 && <Row label="Security deposit" value={<span>{price(b.carDeposit)}<span className="block text-[11px] font-normal text-slate-500">Held on your card, then released</span></span>} />}
+            </dl>
+            <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600 ring-1 ring-slate-100">
+              <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+              Bring a credit card in the main driver’s name, your driving licence and passport or ID.
+            </div>
+          </motion.section>
 
-const BookingDetailView = ({ booking, onCancel, onBookingModified, onBack }: { booking: Booking, onCancel: (id: string | number) => void, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
-    // Attempt to find detailed car info from mock if available, otherwise fallback to basic info
-    const car = MOCK_CARS.find(c => c.id === booking.carId) || {
-        make: booking.carMake || "Vehicle",
-        model: booking.carModel || booking.carName || "Rental",
-        image: booking.carImage || "https://placehold.co/600x400?text=Car+Image",
-        category: booking.carCategory || "Standard",
-        transmission: booking.carTransmission || "Automatic",
-        fuelPolicy: booking.carFuelPolicy || "Full to Full",
-        airCon: booking.carAirConditioning ?? true,
-        location: booking.pickupCode || "Airport"
-    } as any;
+          <motion.section {...rise(4)} className="relative overflow-hidden rounded-3xl bg-[#00244f] p-5 text-white shadow-sm sm:p-6">
+            <div aria-hidden="true" className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#007ac2]/50 blur-2xl" />
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15"><MessageCircle className="h-5 w-5" /></span>
+            <h2 className="relative mt-3 text-base font-semibold">Need help with this booking?</h2>
+            <p className="relative mt-1 text-sm text-white/70">Our support team can help with changes, payments and pick-up questions.</p>
+            <Link to="/contact" className="relative mt-4 inline-flex h-10 items-center gap-1.5 rounded-xl bg-white px-4 text-sm font-semibold text-[#00244f] hover:bg-slate-100">Contact support <ChevronRight className="h-4 w-4" /></Link>
+          </motion.section>
+        </aside>
+      </div>
 
-    const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
-    const [imageError, setImageError] = React.useState(false);
-    const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (booking.carImage || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');
-    const [isCancelling, setIsCancelling] = React.useState(false);
-    const renderPrice = (amount: number) => {
-        const safeAmount = amount || 0;
-        if (booking.currency === selectedCurrency) {
-            return `${getCurrencySymbol()}${convertPrice(safeAmount).toFixed(2)}`;
-        }
-        return `${booking.currency} ${safeAmount.toFixed(2)}`;
-    };
-    const [isModifyModalOpen, setIsModifyModalOpen] = React.useState(false);
-    const [fullCar, setFullCar] = React.useState<any>(null);
-    const [isFetchingCar, setIsFetchingCar] = React.useState(false);
+      {/* Cancel sheet */}
+      <AnimatePresence>
+        {confirmCancel && (
+          <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !isCancelling && setConfirmCancel(false)} className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]" />
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} transition={{ type: 'spring', damping: 30, stiffness: 320 }}
+              className="relative w-full max-w-md rounded-t-3xl bg-white p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-3xl">
+              <button onClick={() => setConfirmCancel(false)} disabled={isCancelling} className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100" aria-label="Close"><X className="h-5 w-5" /></button>
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><AlertTriangle className="h-6 w-6" /></span>
+              <h2 id="cancel-title" className="mt-4 text-xl font-bold text-slate-900">Cancel this booking?</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                {carName} · {fmtLong(start)}. Cancellation is free up to 48 hours before pick-up. This can’t be undone.
+              </p>
+              <div className="mt-6 grid gap-2 sm:grid-cols-2">
+                <button onClick={() => setConfirmCancel(false)} disabled={isCancelling} className="h-12 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50">Keep my booking</button>
+                <button onClick={doCancel} disabled={isCancelling} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-rose-600 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-70">
+                  {isCancelling ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Cancelling…</> : 'Yes, cancel'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
-    const isPast = new Date(booking.dropoffDate) < new Date();
-    const canCancel = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
-    const canModify = !isPast && booking.status !== 'cancelled' && booking.status !== 'completed';
-    const isCancelled = booking.status === 'cancelled';
-    const isCompleted = booking.status === 'completed';
+      <AnimatePresence>
+        {toast && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} role="status"
+            className="fixed bottom-6 left-1/2 z-[90] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg">
+            <span className="inline-flex items-center gap-2"><Check className="h-4 w-4 text-emerald-400" /> {toast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
-    const handleModifyClick = async () => {
-        setIsFetchingCar(true);
-        try {
-            const searchResults = await loadCars({
-                pickupCode: booking.pickupCode || "AMM",
-                dropoffCode: booking.dropoffCode || "AMM",
-                pickupDate: booking.pickupDate || "",
-                dropoffDate: booking.dropoffDate || ""
-            });
-            const found = searchResults.find(c => String(c.id).replace('choice-', '') === String(booking.carId));
-            if (found) {
-                setFullCar(found);
-                setIsModifyModalOpen(true);
-            } else {
-                // FALLBACK: Use car info from booking if search doesn't return it
-                setFullCar(car);
-                setIsModifyModalOpen(true);
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Failed to load vehicle details for modification.");
-        } finally {
-            setIsFetchingCar(false);
-        }
-    };
-
-    const handleSaveModification = async (modifications: any) => {
-        try {
-            const result = await api.requestModification(Number(booking.id), {
-                pickupDate: modifications.startDate,
-                dropoffDate: modifications.endDate,
-                startTime: modifications.startTime,
-                endTime: modifications.endTime,
-                phone: modifications.customerPhone,
-                flightNumber: modifications.flightNumber
-            });
-
-            if (result.clientSecret) {
-                alert(`Extra payment of ${result.modificationExtraCharge} ${booking.currency} is required. For this demo, we will confirm it automatically.`);
-                await api.confirmModification(Number(booking.id));
-            } else {
-                await api.confirmModification(Number(booking.id));
-            }
-
-            const updated = await api.getBooking(Number(booking.id));
-            onBookingModified(updated);
-            setIsModifyModalOpen(false);
-            alert("Booking updated successfully!");
-        } catch (error) {
-            console.error(error);
-            alert("Failed to update booking. Please try again.");
-        }
-    };
-
-
-    return (
-        <div className="max-w-4xl mx-auto">
-             {fullCar && isModifyModalOpen && <ModifyBookingModal booking={booking} car={fullCar} isOpen={isModifyModalOpen} onClose={() => setIsModifyModalOpen(false)} onSave={handleSaveModification} />}
-             
-             <button onClick={onBack} className="mb-6 flex items-center text-sm font-medium text-slate-500 hover:text-[#007ac2] transition-colors">
-                 <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> Back to Search
-             </button>
-
-             <div className="flex flex-col lg:flex-row gap-8">
-                 {/* Main Content */}
-                 <div className="flex-grow space-y-6">
-                     
-                     {/* Header Status Card */}
-                     <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-                        <div className={`p-6 border-b border-slate-100 flex justify-between items-center ${isCancelled ? 'bg-red-50' : (isCompleted ? 'bg-slate-50' : 'bg-white')}`}>
-                            <div>
-                                <h1 className="text-2xl font-bold text-slate-900 mb-1">{isCancelled ? 'Booking Cancelled' : (isCompleted ? 'Booking Completed' : 'Booking Details')}</h1>
-                                <p className="text-sm text-slate-500">Reference: <span className="font-mono font-bold text-slate-700">{booking.bookingRef || booking.id}</span></p>
-                            </div>
-                            {isCancelled ? <XCircle className="w-10 h-10 text-red-500"/> : <CheckCircle className="w-10 h-10 text-green-500"/>}
-                        </div>
-                        {isCompleted && !booking.reviewSubmitted && (
-                            <div className="p-6 bg-yellow-50 border-b border-yellow-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-200">
-                                        <Star className="w-6 h-6 text-white fill-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-slate-900">How was your trip?</h3>
-                                        <p className="text-sm text-slate-600">Share your feedback and help others choose the right car.</p>
-                                    </div>
-                                </div>
-                                <Link to={`/leave-review/${booking.id}`} className="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-card hover:bg-slate-800 transition-all shadow-md active:scale-95 text-sm whitespace-nowrap">
-                                    Rate Now
-                                </Link>
-                            </div>
-                        )}
-                        <div className="p-6 grid grid-cols-2 gap-6">
-                             <div>
-                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pick-up</h3>
-                                 <div className="flex items-start gap-3">
-                                     <div className="bg-blue-50 p-2 rounded text-[#007ac2]"><Calendar className="w-5 h-5"/></div>
-                                     <div>
-                                         <p className="font-bold text-slate-900">{booking.pickupDate} @ {booking.startTime}</p>
-                                         <p className="text-sm text-slate-600 mt-1">{booking.pickupCode}</p>
-                                     </div>
-                                 </div>
-                             </div>
-                             <div>
-                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Drop-off</h3>
-                                 <div className="flex items-start gap-3">
-                                     <div className="bg-blue-50 p-2 rounded text-[#007ac2]"><Calendar className="w-5 h-5"/></div>
-                                     <div>
-                                         <p className="font-bold text-slate-900">{booking.dropoffDate} @ {booking.endTime}</p>
-                                         <p className="text-sm text-slate-600 mt-1">{booking.dropoffCode}</p>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-
-                     {/* Vehicle Card */}
-                     <div className="bg-white rounded-card shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-                         <img 
-                            src={displayImage} 
-                            alt={car.model} 
-                            onError={() => setImageError(true)}
-                            referrerPolicy="no-referrer"
-                            loading="eager"
-                            className="w-48 object-contain"
-                         />
-                         <div className="flex-grow text-center sm:text-left">
-                             <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                                 <h3 className="text-xl font-bold text-slate-900">{car.make} {car.model}</h3>
-                                 {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
-                                     <div className="flex items-center gap-1 bg-emerald-50 text-[#007ac2] px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border border-emerald-100 shadow-sm">
-                                         <Zap className="w-2.5 h-2.5 fill-[#007ac2]/20" />
-                                         Instant
-                                     </div>
-                                 )}
-                             </div>
-                             <p className="text-sm text-slate-500 mb-4">or similar {car.category} class</p>
-                             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                                 <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">{car.transmission}</span>
-                                 <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">{car.fuelPolicy}</span>
-                                 <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">{car.airCon ? 'A/C' : 'No A/C'}</span>
-                             </div>
-                         </div>
-                         <div className="text-right">
-                             <p className="text-xs text-slate-500 mb-1">Total Cost</p>
-                             <p className="text-xl font-extrabold text-slate-900">{renderPrice(booking.finalPrice)}</p>
-                              {booking.currency === 'USD' ? null : <p className="text-xs text-slate-400 mt-1">(Approx. ${(booking.finalPrice || 0).toFixed(2)} USD)</p>}
-                         </div>
-                     </div>
-
-                 </div>
-
-                 {/* Sidebar Actions */}
-                 <div className="lg:w-80 space-y-4">
-                     
-                     <div className="bg-white rounded-card shadow-sm border border-slate-200 p-5">
-                         <h3 className="font-bold text-slate-900 mb-4">Manage Booking</h3>
-                         <div className="space-y-3">
-                             {isCompleted && !booking.reviewSubmitted && (
-                                <Link to={`/leave-review/${booking.id}`} className="w-full flex items-center justify-between p-3 rounded-card bg-yellow-400 hover:bg-yellow-500 transition-all group text-slate-900">
-                                     <div className="flex items-center gap-3">
-                                         <Star className="w-5 h-5"/>
-                                         <div className="text-left">
-                                             <span className="block font-bold text-sm">Leave a Review</span>
-                                             <span className="block text-[10px]">Rate your experience</span>
-                                         </div>
-                                     </div>
-                                     <ChevronRight className="w-4 h-4"/>
-                                 </Link>
-                             )}
-
-                             <Link 
-                                 to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`}
-                                 className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-accent hover:bg-accent-50 transition-all group"
-                             >
-                                 <div className="flex items-center gap-3">
-                                     <FileText className="w-5 h-5 text-slate-400 group-hover:text-accent"/>
-                                     <div className="text-left">
-                                         <span className="block font-bold text-slate-700 text-sm group-hover:text-accent">Digital Voucher</span>
-                                         <span className="block text-[10px] text-slate-500">Official Confirmation</span>
-                                     </div>
-                                 </div>
-                                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-accent"/>
-                             </Link>
- 
-                             {canModify && (
-                                <button 
-                                    onClick={handleModifyClick}
-                                    disabled={isFetchingCar}
-                                    className="w-full flex items-center justify-between p-3 rounded-card border border-slate-200 hover:border-accent hover:bg-accent-50 transition-all group disabled:opacity-50"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        {isFetchingCar ? (
-                                            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                                        ) : (
-                                            <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-accent"/>
-                                        )}
-                                        <div className="text-left">
-                                            <span className="block font-bold text-slate-700 text-sm group-hover:text-accent">Modify Booking</span>
-                                            <span className="block text-[10px] text-slate-500">Dates, flight, or phone</span>
-                                        </div>
-                                    </div>
-                                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-accent"/>
-                                </button>
-                            )}
-                         </div>
-                     </div>
-
-                     {canCancel && (
-                         <div className="bg-white rounded-card shadow-sm border border-slate-200 p-5">
-                             <h3 className="font-bold text-slate-900 mb-2">Need to cancel?</h3>
-                             <p className="text-xs text-slate-500 mb-4">Free cancellation available until 48 hours before pick-up.</p>
-                             
-                             {!isCancelling ? (
-                                <button onClick={() => setIsCancelling(true)} className="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 font-bold py-2.5 rounded-card text-sm transition-colors">
-                                    Cancel Booking
-                                </button>
-                             ) : (
-                                 <div className="bg-red-50 p-3 rounded-card border border-red-100 animate-fadeIn">
-                                     <p className="text-xs font-bold text-red-800 mb-2 flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5"/> Are you sure?</p>
-                                     <div className="flex gap-2">
-                                         <button onClick={() => setIsCancelling(false)} className="flex-1 bg-white border border-slate-300 text-slate-700 py-1.5 rounded text-xs font-medium">Keep it</button>
-                                         <button onClick={() => onCancel(booking.id)} className="flex-1 bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">Yes, Cancel</button>
-                                     </div>
-                                 </div>
-                             )}
-                         </div>
-                     )}
-                     
-                     <div className="bg-accent-50 p-4 rounded-card border border-accent-100">
-                         <h4 className="font-bold text-accent-800 text-sm mb-1">Need Help?</h4>
-                         <p className="text-xs text-accent-600 mb-2">Our agents are available 24/7.</p>
-                         <p className="text-sm font-bold text-accent-900">+1 (555) 123-4567</p>
-                     </div>
-
-                 </div>
-             </div>
-        </div>
-    )
-}
+// ---------- Page ----------
 
 const MyBookings: React.FC = () => {
   const [view, setView] = React.useState<'login' | 'dashboard'>('login');
-  const [currentUserEmail, setCurrentUserEmail] = React.useState('');
   const [loginError, setLoginError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  
   const [userBookings, setUserBookings] = React.useState<Booking[]>([]);
 
   const handleLogin = async (email: string, ref: string) => {
-      setIsLoading(true);
-      setLoginError('');
-      
-      try {
-          const normalizedEmail = email.toLowerCase().trim();
-          const normalizedRef = ref.toUpperCase().trim();
-
-          const booking = await api.lookupBooking(normalizedEmail, normalizedRef);
-          
-          setCurrentUserEmail(email);
-          setUserBookings([booking]); // The API returns a single booking
-          setView('dashboard');
-      } catch (err: any) {
-          console.error(err);
-          setLoginError("Booking not found. Please check your reference number and email address.");
-      } finally {
-          setIsLoading(false);
-      }
+    setIsLoading(true);
+    setLoginError('');
+    try {
+      const booking = await api.lookupBooking(email.toLowerCase().trim(), ref.toUpperCase().trim());
+      setUserBookings([booking]);
+      setView('dashboard');
+      try { window.scrollTo({ top: 0 }); } catch { /* ignore */ }
+    } catch (err: any) {
+      console.error(err);
+      setLoginError('We couldn’t find a booking with that email and reference. Please check both and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleCancelBooking = async (bookingId: string | number) => {
-      try {
-          await api.cancelBooking(bookingId);
-          // Update local state to reflect cancellation
-          const updatedList = userBookings.map(b => 
-              b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
-          );
-          setUserBookings(updatedList);
-          alert("Booking cancelled successfully.");
-      } catch (error) {
-          alert("Failed to cancel booking. Please try again.");
-          console.error(error);
-      }
+  const handleCancelBooking = async (bookingId: string | number): Promise<boolean> => {
+    try {
+      const updated: any = await api.cancelBooking(Number(bookingId));
+      setUserBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, ...(updated && typeof updated === 'object' ? updated : {}), status: 'cancelled' as const } : b)));
+      return true;
+    } catch (error) {
+      console.error(error);
+      alert('We couldn’t cancel your booking. Please try again or contact support.');
+      return false;
+    }
   };
 
   const handleBookingModified = (updatedBooking: Booking) => {
-    setUserBookings(prev => prev.map(b => b.id === updatedBooking.id ? updatedBooking : b));
+    setUserBookings(prev => prev.map(b => (b.id === updatedBooking.id ? updatedBooking : b)));
   };
 
   const handleLogout = () => {
-      setView('login');
-      setUserBookings([]);
-      setCurrentUserEmail('');
+    setView('login');
+    setUserBookings([]);
   };
 
   return (
     <>
-    <SEOMetadata
-        title="Manage My Booking | Hogicar"
-        description="View, modify, or cancel your car rental reservation securely."
-        noIndex={true}
-      />
-    <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        {view === 'login' ? (
-            <LoginScreen onLogin={handleLogin} error={loginError} isLoading={isLoading} />
-        ) : (
-            <div>
-                 {userBookings.length > 0 ? (
-                     <BookingDetailView 
-                        booking={userBookings[0]} 
-                        onCancel={handleCancelBooking} 
-                        onBookingModified={handleBookingModified}
-                        onBack={handleLogout}
-                     />
-                 ) : (
-                     <div className="text-center">
-                         <h2 className="text-xl font-bold">No booking loaded</h2>
-                         <button onClick={handleLogout} className="text-accent underline mt-2">Go Back</button>
-                     </div>
-                 )}
-            </div>
-        )}
-    </div>
+      <SEOMetadata title="Manage My Booking | Hogicar" description="View, modify, or cancel your car rental reservation securely." noIndex={true} />
+      <div className="min-h-screen bg-slate-50">
+        <AnimatePresence mode="wait">
+          {view === 'login' || !userBookings.length ? (
+            <motion.div key="lookup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+              <LookupScreen onLogin={handleLogin} error={loginError} isLoading={isLoading} />
+            </motion.div>
+          ) : (
+            <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <BookingDetailView booking={userBookings[0]} onCancel={handleCancelBooking} onBookingModified={handleBookingModified} onBack={handleLogout} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </>
   );
 };
