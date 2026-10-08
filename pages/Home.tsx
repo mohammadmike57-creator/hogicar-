@@ -49,6 +49,18 @@ import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSett
 import { LocationSuggestion } from '../api';
 import { API_BASE_URL } from '../lib/config';
 
+// Desktop-only hero photo (phones keep the lighter gradient / admin image).
+// Every file here is under 150 KB; the tiny base64 preview shows while it loads.
+const DESKTOP_HERO = {
+  media: '(min-width: 1024px)',
+  webpSrcSet: '/images/hero/coastal-road-1600.webp 1600w, /images/hero/coastal-road-1920.webp 1920w',
+  webp: '/images/hero/coastal-road-1920.webp',
+  jpg: '/images/hero/coastal-road-1600.jpg',
+  placeholder: 'data:image/webp;base64,UklGRsYAAABXRUJQVlA4ILoAAADwAwCdASoYABAAPpE6l0eloyIhMAgAsBIJZgCdAYyKly7xvBf1EMRsAP7vTGTsHvcXqGnai33csAmxsTyiqTfSH5q4HHNZBeN6BAMGe9TqAtLRJ3IifI07GQ1rybRpit16yA3aWCuGkfri19gvvZ2FqLRQ64eOaJo3v+cO2Zx7N83Nha+Jay+s0DBZWyV13efxJVXpyJOWOlf/pCdb8f+qg+xQbdEzDjuWi4t43R1IsYJA+i8QXswAAAA=',
+  alt: 'Aerial view of a car driving a winding coastal road by the sea',
+};
+const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 const normalizeHomepageContent = (content: any) => {
   const safeContent = content && typeof content === 'object' ? content : {};
   const safePopular = safeContent.popularDestinations && typeof safeContent.popularDestinations === 'object'
@@ -499,6 +511,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     link: seoConfig?.heroPromotionLink || '',
     color: seoConfig?.heroPromotionColor || '#E11D48'
   };
+  // Pages with their own hero image or video keep it; everywhere else desktop gets the coastal photo.
+  const useDesktopHero = sections.hero && !heroVideo && !seoConfig?.heroImage;
   const shouldPreloadHeroImage = sections.hero && !heroVideo && !!heroBackgroundImage && (!isCustomLanding || !!seoConfig?.heroImage);
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
@@ -630,6 +644,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           config={seoConfig}
           preloadImageUrl={shouldPreloadHeroImage ? heroBackgroundImage : undefined}
           preloadImageSrcSet={shouldPreloadHeroImage ? (heroWebpSrcSet || heroPngSrcSet) : undefined}
+          preloadImageMedia={useDesktopHero ? '(max-width: 1023px)' : undefined}
+          desktopPreload={useDesktopHero ? { href: DESKTOP_HERO.webp, srcSet: DESKTOP_HERO.webpSrcSet, type: 'image/webp', media: DESKTOP_HERO.media } : undefined}
         />
       )}
 
@@ -641,16 +657,30 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               <video autoPlay muted loop playsInline className="h-full w-full object-cover" onCanPlay={() => setHeroLoaded(true)}>
                 <source src={heroVideo} type="video/mp4" />
               </video>
-            ) : heroBackgroundImage ? (
+            ) : heroBackgroundImage || useDesktopHero ? (
+              <>
+              {!heroBackgroundImage && (
+                // Phones without an admin hero image keep the brand gradient.
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#0b5cc4_0%,_#003580_45%,_#00224f_100%)] lg:hidden" />
+              )}
+              {useDesktopHero && (
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 hidden scale-110 bg-cover bg-[center_30%] blur-2xl lg:block"
+                  style={{ backgroundImage: `url(${DESKTOP_HERO.placeholder})` }}
+                />
+              )}
               <picture>
+                {useDesktopHero && <source media={DESKTOP_HERO.media} type="image/webp" srcSet={DESKTOP_HERO.webpSrcSet} sizes="100vw" />}
+                {useDesktopHero && <source media={DESKTOP_HERO.media} srcSet={DESKTOP_HERO.jpg} />}
                 {isLocalHero && <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />}
                 <img
-                  key={heroBackgroundImage}
-                  src={heroBackgroundImage}
-                  srcSet={heroPngSrcSet}
+                  key={heroBackgroundImage || 'desktop-hero'}
+                  src={heroBackgroundImage || TRANSPARENT_PIXEL}
+                  srcSet={heroBackgroundImage ? heroPngSrcSet : undefined}
                   sizes="100vw"
-                  className="h-full w-full object-cover"
-                  alt={seoConfig?.imageAltText || displayH1}
+                  className={`relative h-full w-full object-cover ${useDesktopHero ? 'lg:object-[center_30%]' : ''} ${!heroLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-700`}
+                  alt={seoConfig?.imageAltText || (heroBackgroundImage ? displayH1 : DESKTOP_HERO.alt)}
                   title={seoConfig?.imageTitle || displayH1}
                   fetchPriority="high"
                   decoding="async"
@@ -662,18 +692,26 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                   }}
                 />
               </picture>
+              </>
             ) : (
               <>
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#0b5cc4_0%,_#003580_45%,_#00224f_100%)]" />
                 <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.07]" />
               </>
             )}
-            {!heroLoaded && !heroVideo && heroBackgroundImage && <div className="absolute inset-0 bg-[#00224f]" />}
+            {!heroLoaded && !heroVideo && heroBackgroundImage && <div className={`absolute inset-0 bg-[#00224f] ${useDesktopHero ? 'lg:hidden' : ''}`} />}
             {(heroVideo || heroBackgroundImage) && (
-              <>
+              <div className={useDesktopHero ? 'lg:hidden' : ''}>
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/35 to-slate-950/55" />
                 <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/50 to-transparent" />
-              </>
+              </div>
+            )}
+            {useDesktopHero && (
+              // Desktop photo overlay: deep brand-navy at the top for the headline, clear in the middle, dark at the foot for the trust row.
+              <div className="hidden lg:block">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#001b3d]/75 via-[#001b3d]/30 to-[#001b3d]/70" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_35%,_rgba(0,20,45,0.45)_100%)]" />
+              </div>
             )}
           </div>
 

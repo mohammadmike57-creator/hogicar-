@@ -22,6 +22,10 @@ interface SEOMetadataProps {
   structuredData?: string;
   preloadImageUrl?: string;
   preloadImageSrcSet?: string;
+  /** Media query for the hero preload, so a desktop-only image isn't fetched on phones. */
+  preloadImageMedia?: string;
+  /** A second, media-scoped hero preload (e.g. the desktop-only hero image). */
+  desktopPreload?: { href: string; srcSet?: string; type?: string; media: string };
   config?: any; 
 }
 
@@ -40,6 +44,8 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   structuredData,
   preloadImageUrl,
   preloadImageSrcSet,
+  preloadImageMedia,
+  desktopPreload,
   config: propConfig
 }) => {
   const location = useLocation();
@@ -178,6 +184,18 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
             imagesrcset: preloadImageSrcSet,
             imagesizes: "100vw" 
           } : {})}
+          {...(preloadImageMedia ? { media: preloadImageMedia } : {})}
+        />
+      )}
+
+      {desktopPreload && (
+        <link
+          rel="preload"
+          as="image"
+          href={desktopPreload.href}
+          media={desktopPreload.media}
+          {...(desktopPreload.type ? { type: desktopPreload.type } : {})}
+          {...(desktopPreload.srcSet ? { imagesrcset: desktopPreload.srcSet, imagesizes: '100vw' } : {})}
         />
       )}
 
