@@ -213,3 +213,13 @@ html, body {
   .supplier-portal textarea { font-size: 16px; }
 }
 .supplier-portal { -webkit-tap-highlight-color: transparent; }
+
+/* Lightweight enter animations (used where loading framer-motion up front isn't worth it). */
+@keyframes hc-pop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+@keyframes hc-fade { from { opacity: 0; } }
+@keyframes hc-sheet { from { transform: translateY(100%); } }
+.hc-anim-pop { animation: hc-pop 0.16s ease-out; }
+.hc-anim-fade { animation: hc-fade 0.2s ease-out; }
+.hc-anim-sheet { animation: hc-sheet 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes hc-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+@media (prefers-reduced-motion: reduce) { .hc-anim-pop, .hc-anim-fade, .hc-anim-sheet { animation: none; } }

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import Check from 'lucide-react/dist/esm/icons/check';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import Search from 'lucide-react/dist/esm/icons/search';
@@ -147,15 +146,10 @@ export const CurrencyMenu: React.FC = () => {
         {current?.symbol && current.symbol !== selectedCurrency && <span className="text-white/60">{current.symbol}</span>}
         <ChevronDown className={`h-4 w-4 text-white/70 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: 'easeOut' }}
+      {open && (
+          <div
             style={{ transformOrigin: 'top right' }}
-            className="absolute end-0 top-full z-50 mt-2.5 w-[440px] overflow-hidden rounded-2xl bg-white text-slate-900 shadow-[0_24px_60px_-12px_rgba(2,24,64,0.35)] ring-1 ring-black/5"
+            className="hc-anim-pop absolute end-0 top-full z-50 mt-2.5 w-[440px] overflow-hidden rounded-2xl bg-white text-slate-900 shadow-[0_24px_60px_-12px_rgba(2,24,64,0.35)] ring-1 ring-black/5"
           >
             <span className="absolute -top-1.5 end-6 h-3 w-3 rotate-45 bg-white ring-1 ring-black/5" aria-hidden="true" />
             <div className="relative border-b border-slate-100 bg-white p-4">
@@ -171,9 +165,8 @@ export const CurrencyMenu: React.FC = () => {
             <p className="border-t border-slate-100 bg-slate-50 px-4 py-2.5 text-[11px] text-slate-500">
               Shown prices are converted for guidance. You pay in the currency stated at checkout.
             </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
     </div>
   );
 };
@@ -194,14 +187,12 @@ export const CurrencySheet: React.FC<{ open: boolean; onClose: () => void }> = (
 
   if (typeof document === 'undefined') return null;
   return createPortal(
-    <AnimatePresence>
+    <>
       {open && (
         <div className="fixed inset-0 z-[120] flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="currency-sheet-title">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-900/55 backdrop-blur-[2px]" />
-          <motion.div
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 32, stiffness: 340 }}
-            className="relative flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-white text-slate-900 shadow-2xl sm:rounded-[28px]"
+          <div onClick={onClose} className="hc-anim-fade absolute inset-0 bg-slate-900/55 backdrop-blur-[2px]" />
+          <div
+            className="hc-anim-sheet relative flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-white text-slate-900 shadow-2xl sm:rounded-[28px]"
           >
             <div className="flex justify-center pb-1 pt-2.5" aria-hidden="true"><span className="h-1.5 w-10 rounded-full bg-slate-300" /></div>
             <div className="flex items-center justify-between gap-3 px-5 pb-3">
@@ -215,10 +206,10 @@ export const CurrencySheet: React.FC<{ open: boolean; onClose: () => void }> = (
             <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <Lists query={query} selected={selectedCurrency} onPick={code => { setSelectedCurrency(code); onClose(); }} columns={1} />
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
-    </AnimatePresence>,
+    </>,
     document.body,
   );
 };

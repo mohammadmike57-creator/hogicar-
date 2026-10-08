@@ -22,6 +22,18 @@ const loadAppAfterFirstPaint = (): Plugin => ({
   },
 });
 
+// Direct visits to /search: start the car search request from the HTML, in parallel with the app's
+// JavaScript, instead of after it. Builds the same URL as utils/loadCars.ts for the first page
+// (Search.tsx defaults: page 0, size 20, sort "Price: Low to High"); loadCars picks it up.
+// Skipped when this tab already holds the results (a refresh after a search).
+const earlySearchFetch = (apiBase: string): Plugin => ({
+  name: 'early-search-fetch',
+  transformIndexHtml(html) {
+    const script = `<script>(function(){try{if(location.pathname!=='/search')return;var q=new URLSearchParams(location.search);var p=q.get('pickup');if(!p)return;var t=new Date(),e=new Date(t);e.setDate(t.getDate()+3);var iso=function(x){return x.toISOString().split('T')[0]};var d=q.get('dropoff')||p,pd=q.get('pickupDate')||iso(t),dd=q.get('dropoffDate')||iso(e),st=q.get('startTime')||'10:00',et=q.get('endTime')||'10:00';try{var m=JSON.parse(sessionStorage.getItem('hogicar_prefetched_results_meta')||'null');var sig=[p.trim().toUpperCase(),d.trim().toUpperCase(),pd,dd,st,et].join('|');if(m&&m.signature===sig&&m.status!=='failed')return}catch(x){}var u=${JSON.stringify(apiBase)}+'/api/search/all?pickup='+p+'&dropoff='+d+'&pickupDate='+pd+'&dropoffDate='+dd+'&startTime='+st+'&endTime='+et+'&page=0&size=20&sort='+encodeURIComponent('Price: Low to High');var r=fetch(u,{credentials:'omit',cache:'no-cache'});r.catch(function(){});window.__hcEarlySearch={url:u,res:r}}catch(x){}})();</script>`;
+    return html.replace('<head>', `<head>\n    ${script}`);
+  },
+});
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
@@ -34,6 +46,7 @@ export default defineConfig(({ mode }) => {
         react(),
         tailwindcss(),
         loadAppAfterFirstPaint(),
+        earlySearchFetch(env.VITE_API_BASE_URL || env.VITE_API_URL || ''),
       ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -54,10 +67,12 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('axios')) return 'vendor-axios';
                 if (id.includes('date-fns')) return 'vendor-date';
                 if (id.includes('lucide-react')) return 'vendor-icons';
-                if (id.includes('recharts')) return 'vendor-charts';
-                if (id.includes('framer-motion')) return 'vendor-animation';
+                // Recharts and everything it pulls in (redux, immer, d3, decimal.js...) only load with the dashboards.
+                if (/node_modules\/(recharts|victory-vendor|d3-[^/]+|internmap|immer|@reduxjs|redux|redux-thunk|react-redux|reselect|decimal\.js-light|es-toolkit|eventemitter3|tiny-invariant|use-sync-external-store)\//.test(id)) return 'vendor-charts';
+                if (/node_modules\/(framer-motion|motion-dom|motion-utils)\//.test(id)) return 'vendor-animation';
                 if (id.includes('stripe')) return 'vendor-stripe';
-                return 'vendor-core';
+                if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'vendor-core';
+                // Anything else (QR codes, flags, ...) is bundled with the page that actually uses it.
               }
             },
           },

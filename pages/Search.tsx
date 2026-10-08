@@ -6,8 +6,7 @@ import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import { apiCarsToCars } from '../utils/apiCarToCar';
 import CarCard from '../components/CarCard';
-import ComparisonModal from '../components/ComparisonModal';
-import AiAdvisor, { openAiAdvisor } from '../components/AiAdvisor';
+import { lazyRetry } from '../utils/lazyRetry';
 import { applyPickupOverrides, loadPickupOverrides, PickupOverrideMap } from '../utils/pickupOverrides';
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
@@ -42,6 +41,12 @@ import { API_BASE_URL } from '../lib/config';
 import { formatCategoryName } from '../utils/ratings';
 import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
 import PickupTypeIcon from '../components/PickupTypeIcon';
+
+// The advisor and the compare panel are only needed once results are on screen, so they load separately.
+const AiAdvisor = lazyRetry(() => import('../components/AiAdvisor'));
+const ComparisonModal = lazyRetry(() => import('../components/ComparisonModal'));
+// Same event as AI_ADVISOR_OPEN_EVENT in components/AiAdvisor.tsx (kept inline so this page doesn't load it eagerly).
+const openAiAdvisor = (question?: string) => window.dispatchEvent(new CustomEvent('hogicar:open-ai-advisor', { detail: question }));
 
 const shortDay = (d: Date) => isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
@@ -673,6 +678,18 @@ export const Search: React.FC = () => {
             return filtered;
     }
   }, [baseFilteredCars, priceRange, selectedCategories, selectedSuppliers, selectedTransmissions, selectedFuelPolicies, passengerCapacity, sortBy, days, startDate, selectedPaymentTypes, maxDeposit, selectedLocationTypes, specialOffersOnly]);
+
+  // Paint the first few cards straight away and the rest right after, so phones show results
+  // sooner instead of blocking on all of them in one long render.
+  const FIRST_PAINT_CARDS = 6;
+  const [renderAllCars, setRenderAllCars] = useState(false);
+  useEffect(() => {
+    if (renderAllCars || sortedAndFilteredCars.length <= FIRST_PAINT_CARDS) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const frame = requestAnimationFrame(() => { timer = setTimeout(() => setRenderAllCars(true), 0); });
+    return () => { cancelAnimationFrame(frame); if (timer) clearTimeout(timer); };
+  }, [renderAllCars, sortedAndFilteredCars.length]);
+  const carsToRender = renderAllCars ? sortedAndFilteredCars : sortedAndFilteredCars.slice(0, FIRST_PAINT_CARDS);
   
   const activeFilterCount =
     selectedCategories.length +
@@ -1044,10 +1061,24 @@ export const Search: React.FC = () => {
           <main className="w-full min-w-0 flex-grow">
             {loading ? (
               <div className="space-y-3" aria-busy="true" aria-label="Loading results">
+                <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+                  <div className="flex items-center gap-3">
+                    <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-50 text-accent">
+                      <span className="absolute inset-0 animate-ping rounded-full bg-accent/15" />
+                      <SearchIcon className="relative h-5 w-5" />
+                    </span>
+                    <h2 className="text-lg font-bold leading-snug text-slate-900 sm:text-xl">Finding the best car deals for you</h2>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                    Comparing prices from trusted rental companies{location ? ` at ${location}` : ''} for {startDateTimeDisplay.replace(' • ', ', ')} to {endDateTimeDisplay.replace(' • ', ', ')}. Free cancellation on most cars and no hidden fees.
+                  </p>
+                  <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-full w-1/3 animate-[hc-progress_1.4s_ease-in-out_infinite] rounded-full bg-accent" />
+                  </div>
+                </div>
                 {[0, 1, 2].map(i => (
                   <div key={i} className="h-48 animate-pulse rounded-xl border border-slate-200 bg-white" />
                 ))}
-                <p className="pt-2 text-center text-sm text-slate-500">Finding the best deals for you…</p>
               </div>
             ) : error ? (
               <div className="rounded-xl border border-red-200 bg-white px-6 py-12 text-center">
@@ -1174,7 +1205,7 @@ export const Search: React.FC = () => {
                     </div>
                   )}
 
-                  {sortedAndFilteredCars.map(car => (
+                  {carsToRender.map(car => (
                     <div key={car.id} id={`car-${car.id}`} className={`scroll-mt-24 rounded-xl transition-shadow duration-500 ${highlightedCarId === car.id ? 'shadow-[0_0_0_3px_rgba(0,122,194,0.55),0_12px_32px_-12px_rgba(0,122,194,0.5)]' : ''}`}>
                     <CarCard
                       car={car}
@@ -1272,6 +1303,7 @@ export const Search: React.FC = () => {
       )}
 
       {!loading && apiCars.length > 0 && (
+        <React.Suspense fallback={null}>
         <AiAdvisor
           cars={apiCars.filter(c => c.isAvailable !== false)}
           hasMoreResults={hasNext}
@@ -1286,10 +1318,12 @@ export const Search: React.FC = () => {
           onEnabledChange={setAiEnabled}
           onViewCar={showCarFromAdvisor}
         />
+        </React.Suspense>
       )}
 
       {/* Comparison Modal */}
       {isCompareModalOpen && (
+        <React.Suspense fallback={null}>
         <ComparisonModal
             selectedCars={selectedCompareCars}
             onClose={() => setIsCompareModalOpen(false)}
@@ -1298,6 +1332,7 @@ export const Search: React.FC = () => {
             startDate={startDate}
             endDate={endDate}
         />
+        </React.Suspense>
       )}
     </div>
     </>

@@ -39,6 +39,18 @@ const isBlockedExternalCar = (car: ApiSearchResult) => {
     return (supplierName.includes('URDRIVEJO') || vendorCode.includes('URDRIVEJO')) && carName.includes('TOYOTACAMRY');
 };
 
+/**
+ * On a direct visit to /search, index.html starts this exact request while the app's JavaScript
+ * is still downloading (see earlySearchFetch in vite.config.ts). Use it once if the URL matches.
+ */
+const takeEarlySearch = (url: string): Promise<Response> | null => {
+    if (typeof window === 'undefined') return null;
+    const early = (window as any).__hcEarlySearch as { url: string; res: Promise<Response> } | undefined;
+    if (!early || early.url !== url) return null;
+    delete (window as any).__hcEarlySearch;
+    return early.res;
+};
+
 export interface PaginatedCars {
     cars: ApiSearchResult[];
     page: number;
@@ -76,10 +88,12 @@ export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> =
     console.log("CAR SEARCH API URL:", url);
 
     try {
-        const response = await fetch(url, { 
+        const fetchCars = () => fetch(url, {
             credentials: 'omit',
             cache: 'no-cache'
         });
+        const early = page === 0 ? takeEarlySearch(url) : null;
+        const response = early ? await early.catch(fetchCars) : await fetchCars();
 
         if (!response.ok) {
             const body = await response.text();
