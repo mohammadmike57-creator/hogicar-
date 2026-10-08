@@ -43,8 +43,13 @@ function sitemapTypoTarget(pathname, search) {
   return match ? `${match[1]}.xml${search}` : null;
 }
 
+// Affiliate network tags (Awin's MasterTag and its resources by default). Add sources for further
+// networks with AFFILIATE_CSP_SOURCES (space separated), e.g. "https://www.anrdoezrs.net".
+const AFFILIATE_CSP = (process.env.AFFILIATE_CSP_SOURCES || 'https://*.dwin1.com https://*.awin1.com')
+  .split(/\s+/).filter(src => /^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$)[^\s;'"]*$/.test(src)).join(' ');
+
 const securityHeaders = {
-  'Content-Security-Policy': "upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.stripe.com https://*.clarity.ms https://*.doubleclick.net https://*.googleadservices.com https://*.google-analytics.com https://*.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: https://*.googletagmanager.com https://*.google-analytics.com https://*.doubleclick.net; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googletagmanager.com https://*.stripe.com https://hogicar-backend.onrender.com https://*.clarity.ms https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com; frame-src 'self' https://*.stripe.com; object-src 'none';",
+  'Content-Security-Policy': `upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.stripe.com https://*.clarity.ms https://*.doubleclick.net https://*.googleadservices.com https://*.google-analytics.com https://*.google.com ${AFFILIATE_CSP}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: https://*.googletagmanager.com https://*.google-analytics.com https://*.doubleclick.net ${AFFILIATE_CSP}; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googletagmanager.com https://*.stripe.com https://hogicar-backend.onrender.com https://*.clarity.ms https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com ${AFFILIATE_CSP}; frame-src 'self' https://*.stripe.com ${AFFILIATE_CSP}; object-src 'none';`,
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'SAMEORIGIN',

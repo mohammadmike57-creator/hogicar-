@@ -21,6 +21,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { Logo } from '../components/Logo';
 import { api } from '../api';
+import { fireConversionTags } from '../utils/affiliateTracking';
 
 const Confirmation: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -31,6 +32,13 @@ const Confirmation: React.FC = () => {
   const [storedCar, setStoredCar] = React.useState<Car | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [apiError, setApiError] = React.useState<string | null>(null);
+
+  // Affiliate networks' confirmation tags. The server only returns them for a confirmed booking that
+  // came from an affiliate click, and only once – refreshing or revisiting this page fires nothing.
+  const bookingRefForTags = booking?.bookingRef as string | undefined;
+  React.useEffect(() => {
+    if (bookingRefForTags) fireConversionTags(bookingRefForTags);
+  }, [bookingRefForTags]);
 
   React.useEffect(() => {
     const bookingRefFromQuery = searchParams.get('bookingRef');

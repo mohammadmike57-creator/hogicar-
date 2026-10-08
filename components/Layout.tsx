@@ -1,5 +1,9 @@
 import * as React from 'react';
 import { captureAffiliateRef } from '../utils/affiliate';
+import { initAffiliateTracking } from '../utils/affiliateTracking';
+import { announceStoredConsent, hasConsentChoice, OPEN_SETTINGS_EVENT } from '../utils/consent';
+
+const CookieConsent = React.lazy(() => import('./CookieConsent'));
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import X from 'lucide-react/dist/esm/icons/x';
@@ -46,6 +50,28 @@ const Layout: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Affiliate networks (Awin…): capture the landing click and load their site-wide tags once.
+  React.useEffect(() => {
+    announceStoredConsent();
+    initAffiliateTracking();
+  }, []);
+
+  // Cookie banner: mounted after the visitor's first interaction (or when they open cookie settings),
+  // so it never competes with the first paint.
+  const [showConsent, setShowConsent] = React.useState(false);
+  React.useEffect(() => {
+    const open = () => setShowConsent(true);
+    window.addEventListener(OPEN_SETTINGS_EVENT, open);
+    if (hasConsentChoice()) return () => window.removeEventListener(OPEN_SETTINGS_EVENT, open);
+    const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    const onFirst = () => { setShowConsent(true); events.forEach(e => window.removeEventListener(e, onFirst)); };
+    events.forEach(e => window.addEventListener(e, onFirst, { passive: true, once: true }));
+    return () => {
+      window.removeEventListener(OPEN_SETTINGS_EVENT, open);
+      events.forEach(e => window.removeEventListener(e, onFirst));
+    };
   }, []);
 
   React.useEffect(() => {
@@ -150,6 +176,11 @@ const Layout: React.FC = () => {
       {shouldShowFooter && (
         <React.Suspense fallback={<div className="h-64 bg-[#003580] animate-pulse"></div>}>
           <Footer />
+        </React.Suspense>
+      )}
+      {showConsent && (
+        <React.Suspense fallback={null}>
+          <CookieConsent forceOpen={hasConsentChoice()} />
         </React.Suspense>
       )}
     </div>

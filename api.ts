@@ -521,3 +521,6 @@ export const adminApi = {
   saveSeoConfig: (payload: any) => adminAxios.post(`${API_BASE_URL}/api/admin/seo`, payload),
   deleteSeoConfig: (route: string) => adminAxios.delete(`${API_BASE_URL}/api/admin/seo?route=${encodeURIComponent(route)}`),
 };
+
+// Shared admin axios instance (adds the adminToken bearer header).
+export { adminAxios };

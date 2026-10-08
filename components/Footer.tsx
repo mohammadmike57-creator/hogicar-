@@ -1,3 +1,4 @@
+import { openCookieSettings } from '../utils/consent';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Facebook from 'lucide-react/dist/esm/icons/facebook';
@@ -97,6 +98,7 @@ export const Footer = React.memo(() => (
             <ul className="space-y-4 text-sm">
               <li><Link to="/terms-and-conditions" className="text-blue-50 hover:text-white transition-colors">Terms & Conditions</Link></li>
               <li><Link to="/privacy-policy" className="text-blue-50 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><button type="button" onClick={openCookieSettings} className="text-blue-50 hover:text-white transition-colors">Cookie settings</button></li>
               <li><Link to="/cookies-policy" className="text-blue-50 hover:text-white transition-colors">Cookies Policy</Link></li>
             </ul>
           </div>
