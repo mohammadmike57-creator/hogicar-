@@ -63,6 +63,14 @@ const Voucher: React.FC = () => {
     return () => { alive = false; };
   }, [searchParams, navigate]);
 
+  // "Print reservation" links in emails open the voucher with ?print=1.
+  const printedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (!booking || printedRef.current || searchParams.get('print') !== '1') return;
+    const t = window.setTimeout(() => { printedRef.current = true; window.print(); }, 900);
+    return () => window.clearTimeout(t);
+  }, [booking, searchParams]);
+
   React.useEffect(() => {
     document.body.classList.add('voucher-print');
     return () => document.body.classList.remove('voucher-print');

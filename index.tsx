@@ -61,6 +61,11 @@ if (typeof window !== 'undefined' && (window as any).trustedTypes && (window as 
   }
 })();
 
+// Older emails linked to "/#/voucher?..." style addresses. Turn them into the real path before the router starts.
+if (typeof window !== 'undefined' && window.location.hash.startsWith('#/')) {
+  try { window.history.replaceState(null, '', window.location.hash.slice(1)); } catch { /* ignore */ }
+}
+
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {

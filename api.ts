@@ -209,8 +209,25 @@ export const confirmModification = async (id: number): Promise<Booking> => {
   return response.data;
 };
 
-export const submitReview = async (id: number, reviewData: any): Promise<any> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/review`, reviewData);
+/** Review of the rental company, verified with the email-link token or the booking email. */
+export const fetchReviewContext = async (ref: string, auth: { token?: string | null; email?: string | null }): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/public/feedback/review/${encodeURIComponent(ref)}/context`, auth);
+  return response.data;
+};
+
+export const submitReview = async (ref: string, reviewData: any): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/public/feedback/review/${encodeURIComponent(ref)}`, reviewData);
+  return response.data;
+};
+
+/** "How was booking with HogiCar?" survey. */
+export const fetchExperienceContext = async (ref: string, auth: { token?: string | null; email?: string | null }): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/public/feedback/experience/${encodeURIComponent(ref)}/context`, auth);
+  return response.data;
+};
+
+export const submitExperience = async (ref: string, data: { token?: string | null; email?: string | null; score: number; tags?: string[]; comment?: string }): Promise<any> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/public/feedback/experience/${encodeURIComponent(ref)}`, data);
   return response.data;
 };
 
@@ -387,6 +404,9 @@ export const api = {
   requestModification,
   confirmModification,
   submitReview,
+  fetchReviewContext,
+  fetchExperienceContext,
+  submitExperience,
   createBooking,
   markBookingPaymentComplete,
   refreshBookingPaymentIntent,

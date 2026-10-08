@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
 import CalendarPlus from 'lucide-react/dist/esm/icons/calendar-plus';
@@ -231,12 +231,13 @@ const WalletStrip: React.FC<{ booking: any }> = ({ booking }) => {
   );
 };
 
-const BookingDetailView = ({ booking, email, onBookingModified, onBack }: { booking: Booking, email: string, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void }) => {
+const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialAction }: { booking: Booking, email: string, onBookingModified: (updatedBooking: Booking) => void, onBack: () => void, initialAction?: string | null }) => {
   const b: any = booking;
   const reduce = !!useReducedMotion();
   const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
   const [imageError, setImageError] = React.useState(false);
   const [confirmCancel, setConfirmCancel] = React.useState(false);
+  const navigate = useNavigate();
   const [changeTab, setChangeTab] = React.useState<null | 'dates' | 'contact'>(null);
   const [withdrawing, setWithdrawing] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
@@ -268,6 +269,11 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack }: { book
     airCon: b.carAirConditioning ?? true,
   } as any;
 
+  // "Add flight number" email links open the contact tab straight away.
+  React.useEffect(() => {
+    if (initialAction === 'flight' && active) setChangeTab('contact');
+  }, [initialAction]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const change = changeRequestOf(b);
   const changeStatus = changeStatusOf(b);
   const pendingChange = changeStatus === 'REQUESTED' && change;
@@ -294,7 +300,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack }: { book
     { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}`, show: status !== 'cancelled' },
     { key: 'modify', icon: Edit2, title: 'Change booking', text: pendingChange ? 'Request pending' : 'Dates, flight or phone', onClick: () => setChangeTab(pendingChange ? 'contact' : 'dates'), busy: false, show: active },
     { key: 'calendar', icon: CalendarPlus, title: 'Add to calendar', text: 'Pick-up reminder', href: ics, download: `hogicar-${ref}.ics`, show: active && !!ics },
-    { key: 'review', icon: Star, title: 'Leave a review', text: 'Rate your rental', to: `/leave-review/${b.id}`, show: status === 'completed' && !b.reviewSubmitted },
+    { key: 'review', icon: Star, title: 'Leave a review', text: 'Rate your rental', onClick: () => navigate(`/leave-review/${encodeURIComponent(String(ref))}`, { state: { email } }), show: (status === 'completed' || (isPast && status !== 'cancelled')) && !b.reviewSubmitted },
     { key: 'cancel', icon: XCircle, title: 'Cancel booking', text: 'Free up to 48h before', onClick: () => setConfirmCancel(true), show: active, danger: true },
   ].filter(a => a.show);
 
@@ -561,6 +567,20 @@ const MyBookings: React.FC = () => {
     }
   };
 
+  // Links in our emails carry the booking in the fragment (#ref=…&email=…&action=…), which never reaches a server.
+  const [initialAction, setInitialAction] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (!hash || hash.startsWith('/')) return;
+    const p = new URLSearchParams(hash);
+    const ref = p.get('ref'), mail = p.get('email');
+    try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch { /* ignore */ }
+    if (ref && mail) {
+      setInitialAction(p.get('action'));
+      handleLogin(mail, ref);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleBookingModified = (updatedBooking: Booking) => {
     setUserBookings(prev => prev.map(b => (b.id === updatedBooking.id ? { ...b, ...updatedBooking } : b)));
   };
@@ -581,7 +601,7 @@ const MyBookings: React.FC = () => {
             </motion.div>
           ) : (
             <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-              <BookingDetailView booking={userBookings[0]} email={lookupEmail} onBookingModified={handleBookingModified} onBack={handleLogout} />
+              <BookingDetailView booking={userBookings[0]} email={lookupEmail} onBookingModified={handleBookingModified} onBack={handleLogout} initialAction={initialAction} />
             </motion.div>
           )}
         </AnimatePresence>
