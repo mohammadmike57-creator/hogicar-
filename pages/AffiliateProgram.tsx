@@ -300,7 +300,7 @@ const AffiliateProgram: React.FC = () => {
                   {loginBusy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" /> : 'Sign in'}
                 </button>
               </form>
-              <p className="mt-6 text-xs text-slate-500">Forgot your password? Email <a className="font-semibold text-[#007ac2]" href="mailto:partners@hogicar.com">partners@hogicar.com</a> and we’ll reset it.</p>
+              <p className="mt-6 text-xs text-slate-500">Forgot your password? Email <a className="font-semibold text-[#007ac2]" href="mailto:business@hogicar.com">business@hogicar.com</a> and we’ll reset it.</p>
             </div>
           </div>
         </div>

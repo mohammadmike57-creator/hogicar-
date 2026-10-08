@@ -17,3 +17,6 @@ export const PUBLIC_BASE_URL = (() => {
     return "https://www.hogicar.com";
   }
 })();
+
+/** The one public contact address shown anywhere on the site. */
+export const CONTACT_EMAIL = 'business@hogicar.com';

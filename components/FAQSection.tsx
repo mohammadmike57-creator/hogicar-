@@ -57,7 +57,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, title, subtitle }) => {
           <div className="mt-6 hidden rounded-xl border border-slate-200 bg-white p-5 lg:block">
             <p className="text-sm font-semibold text-slate-900">Still have questions?</p>
             <p className="mt-1 text-sm text-slate-600">Our support team is here to help, day and night.</p>
-            <a href="mailto:support@hogicar.com" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
+            <a href="mailto:business@hogicar.com" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
               <Mail className="h-4 w-4" /> Contact support
             </a>
           </div>
@@ -90,7 +90,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, title, subtitle }) => {
         </div>
 
         <div className="lg:hidden">
-          <a href="mailto:support@hogicar.com" className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
+          <a href="mailto:business@hogicar.com" className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
             <Mail className="h-4 w-4" /> Still have questions? Contact support
           </a>
         </div>

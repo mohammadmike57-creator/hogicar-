@@ -18,6 +18,7 @@ const Voucher = lazyRetry(() => import('./pages/Voucher'));
 const AdminLogin = lazyRetry(() => import('./pages/AdminLogin'));
 const SupplierLogin = lazyRetry(() => import('./pages/SupplierLogin'));
 const Contact = lazyRetry(() => import('./pages/Contact'));
+const HelpCenter = lazyRetry(() => import('./pages/HelpCenter'));
 const BlogIndex = lazyRetry(() => import('./pages/BlogIndex'));
 const BlogArticle = lazyRetry(() => import('./pages/BlogArticle'));
 const DynamicPage = lazyRetry(() => import('./pages/DynamicPage'));
@@ -134,6 +135,9 @@ const App: React.FC = () => {
             <Route path="/become-supplier" element={<BecomeSupplier />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/help/:categorySlug" element={<HelpCenter />} />
+            <Route path="/help/:categorySlug/:articleSlug" element={<HelpCenter />} />
             <Route path="/ar/اتصل-بنا" element={<Contact />} />
             <Route path="/about" element={<Contact />} />
             <Route path="/ar/من-نحن" element={<Contact />} />

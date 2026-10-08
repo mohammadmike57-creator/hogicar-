@@ -363,8 +363,7 @@ const SupplierConfirmation: React.FC = () => {
                         <section className="rounded-[2rem] bg-[#123C69] p-8 text-white shadow-lg no-print">
                             <h3 className="text-lg font-black mb-4">Partner Support</h3>
                             <div className="space-y-4">
-                                <SupportItem icon={<Mail className="h-4 w-4" />} label="Contact Support" value="booking@hogicar.com" />
-                                <SupportItem icon={<Mail className="h-4 w-4" />} label="Finance Dept" value="finance@hogicar.com" />
+                                <SupportItem icon={<Mail className="h-4 w-4" />} label="Support & finance" value="business@hogicar.com" />
                             </div>
                         </section>
                     </div>

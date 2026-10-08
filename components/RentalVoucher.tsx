@@ -31,7 +31,7 @@ export type VoucherAudience = 'customer' | 'supplier' | 'admin';
 /** Booking as returned by the API (/api/bookings/ref, supplier and admin booking lists). */
 export type VoucherBooking = Record<string, any>;
 
-const SUPPORT_EMAIL = 'booking@hogicar.com';
+const SUPPORT_EMAIL = 'business@hogicar.com';
 
 const pick = (b: VoucherBooking, ...keys: string[]) => {
   for (const k of keys) if (b?.[k] !== undefined && b?.[k] !== null && b?.[k] !== '') return b[k];
