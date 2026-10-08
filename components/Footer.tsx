@@ -7,6 +7,8 @@ import Instagram from 'lucide-react/dist/esm/icons/instagram';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import Shield from 'lucide-react/dist/esm/icons/shield';
 import Star from 'lucide-react/dist/esm/icons/star';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import { CONTACT_EMAIL } from '../lib/config';
 import { Logo } from './Logo';
 
 const VisaIcon = () => (
@@ -42,73 +44,36 @@ const PciDssIcon = () => (
     </div>
 );
 
-export const Footer = React.memo(() => (
-    <footer className="bg-[#003580] text-white pt-12 pb-8">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16" aria-label="Footer Navigation">
-          <div className="col-span-2 lg:col-span-1">
-            <Link to="/" className="inline-block mb-6" aria-label="Hogicar Home">
-              <Logo className="h-8 w-auto" variant="light" />
-            </Link>
-            <p className="text-blue-100 text-sm leading-relaxed opacity-95 mb-8 max-w-xs">
-              Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
-            </p>
-            <div className="flex space-x-5">
-              <a href="#" aria-label="Follow us on Facebook" className="text-blue-200 hover:text-white transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" aria-label="Follow us on Twitter" className="text-blue-200 hover:text-white transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" aria-label="Follow us on Instagram" className="text-blue-200 hover:text-white transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
+const COLUMNS: { title: string; links: { label: string; to?: string; onClick?: () => void }[] }[] = [
+  {
+    title: 'Support',
+    links: [
+      { label: 'Help Center', to: '/help' },
+      { label: 'Manage Booking', to: '/my-bookings' },
+      { label: 'Contact Us', to: '/contact' },
+      { label: 'Cancellation Policy', to: '/cancellation-policy' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About Us', to: '/about-us' },
+      { label: 'Become a Supplier', to: '/become-supplier' },
+      { label: 'Affiliate Program', to: '/affiliate-program' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Terms & Conditions', to: '/terms-and-conditions' },
+      { label: 'Privacy Policy', to: '/privacy-policy' },
+      { label: 'Cookies Policy', to: '/cookies-policy' },
+      { label: 'Cookie Settings', onClick: openCookieSettings },
+    ],
+  },
+];
 
-          <div>
-            <h3 className="text-white font-bold text-base mb-6">Company</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/about-us" className="text-blue-50 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link to="/blog" className="text-blue-50 hover:text-white transition-colors">Travel Blog</Link></li>
-              <li><Link to="/sitemap" className="text-blue-50 hover:text-white transition-colors">Sitemap</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-bold text-base mb-6">Support</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/contact" className="text-blue-50 hover:text-white transition-colors">Contact Us</Link></li>
-              <li><Link to="/help" className="text-blue-50 hover:text-white transition-colors">Help Center</Link></li>
-              <li><Link to="/my-bookings" className="text-blue-50 hover:text-white transition-colors">Manage Booking</Link></li>
-              <li><Link to="/cancellation-policy" className="text-blue-50 hover:text-white transition-colors">Cancellation Policy</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-bold text-base mb-6">Partners</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/become-supplier" className="text-blue-50 hover:text-white transition-colors">Become a Supplier</Link></li>
-              <li><Link to="/affiliate-program" className="text-blue-50 hover:text-white transition-colors">Affiliate Program</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-bold text-base mb-6">Legal</h3>
-            <ul className="space-y-4 text-sm">
-              <li><Link to="/terms-and-conditions" className="text-blue-50 hover:text-white transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="text-blue-50 hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><button type="button" onClick={openCookieSettings} className="text-blue-50 hover:text-white transition-colors">Cookie settings</button></li>
-              <li><Link to="/cookies-policy" className="text-blue-50 hover:text-white transition-colors">Cookies Policy</Link></li>
-            </ul>
-          </div>
-        </nav>
-
-        {/* Worldwide Car Rental Destinations Section */}
-        <div className="border-t border-blue-800/50 pt-12 mb-12">
-            <h3 className="text-white font-black text-lg mb-8 uppercase tracking-tight">Worldwide Car Rental Destinations</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-10">
-                {[
+const DESTINATIONS = [
                     {
                         country: 'UAE',
                         links: [
@@ -156,40 +121,92 @@ export const Footer = React.memo(() => (
                             { name: 'Car Rental Kuwait City', path: '/car-rental-kuwait-city' },
                         ]
                     }
-                ].map((group, idx) => (
-                    <div key={idx} className="space-y-4">
-                        <h4 className="text-blue-300 font-black text-xs uppercase tracking-[0.2em] mb-4">{group.country}</h4>
-                        <div className="flex flex-col gap-3">
-                            {group.links.map((link, lIdx) => (
-                                <Link key={lIdx} to={link.path} className="text-blue-100/70 hover:text-white text-xs font-bold transition-colors">
-                                    {link.name}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
+];
 
-        <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-blue-800/50 gap-6">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-            <p className="text-blue-300 text-sm">&copy; 2026 Hogicar. All rights reserved.</p>
-            <div className="flex items-center gap-4">
+const linkClass = 'text-sm text-blue-100/85 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:underline';
+
+export const Footer = React.memo(() => (
+    <footer className="bg-[#003580] text-white">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        {/* Brand and main links */}
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-10 py-12 md:grid-cols-4 lg:grid-cols-12 lg:py-14">
+          <div className="col-span-2 md:col-span-4 lg:col-span-5 lg:pr-12">
+            <Link to="/" className="inline-block" aria-label="Hogicar Home">
+              <Logo className="h-8 w-auto" variant="light" />
+            </Link>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-blue-100/85">
+              Connecting you with the best wheels for your journey. Reliable, transparent, and global car rental comparison.
+            </p>
+            <a href={`mailto:${CONTACT_EMAIL}`} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200">
+              <Mail className="h-4 w-4 text-blue-300" /> {CONTACT_EMAIL}
+            </a>
+            <div className="mt-6 flex gap-3">
+              {[
+                { label: 'Facebook', Icon: Facebook },
+                { label: 'Twitter', Icon: Twitter },
+                { label: 'Instagram', Icon: Instagram },
+              ].map(({ label, Icon }) => (
+                <a key={label} href="#" aria-label={`Follow us on ${label}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-blue-100 ring-1 ring-white/15 transition-colors hover:bg-white/20 hover:text-white">
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {COLUMNS.map((col, i) => (
+            <div key={col.title} className={`lg:col-span-2 ${i === COLUMNS.length - 1 ? 'col-span-2 md:col-span-1' : ''}`}>
+              <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-blue-300">{col.title}</h3>
+              <ul className="mt-5 space-y-3.5">
+                {col.links.map(link => (
+                  <li key={link.label}>
+                    {link.to
+                      ? <Link to={link.to} className={linkClass}>{link.label}</Link>
+                      : <button type="button" onClick={link.onClick} className={linkClass}>{link.label}</button>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        {/* Popular destinations */}
+        <section aria-labelledby="footer-destinations" className="border-t border-white/10 py-10">
+          <h3 id="footer-destinations" className="text-xs font-bold uppercase tracking-[0.16em] text-blue-300">Popular car rental destinations</h3>
+          <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-8 lg:grid-cols-4">
+            {DESTINATIONS.map(group => (
+              <div key={group.country}>
+                <h4 className="text-sm font-semibold text-white">{group.country}</h4>
+                <ul className="mt-3 space-y-2.5">
+                  {group.links.map(link => (
+                    <li key={link.path}>
+                      <Link to={link.path} className="text-[13px] text-blue-100/70 transition-colors hover:text-white">{link.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Bottom bar */}
+        <div className="flex flex-col items-center justify-between gap-5 border-t border-white/10 py-7 md:flex-row">
+          <p className="order-2 text-sm text-blue-200/80 md:order-1">&copy; {new Date().getFullYear()} Hogicar. All rights reserved.</p>
+          <div className="order-1 flex flex-wrap items-center justify-center gap-4 md:order-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-200"><Lock className="h-3.5 w-3.5" /> Secure payments</span>
+            <div className="flex items-center gap-2">
               <VisaIcon />
               <MastercardIcon />
               <AmexIcon />
-              <div className="w-px h-4 bg-blue-800 hidden md:block"></div>
-              <PciDssIcon />
             </div>
-          </div>
-          
-          <div className="bg-blue-900/40 px-4 py-2 rounded-lg border border-blue-700/50 flex items-center gap-3">
-             <div className="flex items-center">
-                {[1, 2, 3, 4, 5].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 text-green-400 fill-current" />
-                ))}
-             </div>
-             <span className="text-xs font-bold text-blue-100">Trustpilot Excellent</span>
+            <div className="hidden h-5 w-px bg-white/15 sm:block" />
+            <PciDssIcon />
+            <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 ring-1 ring-white/10">
+              <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 fill-current text-green-400" />)}
+              </div>
+              <span className="text-xs font-bold text-blue-100">Trustpilot Excellent</span>
+            </div>
           </div>
         </div>
       </div>
