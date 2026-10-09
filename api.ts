@@ -511,6 +511,12 @@ export const supplierApi = {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
+  /** Uploaded rate sheets, and the prices live now for the seasons each one set. */
+  getRateUploads: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/uploads`),
+  getRateUpload: (id: number) => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/uploads/${id}`),
+  downloadRateUpload: (id: number) => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/uploads/${id}/file`, { responseType: 'blob' }),
+  /** Hand-made changes for one season: [{ carId, minDays, maxDays, dailyRate|null }]. */
+  saveLiveRates: (payload: any) => supplierAxios.put(`${API_BASE_URL}/api/supplier/rates/live`, payload),
   bulkUpdateRates: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/rates/bulk`, payload),
   getStopSales: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/stopsales`),
   getAllRates: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/rates/all`),

@@ -58,6 +58,7 @@ import {
 } from '../types';
 import { Logo } from '../components/Logo';
 import AddonIcon from '../components/AddonIcon';
+import { RateUploadsSection } from '../components/supplier/RateUploads';
 import { VoucherModal } from '../components/RentalVoucher';
 import ChangeDecisionModal from '../components/manage/ChangeDecisionModal';
 import { changeStatusOf } from '../utils/changeRequest';
@@ -1937,6 +1938,8 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
     const [existingTiers, setExistingTiers] = useState<CarRateTier[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [uploadsKey, setUploadsKey] = useState(0);
+    const [lastUploadId, setLastUploadId] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<string>('');
@@ -2027,13 +2030,17 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
         if (!uploadFile) return;
         setIsSaving(true);
         try {
-            await supplierApi.importRates(uploadFile);
-            alert("Rates imported successfully!");
+            const res = await supplierApi.importRates(uploadFile);
             setUploadFile(null);
             fetchConfig();
+            setUploadsKey(k => k + 1);
+            // Open the uploaded sheet to show the prices that are live now.
+            if (res?.data?.uploadId) setLastUploadId(res.data.uploadId);
+            else alert("Rates imported successfully!");
         } catch (e: any) {
             const errorMsg = e.response?.data?.message || e.message || "Import failed. Check template format.";
             alert("Import failed: " + errorMsg);
+            setUploadsKey(k => k + 1);
         }
         finally { setIsSaving(false); }
     };
@@ -2401,6 +2408,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             </button>
                         </div>
                     </div>
+                    <RateUploadsSection refreshKey={uploadsKey} autoOpenId={lastUploadId} />
                     <HistorySection
                         history={history}
                         onRestore={handleRestore}
