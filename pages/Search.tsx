@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import { apiCarsToCars } from '../utils/apiCarToCar';
+import SearchPromoBanner, { PromoBanner } from '../components/SearchPromoBanner';
 import CarCard from '../components/CarCard';
 import { lazyRetry } from '../utils/lazyRetry';
 import { applyPickupOverrides, loadPickupOverrides, PickupOverrideMap } from '../utils/pickupOverrides';
@@ -100,6 +101,33 @@ export const Search: React.FC = () => {
   const searchParamsString = searchParams.toString();
   const navigate = useNavigate();
   const pickupIata = searchParams.get('pickup') || '';
+
+  // Promotional banners between the results (Admin › Search banners). Members and guests see different ones.
+  const [promoBanners, setPromoBanners] = React.useState<PromoBanner[]>([]);
+  const [hiddenBanners, setHiddenBanners] = React.useState<number[]>(() => {
+    try { return JSON.parse(sessionStorage.getItem('hogicar_hidden_banners') || '[]'); } catch { return []; }
+  });
+  React.useEffect(() => {
+    let alive = true;
+    fetch(`${API_BASE_URL}/api/public/banners?pickup=${encodeURIComponent(pickupIata)}`)
+      .then(r => (r.ok ? r.json() : []))
+      .then((list: PromoBanner[]) => {
+      if (!alive || !Array.isArray(list)) return;
+      let member = false;
+      try { member = !!localStorage.getItem('hogicar_rewards_token'); } catch { /* storage blocked */ }
+      setPromoBanners(list.filter(b => b.audience === 'ALL' || (b.audience === 'MEMBERS') === member));
+    }).catch(() => { /* banners are optional */ });
+    return () => { alive = false; };
+  }, [pickupIata]);
+  const hideBanner = (id?: number) => {
+    if (id == null) return;
+    setHiddenBanners(prev => {
+      const next = [...prev, id];
+      try { sessionStorage.setItem('hogicar_hidden_banners', JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
+  const bannersAfter = (n: number) => promoBanners.filter(b => (b.positionAfter || 3) === n && !hiddenBanners.includes(b.id as number));
   const pickupName = searchParams.get('pickupName') || pickupIata;
   const dropoffName = searchParams.get('dropoffName');
   const location = pickupName;
@@ -1205,8 +1233,9 @@ export const Search: React.FC = () => {
                     </div>
                   )}
 
-                  {carsToRender.map(car => (
-                    <div key={car.id} id={`car-${car.id}`} className={`scroll-mt-24 rounded-xl transition-shadow duration-500 ${highlightedCarId === car.id ? 'shadow-[0_0_0_3px_rgba(0,122,194,0.55),0_12px_32px_-12px_rgba(0,122,194,0.5)]' : ''}`}>
+                  {carsToRender.map((car, index) => (
+                    <React.Fragment key={car.id}>
+                    <div id={`car-${car.id}`} className={`scroll-mt-24 rounded-xl transition-shadow duration-500 ${highlightedCarId === car.id ? 'shadow-[0_0_0_3px_rgba(0,122,194,0.55),0_12px_32px_-12px_rgba(0,122,194,0.5)]' : ''}`}>
                     <CarCard
                       car={car}
                       cars={sortedAndFilteredCars}
@@ -1224,6 +1253,8 @@ export const Search: React.FC = () => {
                       matchedFilters={matchedFilterLabels}
                     />
                     </div>
+                    {bannersAfter(index + 1).map(b => <SearchPromoBanner key={`banner-${b.id}`} banner={b} onDismiss={() => hideBanner(b.id)} />)}
+                    </React.Fragment>
                   ))}
 
                   {sortedAndFilteredCars.length === 0 && !loading && (

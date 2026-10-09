@@ -52,6 +52,7 @@ import Clock from 'lucide-react/dist/esm/icons/clock';
 import History from 'lucide-react/dist/esm/icons/history';
 import Zap from 'lucide-react/dist/esm/icons/zap';
 import Gift from 'lucide-react/dist/esm/icons/gift';
+import Megaphone from 'lucide-react/dist/esm/icons/megaphone';
 import PieChart from 'lucide-react/dist/esm/icons/pie-chart';
 import Activity from 'lucide-react/dist/esm/icons/activity';
 import Percent from 'lucide-react/dist/esm/icons/percent';
@@ -98,6 +99,7 @@ import AffiliatesAdmin from '../components/AffiliatesAdmin';
 import IntegrationsAdmin from '../components/IntegrationsAdmin';
 const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateNetworks/AffiliateNetworksAdmin'));
 const RewardsAdmin = React.lazy(() => import('../components/RewardsAdmin'));
+const BannersAdmin = React.lazy(() => import('../components/BannersAdmin'));
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
 import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
@@ -300,6 +302,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
   homepagelogos: { title: 'Homepage logos', description: 'Brand logos shown in the homepage strip.', group: 'Website' },
   searchinglogos: { title: 'Searching logos', description: 'Logos shown on the searching screen.', group: 'Website' },
+  banners: { title: 'Search banners', description: 'Offers shown between the cars on the search results page.', group: 'Website' },
   cms: { title: 'Pages', description: 'Content pages on the website.', group: 'Website' },
   blog: { title: 'Blog', description: 'Travel guides and articles.', group: 'Website' },
   globallocations: { title: 'Locations', description: 'Airports, cities and stations customers can search.', group: 'Website' },
@@ -310,7 +313,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
 };
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
-                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'rewards' | 'cms' | 'seo' | 'seoaudit' |
+                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'rewards' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
                 'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap' | 'push';
 
@@ -623,6 +626,7 @@ const NAV_ITEMS: { section: Section; icon: any }[] = [
   { section: 'homepage', icon: ImageIcon },
   { section: 'homepagelogos', icon: ImageIcon },
   { section: 'searchinglogos', icon: Search },
+  { section: 'banners', icon: Megaphone },
   { section: 'cms', icon: FileText },
   { section: 'blog', icon: MessageSquare },
   { section: 'globallocations', icon: Globe },
@@ -5438,6 +5442,11 @@ export const AdminDashboard: React.FC = () => {
       case 'apipartners': return <ApiPartnersContent />;
       case 'affiliates': return <AffiliatesContent />;
       case 'affiliatenetworks': return <AffiliateNetworksContent />;
+      case 'banners': return (
+        <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
+          <BannersAdmin />
+        </React.Suspense>
+      );
       case 'rewards': return (
         <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
           <RewardsAdmin />

@@ -23,6 +23,7 @@ import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import KeyRound from 'lucide-react/dist/esm/icons/key-round';
 import { rewards, rewardsSession } from '../../api';
 import { PasswordField, passwordChecks } from './CreateAccountSheet';
+import MembershipCard from './MembershipCard';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const n = (v: any) => Number(v || 0).toLocaleString('en-US');
@@ -223,32 +224,9 @@ const RewardsDashboard = ({ data, onChange, onOpenBooking, onSignOut, celebrate 
           </motion.div>
 
           {/* Membership card */}
-          <motion.div {...rise(1)} className="mx-auto w-full max-w-sm [perspective:1200px]">
-            <motion.div whileHover={reduce ? undefined : { rotateX: 4, rotateY: -6 }} transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className={`relative aspect-[1.586] overflow-hidden rounded-[22px] bg-gradient-to-br ${style.card} p-5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)] ring-1 ${style.ring}`}>
-              <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
-              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(115deg,transparent_35%,rgba(255,255,255,0.18)_50%,transparent_65%)]" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-black tracking-[0.12em]">HOGI<span className="text-[#F57C00]">CAR</span></p>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Rewards</p>
-                  </div>
-                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ring-1 ${style.chip}`}><Crown className="h-3.5 w-3.5" /> {tier.name}</span>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/60">Points</p>
-                  <p className="text-3xl font-bold tabular-nums">{n(pts.available)}</p>
-                </div>
-                <div className="flex items-end justify-between text-xs">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold uppercase tracking-wider">{[acc.firstName, acc.lastName].filter(Boolean).join(' ') || acc.email}</p>
-                    <p className="font-mono text-white/70">{acc.memberNumber}</p>
-                  </div>
-                  <p className="shrink-0 text-right text-white/70">Member since<br /><span className="font-semibold text-white">{day(acc.memberSince)}</span></p>
-                </div>
-              </div>
-            </motion.div>
+          <motion.div {...rise(1)}>
+            <MembershipCard tier={tier.name || 'Explorer'} points={pts.available || 0}
+              name={[acc.firstName, acc.lastName].filter(Boolean).join(' ') || acc.email} memberNumber={acc.memberNumber} memberSince={acc.memberSince} />
           </motion.div>
         </div>
       </section>
