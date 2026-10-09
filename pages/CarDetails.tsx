@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { trackCheckout } from '../utils/checkoutTracker';
+import { trackCheckout, useCheckoutHeartbeat } from '../utils/checkoutTracker';
+import { usePriceHold } from '../utils/priceHold';
 import { applyPickupOverrides, loadPickupOverrides } from '../utils/pickupOverrides';
 import Check from 'lucide-react/dist/esm/icons/check';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
@@ -413,8 +414,9 @@ const CarDetails: React.FC = () => {
   React.useEffect(() => {
     if (!car || trackedCarRef.current === String(car.id)) return;
     trackedCarRef.current = String(car.id);
-    trackCheckout('CAR', { car, search: { pickupCode, pickupName, dropoffCode: dropoffCode || pickupCode, dropoffName, pickupDate: startDate, dropoffDate: endDate, startTime, endTime } });
+    trackCheckout('CAR', { car, quote: car, search: { pickupCode, pickupName, dropoffCode: dropoffCode || pickupCode, dropoffName, pickupDate: startDate, dropoffDate: endDate, startTime, endTime } });
   }, [car]); // eslint-disable-line react-hooks/exhaustive-deps
+  useCheckoutHeartbeat(!!car);
 
   const timeUntilPickup = React.useMemo(() => {
     const pickupDateTime = new Date(`${startDate}T${startTime}`);
@@ -532,7 +534,7 @@ const CarDetails: React.FC = () => {
 
   const [selectedExtraIds, setSelectedExtraIds] = React.useState<string[]>([]);
   const [insuranceOption, setInsuranceOption] = React.useState<'basic' | 'full'>('basic');
-  const [timeLeft, setTimeLeft] = React.useState(20 * 60);
+  const timeLeft = usePriceHold(car?.id);
   const [isConditionsModalOpen, setIsConditionsModalOpen] = React.useState(false);
   const [promoCodeInput, setPromoCodeInput] = React.useState('');
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
@@ -541,12 +543,6 @@ const CarDetails: React.FC = () => {
   const [showFullSpecs, setShowFullSpecs] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const closeRatings = React.useCallback(() => setShowRatingsTooltip(false), []);
-
-  React.useEffect(() => {
-    if (timeLeft === 0) return;
-    const interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
-    return () => clearInterval(interval);
-  }, [timeLeft]);
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
@@ -595,6 +591,8 @@ const CarDetails: React.FC = () => {
     endTime, 
     ...(pickupCode && { pickup: pickupCode }), 
     ...(dropoffCode && { dropoff: dropoffCode }), 
+    ...(searchParams.get('pickupName') && { pickupName: searchParams.get('pickupName') as string }),
+    ...(searchParams.get('dropoffName') && { dropoffName: searchParams.get('dropoffName') as string }),
     ...(selectedExtraIds.length && { extras: selectedExtraIds.join(',') }), 
     ...(appliedPromo && { promo: appliedPromo.code }) 
   }).toString();
@@ -794,7 +792,7 @@ const CarDetails: React.FC = () => {
             </div>
 <div className="flex items-center gap-3">
               <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                <Clock className="h-3.5 w-3.5" /> Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span>
+                <Clock className="h-3.5 w-3.5" /> {timeLeft > 0 ? <>Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span></> : 'Price hold ended · prices may change'}
               </p>
               <ShareCarButton details={shareDetails} />
             </div>

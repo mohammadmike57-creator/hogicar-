@@ -1,7 +1,8 @@
 
 import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { trackCheckout } from '../utils/checkoutTracker';
+import { trackCheckout, useCheckoutHeartbeat } from '../utils/checkoutTracker';
+import { usePriceHold } from '../utils/priceHold';
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
@@ -142,6 +143,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     
     return { car: foundCar || null };
   }, [id, location.state]);
+  const timeLeft = usePriceHold(car?.id);
 
   const { convertPrice, getCurrencySymbol } = useCurrency();
 
@@ -155,7 +157,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const [flightNumber, setFlightNumber] = React.useState('');
   const [insuranceOption, setInsuranceOption] = React.useState<'basic' | 'full'>('basic');
   const [selectedExtraIds, setSelectedExtraIds] = React.useState<string[]>(initialExtras);
-  const [timeLeft, setTimeLeft] = React.useState(20 * 60);
   const [appliedPromo, setAppliedPromo] = React.useState<PromoCode | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
@@ -224,18 +225,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     }
   }, [routeStep, profileHydrated, firstName, lastName, email, phoneNumber, id, bookingQuery, navigate]);
 
-  React.useEffect(() => {
-    const intervalId = setInterval(() => {
-      setTimeLeft(prevTimeLeft => {
-        if (prevTimeLeft <= 1) {
-          clearInterval(intervalId);
-          return 0;
-        }
-        return prevTimeLeft - 1;
-      });
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, []);
 
   React.useEffect(() => {
     if (!showRatingsTooltip) return;
@@ -423,12 +412,14 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     const stage = routeStep === 'payment' ? 'PAYMENT' : 'DETAILS';
     trackCheckout(stage, {
       car: { ...car, finalPrice: priceDetails.finalTotal || (car as any).finalPrice },
+      quote: car,
       search: { pickupCode: search.pickupCode, pickupName: search.pickupName, dropoffCode: search.dropoffCode, dropoffName: search.dropoffName,
         pickupDate: search.pickupDate, dropoffDate: search.dropoffDate, startTime: search.startTime, endTime: search.endTime },
       email: stage === 'PAYMENT' ? email : undefined,
       firstName: stage === 'PAYMENT' ? firstName : undefined,
     });
   }, [routeStep, car?.id, routeStep === 'payment' ? email : '']); // eslint-disable-line react-hooks/exhaustive-deps
+  useCheckoutHeartbeat(!!car);
 
   const ensureBookingDraft = async () => {
     // If we have a draft with a bookingRef, we already have a persistent booking in the DB.
@@ -731,7 +722,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             </ol>
           </div>
           <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
-            <Clock className="h-3.5 w-3.5" /> Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span>
+            <Clock className="h-3.5 w-3.5" /> {timeLeft > 0 ? <>Price held for <span className="font-mono font-semibold text-slate-700">{formatTime(timeLeft)}</span></> : 'Price hold ended · prices may change'}
           </p>
         </div>
 

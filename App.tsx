@@ -30,6 +30,7 @@ const SupplierConfirmation = lazyRetry(() => import('./pages/SupplierConfirmatio
 const Careers = lazyRetry(() => import('./pages/Careers'));
 const LeaveReview = lazyRetry(() => import('./pages/LeaveReview'));
 const BookingFeedback = lazyRetry(() => import('./pages/BookingFeedback'));
+const ResumeBooking = lazyRetry(() => import('./pages/ResumeBooking'));
 const AdminDashboard = lazyRetry(() => import('./admin/pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 
 const ScrollToTop: React.FC = () => {
@@ -128,6 +129,7 @@ const App: React.FC = () => {
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/leave-review/:bookingId" element={<LeaveReview />} />
             <Route path="/feedback/:ref" element={<BookingFeedback />} />
+            <Route path="/resume/:token" element={<ResumeBooking />} />
             <Route path="/book/:id" element={<BookingPage />} />
             <Route path="/book/:id/details" element={<BookingPage />} />
             <Route path="/book/:id/payment" element={<BookingPage />} />
