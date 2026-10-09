@@ -167,6 +167,36 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
   }
 };
 
+// ---------- HogiCar Rewards (customer accounts) ----------
+
+const REWARDS_TOKEN_KEY = 'hogicar_rewards_token';
+export const rewardsSession = {
+  get(): string | null { try { return localStorage.getItem(REWARDS_TOKEN_KEY); } catch { return null; } },
+  set(token: string) { try { localStorage.setItem(REWARDS_TOKEN_KEY, token); } catch { /* storage blocked */ } },
+  clear() { try { localStorage.removeItem(REWARDS_TOKEN_KEY); } catch { /* storage blocked */ } },
+};
+
+const rewardsAuth = () => {
+  const t = rewardsSession.get();
+  return t ? { headers: { Authorization: `Bearer ${t}` } } : {};
+};
+
+export const rewards = {
+  offer: async (email: string, ref: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/offer`, { email, ref })).data as { hasAccount: boolean; bookingPoints: number; welcomeBonus: number },
+  create: async (email: string, ref: string, password: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/create`, { email, ref, password })).data as { token: string; dashboard: any },
+  login: async (email: string, password: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/login`, { email, password })).data as { token: string; dashboard: any },
+  resetPassword: async (email: string, ref: string, password: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/reset-password`, { email, ref, password })).data as { token: string; dashboard: any },
+  me: async () => (await publicAxios.get(`${API_BASE_URL}/api/public/account/me`, rewardsAuth())).data,
+  redeem: async (points: number) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/redeem`, { points }, rewardsAuth())).data as { code: string; value: number; currency: string; expiresOn: string; dashboard: any },
+  changePassword: async (current: string, password: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/password`, { current, password }, rewardsAuth())).data as { token: string; dashboard: any },
+};
+
 export const lookupBooking = async (email: string, bookingRef: string): Promise<Booking> => {
   const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/lookup?email=${encodeURIComponent(email)}&ref=${encodeURIComponent(bookingRef)}`);
   return response.data;
