@@ -458,6 +458,7 @@ const AccountSettings = ({ acc, onChange, onSignOut }: { acc: any; onChange: (d:
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
   const valid = passwordChecks(next, acc.email).every(c => c.ok);
 
+  const hasPassword = acc.hasPassword !== false;
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid) { setMsg({ ok: false, text: 'Use at least 8 characters with a letter and a number.' }); return; }
@@ -487,6 +488,7 @@ const AccountSettings = ({ acc, onChange, onSignOut }: { acc: any; onChange: (d:
             ['Email', acc.email],
             ['Member number', acc.memberNumber],
             ['Member since', day(acc.memberSince)],
+            ['Sign-in', [acc.googleLinked ? 'Google' : null, acc.hasPassword !== false ? 'Email & password' : null].filter(Boolean).join(' · ') || '—'],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between gap-4 py-2.5"><dt className="text-slate-500">{k}</dt><dd className="text-right font-medium text-slate-900">{v}</dd></div>
           ))}
@@ -495,13 +497,14 @@ const AccountSettings = ({ acc, onChange, onSignOut }: { acc: any; onChange: (d:
         <button type="button" onClick={onSignOut} className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200"><LogOut className="h-4 w-4" /> Sign out</button>
       </section>
       <form onSubmit={save} className="space-y-4 rounded-3xl bg-white p-5 ring-1 ring-slate-200 sm:p-6">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900"><KeyRound className="h-5 w-5 text-slate-400" /> Change password</h2>
-        <PasswordField id="rw-current" label="Current password" value={current} onChange={setCurrent} autoComplete="current-password" />
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900"><KeyRound className="h-5 w-5 text-slate-400" /> {hasPassword ? 'Change password' : 'Set a password'}</h2>
+        {!hasPassword && <p className="text-sm text-slate-600">You sign in with Google. Add a password to also sign in with your email.</p>}
+        {hasPassword && <PasswordField id="rw-current" label="Current password" value={current} onChange={setCurrent} autoComplete="current-password" />}
         <PasswordField id="rw-new" label="New password" value={next} onChange={setNext} autoComplete="new-password" />
         <p className="text-xs text-slate-500">At least 8 characters, with a letter and a number.</p>
         {msg && <p role="status" className={`rounded-xl p-3 text-sm ring-1 ${msg.ok ? 'bg-emerald-50 text-emerald-800 ring-emerald-200' : 'bg-rose-50 text-rose-700 ring-rose-200'}`}>{msg.text}</p>}
-        <button disabled={busy || !current || !next} className="inline-flex h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-60">
-          {busy && <LoaderCircle className="h-4 w-4 animate-spin" />} Update password
+        <button disabled={busy || (hasPassword && !current) || !next} className="inline-flex h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-60">
+          {busy && <LoaderCircle className="h-4 w-4 animate-spin" />} {hasPassword ? 'Update password' : 'Save password'}
         </button>
       </form>
     </div>

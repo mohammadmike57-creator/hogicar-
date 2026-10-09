@@ -41,7 +41,9 @@ import { changeRequestOf, changeStatusOf, fmtDay } from '../utils/changeRequest'
 import WalletButtons from '../components/wallet/WalletButtons';
 import Gift from 'lucide-react/dist/esm/icons/gift';
 import KeyRound from 'lucide-react/dist/esm/icons/key-round';
-import CreateAccountSheet, { PasswordField, passwordChecks } from '../components/rewards/CreateAccountSheet';
+import CreateAccountSheet from '../components/rewards/CreateAccountSheet';
+import AuthPanel, { AuthResult } from '../components/rewards/AuthPanel';
+import CircleUser from 'lucide-react/dist/esm/icons/circle-user-round';
 import RewardsDashboard from '../components/rewards/RewardsDashboard';
 import { rewards, rewardsSession } from '../api';
 
@@ -91,35 +93,28 @@ const icsFor = (b: any) => {
 
 // ---------- Lookup screen ----------
 
-type LookupMode = 'reference' | 'password' | 'reset';
+type LookupMode = 'reference' | 'account';
 
-const LookupScreen = ({ onLogin, onPasswordLogin, onReset, error, isLoading, initialEmail = '', initialMode = 'reference' }: {
+const LookupScreen = ({ onLogin, onAuthenticated, error, isLoading, initialEmail = '', initialMode = 'reference', initialAuthView = 'signin' }: {
   onLogin: (email: string, ref: string) => void;
-  onPasswordLogin: (email: string, password: string) => void;
-  onReset: (email: string, ref: string, password: string) => void;
-  error: string; isLoading: boolean; initialEmail?: string; initialMode?: LookupMode;
+  onAuthenticated: (r: AuthResult) => void;
+  error: string; isLoading: boolean; initialEmail?: string; initialMode?: LookupMode; initialAuthView?: 'signin' | 'signup';
 }) => {
   const reduce = !!useReducedMotion();
   const [mode, setMode] = React.useState<LookupMode>(initialMode);
   const [email, setEmail] = React.useState(initialEmail);
   const [bookingRef, setBookingRef] = React.useState('');
-  const [password, setPassword] = React.useState('');
   const [showHelp, setShowHelp] = React.useState(false);
   const [touched, setTouched] = React.useState(false);
   const emailOk = /^\S+@\S+\.\S+$/.test(email.trim());
   const refOk = bookingRef.trim().length >= 3;
-  const needsRef = mode !== 'password';
-  const passOk = mode === 'password' ? password.length > 0 : mode === 'reset' ? passwordChecks(password, email).every(c => c.ok) : true;
-
-  const switchMode = (m: LookupMode) => { setMode(m); setTouched(false); setPassword(''); };
+  const switchMode = (m: LookupMode) => { setMode(m); setTouched(false); };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTouched(true);
-    if (!emailOk || (needsRef && !refOk) || !passOk) return;
-    if (mode === 'password') onPasswordLogin(email, password);
-    else if (mode === 'reset') onReset(email, bookingRef, password);
-    else onLogin(email, bookingRef);
+    if (!emailOk || !refOk) return;
+    onLogin(email, bookingRef);
   };
   const rise = (i: number) => ({ initial: { opacity: 0, y: reduce ? 0 : 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, ease, delay: 0.08 * i } });
 
@@ -136,30 +131,23 @@ const LookupScreen = ({ onLogin, onPasswordLogin, onReset, error, isLoading, ini
             <ShieldCheck className="h-3.5 w-3.5" /> Manage booking
           </motion.p>
           <motion.h1 {...rise(1)} className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Your trip, in your hands</motion.h1>
-          <motion.p {...rise(2)} className="mx-auto mt-3 max-w-lg text-base text-white/70 sm:text-lg">View your voucher, change dates or cancel. Use your booking reference, or sign in to your HogiCar Rewards account.</motion.p>
+          <motion.p {...rise(2)} className="mx-auto mt-3 max-w-lg text-base text-white/70 sm:text-lg">View your voucher, change dates or cancel with your booking reference. Or sign in to see every trip and your Rewards points.</motion.p>
         </div>
       </section>
 
       {/* Card */}
       <div className="relative z-10 mx-auto -mt-20 max-w-xl px-4 sm:-mt-24">
         <motion.div {...rise(3)} className="overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-20px_rgba(15,23,42,0.35)] ring-1 ring-slate-200">
-          {mode !== 'reset' ? (
-            <div role="tablist" aria-label="How to find your booking" className="grid grid-cols-2 gap-1 border-b border-slate-100 bg-slate-50 p-1.5">
-              {([['reference', 'Booking reference', Tag], ['password', 'Password', KeyRound]] as const).map(([id, label, Icon]) => (
-                <button key={id} type="button" role="tab" aria-selected={mode === id} onClick={() => switchMode(id)}
-                  className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${mode === id ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-800'}`}>
-                  <Icon className="h-4 w-4" /> {label}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-5 py-3 sm:px-8">
-              <p className="text-sm font-semibold text-slate-900">Reset your password</p>
-              <button type="button" onClick={() => switchMode('password')} className="text-sm font-medium text-accent hover:text-accent-700">Back to sign in</button>
-            </div>
-          )}
+          <div role="tablist" aria-label="How to find your booking" className="grid grid-cols-2 gap-1 border-b border-slate-100 bg-slate-50 p-1.5">
+            {([['reference', 'Booking reference', Tag], ['account', 'Sign in / Join', CircleUser]] as const).map(([id, label, Icon]) => (
+              <button key={id} type="button" role="tab" aria-selected={mode === id} onClick={() => switchMode(id)}
+                className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${mode === id ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-800'}`}>
+                <Icon className="h-4 w-4" /> {label}
+              </button>
+            ))}
+          </div>
+          {mode === 'account' ? <AuthPanel onAuthenticated={onAuthenticated} initialEmail={email} initialView={initialAuthView} /> : (
           <form onSubmit={handleSubmit} noValidate className="space-y-5 p-5 sm:p-8">
-            {mode === 'reset' && <p className="-mt-1 text-sm text-slate-600">Confirm it’s you with any booking reference from your account, then choose a new password.</p>}
             <AnimatePresence>
               {error && (
                 <motion.div role="alert" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
@@ -179,7 +167,7 @@ const LookupScreen = ({ onLogin, onPasswordLogin, onReset, error, isLoading, ini
               </div>
               {touched && !emailOk && <p className="mt-1.5 text-xs font-medium text-rose-600">Enter a valid email address.</p>}
             </div>
-            {needsRef && (<div>
+            <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <label htmlFor="mb-ref" className="block text-sm font-medium text-slate-700">Booking reference</label>
                 <button type="button" onClick={() => setShowHelp(v => !v)} aria-expanded={showHelp} className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-700">
@@ -206,35 +194,17 @@ const LookupScreen = ({ onLogin, onPasswordLogin, onReset, error, isLoading, ini
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>)}
-            {mode !== 'reference' && (
-              <div>
-                <PasswordField id="mb-password" label={mode === 'reset' ? 'New password' : 'Password'} value={password} onChange={setPassword}
-                  autoComplete={mode === 'reset' ? 'new-password' : 'current-password'} invalid={touched && !passOk} />
-                {touched && !passOk && <p className="mt-1.5 text-xs font-medium text-rose-600">{mode === 'reset' ? 'Use at least 8 characters with a letter and a number.' : 'Enter your password.'}</p>}
-                {mode === 'password' && (
-                  <div className="mt-2 flex justify-end">
-                    <button type="button" onClick={() => switchMode('reset')} className="text-sm font-medium text-accent hover:text-accent-700">Forgot password?</button>
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
             <motion.button type="submit" disabled={isLoading} whileTap={reduce ? undefined : { scale: 0.985 }}
               className="group relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent text-[15px] font-semibold text-white shadow-lg shadow-accent/25 transition-colors hover:bg-accent-700 disabled:cursor-wait disabled:opacity-80">
               {!reduce && <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[300%]" />}
-              {isLoading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> {mode === 'reference' ? 'Finding your booking…' : 'Signing in…'}</>
-                : <>{mode === 'reference' ? 'Find my booking' : mode === 'password' ? 'Sign in' : 'Save password & sign in'} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>}
+              {isLoading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Finding your booking…</> : <>Find my booking <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>}
             </motion.button>
           </form>
-          <div className="flex items-center justify-center gap-1.5 border-t border-slate-100 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-            <Lock className="h-3.5 w-3.5" /> {mode === 'reference' ? 'Your details are encrypted and only used to find your booking' : 'Your password is encrypted and never shared'}
-          </div>
-          {mode === 'password' && (
-            <div className="flex items-start gap-3 border-t border-slate-100 px-5 py-4 text-sm text-slate-600 sm:px-8">
-              <Gift className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-              <p>No account yet? Find your booking with its reference, then choose <strong>Create account</strong> to start collecting points.</p>
-            </div>
           )}
+          <div className="flex items-center justify-center gap-1.5 border-t border-slate-100 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+            <Lock className="h-3.5 w-3.5" /> {mode === 'reference' ? 'Your details are encrypted and only used to find your booking' : 'Secure sign-in. Your password is encrypted and never shared.'}
+          </div>
         </motion.div>
 
         {/* What you can do */}
@@ -666,7 +636,7 @@ const MyBookings: React.FC = () => {
   const [account, setAccount] = React.useState<any>(null);
   const [celebrate, setCelebrate] = React.useState(false);
   const [checkingSession, setCheckingSession] = React.useState(() => !!rewardsSession.get());
-  const [loginPrefill, setLoginPrefill] = React.useState<{ email: string; mode: 'reference' | 'password' } | null>(null);
+  const [loginPrefill, setLoginPrefill] = React.useState<{ email: string; mode: 'reference' | 'account' } | null>(null);
 
   const top = () => { try { window.scrollTo({ top: 0 }); } catch { /* ignore */ } };
 
@@ -698,32 +668,9 @@ const MyBookings: React.FC = () => {
 
   const authError = (err: any, fallback: string) => err?.response?.data?.message || fallback;
 
-  const handlePasswordLogin = async (email: string, password: string) => {
-    setIsLoading(true);
+  const handleAuthenticated = (r: AuthResult) => {
     setLoginError('');
-    try {
-      const res = await rewards.login(email.trim(), password);
-      rewardsSession.set(res.token);
-      enterAccount(res.dashboard);
-    } catch (err: any) {
-      setLoginError(authError(err, 'We couldn’t sign you in. Please try again.'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleReset = async (email: string, ref: string, password: string) => {
-    setIsLoading(true);
-    setLoginError('');
-    try {
-      const res = await rewards.resetPassword(email.trim(), ref.trim(), password);
-      rewardsSession.set(res.token);
-      enterAccount(res.dashboard);
-    } catch (err: any) {
-      setLoginError(authError(err, 'We couldn’t reset your password. Please check your details.'));
-    } finally {
-      setIsLoading(false);
-    }
+    enterAccount(r.dashboard, !!r.created);
   };
 
   // Signed in on this device before: go straight to the account.
@@ -787,7 +734,7 @@ const MyBookings: React.FC = () => {
           <AnimatePresence mode="wait">
             {showLogin ? (
               <motion.div key={`lookup-${loginPrefill?.mode || 'reference'}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
-                <LookupScreen onLogin={handleLogin} onPasswordLogin={handlePasswordLogin} onReset={handleReset} error={loginError} isLoading={isLoading}
+                <LookupScreen onLogin={handleLogin} onAuthenticated={handleAuthenticated} error={loginError} isLoading={isLoading}
                   initialEmail={loginPrefill?.email} initialMode={loginPrefill?.mode} />
               </motion.div>
             ) : view === 'account' ? (
@@ -801,7 +748,7 @@ const MyBookings: React.FC = () => {
                 <BookingDetailView booking={userBookings[0]} email={lookupEmail} onBookingModified={handleBookingModified} onBack={backFromBooking}
                   initialAction={initialAction} signedIn={!!account}
                   onAccountCreated={d => enterAccount(d, true)}
-                  onSignInRequest={() => { setLoginPrefill({ email: lookupEmail, mode: 'password' }); setUserBookings([]); setView('login'); top(); }} />
+                  onSignInRequest={() => { setLoginPrefill({ email: lookupEmail, mode: 'account' }); setUserBookings([]); setView('login'); top(); }} />
               </motion.div>
             )}
           </AnimatePresence>

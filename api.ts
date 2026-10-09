@@ -193,6 +193,16 @@ export const rewards = {
   me: async () => (await publicAxios.get(`${API_BASE_URL}/api/public/account/me`, rewardsAuth())).data,
   redeem: async (points: number) =>
     (await publicAxios.post(`${API_BASE_URL}/api/public/account/redeem`, { points }, rewardsAuth())).data as { code: string; value: number; currency: string; expiresOn: string; dashboard: any },
+  config: async () => (await publicAxios.get(`${API_BASE_URL}/api/public/account/config`)).data as { googleClientId: string | null; welcomeBonus: number },
+  signup: async (data: { email: string; firstName: string; lastName: string; password: string }) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/signup`, data)).data,
+  verifySignup: async (email: string, code: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/signup/verify`, { email, code })).data as { token: string; dashboard: any },
+  google: async (accessToken: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/google`, { accessToken })).data as { token: string; dashboard: any; created: boolean },
+  forgotPassword: async (email: string) => (await publicAxios.post(`${API_BASE_URL}/api/public/account/forgot-password`, { email })).data,
+  resetWithCode: async (email: string, code: string, password: string) =>
+    (await publicAxios.post(`${API_BASE_URL}/api/public/account/reset-password-code`, { email, code, password })).data as { token: string; dashboard: any },
   changePassword: async (current: string, password: string) =>
     (await publicAxios.post(`${API_BASE_URL}/api/public/account/password`, { current, password }, rewardsAuth())).data as { token: string; dashboard: any },
 };

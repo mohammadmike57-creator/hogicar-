@@ -10,6 +10,7 @@ import Gift from 'lucide-react/dist/esm/icons/gift';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import { rewards, rewardsSession } from '../../api';
+import { GoogleButton, OrDivider, useRewardsConfig } from './AuthPanel';
 
 export const passwordChecks = (pw: string, email = '') => [
   { ok: pw.length >= 8, label: 'At least 8 characters' },
@@ -50,6 +51,7 @@ const CreateAccountSheet = ({ email, bookingRef, bookingPoints, welcomeBonus, on
   const checks = passwordChecks(password, email);
   const valid = checks.every(c => c.ok);
   const match = password === confirm;
+  const cfg = useRewardsConfig();
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !busy) onClose(); };
@@ -101,6 +103,13 @@ const CreateAccountSheet = ({ email, bookingRef, bookingPoints, welcomeBonus, on
         </div>
 
         <form onSubmit={submit} noValidate className="space-y-4 p-6">
+          {cfg?.googleClientId && (
+            <>
+              <GoogleButton label="Continue with Google" onResult={r => onCreated(r.dashboard)} onError={setError} disabled={busy} />
+              <p className="-mt-2 text-center text-[11px] text-slate-500">Use the Google account for {email} so this booking’s points are added.</p>
+              <OrDivider text="or choose a password" />
+            </>
+          )}
           <div>
             <p className="mb-1.5 text-sm font-medium text-slate-700">Email</p>
             <div className="flex h-12 items-center gap-2.5 rounded-xl bg-slate-50 px-3.5 text-slate-700 ring-1 ring-slate-200">
