@@ -757,7 +757,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     </div>
                     <div className="group">
                       <label htmlFor="email" className={labelClass}>Email address</label>
-                      <FormInput id="email" icon={Mail} type="email" inputMode="email" placeholder="john.doe@example.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required />
+                      <FormInput id="email" icon={Mail} type="email" inputMode="email" placeholder="john.doe@example.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.trim().toLowerCase())} required />
                       <p className="mt-1 text-xs text-slate-500">We'll send your confirmation here, and one reminder if you don't finish your booking.</p>
                     </div>
                     <div className="group">
