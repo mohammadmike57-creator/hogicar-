@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { trackCheckout } from '../utils/checkoutTracker';
 import { applyPickupOverrides, loadPickupOverrides } from '../utils/pickupOverrides';
 import Check from 'lucide-react/dist/esm/icons/check';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
@@ -406,6 +407,14 @@ const CarDetails: React.FC = () => {
   const pickupName = searchParams.get('pickupName') || pickupCode || '';
   const dropoffName = searchParams.get('dropoffName') || dropoffCode || pickupName || '';
   const days = rentalDays(startDate, endDate);
+
+  // "Finish your booking" reminder for signed-in members (see utils/checkoutTracker).
+  const trackedCarRef = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!car || trackedCarRef.current === String(car.id)) return;
+    trackedCarRef.current = String(car.id);
+    trackCheckout('CAR', { car, search: { pickupCode, pickupName, dropoffCode: dropoffCode || pickupCode, dropoffName, pickupDate: startDate, dropoffDate: endDate, startTime, endTime } });
+  }, [car]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const timeUntilPickup = React.useMemo(() => {
     const pickupDateTime = new Date(`${startDate}T${startTime}`);

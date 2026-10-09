@@ -199,6 +199,10 @@ export const Search: React.FC = () => {
     highlightTimer.current = window.setTimeout(() => setHighlightedCarId(null), 2600);
   }, []);
   
+  // Links from "finish your booking" emails carry &car=<id>: scroll to that car once the results are in.
+  const linkedCarDone = useRef(false);
+  const linkedCarId = searchParams.get('car');
+
   const startD = new Date(startDate);
   const endD = new Date(endDate);
   const diffTime = Math.abs(endD.getTime() - startD.getTime());
@@ -718,6 +722,13 @@ export const Search: React.FC = () => {
     return () => { cancelAnimationFrame(frame); if (timer) clearTimeout(timer); };
   }, [renderAllCars, sortedAndFilteredCars.length]);
   const carsToRender = renderAllCars ? sortedAndFilteredCars : sortedAndFilteredCars.slice(0, FIRST_PAINT_CARDS);
+  useEffect(() => {
+    if (!linkedCarId || linkedCarDone.current || !sortedAndFilteredCars.length) return;
+    if (!sortedAndFilteredCars.some(c => String(c.id) === linkedCarId)) return;
+    linkedCarDone.current = true;
+    setRenderAllCars?.(true);
+    window.setTimeout(() => showCarFromAdvisor(linkedCarId), 700);
+  }, [linkedCarId, sortedAndFilteredCars, showCarFromAdvisor]); // eslint-disable-line react-hooks/exhaustive-deps
   
   const activeFilterCount =
     selectedCategories.length +

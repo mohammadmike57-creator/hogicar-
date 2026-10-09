@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { completeCheckout } from '../utils/checkoutTracker';
 import { Booking, Car } from '../types';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import Printer from 'lucide-react/dist/esm/icons/printer';
@@ -36,6 +37,8 @@ const Confirmation: React.FC = () => {
   // Affiliate networks' confirmation tags. The server only returns them for a confirmed booking that
   // came from an affiliate click, and only once – refreshing or revisiting this page fires nothing.
   const bookingRefForTags = booking?.bookingRef as string | undefined;
+  React.useEffect(() => { completeCheckout(); }, []);
+
   React.useEffect(() => {
     if (bookingRefForTags) fireConversionTags(bookingRefForTags);
   }, [bookingRefForTags]);

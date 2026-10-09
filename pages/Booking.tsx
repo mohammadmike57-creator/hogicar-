@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { trackCheckout } from '../utils/checkoutTracker';
 import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
@@ -416,6 +417,19 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     }, 500);
   };
 
+  // "Finish your booking" reminder: members from the details step, guests from the payment step.
+  React.useEffect(() => {
+    if (!car) return;
+    const stage = routeStep === 'payment' ? 'PAYMENT' : 'DETAILS';
+    trackCheckout(stage, {
+      car: { ...car, finalPrice: priceDetails.finalTotal || (car as any).finalPrice },
+      search: { pickupCode: search.pickupCode, pickupName: search.pickupName, dropoffCode: search.dropoffCode, dropoffName: search.dropoffName,
+        pickupDate: search.pickupDate, dropoffDate: search.dropoffDate, startTime: search.startTime, endTime: search.endTime },
+      email: stage === 'PAYMENT' ? email : undefined,
+      firstName: stage === 'PAYMENT' ? firstName : undefined,
+    });
+  }, [routeStep, car?.id, routeStep === 'payment' ? email : '']); // eslint-disable-line react-hooks/exhaustive-deps
+
   const ensureBookingDraft = async () => {
     // If we have a draft with a bookingRef, we already have a persistent booking in the DB.
     // If payNow > 0 but we don't have a clientSecret yet, we should allow the API call
@@ -753,7 +767,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                     <div className="group">
                       <label htmlFor="email" className={labelClass}>Email address</label>
                       <FormInput id="email" icon={Mail} type="email" inputMode="email" placeholder="john.doe@example.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value.toUpperCase())} required />
-                      <p className="mt-1 text-xs text-slate-500">We'll send your confirmation here.</p>
+                      <p className="mt-1 text-xs text-slate-500">We'll send your confirmation here, and one reminder if you don't finish your booking.</p>
                     </div>
                     <div className="group">
                       <label htmlFor="phone" className={labelClass}>Mobile number</label>
