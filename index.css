@@ -223,3 +223,90 @@ html, body {
 .hc-anim-sheet { animation: hc-sheet 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes hc-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
 @media (prefers-reduced-motion: reduce) { .hc-anim-pop, .hc-anim-fade, .hc-anim-sheet { animation: none; } }
+
+/* ---------------------------------------------------------------- blog article body
+   Article HTML comes from the CMS, so it is styled here rather than with utility classes. */
+.article-body {
+  color: #334155;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+@media (min-width: 768px) {
+  .article-body { font-size: 1.125rem; }
+}
+.article-body > * + *,
+.article-body section > * + *,
+.article-body .prose > * + * { margin-top: 1.25em; }
+.article-body section { margin: 0 !important; }
+.article-body section + section,
+.article-body section + div,
+.article-body div + section { margin-top: 2.5em !important; }
+.article-body h2 {
+  color: #0B2545;
+  font-size: 1.6rem !important;
+  line-height: 1.25;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.75em !important;
+  scroll-margin-top: 110px;
+}
+@media (min-width: 768px) {
+  .article-body h2 { font-size: 1.9rem !important; }
+}
+.article-body h3 {
+  color: #0B2545;
+  font-size: 1.25rem !important;
+  line-height: 1.35;
+  font-weight: 700 !important;
+  margin: 1.75em 0 0.5em !important;
+}
+.article-body h4 { color: #0B2545; font-weight: 700; font-size: 1.05rem; margin: 1.5em 0 0.4em; }
+.article-body p { margin: 0 0 1.1em; }
+.article-body p:last-child { margin-bottom: 0; }
+.article-body a { color: #007ac2; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.article-body a:hover { color: #003580; }
+.article-body strong { color: #0f172a; font-weight: 700; }
+.article-body ul, .article-body ol { margin: 0 0 1.25em; padding-left: 1.4em; }
+.article-body ul { list-style: none; padding-left: 0; }
+.article-body ul > li { position: relative; padding-left: 1.6em; margin: 0.5em 0; }
+.article-body ul > li::before {
+  content: ''; position: absolute; left: 0.25em; top: 0.72em;
+  width: 0.45em; height: 0.45em; border-radius: 9999px; background: #F57C00;
+}
+.article-body ol { list-style: decimal; }
+.article-body ol > li { margin: 0.5em 0; padding-left: 0.3em; }
+.article-body ol > li::marker { color: #F57C00; font-weight: 700; }
+.article-body blockquote {
+  margin: 2em 0; padding: 0.25em 0 0.25em 1.25em; border-left: 4px solid #F57C00;
+  color: #0B2545; font-size: 1.15em; font-weight: 500; font-style: italic;
+}
+.article-body img { border-radius: 1rem; width: 100%; height: auto; margin: 2em 0; }
+.article-body figure figcaption { font-size: 0.85rem; color: #64748b; margin-top: 0.5em; }
+.article-body table { width: 100%; border-collapse: collapse; margin: 2em 0; font-size: 0.95em; }
+.article-body th, .article-body td { border-bottom: 1px solid #e2e8f0; padding: 0.75em 0.5em; text-align: left; }
+.article-body th { color: #0B2545; font-weight: 700; background: #f8fafc; }
+.article-body hr { border: 0; border-top: 1px solid #e2e8f0; margin: 2.5em 0; }
+/* Call-out boxes and buttons written into articles with colour classes */
+.article-body div[class*="bg-"] {
+  margin: 2.5em 0 !important;
+  padding: 1.75em !important;
+  border-radius: 1.25rem !important;
+  background: linear-gradient(135deg, #0B2545 0%, #12396b 100%) !important;
+  border: 0 !important;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: left !important;
+}
+.article-body div[class*="bg-"] h3,
+.article-body div[class*="bg-"] h4 { color: #fff; margin-top: 0 !important; }
+.article-body div[class*="bg-"] a,
+.article-body a[class*="bg-"] {
+  display: inline-flex; align-items: center; gap: 0.4em;
+  margin-top: 0.5em; padding: 0.75em 1.4em; border-radius: 0.75rem;
+  background: #F57C00 !important; color: #fff !important;
+  font-size: 0.95rem; font-weight: 700; text-decoration: none;
+}
+.article-body div[class*="bg-"] a:hover,
+.article-body a[class*="bg-"]:hover { background: #E06F00 !important; }
+html[dir="rtl"] .article-body ul > li { padding-left: 0; padding-right: 1.6em; }
+html[dir="rtl"] .article-body ul > li::before { left: auto; right: 0.25em; }
+html[dir="rtl"] .article-body blockquote { border-left: 0; border-right: 4px solid #F57C00; padding: 0.25em 1.25em 0.25em 0; }
