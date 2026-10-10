@@ -972,17 +972,19 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
         </React.Suspense>
       )}
 
-      {/* ===== Related articles ===== */}
-      <React.Suspense fallback={<div className="h-96 bg-white" />}>
-        <LatestTravelGuides
-          variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
-          route={seoConfig?.route || location.pathname || '/'}
-          destination={seoConfig?.destinationName}
-          country={seoConfig?.countryTag}
-          airport={seoConfig?.airportTags}
-          limit={isCustomLanding ? (seoConfig?.routeType === 'COUNTRY' ? 8 : 5) : 6}
-        />
-      </React.Suspense>
+      {/* ===== Related articles (destination pages only, not the homepage) ===== */}
+      {isCustomLanding && (
+        <React.Suspense fallback={<div className="h-96 bg-white" />}>
+          <LatestTravelGuides
+            variant="DEFAULT"
+            route={seoConfig?.route || location.pathname || '/'}
+            destination={seoConfig?.destinationName}
+            country={seoConfig?.countryTag}
+            airport={seoConfig?.airportTags}
+            limit={seoConfig?.routeType === 'COUNTRY' ? 8 : 5}
+          />
+        </React.Suspense>
+      )}
 
       {/* ===== Regional links ===== */}
       {!isCustomLanding && (
