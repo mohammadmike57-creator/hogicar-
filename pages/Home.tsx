@@ -976,11 +976,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
       <React.Suspense fallback={<div className="h-96 bg-white" />}>
         <LatestTravelGuides
           variant={isCustomLanding ? 'DEFAULT' : 'HOMEPAGE'}
-          route={seoConfig?.route || '/'}
+          route={seoConfig?.route || location.pathname || '/'}
           destination={seoConfig?.destinationName}
           country={seoConfig?.countryTag}
           airport={seoConfig?.airportTags}
-          limit={isCustomLanding ? 3 : 6}
+          limit={isCustomLanding ? 5 : 6}
         />
       </React.Suspense>
 
