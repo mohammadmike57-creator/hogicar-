@@ -97,17 +97,9 @@ function send(res, status, body, headers = {}, req = null, filePath = null) {
   res.end(finalBody);
 }
 
-// Connection-level headers must not be forwarded (fetch rejects them, e.g. "Connection: Upgrade").
-const HOP_BY_HOP = new Set(['connection', 'keep-alive', 'proxy-connection', 'proxy-authenticate', 'proxy-authorization',
-  'te', 'trailer', 'transfer-encoding', 'upgrade', 'http2-settings', 'host', 'content-length']);
-
 async function proxyToBackend(req, res, url) {
   const target = new URL(url.pathname + url.search, backendOrigin);
-  const headers = new Headers();
-  for (const [name, value] of Object.entries(req.headers)) {
-    if (value === undefined || HOP_BY_HOP.has(name.toLowerCase())) continue;
-    headers.set(name, Array.isArray(value) ? value.join(', ') : value);
-  }
+  const headers = new Headers(req.headers);
   headers.set('host', target.host);
   headers.set('accept-encoding', 'identity');
 
@@ -219,90 +211,6 @@ async function serveStatic(req, res, url) {
   send(res, 200, html, { 'Content-Type': contentTypes['.html'], 'Cache-Control': 'no-cache' }, req);
 }
 
-// ---------------------------------------------------------------- server-side SEO
-// Each page is sent with its own title, description, robots, canonical, hreflang, structured data and
-// readable text from the backend (/api/seo/head), merged into the current index.html. Search engines
-// and link previews see the real page before any JavaScript runs. If the backend is slow or down, the
-// plain app shell is served exactly as before.
-
-const SEO_TTL_MS = 5 * 60 * 1000;
-const SEO_TIMEOUT_MS = 2500;
-const seoCache = new Map();
-const NON_PAGE_PREFIXES = ['/api/', '/uploads/', '/assets/', '/logos/', '/icons/'];
-
-function isPageRoute(pathname) {
-  if (NON_PAGE_PREFIXES.some(p => pathname.startsWith(p))) return false;
-  const last = pathname.split('/').pop() || '';
-  return !last.includes('.');
-}
-
-async function fetchSeoHead(pagePath) {
-  const hit = seoCache.get(pagePath);
-  if (hit && Date.now() - hit.at < SEO_TTL_MS) return hit.data;
-  try {
-    const target = new URL('/api/seo/head', backendOrigin);
-    target.searchParams.set('path', pagePath);
-    const response = await fetch(target, { signal: AbortSignal.timeout(SEO_TIMEOUT_MS), headers: { accept: 'application/json' } });
-    if (!response.ok) return null;
-    const data = await response.json();
-    if (!data || typeof data.status !== 'number') return null;
-    if (seoCache.size > 2000) seoCache.delete(seoCache.keys().next().value);
-    seoCache.set(pagePath, { at: Date.now(), data });
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-// Tags in index.html that each page replaces with its own.
-const SEO_TAG_PATTERNS = [
-  /<title\b[^>]*>[\s\S]*?<\/title>\s*/gi,
-  /<meta\s[^>]*name=["'](?:description|keywords|robots|googlebot|twitter:[^"']+)["'][^>]*>\s*/gi,
-  /<meta\s[^>]*property=["'](?:og|article):[^"']+["'][^>]*>\s*/gi,
-  /<link\s[^>]*rel=["']canonical["'][^>]*>\s*/gi,
-  /<link\s[^>]*rel=["']alternate["'][^>]*hreflang=[^>]*>\s*/gi,
-];
-
-// The app replaces tags marked data-ssr with its own once it runs (see SEOMetadata).
-function markServerTags(head) {
-  return head.replace(/<(title|meta|link)\b(?![^>]*\bdata-ssr\b)/gi, '<$1 data-ssr');
-}
-
-const SSR_STYLE = 'max-width:72rem;margin:0 auto;padding:96px 16px 48px;font-family:Inter,system-ui,-apple-system,sans-serif;color:#0f172a;line-height:1.6';
-
-function mergeSeo(indexHtml, seo) {
-  const headEnd = indexHtml.search(/<\/head>/i);
-  if (headEnd < 0) return indexHtml;
-  let head = indexHtml.slice(0, headEnd);
-  const rest = indexHtml.slice(headEnd);
-  // The <svg><title> inside the boot shell template sits in <body>, so only the <head> is cleaned.
-  for (const re of SEO_TAG_PATTERNS) head = head.replace(re, '');
-  let html = `${head}${markServerTags(seo.head || '')}\n${rest}`;
-  const lang = /^[a-z]{2}(-[A-Za-z]{2})?$/.test(seo.lang || '') ? seo.lang : 'en';
-  html = html.replace(/<html\b[^>]*>/i, `<html lang="${lang}"${lang.startsWith('ar') ? ' dir="rtl"' : ''}>`);
-  if (seo.root) {
-    html = html.replace('<div id="root"></div>', () => `<div id="root"><div data-ssr-body style="${SSR_STYLE}">${seo.root}</div></div>`);
-  }
-  return html;
-}
-
-async function serveSeoPage(req, res, url) {
-  let pagePath;
-  try { pagePath = decodeURIComponent(url.pathname); } catch { pagePath = url.pathname; }
-  const seo = await fetchSeoHead(pagePath);
-  if (!seo) return false;
-  if ([301, 302, 307, 308].includes(seo.status) && seo.location) {
-    const location = seo.location.startsWith('http') || seo.location.startsWith('/') ? seo.location : `/${seo.location}`;
-    send(res, seo.status === 302 || seo.status === 307 ? seo.status : 301, '', { Location: encodeURI(location) + (url.search || ''), 'Cache-Control': 'public, max-age=300' });
-    return true;
-  }
-  const indexHtml = (await readFile(path.join(distDir, 'index.html'))).toString('utf8');
-  const headers = { 'Content-Type': contentTypes['.html'], 'Cache-Control': 'no-cache' };
-  if (seo.noindex) headers['X-Robots-Tag'] = 'noindex, follow';
-  send(res, seo.status === 404 || seo.status === 410 ? seo.status : 200, Buffer.from(mergeSeo(indexHtml, seo), 'utf8'), headers, req);
-  return true;
-}
-
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -325,13 +233,6 @@ createServer(async (req, res) => {
     if (shouldProxy(url.pathname)) {
       await proxyToBackend(req, res, url);
       return;
-    }
-
-    if ((req.method === 'GET' || req.method === 'HEAD') && isPageRoute(url.pathname)) {
-      let decoded = url.pathname;
-      try { decoded = decodeURIComponent(url.pathname); } catch { /* keep raw */ }
-      const onDisk = decoded !== '/' && existsSync(path.join(distDir, path.normalize(decoded)));
-      if (!onDisk && await serveSeoPage(req, res, url)) return;
     }
 
     await serveStatic(req, res, url);
