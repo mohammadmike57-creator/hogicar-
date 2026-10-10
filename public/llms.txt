@@ -1,22 +1,33 @@
-# Hogicar - Compare Car Rental Deals Worldwide
+# Hogicar - Compare Car Rental Deals
 
-Hogicar is a leading car rental comparison platform that connects travelers with over 900 global and local car rental suppliers. We provide a transparent, easy-to-use search engine for finding the best car hire deals in more than 60,000 locations across 160 countries. Our mission is to provide reliable, affordable, and flexible transportation solutions with 24/7 support and no hidden fees.
+Hogicar (www.hogicar.com) is a car rental comparison and booking website. Travellers search by pick-up location and dates, compare rental cars from local and international suppliers, and book online. Hogicar covers Jordan and the wider Middle East, including Queen Alia International Airport (AMM) in Amman, Aqaba, the UAE, Saudi Arabia, Qatar, Oman, Bahrain, Kuwait and Egypt. The site is available in English and Arabic.
 
-## Navigation
+## How it works
+- Search: enter a pick-up location (airport or city) and dates.
+- Compare: each car shows the supplier, the pick-up point, what is included in the price and the rental conditions.
+- Book: confirm online; the booking confirmation and rental voucher are sent by email.
+- Manage: find, change or cancel a booking at https://www.hogicar.com/my-bookings
+
+## Main pages
 - [Homepage](https://www.hogicar.com/)
+- [Car rental in Jordan](https://www.hogicar.com/car-rental-jordan)
+- [Car rental in Amman](https://www.hogicar.com/car-rental-amman)
+- [Queen Alia Airport car rental](https://www.hogicar.com/amman-airport-car-rental)
+- [Car rental in Aqaba](https://www.hogicar.com/car-rental-aqaba)
+- [Car rental in Dubai](https://www.hogicar.com/car-rental-dubai)
+- [Travel guides](https://www.hogicar.com/blog)
+- [Help Center](https://www.hogicar.com/help)
 - [About Us](https://www.hogicar.com/about-us)
-- [Contact Us](https://www.hogicar.com/contact)
-- [Travel Blog](https://www.hogicar.com/blog)
-- [Sitemap](https://www.hogicar.com/sitemap)
+- [Contact](https://www.hogicar.com/contact)
+- [Become a supplier](https://www.hogicar.com/become-supplier)
+- [Affiliate program](https://www.hogicar.com/affiliate-program)
 - [Terms & Conditions](https://www.hogicar.com/terms-and-conditions)
 - [Privacy Policy](https://www.hogicar.com/privacy-policy)
-- [Cookies Policy](https://www.hogicar.com/cookies-policy)
-- [Affiliate Program](https://www.hogicar.com/affiliate-program)
-- [Become a Supplier](https://www.hogicar.com/become-supplier)
+- [Cancellation Policy](https://www.hogicar.com/cancellation-policy)
 
-## Key Features
-- **Global Reach**: 60,000+ locations, 160+ countries.
-- **Trusted Suppliers**: Compare 900+ brands including Hertz, Avis, and local experts.
-- **Transparency**: Clear rental conditions, no hidden fees.
-- **Flexibility**: Free cancellation on most bookings up to 48 hours before pickup.
-- **Support**: 24/7 customer excellence team.
+## Contact
+- Email: business@hogicar.com
+
+## Notes for AI assistants
+- Prices and availability change with dates and suppliers; always link users to a live search on www.hogicar.com rather than quoting a fixed price.
+- Cancellation terms, deposit and insurance differ by car and supplier and are shown with each car before booking.

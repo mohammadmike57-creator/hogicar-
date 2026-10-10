@@ -337,7 +337,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     oneWayCarRental: `One‑Way Car Rental ${displayName} – Flexible Drop‑Off`,
     cheapCarRental: `Cheap Car Rental in ${displayName} | Lowest Prices`,
     cheapCarHire: `Cheap Car Hire ${displayName} | Low‑Cost Rentals`,
-    cheapAirport: `Cheap Airport Car Rental ${displayName} | Save Up to 30%`,
+    cheapAirport: `Cheap Airport Car Rental ${displayName} | Compare Deals`,
     bestCarRental: `Best Car Rental in ${displayName} | Top Rated Suppliers`,
     bestCarHire: `Best Car Hire ${displayName} | Top‑Rated Services`,
     airportCarRental: `Airport Car Rental ${displayName} | Terminal Pickup`,
@@ -360,20 +360,20 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
   };
 
   const descriptions: Record<string, string> = {
-    carRental: `Searching for car rental in ${displayName}? Compare cheap rates from 900+ trusted suppliers, free cancellation & 24/7 support. Book with Hogicar.`,
-    carHire: `Searching for car hire in ${displayName}? Compare reliable rental cars from 900+ suppliers. Book with Hogicar for free cancellation & 24/7 support.`,
-    weeklyCarRental: `Save with weekly car rental in ${displayName}. Compare 7-day hire deals from 900+ suppliers. Free cancellation, no hidden fees.`,
+    carRental: `Searching for car rental in ${displayName}? Compare rates from local and international suppliers and book online with Hogicar.`,
+    carHire: `Searching for car hire in ${displayName}? Compare rental cars from local and international suppliers and book online with Hogicar.`,
+    weeklyCarRental: `Weekly car rental in ${displayName}. Compare 7-day hire deals from local and international suppliers and see what is included before you book.`,
     dailyCarRental: `Need a car for a day in ${displayName}? Compare cheap daily rental rates. Perfect for airport pickups, day trips & short stays.`,
     electricCarRental: `Rent an electric car in ${displayName}. Go green with zero‑emission vehicles. Find EV charging stations & book with Hogicar.`,
     convertibleRental: `Cruise ${displayName} in style with a convertible rental. Compare luxury open‑top cars for the ultimate driving experience.`,
     oneWayCarRental: `Plan a road trip with one‑way car rental in ${displayName}. Pick up in one city, drop off in another. Flexible options on Hogicar.`,
     cheapCarRental: `Find the cheapest car rental in ${displayName}. Compare low‑cost deals, economy cars, and exclusive discounts. Book online & save with Hogicar.`,
-    cheapCarHire: `Find cheap car hire in ${displayName}. Compare budget deals & economy cars. No hidden fees, free cancellation. Book now.`,
-    cheapAirport: `Get cheap airport car rental at ${displayName}. Compare budget‑friendly options, secure the lowest price. No hidden fees, free cancellation.`,
+    cheapCarHire: `Find cheap car hire in ${displayName}. Compare budget deals and economy cars and see the full price before you book.`,
+    cheapAirport: `Get cheap airport car rental at ${displayName}. Compare budget‑friendly options and see the full price before you book.`,
     bestCarRental: `Discover the best car rental services in ${displayName}. Top‑rated, reliable, and affordable. Compare reviews and book in minutes with Hogicar.`,
     bestCarHire: `Looking for the best car hire in ${displayName}? Compare top-rated suppliers and book reliable vehicles at the lowest prices.`,
-    airportCarRental: `Pick up your rental car at ${displayName} Airport. Compare airport car rental deals, save up to 30%. Easy online booking.`,
-    airportCarHire: `Pick up your hire car at ${displayName} airport. Compare airport car hire deals and save up to 30%. Easy online booking.`,
+    airportCarRental: `Pick up your rental car at ${displayName} Airport. Compare airport car rental deals and book online.`,
+    airportCarHire: `Pick up your hire car at ${displayName} airport. Compare airport car hire deals and book online.`,
     airportSpecific: `${displayName} airport car rental – compare & book rental cars directly at the terminal. Secure the best rates with Hogicar.`,
     luxuryCarRental: `Experience luxury car rental in ${displayName}. Choose from premium sedans, sports cars, & SUVs. Top‑tier service with Hogicar.`,
     luxuryCarHire: `Experience premium travel with luxury car hire in ${displayName}. Compare high-end vehicles, sports cars and executive sedans.`,
@@ -388,7 +388,7 @@ export const getDefaultSEOPage = (routeType: string, slug: string, locationData?
     vanRental: `Van rental in ${displayName} for passengers or cargo. Find affordable minivans and full‑size vans. Book online with Hogicar.`,
     vanHire: `Need extra space? Compare van hire in ${displayName} for passengers or cargo. Affordable minivans and full-size vans available.`,
     rentACar: `Rent a car in ${displayName} quickly & easily. Compare hundreds of deals from trusted suppliers. Book your perfect car with Hogicar.`,
-    country: `Find the best car rental deals in ${displayName}. Compare prices from 900+ suppliers, book online & save. Reliable, transparent car rental.`,
+    country: `Find car rental deals in ${displayName}. Compare prices from local and international suppliers and book online with Hogicar.`,
   };
 
   const keywords: Record<string, string> = {

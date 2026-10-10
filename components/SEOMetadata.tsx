@@ -70,8 +70,12 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     ogImage = 'https://www.hogicar.com/android-chrome-512x512.png?v=2';
   }
 
-  const canonical = propCanonical || config?.canonicalUrl || dynamicSEO?.canonicalUrl || (PUBLIC_BASE_URL + location.pathname);
-  const isNoIndex = propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false);
+  // Route defaults only describe landing pages (city, country, airport). Every other page is its own
+  // canonical; falling back to the defaults pointed /contact, /blog and the rest at the homepage.
+  const canonical = propCanonical || config?.canonicalUrl || (routeType ? dynamicSEO?.canonicalUrl : null) || (PUBLIC_BASE_URL + normalizedPathname);
+  // Search results, checkout, account and dashboard screens never belong in Google.
+  const isPrivateScreen = /^\/(admin|supplier|search|searching|car\/|book\/|booking|confirmation|voucher|my-bookings|resume\/|go\/|feedback\/|leave-review)/i.test(normalizedPathname);
+  const isNoIndex = isPrivateScreen || (propNoIndex !== undefined ? propNoIndex : (config ? (config.indexable === false) : false));
 
   const finalOgTitle = propOgTitle || config?.ogTitle || title;
   const finalOgDesc = propOgDescription || config?.ogDescription || description;
@@ -133,6 +137,12 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     fetchConfig();
     return () => { isMounted = false; };
   }, [normalizedPathname, propConfig, propTitle, propDescription]);
+
+  // The server sends each page with its own tags for crawlers (marked data-ssr). Once the app runs,
+  // the tags below take over, so a page never ends up with two titles or two canonicals.
+  useEffect(() => {
+    document.head.querySelectorAll('[data-ssr]').forEach(el => el.remove());
+  }, []);
 
   useEffect(() => {
     const html = document.documentElement;

@@ -14,9 +14,14 @@ const CarRentalAmman: React.FC = () => {
   const seoConfig = getRouteSEO('carRental', 'amman', '/car-rental-amman');
   
   const title = "Car Rental Amman – Affordable Deals | Hogicar";
-  const description = "Rent a car in Amman with Hogicar. Best prices, full insurance, free cancellation. Book online now.";
+  const description = "Compare car rental in Amman from local and international suppliers, with pick-up at Queen Alia Airport and in the city. Book online with Hogicar.";
   const canonical = "https://www.hogicar.com/car-rental-amman";
   const ogImage = "https://www.hogicar.com/uploads/hero/amman-hero.webp";
+
+  // The server's tags for crawlers (data-ssr) give way to the ones below once the app runs.
+  React.useEffect(() => {
+    document.head.querySelectorAll('[data-ssr]').forEach(el => el.remove());
+  }, []);
 
   return (
     <div className="bg-slate-50 min-h-screen">

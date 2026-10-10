@@ -1,17 +1,29 @@
 User-agent: *
 Allow: /
+Allow: /api/public/
+Allow: /api/seo/
+Allow: /api/pages/
+Allow: /api/homepage/
+Allow: /uploads/
 
-# Sitemaps
-Sitemap: https://www.hogicar.com/sitemap.xml
-Sitemap: https://www.hogicar.com/sitemap-destinations.xml
-Sitemap: https://www.hogicar.com/sitemap-blog.xml
-
-# Disallow admin and internal paths
-Disallow: /admin
-Disallow: /admin/
+# Private, transactional and duplicate screens
 Disallow: /api/
-Disallow: /voucher
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /supplier
+Disallow: /supplier-login
+Disallow: /supplier-confirmation
+Disallow: /search
+Disallow: /searching
+Disallow: /book/
 Disallow: /confirmation
-Disallow: /booking-confirmed
+Disallow: /voucher
 Disallow: /my-bookings
 Disallow: /resume/
+Disallow: /go/
+Disallow: /feedback/
+Disallow: /leave-review/
+Disallow: /*?*spa_fallback=
+Disallow: /?*
+
+Sitemap: https://www.hogicar.com/sitemap.xml
