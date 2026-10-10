@@ -980,7 +980,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           destination={seoConfig?.destinationName}
           country={seoConfig?.countryTag}
           airport={seoConfig?.airportTags}
-          limit={isCustomLanding ? 5 : 6}
+          limit={isCustomLanding ? (seoConfig?.routeType === 'COUNTRY' ? 8 : 5) : 6}
         />
       </React.Suspense>
 

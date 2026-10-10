@@ -72,7 +72,8 @@ const LatestTravelGuides: React.FC<LatestTravelGuidesProps> = ({
         if (isHomepage) {
           data = (await fetchHomepageFeaturedBlogs()).filter(a => !a.lang || a.lang === lang);
         } else {
-          data = await fetchRelatedBlogs(destination || route, country, airport, limit, lang);
+          // The page address lets the server match guides written for this page, then its city and country.
+          data = await fetchRelatedBlogs(route !== '/' ? route : destination, country, airport, limit, lang);
         }
         if (!cancelled) setArticles(data.slice(0, limit));
       } catch (error) {
