@@ -24,7 +24,7 @@ export interface Channel {
   id: number; code: string; name: string; programmeName?: string; category: string; adapterKey: string; integrationType: string;
   website?: string; documentationUrl?: string; businessOwner?: string; status: ChannelStatus;
   commercialStatus: string; implementationStatus: string; validationStatus: string; productionApproval: string;
-  markets?: string; currencies?: string; mandatoryFeesConfirmed: boolean; offerTtlMinutes: number; attributionWindowDays: number;
+  markets?: string; currencies?: string; mandatoryFeesConfirmed: boolean; includeApiInventory?: boolean | null; offerTtlMinutes: number; attributionWindowDays: number;
   commercialContactName?: string; commercialContactEmail?: string; commercialContactPhone?: string;
   technicalContactName?: string; technicalContactEmail?: string; technicalContactPhone?: string;
   applicationDate?: string; contractStatus?: string; documentationReceivedAt?: string; apiAccessRequestedAt?: string;
@@ -57,6 +57,17 @@ export interface InventoryItem {
 }
 export interface Eligibility { item: InventoryItem; eligible: boolean; reasons: Reason[]; externalLocationId?: string; externalCategory?: string }
 
+export interface ApiContract {
+  id: number; vendorCode: string; contractReference: string; documentUrl?: string; signedOn?: string; validFrom?: string; validTo?: string;
+  redistributionAllowed?: boolean; sourceTermsConfirmed?: boolean; allowedChannels?: string; allowedMarkets?: string; notes?: string;
+  active?: boolean; updatedBy?: string; updatedAt?: string;
+}
+export interface ApiSupplier {
+  externalSupplierId: number; vendorCode: string; name: string; logoUrl?: string; active: boolean;
+  locations: { code: string; countryCode?: string; carCount?: number; active: boolean; availability?: string }[];
+  contract: ApiContract | null; distributable: boolean; blockReason: string | null;
+}
+
 export interface ApiLog {
   id: number; channelId?: number; direction: string; environment?: string; operation: string; correlationId: string; httpStatus?: number;
   latencyMs?: number; success: boolean; errorType: string; severity: string; message?: string; createdAt: string;
@@ -87,6 +98,9 @@ export const distributionApi = {
   testConnection: (id: number, environment: string) => data<{ result: { verified: boolean; mock: boolean; summary: string; details: string[] }; correlationId: string }>(adminAxios.post(`${BASE}/channels/${id}/test`, { environment })),
 
   inventory: () => data<InventoryItem[]>(adminAxios.get(`${BASE}/inventory`)),
+  apiInventory: () => data<ApiSupplier[]>(adminAxios.get(`${BASE}/api-inventory`)),
+  saveApiContract: (vendorCode: string, b: Record<string, unknown>) => data<any>(adminAxios.put(`${BASE}/api-inventory/${encodeURIComponent(vendorCode)}/contract`, b)),
+  deleteApiContract: (vendorCode: string) => data<unknown>(adminAxios.delete(`${BASE}/api-inventory/${encodeURIComponent(vendorCode)}/contract`)),
   saveProfile: (carId: number, b: Record<string, unknown>) => data<any>(adminAxios.put(`${BASE}/inventory/${carId}/profile`, b)),
   channelInventory: (id: number) => data<Eligibility[]>(adminAxios.get(`${BASE}/channels/${id}/inventory`)),
   validation: (id: number) => data<any>(adminAxios.get(`${BASE}/channels/${id}/validation`)),

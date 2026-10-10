@@ -2,6 +2,7 @@ import * as React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Route from 'lucide-react/dist/esm/icons/route';
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import ServerCog from 'lucide-react/dist/esm/icons/server-cog';
 import KeyRound from 'lucide-react/dist/esm/icons/key-round';
@@ -29,12 +30,14 @@ import { distributionApi, errorText, type Adapter, type CapabilityState, type Ch
 import { CAP_UI, ReadOnlyNote, StatusBadge, TrackBadge, fmtDateTime, humanize, useDist } from './shared';
 import { CredentialsTab, EligibilityTab, MappingTab, PricingTab, DeeplinksTab, BookingsTab, DocumentsTab, ChannelAuditTab } from './ChannelDataTabs';
 import { MonitoringView, ReportsView } from './OperationsViews';
+import { ApiInventoryToggle, ConnectionFlowTab } from './ApiInventoryViews';
 
-type TabKey = 'overview' | 'commercial' | 'integration' | 'credentials' | 'markets' | 'eligibility' | 'locations' | 'categories'
+type TabKey = 'overview' | 'connection' | 'commercial' | 'integration' | 'credentials' | 'markets' | 'eligibility' | 'locations' | 'categories'
   | 'pricing' | 'deeplinks' | 'bookings' | 'monitoring' | 'errors' | 'reporting' | 'documentation' | 'audit';
 
 const TABS: { key: TabKey; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
   { key: 'overview', label: 'Overview & readiness', Icon: ShieldCheck },
+  { key: 'connection', label: 'Connection flow', Icon: Route },
   { key: 'commercial', label: 'Commercial', Icon: Briefcase },
   { key: 'integration', label: 'Integration', Icon: ServerCog },
   { key: 'credentials', label: 'Credentials & security', Icon: KeyRound },
@@ -97,11 +100,12 @@ const ChannelDetail: React.FC<{ id: number; onBack: () => void }> = ({ id, onBac
       </div>
 
       {tab === 'overview' && <OverviewTab bundle={bundle} reload={load} />}
+      {tab === 'connection' && <ConnectionFlowTab bundle={bundle} />}
       {tab === 'commercial' && <ChannelForm channel={c} reload={load} fields={COMMERCIAL_FIELDS} title="Commercial information" icon={Briefcase} />}
       {tab === 'integration' && <IntegrationTab bundle={bundle} reload={load} />}
       {tab === 'credentials' && <CredentialsTab bundle={bundle} reload={load} />}
       {tab === 'markets' && <MarketsTab channel={c} reload={load} />}
-      {tab === 'eligibility' && <EligibilityTab bundle={bundle} />}
+      {tab === 'eligibility' && <><ApiInventoryToggle bundle={bundle} reload={load} /><div className="h-4" /><EligibilityTab bundle={bundle} /></>}
       {tab === 'locations' && <MappingTab bundle={bundle} kind="locations" />}
       {tab === 'categories' && <MappingTab bundle={bundle} kind="categories" />}
       {tab === 'pricing' && <PricingTab bundle={bundle} />}

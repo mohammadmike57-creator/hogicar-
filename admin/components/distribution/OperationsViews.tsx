@@ -17,6 +17,7 @@ import {
 import { distributionApi, errorText, type Channel, type InventoryItem } from './api';
 import { SEVERITY_TONE, daysAgo, fmtDateTime, fmtMoneyMap, humanize, isoDay, useDist } from './shared';
 import { AuditList, RuleModal, RulesTable } from './ChannelDataTabs';
+import { ApiInventoryCard } from './ApiInventoryViews';
 
 const useChannels = () => {
   const [channels, setChannels] = React.useState<Channel[]>([]);
@@ -200,8 +201,9 @@ export const InventoryView: React.FC = () => {
   return (
     <div className="space-y-4">
       <Callout tone="info" icon={Boxes} title="One inventory for every channel">
-        These are HogiCar's contracted supplier cars and their real rates. Cars HogiCar sources from third-party APIs are not resold to other channels. Without a fleet quantity a car is free sale: the supplier owns availability.
+        These are HogiCar's contracted supplier cars and their real rates, plus cars from third-party API suppliers that have a redistribution contract. Without a fleet quantity a car is free sale: the supplier owns availability.
       </Callout>
+      <ApiInventoryCard />
       <Card title="Rules for all channels" subtitle="Stop sales and exclusions that apply to every channel" icon={Boxes} bodyClassName="p-0"
         actions={can('EDIT_INVENTORY') ? <button className={btnPrimary} onClick={() => setEditingRule(null)}><Plus className="h-4 w-4" />Add rule</button> : undefined}>
         {rules ? <RulesTable rows={rules} editable={can('EDIT_INVENTORY')} onEdit={setEditingRule} onDelete={delRule} /> : <div className="p-4"><SkeletonRows rows={2} /></div>}

@@ -10,6 +10,7 @@ import { saveDistributionClick } from '../utils/distributionClick';
 type Opened = {
   outcome: 'RESTORED' | 'PRICE_CHANGED' | 'UNAVAILABLE' | 'EXPIRED' | 'INVALID';
   clickToken?: string | null; channelName?: string | null; search?: Record<string, string> | null; carId?: number | null;
+  match?: { supplier: string; vehicle: string } | null;
   offerPrice?: number | null; currentPrice?: number | null; currency?: string | null; message?: string | null;
 };
 
@@ -32,6 +33,7 @@ const DistributionGo: React.FC = () => {
     const p = new URLSearchParams();
     Object.entries(d.search || {}).forEach(([k, v]) => { if (v) p.set(k, v); });
     if (withCar && d.carId) p.set('car', String(d.carId));
+    if (withCar && d.match) p.set('match', `${d.match.supplier}|${d.match.vehicle}`);
     return `/search?${p.toString()}`;
   };
 

@@ -729,6 +729,20 @@ export const Search: React.FC = () => {
     setRenderAllCars?.(true);
     window.setTimeout(() => showCarFromAdvisor(linkedCarId), 700);
   }, [linkedCarId, sortedAndFilteredCars, showCarFromAdvisor]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Partner deeplinks for third-party API cars carry &match=<supplier>|<vehicle> (their ids change on every search).
+  const linkedMatch = searchParams.get('match');
+  const linkedMatchDone = useRef(false);
+  useEffect(() => {
+    if (!linkedMatch || linkedMatchDone.current || !sortedAndFilteredCars.length) return;
+    const [supplier = '', vehicle = ''] = linkedMatch.toLowerCase().split('|');
+    const hit = sortedAndFilteredCars.find(c => `${c.make || ''} ${c.model || ''}`.trim().toLowerCase() === vehicle.trim()
+      && String(c.supplier?.name || '').toLowerCase() === supplier.trim());
+    if (!hit) return;
+    linkedMatchDone.current = true;
+    setRenderAllCars?.(true);
+    window.setTimeout(() => showCarFromAdvisor(String(hit.id)), 700);
+  }, [linkedMatch, sortedAndFilteredCars, showCarFromAdvisor]); // eslint-disable-line react-hooks/exhaustive-deps
   
   const activeFilterCount =
     selectedCategories.length +
