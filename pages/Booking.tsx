@@ -32,6 +32,7 @@ import { promotionSummary } from '../utils/promotions';
 import { validatePromoCode, rememberedPromo, rememberPromo } from '../utils/promoCodes';
 import { activeAffiliateCode } from '../utils/affiliate';
 import { getAffiliateAttributionRef } from '../utils/affiliateTracking';
+import { getDistributionClick } from '../utils/distributionClick';
 
 // A custom icon component for Automatic Transmission to match the design
 const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: string }) => (
@@ -356,6 +357,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         promoDiscount: appliedPromo && priceDetails.discountAmount > 0 ? priceDetails.discountAmount : undefined,
         affiliateCode: activeAffiliateCode(),
         affiliateAttribution: getAffiliateAttributionRef(),
+        distributionClick: getDistributionClick(),
     };
   };
 

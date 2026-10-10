@@ -31,6 +31,7 @@ import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import Copy from 'lucide-react/dist/esm/icons/copy';
 import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Waypoints from 'lucide-react/dist/esm/icons/waypoints';
+import RadioTower from 'lucide-react/dist/esm/icons/radio-tower';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import Power from 'lucide-react/dist/esm/icons/power';
 import Tag from 'lucide-react/dist/esm/icons/tag';
@@ -98,6 +99,7 @@ import PromotionsAdmin from '../components/PromotionsAdmin';
 import AffiliatesAdmin from '../components/AffiliatesAdmin';
 import IntegrationsAdmin from '../components/IntegrationsAdmin';
 const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateNetworks/AffiliateNetworksAdmin'));
+const DistributionAdmin = React.lazy(() => import('../components/distribution/DistributionAdmin'));
 const RewardsAdmin = React.lazy(() => import('../components/RewardsAdmin'));
 const BannersAdmin = React.lazy(() => import('../components/BannersAdmin'));
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
@@ -297,6 +299,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   apipartners: { title: 'Integrations', description: 'Partner API keys and connected services.', group: 'Commercial' },
   affiliates: { title: 'Affiliates', description: 'Partners who earn commission on the bookings they send.', group: 'Commercial' },
   affiliatenetworks: { title: 'Affiliate networks', description: 'Awin and other affiliate networks: tracking, conversions and reconciliation.', group: 'Commercial' },
+  distribution: { title: 'Distribution network', description: 'Skyscanner, KAYAK and partner channels: onboarding, inventory, pricing, deeplinks and monitoring.', group: 'Commercial' },
   rewards: { title: 'Rewards', description: 'HogiCar Rewards members, points and reward codes.', group: 'Commercial' },
   push: { title: 'Push notifications', description: 'Messages sent to app users.', group: 'Commercial' },
   homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
@@ -313,7 +316,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
 };
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
-                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'rewards' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
+                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'distribution' | 'rewards' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
                 'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap' | 'push';
 
@@ -621,6 +624,7 @@ const NAV_ITEMS: { section: Section; icon: any }[] = [
   { section: 'apipartners', icon: Link2 },
   { section: 'affiliates', icon: DollarSign },
   { section: 'affiliatenetworks', icon: Waypoints },
+  { section: 'distribution', icon: RadioTower },
   { section: 'rewards', icon: Gift },
   { section: 'push', icon: Bell },
   { section: 'homepage', icon: ImageIcon },
@@ -2333,6 +2337,12 @@ const AffiliatesContent = () => <AffiliatesAdmin />;
 const AffiliateNetworksContent = () => (
   <React.Suspense fallback={<div className="space-y-4"><div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-12 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
     <AffiliateNetworksAdmin />
+  </React.Suspense>
+);
+
+const DistributionContent = () => (
+  <React.Suspense fallback={<div className="space-y-4"><div className="h-12 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
+    <DistributionAdmin />
   </React.Suspense>
 );
 
@@ -5442,6 +5452,7 @@ export const AdminDashboard: React.FC = () => {
       case 'apipartners': return <ApiPartnersContent />;
       case 'affiliates': return <AffiliatesContent />;
       case 'affiliatenetworks': return <AffiliateNetworksContent />;
+      case 'distribution': return <DistributionContent />;
       case 'banners': return (
         <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
           <BannersAdmin />
