@@ -25,8 +25,29 @@ const BASE = `${API_BASE_URL}/api/admin/marketing-emails`;
 
 type Audience = 'ALL' | 'BOOKED' | 'NOT_BOOKED' | 'PAYMENT' | 'MEMBERS' | 'SELECTED';
 
+type TemplateKey = 'EDITORIAL' | 'FLASH' | 'LETTER' | 'DESTINATION' | 'REWARDS';
+
+/** Ready-made emails: a design plus suggested wording. Every text can still be changed. */
+const TEMPLATES: { key: TemplateKey; name: string; description: string; swatch: string; preset: Partial<Campaign> }[] = [
+  { key: 'EDITORIAL', name: 'Classic offer', description: 'Photo header, navy headline and a ticket-style coupon.', swatch: 'from-[#0b2545] to-[#123c69]',
+    preset: { subject: '', eyebrow: '', headline: '', intro: '', ctaLabel: '', showSteps: true, showRewards: true } },
+  { key: 'FLASH', name: 'Flash sale', description: 'Bold orange header with the discount in huge type and the end date.', swatch: 'from-[#F57C00] to-[#ff9a3c]',
+    preset: { subject: '⚡ {firstName}, flash sale: save with code {code}', eyebrow: 'Flash sale', headline: '',
+      intro: 'For a short time only, save on your car hire with code {code}. Book now while the offer lasts.', ctaLabel: 'Grab the deal', showSteps: false, showRewards: false } },
+  { key: 'LETTER', name: 'Personal letter', description: 'A warm, simple note from the HogiCar team. No photo.', swatch: 'from-[#f8fafc] to-[#e2e8f0]',
+    preset: { subject: '{firstName}, a little thank-you from HogiCar', eyebrow: '', headline: '',
+      intro: 'Thank you for choosing HogiCar. As a small thank-you, here is a code that takes money off your next car hire.', ctaLabel: 'Find my next car', showSteps: false, showRewards: false } },
+  { key: 'DESTINATION', name: 'Destination', description: 'Big photo with the headline on top. Great with your own destination photo.', swatch: 'from-[#0f766e] to-[#0b2545]',
+    preset: { subject: '{firstName}, your next road trip starts here', eyebrow: 'Your next road trip', headline: '',
+      intro: 'Pick up your car at {place} and explore at your own pace. Use code {code} to pay less.', ctaLabel: 'Plan my trip', showSteps: true, showRewards: true } },
+  { key: 'REWARDS', name: 'Rewards', description: 'Navy and gold, puts HogiCar Rewards and welcome points first.', swatch: 'from-[#0b2545] to-[#E8B04B]',
+    preset: { subject: '{firstName}, earn points on every rental with HogiCar Rewards', eyebrow: 'HogiCar Rewards', headline: '',
+      intro: 'Create a free account and earn points every time you rent. Use code {code} on your next booking too.', ctaLabel: 'Join and book', showSteps: false, showRewards: true } },
+];
+const templateName = (k?: string | null) => TEMPLATES.find(t => t.key === k)?.name || 'Classic offer';
+
 type Campaign = {
-  id?: number; name: string; subject?: string | null; eyebrow?: string | null; headline?: string | null; intro?: string | null;
+  id?: number; name: string; template?: TemplateKey; subject?: string | null; eyebrow?: string | null; headline?: string | null; intro?: string | null;
   ctaLabel?: string | null; ctaUrl?: string | null; heroImageUrl?: string | null; promoCodeIds?: string | null; bannerIds?: string | null;
   showSteps?: boolean; showRewards?: boolean; audience: Audience; locationCodes?: string | null; selectedEmails?: string | null;
   status?: 'DRAFT' | 'SENDING' | 'SENT'; timesSent?: number; totalSent?: number; totalFailed?: number; lastRecipients?: number | null;
@@ -88,7 +109,7 @@ const codeLabel = (c: CodeOption) => c.discountType === 'FIXED' ? `USD ${Number(
 const idsOf = (csv?: string | null) => (csv || '').split(',').map(s => Number(s.trim())).filter(n => n > 0);
 
 const EMPTY: Campaign = {
-  name: '', subject: '', eyebrow: '', headline: '', intro: '', ctaLabel: '', ctaUrl: '', heroImageUrl: '',
+  name: '', template: 'EDITORIAL', subject: '', eyebrow: '', headline: '', intro: '', ctaLabel: '', ctaUrl: '', heroImageUrl: '',
   promoCodeIds: '', bannerIds: '', showSteps: true, showRewards: true, audience: 'ALL', locationCodes: '', selectedEmails: '',
 };
 
@@ -180,7 +201,7 @@ const EmailCampaignsAdmin: React.FC = () => {
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0b2545] text-white"><Mail className="h-5 w-5" /></span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold text-slate-900">{c.name}</p>
-                      <p className="mt-0.5 truncate text-xs text-slate-500">{c.subject || 'Standard subject line'}</p>
+                      <p className="mt-0.5 truncate text-xs text-slate-500">{templateName(c.template)} · {c.subject || 'Standard subject line'}</p>
                     </div>
                     <Pill cls={st.cls}>{st.label}</Pill>
                   </div>
@@ -328,6 +349,12 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
       }>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div className="space-y-6">
+          <TemplatePicker value={(c.template || 'EDITORIAL') as TemplateKey} draft={c} onPick={t => {
+            const typed = ['subject', 'eyebrow', 'headline', 'intro', 'ctaLabel'].some(k => (c as any)[k]);
+            const changed = typed && !window.confirm('Use this template’s suggested wording? Your texts will be replaced. Press Cancel to keep your texts and only change the design.');
+            setC(prev => ({ ...prev, template: t.key, ...(changed ? {} : t.preset) }));
+          }} />
+
           <section className="space-y-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
             <Field label="Campaign name" hint="Only you see this."><input className={inputCls} value={c.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Summer sale – Jordan" maxLength={120} /></Field>
           </section>
@@ -451,6 +478,48 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
         </div>
       </div>
     </Drawer>
+  );
+};
+
+// ==================== Template picker ====================
+
+const TemplatePicker = ({ value, draft, onPick }: { value: TemplateKey; draft: Campaign; onPick: (t: typeof TEMPLATES[number]) => void }) => {
+  const [thumbs, setThumbs] = React.useState<Record<string, string>>({});
+  // Thumbnails show each design with the codes chosen so far.
+  const codes = draft.promoCodeIds || '';
+  React.useEffect(() => {
+    let alive = true;
+    TEMPLATES.forEach(t => {
+      adminAxios.post(`${BASE}/render`, { ...draft, ...t.preset, template: t.key, audience: 'SELECTED', selectedEmails: '' })
+        .then(r => { if (alive) setThumbs(prev => ({ ...prev, [t.key]: r.data.html })); })
+        .catch(() => { /* thumbnail is optional */ });
+    });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codes]);
+  return (
+    <section className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <p className="text-sm font-semibold text-slate-900">Template</p>
+      <p className="mb-3 text-xs text-slate-500">Pick a design. It fills in suggested wording that you can change below.</p>
+      <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
+        {TEMPLATES.map(t => (
+          <button key={t.key} type="button" onClick={() => onPick(t)} aria-pressed={value === t.key}
+            className={`w-44 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-left ring-2 transition ${value === t.key ? 'ring-[#F57C00]' : 'ring-slate-200 hover:ring-slate-300'}`}>
+            <div className={`relative h-44 overflow-hidden bg-gradient-to-br ${t.swatch}`}>
+              {thumbs[t.key] && (
+                <iframe title={`${t.name} preview`} srcDoc={thumbs[t.key]} sandbox="" tabIndex={-1} aria-hidden="true"
+                  className="pointer-events-none absolute left-0 top-0 origin-top-left bg-white" style={{ width: 640, height: 1400, transform: 'scale(0.275)' }} />
+              )}
+              {value === t.key && <span className="absolute right-2 top-2 rounded-full bg-[#F57C00] px-2 py-0.5 text-[10px] font-bold text-white shadow">Selected</span>}
+            </div>
+            <div className="p-3">
+              <p className="text-sm font-semibold text-slate-900">{t.name}</p>
+              <p className="mt-0.5 text-xs leading-snug text-slate-500">{t.description}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 };
 
