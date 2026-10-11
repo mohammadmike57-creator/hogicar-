@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { lazyRetry } from './utils/lazyRetry';
+import { rememberPromo } from './utils/promoCodes';
 
 // Lazy load pages for performance
 const AdminProtectedRoute = lazyRetry(() => import('./admin/components/AdminProtectedRoute'));
@@ -64,6 +65,12 @@ if (host.startsWith("admin.")) {
   }
 }
 // --- END SUBDOMAIN REDIRECT ---
+
+// Offer emails link to any page with ?promo=CODE; keep the code so the car page applies it.
+try {
+  const promo = new URLSearchParams(search).get('promo');
+  if (promo && /^[A-Za-z0-9_-]{3,24}$/.test(promo)) rememberPromo(promo);
+} catch { /* storage blocked */ }
 
 const App: React.FC = () => {
   // --- ACCESSIBILITY FIX: Block aria-hidden on <body> ---
