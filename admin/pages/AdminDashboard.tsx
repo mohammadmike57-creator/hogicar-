@@ -102,6 +102,7 @@ const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateN
 const DistributionAdmin = React.lazy(() => import('../components/distribution/DistributionAdmin'));
 const RewardsAdmin = React.lazy(() => import('../components/RewardsAdmin'));
 const BannersAdmin = React.lazy(() => import('../components/BannersAdmin'));
+const EmailCampaignsAdmin = React.lazy(() => import('../components/EmailCampaignsAdmin'));
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
 import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
@@ -301,6 +302,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   affiliatenetworks: { title: 'Affiliate networks', description: 'Awin and other affiliate networks: tracking, conversions and reconciliation.', group: 'Commercial' },
   distribution: { title: 'Distribution network', description: 'Skyscanner, KAYAK and partner channels: onboarding, inventory, pricing, deeplinks and monitoring.', group: 'Commercial' },
   rewards: { title: 'Rewards', description: 'HogiCar Rewards members, points and reward codes.', group: 'Commercial' },
+  emailcampaigns: { title: 'Email campaigns', description: 'Send discounts and promotions to customers by email.', group: 'Commercial' },
   push: { title: 'Push notifications', description: 'Messages sent to app users.', group: 'Commercial' },
   homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
   homepagelogos: { title: 'Homepage logos', description: 'Brand logos shown in the homepage strip.', group: 'Website' },
@@ -316,7 +318,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
 };
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
-                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'distribution' | 'rewards' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
+                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'distribution' | 'rewards' | 'emailcampaigns' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
                 'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap' | 'push';
 
@@ -626,6 +628,7 @@ const NAV_ITEMS: { section: Section; icon: any }[] = [
   { section: 'affiliatenetworks', icon: Waypoints },
   { section: 'distribution', icon: RadioTower },
   { section: 'rewards', icon: Gift },
+  { section: 'emailcampaigns', icon: Mail },
   { section: 'push', icon: Bell },
   { section: 'homepage', icon: ImageIcon },
   { section: 'homepagelogos', icon: ImageIcon },
@@ -5456,6 +5459,11 @@ export const AdminDashboard: React.FC = () => {
       case 'banners': return (
         <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
           <BannersAdmin />
+        </React.Suspense>
+      );
+      case 'emailcampaigns': return (
+        <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
+          <EmailCampaignsAdmin />
         </React.Suspense>
       );
       case 'rewards': return (
