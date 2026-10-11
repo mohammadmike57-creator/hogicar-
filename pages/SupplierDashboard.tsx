@@ -300,7 +300,13 @@ const prepareLogoImage = (file: File): Promise<string> => {
 
 const SupplierDashboard = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('dashboard');
+  // Email links open a section directly, e.g. /supplier?section=rates
+  const [activeSection, setActiveSection] = useState(() => {
+    try {
+      const wanted = new URLSearchParams(window.location.search).get('section');
+      return wanted && /^[a-z]{3,20}$/.test(wanted) ? wanted : 'dashboard';
+    } catch { return 'dashboard'; }
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
