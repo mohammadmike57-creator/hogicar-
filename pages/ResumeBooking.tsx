@@ -22,7 +22,7 @@ const tripParams = (search: Resume['search']) => {
 };
 
 /**
- * "Continue my booking" from the reminder email. While the 20-minute price lock runs, restores the exact
+ * "Continue my booking" from the reminder email. While the price lock runs, restores the exact
  * quote the customer saw and opens that car; after it ends, offers today's prices for the same trip.
  */
 const ResumeBooking: React.FC = () => {
@@ -92,7 +92,7 @@ const ResumeBooking: React.FC = () => {
           <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div className="bg-gradient-to-br from-[#00244f] via-[#00306a] to-[#005b96] px-8 py-7 text-white">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"><Clock className="h-3.5 w-3.5" /> {data.holdEnded ? 'Price lock ended' : 'Welcome back'}</span>
-              <h1 className="mt-4 text-2xl font-bold">{data.holdEnded ? 'Your 20-minute price lock has ended' : 'Pick up where you left off'}</h1>
+              <h1 className="mt-4 text-2xl font-bold">{data.holdEnded ? 'Your price lock has ended' : 'Pick up where you left off'}</h1>
               <p className="mt-2 text-sm leading-relaxed text-white/80">
                 {data.holdEnded
                   ? 'Prices and availability can change, so we\'ll show you today\'s price for the same trip. It only takes a moment.'

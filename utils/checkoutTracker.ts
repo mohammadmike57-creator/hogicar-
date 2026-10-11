@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { API_BASE_URL } from '../lib/config';
 import { compactStorageValue } from './storage';
+import { priceHoldExpiry } from './priceHold';
 
 /**
  * Tells the backend how far someone got in a booking, for one "finish your booking" reminder email.
@@ -50,6 +51,8 @@ export const trackCheckout = (stage: Stage, data: { car?: any; quote?: any; sear
     search: data.search,
     email: token ? undefined : data.email,
     firstName: token ? undefined : data.firstName,
+    // When the "Price held for mm:ss" timer on the page runs out; the reminder tells them how much is left.
+    holdExpiresAt: stage === 'PAYMENT' && data.car?.id != null ? priceHoldExpiry(String(data.car.id)) : undefined,
   };
   const payload = JSON.stringify(body);
   fetch(`${API_BASE_URL}/api/public/checkout/progress`, {
