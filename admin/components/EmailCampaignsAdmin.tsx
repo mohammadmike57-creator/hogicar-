@@ -25,10 +25,10 @@ const BASE = `${API_BASE_URL}/api/admin/marketing-emails`;
 
 type Audience = 'ALL' | 'BOOKED' | 'NOT_BOOKED' | 'PAYMENT' | 'MEMBERS' | 'SELECTED';
 
-type TemplateKey = 'EDITORIAL' | 'FLASH' | 'LETTER' | 'DESTINATION' | 'REWARDS';
+type TemplateKey = 'EDITORIAL' | 'FLASH' | 'LETTER' | 'DESTINATION' | 'REWARDS' | 'EID_FITR' | 'EID_ADHA' | 'CHRISTMAS' | 'NEW_YEAR' | 'EASTER' | 'BLACK_FRIDAY';
 
 /** Ready-made emails: a design plus suggested wording. Every text can still be changed. */
-const TEMPLATES: { key: TemplateKey; name: string; description: string; swatch: string; preset: Partial<Campaign> }[] = [
+const TEMPLATES: { key: TemplateKey; name: string; description: string; swatch: string; holiday?: boolean; preset: Partial<Campaign> }[] = [
   { key: 'EDITORIAL', name: 'Classic offer', description: 'Photo header, navy headline and a ticket-style coupon.', swatch: 'from-[#0b2545] to-[#123c69]',
     preset: { subject: '', eyebrow: '', headline: '', intro: '', ctaLabel: '', showSteps: true, showRewards: true } },
   { key: 'FLASH', name: 'Flash sale', description: 'Bold orange header with the discount in huge type and the end date.', swatch: 'from-[#F57C00] to-[#ff9a3c]',
@@ -43,6 +43,24 @@ const TEMPLATES: { key: TemplateKey; name: string; description: string; swatch: 
   { key: 'REWARDS', name: 'Rewards', description: 'Navy and gold, puts HogiCar Rewards and welcome points first.', swatch: 'from-[#0b2545] to-[#E8B04B]',
     preset: { subject: '{firstName}, earn points on every rental with HogiCar Rewards', eyebrow: 'HogiCar Rewards', headline: '',
       intro: 'Create a free account and earn points every time you rent. Use code {code} on your next booking too.', ctaLabel: 'Join and book', showSteps: false, showRewards: true } },
+  { key: 'EID_FITR', holiday: true, name: 'Eid al-Fitr', description: 'Emerald and gold with a crescent and “Eid Mubarak” in English and Arabic.', swatch: 'from-[#064E3B] to-[#0F766E]',
+    preset: { subject: 'Eid Mubarak, {firstName}! Save on your Eid car hire with code {code}', eyebrow: 'Eid al-Fitr offer', headline: '',
+      intro: 'Wishing you and your family a blessed Eid. Visit loved ones and enjoy the holiday with a car of your own, and save with code {code}.', ctaLabel: 'Book my Eid car', showSteps: false, showRewards: true } },
+  { key: 'EID_ADHA', holiday: true, name: 'Eid al-Adha', description: 'Deep indigo and gold with a crescent and Arabic greeting.', swatch: 'from-[#1E1B4B] to-[#3730A3]',
+    preset: { subject: 'Eid al-Adha Mubarak, {firstName}! A gift for your holiday travel', eyebrow: 'Eid al-Adha offer', headline: '',
+      intro: 'Eid al-Adha Mubarak from all of us at HogiCar. Travel to your family in comfort this Eid and save with code {code}.', ctaLabel: 'Book my Eid car', showSteps: false, showRewards: true } },
+  { key: 'CHRISTMAS', holiday: true, name: 'Christmas', description: 'Festive red with snowflakes, a green band and “Merry Christmas”.', swatch: 'from-[#7F1D1D] to-[#B91C1C]',
+    preset: { subject: 'Merry Christmas, {firstName}! Your festive car hire offer is here', eyebrow: 'Christmas offer', headline: '',
+      intro: 'Going home for the holidays or exploring somewhere new? Use code {code} and save on your Christmas car hire.', ctaLabel: 'Book my Christmas car', showSteps: false, showRewards: true } },
+  { key: 'NEW_YEAR', holiday: true, name: 'New Year', description: 'Midnight blue with gold sparkles and “Happy New Year”.', swatch: 'from-[#0B1020] to-[#1E293B]',
+    preset: { subject: 'Happy New Year, {firstName}! Start the year with code {code}', eyebrow: 'New Year offer', headline: '',
+      intro: 'Thank you for travelling with us this year. Start the new one on the road and save with code {code}.', ctaLabel: 'Plan my first trip', showSteps: false, showRewards: true } },
+  { key: 'EASTER', holiday: true, name: 'Easter', description: 'Soft spring pastels with flowers and “Happy Easter”.', swatch: 'from-[#F5F3FF] to-[#ECFDF5]',
+    preset: { subject: 'Happy Easter, {firstName}! A spring offer on your car hire', eyebrow: 'Easter offer', headline: '',
+      intro: 'Spring is here. Enjoy an Easter getaway with a car of your own and save with code {code}.', ctaLabel: 'Book my spring trip', showSteps: false, showRewards: true } },
+  { key: 'BLACK_FRIDAY', holiday: true, name: 'Black Friday', description: 'Black and yellow, big and bold, with the end date.', swatch: 'from-[#000000] to-[#3f3f46]',
+    preset: { subject: 'Black Friday: {firstName}, save on your car hire with code {code}', eyebrow: 'Black Friday offer', headline: '',
+      intro: 'Our Black Friday deal is here. Use code {code} and save on your next car hire. Book before the offer ends.', ctaLabel: 'Get the deal', showSteps: false, showRewards: false } },
 ];
 const templateName = (k?: string | null) => TEMPLATES.find(t => t.key === k)?.name || 'Classic offer';
 
@@ -501,8 +519,11 @@ const TemplatePicker = ({ value, draft, onPick }: { value: TemplateKey; draft: C
     <section className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
       <p className="text-sm font-semibold text-slate-900">Template</p>
       <p className="mb-3 text-xs text-slate-500">Pick a design. It fills in suggested wording that you can change below.</p>
+      {[{ title: 'Everyday', items: TEMPLATES.filter(t => !t.holiday) }, { title: 'Holidays', items: TEMPLATES.filter(t => t.holiday) }].map(g => (
+      <div key={g.title} className="mb-2">
+      <p className="mb-2 mt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">{g.title}</p>
       <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
-        {TEMPLATES.map(t => (
+        {g.items.map(t => (
           <button key={t.key} type="button" onClick={() => onPick(t)} aria-pressed={value === t.key}
             className={`w-44 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-left ring-2 transition ${value === t.key ? 'ring-[#F57C00]' : 'ring-slate-200 hover:ring-slate-300'}`}>
             <div className={`relative h-44 overflow-hidden bg-gradient-to-br ${t.swatch}`}>
@@ -519,6 +540,8 @@ const TemplatePicker = ({ value, draft, onPick }: { value: TemplateKey; draft: C
           </button>
         ))}
       </div>
+      </div>
+      ))}
     </section>
   );
 };
