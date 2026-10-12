@@ -1,1943 +1,747 @@
 import * as React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import Search from 'lucide-react/dist/esm/icons/search';
-import Edit from 'lucide-react/dist/esm/icons/edit';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import EyeOff from 'lucide-react/dist/esm/icons/eye-off';
-import Calendar from 'lucide-react/dist/esm/icons/calendar';
-import User from 'lucide-react/dist/esm/icons/user';
-import Tag from 'lucide-react/dist/esm/icons/tag';
-import FileText from 'lucide-react/dist/esm/icons/file-text';
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-import Save from 'lucide-react/dist/esm/icons/save';
-import X from 'lucide-react/dist/esm/icons/x';
-import Globe from 'lucide-react/dist/esm/icons/globe';
-import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
-import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
-import ImageIcon from 'lucide-react/dist/esm/icons/image';
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import Copy from 'lucide-react/dist/esm/icons/copy';
 import Archive from 'lucide-react/dist/esm/icons/archive';
-import Monitor from 'lucide-react/dist/esm/icons/monitor';
-import Tablet from 'lucide-react/dist/esm/icons/tablet';
-import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
-import Check from 'lucide-react/dist/esm/icons/check';
 import Filter from 'lucide-react/dist/esm/icons/filter';
-import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
-import Layout from 'lucide-react/dist/esm/icons/layout';
-import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Newspaper from 'lucide-react/dist/esm/icons/newspaper';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import Gauge from 'lucide-react/dist/esm/icons/gauge';
+import FilePen from 'lucide-react/dist/esm/icons/file-pen';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import MoreHorizontal from 'lucide-react/dist/esm/icons/more-horizontal';
+import Pencil from 'lucide-react/dist/esm/icons/pencil';
+import Folder from 'lucide-react/dist/esm/icons/folder';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import X from 'lucide-react/dist/esm/icons/x';
+import Layout from 'lucide-react/dist/esm/icons/layout';
+import Save from 'lucide-react/dist/esm/icons/save';
 import { adminFetch } from '../../lib/adminApi';
-import ImageUploadField from './ImageUploadField';
-import { MediaLibrary } from './MediaLibrary';
-import { motion, AnimatePresence } from 'framer-motion';
-import { API_BASE_URL } from '../../lib/config';
+import {
+  Hero, heroButton, heroPrimary, Segmented, Drawer, Field, inputCls, useToast, Toast, ErrorBanner, Spinner, ago, num,
+} from './commercialUi';
+import {
+  BlogArticle, BlogCategory, BlogLocationImage, CoverageRow, SeoConfig, Empty, SeoRing, StatusPill, Thumb,
+  apiMessage, articlePlace, findInherited, ownPicture, placeName, plural, primaryBtn, secondaryBtn, slugify, statusOf, useConfirm,
+} from './blog/blogShared';
+import ArticleEditor from './blog/ArticleEditor';
+import LocationImagesPanel from './blog/LocationImagesPanel';
 
-interface BlogCategory {
-  id: number;
-  name: string;
-  slug: string;
-  description: string;
-}
+type Tab = 'articles' | 'categories' | 'location-images';
+type Filters = { category: string; country: string; route: string; status: string; featured: string; author: string };
+type ArticleAction = 'publish' | 'unpublish' | 'archive' | 'duplicate';
 
-interface SeoConfig {
-  id: number;
-  route: string;
-  title?: string;
-  destinationName?: string;
-  countryTag?: string;
-  cityTag?: string;
-  airportTags?: string;
-  routeType?: string;
-  heroImage?: string;
-}
+const EMPTY_FILTERS: Filters = { category: '', country: '', route: '', status: '', featured: '', author: '' };
 
-interface BlogTag {
-  id: number;
-  name: string;
-  slug: string;
-}
+const ACTION_DONE: Record<ArticleAction | 'delete', string> = {
+  publish: 'published', unpublish: 'unpublished', archive: 'archived', duplicate: 'duplicated', delete: 'deleted',
+};
 
-interface BlogLocationImage {
-  id: number;
-  countryTag: string;
-  cityTag?: string;
-  areaTag?: string;
-  topicTag?: string;
-  title?: string;
-  altText?: string;
-  caption?: string;
-  imageUrl: string;
-}
+const newArticle = (categories: BlogCategory[]): Partial<BlogArticle> => ({
+  published: false,
+  status: 'DRAFT',
+  category: categories[0] || null,
+  secondaryRoutes: [],
+  articleTags: [],
+  relatedArticles: [],
+  relatedAirports: [],
+  readingTime: '1 min read',
+  featuredOnHomepage: false,
+  isFeatured: false,
+  live: false,
+});
 
-interface BlogArticle {
-  id: number;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string;
-  featuredImage: string;
-  desktopImage: string;
-  mobileImage: string;
-  thumbnailImage: string;
-  openGraphImage: string;
-  twitterCardImage: string;
-  imageAltText: string;
-  imageCaption: string;
-  category: BlogCategory | null;
-  primaryRoute: SeoConfig | null;
-  secondaryRoutes: SeoConfig[];
-  relatedAirports: any[];
-  articleTags: BlogTag[];
-  relatedArticles: BlogArticle[];
-  seoTitle: string;
-  seoDescription: string;
-  canonicalUrl: string;
-  focusKeyword: string;
-  secondaryKeywords: string;
-  robotsDirectives: string;
-  openGraphTagsJson: string;
-  twitterCardTagsJson: string;
-  faqJson: string;
-  country: string;
-  readingTime: string;
-  featuredOnHomepage: boolean;
-  isFeatured: boolean;
-  tags?: string;
-  authorName: string;
-  authorImage: string;
-  status: string;
-  publishDate: string;
-  scheduledAt: string;
-  archivedAt: string;
-  seoScore: number;
-  published: boolean;
-  live: boolean;
-  publishedAt: string;
-  createdAt: string;
-  updatedAt: string;
-}
+/* ------------------------------------------------------------------ row menu */
+
+const RowMenu: React.FC<{ a: BlogArticle; onAction: (a: BlogArticle, action: ArticleAction) => void; onDelete: (a: BlogArticle) => void }> = ({ a, onAction, onDelete }) => {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const off = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', off);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', off); document.removeEventListener('keydown', esc); };
+  }, [open]);
+  const item = 'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50';
+  const run = (fn: () => void) => () => { setOpen(false); fn(); };
+  return (
+    <div ref={ref} className="relative" onClick={e => e.stopPropagation()}>
+      <button type="button" onClick={() => setOpen(o => !o)} aria-label="More actions" aria-expanded={open}
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+        <MoreHorizontal className="h-4 w-4" />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.12 }}
+            className="absolute right-0 top-full z-30 mt-1 w-52 overflow-hidden rounded-xl bg-white py-1 shadow-xl ring-1 ring-slate-200">
+            <a href={`/blog/${a.slug}`} target="_blank" rel="noreferrer" className={item} onClick={() => setOpen(false)}><ArrowUpRight className="h-4 w-4 text-slate-400" /> View on site</a>
+            <button type="button" className={item} onClick={run(() => onAction(a, a.published ? 'unpublish' : 'publish'))}>
+              {a.published ? <EyeOff className="h-4 w-4 text-slate-400" /> : <Eye className="h-4 w-4 text-slate-400" />}{a.published ? 'Unpublish' : 'Publish'}
+            </button>
+            <button type="button" className={item} onClick={run(() => onAction(a, 'duplicate'))}><Copy className="h-4 w-4 text-slate-400" /> Duplicate</button>
+            {statusOf(a) !== 'ARCHIVED' && <button type="button" className={item} onClick={run(() => onAction(a, 'archive'))}><Archive className="h-4 w-4 text-slate-400" /> Archive</button>}
+            <div className="my-1 border-t border-slate-100" />
+            <button type="button" className={`${item} text-rose-600 hover:bg-rose-50`} onClick={run(() => onDelete(a))}><Trash2 className="h-4 w-4" /> Delete</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ article rows */
+
+type RowProps = {
+  a: BlogArticle;
+  coverage: CoverageRow[];
+  selected: boolean;
+  busy: boolean;
+  onSelect: () => void;
+  onOpen: () => void;
+  onAction: (a: BlogArticle, action: ArticleAction) => void;
+  onDelete: (a: BlogArticle) => void;
+};
+
+const useRowData = (a: BlogArticle, coverage: CoverageRow[]) => {
+  const place = articlePlace(a);
+  const own = ownPicture(a);
+  const inherited = own ? null : findInherited(coverage, place.country, place.city);
+  return {
+    place: place.country ? placeName(place.country, place.city) : '',
+    src: own || inherited?.imageUrl || '',
+    inherited,
+    status: statusOf(a),
+  };
+};
+
+// "live" turns on automatic links to the car rental pages; it is not about whether the article is public.
+const Visibility: React.FC<{ a: BlogArticle }> = ({ a }) => {
+  const bits = [a.featuredOnHomepage && 'On homepage', a.isFeatured && 'Featured', a.live && 'Auto links'].filter(Boolean) as string[];
+  if (!bits.length) return null;
+  return (
+    <span className="flex items-center gap-1.5 text-xs text-slate-500">
+      <Globe className="h-3.5 w-3.5 text-[#007ac2]" />
+      {bits.join(' · ')}
+    </span>
+  );
+};
+
+const InheritedBadge: React.FC<{ label: string }> = ({ label }) => (
+  <span title={`No picture of its own, shows the ${label} location image`} className="absolute bottom-1 left-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm">
+    <MapPin className="h-3 w-3" />
+  </span>
+);
+
+const ROW_COLS = 'grid-cols-[20px_112px_minmax(0,1fr)_44px_130px_84px] xl:grid-cols-[20px_112px_minmax(0,1fr)_170px_44px_130px_84px] items-center gap-4';
+const ROW_GRID = `grid ${ROW_COLS}`;
+
+const ArticleRow: React.FC<RowProps> = ({ a, coverage, selected, busy, onSelect, onOpen, onAction, onDelete }) => {
+  const d = useRowData(a, coverage);
+  return (
+    <div onClick={onOpen} className={`${ROW_GRID} group cursor-pointer border-t border-slate-100 px-5 py-3.5 transition ${selected ? 'bg-sky-50/70' : 'hover:bg-slate-50/80'}`}>
+      <input type="checkbox" aria-label={`Select ${a.title}`} checked={selected} onChange={onSelect} onClick={e => e.stopPropagation()}
+        className="h-4 w-4 rounded border-slate-300 text-[#007ac2] focus:ring-[#007ac2]" />
+      <Thumb src={d.src} alt={a.imageAltText || a.title} className="aspect-[16/10] w-full rounded-lg ring-1 ring-slate-200">
+        {d.inherited && <InheritedBadge label={d.inherited.label} />}
+      </Thumb>
+      <div className="min-w-0">
+        <p className="line-clamp-2 font-semibold leading-snug text-slate-900 group-hover:text-[#00649f]" title={a.title}>{a.title}</p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
+          {d.place && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{d.place}</span>}
+          {d.place && <span className="text-slate-300">•</span>}
+          <span>{a.category?.name || 'Uncategorised'}</span>
+          <span className="text-slate-300">•</span>
+          <span>{a.readingTime || '1 min read'}</span>
+          <span className="text-slate-300">•</span>
+          <span>{a.authorName || 'Hogicar'}</span>
+        </p>
+      </div>
+      <div className="hidden min-w-0 xl:block">
+        {a.primaryRoute ? (
+          <>
+            <p className="truncate text-sm text-slate-700" title={a.primaryRoute.route}>{a.primaryRoute.destinationName || a.primaryRoute.route}</p>
+            {a.secondaryRoutes?.length > 0 && <p className="truncate text-xs text-slate-400" title={a.secondaryRoutes.map(r => r.route).join(', ')}>+{a.secondaryRoutes.length} related</p>}
+          </>
+        ) : <span className="text-xs text-slate-400">No route</span>}
+      </div>
+      <SeoRing score={a.seoScore || 0} />
+      <div className="min-w-0 space-y-1">
+        <StatusPill status={d.status} />
+        <Visibility a={a} />
+        <p className="text-[11px] text-slate-400">Updated {ago(a.updatedAt)}</p>
+      </div>
+      <div className="flex items-center justify-end gap-0.5" onClick={e => e.stopPropagation()}>
+        {busy ? <span className="flex h-9 w-9 items-center justify-center"><Spinner /></span> : (
+          <button type="button" onClick={onOpen} aria-label="Edit" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><Pencil className="h-4 w-4" /></button>
+        )}
+        <RowMenu a={a} onAction={onAction} onDelete={onDelete} />
+      </div>
+    </div>
+  );
+};
+
+const ArticleCard: React.FC<RowProps> = ({ a, coverage, selected, busy, onSelect, onOpen, onAction, onDelete }) => {
+  const d = useRowData(a, coverage);
+  return (
+    <div onClick={onOpen} className={`cursor-pointer rounded-2xl bg-white p-3 shadow-sm ring-1 transition active:bg-slate-50 ${selected ? 'ring-2 ring-[#007ac2]' : 'ring-slate-200'}`}>
+      <div className="flex gap-3">
+        <Thumb src={d.src} alt={a.imageAltText || a.title} className="aspect-[16/10] w-28 shrink-0 self-start rounded-lg ring-1 ring-slate-200">
+          {d.inherited && <InheritedBadge label={d.inherited.label} />}
+          <span className="absolute left-1 top-1 flex h-7 w-7 items-center justify-center rounded-md bg-white/90 shadow-sm" onClick={e => e.stopPropagation()}>
+            <input type="checkbox" aria-label={`Select ${a.title}`} checked={selected} onChange={onSelect} className="h-4 w-4 rounded border-slate-300 text-[#007ac2] focus:ring-[#007ac2]" />
+          </span>
+        </Thumb>
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 text-[15px] font-semibold leading-snug text-slate-900">{a.title}</p>
+          <p className="mt-1 truncate text-xs text-slate-500">{[d.place, a.category?.name || 'Uncategorised'].filter(Boolean).join(' · ')}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-2.5">
+        <StatusPill status={d.status} />
+        <SeoRing score={a.seoScore || 0} size={30} />
+        <span className="min-w-0 flex-1 truncate text-xs text-slate-400">{ago(a.updatedAt)}</span>
+        {busy && <Spinner />}
+        <RowMenu a={a} onAction={onAction} onDelete={onDelete} />
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ pagination */
+
+const pageList = (page: number, total: number): (number | '…')[] => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
+  const out: (number | '…')[] = [0];
+  const from = Math.max(1, page - 1);
+  const to = Math.min(total - 2, page + 1);
+  if (from > 1) out.push('…');
+  for (let i = from; i <= to; i++) out.push(i);
+  if (to < total - 2) out.push('…');
+  out.push(total - 1);
+  return out;
+};
+
+const Pagination: React.FC<{ page: number; totalPages: number; totalElements: number; pageSize: number; onPage: (p: number) => void; onSize: (n: number) => void }> = ({ page, totalPages, totalElements, pageSize, onPage, onSize }) => (
+  <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex items-center gap-3 text-sm text-slate-500">
+      <span>{totalElements === 0 ? 'No articles' : <>Showing <span className="font-medium text-slate-900">{page * pageSize + 1}–{Math.min((page + 1) * pageSize, totalElements)}</span> of <span className="font-medium text-slate-900">{num(totalElements)}</span></>}</span>
+      <select aria-label="Articles per page" value={pageSize} onChange={e => onSize(Number(e.target.value))} className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-700 outline-none focus:border-[#007ac2]">
+        {[10, 25, 50].map(n => <option key={n} value={n}>{n} per page</option>)}
+      </select>
+    </div>
+    {totalPages > 1 && (
+      <div className="flex items-center gap-1">
+        <button type="button" disabled={page === 0} onClick={() => onPage(page - 1)} aria-label="Previous page" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
+        {pageList(page, totalPages).map((p, i) => p === '…'
+          ? <span key={`e${i}`} className="w-6 text-center text-sm text-slate-400">…</span>
+          : <button key={p} type="button" onClick={() => onPage(p)} aria-current={p === page ? 'page' : undefined}
+              className={`h-9 min-w-9 rounded-lg px-2 text-sm font-semibold tabular-nums transition ${p === page ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>{p + 1}</button>)}
+        <button type="button" disabled={page >= totalPages - 1} onClick={() => onPage(page + 1)} aria-label="Next page" className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
+      </div>
+    )}
+  </div>
+);
+
+/* ------------------------------------------------------------------ category drawer */
+
+const CategoryDrawer: React.FC<{ initial: Partial<BlogCategory>; onClose: () => void; onSaved: (name: string) => void }> = ({ initial, onClose, onSaved }) => {
+  const [c, setC] = React.useState<Partial<BlogCategory>>(initial);
+  const [slugTouched, setSlugTouched] = React.useState(!!initial.slug);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true); setError(null);
+    try {
+      await adminFetch('/api/admin/blog/categories', { method: 'POST', body: JSON.stringify(c) });
+      onSaved(c.name || 'Category');
+    } catch (err) {
+      setError(apiMessage(err, 'Failed to save category.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Drawer eyebrow={c.id ? 'Edit category' : 'New category'} title={c.name?.trim() || 'Untitled category'} onClose={onClose} busy={busy} width="max-w-[520px]"
+      footer={
+        <div className="flex gap-2">
+          <button type="button" onClick={onClose} disabled={busy} className={`${secondaryBtn} flex-1 sm:flex-none`}>Cancel</button>
+          <button type="submit" form="category-form" disabled={busy} className={`${primaryBtn} flex-[2] sm:ml-auto sm:flex-none`}>{busy ? <Spinner light /> : <Save className="h-4 w-4" />} Save category</button>
+        </div>
+      }>
+      <form id="category-form" onSubmit={save} className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <Field label="Name">
+          <input required autoFocus className={inputCls} value={c.name || ''} placeholder="Travel tips"
+            onChange={e => setC({ ...c, name: e.target.value, ...(!slugTouched ? { slug: slugify(e.target.value) } : {}) })} />
+        </Field>
+        <Field label="Slug" hint="Used in the category address.">
+          <input required className={`${inputCls} font-mono`} value={c.slug || ''} onChange={e => { setSlugTouched(true); setC({ ...c, slug: e.target.value }); }} />
+        </Field>
+        <Field label="Description">
+          <textarea className={`${inputCls} h-28 resize-none py-2.5`} value={c.description || ''} onChange={e => setC({ ...c, description: e.target.value })} />
+        </Field>
+        {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
+      </form>
+    </Drawer>
+  );
+};
+
+/* ------------------------------------------------------------------ page */
 
 const BlogManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'articles' | 'categories' | 'location-images'>('articles');
+  const [activeTab, setActiveTab] = React.useState<Tab>('articles');
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [categories, setCategories] = React.useState<BlogCategory[]>([]);
   const [locationImages, setLocationImages] = React.useState<BlogLocationImage[]>([]);
-  const [usedLocations, setUsedLocations] = React.useState<{countryTag: string, cityTag: string | null}[]>([]);
+  const [usedLocations, setUsedLocations] = React.useState<{ countryTag: string; cityTag: string | null }[]>([]);
+  const [coverage, setCoverage] = React.useState<CoverageRow[]>([]);
+  const [availableRoutes, setAvailableRoutes] = React.useState<SeoConfig[]>([]);
+
   const [loading, setLoading] = React.useState(true);
-  const [isArticleModalOpen, setIsArticleModalOpen] = React.useState(false);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = React.useState(false);
-  const [isLocationImageModalOpen, setIsLocationImageModalOpen] = React.useState(false);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [metaLoading, setMetaLoading] = React.useState(true);
+  const [locLoading, setLocLoading] = React.useState(true);
+  const [locError, setLocError] = React.useState<string | null>(null);
+  const [stats, setStats] = React.useState<{ total: number | null; published: number | null; drafts: number | null; scheduled: number | null; archived: number | null }>({ total: null, published: null, drafts: null, scheduled: null, archived: null });
+
   const [editingArticle, setEditingArticle] = React.useState<Partial<BlogArticle> | null>(null);
   const [editingCategory, setEditingCategory] = React.useState<Partial<BlogCategory> | null>(null);
-  const [editingLocationImage, setEditingLocationImage] = React.useState<Partial<BlogLocationImage> | null>(null);
+  const [addImageSignal, setAddImageSignal] = React.useState(0);
+
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [debouncedSearch, setDebouncedSearch] = React.useState('');
   const [selectedArticles, setSelectedArticles] = React.useState<number[]>([]);
-  const [filters, setFilters] = React.useState({
-    category: '',
-    country: '',
-    route: '',
-    status: '',
-    featured: '',
-    author: ''
-  });
+  const [filters, setFilters] = React.useState<Filters>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = React.useState(false);
-  const [previewMode, setPreviewMode] = React.useState<'desktop' | 'tablet' | 'mobile' | 'google'>('desktop');
-  
-  // Media Library & Suggestions State
-  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = React.useState(false);
-  const [targetImageField, setTargetImageField] = React.useState<string | null>(null);
-  const [suggestedImages, setSuggestedImages] = React.useState<BlogLocationImage[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
-  
-  // Pagination State
+  const [busyIds, setBusyIds] = React.useState<number[]>([]);
+  const [bulkBusy, setBulkBusy] = React.useState(false);
+
   const [page, setPage] = React.useState(0);
   const [totalPages, setTotalPages] = React.useState(0);
   const [totalElements, setTotalElements] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
-  
-  // Route Connection Manager State
-  const [availableRoutes, setAvailableRoutes] = React.useState<SeoConfig[]>([]);
-  const [routeFilters, setRouteFilters] = React.useState({
-    routeType: '',
-    countryTag: '',
-    cityTag: '',
-    search: ''
-  });
-  const [isRouteSectionOpen, setIsRouteSectionOpen] = React.useState(true);
 
-  const fetchSuggestions = React.useCallback(async (article: Partial<BlogArticle>) => {
-    if (!article.country && !article.primaryRoute?.countryTag) {
-        setSuggestedImages([]);
-        return;
-    }
-    
-    setLoadingSuggestions(true);
+  const { toast, notify } = useToast();
+  const { ask, dialog } = useConfirm();
+
+  /* ---------------------------------------------------------------- loading */
+
+  React.useEffect(() => {
+    const t = window.setTimeout(() => { setDebouncedSearch(searchTerm.trim()); }, 300);
+    return () => window.clearTimeout(t);
+  }, [searchTerm]);
+  React.useEffect(() => { setPage(0); }, [debouncedSearch]);
+
+  const loadArticles = React.useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
     try {
-        const country = article.primaryRoute?.countryTag || article.country;
-        const city = article.primaryRoute?.cityTag;
-        
-        const params = new URLSearchParams();
-        if (country) params.append('country', country);
-        if (city) params.append('city', city);
-        
-        const data = await adminFetch(`/api/admin/blog/location-images?${params.toString()}`);
-        setSuggestedImages(data || []);
-    } catch (err) {
-        console.error('Failed to fetch suggestions:', err);
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('size', pageSize.toString());
+      if (filters.category) params.append('category', filters.category);
+      if (filters.country) params.append('country', filters.country);
+      if (filters.route) params.append('route', filters.route);
+      if (filters.status) params.append('status', filters.status);
+      if (filters.featured) params.append('featured', filters.featured);
+      if (filters.author) params.append('author', filters.author);
+      if (debouncedSearch) params.append('search', debouncedSearch);
+      const res = await adminFetch(`/api/admin/blog/articles?${params.toString()}`);
+      setArticles(res.content || []);
+      setTotalPages(res.totalPages || 0);
+      setTotalElements(res.totalElements || 0);
+    } catch (error) {
+      console.error('Error fetching blog data:', error);
+      setLoadError(apiMessage(error, 'Could not load articles.'));
     } finally {
-        setLoadingSuggestions(false);
+      setLoading(false);
+    }
+  }, [page, pageSize, filters, debouncedSearch]);
+
+  const loadStats = React.useCallback(async () => {
+    const count = async (status?: string) => {
+      const res = await adminFetch(`/api/admin/blog/articles?page=0&size=1${status ? `&status=${status}` : ''}`);
+      return Number(res?.totalElements ?? 0);
+    };
+    const [total, published, drafts, scheduled, archived] = await Promise.allSettled([count(), count('PUBLISHED'), count('DRAFT'), count('SCHEDULED'), count('ARCHIVED')]);
+    const v = (r: PromiseSettledResult<number>) => (r.status === 'fulfilled' ? r.value : null);
+    setStats({ total: v(total), published: v(published), drafts: v(drafts), scheduled: v(scheduled), archived: v(archived) });
+  }, []);
+
+  const loadMeta = React.useCallback(async () => {
+    setMetaLoading(true);
+    try {
+      // Categories are needed for article editing, routes for connections and filters
+      const [catRes, routeRes] = await Promise.all([adminFetch('/api/admin/blog/categories'), adminFetch('/api/admin/blog/routes')]);
+      setCategories(catRes || []);
+      setAvailableRoutes(routeRes || []);
+    } catch (error) {
+      console.error('Error fetching blog data:', error);
+    } finally {
+      setMetaLoading(false);
     }
   }, []);
 
-  React.useEffect(() => {
-    if (isArticleModalOpen && editingArticle) {
-      fetchSuggestions(editingArticle);
+  const loadLocations = React.useCallback(async () => {
+    setLocLoading(true);
+    setLocError(null);
+    try {
+      const [imgs, cov, used] = await Promise.allSettled([
+        adminFetch('/api/admin/blog/location-images'),
+        adminFetch('/api/admin/blog/location-images/coverage'),
+        adminFetch('/api/admin/blog/used-locations'),
+      ]);
+      if (imgs.status === 'fulfilled') setLocationImages(Array.isArray(imgs.value) ? imgs.value : []);
+      else setLocError(apiMessage(imgs.reason, 'Could not load location images.'));
+      if (cov.status === 'fulfilled') setCoverage(Array.isArray(cov.value) ? cov.value : []);
+      else console.error('Failed to fetch location coverage', cov.reason);
+      if (used.status === 'fulfilled') setUsedLocations(Array.isArray(used.value) ? used.value : []);
+      else console.error('Failed to fetch used locations', used.reason);
+    } finally {
+      setLocLoading(false);
     }
-  }, [isArticleModalOpen, editingArticle?.primaryRoute?.id, editingArticle?.country]);
+  }, []);
 
+  React.useEffect(() => { loadArticles(); }, [loadArticles]);
+  React.useEffect(() => { loadStats(); loadMeta(); loadLocations(); }, [loadStats, loadMeta, loadLocations]);
+  const firstTab = React.useRef(true);
   React.useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+    if (firstTab.current) { firstTab.current = false; return; }
+    if (activeTab === 'location-images') loadLocations();
+    if (activeTab === 'categories') loadMeta();
+  }, [activeTab, loadLocations, loadMeta]);
+
+  const refreshAll = React.useCallback(async () => {
+    await Promise.all([loadArticles(), loadStats(), loadLocations()]);
+  }, [loadArticles, loadStats, loadLocations]);
+
+  /* ---------------------------------------------------------------- derived */
 
   const filteredArticles = React.useMemo(() => {
+    const q = searchTerm.toLowerCase();
     return articles.filter(article => {
-      const matchSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          article.slug.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchSearch = (article.title || '').toLowerCase().includes(q) || (article.slug || '').toLowerCase().includes(q);
       const matchCategory = !filters.category || article.category?.id === Number(filters.category);
       const matchCountry = !filters.country || article.country === filters.country;
       const matchRoute = !filters.route || article.primaryRoute?.id === Number(filters.route);
       const matchStatus = !filters.status || article.status === filters.status;
       const matchFeatured = !filters.featured || (filters.featured === 'true' ? article.featuredOnHomepage : !article.featuredOnHomepage);
       const matchAuthor = !filters.author || article.authorName === filters.author;
-
       return matchSearch && matchCategory && matchCountry && matchRoute && matchStatus && matchFeatured && matchAuthor;
     });
   }, [articles, searchTerm, filters]);
 
-  const unmappedLocations = React.useMemo(() => {
-    return usedLocations.filter(loc => 
-      !locationImages.some(img => 
-        img.countryTag === loc.countryTag && img.cityTag === loc.cityTag
-      )
-    );
-  }, [usedLocations, locationImages]);
+  const avgSeo = articles.length ? Math.round(articles.reduce((n, a) => n + Number(a.seoScore || 0), 0) / articles.length) : null;
+  const extraFilterCount = (['category', 'country', 'route', 'featured', 'author'] as const).filter(k => filters[k]).length;
+  const allSelected = filteredArticles.length > 0 && filteredArticles.every(a => selectedArticles.includes(a.id));
 
-  const toggleSelectAll = () => {
-    if (selectedArticles.length === filteredArticles.length) {
-      setSelectedArticles([]);
-    } else {
-      setSelectedArticles(filteredArticles.map(a => a.id));
-    }
-  };
+  const updateFilters = (p: Partial<Filters>) => { setFilters(f => ({ ...f, ...p })); setPage(0); setSelectedArticles([]); };
+
+  /* ---------------------------------------------------------------- actions */
+
+  const toggleSelectAll = () => setSelectedArticles(allSelected ? [] : filteredArticles.map(a => a.id));
 
   const handleBulkAction = async (action: 'publish' | 'unpublish' | 'archive' | 'delete') => {
     if (selectedArticles.length === 0) return;
-    if (action === 'delete' && !confirm(`Are you sure you want to delete ${selectedArticles.length} articles?`)) return;
-    
-    setLoading(true);
+    const n = selectedArticles.length;
+    if (action === 'delete' && !(await ask({ title: `Delete ${plural(n, 'article')}?`, body: 'They are removed from the site and cannot be restored.', confirmLabel: `Delete ${plural(n, 'article')}` }))) return;
+    setBulkBusy(true);
     try {
       for (const id of selectedArticles) {
-        if (action === 'delete') {
-          await adminFetch(`/api/admin/blog/articles/${id}`, { method: 'DELETE' });
-        } else {
-          await adminFetch(`/api/admin/blog/articles/${id}/${action}`, { method: 'POST' });
-        }
+        if (action === 'delete') await adminFetch(`/api/admin/blog/articles/${id}`, { method: 'DELETE' });
+        else await adminFetch(`/api/admin/blog/articles/${id}/${action}`, { method: 'POST' });
       }
       setSelectedArticles([]);
-      fetchData();
-    } catch (error) {
-      alert(`Bulk ${action} failed`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchData = React.useCallback(async () => {
-    setLoading(true);
-    try {
-      if (activeTab === 'articles') {
-        const params = new URLSearchParams();
-        params.append('page', page.toString());
-        params.append('size', pageSize.toString());
-        if (filters.category) params.append('category', filters.category);
-        if (filters.country) params.append('country', filters.country);
-        if (filters.route) params.append('route', filters.route);
-        if (filters.status) params.append('status', filters.status);
-        if (filters.featured) params.append('featured', filters.featured);
-        if (filters.author) params.append('author', filters.author);
-        if (searchTerm) params.append('search', searchTerm);
-
-        const res = await adminFetch(`/api/admin/blog/articles?${params.toString()}`);
-        setArticles(res.content || []);
-        setTotalPages(res.totalPages || 0);
-        setTotalElements(res.totalElements || 0);
-      } else if (activeTab === 'location-images') {
-        const res = await adminFetch('/api/admin/blog/location-images');
-        setLocationImages(res || []);
-        try {
-          const used = await adminFetch('/api/admin/blog/used-locations');
-          setUsedLocations(used || []);
-        } catch (e) {
-          console.error("Failed to fetch used locations", e);
-        }
-      }
-      // Always fetch categories as they are needed for article editing
-      const catRes = await adminFetch('/api/admin/blog/categories');
-      setCategories(catRes || []);
-
-      // Fetch all routes for connections
-      const routeRes = await adminFetch('/api/admin/blog/routes');
-      setAvailableRoutes(routeRes || []);
-    } catch (error) {
-      console.error('Error fetching blog data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, page, pageSize, filters, searchTerm]);
-
-  React.useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const fetchFilteredRoutes = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (routeFilters.routeType) params.append('routeType', routeFilters.routeType);
-      if (routeFilters.countryTag) params.append('countryTag', routeFilters.countryTag);
-      if (routeFilters.cityTag) params.append('cityTag', routeFilters.cityTag);
-      if (routeFilters.search) params.append('search', routeFilters.search);
-
-      const res = await adminFetch(`/api/admin/blog/routes?${params.toString()}`);
-      setAvailableRoutes(res || []);
-    } catch (error) {
-      console.error('Error fetching filtered routes:', error);
-    }
-  };
-
-  React.useEffect(() => {
-    if (isArticleModalOpen) {
-      fetchFilteredRoutes();
-    }
-  }, [routeFilters]);
-
-  const handleSaveArticle = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await adminFetch('/api/admin/blog/articles', {
-        method: 'POST',
-        body: JSON.stringify(editingArticle)
-      });
-      setIsArticleModalOpen(false);
-      fetchData();
-    } catch (error) {
-      alert('Failed to save article');
-    }
-  };
-
-  const handleSaveCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await adminFetch('/api/admin/blog/categories', {
-        method: 'POST',
-        body: JSON.stringify(editingCategory)
-      });
-      setIsCategoryModalOpen(false);
-      fetchData();
-    } catch (error) {
-      alert('Failed to save category');
-    }
-  };
-
-  const handleSaveLocationImage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await adminFetch('/api/admin/blog/location-images', {
-        method: 'POST',
-        body: JSON.stringify(editingLocationImage)
-      });
-      setIsLocationImageModalOpen(false);
-      fetchData();
-    } catch (error) {
-      alert('Failed to save location image');
-    }
-  };
-
-  const handleDeleteArticle = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this article?')) return;
-    try {
-      await adminFetch(`/api/admin/blog/articles/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (error) {
-      alert('Failed to delete article');
-    }
-  };
-
-  const handleDeleteLocationImage = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this location image?')) return;
-    try {
-      await adminFetch(`/api/admin/blog/location-images/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (error) {
-      alert('Failed to delete location image');
-    }
-  };
-
-  const handleArticleAction = async (id: number, action: 'publish' | 'unpublish' | 'archive' | 'duplicate') => {
-    try {
-      await adminFetch(`/api/admin/blog/articles/${id}/${action}`, { method: 'POST' });
-      fetchData();
-    } catch (error) {
-      alert(`Failed to ${action} article`);
-    }
-  };
-
-  const scheduleArticle = async () => {
-    if (!editingArticle?.id || !editingArticle.scheduledAt) return;
-    try {
-      const scheduledAt = editingArticle.scheduledAt.length === 16 ? `${editingArticle.scheduledAt}:00` : editingArticle.scheduledAt;
-      const updated = await adminFetch(`/api/admin/blog/articles/${editingArticle.id}/schedule`, {
-        method: 'POST',
-        body: JSON.stringify({ scheduledAt })
-      });
-      setEditingArticle(updated);
-      fetchData();
+      notify(`${plural(n, 'article')} ${ACTION_DONE[action]}`);
     } catch {
-      alert('Failed to schedule article');
+      notify(`Bulk ${action} failed`, 'err');
+    } finally {
+      setBulkBusy(false);
+      refreshAll();
     }
   };
 
-  const addFaq = () => {
-    const faqs = parseJsonArray(editingArticle?.faqJson);
-    faqs.push({ question: '', answer: '' });
-    setEditingArticle({ ...editingArticle, faqJson: JSON.stringify(faqs, null, 2) });
-  };
-
-  const updateFaq = (index: number, field: 'question' | 'answer', value: string) => {
-    const faqs = parseJsonArray(editingArticle?.faqJson);
-    faqs[index] = { ...(faqs[index] || {}), [field]: value };
-    setEditingArticle({ ...editingArticle, faqJson: JSON.stringify(faqs, null, 2) });
-  };
-
-  const removeFaq = (index: number) => {
-    const faqs = parseJsonArray(editingArticle?.faqJson).filter((_: any, i: number) => i !== index);
-    setEditingArticle({ ...editingArticle, faqJson: JSON.stringify(faqs, null, 2) });
-  };
-
-  const parseJsonArray = (value?: string) => {
-    if (!value) return [];
+  const handleArticleAction = async (a: BlogArticle, action: ArticleAction) => {
+    setBusyIds(ids => [...ids, a.id]);
     try {
-      const parsed = JSON.parse(value);
-      return Array.isArray(parsed) ? parsed : [];
+      await adminFetch(`/api/admin/blog/articles/${a.id}/${action}`, { method: 'POST' });
+      notify(`Article ${ACTION_DONE[action]}`);
+      refreshAll();
     } catch {
-      return [];
+      notify(`Failed to ${action} article`, 'err');
+    } finally {
+      setBusyIds(ids => ids.filter(x => x !== a.id));
     }
   };
 
-  const seoScore = React.useMemo(() => {
-    if (!editingArticle) return 0;
-    let score = 0;
-    if (editingArticle.seoTitle && editingArticle.seoTitle.length <= 70) score += 15;
-    if (editingArticle.seoDescription && editingArticle.seoDescription.length >= 120 && editingArticle.seoDescription.length <= 165) score += 15;
-    if (editingArticle.canonicalUrl) score += 10;
-    if (editingArticle.focusKeyword) score += 10;
-    if (editingArticle.imageAltText || editingArticle.title) score += 10;
-    if (editingArticle.faqJson) score += 10;
-    if (editingArticle.primaryRoute || (editingArticle.secondaryRoutes && editingArticle.secondaryRoutes.length > 0)) score += 10;
-    if ((editingArticle.content || '').split(/\s+/).filter(Boolean).length >= 900) score += 10;
-    if (editingArticle.excerpt) score += 5;
-    if (editingArticle.tags) score += 5;
-    return Math.min(score, 100);
-  }, [editingArticle]);
-
-  const handleDeleteCategory = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+  const handleDeleteArticle = async (a: BlogArticle) => {
+    if (!(await ask({ title: 'Delete this article?', body: <>“{a.title}” is removed from the site and cannot be restored.</>, confirmLabel: 'Delete article' }))) return;
+    setBusyIds(ids => [...ids, a.id]);
     try {
-      await adminFetch(`/api/admin/blog/categories/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (error) {
-      alert('Failed to delete category');
+      await adminFetch(`/api/admin/blog/articles/${a.id}`, { method: 'DELETE' });
+      setSelectedArticles(s => s.filter(x => x !== a.id));
+      notify('Article deleted');
+      refreshAll();
+    } catch {
+      notify('Failed to delete article', 'err');
+    } finally {
+      setBusyIds(ids => ids.filter(x => x !== a.id));
     }
   };
 
   const handlePurgeArticles = async () => {
-    if (!confirm('CRITICAL: This will delete ALL blog articles. This cannot be undone. Are you sure?')) return;
+    const ok = await ask({
+      title: 'Delete every blog article?',
+      body: <>This removes all {stats.total != null ? num(stats.total) : ''} articles from the site. It cannot be undone.</>,
+      confirmLabel: 'Delete all articles',
+      typeToConfirm: 'DELETE',
+    });
+    if (!ok) return;
     try {
       await adminFetch('/api/admin/blog/articles/purge', { method: 'DELETE' });
-      fetchData();
-    } catch (error) {
-      alert('Failed to purge articles');
+      setSelectedArticles([]);
+      notify('All articles deleted');
+      refreshAll();
+    } catch {
+      notify('Failed to purge articles', 'err');
     }
   };
 
+  const handleDeleteCategory = async (c: BlogCategory) => {
+    if (!(await ask({ title: `Delete “${c.name}”?`, body: 'Articles in this category become uncategorised.', confirmLabel: 'Delete category' }))) return;
+    try {
+      await adminFetch(`/api/admin/blog/categories/${c.id}`, { method: 'DELETE' });
+      notify('Category deleted');
+      loadMeta();
+    } catch {
+      notify('Failed to delete category', 'err');
+    }
+  };
+
+  const closeEditor = React.useCallback(() => setEditingArticle(null), []);
+  const closeCategory = React.useCallback(() => setEditingCategory(null), []);
+
+  /* ---------------------------------------------------------------- render */
+
+  const heroActions = (
+    <>
+      <button type="button" onClick={() => { refreshAll(); loadMeta(); }} className={heroButton} aria-label="Refresh">
+        <RefreshCw className={`h-4 w-4 ${loading || locLoading ? 'animate-spin' : ''}`} /><span className="hidden sm:inline">Refresh</span>
+      </button>
+      {activeTab === 'articles' && <button type="button" onClick={() => setEditingArticle(newArticle(categories))} className={heroPrimary}><Plus className="h-4 w-4" /> New article</button>}
+      {activeTab === 'categories' && <button type="button" onClick={() => setEditingCategory({})} className={heroPrimary}><Plus className="h-4 w-4" /> New category</button>}
+      {activeTab === 'location-images' && <button type="button" onClick={() => setAddImageSignal(n => n + 1)} className={heroPrimary}><Plus className="h-4 w-4" /> Add image</button>}
+    </>
+  );
+
+  const draftsAndScheduled = stats.drafts != null || stats.scheduled != null ? (stats.drafts || 0) + (stats.scheduled || 0) : null;
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-card shadow-sm border border-slate-200">
-        <div className="flex bg-slate-100 p-1 rounded-lg">
-          <button 
-            onClick={() => setActiveTab('articles')}
-            className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${activeTab === 'articles' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Articles
-          </button>
-          <button 
-            onClick={() => setActiveTab('categories')}
-            className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${activeTab === 'categories' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Categories
-          </button>
-          <button 
-            onClick={() => setActiveTab('location-images')}
-            className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${activeTab === 'location-images' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Location Images
-          </button>
-        </div>
-        <div className="flex gap-2">
-          {activeTab === 'articles' && (
-            <button 
-              onClick={handlePurgeArticles}
-              className="bg-rose-50 text-rose-600 px-5 py-2.5 rounded-card text-xs font-bold flex items-center justify-center gap-2 hover:bg-rose-100 transition-all border border-rose-100"
-            >
-              <Trash2 size={16} /> Purge All
-            </button>
-          )}
-          <button 
-            onClick={() => {
-              if (activeTab === 'articles') {
-                setEditingArticle({ 
-                  published: false, 
-                  status: 'DRAFT', 
-                  category: categories[0] || null,
-                  secondaryRoutes: [],
-                  articleTags: [],
-                  relatedArticles: [],
-                  relatedAirports: [],
-                  readingTime: '1 min read',
-                  featuredOnHomepage: false,
-                  isFeatured: false,
-                  live: false
-                });
-                setIsArticleModalOpen(true);
-              } else if (activeTab === 'categories') {
-                setEditingCategory({});
-                setIsCategoryModalOpen(true);
-              } else {
-                setEditingLocationImage({});
-                setIsLocationImageModalOpen(true);
-              }
-            }}
-            className="bg-indigo-600 text-white px-6 py-2.5 rounded-card text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 uppercase tracking-widest"
-          >
-            <Plus size={18} strokeWidth={3} /> {activeTab === 'articles' ? 'New Article' : activeTab === 'categories' ? 'New Category' : 'New Location Image'}
-          </button>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <Hero eyebrow="Content" eyebrowIcon={Newspaper} title="Blog"
+        subtitle="Travel guides and route articles that bring visitors to Hogicar. Write, schedule and keep every article looking its best."
+        loading={stats.total == null && loading}
+        actions={heroActions}
+        kpis={[
+          { label: 'Total articles', value: num(stats.total ?? totalElements), Icon: Newspaper, note: metaLoading ? undefined : plural(categories.length, 'category', 'categories') },
+          { label: 'Published', value: stats.published != null ? num(stats.published) : '—', Icon: Globe, note: stats.archived ? `${num(stats.archived)} archived` : undefined },
+          { label: 'Drafts & scheduled', value: draftsAndScheduled != null ? num(draftsAndScheduled) : '—', Icon: FilePen, note: draftsAndScheduled != null ? `${num(stats.drafts || 0)} drafts · ${num(stats.scheduled || 0)} scheduled` : undefined },
+          { label: 'Average SEO score', value: avgSeo != null ? `${avgSeo}/100` : '—', Icon: Gauge, note: articles.length ? (articles.length >= totalElements ? 'Across all articles' : `Across the ${articles.length} shown`) : undefined },
+        ]} />
 
+      <Segmented layoutId="blog-tab" value={activeTab} onChange={setActiveTab} items={[
+        { key: 'articles', label: 'Articles', count: stats.total ?? totalElements },
+        { key: 'categories', label: 'Categories', count: categories.length },
+        { key: 'location-images', label: 'Location images', count: locationImages.length },
+      ]} />
+
+      {/* ============================================================ Articles */}
       {activeTab === 'articles' && (
-        <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="relative max-w-md flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input 
-                  type="text"
-                  placeholder="Search articles by title or slug..."
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-900 outline-none transition-all"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`p-2 rounded-lg border transition-all flex items-center gap-2 text-xs font-bold ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-                >
-                  <Filter size={16} /> Filters
-                </button>
-                {selectedArticles.length > 0 && (
-                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
-                    <button onClick={() => handleBulkAction('publish')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md transition-all" title="Publish Selected"><Eye size={14} /></button>
-                    <button onClick={() => handleBulkAction('unpublish')} className="p-1.5 text-slate-500 hover:bg-slate-200 rounded-md transition-all" title="Unpublish Selected"><EyeOff size={14} /></button>
-                    <button onClick={() => handleBulkAction('archive')} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-md transition-all" title="Archive Selected"><Archive size={14} /></button>
-                    <button onClick={() => handleBulkAction('delete')} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md transition-all" title="Delete Selected"><Trash2 size={14} /></button>
-                  </div>
-                )}
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="-mx-1 overflow-x-auto px-1">
+              <div className="inline-flex rounded-xl bg-slate-100 p-1">
+                {[['', 'All'], ['PUBLISHED', 'Published'], ['DRAFT', 'Drafts'], ['SCHEDULED', 'Scheduled'], ['ARCHIVED', 'Archived']].map(([k, label]) => (
+                  <button key={k} type="button" onClick={() => updateFilters({ status: k })}
+                    className={`h-9 shrink-0 whitespace-nowrap rounded-lg px-3 text-sm font-semibold transition ${filters.status === k ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>{label}</button>
+                ))}
               </div>
             </div>
+            <div className="flex gap-2">
+              <label className="relative block min-w-0 flex-1 xl:w-80">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search by title or slug"
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-base shadow-sm outline-none focus:border-[#007ac2] focus:ring-4 focus:ring-[#007ac2]/15 sm:text-sm" />
+              </label>
+              <button type="button" onClick={() => setShowFilters(s => !s)} aria-expanded={showFilters}
+                className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold shadow-sm ring-1 ring-inset transition ${showFilters || extraFilterCount ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}>
+                <Filter className="h-4 w-4" /><span className="hidden sm:inline">Filters</span>
+                {extraFilterCount > 0 && <span className="rounded-full bg-white/20 px-1.5 text-[11px]">{extraFilterCount}</span>}
+              </button>
+            </div>
+          </div>
 
-            <AnimatePresence>
-              {showFilters && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100"
-                >
-                  <select 
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
-                    value={filters.category}
-                    onChange={(e) => setFilters({...filters, category: e.target.value})}
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <input 
-                    type="text" placeholder="Country"
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
-                    value={filters.country}
-                    onChange={(e) => setFilters({...filters, country: e.target.value})}
-                  />
-                  <select 
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
-                    value={filters.route}
-                    onChange={(e) => setFilters({...filters, route: e.target.value})}
-                  >
-                    <option value="">All Routes</option>
-                    {availableRoutes.map(r => <option key={r.id} value={r.id}>{r.destinationName || r.route}</option>)}
-                  </select>
-                  <select 
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
-                    value={filters.status}
-                    onChange={(e) => setFilters({...filters, status: e.target.value})}
-                  >
-                    <option value="">All Statuses</option>
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                    <option value="SCHEDULED">Scheduled</option>
-                    <option value="ARCHIVED">Archived</option>
-                  </select>
-                  <select 
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
-                    value={filters.featured}
-                    onChange={(e) => setFilters({...filters, featured: e.target.value})}
-                  >
-                    <option value="">All Visibility</option>
-                    <option value="true">Homepage Featured</option>
-                    <option value="false">Not on Homepage</option>
-                  </select>
-                  <input 
-                    type="text" placeholder="Author"
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none"
-                    value={filters.author}
-                    onChange={(e) => setFilters({...filters, author: e.target.value})}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="pl-6 py-4 w-10">
-                    <input 
-                      type="checkbox"
-                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
-                      checked={selectedArticles.length === filteredArticles.length && filteredArticles.length > 0}
-                      onChange={toggleSelectAll}
-                    />
-                  </th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Article</th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Category</th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Routes</th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-center">SEO</th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Visibility</th>
-                  <th className="px-4 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loading ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-20 text-center">
-                      <div className="flex flex-col items-center gap-3">
-                        <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin" />
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Articles...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredArticles.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
-                      No articles match your criteria
-                    </td>
-                  </tr>
-                ) : filteredArticles.map((article) => (
-                  <tr key={article.id} className={`hover:bg-slate-50/50 transition-colors ${selectedArticles.includes(article.id) ? 'bg-slate-50' : ''}`}>
-                    <td className="pl-6 py-4">
-                      <input 
-                        type="checkbox"
-                        className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
-                        checked={selectedArticles.includes(article.id)}
-                        onChange={() => {
-                          setSelectedArticles(prev => prev.includes(article.id) ? prev.filter(id => id !== article.id) : [...prev, article.id]);
-                        }}
-                      />
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex-shrink-0">
-                          <img 
-                            src={article.featuredImage ? (article.featuredImage.startsWith('/') && !article.featuredImage.startsWith('http') ? `${API_BASE_URL}${article.featuredImage}` : article.featuredImage) : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"%3E%3Crect width="150" height="150" fill="%23f1f5f9"/%3E%3C/svg%3E'} 
-                            className="w-10 h-10 rounded-lg object-cover bg-slate-100 shadow-sm border border-slate-200"
-                          />
-                        </div>
-                        <div className="max-w-[200px] xl:max-w-[300px]">
-                          <div className="font-bold text-slate-900 truncate" title={article.title}>{article.title}</div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] text-indigo-600 font-extrabold uppercase tracking-tighter bg-indigo-50 px-1 rounded">{article.authorName || 'Hogicar'}</span>
-                            <span className="text-[9px] text-slate-400 font-medium truncate">/{article.slug}</span>
-                            <span className="text-[9px] text-slate-300 font-bold">•</span>
-                            <span className="text-[9px] text-slate-400 font-bold">{article.readingTime || '1 min read'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-col">
-                        <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-tight self-start">
-                          {article.category?.name || 'Uncategorized'}
-                        </span>
-                        <span className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">{article.country || 'Jordan'}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      {article.primaryRoute ? (
-                        <div className="flex flex-col">
-                          <span className="text-[10px] font-extrabold text-slate-700 leading-tight truncate max-w-[120px]" title={article.primaryRoute.route}>{article.primaryRoute.destinationName || article.primaryRoute.route}</span>
-                          {article.secondaryRoutes && article.secondaryRoutes.length > 0 && (
-                            <div className="flex items-center gap-1 mt-0.5" title={article.secondaryRoutes.map(r => r.route).join(', ')}>
-                              <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                              <span className="text-[9px] text-slate-400 font-medium">{article.secondaryRoutes.length} related</span>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-[10px] text-slate-300 font-bold uppercase tracking-widest italic">No Route</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <div className={`inline-flex flex-col items-center justify-center w-8 h-8 rounded-full border-2 ${article.seoScore >= 80 ? 'border-emerald-500 text-emerald-600 bg-emerald-50' : article.seoScore >= 60 ? 'border-amber-400 text-amber-600 bg-amber-50' : 'border-rose-300 text-rose-500 bg-rose-50'}`}>
-                        <span className="text-[10px] font-extrabold leading-none">{article.seoScore || 0}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-col gap-1">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-tighter ${
-                          article.status === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-700' :
-                          article.status === 'SCHEDULED' ? 'bg-indigo-100 text-indigo-700' :
-                          article.status === 'ARCHIVED' ? 'bg-slate-200 text-slate-600' :
-                          'bg-slate-100 text-slate-500'
-                        }`}>
-                          {article.status || 'DRAFT'}
-                        </span>
-                        <div className="flex items-center gap-1 ml-1">
-                           <Calendar size={8} className="text-slate-400" />
-                           <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
-                             {article.updatedAt ? new Date(article.updatedAt).toLocaleDateString() : 'N/A'}
-                           </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-col gap-1">
-                        {article.published && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-600 uppercase tracking-tighter">
-                            <Check size={8} /> Published
-                          </span>
-                        )}
-                        {article.live && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-600 uppercase tracking-tighter">
-                            <Globe size={8} /> Live
-                          </span>
-                        )}
-                        {article.featuredOnHomepage && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-50 text-amber-600 uppercase tracking-tighter">
-                            <Layout size={8} /> Homepage
-                          </span>
-                        )}
-                        {!article.published && !article.live && !article.featuredOnHomepage && (
-                          <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic ml-1">Hidden</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <a
-                          href={`/blog/${article.slug}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                          title="View Live"
-                        >
-                          <ArrowUpRight size={14} />
-                        </a>
-                        <button
-                          onClick={() => handleArticleAction(article.id, article.published ? 'unpublish' : 'publish')}
-                          className={`p-1.5 rounded-lg transition-all ${article.published ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                          title={article.published ? 'Unpublish' : 'Publish'}
-                        >
-                          {article.published ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                        <button
-                          onClick={() => handleArticleAction(article.id, 'duplicate')}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          title="Duplicate"
-                        >
-                          <Copy size={14} />
-                        </button>
-                        <button 
-                          onClick={() => { setEditingArticle(article); setIsArticleModalOpen(true); }}
-                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteArticle(article.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Pagination */}
-          {activeTab === 'articles' && totalPages > 1 && (
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                Showing <span className="text-slate-900">{page * pageSize + 1}</span> to <span className="text-slate-900">{Math.min((page + 1) * pageSize, totalElements)}</span> of <span className="text-slate-900">{totalElements}</span> articles
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={page === 0}
-                  onClick={() => setPage(p => p - 1)}
-                  className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
-                >
-                  Previous
-                </button>
-                <div className="flex items-center gap-1">
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setPage(i)}
-                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${page === i ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
+          <AnimatePresence initial={false}>
+            {showFilters && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                <div className="grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 sm:grid-cols-2 lg:grid-cols-5">
+                  <Field label="Category">
+                    <select className={inputCls} value={filters.category} onChange={e => updateFilters({ category: e.target.value })}>
+                      <option value="">All categories</option>
+                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Country"><input className={inputCls} placeholder="Any country" value={filters.country} onChange={e => updateFilters({ country: e.target.value })} /></Field>
+                  <Field label="Route">
+                    <select className={inputCls} value={filters.route} onChange={e => updateFilters({ route: e.target.value })}>
+                      <option value="">All routes</option>
+                      {availableRoutes.map(r => <option key={r.id} value={r.id}>{r.destinationName || r.route}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Homepage">
+                    <select className={inputCls} value={filters.featured} onChange={e => updateFilters({ featured: e.target.value })}>
+                      <option value="">Any</option>
+                      <option value="true">Featured on homepage</option>
+                      <option value="false">Not on homepage</option>
+                    </select>
+                  </Field>
+                  <Field label="Author"><input className={inputCls} placeholder="Any author" value={filters.author} onChange={e => updateFilters({ author: e.target.value })} /></Field>
+                  {extraFilterCount > 0 && (
+                    <button type="button" onClick={() => updateFilters({ category: '', country: '', route: '', featured: '', author: '' })}
+                      className="inline-flex items-center gap-1.5 justify-self-start text-sm font-semibold text-[#007ac2] hover:underline sm:col-span-2 lg:col-span-5"><X className="h-4 w-4" /> Clear filters</button>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  disabled={page === totalPages - 1}
-                  onClick={() => setPage(p => p + 1)}
-                  className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
-                >
-                  Next
-                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {loadError && <ErrorBanner text={loadError} onRetry={loadArticles} />}
+
+          <AnimatePresence>
+            {selectedArticles.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+                className="sticky top-2 z-20 flex flex-wrap items-center gap-2 rounded-2xl bg-slate-900 p-2 pl-4 text-white shadow-lg">
+                <span className="mr-auto text-sm font-semibold">{plural(selectedArticles.length, 'article')} selected</span>
+                {bulkBusy && <Spinner light />}
+                {([['publish', Eye, 'Publish'], ['unpublish', EyeOff, 'Unpublish'], ['archive', Archive, 'Archive']] as const).map(([k, Icon, label]) => (
+                  <button key={k} type="button" disabled={bulkBusy} onClick={() => handleBulkAction(k)} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold hover:bg-white/10 disabled:opacity-50"><Icon className="h-4 w-4" /><span className="hidden sm:inline">{label}</span></button>
+                ))}
+                <button type="button" disabled={bulkBusy} onClick={() => handleBulkAction('delete')} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-rose-300 hover:bg-rose-500/20 disabled:opacity-50"><Trash2 className="h-4 w-4" /><span className="hidden sm:inline">Delete</span></button>
+                <button type="button" onClick={() => setSelectedArticles([])} aria-label="Clear selection" className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10"><X className="h-4 w-4" /></button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {loading && articles.length === 0 ? (
+            <div className="space-y-2">{[0, 1, 2, 3, 4].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" />)}</div>
+          ) : filteredArticles.length === 0 && !loadError ? (
+            <Empty icon={Newspaper}
+              title={stats.total === 0 && !debouncedSearch && !filters.status && !extraFilterCount ? 'No articles yet' : 'No articles match'}
+              text={stats.total === 0 && !debouncedSearch ? 'Write your first travel guide. It will show up on the blog and on the routes you link it to.' : 'Try another search, status or filter.'}
+              action={<button type="button" onClick={() => setEditingArticle(newArticle(categories))} className={`${primaryBtn} mt-5`}><Plus className="h-4 w-4" /> New article</button>} />
+          ) : (
+            <div className={`rounded-3xl bg-white shadow-sm ring-1 ring-slate-200 transition-opacity ${loading ? 'opacity-60' : ''}`}>
+              <div className={`${ROW_COLS} hidden rounded-t-3xl px-5 py-3 text-xs font-medium text-slate-500 md:grid`}>
+                <input type="checkbox" aria-label="Select all" checked={allSelected} onChange={toggleSelectAll} className="h-4 w-4 rounded border-slate-300 text-[#007ac2] focus:ring-[#007ac2]" />
+                <span>Image</span>
+                <span>Article</span>
+                <span className="hidden xl:block">Route</span>
+                <span>SEO</span>
+                <span>Status</span>
+                <span />
               </div>
+              <div className="hidden md:block">
+                {filteredArticles.map(a => (
+                  <ArticleRow key={a.id} a={a} coverage={coverage} selected={selectedArticles.includes(a.id)} busy={busyIds.includes(a.id)}
+                    onSelect={() => setSelectedArticles(prev => prev.includes(a.id) ? prev.filter(id => id !== a.id) : [...prev, a.id])}
+                    onOpen={() => setEditingArticle(a)} onAction={handleArticleAction} onDelete={handleDeleteArticle} />
+                ))}
+              </div>
+              <div className="space-y-3 p-3 md:hidden">
+                <label className="flex items-center gap-2 px-1 text-sm text-slate-600">
+                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="h-4 w-4 rounded border-slate-300 text-[#007ac2] focus:ring-[#007ac2]" /> Select all on this page
+                </label>
+                {filteredArticles.map(a => (
+                  <ArticleCard key={a.id} a={a} coverage={coverage} selected={selectedArticles.includes(a.id)} busy={busyIds.includes(a.id)}
+                    onSelect={() => setSelectedArticles(prev => prev.includes(a.id) ? prev.filter(id => id !== a.id) : [...prev, a.id])}
+                    onOpen={() => setEditingArticle(a)} onAction={handleArticleAction} onDelete={handleDeleteArticle} />
+                ))}
+              </div>
+              <Pagination page={page} totalPages={totalPages} totalElements={totalElements} pageSize={pageSize}
+                onPage={p => { setPage(p); setSelectedArticles([]); }} onSize={n => { setPageSize(n); setPage(0); }} />
             </div>
           )}
+
+          <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 text-sm text-slate-600">
+              <Layout className="mt-0.5 h-4 w-4 shrink-0 text-[#007ac2]" />
+              <p>Articles without their own picture show their country or city image. <button type="button" onClick={() => setActiveTab('location-images')} className="font-semibold text-[#007ac2] hover:underline">Manage location images</button></p>
+            </div>
+            <button type="button" onClick={handlePurgeArticles} className="inline-flex h-9 shrink-0 items-center gap-1.5 self-start rounded-lg px-3 text-sm font-semibold text-rose-600 ring-1 ring-inset ring-rose-200 hover:bg-rose-50 sm:self-auto">
+              <Trash2 className="h-4 w-4" /> Delete all articles
+            </button>
+          </div>
         </div>
       )}
 
+      {/* ============================================================ Categories */}
       {activeTab === 'categories' && (
-        <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Name</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Slug</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Description</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-20 text-center">
-                    <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin mx-auto" />
-                  </td>
-                </tr>
-              ) : categories.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-20 text-center text-slate-400">
-                    No categories found.
-                  </td>
-                </tr>
-              ) : categories.map((cat) => (
-                <tr key={cat.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-900">{cat.name}</td>
-                  <td className="px-6 py-4 text-xs font-mono text-slate-500">{cat.slug}</td>
-                  <td className="px-6 py-4 text-xs text-slate-600 max-w-xs truncate">{cat.description}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => { setEditingCategory(cat); setIsCategoryModalOpen(true); }}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteCategory(cat.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        metaLoading && categories.length === 0 ? (
+          <div className="space-y-2">{[0, 1, 2].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" />)}</div>
+        ) : categories.length === 0 ? (
+          <Empty icon={Folder} title="No categories yet" text="Group articles by theme, like Travel tips or Road trips."
+            action={<button type="button" onClick={() => setEditingCategory({})} className={`${primaryBtn} mt-5`}><Plus className="h-4 w-4" /> New category</button>} />
+        ) : (
+          <ul className="divide-y divide-slate-100 rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
+            {categories.map(cat => (
+              <li key={cat.id} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#007ac2]/10 text-[#007ac2]"><Folder className="h-4 w-4" /></span>
+                <button type="button" onClick={() => setEditingCategory(cat)} className="min-w-0 flex-1 text-left">
+                  <span className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="font-semibold text-slate-900">{cat.name}</span>
+                    <span className="font-mono text-xs text-slate-400">/{cat.slug}</span>
+                  </span>
+                  {cat.description && <span className="mt-0.5 line-clamp-1 block text-sm text-slate-500">{cat.description}</span>}
+                </button>
+                <button type="button" onClick={() => setEditingCategory(cat)} aria-label={`Edit ${cat.name}`} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><Pencil className="h-4 w-4" /></button>
+                <button type="button" onClick={() => handleDeleteCategory(cat)} aria-label={`Delete ${cat.name}`} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>
+              </li>
+            ))}
+          </ul>
+        )
       )}
 
+      {/* ============================================================ Location images */}
       {activeTab === 'location-images' && (
-        <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Image</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Country</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">City</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Area</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Topic</th>
-                <th className="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-20 text-center">
-                    <LoaderCircle className="w-8 h-8 text-slate-300 animate-spin mx-auto" />
-                  </td>
-                </tr>
-              ) : (locationImages.length === 0 && unmappedLocations.length === 0) ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-20 text-center text-slate-400">
-                    No locations found in articles or defined in settings.
-                  </td>
-                </tr>
-              ) : (
-                <>
-                  {locationImages.map((img) => (
-                    <tr key={img.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <img src={img.imageUrl} alt={img.cityTag || img.countryTag} className="w-16 h-10 object-cover rounded shadow-sm" />
-                      </td>
-                      <td className="px-6 py-4 font-bold text-slate-900 uppercase">{img.countryTag}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.cityTag || 'DEFAULT'}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">{img.areaTag || '-'}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-emerald-600 uppercase">{img.topicTag || '-'}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            onClick={() => { setEditingLocationImage(img); setIsLocationImageModalOpen(true); }}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteLocationImage(img.id)}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {unmappedLocations.map((loc, idx) => (
-                    <tr key={`unmapped-${idx}`} className="bg-amber-50/30 hover:bg-amber-50/50 transition-colors border-l-4 border-amber-400">
-                      <td className="px-6 py-4">
-                        <div className="w-16 h-10 bg-slate-100 rounded flex items-center justify-center text-slate-300">
-                          <ImageIcon size={20} />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-bold text-slate-900 uppercase opacity-60">{loc.countryTag}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase opacity-60">{loc.cityTag || 'DEFAULT'}</td>
-                      <td className="px-6 py-4 opacity-60">-</td>
-                      <td className="px-6 py-4 opacity-60">-</td>
-                      <td className="px-6 py-4 text-right">
-                        <button 
-                          onClick={() => { setEditingLocationImage({ countryTag: loc.countryTag, cityTag: loc.cityTag || '' }); setIsLocationImageModalOpen(true); }}
-                          className="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-tight hover:bg-amber-200 transition-all flex items-center gap-2 ml-auto"
-                        >
-                          <Plus size={14} /> Add Image
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <LocationImagesPanel images={locationImages} coverage={coverage} usedLocations={usedLocations} loading={locLoading} error={locError}
+          addSignal={addImageSignal} onReload={loadLocations} notify={notify} ask={ask}
+          onChanged={async () => { await Promise.all([loadLocations(), loadArticles()]); }} />
       )}
 
-      {/* Article Modal */}
       <AnimatePresence>
-        {isArticleModalOpen && editingArticle && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-              onClick={() => setIsArticleModalOpen(false)}
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white w-full max-w-5xl h-[90vh] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
-            >
-              <form onSubmit={handleSaveArticle} className="flex flex-col h-full">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-slate-900 p-2 rounded-xl text-white">
-                      <FileText size={20} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                        {editingArticle.id ? 'Edit Article' : 'New Article'}
-                      </h2>
-                      <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Article Editor & Content Builder</p>
-                    </div>
-                  </div>
-                  <button 
-                    type="button" onClick={() => setIsArticleModalOpen(false)}
-                    className="p-2 hover:bg-slate-200 rounded-full transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="flex-grow overflow-y-auto p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Article Title</label>
-                        <input 
-                          type="text" required
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold text-lg"
-                          value={editingArticle.title || ''}
-                          onChange={(e) => setEditingArticle({...editingArticle, title: e.target.value})}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Slug</label>
-                          <input 
-                            type="text" required
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-mono text-sm"
-                            value={editingArticle.slug || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, slug: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Category</label>
-                          <select 
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold text-sm"
-                            value={editingArticle.category?.id || ''}
-                            onChange={(e) => {
-                              const cat = categories.find(c => c.id === Number(e.target.value));
-                              setEditingArticle({...editingArticle, category: cat || null});
-                            }}
-                          >
-                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Excerpt (Summary)</label>
-                        <textarea 
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-20 resize-none"
-                          value={editingArticle.excerpt || ''}
-                          onChange={(e) => setEditingArticle({...editingArticle, excerpt: e.target.value})}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Reading Time</label>
-                          <input 
-                            type="text"
-                            placeholder="e.g., 5 min read"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-bold"
-                            value={editingArticle.readingTime || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, readingTime: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country</label>
-                          <input 
-                            type="text"
-                            placeholder="e.g., Jordan"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm font-bold"
-                            value={editingArticle.country || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, country: e.target.value})}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Publish Date</label>
-                          <input
-                            type="date"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm"
-                            value={editingArticle.publishDate || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, publishDate: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Scheduled Publishing</label>
-                          <div className="flex gap-2">
-                            <input
-                              type="datetime-local"
-                              className="min-w-0 flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm"
-                              value={editingArticle.scheduledAt?.slice(0, 16) || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, scheduledAt: e.target.value, status: e.target.value ? 'SCHEDULED' : editingArticle.status})}
-                            />
-                            {editingArticle.id && (
-                              <button type="button" onClick={scheduleArticle} className="px-3 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">
-                                Set
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Tags (Comma Separated)</label>
-                        <input 
-                          type="text"
-                          placeholder="Travel Tips, Luxury, Adventure"
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm"
-                          value={editingArticle.tags || ''}
-                          onChange={(e) => setEditingArticle({...editingArticle, tags: e.target.value})}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between ml-1">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Content (Rich HTML Editor)</label>
-                          <span className={`text-[10px] font-bold uppercase tracking-widest ${((editingArticle.content || '').split(/\s+/).filter(Boolean).length) >= 1500 ? 'text-emerald-500' : 'text-amber-500'}`}>
-                            Word Count: {(editingArticle.content || '').split(/\s+/).filter(Boolean).length} / 1500
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1 p-2 bg-slate-100 border border-slate-200 rounded-t-xl border-b-0">
-                          {['H1', 'H2', 'H3', 'B', 'I', 'UL', 'OL', 'LI', 'IMG', 'A', 'TABLE', 'TR', 'TD'].map(tag => (
-                            <button
-                              key={tag}
-                              type="button"
-                              onClick={() => {
-                                const el = document.getElementById('article-content-textarea') as HTMLTextAreaElement;
-                                if (!el) return;
-                                const start = el.selectionStart;
-                                const end = el.selectionEnd;
-                                const text = el.value;
-                                const selected = text.substring(start, end);
-                                const before = text.substring(0, start);
-                                const after = text.substring(end);
-                                const lowerTag = tag.toLowerCase();
-                                let replacement = '';
-                                if (tag === 'IMG') replacement = `<img src="" alt="" />`;
-                                else if (tag === 'A') replacement = `<a href="">${selected || 'Link'}</a>`;
-                                else if (tag === 'TABLE') replacement = `<table>\n  <tr>\n    <td></td>\n  </tr>\n</table>`;
-                                else replacement = `<${lowerTag}>${selected}</${lowerTag}>`;
-                                
-                                const newValue = before + replacement + after;
-                                setEditingArticle({...editingArticle, content: newValue});
-                                setTimeout(() => {
-                                  el.focus();
-                                  el.setSelectionRange(start + replacement.length, start + replacement.length);
-                                }, 10);
-                              }}
-                              className="px-2 py-1 bg-white border border-slate-200 rounded text-[9px] font-extrabold text-slate-600 hover:bg-slate-900 hover:text-white transition-all"
-                            >
-                              {tag}
-                            </button>
-                          ))}
-                        </div>
-                        <textarea 
-                          id="article-content-textarea"
-                          required
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-b-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-96 font-mono"
-                          value={editingArticle.content || ''}
-                          onChange={(e) => setEditingArticle({...editingArticle, content: e.target.value})}
-                        />
-                      </div>
-
-                      {/* FAQ Editor */}
-                      <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">FAQs</label>
-                          <button type="button" onClick={addFaq} className="px-3 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-bold">
-                            Add FAQ
-                          </button>
-                        </div>
-                        <div className="space-y-3">
-                          {parseJsonArray(editingArticle.faqJson).map((faq: any, idx: number) => (
-                            <div key={idx} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                              <input
-                                type="text"
-                                placeholder="Question"
-                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold"
-                                value={faq.question || ''}
-                                onChange={(e) => updateFaq(idx, 'question', e.target.value)}
-                              />
-                              <textarea
-                                placeholder="Answer"
-                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm h-20 resize-none"
-                                value={faq.answer || ''}
-                                onChange={(e) => updateFaq(idx, 'answer', e.target.value)}
-                              />
-                              <button type="button" onClick={() => removeFaq(idx)} className="text-[10px] font-bold text-rose-600">
-                                Remove FAQ
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Related Articles Selector */}
-                      <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Articles</label>
-                        <div className="max-h-60 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-slate-50 p-4 rounded-xl border border-slate-200">
-                          {articles
-                            .filter(a => a.id !== editingArticle.id)
-                            .map(a => {
-                              const isSelected = editingArticle.relatedArticles?.some(ra => ra.id === a.id);
-                              return (
-                                <div 
-                                  key={a.id} 
-                                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-white text-slate-700'}`}
-                                  onClick={() => {
-                                    const newRelated = isSelected 
-                                      ? editingArticle.relatedArticles?.filter(ra => ra.id !== a.id)
-                                      : [...(editingArticle.relatedArticles || []), a];
-                                    setEditingArticle({...editingArticle, relatedArticles: newRelated});
-                                  }}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <img src={a.featuredImage ? (a.featuredImage.startsWith('/') && !a.featuredImage.startsWith('http') ? `${API_BASE_URL}${a.featuredImage}` : a.featuredImage) : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"%3E%3Crect width="150" height="150" fill="%23f1f5f9"/%3E%3C/svg%3E'} className="w-6 h-6 rounded object-cover" />
-                                    <span className="text-xs font-bold truncate max-w-[300px]">{a.title}</span>
-                                  </div>
-                                  {isSelected && <Check size={14} />}
-                                </div>
-                              );
-                            })}
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* Sidebar / Settings */}
-                    <div className="space-y-8">
-                      {/* General Information */}
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                          <Eye size={14} /> General Information
-                        </h3>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">Status</label>
-                          <select
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold"
-                            value={editingArticle.status || (editingArticle.published ? 'PUBLISHED' : 'DRAFT')}
-                            onChange={(e) => setEditingArticle({...editingArticle, status: e.target.value, published: e.target.value === 'PUBLISHED'})}
-                          >
-                            <option value="DRAFT">Draft</option>
-                            <option value="SCHEDULED">Scheduled</option>
-                            <option value="PUBLISHED">Published</option>
-                            <option value="ARCHIVED">Archived</option>
-                          </select>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
-                          <span className="text-sm font-bold text-slate-700">Published</span>
-                          <button 
-                            type="button"
-                            onClick={() => setEditingArticle({...editingArticle, published: !editingArticle.published})}
-                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.published ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.published ? 'left-7' : 'left-1'}`} />
-                          </button>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-slate-700">Live Status</span>
-                            <span className="text-[9px] text-slate-400 font-bold uppercase">Publicly Accessible</span>
-                          </div>
-                          <button 
-                            type="button"
-                            onClick={() => setEditingArticle({...editingArticle, live: !editingArticle.live})}
-                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.live ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.live ? 'left-7' : 'left-1'}`} />
-                          </button>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
-                          <span className="text-sm font-bold text-slate-700">Featured on Homepage</span>
-                          <button 
-                            type="button"
-                            onClick={() => setEditingArticle({...editingArticle, featuredOnHomepage: !editingArticle.featuredOnHomepage})}
-                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.featuredOnHomepage ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.featuredOnHomepage ? 'left-7' : 'left-1'}`} />
-                          </button>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
-                          <span className="text-sm font-bold text-slate-700">Mark as Featured</span>
-                          <button 
-                            type="button"
-                            onClick={() => setEditingArticle({...editingArticle, isFeatured: !editingArticle.isFeatured})}
-                            className={`relative w-12 h-6 rounded-full transition-colors ${editingArticle.isFeatured ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editingArticle.isFeatured ? 'left-7' : 'left-1'}`} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Route Assignment */}
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                          <MapPin size={14} /> Route Assignment
-                        </h3>
-
-                        <div className="space-y-4">
-                          {/* Route Filters */}
-                          <div className="grid grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-slate-200">
-                            <select 
-                              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
-                              value={routeFilters.routeType}
-                              onChange={(e) => setRouteFilters({...routeFilters, routeType: e.target.value})}
-                            >
-                              <option value="">All Route Types</option>
-                              <option value="HOMEPAGE">Homepage</option>
-                              <option value="AIRPORT">Airport</option>
-                              <option value="CITY">City</option>
-                              <option value="DESTINATION">Destination</option>
-                            </select>
-                            <input 
-                              type="text"
-                              placeholder="Search routes..."
-                              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
-                              value={routeFilters.search}
-                              onChange={(e) => setRouteFilters({...routeFilters, search: e.target.value})}
-                            />
-                          </div>
-
-                          {/* Primary Route */}
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Primary Route (Required)</label>
-                            <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
-                              {availableRoutes.map(r => {
-                                const isSelected = editingArticle.primaryRoute?.id === r.id;
-                                return (
-                                  <div 
-                                    key={r.id} 
-                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
-                                    onClick={() => setEditingArticle({...editingArticle, primaryRoute: r})}
-                                  >
-                                    <div className="flex flex-col">
-                                      <span className="text-xs font-bold">{r.destinationName || r.route}</span>
-                                      <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
-                                    </div>
-                                    {isSelected && <Check size={14} />}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Related Routes Multi-Select */}
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Related Routes (Optional)</label>
-                            <div className="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar bg-white p-2 rounded-xl border border-slate-200">
-                                {availableRoutes
-                                  .filter(r => r.id !== editingArticle.primaryRoute?.id)
-                                  .map(r => {
-                                    const isSelected = editingArticle.secondaryRoutes?.some(sr => sr.id === r.id);
-                                    return (
-                                      <div 
-                                        key={r.id} 
-                                        className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-slate-900 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
-                                        onClick={() => {
-                                          const newSecondary = isSelected 
-                                            ? editingArticle.secondaryRoutes?.filter(sr => sr.id !== r.id)
-                                            : [...(editingArticle.secondaryRoutes || []), r];
-                                          setEditingArticle({...editingArticle, secondaryRoutes: newSecondary});
-                                        }}
-                                      >
-                                        <div className="flex flex-col">
-                                          <span className="text-xs font-bold">{r.destinationName || r.route}</span>
-                                          <span className={`text-[9px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{r.route}</span>
-                                        </div>
-                                        {isSelected && <Check size={14} />}
-                                      </div>
-                                    );
-                                  })}
-                            </div>
-                          </div>
-
-                          {/* Admin Preview Summary */}
-                          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
-                            <div className="space-y-2">
-                              <div className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">This article will appear on:</div>
-                              <div className="space-y-1">
-                                {(editingArticle.featuredOnHomepage || editingArticle.isFeatured) && (
-                                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                    <Check size={10} className="text-emerald-500" /> Homepage (Featured)
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                  <Check size={10} className="text-emerald-500" /> Blog Index
-                                </div>
-                                {editingArticle.primaryRoute && (
-                                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                    <Check size={10} className="text-emerald-500" /> {editingArticle.primaryRoute.destinationName || editingArticle.primaryRoute.route}
-                                  </div>
-                                )}
-                                {editingArticle.secondaryRoutes?.map(r => (
-                                  <div key={r.id} className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                    <Check size={10} className="text-emerald-500" /> {r.destinationName || r.route}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="space-y-2 pt-2 border-t border-emerald-200/50">
-                              <div className="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">This article will be added to:</div>
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                  <Check size={10} className="text-emerald-500" /> Blog Index
-                                </div>
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                  <Check size={10} className="text-emerald-500" /> XML Sitemap
-                                </div>
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                  <Check size={10} className="text-emerald-500" /> Internal Search
-                                </div>
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                  <Check size={10} className="text-emerald-500" /> Related Articles
-                                </div>
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700">
-                                  <Check size={10} className="text-emerald-500" /> Route Blog Sections
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Featured Image */}
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Images</h3>
-                        
-                        {/* Image Suggestions */}
-                        {suggestedImages.length > 0 && (
-                          <div className="mb-6">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                              <ImageIcon size={12} className="text-emerald-500" /> Recommended Images for {editingArticle.primaryRoute?.destinationName || editingArticle.country || 'Location'}
-                            </h4>
-                            <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-                              {suggestedImages.map(img => (
-                                <button
-                                  key={img.id}
-                                  onClick={() => setEditingArticle({
-                                    ...editingArticle, 
-                                    featuredImage: img.imageUrl,
-                                    imageAltText: img.altText || editingArticle.imageAltText,
-                                    imageCaption: img.caption || editingArticle.imageCaption
-                                  })}
-                                  className="flex-shrink-0 w-24 aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-emerald-500 transition-all group relative"
-                                >
-                                  <img src={img.imageUrl} className="w-full h-full object-cover" alt="Suggested" />
-                                  <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <Plus size={16} className="text-white" />
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="space-y-4">
-                          <ImageUploadField 
-                            label="Hero Image"
-                            placeholder="Hero image URL..."
-                            value={editingArticle.featuredImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, featuredImage: e.target.value})}
-                            onLibraryOpen={() => {
-                              setTargetImageField('featuredImage');
-                              setIsMediaLibraryOpen(true);
-                            }}
-                          />
-
-                          <ImageUploadField 
-                            label="Desktop (Main)"
-                            placeholder="Desktop image URL..."
-                            value={editingArticle.desktopImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, desktopImage: e.target.value})}
-                            onLibraryOpen={() => {
-                              setTargetImageField('desktopImage');
-                              setIsMediaLibraryOpen(true);
-                            }}
-                          />
-                          
-                          <ImageUploadField 
-                            label="Mobile"
-                            placeholder="Mobile image URL..."
-                            value={editingArticle.mobileImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, mobileImage: e.target.value})}
-                            onLibraryOpen={() => {
-                              setTargetImageField('mobileImage');
-                              setIsMediaLibraryOpen(true);
-                            }}
-                          />
-
-                          <ImageUploadField 
-                            label="Thumbnail (Card)"
-                            placeholder="Thumbnail image URL..."
-                            value={editingArticle.thumbnailImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, thumbnailImage: e.target.value})}
-                            onLibraryOpen={() => {
-                              setTargetImageField('thumbnailImage');
-                              setIsMediaLibraryOpen(true);
-                            }}
-                          />
-
-                          <ImageUploadField 
-                            label="Open Graph"
-                            placeholder="Open Graph image URL..."
-                            value={editingArticle.openGraphImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, openGraphImage: e.target.value})}
-                            onLibraryOpen={() => {
-                              setTargetImageField('openGraphImage');
-                              setIsMediaLibraryOpen(true);
-                            }}
-                          />
-
-                          <ImageUploadField 
-                            label="Twitter Card"
-                            placeholder="Twitter image URL..."
-                            value={editingArticle.twitterCardImage || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, twitterCardImage: e.target.value})}
-                            onLibraryOpen={() => {
-                              setTargetImageField('twitterCardImage');
-                              setIsMediaLibraryOpen(true);
-                            }}
-                          />
-
-                          <input
-                            type="text"
-                            placeholder="Alt text"
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                            value={editingArticle.imageAltText || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, imageAltText: e.target.value})}
-                          />
-                          <textarea
-                            placeholder="Image caption"
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs h-16 resize-none"
-                            value={editingArticle.imageCaption || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, imageCaption: e.target.value})}
-                          />
-                        </div>
-                      </div>
-
-                      {/* SEO Settings */}
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                          <Globe size={14} /> SEO Meta
-                        </h3>
-                        <div>
-                          <div className="flex items-center justify-between text-[10px] font-bold uppercase text-slate-500 mb-2">
-                            <span>SEO Score</span>
-                            <span className={seoScore >= 80 ? 'text-emerald-600' : seoScore >= 60 ? 'text-amber-600' : 'text-rose-600'}>{seoScore}/100</span>
-                          </div>
-                          <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div className={`h-full ${seoScore >= 80 ? 'bg-emerald-500' : seoScore >= 60 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${seoScore}%` }} />
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">SEO Title</label>
-                            <input 
-                              type="text"
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                              value={editingArticle.seoTitle || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, seoTitle: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Meta Description</label>
-                            <textarea 
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs h-20 resize-none"
-                              value={editingArticle.seoDescription || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, seoDescription: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Canonical URL</label>
-                            <input 
-                              type="text"
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                              value={editingArticle.canonicalUrl || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, canonicalUrl: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Focus Keyword</label>
-                            <input 
-                              type="text"
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                              value={editingArticle.focusKeyword || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, focusKeyword: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Secondary Keywords</label>
-                            <textarea
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs h-16 resize-none"
-                              value={editingArticle.secondaryKeywords || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, secondaryKeywords: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase">Robots Directives</label>
-                            <input
-                              type="text"
-                              placeholder="index, follow"
-                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                              value={editingArticle.robotsDirectives || ''}
-                              onChange={(e) => setEditingArticle({...editingArticle, robotsDirectives: e.target.value})}
-                            />
-                          </div>
-                          <div className="bg-white border border-slate-200 rounded-xl p-4">
-                            <div className="text-[10px] font-bold uppercase text-slate-400 mb-3">Google Search Preview</div>
-                            <div className="text-[#1a0dab] text-base leading-tight line-clamp-2">{editingArticle.seoTitle || editingArticle.title || 'Article title'}</div>
-                            <div className="text-[#006621] text-xs mt-1">www.hogicar.com/blog/{editingArticle.slug || 'article-slug'}</div>
-                            <div className="text-[#545454] text-xs mt-1 line-clamp-3">{editingArticle.seoDescription || editingArticle.excerpt || 'Meta description preview appears here.'}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {editingArticle.slug && (
-                        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                          <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Preview</h3>
-                          <div className="grid grid-cols-4 gap-2">
-                            {[
-                              ['desktop', Monitor],
-                              ['tablet', Tablet],
-                              ['mobile', Smartphone],
-                              ['google', Search]
-                            ].map(([mode, Icon]: any) => (
-                              <button
-                                type="button"
-                                key={mode}
-                                onClick={() => setPreviewMode(mode)}
-                                className={`p-2 rounded-lg border text-xs font-bold flex items-center justify-center ${previewMode === mode ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200'}`}
-                              >
-                                <Icon size={14} />
-                              </button>
-                            ))}
-                          </div>
-                          {previewMode === 'google' ? (
-                            <div className="bg-white border border-slate-200 rounded-xl p-4 text-xs">
-                              <div className="text-[#1a0dab] text-base">{editingArticle.seoTitle || editingArticle.title}</div>
-                              <div className="text-[#006621]">www.hogicar.com/blog/{editingArticle.slug}</div>
-                              <div className="text-[#545454]">{editingArticle.seoDescription || editingArticle.excerpt}</div>
-                            </div>
-                          ) : (
-                            <div className="bg-white border border-slate-200 rounded-xl p-3 overflow-hidden">
-                              <iframe
-                                title="Article preview"
-                                src={`/blog/${editingArticle.slug}`}
-                                className={`bg-white border-0 mx-auto ${previewMode === 'desktop' ? 'w-full h-64' : previewMode === 'tablet' ? 'w-[420px] max-w-full h-64' : 'w-[260px] h-64'}`}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Author */}
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                        <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest">Author Info</h3>
-                        <div className="grid grid-cols-1 gap-3">
-                          <input 
-                            type="text"
-                            placeholder="Name"
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs"
-                            value={editingArticle.authorName || ''}
-                            onChange={(e) => setEditingArticle({...editingArticle, authorName: e.target.value})}
-                          />
-                        <ImageUploadField 
-                          label="Author Image"
-                          placeholder="Author image URL"
-                          value={editingArticle.authorImage || ''}
-                          onChange={(e) => setEditingArticle({...editingArticle, authorImage: e.target.value})}
-                        />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-                  <button 
-                    type="button" onClick={() => setIsArticleModalOpen(false)}
-                    className="px-6 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit"
-                    className="bg-slate-900 text-white px-8 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg"
-                  >
-                    <Save size={16} /> Save Article
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
+        {editingArticle && (
+          <ArticleEditor key={`article-${editingArticle.id ?? 'new'}`} initial={editingArticle} categories={categories} articles={articles}
+            routes={availableRoutes} coverage={coverage} notify={notify} ask={ask}
+            onClose={closeEditor}
+            onChanged={() => { loadArticles(); loadStats(); }}
+            onSaved={() => { setEditingArticle(null); notify('Article saved'); refreshAll(); }} />
+        )}
+        {editingCategory && (
+          <CategoryDrawer key={`cat-${editingCategory.id ?? 'new'}`} initial={editingCategory} onClose={closeCategory}
+            onSaved={name => { setEditingCategory(null); notify(`${name} saved`); loadMeta(); }} />
         )}
       </AnimatePresence>
-
-      {/* Category Modal */}
-      <AnimatePresence>
-        {isCategoryModalOpen && editingCategory && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-              onClick={() => setIsCategoryModalOpen(false)}
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden"
-            >
-              <form onSubmit={handleSaveCategory}>
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                  <h2 className="text-xl font-extrabold text-slate-900">
-                    {editingCategory.id ? 'Edit Category' : 'New Category'}
-                  </h2>
-                  <button type="button" onClick={() => setIsCategoryModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full"><X size={20} /></button>
-                </div>
-                <div className="p-8 space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Name</label>
-                    <input 
-                      type="text" required
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                      value={editingCategory.name || ''}
-                      onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Slug</label>
-                    <input 
-                      type="text" required
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-mono text-sm"
-                      value={editingCategory.slug || ''}
-                      onChange={(e) => setEditingCategory({...editingCategory, slug: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Description</label>
-                    <textarea 
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all text-sm h-24"
-                      value={editingCategory.description || ''}
-                      onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-                  <button type="button" onClick={() => setIsCategoryModalOpen(false)} className="px-6 py-2 text-xs font-bold text-slate-600">Cancel</button>
-                  <button type="submit" className="bg-slate-900 text-white px-8 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <Save size={16} /> Save Category
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Location Image Modal */}
-      <AnimatePresence>
-        {isLocationImageModalOpen && editingLocationImage && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-              onClick={() => setIsLocationImageModalOpen(false)}
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden"
-            >
-              <form onSubmit={handleSaveLocationImage}>
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-slate-900 p-2 rounded-xl text-white">
-                      <ImageIcon size={20} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                        {editingLocationImage.id ? 'Edit Location Image' : 'New Location Image'}
-                      </h2>
-                      <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">Map Country/City to Blog Hero Image</p>
-                    </div>
-                  </div>
-                  <button type="button" onClick={() => setIsLocationImageModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20} /></button>
-                </div>
-                <div className="p-8 space-y-6 overflow-y-auto max-h-[60vh]">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Country Tag</label>
-                      <input 
-                        type="text" required
-                        placeholder="e.g. jordan"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                        value={editingLocationImage.countryTag || ''}
-                        onChange={(e) => setEditingLocationImage({...editingLocationImage, countryTag: e.target.value.toLowerCase()})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">City Tag</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. amman"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                        value={editingLocationImage.cityTag || ''}
-                        onChange={(e) => setEditingLocationImage({...editingLocationImage, cityTag: e.target.value.toLowerCase()})}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Area Tag (Neighborhood)</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. abdoun"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                        value={editingLocationImage.areaTag || ''}
-                        onChange={(e) => setEditingLocationImage({...editingLocationImage, areaTag: e.target.value.toLowerCase()})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Topic Tag</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. driving, parking, food"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                        value={editingLocationImage.topicTag || ''}
-                        onChange={(e) => setEditingLocationImage({...editingLocationImage, topicTag: e.target.value.toLowerCase()})}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Image Title</label>
-                    <input 
-                      type="text"
-                      placeholder="Descriptive title for the library"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                      value={editingLocationImage.title || ''}
-                      onChange={(e) => setEditingLocationImage({...editingLocationImage, title: e.target.value})}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Alt Text (SEO)</label>
-                      <input 
-                        type="text"
-                        placeholder="SEO friendly alt text"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                        value={editingLocationImage.altText || ''}
-                        onChange={(e) => setEditingLocationImage({...editingLocationImage, altText: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Caption</label>
-                      <input 
-                        type="text"
-                        placeholder="Visible image caption"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold"
-                        value={editingLocationImage.caption || ''}
-                        onChange={(e) => setEditingLocationImage({...editingLocationImage, caption: e.target.value})}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t border-slate-100">
-                    <ImageUploadField 
-                      label="Hero Image URL"
-                      placeholder="Select or paste high-quality image URL"
-                      value={editingLocationImage.imageUrl || ''}
-                      onChange={(e) => setEditingLocationImage({...editingLocationImage, imageUrl: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50">
-                  <button type="button" onClick={() => setIsLocationImageModalOpen(false)} className="px-6 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all">Cancel</button>
-                  <button type="submit" className="bg-slate-900 text-white px-8 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg">
-                    <Save size={16} /> Save Mapping
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Image Library Modal */}
-      {isMediaLibraryOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-slate-900/60 backdrop-blur-sm">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-6xl h-full max-h-[85vh]"
-          >
-            <MediaLibrary 
-              onClose={() => setIsMediaLibraryOpen(false)}
-              initialFilters={{
-                country: editingArticle?.primaryRoute?.countryTag || editingArticle?.country,
-                city: editingArticle?.primaryRoute?.cityTag
-              }}
-              onSelect={(image) => {
-                if (targetImageField && editingArticle) {
-                  setEditingArticle({
-                    ...editingArticle,
-                    [targetImageField]: image.imageUrl,
-                    // Also update alt text/caption if target is hero/featured
-                    ...(targetImageField === 'featuredImage' ? {
-                      imageAltText: image.altText || editingArticle.imageAltText,
-                      imageCaption: image.caption || editingArticle.imageCaption
-                    } : {})
-                  });
-                }
-                setIsMediaLibraryOpen(false);
-              }}
-            />
-          </motion.div>
-        </div>
-      )}
+      {dialog}
+      <Toast toast={toast} />
     </div>
   );
 };

@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
-import Upload from 'lucide-react/dist/esm/icons/upload';
+import CloudUpload from 'lucide-react/dist/esm/icons/cloud-upload';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
-import X from 'lucide-react/dist/esm/icons/x';
-import ImageIcon from 'lucide-react/dist/esm/icons/image';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import ImageOff from 'lucide-react/dist/esm/icons/image-off';
+import Images from 'lucide-react/dist/esm/icons/images';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import Link2 from 'lucide-react/dist/esm/icons/link-2';
 import { adminFetch } from '../../lib/adminApi';
-import { API_BASE_URL } from '../../lib/config';
+import { imgSrc } from './blog/blogShared';
 
 interface ImageUploadFieldProps {
   label: string;
@@ -16,120 +19,150 @@ interface ImageUploadFieldProps {
   onLibraryOpen?: () => void;
 }
 
+const ACCEPT = 'image/jpeg,image/png,image/webp';
+const ACCEPTED = ACCEPT.split(',');
+const MAX_MB = 15;
+
+const errorText = (err: any) => {
+  const m = String(err?.message || '');
+  const hit = /status \d+: (.*)$/s.exec(m);
+  const text = (hit ? hit[1] : m).trim();
+  return text && !text.startsWith('<') && !text.startsWith('{') ? text : 'The upload did not go through. Please try again.';
+};
+
 const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onChange, placeholder, helperText, onLibraryOpen }) => {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [broken, setBroken] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = React.useId();
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  React.useEffect(() => setBroken(false), [value]);
+
+  const emit = (v: string) => onChange({ target: { value: v } } as any);
+
+  const upload = async (file?: File | null) => {
     if (!file) return;
-
+    setError(null);
+    if (!ACCEPTED.includes(file.type)) {
+      setError('Use a JPG, PNG or WebP image.');
+      return;
+    }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setError(`That file is larger than ${MAX_MB} MB. Please use a smaller image.`);
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    if (value) {
-      // Pass the current value as oldUrl to be deleted on the server
-      formData.append('oldUrl', value);
-    }
-
     try {
-      const res = await adminFetch('/api/admin/seo/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.url) {
+      const res = await adminFetch('/api/admin/seo/upload', { method: 'POST', body: formData });
+      if (res?.url) {
         // Store only the relative path in the database
-        const relativeUrl = res.url.startsWith('/') ? res.url : `/${res.url}`;
-        onChange({ target: { value: relativeUrl } } as any);
+        const relativeUrl = /^https?:\/\//i.test(res.url) || res.url.startsWith('/') ? res.url : `/${res.url}`;
+        emit(relativeUrl);
+      } else {
+        setError('The server did not return an image address.');
       }
     } catch (err: any) {
-      alert('Upload failed: ' + err.message);
+      setError(errorText(err));
     } finally {
       setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const handleRemove = async () => {
-    if (!value) return;
-    
-    // If it's a local upload, we can try to delete it from the server
-    if (value.startsWith('/uploads/')) {
-        try {
-            await adminFetch(`/api/admin/seo/image?url=${encodeURIComponent(value)}`, {
-                method: 'DELETE'
-            });
-        } catch (err) {
-            console.error("Failed to delete image from server:", err);
-        }
-    }
-    
-    onChange({ target: { value: '' } } as any);
+  const pick = () => fileInputRef.current?.click();
+
+  // Uploaded files are kept on the server (other pages may use the same file), so
+  // removing only clears this field.
+  const remove = () => { setError(null); emit(''); };
+
+  const dropProps = {
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); if (!uploading) setDragging(true); },
+    onDragLeave: () => setDragging(false),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragging(false);
+      if (!uploading) upload(e.dataTransfer.files?.[0]);
+    },
   };
 
   return (
-    <div className="space-y-1">
-      <label className="block text-xs font-medium text-gray-600">{label}</label>
-      
-      {value && (
-        <div className="relative mb-2 group">
-          <div className="relative aspect-video rounded-card overflow-hidden border border-slate-200 bg-slate-50">
-            <img 
-              src={value.startsWith('/') && !value.startsWith('http') ? `${API_BASE_URL}${value}` : value} 
-              alt="Preview" 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.style.display = 'none';
-              }}
-            />
-          </div>
-          <button 
-            type="button"
-            onClick={handleRemove}
-            className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all border border-rose-100"
-            title="Remove image"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
-      <div className="flex gap-2">
-        <input 
-          value={value} 
-          onChange={onChange} 
-          placeholder={placeholder}
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-card text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-        />
-        <input 
-          type="file" 
-          hidden 
-          ref={fileInputRef} 
-          onChange={handleUpload}
-          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-        />
-        <button 
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-card text-[10px] font-extrabold uppercase tracking-widest transition-all flex items-center gap-2"
-        >
-          {uploading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-          Upload
-        </button>
-
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700">{label}</label>
         {onLibraryOpen && (
-          <button 
-            type="button"
-            onClick={onLibraryOpen}
-            className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-card text-[10px] font-extrabold uppercase tracking-widest transition-all flex items-center gap-2"
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            Library
+          <button type="button" onClick={onLibraryOpen}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-[13px] font-semibold text-[#007ac2] hover:bg-[#007ac2]/10">
+            <Images className="h-4 w-4" /> Choose from library
           </button>
         )}
       </div>
-      {helperText && <p className="text-[10px] text-gray-400 mt-0.5">{helperText}</p>}
+
+      <input type="file" hidden ref={fileInputRef} accept={ACCEPT} onChange={e => upload(e.target.files?.[0])} />
+
+      {value ? (
+        <div {...dropProps}
+          className={`group relative overflow-hidden rounded-2xl bg-slate-100 ring-1 transition ${dragging ? 'ring-2 ring-[#007ac2]' : 'ring-slate-200'}`}>
+          <div className="relative aspect-[16/9] w-full">
+            {broken ? (
+              <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-slate-50 text-slate-400">
+                <ImageOff className="h-6 w-6" />
+                <span className="text-xs">This image could not be loaded</span>
+              </div>
+            ) : (
+              <img src={imgSrc(value)} alt="" className="h-full w-full object-cover" onError={() => setBroken(true)} />
+            )}
+            {uploading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/80 text-sm font-medium text-slate-700 backdrop-blur-[1px]">
+                <RefreshCw className="h-5 w-5 animate-spin text-[#007ac2]" /> Uploading…
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-white px-3 py-2">
+            <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-slate-400" title={value}>{value}</span>
+            <div className="flex shrink-0 gap-1.5">
+              <button type="button" onClick={pick} disabled={uploading}
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-white px-2.5 text-[13px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-50">
+                <RefreshCw className="h-3.5 w-3.5" /> Replace
+              </button>
+              <button type="button" onClick={remove} disabled={uploading}
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-rose-600 ring-1 ring-inset ring-rose-200 hover:bg-rose-50 disabled:opacity-50">
+                <Trash2 className="h-3.5 w-3.5" /> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <button type="button" onClick={pick} disabled={uploading} {...dropProps}
+          className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-7 text-center transition ${dragging ? 'border-[#007ac2] bg-[#007ac2]/5' : 'border-slate-300 bg-white hover:border-[#007ac2]/60 hover:bg-slate-50'}`}>
+          {uploading ? (
+            <>
+              <RefreshCw className="h-6 w-6 animate-spin text-[#007ac2]" />
+              <span className="text-sm font-medium text-slate-700">Uploading…</span>
+            </>
+          ) : (
+            <>
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#007ac2]/10 text-[#007ac2]"><CloudUpload className="h-5 w-5" /></span>
+              <span className="text-sm text-slate-700"><span className="font-semibold text-[#007ac2]">Click to upload</span> or drag and drop</span>
+              <span className="text-xs text-slate-500">JPG, PNG or WebP · up to {MAX_MB} MB</span>
+            </>
+          )}
+        </button>
+      )}
+
+      <div className="relative">
+        <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input id={inputId} value={value} onChange={e => { setError(null); onChange(e); }} placeholder={placeholder || 'Or paste an image URL'}
+          className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#007ac2] focus:ring-4 focus:ring-[#007ac2]/15 sm:text-sm" />
+      </div>
+
+      {error && (
+        <p role="alert" className="flex items-start gap-1.5 text-sm text-rose-700"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{error}</p>
+      )}
+      {helperText && !error && <p className="text-xs text-slate-500">{helperText}</p>}
     </div>
   );
 };
