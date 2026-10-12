@@ -4558,29 +4558,39 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const seoSearchRef = useRef('');
+  const seoRequestRef = useRef(0);
+  const [seoError, setSeoError] = useState('');
   const [seoTotal, setSeoTotal] = useState<number | undefined>(undefined);
   const fetchSeoConfigs = async (page = 0, search: string = seoSearchRef.current) => {
     seoSearchRef.current = search;
+    const request = ++seoRequestRef.current;
+    const wanted = Math.max(0, Number.isFinite(page) ? page : 0);
     setLoadingSeo(true);
+    setSeoError('');
     try {
       // Use the paginated endpoint instead of the full list to avoid 502/timeouts
       const q = search ? `&search=${encodeURIComponent(search)}` : '';
-      const res = await adminFetch(`/api/admin/seo/routes?page=${Math.max(0, page)}&size=20&sort=route,asc${q}`);
-      if (res && res.content) {
+      const res = await adminFetch(`/api/admin/seo/routes?page=${wanted}&size=20&sort=route,asc${q}`);
+      if (request !== seoRequestRef.current) return; // a newer page was asked for meanwhile
+      if (res && Array.isArray(res.content)) {
+        // Spring sends the page numbers either at the top level or under "page"
+        const meta = res.page && typeof res.page === 'object' ? res.page : res;
         setSeoConfigs(res.content);
-        setSeoTotalPages(res.totalPages);
-        setSeoPage(res.number);
-        setSeoTotal(typeof res.totalElements === 'number' ? res.totalElements : undefined);
+        setSeoTotalPages(Number(meta.totalPages) || 1);
+        setSeoPage(Number.isFinite(Number(meta.number)) ? Number(meta.number) : wanted);
+        setSeoTotal(Number.isFinite(Number(meta.totalElements)) ? Number(meta.totalElements) : undefined);
       } else {
         setSeoConfigs(Array.isArray(res) ? res : []);
         setSeoTotalPages(1);
         setSeoPage(0);
         setSeoTotal(Array.isArray(res) ? res.length : undefined);
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (request !== seoRequestRef.current) return;
       console.error('Failed to fetch SEO configs', e);
+      setSeoError(e?.message ? `Couldn't load page ${wanted + 1}: ${e.message}` : `Couldn't load page ${wanted + 1}.`);
     } finally {
-      setLoadingSeo(false);
+      if (request === seoRequestRef.current) setLoadingSeo(false);
     }
   };
 
@@ -4974,7 +4984,7 @@ export const AdminDashboard: React.FC = () => {
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;
-      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} currentPage={seoPage} totalPages={seoTotalPages} totalElements={seoTotal} onPageChange={(p: number) => fetchSeoConfigs(p)} onSearch={(q: string) => fetchSeoConfigs(0, q)} />;
+      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} currentPage={seoPage} totalPages={seoTotalPages} totalElements={seoTotal} error={seoError} onPageChange={(p: number) => fetchSeoConfigs(p)} onSearch={(q: string) => fetchSeoConfigs(0, q)} />;
       case 'seoaudit': return <SeoAuditManagement />;
       case 'push': return <PushNotificationManagement />;
       case 'homepage':

@@ -14,7 +14,9 @@ import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ImageIcon from 'lucide-react/dist/esm/icons/image';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
-import { Hero, heroButton, heroPrimary, Segmented, num } from './commercialUi';
+import Wand from 'lucide-react/dist/esm/icons/wand-2';
+import { Hero, heroButton, heroPrimary, Segmented, num, Drawer, useToast, Toast, ErrorBanner, Spinner } from './commercialUi';
+import { adminFetch } from '../../lib/adminApi';
 import { imgSrc } from './suppliersFleetUi';
 
 /** Same scoring the SEO list always used: title, description, keyword and content length. */
@@ -87,13 +89,22 @@ export const SeoBoard: React.FC<{
   currentPage: number;
   totalPages: number;
   totalElements?: number;
+  error?: string;
   onPageChange: (page: number) => void;
   onSearch: (q: string) => void;
   onEditSeo: (c: any) => void;
   onNewSeo: () => void;
   onDeleteSeo: (route: string) => void;
-}> = ({ configs, loading, currentPage, totalPages, totalElements, onPageChange, onSearch, onEditSeo, onNewSeo, onDeleteSeo }) => {
+}> = ({ configs, loading, currentPage, totalPages, totalElements, error, onPageChange, onSearch, onEditSeo, onNewSeo, onDeleteSeo }) => {
   const list = Array.isArray(configs) ? configs : [];
+  const [writerOpen, setWriterOpen] = React.useState(false);
+  const { toast, notify } = useToast();
+  const listTop = React.useRef<HTMLDivElement>(null);
+  const goTo = (page: number) => {
+    if (page < 0 || page >= totalPages || loading) return;
+    onPageChange(page);
+    listTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   const [view, setView] = React.useState<'pages' | 'keywords'>('pages');
   const [query, setQuery] = React.useState('');
   const [onlyIssues, setOnlyIssues] = React.useState(false);
@@ -120,6 +131,7 @@ export const SeoBoard: React.FC<{
         loading={loading && !list.length}
         actions={<>
           <button onClick={() => onPageChange(currentPage)} className={heroButton}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh</button>
+          <button onClick={() => setWriterOpen(true)} className={heroButton}><Wand className="h-4 w-4" /> Write descriptions</button>
           <button onClick={onNewSeo} className={heroPrimary}><Plus className="h-4 w-4" /> Add page</button>
         </>}
         kpis={[
@@ -146,6 +158,9 @@ export const SeoBoard: React.FC<{
           </div>
         </div>
       </div>
+
+      <div ref={listTop} className="scroll-mt-24" />
+      {error && <ErrorBanner text={error} onRetry={() => onPageChange(currentPage)} />}
 
       {loading && !list.length ? (
         <div className="space-y-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" />)}</div>
@@ -180,7 +195,8 @@ export const SeoBoard: React.FC<{
           {!keywords.length && <p className="col-span-full rounded-2xl bg-white p-6 text-center text-sm text-slate-500 ring-1 ring-slate-200">No page on screen has a main keyword yet.</p>}
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className={`relative space-y-3 transition-opacity ${loading ? 'pointer-events-none opacity-50' : ''}`} aria-busy={loading}>
+          {loading && <li className="sticky top-24 z-10 mx-auto flex w-fit items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-lg"><Spinner light /> Loading page…</li>}
           {shown.map(({ c, score, issues }) => (
             <li key={c.id ?? c.route} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 transition hover:shadow-md hover:ring-slate-300 sm:p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
@@ -216,14 +232,146 @@ export const SeoBoard: React.FC<{
       )}
 
       {totalPages > 1 && (
-        <nav className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200" aria-label="Pages">
-          <span className="text-sm text-slate-500">Page {currentPage + 1} of {totalPages}</span>
-          <div className="flex gap-2">
-            <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0} className="inline-flex h-9 items-center gap-1 rounded-lg px-3 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-40"><ChevronLeft className="h-4 w-4" /> Previous</button>
-            <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages - 1} className="inline-flex h-9 items-center gap-1 rounded-lg px-3 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-40">Next <ChevronRight className="h-4 w-4" /></button>
+        <nav className="flex flex-col items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200 sm:flex-row" aria-label="Pages">
+          <span className="text-sm text-slate-500">Page {currentPage + 1} of {totalPages}{totalElements != null ? ` · ${num(totalElements)} pages in total` : ''}</span>
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => goTo(currentPage - 1)} disabled={currentPage === 0 || loading} className="inline-flex h-9 items-center gap-1 rounded-lg px-3 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-40"><ChevronLeft className="h-4 w-4" /> Previous</button>
+            {pageNumbers(currentPage, totalPages).map((n, i) => n < 0
+              ? <span key={`gap${i}`} className="px-1 text-slate-400">…</span>
+              : <button key={n} onClick={() => goTo(n)} disabled={loading} aria-current={n === currentPage ? 'page' : undefined}
+                  className={`hidden h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium sm:inline-flex ${n === currentPage ? 'bg-slate-900 text-white' : 'text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50'}`}>{n + 1}</button>)}
+            <button onClick={() => goTo(currentPage + 1)} disabled={currentPage >= totalPages - 1 || loading} className="inline-flex h-9 items-center gap-1 rounded-lg px-3 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-40">Next <ChevronRight className="h-4 w-4" /></button>
           </div>
         </nav>
       )}
+
+      {writerOpen && <DescriptionWriter onClose={() => setWriterOpen(false)} onApplied={n => { notify(`Updated ${n} ${n === 1 ? 'page' : 'pages'}`); onPageChange(currentPage); }} />}
+      <Toast toast={toast} />
     </div>
+  );
+};
+
+/** Page buttons around the current one: 1 … 4 5 6 … 12 (-1 marks a gap). */
+const pageNumbers = (current: number, total: number): number[] => {
+  const set = new Set([0, total - 1, current - 1, current, current + 1].filter(n => n >= 0 && n < total));
+  const sorted = [...set].sort((a, b) => a - b);
+  const out: number[] = [];
+  sorted.forEach((n, i) => { if (i && n - sorted[i - 1] > 1) out.push(-1); out.push(n); });
+  return out;
+};
+
+type Proposal = { id: number; route: string; lang: string; reason: string; currentOk: boolean;
+  oldTitle?: string; newTitle?: string | null; oldDescription?: string; newDescription: string };
+
+/** Preview professional descriptions for the pages that need them (or all pages) and apply the ones you keep. */
+const DescriptionWriter: React.FC<{ onClose: () => void; onApplied: (n: number) => void }> = ({ onClose, onApplied }) => {
+  const [scope, setScope] = React.useState<'low' | 'all'>('low');
+  const [items, setItems] = React.useState<Proposal[] | null>(null);
+  const [picked, setPicked] = React.useState<Set<number>>(new Set());
+  const [err, setErr] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+
+  const load = React.useCallback(async (s: 'low' | 'all') => {
+    setItems(null); setErr('');
+    try {
+      const res = await adminFetch(`/api/admin/seo/descriptions/preview?scope=${s}`);
+      const list: Proposal[] = Array.isArray(res?.proposals) ? res.proposals : [];
+      setItems(list);
+      // pages whose text is already good stay unticked: tick them yourself to replace them
+      setPicked(new Set(list.filter(p => !p.currentOk).map(p => p.id)));
+    } catch (e: any) {
+      setErr(e?.message || 'Could not prepare the descriptions.');
+    }
+  }, []);
+  React.useEffect(() => { load(scope); }, [scope, load]);
+
+  const apply = async () => {
+    if (!picked.size) return;
+    setBusy(true); setErr('');
+    try {
+      const res = await adminFetch('/api/admin/seo/descriptions/apply', { method: 'POST', body: JSON.stringify({ scope, ids: [...picked] }) });
+      onApplied(Number(res?.updated) || 0);
+      onClose();
+    } catch (e: any) {
+      setErr(e?.message || 'Could not save the descriptions.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggle = (id: number) => setPicked(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const all = items || [];
+  const allPicked = all.length > 0 && all.every(p => picked.has(p.id));
+
+  return (
+    <Drawer eyebrow="SEO" title="Write descriptions" onClose={onClose} busy={busy} width="max-w-[760px]"
+      headerExtra={
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
+          <Segmented layoutId="desc-scope" value={scope} onChange={setScope} items={[
+            { key: 'low', label: 'Pages that need it' },
+            { key: 'all', label: 'All pages' },
+          ]} />
+          {all.length > 0 && (
+            <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={allPicked} onChange={e => setPicked(e.target.checked ? new Set(all.map(p => p.id)) : new Set())} className="h-4 w-4 rounded border-slate-300 text-[#007ac2]" />
+              Select all
+            </label>
+          )}
+        </div>
+      }
+      footer={
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-slate-500">{picked.size} of {all.length} selected</p>
+          <div className="flex gap-2">
+            <button onClick={onClose} disabled={busy} className="inline-flex h-11 items-center rounded-xl px-4 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50">Cancel</button>
+            <button onClick={apply} disabled={busy || !picked.size} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#007ac2] px-4 text-sm font-semibold text-white hover:bg-[#00619a] disabled:opacity-50">
+              {busy ? <Spinner light /> : <Wand className="h-4 w-4" />} Apply to {picked.size} {picked.size === 1 ? 'page' : 'pages'}
+            </button>
+          </div>
+        </div>
+      }>
+      <p className="mb-4 rounded-2xl bg-sky-50 p-4 text-sm text-sky-900 ring-1 ring-sky-100">
+        Each page gets a description of 120–160 characters in its own language, plus a new title where the current one is too short or too long.
+        The text only promises what Hogicar offers on every booking. Pages whose text is already good are left unticked.
+      </p>
+      {err && <div className="mb-4"><ErrorBanner text={err} onRetry={() => load(scope)} /></div>}
+      {items === null && !err ? (
+        <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" />)}</div>
+      ) : all.length === 0 && !err ? (
+        <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-12 text-center ring-1 ring-slate-200">
+          <CheckCircle className="h-8 w-8 text-emerald-500" />
+          <p className="mt-3 font-semibold text-slate-900">{scope === 'low' ? 'Every page already has a good description' : 'Nothing to change'}</p>
+          {scope === 'low' && <button onClick={() => setScope('all')} className="mt-4 text-sm font-semibold text-[#007ac2]">See suggestions for all pages</button>}
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {all.map(p => (
+            <li key={p.id}>
+              <label className={`block cursor-pointer rounded-2xl bg-white p-4 ring-1 transition ${picked.has(p.id) ? 'ring-2 ring-[#007ac2]' : 'ring-slate-200 hover:ring-slate-300'}`}>
+                <div className="flex items-start gap-3">
+                  <input type="checkbox" checked={picked.has(p.id)} onChange={() => toggle(p.id)} className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-[#007ac2]" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="truncate font-mono text-xs text-slate-500" dir="ltr">{decodeRoute(p.route)}</p>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${p.currentOk ? 'bg-slate-100 text-slate-600 ring-slate-500/20' : 'bg-amber-50 text-amber-800 ring-amber-600/20'}`}>{p.reason}</span>
+                    </div>
+                    {p.newTitle && (
+                      <div className="mt-2 text-sm" dir="auto">
+                        <p className="text-slate-400 line-through decoration-slate-300">{p.oldTitle || 'No title'}</p>
+                        <p className="font-medium text-[#1a0dab]">{p.newTitle} <span className="text-xs font-normal text-slate-400">({p.newTitle.length})</span></p>
+                      </div>
+                    )}
+                    <div className="mt-2 space-y-1 text-sm" dir="auto">
+                      <p className="text-slate-400 line-through decoration-slate-300">{p.oldDescription || 'No description'}</p>
+                      <p className="text-slate-800">{p.newDescription} <span className="text-xs text-slate-400">({p.newDescription.length})</span></p>
+                    </div>
+                  </div>
+                </div>
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Drawer>
   );
 };
