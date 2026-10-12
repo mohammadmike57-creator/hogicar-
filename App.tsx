@@ -55,6 +55,11 @@ if (hash.startsWith("#/")) {
   window.location.replace(`/${cleanPath}${search}`);
 }
 
+// Old Arabic Amman page with an English address; the Arabic Amman page is /ar/تأجير-سيارات-في-عمان
+if (pathname.replace(/\/+$/, '') === "/ar/car-rental-amman") {
+  window.location.replace(`/ar/${encodeURIComponent('تأجير-سيارات-في-عمان')}${search}`);
+}
+
 if (host.startsWith("admin.")) {
   if (pathname !== "/admin" && pathname !== "/admin-login") {
     window.location.replace(`/admin${search}`);
