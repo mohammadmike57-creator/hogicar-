@@ -13,8 +13,8 @@ const CarRentalAmman: React.FC = () => {
   // but we explicitly define the core SEO tags here in the Helmet block.
   const seoConfig = getRouteSEO('carRental', 'amman', '/car-rental-amman');
   
-  const title = "Car Rental Amman – Affordable Deals | Hogicar";
-  const description = "Compare car rental in Amman from local and international suppliers, with pick-up at Queen Alia Airport and in the city. Book online with Hogicar.";
+  const title = "Car Rental in Amman, Jordan | Airport & City | Hogicar";
+  const description = "Compare car rental in Amman from local and international suppliers. Pick up at Queen Alia Airport or in the city, with free cancellation on most bookings.";
   const canonical = "https://www.hogicar.com/car-rental-amman";
   const ogImage = "https://www.hogicar.com/uploads/hero/amman-hero.webp";
 

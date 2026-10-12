@@ -310,3 +310,21 @@ html, body {
 html[dir="rtl"] .article-body ul > li { padding-left: 0; padding-right: 1.6em; }
 html[dir="rtl"] .article-body ul > li::before { left: auto; right: 0.25em; }
 html[dir="rtl"] .article-body blockquote { border-left: 0; border-right: 4px solid #F57C00; padding: 0.25em 1.25em 0.25em 0; }
+
+/* Landing page and CMS text (no typography plugin): readable headings, paragraphs and lists */
+.landing-prose { color: #334155; font-size: 1rem; line-height: 1.75; }
+.landing-prose h2 { margin: 0 0 1rem; font-size: 1.75rem; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; color: #0f172a; }
+.landing-prose h3 { margin: 2.25rem 0 0.75rem; font-size: 1.25rem; line-height: 1.4; font-weight: 700; color: #0f172a; }
+.landing-prose p { margin: 0 0 1rem; color: #475569; }
+.landing-prose ul, .landing-prose ol { margin: 0 0 1.25rem; padding-inline-start: 1.25rem; }
+.landing-prose ul { list-style: disc; }
+.landing-prose ol { list-style: decimal; }
+.landing-prose li { margin: 0.4rem 0; padding-inline-start: 0.25rem; color: #475569; }
+.landing-prose li::marker { color: #007ac2; }
+.landing-prose strong { color: #0f172a; font-weight: 600; }
+.landing-prose a { color: #007ac2; text-decoration: underline; text-underline-offset: 2px; }
+.landing-prose section + section { margin-top: 2.5rem; }
+.landing-prose table { width: 100%; margin: 0 0 1.25rem; border-collapse: collapse; font-size: 0.95rem; }
+.landing-prose th, .landing-prose td { border-bottom: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; text-align: start; }
+.landing-prose th { color: #0f172a; font-weight: 600; background: #f8fafc; }
+@media (min-width: 640px) { .landing-prose h2 { font-size: 2rem; } }

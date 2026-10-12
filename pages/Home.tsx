@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { countryPlace, cityPlace } from '../utils/placeNames';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import Shield from 'lucide-react/dist/esm/icons/shield';
@@ -552,20 +553,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     if (!seoConfig) return [];
     const items = [];
     try {
+      const arabicPage = seoConfig.lang === 'ar' || String(seoConfig.route || location.pathname).startsWith('/ar');
       if (seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY') {
-        const countrySlug = seoConfig.countryTag.toLowerCase().replace(/\s+/g, '-');
-        const countryRoute = seoConfig.countryRoute || `/car-rental-${countrySlug}`;
-        items.push({ 
-          name: seoConfig.countryTag, 
-          route: countryRoute 
-        });
+        const country = countryPlace(seoConfig.countryTag, arabicPage);
+        items.push({ name: country.name, route: seoConfig.countryRoute || country.route });
       }
       if (seoConfig.cityTag && typeof seoConfig.cityTag === 'string' && seoConfig.routeType === 'AIRPORT') {
-        const citySlug = seoConfig.cityTag.toLowerCase().replace(/\s+/g, '-');
-        items.push({ 
-          name: seoConfig.cityTag, 
-          route: `/car-rental-${citySlug}` 
-        });
+        const city = cityPlace(seoConfig.cityTag, arabicPage);
+        items.push({ name: city.name, route: city.route });
       }
       const destName = seoConfig.destinationName || seoConfig.h1Title || 'Car Rental';
       items.push({ 
@@ -729,7 +724,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
                 <Breadcrumbs items={breadcrumbItems} variant="light" />
                 {seoConfig.countryTag && typeof seoConfig.countryTag === 'string' && seoConfig.routeType !== 'COUNTRY' && (
                   <span className="mt-3 inline-block rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur">
-                    {seoConfig.countryTag}
+                    {countryPlace(seoConfig.countryTag, seoConfig.lang === 'ar' || String(seoConfig.route || '').startsWith('/ar')).name}
                   </span>
                 )}
               </div>
@@ -948,7 +943,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
       {sections.content && (seoConfig?.content || builderConfig?.sections?.content?.html || builderConfig?.sections?.content?.text || builderConfig?.html || builderConfig?.text) && (
         <section id="main-seo-content" className="border-t border-slate-100 bg-white py-14">
           <div className="mx-auto max-w-4xl px-4 sm:px-6">
-            <div className="prose prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-slate-600 prose-strong:text-slate-900">
+            <div className="landing-prose prose prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-slate-600 prose-strong:text-slate-900">
               {seoConfig?.content ? (
                 <div dangerouslySetInnerHTML={{ __html: seoConfig.content }} />
               ) : (builderConfig?.sections?.content?.html || builderConfig?.html) ? (

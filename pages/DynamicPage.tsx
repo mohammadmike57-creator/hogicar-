@@ -70,7 +70,10 @@ const DynamicPage: React.FC = () => {
       setSeoConfig(null);
 
       // Normalize route
-      const route = location.pathname.replace(/\/$/, '') || '/';
+      // The browser keeps Arabic addresses percent-encoded; look pages up by the real text
+      let decodedPath = location.pathname;
+      try { decodedPath = decodeURIComponent(location.pathname); } catch { /* malformed: keep as is */ }
+      const route = decodedPath.replace(/\/$/, '') || '/';
       const lowercaseRoute = route.toLowerCase();
 
       // STRICT BYPASS for static file extensions to prevent JSON parsing crashes
@@ -242,11 +245,11 @@ const DynamicPage: React.FC = () => {
     const hasHtml = /<[a-z][\s\S]*>/i.test(contentStr);
     
     if (hasHtml) {
-      return <div className="prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: contentStr }} />;
+      return <div className="landing-prose prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: contentStr }} />;
     }
     
     return (
-      <div className="prose prose-slate prose-lg max-w-none whitespace-pre-wrap">
+      <div className="landing-prose prose prose-slate prose-lg max-w-none whitespace-pre-wrap">
         {contentStr}
       </div>
     );
