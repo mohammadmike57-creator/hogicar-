@@ -98,6 +98,8 @@ import { VoucherModal } from '../../components/RentalVoucher';
 import PromotionsAdmin from '../components/PromotionsAdmin';
 import AffiliatesAdmin from '../components/AffiliatesAdmin';
 import IntegrationsAdmin from '../components/IntegrationsAdmin';
+import { SuppliersBoard, FleetBoard } from '../components/suppliersFleetUi';
+import { SeoBoard } from '../components/seoPagesUi';
 const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateNetworks/AffiliateNetworksAdmin'));
 const DistributionAdmin = React.lazy(() => import('../components/distribution/DistributionAdmin'));
 const RewardsAdmin = React.lazy(() => import('../components/RewardsAdmin'));
@@ -612,6 +614,8 @@ const useResponsiveTables = (root: React.RefObject<HTMLElement | null>, key: unk
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
   }, [root, key]);
 };
+
+const OWN_HERO_SECTIONS = new Set<string>(['suppliers', 'fleet', 'externalsuppliers', 'blog', 'seo']);
 
 // ==================== Sidebar ====================
 const NAV_ITEMS: { section: Section; icon: any }[] = [
@@ -1428,251 +1432,7 @@ const CmsContent = ({ pages, onEditPage }: any) => (
 );
 
 // ==================== SEO ====================
-const SeoContent = ({ configs, onEditSeo, onNewSeo, onDeleteSeo, loading, currentPage, totalPages, onPageChange }: any) => {
-  const [view, setView] = useState<'list' | 'matrix'>('list');
-  const getScore = (c: any) => {
-    let score = 0;
-    if (c.title && c.title.length >= 30 && c.title.length <= 60) score += 30;
-    if (c.description && c.description.length >= 120 && c.description.length <= 160) score += 30;
-    if (c.primaryKeyword) score += 20;
-    if (c.content && c.content.length > 1000) score += 20;
-    else if (c.content && c.content.length > 500) score += 10;
-    return score;
-  };
-
-  const getWarnings = (c: any) => {
-    const warnings = [];
-    if (!c.title || c.title.length < 30) warnings.push("Short Title");
-    if (c.title && c.title.length > 60) warnings.push("Long Title");
-    if (!c.description || c.description.length < 120) warnings.push("Short Desc");
-    if (c.description && c.description.length > 160) warnings.push("Long Desc");
-    if (!c.h1Title) warnings.push("Missing H1");
-    if (!c.primaryKeyword) warnings.push("No Primary Key");
-    if (!c.content || c.content.length < 500) warnings.push("Thin Content");
-    
-    // Duplicate checks
-    const isDuplicateKey = configs.some((other: any) => other.id !== c.id && other.primaryKeyword && other.primaryKeyword === c.primaryKeyword);
-    if (isDuplicateKey) warnings.push("Duplicate Key");
-
-    const isDuplicateTitle = configs.some((other: any) => other.id !== c.id && other.title && other.title === c.title);
-    if (isDuplicateTitle) warnings.push("Duplicate Title");
-
-    const isDuplicateDesc = configs.some((other: any) => other.id !== c.id && other.description && other.description === c.description);
-    if (isDuplicateDesc) warnings.push("Duplicate Desc");
-
-    return warnings;
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-500 bg-emerald-50 border-emerald-100';
-    if (score >= 50) return 'text-amber-500 bg-amber-50 border-amber-100';
-    return 'text-rose-500 bg-rose-50 border-rose-100';
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-6 rounded-card shadow-sm border border-slate-200">
-        <div>
-          <SectionHeader title="SEO Management" icon={Globe} />
-          <div className="flex gap-4 mt-2">
-            <button 
-              onClick={() => setView('list')} 
-              className={`text-[10px] font-extrabold uppercase tracking-widest ${view === 'list' ? 'text-[#007ac2] border-b-2 border-[#007ac2]' : 'text-slate-400'}`}
-            >
-              Pages List
-            </button>
-            <button 
-              onClick={() => setView('matrix')} 
-              className={`text-[10px] font-extrabold uppercase tracking-widest ${view === 'matrix' ? 'text-[#007ac2] border-b-2 border-[#007ac2]' : 'text-slate-400'}`}
-            >
-              Keyword Matrix
-            </button>
-          </div>
-        </div>
-        <button 
-          onClick={onNewSeo} 
-          className="flex items-center gap-2 bg-[#007ac2] hover:bg-[#00619a] text-white px-4 py-2 rounded-card font-extrabold text-sm transition-all shadow-md active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          Add SEO Route
-        </button>
-      </div>
-
-      <div className="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden">
-        {loading ? (
-          <div className="p-12 text-center flex flex-col items-center gap-4">
-            <LoaderCircle className="w-8 h-8 text-[#007ac2] animate-spin" />
-            <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Fetching configs...</span>
-          </div>
-        ) : configs.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
-              <Globe className="w-8 h-8 text-slate-200" />
-            </div>
-            <p className="font-extrabold uppercase tracking-widest text-xs">No SEO configurations found</p>
-            <p className="text-[10px] mt-1">Start by adding a new route to optimize.</p>
-          </div>
-        ) : view === 'matrix' ? (
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {configs.filter((c: any) => c.primaryKeyword).map((c: any) => (
-                <div key={c.route} className="p-4 rounded-card border border-slate-100 bg-slate-50 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <span className="text-xs font-extrabold text-slate-900 bg-white px-2 py-1 rounded border border-slate-200">{c.primaryKeyword}</span>
-                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase ${getScoreColor(getScore(c))}`}>
-                      Score: {getScore(c)}%
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 font-mono truncate">{c.route}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {c.secondaryKeywords?.split(',').map((k: string) => (
-                      <span key={k} className="text-[8px] bg-white text-slate-400 px-1 py-0.5 rounded border border-slate-100">{k.trim()}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Route & Title</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">SEO Health</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Score</th>
-                  <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {configs.map((c: any) => {
-                  const score = getScore(c);
-                  return (
-                    <tr key={c.route} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-4">
-                          {c.heroImage && (
-                            <div className="w-12 h-8 rounded bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
-                              <img 
-                                src={c.heroImage.startsWith('/') ? `${API_BASE_URL}${c.heroImage}` : c.heroImage} 
-                                alt="" 
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex flex-col">
-                            <span className="font-mono text-xs font-bold text-[#007ac2] bg-blue-50 px-2 py-0.5 rounded-full w-fit mb-1">{c.route}</span>
-                            <span className="text-sm font-extrabold text-slate-900 truncate max-w-md">{c.title || 'Untitled'}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                            {c.published !== false ? (
-                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 uppercase tracking-wider">
-                                <CheckCircle className="w-2.5 h-2.5" />
-                                Published
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 uppercase tracking-wider">
-                                <Activity className="w-2.5 h-2.5" />
-                                Draft
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {c.indexable !== false ? (
-                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-[#007ac2] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-wider">
-                                <Globe className="w-2.5 h-2.5" />
-                                Index
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1.5 text-[9px] font-extrabold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100 uppercase tracking-wider">
-                                <XCircle className="w-2.5 h-2.5" />
-                                NoIndex
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1 max-w-[200px]">
-                          {getWarnings(c).map(w => (
-                            <span key={w} className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-500 border border-rose-100 uppercase">
-                              {w}
-                            </span>
-                          ))}
-                          {getWarnings(c).length === 0 && (
-                            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-500 border border-emerald-100 uppercase">
-                              Healthy
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className={`flex items-center gap-2 w-fit px-2 py-1 rounded border text-[10px] font-extrabold uppercase tracking-widest ${getScoreColor(score)}`}>
-                          <Activity className="w-3 h-3" />
-                          {score}%
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => onEditSeo(c)}
-                            className="p-2 text-slate-400 hover:text-[#007ac2] hover:bg-blue-50 rounded-card transition-all"
-                            title="Edit"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => onDeleteSeo(c.route)}
-                            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-card transition-all"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {totalPages > 1 && (
-            <div className="flex justify-between items-center px-6 py-4 bg-slate-50 border-t border-slate-200">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                Page {currentPage + 1} of {totalPages}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onPageChange(currentPage - 1)}
-                  disabled={currentPage === 0}
-                  className="p-2 text-slate-400 hover:text-[#007ac2] disabled:opacity-30 transition-colors"
-                  title="Previous Page"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => onPageChange(currentPage + 1)}
-                  disabled={currentPage >= totalPages - 1}
-                  className="p-2 text-slate-400 hover:text-[#007ac2] disabled:opacity-30 transition-colors"
-                  title="Next Page"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
+const SeoContent = (props: any) => <SeoBoard {...props} />;
 
 // ==================== Homepage ====================
 const HomepageContentSection = ({ content, categoryImages, onSave, isSaving }: any) => {
@@ -2450,200 +2210,7 @@ const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
 };
 
 // ==================== Suppliers Content ====================
-const SuppliersContent = ({ suppliers, fetchError, onEdit, onApprove, onManageApi, onManageFleet, onAddSupplier, onRefresh, onDelete, onFixData, onToggleVisibility, revealedPasswords, onCopy }: any) => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [visibilityFilter, setVisibilityFilter] = useState("all");
-
-    const filteredSuppliers = useMemo(() => {
-        let result = suppliers;
-        
-        if (visibilityFilter !== "all") {
-            result = result.filter((s: any) => 
-                visibilityFilter === "visible" ? s.visible : !s.visible
-            );
-        }
-
-        if (!searchQuery.trim()) return result;
-        const q = searchQuery.toLowerCase().trim();
-        return result.filter((s: any) => 
-            s.name.toLowerCase().includes(q) || 
-            (s.email && s.email.toLowerCase().includes(q)) ||
-            (s.contactEmail && s.contactEmail.toLowerCase().includes(q)) ||
-            (Array.isArray(s.locations) && s.locations.some((l: any) => 
-                (l.locationCode && l.locationCode.toLowerCase().includes(q)) || 
-                (l.displayName && l.displayName.toLowerCase().includes(q))
-            ))
-        );
-    }, [suppliers, searchQuery, visibilityFilter]);
-
-    return (
-  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
-        <div className="flex-1">
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Manage Suppliers</h2>
-            <p className="text-sm text-gray-500 font-medium mb-4">Manage your global car rental provider network</p>
-            
-            <div className="flex items-center gap-3 relative max-w-2xl w-full">
-                <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input 
-                        type="text" 
-                        placeholder="Search by name, email or location..." 
-                        className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-                <div className="relative">
-                    <select
-                        value={visibilityFilter}
-                        onChange={(e) => setVisibilityFilter(e.target.value)}
-                        className="pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                    >
-                        <option value="all">All Visibility</option>
-                        <option value="visible">Visible Only</option>
-                        <option value="hidden">Hidden Only</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-            </div>
-        </div>
-        <div className="flex gap-3">
-            <button onClick={onFixData} title="Repair Data" className="p-2.5 bg-blue-50 border border-blue-200 rounded-card text-[#007ac2] hover:bg-blue-100 shadow-sm transition-all flex items-center gap-2 font-bold text-xs">
-                <ShieldCheck className="w-5 h-5" /> Fix
-            </button>
-            <button onClick={onRefresh} className="p-2.5 bg-white border border-gray-200 rounded-card text-gray-600 hover:bg-gray-50 shadow-sm transition-all">
-                <RefreshCw className="w-5 h-5" />
-            </button>
-            <button onClick={onAddSupplier} className="bg-gray-900 text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-xl hover:bg-black transition-all flex items-center gap-2">
-                <PlusCircle className="w-5 h-5" />
-                Add New Partner
-            </button>
-        </div>
-    </div>
-    {fetchError && (
-        <div className="mx-8 mt-6 rounded-card border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 flex items-start gap-3">
-            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <div className="text-xs font-bold">
-                Supplier data could not be refreshed right now. Showing the last saved list.
-            </div>
-        </div>
-    )}
-    <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-            <thead>
-                <tr className="bg-slate-50/50">
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Provider Details</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Credentials</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Operational Status</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Visibility</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Connectivity</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
-                    <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-                {filteredSuppliers.map((s: any) => (
-                    <tr key={s.id} className="hover:bg-blue-50/30 transition-colors group">
-                        <td className="px-8 py-5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-2 group-hover:border-blue-200 transition-colors">
-                                    <img src={getImageUrl(s.logo || s.logoUrl)} className="max-w-full max-h-full object-contain" onError={(e:any)=>e.target.src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f1f5f9"/%3E%3C/svg%3E'} alt="Logo" width="40" height="40"/>
-                                </div>
-                                <div>
-                                    <div className="text-[13px] font-extrabold text-slate-900 group-hover:text-[#007ac2] transition-colors leading-tight">{s.name}</div>
-                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{s.email || s.contactEmail}</div>
-                                    <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
-                                        <MapPin className="w-2.5 h-2.5" /> 
-                                        {Array.isArray(s.locations) && s.locations.length > 0 
-                                            ? s.locations.slice(0, 2).map((l:any) => l.displayName || l.locationCode).join(', ') + (s.locations.length > 2 ? '...' : '')
-                                            : (s.location || 'Global')}
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td className="px-8 py-5">
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-md bg-slate-50 flex items-center justify-center border border-slate-100">
-                                        <Users className="w-2.5 h-2.5 text-slate-400" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-600 truncate max-w-[150px]" title="Login Username">
-                                        {s.email || s.contactEmail || 'N/A'}
-                                    </span>
-                                </div>
-                                <div 
-                                    className="flex items-center gap-2 cursor-pointer group/pass"
-                                    onClick={() => onCopy(s.password, `table-${s.id}`, "Password")}
-                                    title="Click to Reveal & Copy"
-                                >
-                                    <div className="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center border border-blue-100 group-hover/pass:border-blue-200 transition-colors">
-                                        <Key className="w-2.5 h-2.5 text-blue-400" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter group-hover/pass:text-[#007ac2] transition-colors">
-                                        {revealedPasswords.has(`table-${s.id}`) ? (s.password || 'N/A') : '••••••••'}
-                                    </span>
-                                    {revealedPasswords.has(`table-${s.id}`) 
-                                        ? <CheckCircle className="w-2.5 h-2.5 text-green-500" /> 
-                                        : <Copy className="w-2.5 h-2.5 text-slate-300 opacity-0 group-hover/pass:opacity-100 transition-opacity" />
-                                    }
-                                </div>
-                            </div>
-                        </td>
-                        <td className="px-8 py-5">
-                            <Badge status={s.status || (s.active ? 'active' : 'inactive')}/>
-                        </td>
-                        <td className="px-8 py-5">
-                            <Badge status={s.visible ? 'visible' : 'hidden'}/>
-                        </td>
-                        <td className="px-8 py-5">
-                            <div className="flex items-center gap-2">
-                                <div className={`w-1.5 h-1.5 rounded-full ${s.connectionType === 'api' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'}`} />
-                                <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-widest">
-                                    {s.connectionType === 'api' ? 'Active API' : 'Manual'}
-                                </span>
-                            </div>
-                        </td>
-                        <td className="px-8 py-5">
-                            <div className="flex items-center gap-4">
-                                <div className="text-center">
-                                    <div className="text-xs font-extrabold text-slate-900">{(s as any).carCount ?? 0}</div>
-                                    <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-tighter">Fleet</div>
-                                </div>
-                                <div className="w-px h-6 bg-slate-100" />
-                                <div className="text-center">
-                                    <div className="text-xs font-extrabold text-slate-900">{MOCK_BOOKINGS.filter(b => MOCK_CARS.some(c => c.id === b.carId && c.supplier.id === s.id)).length}</div>
-                                    <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-tighter">Bookings</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td className="px-8 py-5 text-right">
-                            <div className="flex justify-end gap-2">
-                                <button onClick={() => onManageFleet(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm" title="Fleet & Hogicar Choice">
-                                    <Zap className="w-3.5 h-3.5" />
-                                </button>
-                                <button onClick={() => onManageApi(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm" title="API Settings">
-                                    <Rss className="w-3.5 h-3.5" />
-                                </button>
-                                <button onClick={() => onEdit(s)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm" title="Edit Profile">
-                                    <Edit className="w-3.5 h-3.5" />
-                                </button>
-                                <button onClick={() => onToggleVisibility(s)} className={`p-2 bg-white border border-slate-100 rounded-card transition-all shadow-sm ${s.visible ? 'text-slate-400 hover:text-amber-600 hover:border-amber-100' : 'text-emerald-500 hover:text-emerald-600 hover:border-emerald-100'}`} title={s.visible ? 'Hide Supplier' : 'Show Supplier'}>
-                                    {s.visible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                                </button>
-                                <button onClick={() => onDelete(s.id)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm" title="Terminate Partner">
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
-  </div>
-);
-};
+const SuppliersContent = (props: any) => <SuppliersBoard {...props} />;
 
 // ==================== Dashboard ====================
 const bookingAmount = (b: any) => Number(b.finalPrice ?? b.totalPrice) || 0;
@@ -2803,82 +2370,9 @@ const DashboardContent = ({ stats, pendingCount, bookings, onNavigate }: any) =>
 };
 
 // ==================== Fleet ====================
-const FleetContent = ({ cars, onRefresh, setManagingPromosForCar, setIsPromotionModalOpen }: any) => (
-  <div className="bg-white rounded-card shadow-lg border border-gray-100 overflow-hidden">
-    <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
-        <SectionHeader title="Global Fleet" icon={Car} subtitle="Fleet availability across all suppliers" />
-        <button onClick={onRefresh} className="p-2 hover:bg-white rounded-card border border-gray-200 transition-colors shadow-sm">
-            <RefreshCw className="w-4 h-4 text-gray-600" />
-        </button>
-    </div>
-    <div className="overflow-x-auto">
-      <table className="w-full text-left">
-        <thead className="bg-gray-50/50 border-b border-gray-100">
-          <tr className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-            <th className="px-6 py-4">Vehicle</th>
-            <th className="px-6 py-4">Category</th>
-            <th className="px-6 py-4">Supplier</th>
-            <th className="px-6 py-4">Location</th>
-            <th className="px-6 py-4">SIPP</th>
-            <th className="px-6 py-4">Status</th>
-            <th className="px-6 py-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-50">
-          {Array.isArray(cars) && cars.map((c: any) => (
-            <tr key={c.id} className="hover:bg-blue-50/30 transition-colors group">
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-3">
-                    <img src={getImageUrl(c.image)} className="w-12 h-8 object-contain rounded bg-gray-100 border" alt={c.name} width="48" height="32" />
-                    <div>
-                        <div className="text-sm font-bold text-gray-800">{c.displayName}</div>
-                        <div className="text-[10px] text-gray-400 uppercase tracking-tighter">{c.make} {c.model}</div>
-                    </div>
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                    {c.category}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-600">
-                {c.supplierName || 'Global'}
-              </td>
-              <td className="px-6 py-4 text-xs font-medium text-gray-500">
-                {c.location}
-              </td>
-              <td className="px-6 py-4 font-mono text-xs text-[#007ac2] font-bold">
-                {c.sippCode}
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-1.5">
-                    <div className={`w-1.5 h-1.5 rounded-full ${c.isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span className="text-xs font-medium">{c.isAvailable ? 'Available' : 'Sold Out'}</span>
-                </div>
-              </td>
-              <td className="px-6 py-4 text-right">
-                <button 
-                  onClick={() => { setManagingPromosForCar(c); setIsPromotionModalOpen(true); }}
-                  className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#007ac2] rounded-card transition-all flex items-center gap-2 text-xs font-bold"
-                  title="Manage Pricing & Promotions"
-                >
-                  <Tag className="w-4 h-4" />
-                  <span>Pricing</span>
-                </button>
-              </td>
-            </tr>
-          ))}
-          {cars.length === 0 && (
-            <tr>
-              <td colSpan={6} className="px-6 py-12 text-center text-gray-400 font-medium italic">
-                No vehicles listed in the global fleet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  </div>
+const FleetContent = ({ cars, loading, onRefresh, setManagingPromosForCar, setIsPromotionModalOpen }: any) => (
+  <FleetBoard cars={cars} loading={loading} onRefresh={onRefresh}
+    onPricing={(c: any) => { setManagingPromosForCar(c); setIsPromotionModalOpen(true); }} />
 );
 const ApiPartnersContent = () => <IntegrationsAdmin />;
 
@@ -5063,19 +4557,25 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const fetchSeoConfigs = async (page = 0) => {
+  const seoSearchRef = useRef('');
+  const [seoTotal, setSeoTotal] = useState<number | undefined>(undefined);
+  const fetchSeoConfigs = async (page = 0, search: string = seoSearchRef.current) => {
+    seoSearchRef.current = search;
     setLoadingSeo(true);
     try {
       // Use the paginated endpoint instead of the full list to avoid 502/timeouts
-      const res = await adminFetch(`/api/admin/seo/routes?page=${page}&size=20&sort=route,asc`);
+      const q = search ? `&search=${encodeURIComponent(search)}` : '';
+      const res = await adminFetch(`/api/admin/seo/routes?page=${Math.max(0, page)}&size=20&sort=route,asc${q}`);
       if (res && res.content) {
         setSeoConfigs(res.content);
         setSeoTotalPages(res.totalPages);
         setSeoPage(res.number);
+        setSeoTotal(typeof res.totalElements === 'number' ? res.totalElements : undefined);
       } else {
         setSeoConfigs(Array.isArray(res) ? res : []);
         setSeoTotalPages(1);
         setSeoPage(0);
+        setSeoTotal(Array.isArray(res) ? res.length : undefined);
       }
     } catch (e) {
       console.error('Failed to fetch SEO configs', e);
@@ -5447,10 +4947,10 @@ export const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} onNavigate={setActiveSection} />;
-      case 'suppliers': return <SuppliersContent suppliers={suppliers} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} onToggleVisibility={handleToggleVisibility} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
+      case 'suppliers': return <SuppliersContent suppliers={suppliers} bookings={bookings} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} onToggleVisibility={handleToggleVisibility} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
-      case 'fleet': return <FleetContent cars={fleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
+      case 'fleet': return <FleetContent cars={fleet} loading={loadingFleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
       case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
       case 'apipartners': return <ApiPartnersContent />;
       case 'affiliates': return <AffiliatesContent />;
@@ -5474,7 +4974,7 @@ export const AdminDashboard: React.FC = () => {
       case 'cms': return <CmsContent pages={pages} onEditPage={handleEditPage} />;
       case 'blog': return <BlogManagement />;
       case 'sitemap': return <SitemapManagement />;
-      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} currentPage={seoPage} totalPages={seoTotalPages} onPageChange={fetchSeoConfigs} />;
+      case 'seo': return <SeoContent configs={seoConfigs} onEditSeo={handleEditSeo} onNewSeo={handleNewSeo} onDeleteSeo={handleDeleteSeoConfig} loading={loadingSeo} currentPage={seoPage} totalPages={seoTotalPages} totalElements={seoTotal} onPageChange={(p: number) => fetchSeoConfigs(p)} onSearch={(q: string) => fetchSeoConfigs(0, q)} />;
       case 'seoaudit': return <SeoAuditManagement />;
       case 'push': return <PushNotificationManagement />;
       case 'homepage':
@@ -5555,8 +5055,9 @@ export const AdminDashboard: React.FC = () => {
         </header>
 
         <main className="mx-auto max-w-[1600px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:py-8">
-          <div className="mb-5 flex flex-col gap-3 sm:mb-6 md:flex-row md:items-end md:justify-between">
-            <div>
+          {/* Sections with their own banner keep the page title for screen readers only */}
+          <div className={`flex flex-col gap-3 md:flex-row md:items-end md:justify-between ${OWN_HERO_SECTIONS.has(activeSection) && !selectedSupplierId ? '' : 'mb-5 sm:mb-6'}`}>
+            <div className={OWN_HERO_SECTIONS.has(activeSection) ? 'sr-only' : ''}>
               <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{SECTION_META[activeSection]?.title || activeSection}</h1>
               <p className="mt-1 text-sm text-slate-500">{SECTION_META[activeSection]?.description}</p>
             </div>
